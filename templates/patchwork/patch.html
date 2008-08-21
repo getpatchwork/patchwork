@@ -122,7 +122,7 @@ function toggle_headers(link_id, headers_id)
     <tr>
      <td>Ack:</td>
      <td>
-      <form action="{% url patchwork.views.patch patch=patch.id %}"
+      <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
        method="post">
        <input type="hidden" name="action" value="act"/>
        <input type="submit" value="Ack"/>
@@ -175,7 +175,7 @@ function toggle_headers(link_id, headers_id)
     <tr>
      <td>Ack:</td>
      <td>
-      <form action="{% url patchwork.views.patch patch=patch.id %}"
+      <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
        method="post">
        <input type="hidden" name="action" value="act"/>
        <input type="submit" value="Ack"/>
