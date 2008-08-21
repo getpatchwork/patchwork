@@ -1,0 +1,77 @@
+{% load pwurl %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>{% block title %}Patchwork{% endblock %} - Patchwork</title>
+  <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+{% block headers %}{% endblock %}
+ </head>
+ <body>
+  <div id="title">
+  <h1 style="float: left;">
+     <a
+      href="{% url patchwork.views.projects %}">Patchwork</a><span
+      class="beta">&alpha;</span>
+    {% block heading %}{% endblock %}</h1>
+  <div id="auth">
+{% if user.is_authenticated %}
+   Logged in as
+    <a href="{% url patchwork.views.user.profile %}"
+     ><strong>{{ user.username }}</strong></a>
+    <br/>
+     <a href="{% url patchwork.views.user.profile %}">profile</a> ::
+     <a href="{% url patchwork.views.user.todo_lists %}">todo
+      ({{ user.get_profile.n_todo_patches }})</a><br/>
+     <a href="{% url patchwork.views.user.logout %}">logout</a> ::
+     <a href="/help/">help</a>
+{% else %}
+     <a href="{% url patchwork.views.user.login %}">login</a>
+     <br/>
+     <a href="{% url patchwork.views.user.register %}">register</a>
+     <br/>
+     <a href="/help/">help</a>
+{% endif %}
+   </div>
+   <div style="clear: both;"></div>
+  </div>
+  <div id="nav">
+  {% if project %}
+   <strong>Project</strong>: {{ project.linkname }}
+    :
+    <a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+     >patches</a>
+    :
+    <a href="{% url patchwork.views.project project_id=project.linkname %}"
+     >project info</a>
+   {% if other_projects %}
+    :
+    <a href="{% url patchwork.views.projects %}"
+    >other projects</a>
+    {% endif %}
+   {% else %}
+    <a href="{% url patchwork.views.projects %}"
+    >project list</a>
+   {% endif %}
+  </div>
+{% if messages %}
+  <div id="messages">
+  {% for message in messages %}
+   <div class="message">{{ message }}</div>
+  {% endfor %}
+  </div>
+{% endif %}
+  <div id="content">
+{% block body %}
+{% endblock %}
+  </div>
+  <div id="footer">
+   <a href="http://ozlabs.org/~jk/projects/patchwork">patchwork</a>
+   patch tracking system
+  </div>
+ </body>
+</html>
+
+
+

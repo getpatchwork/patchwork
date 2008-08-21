@@ -1,0 +1,13 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}Registration{% endblock %}
+{% block heading %}Registration{% endblock %}
+
+{% block body %}
+<p>Registraton confirmed!</p>
+
+<p>Your patchwork registration is complete. Head over to your <a
+ href="{% url patchwork.views.user.profile %}">profile</a> to start using
+patchwork's extra features.</p>
+
+{% endblock %}

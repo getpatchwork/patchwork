@@ -1,0 +1,24 @@
+{% extends "patchwork/base.html" %}
+
+{% load person %}
+
+{% block title %}{{project.name}}{% endblock %}
+{% block heading %}{{project.name}}{% endblock %}
+
+{% block body %}
+
+<h2>Incoming patches</h2>
+
+{% if errors %}
+<p>The following error{{ errors|length|pluralize:" was,s were" }} encountered
+while updating patches:</p>
+<ul class="errorlist">
+{% for error in errors %}
+ <li>{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% include "patchwork/patch-list.html" %}
+
+{% endblock %}

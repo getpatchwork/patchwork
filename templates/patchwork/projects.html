@@ -1,0 +1,21 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}Project List{% endblock %}
+{% block heading %}Project List{% endblock %}
+
+{% block body %}
+
+{% if projects %}
+ <dl>
+ {% for p in projects %}
+  <dt>
+   <a href="{% url patchwork.views.patch.list project_id=p.linkname %}"
+    >{{p.linkname}}</a></dt>
+  <dd>{{p.name}}</dd>
+ {% endfor %}
+ </dl>
+{% else %}
+ <p>Patchwork doesn't have any projects to display!</p>
+{% endif %}
+
+{% endblock %}

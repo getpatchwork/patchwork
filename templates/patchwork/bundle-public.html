@@ -1,0 +1,12 @@
+{% extends "patchwork/base.html" %}
+
+{% load person %}
+
+{% block title %}{{project.name}}{% endblock %}
+{% block heading %}Bundle: {{bundle.name}}{% endblock %}
+
+{% block body %}
+
+{% include "patchwork/patch-list.html" %}
+
+{% endblock %}

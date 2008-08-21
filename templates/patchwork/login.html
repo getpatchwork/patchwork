@@ -1,0 +1,26 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}Patchwork Login{% endblock %}
+{% block heading %}Patchwork Login{% endblock %}
+
+
+{% block body %}
+<form method="post">
+<table class="form loginform">
+ <tr>
+  <th colspan="2" class="headerrow">login</th>
+ </tr>
+ {% if error %}
+  <tr>
+   <td colspan="2">{{ error }}</td>
+  </tr>
+ {% endif %}
+ {{ form }}
+ <tr>
+  <td colspan="2" class="submitrow">
+   <input type="submit" value="Login"/>
+  </td>
+ </tr>
+</table>
+</form>
+{% endblock %}

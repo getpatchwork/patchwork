@@ -1,0 +1,173 @@
+
+<script type="text/javascript" language="JavaScript">
+var filterform_displayed = false;
+function filter_click()
+{
+    form = document.getElementById('filterform');
+    if (!form) {
+        return;
+    }
+
+    if (filterform_displayed) {
+        form.style['display'] = 'none';
+        filterform_displayed = false;
+    } else {
+        form.style['display'] = 'block';
+        filterform_displayed = true;
+    }
+
+
+}
+function enable_selected_submitter(select, input)
+{
+    select.name = 'submitter';
+    input.name = '';
+}
+function filter_form_submit(form)
+{
+    var i;
+
+    submitter_select = document.getElementById("submitter_select");
+    submitter_input = document.getElementById("submitter_input");
+    if (!submitter_select || !submitter_input) {
+        req = null;
+        return;
+    }
+
+    /* submitter handling. if possible, use the select box, otherwise leave
+     * as-is (and so the text box is used). */
+
+    if (submitter_select.options.length == 0) {
+        /* if there's no match, just use the input */
+
+    } else if (submitter_select.options.length == 1) {
+        /* if there's only one match, request by id */
+        submitter_select.selectedIndex = 0;
+        enable_selected_submitter(submitter_select, submitter_input);
+
+    } else if (submitter_select.selectedIndex != -1) {
+        /* if the user has explicitly selected, request by id */
+        enable_selected_submitter(submitter_select, submitter_input);
+
+    }
+
+    for (i = 0; i < form.elements.length; i++) {
+        var e = form.elements[i];
+        if (e.type == 'submit') {
+            continue;
+        }
+
+        /* handle submitter data */
+        if (e.type == 'select-one') {
+            if (e.name == '') {
+                e.disabled = true;
+            }
+            if (e.selectedIndex != -1
+                    && e.options[e.selectedIndex].value == '') {
+                e.disabled = true;
+            }
+
+            continue;
+        }
+
+        if (e.value == '') {
+            e.disabled = true;
+        }
+    }
+}
+
+var req = null;
+
+function submitter_complete_response()
+{
+    if (req.readyState != 4) {
+        return
+    }
+
+    var completions;
+    eval("completions = " + req.responseText);
+
+    if (completions.length == 0) {
+        req = null;
+        return;
+    }
+
+    submitter_select = document.getElementById("submitter_select");
+    submitter_input = document.getElementById("submitter_input");
+    if (!submitter_select || !submitter_input) {
+        req = null;
+        return;
+    }
+
+    submitter_select.options = [];
+
+    for (i = 0; i < completions.length; i++) {
+        name = completions[i]['fields']['name'];
+        if (name) {
+            name = completions[i]['fields']['name'] +
+                ' <' + completions[i]['fields']['email'] + '>';
+        } else {
+            name = completions[i]['fields']['email'];
+        }
+        o = new Option(name, completions[i]['pk']);
+        submitter_select.options[i] = o;
+    }
+    submitter_select.disabled = false;
+    req = null;
+}
+
+function submitter_field_change(field)
+{
+    var value = field.value;
+    if (value.length < 4) {
+        return;
+    }
+
+    if (req) {
+         return;
+    }
+
+    var url = '{% url patchwork.views.submitter_complete %}?q=' + value;
+    req = new XMLHttpRequest();
+    req.onreadystatechange = submitter_complete_response;
+    req.open("GET", url, true);
+    req.send('');
+}
+</script>
+
+<div class="filters">
+ <div id="filtersummary">
+  <strong><a href="javascript:filter_click()">Filters</a>:</strong>
+ {% if filters.applied_filters %}
+  {% for filter in filters.applied_filters %}
+   {{ filter.name }} = {{ filter.condition }}
+    {% if not filter.forced %}
+     <a href="{{ filter.url_without_me }}"><img
+      src="/images/filter-remove.png"></a>
+    {% endif %}
+   {% if not forloop.last %}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{% endif %}
+  {% endfor %}
+ {% else %}
+  none
+  <a href="javascript:filter_click()"><img src="/images/filter-add.png"></a>
+ {% endif %}
+ </div>
+ <div id="filterform" style="padding-top: 1em; display: none">
+  <form action="" method="get" onSubmit="return filter_form_submit(this)">
+    <table>
+    {% for filter in filters.available_filters %}
+     <tr>
+      <td>{{ filter.name }}</td>
+      <td>{{ filter.form }}</td>
+     </tr>
+    {% endfor %}
+     <tr>
+      <td/>
+      <td><input type="submit" value="Apply"/></td>
+     </tr>
+    </table>
+  </form>
+ </div>
+</div>
+
+

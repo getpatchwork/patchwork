@@ -1,0 +1,114 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}User Profile: {{ user.username }}{% endblock %}
+{% block heading %}User Profile: {{ user.username }}{% endblock %}
+
+
+{% block body %}
+
+<p>
+{% if user.get_profile.maintainer_projects.count %}
+Maintainer of
+{% for project in user.get_profile.maintainer_projects.all %}
+<a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+>{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
+{% endif %}
+
+{% if user.get_profile.contributor_projects.count %}
+Contributor to
+{% for project in user.get_profile.contributor_projects.all %}
+<a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+>{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
+{% endif %}
+</p>
+
+<h2>Todo</h2>
+{% if user.get_profile.n_todo_patches %}
+<p>Your <a href="{% url patchwork.views.user.todo_lists %}">todo
+list</a> contains {{ user.get_profile.n_todo_patches }}
+patch{{ user.get_profile.n_todo_patches|pluralize:"es" }}.</p>
+{% else %}
+<p>Your todo list contains patches that have been delegated to you. You
+have no items in your todo list at present.</p>
+{% endif %}
+<h2>Bundles</h2>
+
+{% if bundles %}
+<table class="bundlelist">
+ <tr>
+  <th>Bundle name</th>
+  <th>Patches</td>
+  <th>Public Link</th>
+ </tr>
+{% for bundle in bundles %}
+ <tr>
+  <td><a href="{% url patchwork.views.bundle.bundle bundle_id=bundle.id %}"
+   >{{ bundle.name }}</a></td>
+  <td style="text-align: right">{{ bundle.n_patches }}</td>
+  <td>
+   {% if bundle.public %}
+    <a href="{{ bundle.public_url }}">{{ bundle.public_url }}</a>
+   {% endif %}
+  </td>
+ </tr>
+{% endfor %}
+</table>
+{% else %}
+<p>no bundles</p>
+{% endif %}
+
+
+<h2>Linked email addresses</h2>
+<p>The following email addresses are associated with this patchwork account.
+Adding alternative addresses allows patchwork to group contributions that
+you have made under different addressses.</p>
+<p>Adding a new email address will send a confirmation email to that
+address.</p>
+<table class="vertical" style="width: 20em;">
+ <tr>
+  <th>email</th>
+  <th/>
+ </tr>
+ <tr>
+  <td>{{ user.email }}</td>
+  <td></td>
+ </tr>
+{% for email in linked_emails %}
+ {% ifnotequal email.email user.email %}
+ <tr>
+  <td>{{ email.email }}</td>
+  <td>
+   {% ifnotequal user.email email.email %}
+   <form action="{% url patchwork.views.user.unlink person_id=email.id %}"
+    method="post">
+    <input type="submit" value="Unlink"/>
+   </form>
+    {% endifnotequal %}
+ </tr>
+ {% endifnotequal %}
+{% endfor %}
+ <tr>
+  <td colspan="2">
+   <form action="{% url patchwork.views.user.link %}" method="post">
+    {{ linkform.email }}
+    <input type="submit" value="Add"/>
+   </form>
+  </td>
+ </tr>
+</table>
+
+<h2>Settings</h2>
+
+<form method="post">
+ <table class="form">
+{{ profileform }}
+  <tr>
+   <td/>
+   <td>
+    <input type="submit" value="Apply"/>
+   </td>
+  </tr>
+ </table>
+</form>
+
+{% endblock %}

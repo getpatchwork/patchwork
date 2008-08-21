@@ -1,0 +1,45 @@
+{% load listurl %}
+
+{% ifnotequal page.paginator.num_pages 1 %}
+<div class="paginator">
+{% if page.has_previous %}
+ <span class="prev">
+  <a href="{% listurl page=page.previous_page_number %}"
+     title="Previous Page">&laquo; Previous</a></span>
+{% else %}
+ <span class="prev-na">&laquo; Previous</span>
+{% endif %}
+ 
+{% if page.paginator.trailing_set %}
+ {% for p in page.paginator.trailing_set %}
+ <span class="page"><a href="{% listurl page=p %}" >{{ p }}</a></span>
+ {% endfor %}
+        ...
+{% endif %}
+ 
+{% for p in page.paginator.adjacent_set %}
+  {% ifequal p page.number %}
+    <span class="curr" title="Current Page">{{ p }}</span>
+  {% else %}
+    <span class="page"><a href="{% listurl page=p %}"
+     title="Page {{ p }}">{{ p }}</a></span>
+  {% endifequal %}
+{% endfor %}
+ 
+{% if page.paginator.leading_set %}
+        ...
+ {% for p in page.paginator.leading_set %}
+    <span class="page"><a href="{% listurl page=p %}">{{ p }}</a></span>
+ {% endfor %}
+{% endif %}
+ 
+{% if page.has_next %}
+ <span class="next">
+  <a href="{% listurl page=page.next_page_number %}"
+   title="Next Page">Next &raquo;</a>
+  </span>
+{% else %}
+ <span class="next-na">Next &raquo;</span>
+{% endif %}
+</div> 
+{% endifnotequal %}

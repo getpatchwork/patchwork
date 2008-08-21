@@ -1,0 +1,417 @@
+body {
+	background-color: white;
+	color: black;
+	margin: 0em;
+	font-size: 9pt;
+}
+
+.floaty {
+	position: fixed;
+	left: 0.1em;
+	top: 17em;
+}
+
+
+#title {
+	background: url('/images/title-background.png') top left repeat-x;
+	background-color: #786fb4;
+	width: 100%;
+	margin: 0px;
+	padding-top: 0.1em;
+	padding-bottom: 0.0em;
+	padding-left: 2em;
+}
+
+#title h1, #title h1 a {
+	font-size: 16pt;
+	color: white;
+}
+
+.beta {
+    font-size: 60%;
+    vertical-align: sub;
+    line-height: 2em;
+}
+
+#auth {
+	border-left: thin solid white;
+	padding-top: 0em;
+	padding-left: 2em;
+	padding-right: 5em;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+	font-size: 90%;
+	float: right;
+	color: white;
+}
+#auth a {
+	color: white;
+}
+
+#nav {
+        background: #e8e8e8;
+	border-bottom: 0.2em solid #786fb4;
+	font-size: 90%;
+	padding: 0.2em 0.5em;
+}
+
+#nav a {
+	text-decoration: underline;
+}
+
+
+#content {
+	padding: 1em;
+}
+
+form {
+	padding: 0em;
+	margin: 0em;
+}
+
+a:visited { color: #000000; }
+a { color: #786fb4; }
+
+table {
+	border-collapse: collapse;
+}
+
+/* messages */
+#messages {
+       background: #e0e0f0;
+       margin: 0.5em 1em 0.0em 0.5em;
+       padding: 0.3em;
+}
+
+#messages .message {
+        color: green;
+}
+
+/* patch lists */
+table.patchlist {
+        width: 98%;
+	border: thin solid black;
+        padding: 0em 1em;
+}
+
+table.patchlist th {
+	background: #eeeeee;
+	border-bottom: thin solid black;
+	text-align: left;
+	padding-left: 6px;
+}
+
+table.patchlist td {
+	padding: 2px 6px 2px 6px;
+	margin: 0px;
+	margin-top: 10px;
+}
+
+table.patchlist td.patchlistfilters {
+	background: #c0c0ff;
+	border-top: thin solid #;
+	border-top: thin solid gray;
+	border-bottom: thin solid black;
+	font-size: smaller;
+
+}
+table.patchlist tr.odd {
+	background: #ffffff;
+}
+
+table.patchlist tr.even {
+	background: #eeeeee;
+}
+
+a.colactive {
+	color: red;
+}
+
+a.colinactive {
+	color: black;
+	text-decoration: none;
+}
+a.colinactive:hover {
+	color: red;
+}
+
+div.filters {
+}
+
+/* list pagination */
+.paginator { padding-bottom: 1em; padding-top: 1em; font-size: 80%; }
+ 
+.paginator .prev-na,
+.paginator .next-na {
+        padding:.3em;
+        font-weight: normal;
+        border: 0.1em solid #c0c0c0;
+        background-color: #f9f9f9;
+        color: #a0a0a0;
+}
+ 
+.paginator .prev a, .paginator .prev a:visited,
+.paginator .next a, .paginator .next a:visited {
+        border: 0.1em solid #b0b0d0;
+        background-color: #eeeeee;
+        color: #786fb4;
+        padding: .3em;
+        font-weight: bold;
+}
+ 
+.paginator .prev, .paginator .prev-na { margin-right:.5em; }
+.paginator .next, .paginator .next-na { margin-left:.5em; }
+ 
+.paginator .page a, .paginator .page a:visited, .paginator .curr {
+        padding: .25em;
+        font-weight: bold;
+        border: 1px solid #b0b0d0;
+        background-color: #eeeeee;
+        margin: 0em .25em;       
+        color: #786fb4;
+}
+ 
+.paginator .curr { 
+        background-color: #b0b0d0;
+        color:#fff;
+        border:1px solid #c0c0ff;
+        font-weight:bold;
+}
+ 
+.paginator .page a:hover,
+.paginator .curr a:hover,
+.paginator .prev a:hover,
+.paginator .next a:hover {
+        color: #ffffff;
+        background-color: #c0c0ff;
+        border:1px solid #234f32;
+}
+/*
+div.filters h2 {
+	font-size: 110%;
+}
+
+table.filters tr th, table.filters tr td {
+	text-align: left;
+	padding: 0px 10px 0px 10px;
+	vertical-align: middle;
+}
+table.filters tr th {
+	width: 8em;
+}
+
+table.filters tr td {
+	padding-top: 0.1em;
+	width: 12em;
+}
+
+table.filters tr td.clearcol {
+	text-align: right;
+	width: 16px;
+}
+*/
+
+img {
+	border: 0;
+}
+
+input {
+	border: thin solid #909090;
+}
+
+#footer {
+	padding: 1em;
+	font-size: small;
+	text-align: center;
+	color: #909090;
+}
+
+#footer a {
+        color: #909090;
+}
+
+/* patch view */
+table.patchmeta th {
+        text-align: left;
+}
+
+table.patchmeta tr th, table.patchmeta tr td {
+	text-align: left;
+	padding: 3px 10px 3px 10px;
+	vertical-align: middle;
+}
+
+.patchnav {
+    padding-left: 1em;
+    padding-top: 1em;
+}
+
+.comment .meta {
+	background: #f0f0f0;
+}
+
+.patch .content {
+	border: thin solid gray;
+	padding: 1em;
+}
+
+.quote {
+	color: #007f00;
+}
+
+span.p_header	{ color: #2e8b57; font-weight: bold; }
+span.p_chunk	{ color: #a52a2a; font-weight: bold; }
+span.p_context	{ color: #a020f0; }
+span.p_add	{ color: #008b8b; }
+span.p_del	{ color: #6a5acd; }
+span.p_mod	{ color: #0000ff; }
+
+.acked-by {
+	color: red;
+
+}
+
+.signed-off-by {
+	color: red;
+	font-weight: bold;
+}
+
+.from {
+	font-weight: bold;
+}
+
+/* bundles */
+table.bundlelist {
+        border: thin solid black;
+}
+
+table.bundlelist th {
+        padding-left: 2em;
+        padding-right: 2em;
+        background: #eeeeee;
+        border-bottom: thin solid black;
+}
+
+table.bundlelist td
+{
+        padding-left: 2em;
+        padding-right: 2em;
+}
+
+/* forms that appear for a patch */
+div.patchform {
+	border: thin solid gray;
+	padding-left: 0.6em;
+	padding-right: 0.6em;
+	float: left;
+	margin: 0.5em 1em;
+}
+
+div.patchform h3 {
+	margin-top: 0em;
+	margin-left: -0.6em;
+	margin-right: -0.6em;
+	padding-left: 0.3em;
+	padding-right: 0.3em;
+	background: #786fb4;
+	color: white;
+	font-size: 100%;
+}
+
+div.patchform ul {
+	list-style-type: none;
+	padding-left: 0.2em;
+	margin-top: 0em;
+}
+
+/* forms */
+table.form {
+}
+
+span.help_text {
+	font-size: 80%;
+}
+
+
+table.form td {
+	padding: 0.6em;
+	vertical-align: top;
+}
+
+table.form th.headerrow {
+	background: #786fb4;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}
+
+table.form th {
+	font-weight: normal;
+	text-align: left;
+	vertical-align: top;
+	padding-top: 0.6em;
+}
+
+table.form td.form-help {
+	font-size: smaller;
+	padding-bottom: 1em;
+	padding-top: 0em;
+}
+
+table.form tr td.submitrow {
+	border-bottom: 0.2em solid #786fb4;
+	text-align: center;
+}
+
+table.registerform {
+	margin-left: auto;
+	margin-right: auto;
+}
+table.loginform {
+	margin-left: auto;
+	margin-right: auto;
+	width: 30em;
+}
+
+/* form errors */
+.errorlist {
+        color: red;
+	list-style-type: none;
+	padding-left: 0.2em;
+	margin: 0em;
+}
+
+/* generic table with header columns on the left */
+table.horizontal {
+	border-collapse: collapse;
+	border: thin solid #e8e8e8;
+}
+
+table.horizontal th {
+	text-align: left;
+}
+
+table.horizontal td, table.horizontal th {
+	padding: 0.5em 1em;
+	border: thin solid #e8e8e8;
+}
+
+/* generic table with header row */
+table.vertical {
+        border-collapse: collapse;
+}
+table.vertical th {
+	background: #786fb4;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}
+
+table.vertical th, table.vertical td {
+        padding: 0.2em 0.8em;
+	border: thin solid #e8e8e8;
+}
+
+td.numberformat {
+        text-align: right;
+}

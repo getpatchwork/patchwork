@@ -1,0 +1,143 @@
+Deploying Patchwork
+
+Patchwork uses the django framework - there is some background on deploying
+django applications here:
+
+ http://www.djangobook.com/en/1.0/chapter20/
+
+You'll need the following (applications used for patchwork development are
+in brackets):
+
+  * A python interpreter
+  * djano
+  * A webserver (apache)
+  * mod_python or flup
+  * A database server (postgresql)
+
+1. Database setup
+
+    At present, I've tested with PostgreSQL and (to a lesser extent) MySQL
+    database servers. If you have any (positive or negative) experiences with
+    either, email me.
+
+    For the following commands, a $ prefix signifies that the command should be
+    entered at your shell prompt, and a > prefix signifies the commant-line
+    client for your sql server (psql or mysql)
+
+    Create a database for the system, add accounts for two system users: the
+    web user (the user that your web server runs as) and the mail user (the
+    user that your mail server runs as). On Ubuntu these are
+    www-data and nobody, respectively.
+
+      PostgreSQL:
+        createdb patchwork
+        createuser www-data
+        createuser nobody
+
+      MySQL:
+        $ mysql
+	> CREATE DATABASE 'patchwork';
+        > INSERT INTO user (Host, User) VALUES ('localhost', 'www-data');
+        > INSERT INTO user (Host, User) VALUES ('localhost', 'nobody');
+
+2. Django setup
+
+	You'll need to customise apps/settings.py to suit your database, and
+	change the SECRET_KEY variable too. While you're there, change the
+	following to suit your installation:
+
+	  ADMINS,
+	  TIME_ZONE
+	  LANGUAGE_CODE
+	  MEDIA_ROOT
+
+	Then, get patchwork to create its tables in your configured database:
+
+	 cd apps/
+	 ./manage.py syncdb
+
+	And add privileges for your mail and web users:
+
+	Postgresql:
+	  psql -f lib/sql/grant-all.sql patchwork
+
+
+3. Apache setup
+
+Example apache configuration files are in lib/apache/.
+
+mod_python:
+
+	This should be the simpler of the two to set up. An example apache
+	configuration file is in:
+
+	  lib/apache/patchwork.mod_python.conf
+
+	However, mod_python and mod_php may not work well together. So, if your
+	web server is used for serving php files, the fastcgi method may suit
+	instead.
+
+fastcgi:
+
+	django has built-in support for fastcgi, which requires the
+	'flup' python module. An example configuration is in:
+
+	  lib/apache/patchwork.fastcgi.conf
+
+	- this also requires the mod_rewrite apache module to be loaded.
+
+	Once you have apache set up, you can start the fastcgi server with:
+
+	  cd /srv/patchwork/apps
+	  ./manage.py runfcgi method=prefork \
+			      socket=/srv/patchwork/var/fcgi.sock \
+			      pidfile=/srv/patchwork/var/fcgi.pid
+
+4. Configure patchwork
+    Now, you should be able to administer patchwork, by visiting the
+    URL:
+
+      http://your-host/admin/
+
+    You'll probably want to do the following:
+
+      * Set up your projects
+
+
+5. Subscribe a local address to the mailing list
+
+     You will need an email address for patchwork to receive email on - for
+     example - patchwork@, and this address will need to be subscribed to the
+     list. Depending on the mailing list, you will probably need to confirm the
+     subscription - temporarily direct the alias to yourself to do this.
+
+6. Setup your MTA to deliver mail to the parsemail script
+
+    Your MTA will need to deliver mail to the parsemail script in the email/
+    directory. (Note, do not use the parsemail.py script directly). Something
+    like this in /etc/aliases is suitable for postfix:
+
+      patchwork: "|/srv/patchwork/apps/patchwork/bin/parsemail.sh"
+
+    You may need to customise the parsemail.sh script if you haven't installed
+    patchwork in /srv/patchwork.
+
+    Test that you can deliver a patch to this script:
+
+     sudo -u nobody /srv/patchwork/apps/patchwork/bin/parsemail.sh < mail
+
+
+Some errors:
+
+* __init__() got an unexpected keyword argument 'max_length'
+
+ - you're running an old version of django. If your distribution doesn't
+   provide a newer version, just download and extract django into
+   lib/python/django
+
+* ERROR: permission denied for relation patchwork_...
+
+ - the user that patchwork is running as (ie, the user of the web-server)
+   doesn't have access to the patchwork tables in the database. Check that
+   your web-server user exists in the database, and that it has permissions
+   to the tables.

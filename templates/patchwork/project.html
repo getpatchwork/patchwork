@@ -1,0 +1,32 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+{% block heading %}{{ project.name }}{% endblock %}
+
+{% block body %}
+
+<table class="horizontal">
+ <tr>
+  <th>Name</th>
+  <td>{{project.name}}
+ </tr>
+ <tr>
+  <th>List address</th>
+  <td>{{project.listemail}}</td>
+ </tr>
+ <tr>
+  <th>Maintainer{{maintainers|length|pluralize}}</th>
+  <td>
+   {% for maintainer in maintainers %}
+    {{ maintainer.get_profile.name }}
+     &lt;<a href="mailto:{{maintainer.email}}">{{maintainer.email}}</a>&gt;
+     <br />
+   {% endfor %}
+ </tr>
+ <tr>
+  <th>Patch count</th>
+  <td>{{n_patches}} (+ {{n_archived_patches}} archived)</td>
+ </tr>
+</table>
+  
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}{{ user.username }}{% endblock %}
+{% block heading %}link accounts for {{ user.username }}{% endblock %}
+
+
+{% block body %}
+
+{% if errors %}
+<p>{{ errors }}</p>
+{% else %}
+ <p>You have sucessfully linked the email address {{ person.email }} to
+  your patchwork account</p>
+
+{% endif %}
+<p>Back to <a href="{% url patchwork.views.user.profile %}">your
+ profile</a>.</p>
+
+{% endblock %}

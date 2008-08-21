@@ -1,0 +1,122 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}Patchwork Registration{% endblock %}
+{% block heading %}Patchwork Registration{% endblock %}
+
+
+{% block body %}
+
+{% if request %}
+ <p>Registration successful!</p>
+ <p>email sent to {{ request.email }}</p>
+ <p>Beta note: While we're testing, the confirmation email has been replaced
+ by a single link:
+ <a href="{% url patchwork.views.user.register_confirm key=request.key %}"
+ >{% url patchwork.views.user.register_confirm key=request.key %}</a>
+</p>
+{% else %}
+<p>By creating a patchwork account, you can:<p>
+<ul>
+ <li>create "bundles" of patches</li>
+ <li>update the state of your own patches</li>
+</ul>
+<form method="post">
+<table class="form registerform">
+ <tr>
+  <th colspan="2" class="headerrow">register</th>
+ </tr>
+ {% if error %}
+  <tr>
+   <td colspan="2">{{ error }}</td>
+  </tr>
+ {% endif %}
+
+  <tr>
+   <td>{{ form.first_name.label_tag }}</td>
+   <td>
+{% if form.first_name.errors %}
+    {{ form.first_name.errors }}
+{% endif %}
+    {{ form.first_name }}
+{% if form.first_name.help_text %}
+    <div class="help_text"/>{{ form.first_name.help_text }}</div>
+{% endif %}
+   </td>
+  </tr>
+   
+  <tr>
+   <td>{{ form.last_name.label_tag }}</td>
+   <td>
+{% if form.last_name.errors %}
+    {{ form.last_name.errors }}
+{% endif %}
+    {{ form.last_name }}
+{% if form.last_name.help_text %}
+    <div class="help_text"/>{{ form.last_name.help_text }}</div>
+{% endif %}
+   </td>
+  </tr>
+
+  <tr>
+   <td></td>
+   <td class="form-help">
+    Your name is used to identify you on the site
+   </td>
+  </tr>
+   
+  <tr>
+   <td>{{ form.email.label_tag }}</td>
+   <td>
+{% if form.email.errors %}
+    {{ form.email.errors }}
+{% endif %}
+    {{ form.email }}
+{% if form.email.help_text %}
+    <div class="help_text"/>{{ form.email.help_text }}</div>
+{% endif %}
+   </td>
+  </tr>
+   
+  <tr>
+   <td></td>
+   <td class="form-help">
+    Patchwork will send a confirmation email to this address
+   </td>
+  </tr>
+
+  <tr>
+   <td>{{ form.username.label_tag }}</td>
+   <td>
+{% if form.username.errors %}
+    {{ form.username.errors }}
+{% endif %}
+    {{ form.username }}
+{% if form.username.help_text %}
+    <div class="help_text"/>{{ form.username.help_text }}</div>
+{% endif %}
+   </td>
+  </tr>
+   
+  <tr>
+   <td>{{ form.password.label_tag }}</td>
+   <td>
+{% if form.password.errors %}
+    {{ form.password.errors }}
+{% endif %}
+    {{ form.password }}
+{% if form.password.help_text %}
+    <div class="help_text"/>{{ form.password.help_text }}</div>
+{% endif %}
+   </td>
+  </tr>
+   
+ <tr>
+  <td colspan="2" class="submitrow">
+   <input type="submit" value="Register"/>
+  </td>
+ </tr>
+</table>
+</form>
+{% endif %}
+
+{% endblock %}

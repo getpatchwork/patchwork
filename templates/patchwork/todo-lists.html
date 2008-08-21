@@ -1,0 +1,29 @@
+{% extends "patchwork/base.html" %}
+
+{% block title %}{{ user }}'s todo lists{% endblock %}
+{% block heading %}{{ user }}'s todo lists{% endblock %}
+
+{% block body %}
+
+{% if todo_lists %}
+<p>You have multiple todo lists. Each todo list contains patches for a single
+ project.</p>
+<table class="vertical">
+ <tr>
+  <th>project</th>
+  <th>patches</th>
+ </tr>
+{% for todo_list in todo_lists %}
+ <tr>
+  <td><a
+   href="{% url patchwork.views.user.todo_list project_id=todo_list.project.linkname %}"
+    >{{ todo_list.project.name }}</a></td>
+  <td class="numberformat">{{ todo_list.n_patches }}</td>
+ </tr>
+{% endfor %}
+</table>
+
+{% else %}
+ No todo lists
+{% endif %}
+{% endblock %}

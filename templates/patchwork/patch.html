@@ -1,0 +1,214 @@
+{% extends "patchwork/base.html" %}
+
+{% load syntax %}
+{% load person %}
+{% load patch %}
+
+{% block title %}{{patch.name}} - Patchwork{% endblock %}
+{% block heading %}{{patch.name}}{%endblock%}
+
+{% block body %}
+<script language="JavaScript" type="text/javascript">
+function toggle_headers(link_id, headers_id)
+{
+    var link = document.getElementById(link_id)
+    var headers = document.getElementById(headers_id)
+
+    var hidden = headers.style['display'] == 'none';
+
+    if (hidden) {
+        link.innerHTML = 'hide';
+        headers.style['display'] = 'block';
+    } else {
+        link.innerHTML = 'show';
+        headers.style['display'] = 'none';
+    }
+
+}
+</script>
+
+<table class="patchmeta">
+ <tr>
+  <th>Submitter</th>
+  <td>{{ patch.submitter|personify }}</td></tr>
+ </tr>
+ <tr>
+  <th>Date</th>
+  <td>{{ patch.date }}</td>
+ </tr>
+ <tr>
+  <th>Message ID</th>
+  <td>{{ patch.msgid }}</td>
+ </tr>
+ <tr>
+  <th>Download</th>
+  <td>
+   <a href="{% url patchwork.views.patch.mbox patch_id=patch.id %}"
+   >mbox</a> |
+   <a href="{% url patchwork.views.patch.content patch_id=patch.id %}"
+   >patch</a>
+   </td>
+ </tr>
+ <tr>
+  <th>Permalink</th>
+  <td><a href="{{ patch.get_absolute_url }}">{{ patch.get_absolute_url }}</a>
+ </tr>
+  <tr>
+   <th>State</td>
+   <td>{{ patch.state.name }}{% if patch.archived %}, archived{% endif %}</td>
+  </tr>
+{% if patch.delegate %}
+  <tr>
+   <th>Delegated to:</td>
+   <td>{{ patch.delegate.get_profile.name }}</td>
+  </tr>
+{% endif %}
+ <tr>
+  <th>Headers</th>
+  <td><a id="togglepatchheaders"
+   href="javascript:toggle_headers('togglepatchheaders', 'patchheaders')"
+   >show</a>
+   <div id="patchheaders" class="patchheaders" style="display:none;">
+    <pre>{{patch.headers}}</pre>
+   </div>
+  </td>
+ </tr>
+</table>
+
+<div class="patchforms">
+
+{% if patchform %}
+ <div class="patchform patchform-properties">
+  <h3>Patch Properties</h3>
+   <form method="post">
+    <table class="form">
+     <tr>
+      <th>Change state:</th>
+      <td>
+       {{ patchform.state }}
+       {{ patchform.state.errors }}
+      </td>
+     </tr>
+     <tr>
+      <th>Delegate to:</td>
+      <td>
+       {{ patchform.delegate }}
+       {{ patchform.delegate.errors }}
+      </td>
+     </tr>
+     <tr>
+      <th>Archived:</td>
+      <td>
+       {{ patchform.archived }}
+       {{ patchform.archived.errors }}
+      </td>
+     </tr>
+     <tr>
+      <td></td>
+      <td>
+       <input type="submit" value="Update">
+      </td>
+     </tr>
+    </table>
+  </form>
+ </div>
+{% endif %}
+
+{% if createbundleform %}
+ <div class="patchform patchform-bundle">
+  <h3>Bundling</h3>
+   <table class="form">
+   <!--
+    <tr>
+     <td>Ack:</td>
+     <td>
+      <form action="{% url patchwork.views.patch patch=patch.id %}"
+       method="post">
+       <input type="hidden" name="action" value="act"/>
+       <input type="submit" value="Ack"/>
+      </form>
+     </td>
+    </tr>
+    -->
+    <tr>
+     <td>Create bundle:</td>
+     <td>
+       {% if createbundleform.non_field_errors %}
+       <dd class="errors">{{createbundleform.non_field_errors}}</dd>
+       {% endif %}
+      <form method="post">
+       <input type="hidden" name="action" value="createbundle"/>
+       {% if createbundleform.name.errors %}
+       <dd class="errors">{{createbundleform.name.errors}}</dd>
+       {% endif %}
+        {{ createbundleform.name }}
+       <input value="Create" type="submit"/>
+      </form>
+      </td>
+    </tr>
+{% if bundles %}
+    <tr>
+     <td>Add to bundle:</td>
+     <td>
+      <form method="post">
+       <input type="hidden" name="action" value="addtobundle"/>
+       <select name="bundle_id"/>
+        {% for bundle in bundles %}
+         <option value="{{bundle.id}}">{{bundle.name}}</option>
+        {% endfor %}
+        </select>
+       <input value="Add" type="submit"/>
+      </form>
+     </td>
+    </tr>
+{% endif %}
+   </table>
+  </form>
+
+ </div>
+{% endif %}
+
+{% if actionsform %}
+ <div class="patchform patchform-actions">
+  <h3>Actions</h3>
+   <table class="form">
+    <tr>
+     <td>Ack:</td>
+     <td>
+      <form action="{% url patchwork.views.patch patch=patch.id %}"
+       method="post">
+       <input type="hidden" name="action" value="act"/>
+       <input type="submit" value="Ack"/>
+      </form>
+     </td>
+    </tr>
+   </table>
+  </form>
+ </div>
+
+{% endif %}
+ <div style="clear: both;">
+ </div>
+</div>
+
+
+
+
+<h2>Comments</h2>
+{% for comment in patch.comments %}
+<div class="comment">
+<div class="meta">{{ comment.submitter|personify }} - {{comment.date}}</div>
+<pre class="content">
+{{ comment|commentsyntax }}
+</pre>
+</div>
+{% endfor %}
+
+<h2>Patch</h2>
+<div class="patch">
+<pre class="content">
+{{ patch|patchsyntax }}
+</pre>
+</div>
+
+{% endblock %}

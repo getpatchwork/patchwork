@@ -1,0 +1,185 @@
+{% load person %}
+{% load listurl %}
+
+{% include "patchwork/pagination.html" %}
+
+
+<table class="patchlist">
+ <tr>
+  <td class="patchlistfilters">
+ {% include "patchwork/filters.html" %}
+  </td>
+ </tr>
+</table>
+
+{% if page.paginator.long_page and user.is_authenticated %}
+<div class="floaty">
+ <a title="jump to form" href="#patchforms"><span
+  style="font-size: 120%">&#9662;</span></a>
+</div>
+{% endif %}
+
+<form method="post">
+<input type="hidden" name="form" value="patchlistform"/>
+<input type="hidden" name="project" value="{{project.id}}"/>
+<table class="patchlist">
+ <tr>
+  {% if patchform or bundle %}
+  <th/>
+  {% endif %}
+
+  <th>
+   {% ifequal order.name "name" %}
+    <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">Patch</a>
+   {% else %}
+    <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+   {% endifequal %}
+  </th>
+
+  <th>
+   {% ifequal order.name "date" %}
+    <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">Date</a>
+   {% else %}
+    <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+   {% endifequal %}
+  </th>
+
+  <th>
+   {% ifequal order.name "submitter" %}
+    <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">Submiter</a>
+   {% else %}
+    <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
+   {% endifequal %}
+  </th>
+
+  <th>
+   {% ifequal order.name "state" %}
+    <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">State</a>
+   {% else %}
+    <a class="colinactive" href="{% listurl order="state" %}">State</a>
+   {% endifequal %}
+  </th>
+
+ </tr>
+
+{% if page %}
+ {% for patch in page.object_list %}
+  <tr>
+    {% if patchform or bundle %}
+    <td>
+    <input type="checkbox" name="patch_id:{{patch.id}}"/>
+    </td>
+    {% endif %}
+   <td><a href="{% url patchwork.views.patch.patch patch_id=patch.id %}"
+     >{{ patch.name }}</a></td>
+   <td>{{ patch.date|date:"Y-m-d" }}</td>
+   <td>{{ patch.submitter|personify }}</td>
+   <td>{{ patch.state }}</td>
+  </tr>
+ {% endfor %}
+</table>
+
+{% include "patchwork/pagination.html" %}
+
+<div class="patchforms" id="patchforms" name="patchforms">
+
+{% if patchform %}
+ <div class="patchform patchform-properties">
+  <h3>Properties</h3>
+    <table class="form">
+     <tr>
+      <th>Change state:</th>
+      <td>
+       {{ patchform.state }}
+       {{ patchform.state.errors }}
+      </td>
+     </tr>
+     <tr>
+      <th>Delegate to:</td>
+      <td>
+       {{ patchform.delegate }}
+       {{ patchform.delegate.errors }}
+      </td>
+     </tr>
+     <tr>
+      <th>Archive:</td>
+      <td>
+       {{ patchform.archived }}
+       {{ patchform.archived.errors }}
+      </td>
+     </tr>
+     <tr>
+      <td></td>
+      <td>
+       <input type="submit" name="action" value="Update"/>
+      </td>
+     </tr>
+    </table>
+ </div>
+
+{% endif %}
+
+{% if user.is_authenticated %}
+ <div class="patchform patchform-bundle">
+  <h3>Bundling</h3>
+   <table class="form">
+   <!--
+    <tr>
+     <td>Ack:</td>
+     <td>
+       <input type="submit" name="action" value="Ack"/>
+      </form>
+     </td>
+    </tr>
+    -->
+    <tr>
+     <td>Create bundle:</td>
+     <td>
+      <input type="text" name="bundle_name"/>
+      <input name="action" value="Create" type="submit"/>
+      </td>
+    </tr>
+  {% if bundles %}
+    <tr>
+     <td>Add to bundle:</td>
+     <td>
+       <select name="bundle_id"/>
+        {% for bundle in bundles %}
+         <option value="{{bundle.id}}">{{bundle.name}}</option>
+        {% endfor %}
+        </select>
+       <input name="action" value="Add" type="submit"/>
+     </td>
+    </tr>
+  {% endif %}
+  {% if bundle %}
+   <tr>
+     <td>Remove from bundle:</td>
+     <td>
+       <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
+       <input name="action" value="Remove" type="submit"/>
+     </td>
+    </tr>
+  {% endif %}
+  </table>
+ </div>
+{% endif %}
+
+
+ <div style="clear: both;">
+ </div>
+</div>
+
+{% else %}
+ <tr>
+  <td colspan="5">No patches to display</td>
+ </tr>
+{% endif %}
+
+ </table>
+</form>
+
