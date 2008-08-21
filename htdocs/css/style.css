@@ -109,7 +109,6 @@ table.patchlist td {
 
 table.patchlist td.patchlistfilters {
 	background: #c0c0ff;
-	border-top: thin solid #;
 	border-top: thin solid gray;
 	border-bottom: thin solid black;
 	font-size: smaller;
