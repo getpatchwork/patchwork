@@ -3,7 +3,7 @@
 var filterform_displayed = false;
 function filter_click()
 {
-    form = document.getElementById('filterform');
+    var form = document.getElementById('filterform');
     if (!form) {
         return;
     }
@@ -27,8 +27,8 @@ function filter_form_submit(form)
 {
     var i;
 
-    submitter_select = document.getElementById("submitter_select");
-    submitter_input = document.getElementById("submitter_input");
+    var submitter_select = document.getElementById("submitter_select");
+    var submitter_input = document.getElementById("submitter_input");
     if (!submitter_select || !submitter_input) {
         req = null;
         return;
@@ -92,8 +92,8 @@ function submitter_complete_response()
         return;
     }
 
-    submitter_select = document.getElementById("submitter_select");
-    submitter_input = document.getElementById("submitter_input");
+    var submitter_select = document.getElementById("submitter_select");
+    var submitter_input = document.getElementById("submitter_input");
     if (!submitter_select || !submitter_input) {
         req = null;
         return;
