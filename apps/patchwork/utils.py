@@ -130,9 +130,9 @@ def set_bundle(user, action, data, patches, context):
     return []
 
 
-def set_patches(user, action, data, patches, context):
+def set_patches(user, project, action, data, patches, context):
     errors = []
-    form = MultiplePatchForm(data = data)
+    form = MultiplePatchForm(project = project, data = data)
 
     try:
         project = Project.objects.get(id = data['project'])

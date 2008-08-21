@@ -27,7 +27,7 @@ from patchwork.models import Project, Patch, Bundle, Person, \
          RegistrationRequest, UserProfile, UserPersonConfirmation, State
 from patchwork.forms import RegisterForm, LoginForm, MultiplePatchForm, \
          UserProfileForm, UserPersonLinkForm
-from patchwork.utils import Order, get_patch_ids, set_patches
+from patchwork.utils import Order, get_patch_ids
 from patchwork.filters import DelegateFilter
 from patchwork.paginator import Paginator
 from patchwork.views import generic_list

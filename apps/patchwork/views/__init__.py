@@ -54,8 +54,8 @@ def generic_list(request, project, view,
                 pass
             ps.append(patch)
 
-        (errors, form) = set_patches(request.user, action, request.POST, \
-                ps, context)
+        (errors, form) = set_patches(request.user, project, action, \
+				request.POST, ps, context)
         if errors:
             context['errors'] = errors
 

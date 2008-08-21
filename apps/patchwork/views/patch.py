@@ -156,7 +156,8 @@ def list(request, project_id):
                 pass
             ps.append(patch)
 
-        (errors, form) = set_patches(request.user, action, request.POST, ps)
+        (errors, form) = set_patches(request.user, project, action, \
+				request.POST, ps)
         if errors:
             context['errors'] = errors
 
