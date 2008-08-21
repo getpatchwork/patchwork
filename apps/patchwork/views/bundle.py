@@ -151,8 +151,3 @@ def public(request, username, bundlename):
     context.update({'bundle': bundle,
             'user': user});
     return render_to_response('patchwork/bundle-public.html', context)
-
-@login_required
-def set_patches(request):
-    context = PatchworkRequestContext(request)
-
