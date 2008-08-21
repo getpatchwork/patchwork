@@ -18,13 +18,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf.urls.defaults import *
+from patchwork.admin import admin_site
 
 urlpatterns = patterns('',
     # Example:
     (r'^', include('patchwork.urls')),
 
     # Uncomment this for admin:
-     (r'^admin/', include('django.contrib.admin.urls')),
+     (r'^admin/(.*)', admin_site.root),
 
      (r'^css/(?P<path>.*)$', 'django.views.static.serve',
 	{'document_root': '/home/jk/devel/patchwork/pwsite/htdocs/css'}),

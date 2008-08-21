@@ -50,9 +50,6 @@ class Person(models.Model):
     class Meta:
         verbose_name_plural = 'People'
 
-    class Admin:
-        pass
-
 class Project(models.Model):
     linkname = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
@@ -61,9 +58,6 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
-
-    class Admin:
-        pass
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User, unique = True)
@@ -125,9 +119,6 @@ class UserProfile(models.Model):
 		 person.user = self.user
 		 person.save()
 
-    class Admin:
-        pass
-
     def __str__(self):
         return self.name()
 
@@ -175,9 +166,6 @@ class RegistrationRequest(models.Model):
 
         return user
 
-    class Admin:
-        pass
-
 class UserPersonConfirmation(models.Model):
     user = models.ForeignKey(User)
     email = models.CharField(max_length = 200)
@@ -200,11 +188,6 @@ class UserPersonConfirmation(models.Model):
         person.save()
         self.active = False
 
-
-    class Admin:
-        pass
-
-
 class State(models.Model):
     name = models.CharField(max_length = 100)
     ordering = models.IntegerField(unique = True)
@@ -215,9 +198,6 @@ class State(models.Model):
 
     class Meta:
         ordering = ['ordering']
-
-    class Admin:
-        pass
 
 class HashField(models.Field):
     __metaclass__ = models.SubfieldBase
@@ -321,9 +301,6 @@ class Patch(models.Model):
         verbose_name_plural = 'Patches'
         ordering = ['date']
 
-    class Admin:
-        pass
-
 class Comment(models.Model):
     patch = models.ForeignKey(Patch)
     msgid = models.CharField(max_length=255, unique = True)
@@ -331,9 +308,6 @@ class Comment(models.Model):
     date = models.DateTimeField(default = datetime.datetime.now)
     headers = models.TextField(blank = True)
     content = models.TextField()
-
-    class Admin:
-        pass
 
     class Meta:
         ordering = ['date']
@@ -350,9 +324,6 @@ class Bundle(models.Model):
 
     class Meta:
         unique_together = [('owner', 'name')]
-
-    class Admin:
-        pass
 
     def public_url(self):
         if not self.public:
