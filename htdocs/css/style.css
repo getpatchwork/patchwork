@@ -76,6 +76,25 @@ table {
 	border-collapse: collapse;
 }
 
+img {
+	border: 0;
+}
+
+input {
+	border: thin solid #909090;
+}
+
+#footer {
+	padding: 1em;
+	font-size: small;
+	text-align: center;
+	color: #909090;
+}
+
+#footer a {
+        color: #909090;
+}
+
 /* messages */
 #messages {
        background: #e0e0f0;
@@ -139,7 +158,7 @@ div.filters {
 
 /* list pagination */
 .paginator { padding-bottom: 1em; padding-top: 1em; font-size: 80%; }
- 
+
 .paginator .prev-na,
 .paginator .next-na {
         padding:.3em;
@@ -148,7 +167,7 @@ div.filters {
         background-color: #f9f9f9;
         color: #a0a0a0;
 }
- 
+
 .paginator .prev a, .paginator .prev a:visited,
 .paginator .next a, .paginator .next a:visited {
         border: 0.1em solid #b0b0d0;
@@ -157,26 +176,26 @@ div.filters {
         padding: .3em;
         font-weight: bold;
 }
- 
+
 .paginator .prev, .paginator .prev-na { margin-right:.5em; }
 .paginator .next, .paginator .next-na { margin-left:.5em; }
- 
+
 .paginator .page a, .paginator .page a:visited, .paginator .curr {
         padding: .25em;
         font-weight: bold;
         border: 1px solid #b0b0d0;
         background-color: #eeeeee;
-        margin: 0em .25em;       
+        margin: 0em .25em;
         color: #786fb4;
 }
- 
-.paginator .curr { 
+
+.paginator .curr {
         background-color: #b0b0d0;
         color:#fff;
         border:1px solid #c0c0ff;
         font-weight:bold;
 }
- 
+
 .paginator .page a:hover,
 .paginator .curr a:hover,
 .paginator .prev a:hover,
@@ -184,49 +203,6 @@ div.filters {
         color: #ffffff;
         background-color: #c0c0ff;
         border:1px solid #234f32;
-}
-/*
-div.filters h2 {
-	font-size: 110%;
-}
-
-table.filters tr th, table.filters tr td {
-	text-align: left;
-	padding: 0px 10px 0px 10px;
-	vertical-align: middle;
-}
-table.filters tr th {
-	width: 8em;
-}
-
-table.filters tr td {
-	padding-top: 0.1em;
-	width: 12em;
-}
-
-table.filters tr td.clearcol {
-	text-align: right;
-	width: 16px;
-}
-*/
-
-img {
-	border: 0;
-}
-
-input {
-	border: thin solid #909090;
-}
-
-#footer {
-	padding: 1em;
-	font-size: small;
-	text-align: center;
-	color: #909090;
-}
-
-#footer a {
-        color: #909090;
 }
 
 /* patch view */
