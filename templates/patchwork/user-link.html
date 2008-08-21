@@ -7,11 +7,9 @@
 {% block body %}
 
 {% if confirmation and not error %}
-<p>A confirmation email has been sent to {{ confirmation.email }}.</p>
-
-<p>beta link: <a
- href="{% url patchwork.views.user.link_confirm key=confirmation.key %}"
- >{% url patchwork.views.user.link_confirm key=confirmation.key %}</a></p>
+<p>A confirmation email has been sent to {{ confirmation.email }}. Click
+on the link provided in the email to confirm that this address belongs to
+you.</p>
 
 {% else %}
 
