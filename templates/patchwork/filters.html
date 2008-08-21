@@ -99,8 +99,6 @@ function submitter_complete_response()
         return;
     }
 
-    submitter_select.options = [];
-
     for (i = 0; i < completions.length; i++) {
         name = completions[i]['fields']['name'];
         if (name) {
@@ -112,6 +110,12 @@ function submitter_complete_response()
         o = new Option(name, completions[i]['pk']);
         submitter_select.options[i] = o;
     }
+
+    /* remove remaining options */
+    for (; i < submitter_select.length; i++) {
+        submitter_select.options[i] = null;
+    }
+
     submitter_select.disabled = false;
     req = null;
 }
