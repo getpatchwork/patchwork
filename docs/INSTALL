@@ -42,14 +42,29 @@ in brackets):
 
 2. Django setup
 
+        At the time of initial release, patchwork depends on a svn version of
+        django. I've been using svn commit 7854 - but anything after this
+        point should be fine. If your distribution provides a sufficiently
+        recent version of django, you can use that; if not, do a:
+
+         cd lib/python
+         svn checkout http://code.djangoproject.com/svn/django/trunk .
+
 	You'll need to customise apps/settings.py to suit your database, and
 	change the SECRET_KEY variable too. While you're there, change the
 	following to suit your installation:
 
+          SECRET_KEY
 	  ADMINS,
 	  TIME_ZONE
 	  LANGUAGE_CODE
 	  MEDIA_ROOT
+
+        You can generate the SECRET_KEY with the following python code:
+
+          import string, random
+          chars = string.letters + string.digits + string.punctuation
+          print repr("".join([random.choice(chars) for i in range(0,50)]))
 
 	Then, get patchwork to create its tables in your configured database:
 
@@ -102,7 +117,7 @@ fastcgi:
     You'll probably want to do the following:
 
       * Set up your projects
-
+      * Configure your website address (in the Sites) section of the admin
 
 5. Subscribe a local address to the mailing list
 
