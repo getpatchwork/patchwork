@@ -88,7 +88,7 @@ class Order(object):
         return q
 
 bundle_actions = ['create', 'add', 'remove']
-def set_bundle(user, action, data, patches, context):
+def set_bundle(user, project, action, data, patches, context):
     # set up the bundle
     bundle = None
     if action == 'create':
@@ -147,7 +147,7 @@ def set_patches(user, project, action, data, patches, context):
     # this may be a bundle action, which doesn't modify a patch. in this
     # case, don't require a valid form, or patch editing permissions
     if action in bundle_actions:
-        errors = set_bundle(user, action, data, patches, context)
+        errors = set_bundle(user, project, action, data, patches, context)
         return (errors, form)
 
     if not form.is_valid():
