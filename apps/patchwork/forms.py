@@ -30,7 +30,7 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = RegistrationRequest
-        exclude = ['key']
+        exclude = ['key', 'active', 'date']
 
     def clean_email(self):
         value = self.cleaned_data['email']

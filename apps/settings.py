@@ -92,3 +92,4 @@ INSTALLED_APPS = (
 )
 
 DEFAULT_PATCHES_PER_PAGE = 100
+PATCHWORK_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'

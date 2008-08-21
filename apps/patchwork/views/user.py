@@ -31,6 +31,10 @@ from patchwork.utils import Order, get_patch_ids, set_patches
 from patchwork.filters import DelegateFilter
 from patchwork.paginator import Paginator
 from patchwork.views import generic_list
+from django.template.loader import render_to_string
+from django.template import Context
+from django.conf import settings
+from django.core.mail import send_mail
 import django.core.urlresolvers
 
 def register(request):
@@ -47,9 +51,19 @@ def register(request):
 
     if form.is_valid():
         form.save()
-        context['request'] = reg_req
-    else:
-        context['form'] = form
+	try:
+            context['request'] = reg_req
+	    send_mail('Patchwork account confirmation',
+                        render_to_string('patchwork/register.mail', context),
+                        settings.PATCHWORK_FROM_EMAIL,
+                        [form.cleaned_data['email']])
+
+        except Exception, ex:
+            context['request'] = None
+            context['error'] = 'An error occurred during registration. ' + \
+                               'Please try again later'
+
+    context['form'] = form
 
     return render_to_response(template, context)
 
@@ -128,9 +142,19 @@ def link(request):
         if form.is_valid():
             conf = UserPersonConfirmation(user = request.user,
                     email = form.cleaned_data['email'])
-            conf.save()
             context['confirmation'] = conf
 
+            try:
+                send_mail('Patchwork email address confirmation',
+                            render_to_string('patchwork/user-link.mail',
+                                context),
+                            settings.PATCHWORK_FROM_EMAIL,
+                            [form.cleaned_data['email']])
+                conf.save()
+            except Exception, ex:
+                context['confirmation'] = None
+                context['error'] = 'An error occurred during confirmation. ' + \
+                                   'Please try again later'
     context['linkform'] = form
 
     return render_to_response('patchwork/user-link.html', context)
@@ -145,8 +169,6 @@ def link_confirm(request, key):
         context['errors'] = errors
     else:
         context['person'] = Person.objects.get(email = confirmation.email)
-
-    confirmation.delete()
 
     return render_to_response('patchwork/user-link-confirm.html', context)
 

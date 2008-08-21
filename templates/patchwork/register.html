@@ -6,13 +6,12 @@
 
 {% block body %}
 
-{% if request %}
+{% if request and not error %}
  <p>Registration successful!</p>
- <p>email sent to {{ request.email }}</p>
- <p>Beta note: While we're testing, the confirmation email has been replaced
- by a single link:
- <a href="{% url patchwork.views.user.register_confirm key=request.key %}"
- >{% url patchwork.views.user.register_confirm key=request.key %}</a>
+ <p>A confirmation email has been sent to {{ request.email }}. You'll
+ need to visit the link provided in that email to confirm your
+ registration.</p>
+ <pre>{{email}}</pre>
 </p>
 {% else %}
 <p>By creating a patchwork account, you can:<p>

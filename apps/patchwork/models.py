@@ -145,8 +145,12 @@ class RegistrationRequest(models.Model):
     email = models.CharField(max_length = 200, unique = True)
     password = models.CharField(max_length = 200)
     key = models.CharField(max_length = 32, default = _confirm_key)
+    date = models.DateTimeField(default=datetime.datetime.now)
+    active = models.BooleanField(default = True)
 
     def create_user(self):
+	if not self.active:
+	    return
         user = User.objects.create_user(self.username,
                 self.email, self.password)
         user.first_name = self.first_name
@@ -154,7 +158,8 @@ class RegistrationRequest(models.Model):
         user.save()
         profile = UserProfile(user = user)
         profile.save()
-        self.delete()
+        self.active = False
+	self.save()
 
         # link a person to this user. if none exists, create.
         person = None
@@ -176,10 +181,13 @@ class RegistrationRequest(models.Model):
 class UserPersonConfirmation(models.Model):
     user = models.ForeignKey(User)
     email = models.CharField(max_length = 200)
-    date = models.DateTimeField(default=datetime.datetime.now)
     key = models.CharField(max_length = 32, default = _confirm_key)
+    date = models.DateTimeField(default=datetime.datetime.now)
+    active = models.BooleanField(default = True)
 
     def confirm(self):
+	if not self.active:
+	    return
         person = None
         try:
             person = Person.objects.get(email = self.email)
@@ -190,6 +198,7 @@ class UserPersonConfirmation(models.Model):
 
         person.link_to_user(self.user)
         person.save()
+        self.active = False
 
 
     class Admin:
