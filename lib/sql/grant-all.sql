@@ -56,7 +56,8 @@ GRANT INSERT, SELECT ON
 	patchwork_person
 TO "nobody";
 GRANT SELECT ON
-	patchwork_project
+	patchwork_project,
+	patchwork_state
 TO "nobody";
 GRANT UPDATE, SELECT ON
 	patchwork_patch_id_seq,

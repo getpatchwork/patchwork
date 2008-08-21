@@ -21,7 +21,7 @@
 
 PATCHWORK_BASE="/srv/patchwork"
 
-if $# -ne 2
+if [ $# -ne 1 ]
 then
 	echo "usage: $0 <dir>" >&2
 	exit 1
@@ -29,9 +29,11 @@ fi
 
 mail_dir="$1"
 
-if ! -d "$mail_dir"
+echo "dir: $mail_dir"
+
+if [ ! -d "$mail_dir" ]
 then
-	echo "$mail_dir should be a directory"?&2
+	echo "$mail_dir should be a directory"? >&2
 	exit 1
 fi
 
@@ -41,7 +43,7 @@ do
 	echo $line
 	PYTHONPATH="$PATCHWORK_BASE/apps":"$PATCHWORK_BASE/lib/python" \
 		DJANGO_SETTINGS_MODULE=settings \
-		"$PATCHWORK_BASE/apps/patchworkbin/parsemail.py" <
+		"$PATCHWORK_BASE/apps/patchwork/bin/parsemail.py" < \
 		"$mail_dir/$line"
 done
 

@@ -85,12 +85,15 @@ def find_author(mail):
     if name is not None:
         name = name.strip()
 
+    new_person = False
+
     try:
         person = Person.objects.get(email = email)
     except Person.DoesNotExist:
         person = Person(name = name, email = email)
+        new_person = True
 
-    return person
+    return (person, new_person)
 
 def mail_date(mail):
     t = parsedate_tz(mail.get('Date', ''))
@@ -230,12 +233,15 @@ def main(args):
 
     msgid = mail.get('Message-Id').strip()
 
-    author = find_author(mail)
+    (author, save_required) = find_author(mail)
 
     (patch, comment) = find_content(project, mail)
 
     if patch:
-        author.save()
+        # we delay the saving until we know we have a patch.
+        if save_required:
+            author.save()
+            save_required = False
         patch.submitter = author
         patch.msgid = msgid
         patch.project = project
@@ -245,7 +251,8 @@ def main(args):
             print ex.message
 
     if comment:
-        author.save()
+        if save_required:
+            author.save()
         # looks like the original constructor for Comment takes the pk
         # when the Comment is created. reset it here.
         if patch:
