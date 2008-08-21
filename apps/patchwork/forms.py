@@ -19,7 +19,7 @@
 
 
 from django.contrib.auth.models import User
-from django import newforms as forms
+from django import forms
 
 from patchwork.models import RegistrationRequest, Patch, State, Bundle, \
          UserProfile
