@@ -21,7 +21,12 @@
 
 
 import re
-import hashlib
+try:
+    import hashlib
+    sha1_hash = hashlib.sha1
+except ImportError:
+    import sha
+    sha1_hash = sha.sha
 
 _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')
@@ -158,7 +163,7 @@ def patch_hash(str):
     lines = str.split('\n')
 
     prefixes = ['-', '+', ' ']
-    hash = hashlib.sha1()
+    hash = sha1_hash()
 
     for line in str.split('\n'):
 

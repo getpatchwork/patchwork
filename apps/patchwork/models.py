@@ -28,7 +28,6 @@ import re
 import datetime, time
 import string
 import random
-import hashlib
 from email.mime.text import MIMEText
 import email.utils
 
@@ -167,10 +166,27 @@ class HashField(models.Field):
 
     def __init__(self, algorithm = 'sha1', *args, **kwargs):
         self.algorithm = algorithm
+        try:
+            import hashlib
+            self.hashlib = True
+        except ImportError:
+            self.hashlib = False
+            if algorithm == 'sha1':
+                import sha
+                self.hash_constructor = sha.new
+            elif algorithm == 'md5':
+                import md5
+                self.hash_constructor = md5.new
+            else:
+                raise NameError("Unknown algorithm '%s'" % algorithm)
+            
         super(HashField, self).__init__(*args, **kwargs)
 
     def db_type(self):
-        n_bytes = len(hashlib.new(self.algorithm).digest())
+        if self.hashlib:
+            n_bytes = len(hashlib.new(self.algorithm).digest())
+        else:
+            n_bytes = len(self.hash_constructor().digest())
 	if settings.DATABASE_ENGINE == 'postgresql':
 	    return 'bytea'
 	elif settings.DATABASE_ENGINE == 'mysql':
