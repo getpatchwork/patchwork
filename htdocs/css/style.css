@@ -84,6 +84,10 @@ input {
 	border: thin solid #909090;
 }
 
+dl dt {
+	margin-top: 0.8em;
+}
+
 #footer {
 	padding: 1em;
 	font-size: small;
