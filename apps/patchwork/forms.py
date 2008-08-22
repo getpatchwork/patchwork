@@ -21,48 +21,33 @@
 from django.contrib.auth.models import User
 from django import forms
 
-from patchwork.models import RegistrationRequest, Patch, State, Bundle, \
-         UserProfile
+from patchwork.models import Patch, State, Bundle, UserProfile
+from registration.forms import RegistrationFormUniqueEmail
+from registration.models import RegistrationProfile
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget = forms.PasswordInput)
-    email = forms.EmailField(max_length = 200)
+class RegistrationForm(RegistrationFormUniqueEmail):
+    first_name = forms.CharField(max_length = 30, required = False)
+    last_name = forms.CharField(max_length = 30, required = False)
+    username = forms.CharField(max_length=30, label=u'Username')
+    email = forms.EmailField(max_length=100, label=u'Email address')
+    password = forms.CharField(widget=forms.PasswordInput(),
+                                label='Password')
+    password1 = forms.BooleanField(required = False)
+    password2 = forms.BooleanField(required = False)
 
-    class Meta:
-        model = RegistrationRequest
-        exclude = ['key', 'active', 'date']
+    def save(self, profile_callback = None):
+        user = RegistrationProfile.objects.create_inactive_user( \
+                username = self.cleaned_data['username'],
+                password = self.cleaned_data['password'],
+                email = self.cleaned_data['email'],
+                profile_callback = profile_callback)
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+        user.save()
+        return user
 
-    def clean_email(self):
-        value = self.cleaned_data['email']
-        try:
-            User.objects.get(email = value)
-            raise forms.ValidationError(('The email address %s has ' +
-                    'has already been registered') % value)
-        except User.DoesNotExist:
-            pass
-        try:
-            RegistrationRequest.objects.get(email = value)
-            raise forms.ValidationError(('The email address %s has ' +
-                    'has already been registered') % value)
-        except RegistrationRequest.DoesNotExist:
-            pass
-        return value
-
-    def clean_username(self):
-        value = self.cleaned_data['username']
-        try:
-            User.objects.get(username = value)
-            raise forms.ValidationError(('The username %s has ' +
-                    'has already been registered') % value)
-        except User.DoesNotExist:
-            pass
-        try:
-            RegistrationRequest.objects.get(username = value)
-            raise forms.ValidationError(('The username %s has ' +
-                    'has already been registered') % value)
-        except RegistrationRequest.DoesNotExist:
-            pass
-        return value
+    def clean(self):
+        return self.cleaned_data
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length = 30)

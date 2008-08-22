@@ -20,17 +20,30 @@
 from django.conf.urls.defaults import *
 from patchwork.admin import admin_site
 
+from registration.views import register
+from patchwork.forms import RegistrationForm
+from patchwork.utils import userprofile_register_callback
+
 urlpatterns = patterns('',
     # Example:
     (r'^', include('patchwork.urls')),
+
+    # override the default registration form
+    url(r'^accounts/register/$',
+        register,
+	{'form_class': RegistrationForm,
+	 'profile_callback': userprofile_register_callback},
+        name='registration_register'),
+
+    (r'^accounts/', include('registration.urls')),
 
     # Uncomment this for admin:
      (r'^admin/(.*)', admin_site.root),
 
      (r'^css/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/home/jk/devel/patchwork/pwsite/htdocs/css'}),
+	{'document_root': '/srv/patchwork/htdocs/css'}),
      (r'^js/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/home/jk/devel/patchwork/pwsite/htdocs/js'}),
+	{'document_root': '/srv/patchwork/htdocs/js'}),
      (r'^images/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/home/jk/devel/patchwork/pwsite/htdocs/images'}),
+	{'document_root': '/srv/patchwork/htdocs/images'}),
 )

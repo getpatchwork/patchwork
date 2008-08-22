@@ -129,43 +129,6 @@ def _confirm_key():
         str += random.choice(allowedchars)
     return str;
 
-class RegistrationRequest(models.Model):
-    username = models.CharField(max_length = 30, unique = True)
-    first_name = models.CharField(max_length = 50)
-    last_name = models.CharField(max_length = 50)
-    email = models.CharField(max_length = 200, unique = True)
-    password = models.CharField(max_length = 200)
-    key = models.CharField(max_length = 32, default = _confirm_key)
-    date = models.DateTimeField(default=datetime.datetime.now)
-    active = models.BooleanField(default = True)
-
-    def create_user(self):
-	if not self.active:
-	    return
-        user = User.objects.create_user(self.username,
-                self.email, self.password)
-        user.first_name = self.first_name
-        user.last_name = self.last_name
-        user.save()
-        profile = UserProfile(user = user)
-        profile.save()
-        self.active = False
-	self.save()
-
-        # link a person to this user. if none exists, create.
-        person = None
-        try:
-            person = Person.objects.get(email = user.email)
-        except Exception:
-            pass
-        if not person:
-            person = Person(email = user.email)
-
-        person.link_to_user(user)
-        person.save()
-
-        return user
-
 class UserPersonConfirmation(models.Model):
     user = models.ForeignKey(User)
     email = models.CharField(max_length = 200)

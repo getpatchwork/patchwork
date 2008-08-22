@@ -19,7 +19,7 @@
 
 
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Bundle, Project, State
+from patchwork.models import Bundle, Project, State, UserProfile
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 
@@ -191,3 +191,8 @@ def set_patches(user, project, action, data, patches, context):
         context.add_message(str)
 
     return (errors, form)
+
+def userprofile_register_callback(user):
+    profile = UserProfile(user = user)
+    profile.save()
+

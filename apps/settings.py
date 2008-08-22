@@ -66,7 +66,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'apps.urls'
 
-LOGIN_URL = '/patchwork/login'
+LOGIN_URL = '/accounts/login'
+LOGIN_REDIRECT_URL = '/user/'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -89,7 +90,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'patchwork',
+    'registration',
 )
 
 DEFAULT_PATCHES_PER_PAGE = 100
 PATCHWORK_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
+
+ACCOUNT_ACTIVATION_DAYS = 7

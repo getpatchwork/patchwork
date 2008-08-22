@@ -18,9 +18,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.models import Patch, Project, Person, RegistrationRequest, Bundle
+from patchwork.models import Patch, Project, Person, Bundle
 from patchwork.filters import Filters
-from patchwork.forms import RegisterForm, LoginForm, PatchForm, MultiplePatchForm, CreateBundleForm
+from patchwork.forms import PatchForm, MultiplePatchForm, CreateBundleForm
 from patchwork.utils import get_patch_ids, set_patches, Order
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404

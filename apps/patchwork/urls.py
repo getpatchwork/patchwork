@@ -30,14 +30,6 @@ urlpatterns = patterns('',
     (r'^patch/(?P<patch_id>\d+)/raw/$', 'patchwork.views.patch.content'),
     (r'^patch/(?P<patch_id>\d+)/mbox/$', 'patchwork.views.patch.mbox'),
 
-    # registration process
-    (r'^register/$', 'patchwork.views.user.register'),
-    (r'^register/confirm/(?P<key>[^/]+)/$',
-        'patchwork.views.user.register_confirm'),
-
-    (r'^login/$', 'patchwork.views.user.login'),
-    (r'^logout/$', 'patchwork.views.user.logout'),
-
     # logged-in user stuff
     (r'^user/$', 'patchwork.views.user.profile'),
     (r'^user/todo/$', 'patchwork.views.user.todo_lists'),

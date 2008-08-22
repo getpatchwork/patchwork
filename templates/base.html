@@ -24,12 +24,12 @@
      <a href="{% url patchwork.views.user.profile %}">profile</a> ::
      <a href="{% url patchwork.views.user.todo_lists %}">todo
       ({{ user.get_profile.n_todo_patches }})</a><br/>
-     <a href="{% url patchwork.views.user.logout %}">logout</a><!-- ::
+     <a href="{% url auth_logout %}">logout</a><!-- ::
      <a href="/help/">help</a> -->
 {% else %}
-     <a href="{% url patchwork.views.user.login %}">login</a>
+     <a href="{% url auth_login %}">login</a>
      <br/>
-     <a href="{% url patchwork.views.user.register %}">register</a>
+     <a href="{% url registration_register %}">register</a>
      <!--
      <br/>
      <a href="/help/">help</a>

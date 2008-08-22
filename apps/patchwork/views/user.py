@@ -23,10 +23,10 @@ from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib import auth
 from django.http import HttpResponse, HttpResponseRedirect
-from patchwork.models import Project, Patch, Bundle, Person, \
-         RegistrationRequest, UserProfile, UserPersonConfirmation, State
-from patchwork.forms import RegisterForm, LoginForm, MultiplePatchForm, \
-         UserProfileForm, UserPersonLinkForm
+from patchwork.models import Project, Patch, Bundle, Person, UserProfile, \
+	 UserPersonConfirmation, State
+from patchwork.forms import MultiplePatchForm, UserProfileForm, \
+	 UserPersonLinkForm
 from patchwork.utils import Order, get_patch_ids
 from patchwork.filters import DelegateFilter
 from patchwork.paginator import Paginator
@@ -36,79 +36,6 @@ from django.template import Context
 from django.conf import settings
 from django.core.mail import send_mail
 import django.core.urlresolvers
-
-def register(request):
-    context = PatchworkRequestContext(request)
-    template = 'patchwork/register.html'
-
-    if request.method != 'POST':
-        form = RegisterForm()
-        context['form'] = form
-        return render_to_response(template, context)
-
-    reg_req = RegistrationRequest()
-    form = RegisterForm(instance = reg_req, data = request.POST)
-
-    if form.is_valid():
-        form.save()
-	try:
-            context['request'] = reg_req
-	    send_mail('Patchwork account confirmation',
-                        render_to_string('patchwork/register.mail', context),
-                        settings.PATCHWORK_FROM_EMAIL,
-                        [form.cleaned_data['email']])
-
-        except Exception, ex:
-            context['request'] = None
-            context['error'] = 'An error occurred during registration. ' + \
-                               'Please try again later'
-
-    context['form'] = form
-
-    return render_to_response(template, context)
-
-def register_confirm(request, key):
-    context = PatchworkRequestContext(request)
-    req = get_object_or_404(RegistrationRequest, key = key)
-    req.create_user()
-    user = auth.authenticate(username = req.username, password = req.password)
-    auth.login(request, user)
-
-    return render_to_response('patchwork/register-confirm.html', context)
-
-def login(request):
-    context = PatchworkRequestContext(request)
-    template = 'patchwork/login.html'
-    error = None
-
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        context['form'] = form
-
-        if not form.is_valid():
-            return render_to_response(template, context)
-
-        data = form.cleaned_data
-        user = auth.authenticate(username = data['username'],
-                password = data['password'])
-
-        if user is not None and user.is_active:
-            auth.login(request, user)
-            url = request.POST.get('next', None) or \
-                    django.core.urlresolvers.reverse( \
-			    'patchwork.views.user.profile')
-            return HttpResponseRedirect(url)
-
-        context['error'] = 'Invalid username or password'
-
-    else:
-        context['form'] = LoginForm()
-
-    return render_to_response(template, context)
-
-def logout(request):
-    auth.logout(request)
-    return render_to_response('patchwork/logout.html')
 
 @login_required
 def profile(request):
