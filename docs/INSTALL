@@ -47,15 +47,27 @@ in brackets):
         point should be fine. If your distribution provides a sufficiently
         recent version of django, you can use that; if not, do a:
 
-         cd lib/python
-         svn checkout http://code.djangoproject.com/svn/django/trunk .
+         cd lib/packages
+         svn checkout http://code.djangoproject.com/svn/django/trunk django
+         cd ../python
+         ln -s ../packages/django/django ./django
+
+        We also use the django-registration infrastructure from
+        http://code.google.com/p/django-registration/
+
+         cd lib/packages/
+         svn checkout \
+             http://django-registration.googlecode.com/svn/trunk/registration/ \
+             django-registration
+         cd ../../apps
+         ln -s ../lib/packages/django-registration ./registration
 
 	You'll need to customise apps/settings.py to suit your database, and
 	change the SECRET_KEY variable too. While you're there, change the
 	following to suit your installation:
 
           SECRET_KEY
-	  ADMINS,
+	  ADMINS
 	  TIME_ZONE
 	  LANGUAGE_CODE
 	  MEDIA_ROOT
@@ -75,6 +87,7 @@ in brackets):
 
 	Postgresql:
 	  psql -f lib/sql/grant-all.sql patchwork
+
 
 
 3. Apache setup
