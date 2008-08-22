@@ -242,12 +242,12 @@ span.p_del	{ color: #6a5acd; }
 span.p_mod	{ color: #0000ff; }
 
 .acked-by {
-	color: red;
+	color: #2d4566;
 
 }
 
 .signed-off-by {
-	color: red;
+	color: #672d45;
 	font-weight: bold;
 }
 
