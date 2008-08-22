@@ -23,6 +23,6 @@ PATCHWORK_BASE="/srv/patchwork"
 
 PYTHONPATH="$PATCHWORK_BASE/apps":"$PATCHWORK_BASE/lib/python" \
         DJANGO_SETTINGS_MODULE=settings \
-        "$PATCHWORK_BASE/apps/patchworkbin/parsemail.py"
+        "$PATCHWORK_BASE/apps/patchwork/bin/parsemail.py"
 
 exit 0
