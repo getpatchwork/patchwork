@@ -68,7 +68,7 @@
 
 {% if page %}
  {% for patch in page.object_list %}
-  <tr>
+  <tr class="{% cycle 'odd' 'even' %}">
     {% if patchform or bundle %}
     <td>
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
