@@ -253,7 +253,7 @@ def main(args):
         try:
             patch.save()
         except Exception, ex:
-            print ex.message
+            print str(ex)
 
     if comment:
         if save_required:
@@ -267,7 +267,7 @@ def main(args):
         try:
             comment.save()
         except Exception, ex:
-            print ex.message
+            print str(ex)
 
     return 0
 
