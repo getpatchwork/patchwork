@@ -75,7 +75,7 @@ def link(request):
                 send_mail('Patchwork email address confirmation',
                             render_to_string('patchwork/user-link.mail',
                                 context),
-                            settings.PATCHWORK_FROM_EMAIL,
+                            settings.DEFAULT_FROM_EMAIL,
                             [form.cleaned_data['email']])
                 conf.save()
             except Exception, ex:
