@@ -194,10 +194,13 @@ class HashField(models.Field):
             n_bytes = len(hashlib.new(self.algorithm).digest())
         else:
             n_bytes = len(self.hash_constructor().digest())
-        if settings.DATABASE_ENGINE == 'postgresql':
+        if settings.DATABASE_ENGINE.startswith('postgresql'):
             return 'bytea'
         elif settings.DATABASE_ENGINE == 'mysql':
             return 'binary(%d)' % n_bytes
+        else:
+            raise Exception("Unknown database engine '%s'" % \
+                            settings.DATABASE_ENGINE)
 
     def to_python(self, value):
         return value
