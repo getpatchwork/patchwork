@@ -25,8 +25,13 @@ import datetime
 import time
 import operator
 from email import message_from_file
-from email.header import Header
-from email.utils import parsedate_tz, mktime_tz
+try:
+    from email.header import Header
+    from email.utils import parsedate_tz, mktime_tz
+except ImportError:
+    # Python 2.4 compatibility
+    from email.Header import Header
+    from email.Utils import parsedate_tz, mktime_tz
 
 from patchparser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment

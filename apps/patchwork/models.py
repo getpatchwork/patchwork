@@ -28,8 +28,15 @@ import re
 import datetime, time
 import string
 import random
-from email.mime.text import MIMEText
-import email.utils
+
+try:
+    from email.mime.text import MIMEText
+    import email.utils
+except ImportError:
+    # Python 2.4 compatibility
+    from email.MIMEText import MIMEText
+    import email.Utils
+    email.utils = email.Utils
 
 class Person(models.Model):
     email = models.CharField(max_length=255, unique = True)
