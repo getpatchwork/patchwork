@@ -171,7 +171,8 @@ class MultiplePatchForm(PatchForm):
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(project = project,
                 *args, **kwargs)
-        self.fields['delegate'] = OptionalDelegateField(project = project)
+        self.fields['delegate'] = OptionalDelegateField(project = project,
+		required = False)
 
     def save(self, instance, commit = True):
         opts = instance.__class__._meta
@@ -184,7 +185,7 @@ class MultiplePatchForm(PatchForm):
             if not f.name in data:
                 continue
 
-            field = getattr(self, f.name, None)
+            field = self.fields.get(f.name, None)
             if not field:
                 continue
 
