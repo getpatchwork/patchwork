@@ -22,7 +22,7 @@ from patchwork.models import Patch, Project, Person
 from patchwork.filters import Filters
 from patchwork.forms import LoginForm, PatchForm
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -64,3 +64,12 @@ def submitter_complete(request):
 	json_serializer = serializers.get_serializer("json")()
 	json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
     return response
+
+help_pages = {'': 'index.html', 'about/': 'about.html'}
+
+def help(request, path):
+    context = PatchworkRequestContext(request)
+    if help_pages.has_key(path):
+        return render_to_response('patchwork/help/' + help_pages[path], context)
+    raise Http404
+

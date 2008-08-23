@@ -50,4 +50,7 @@ urlpatterns = patterns('',
 
     # submitter autocomplete
     (r'^submitter/$', 'patchwork.views.submitter_complete'),
+
+    # help!
+    (r'^help/(?P<path>.*)$', 'patchwork.views.help'),
 )
