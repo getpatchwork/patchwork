@@ -25,6 +25,7 @@ body {
 #title h1, #title h1 a {
 	font-size: 16pt;
 	color: white;
+	margin-bottom: 0;
 }
 
 .beta {
