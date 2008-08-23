@@ -135,6 +135,10 @@ table.patchlist td {
 	margin-top: 10px;
 }
 
+table.patchlist td img {
+	vertical-align: bottom;
+}
+
 table.patchlist td.patchlistfilters {
 	background: #c0c0ff;
 	border-top: thin solid gray;
