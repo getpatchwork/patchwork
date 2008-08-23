@@ -142,8 +142,6 @@ def set_patches(user, project, action, data, patches, context):
 
     str = ''
 
-    print "action: ", action
-
     # this may be a bundle action, which doesn't modify a patch. in this
     # case, don't require a valid form, or patch editing permissions
     if action in bundle_actions:
