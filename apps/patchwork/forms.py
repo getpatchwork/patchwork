@@ -91,7 +91,7 @@ class PatchForm(forms.ModelForm):
         if not project:
 	    raise Exception("meep")
         super(PatchForm, self).__init__(instance = instance, *args, **kwargs)
-        self.fields['delegate'] = DelegateField(project)
+        self.fields['delegate'] = DelegateField(project, required = False)
 
     class Meta:
         model = Patch
