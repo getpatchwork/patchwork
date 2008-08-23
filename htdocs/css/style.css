@@ -28,9 +28,9 @@ body {
 }
 
 .beta {
-    font-size: 60%;
-    vertical-align: sub;
-    line-height: 2em;
+	font-size: 60%;
+	vertical-align: sub;
+	line-height: 2em;
 }
 
 #auth {
@@ -49,7 +49,7 @@ body {
 }
 
 #nav {
-        background: #e8e8e8;
+	background: #e8e8e8;
 	border-bottom: 0.2em solid #786fb4;
 	font-size: 90%;
 	padding: 0.2em 0.5em;
@@ -96,25 +96,25 @@ dl dt {
 }
 
 #footer a {
-        color: #909090;
+	color: #909090;
 }
 
 /* messages */
 #messages {
-       background: #e0e0f0;
-       margin: 0.5em 1em 0.0em 0.5em;
-       padding: 0.3em;
+	background: #e0e0f0;
+	margin: 0.5em 1em 0.0em 0.5em;
+	padding: 0.3em;
 }
 
 #messages .message {
-        color: green;
+	color: green;
 }
 
 /* patch lists */
 table.patchlist {
-        width: 98%;
+	width: 98%;
 	border: thin solid black;
-        padding: 0em 1em;
+	padding: 0em 1em;
 }
 
 table.patchlist th {
@@ -165,53 +165,53 @@ div.filters {
 
 .paginator .prev-na,
 .paginator .next-na {
-        padding:.3em;
-        font-weight: normal;
-        border: 0.1em solid #c0c0c0;
-        background-color: #f9f9f9;
-        color: #a0a0a0;
+	padding:.3em;
+	font-weight: normal;
+	border: 0.1em solid #c0c0c0;
+	background-color: #f9f9f9;
+	color: #a0a0a0;
 }
 
 .paginator .prev a, .paginator .prev a:visited,
 .paginator .next a, .paginator .next a:visited {
-        border: 0.1em solid #b0b0d0;
-        background-color: #eeeeee;
-        color: #786fb4;
-        padding: .3em;
-        font-weight: bold;
+	border: 0.1em solid #b0b0d0;
+	background-color: #eeeeee;
+	color: #786fb4;
+	padding: .3em;
+	font-weight: bold;
 }
 
 .paginator .prev, .paginator .prev-na { margin-right:.5em; }
 .paginator .next, .paginator .next-na { margin-left:.5em; }
 
 .paginator .page a, .paginator .page a:visited, .paginator .curr {
-        padding: .25em;
-        font-weight: bold;
-        border: 1px solid #b0b0d0;
-        background-color: #eeeeee;
-        margin: 0em .25em;
-        color: #786fb4;
+	padding: .25em;
+	font-weight: bold;
+	border: 1px solid #b0b0d0;
+	background-color: #eeeeee;
+	margin: 0em .25em;
+	color: #786fb4;
 }
 
 .paginator .curr {
-        background-color: #b0b0d0;
-        color:#fff;
-        border:1px solid #c0c0ff;
-        font-weight:bold;
+	background-color: #b0b0d0;
+	color:#fff;
+	border:1px solid #c0c0ff;
+	font-weight:bold;
 }
 
 .paginator .page a:hover,
 .paginator .curr a:hover,
 .paginator .prev a:hover,
 .paginator .next a:hover {
-        color: #ffffff;
-        background-color: #c0c0ff;
-        border:1px solid #234f32;
+	color: #ffffff;
+	background-color: #c0c0ff;
+	border:1px solid #234f32;
 }
 
 /* patch view */
 table.patchmeta th {
-        text-align: left;
+	text-align: left;
 }
 
 table.patchmeta tr th, table.patchmeta tr td {
@@ -221,8 +221,8 @@ table.patchmeta tr th, table.patchmeta tr td {
 }
 
 .patchnav {
-    padding-left: 1em;
-    padding-top: 1em;
+	padding-left: 1em;
+	padding-top: 1em;
 }
 
 .comment .meta {
@@ -261,20 +261,20 @@ span.p_mod	{ color: #0000ff; }
 
 /* bundles */
 table.bundlelist {
-        border: thin solid black;
+	border: thin solid black;
 }
 
 table.bundlelist th {
-        padding-left: 2em;
-        padding-right: 2em;
-        background: #eeeeee;
-        border-bottom: thin solid black;
+	padding-left: 2em;
+	padding-right: 2em;
+	background: #eeeeee;
+	border-bottom: thin solid black;
 }
 
 table.bundlelist td
 {
-        padding-left: 2em;
-        padding-right: 2em;
+	padding-left: 2em;
+	padding-right: 2em;
 }
 
 /* forms that appear for a patch */
@@ -354,7 +354,7 @@ table.loginform {
 
 /* form errors */
 .errorlist {
-        color: red;
+	color: red;
 	list-style-type: none;
 	padding-left: 0.2em;
 	margin: 0em;
@@ -377,7 +377,7 @@ table.horizontal td, table.horizontal th {
 
 /* generic table with header row */
 table.vertical {
-        border-collapse: collapse;
+	border-collapse: collapse;
 }
 table.vertical th {
 	background: #786fb4;
@@ -387,10 +387,10 @@ table.vertical th {
 }
 
 table.vertical th, table.vertical td {
-        padding: 0.2em 0.8em;
+	padding: 0.2em 0.8em;
 	border: thin solid #e8e8e8;
 }
 
 td.numberformat {
-        text-align: right;
+	text-align: right;
 }
