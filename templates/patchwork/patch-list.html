@@ -31,6 +31,10 @@
   <th>
    {% ifequal order.name "name" %}
     <a class="colactive"
+     href="{% listurl order=order.reversed_name %}"><img
+     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+     width="16" height="16"
+    ></a> <a class="colactive"
      href="{% listurl order=order.reversed_name %}">Patch</a>
    {% else %}
     <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
@@ -40,6 +44,10 @@
   <th>
    {% ifequal order.name "date" %}
     <a class="colactive"
+     href="{% listurl order=order.reversed_name %}"><img
+     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+     width="16" height="16"
+    ></a> <a class="colactive"
      href="{% listurl order=order.reversed_name %}">Date</a>
    {% else %}
     <a class="colinactive" href="{% listurl order="date" %}">Date</a>
@@ -49,7 +57,11 @@
   <th>
    {% ifequal order.name "submitter" %}
     <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">Submiter</a>
+     href="{% listurl order=order.reversed_name %}"><img
+     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+     width="16" height="16"
+    ></a> <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">Submitter</a>
    {% else %}
     <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
    {% endifequal %}
@@ -58,6 +70,10 @@
   <th>
    {% ifequal order.name "state" %}
     <a class="colactive"
+     href="{% listurl order=order.reversed_name %}"><img
+     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+     width="16" height="16"
+    ></a> <a class="colactive"
      href="{% listurl order=order.reversed_name %}">State</a>
    {% else %}
     <a class="colinactive" href="{% listurl order="state" %}">State</a>

@@ -124,6 +124,10 @@ table.patchlist th {
 	padding-left: 6px;
 }
 
+table.patchlist th img {
+	vertical-align: bottom;
+}
+
 table.patchlist td {
 	padding: 2px 6px 2px 6px;
 	margin: 0px;
@@ -145,14 +149,11 @@ table.patchlist tr.even {
 	background: #e8e8e8;
 }
 
-a.colactive {
-	color: red;
-}
-
-a.colinactive {
+a.colinactive, a.colactive {
 	color: black;
 	text-decoration: none;
 }
+
 a.colinactive:hover {
 	color: red;
 }
