@@ -40,10 +40,10 @@ def get_patch_ids(d, prefix = 'patch_id'):
 
 class Order(object):
     order_map = {
-        'date':		'date',
-        'name':		'name',
-        'state':	'state__ordering',
-        'submitter':	'submitter__name'
+        'date':         'date',
+        'name':         'name',
+        'state':        'state__ordering',
+        'submitter':    'submitter__name'
     }
     default_order = 'date'
 

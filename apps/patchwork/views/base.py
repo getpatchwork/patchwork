@@ -60,9 +60,9 @@ def submitter_complete(request):
     search = request.GET.get('q', '')
     response = HttpResponse(mimetype = "text/plain")
     if len(search) > 3:
-	queryset = Person.objects.filter(name__icontains = search)
-	json_serializer = serializers.get_serializer("json")()
-	json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
+        queryset = Person.objects.filter(name__icontains = search)
+        json_serializer = serializers.get_serializer("json")()
+        json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
     return response
 
 help_pages = {'': 'index.html', 'about/': 'about.html'}

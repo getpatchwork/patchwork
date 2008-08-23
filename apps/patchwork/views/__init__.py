@@ -55,12 +55,12 @@ def generic_list(request, project, view,
             ps.append(patch)
 
         (errors, form) = set_patches(request.user, project, action, \
-				request.POST, ps, context)
+                request.POST, ps, context)
         if errors:
             context['errors'] = errors
 
     if not (request.user.is_authenticated() and \
-	    project in request.user.get_profile().maintainer_projects.all()):
+            project in request.user.get_profile().maintainer_projects.all()):
         form = None
 
     for (filterclass, setting) in filter_settings:

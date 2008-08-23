@@ -155,8 +155,8 @@ def find_content(project, mail):
 
     if commentbuf:
         if patch:
-	    cpatch = patch
-	else:
+            cpatch = patch
+        else:
             cpatch = find_patch_for_comment(mail)
             if not cpatch:
                 return (None, None)

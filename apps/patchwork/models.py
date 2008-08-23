@@ -79,8 +79,8 @@ class UserProfile(models.Model):
 
     def name(self):
         if self.user.first_name or self.user.last_name:
-	    names = filter(bool, [self.user.first_name, self.user.last_name])
-	    return ' '.join(names)
+            names = filter(bool, [self.user.first_name, self.user.last_name])
+            return ' '.join(names)
         return self.user.username
 
     def contributor_projects(self):
@@ -114,16 +114,16 @@ class UserProfile(models.Model):
         return qs
 
     def save(self):
-	super(UserProfile, self).save()
-	people = Person.objects.filter(email = self.user.email)
-	if not people:
-	    person = Person(email = self.user.email,
-		    name = self.name(), user = self.user)
+        super(UserProfile, self).save()
+        people = Person.objects.filter(email = self.user.email)
+        if not people:
+            person = Person(email = self.user.email,
+                    name = self.name(), user = self.user)
             person.save()
-	else:
-	    for person in people:
-		 person.user = self.user
-		 person.save()
+        else:
+            for person in people:
+                 person.user = self.user
+                 person.save()
 
     def __str__(self):
         return self.name()
@@ -143,8 +143,8 @@ class UserPersonConfirmation(models.Model):
     active = models.BooleanField(default = True)
 
     def confirm(self):
-	if not self.active:
-	    return
+        if not self.active:
+            return
         person = None
         try:
             person = Person.objects.get(email = self.email)
@@ -194,10 +194,10 @@ class HashField(models.Field):
             n_bytes = len(hashlib.new(self.algorithm).digest())
         else:
             n_bytes = len(self.hash_constructor().digest())
-	if settings.DATABASE_ENGINE == 'postgresql':
-	    return 'bytea'
-	elif settings.DATABASE_ENGINE == 'mysql':
-	    return 'binary(%d)' % n_bytes
+        if settings.DATABASE_ENGINE == 'postgresql':
+            return 'bytea'
+        elif settings.DATABASE_ENGINE == 'mysql':
+            return 'binary(%d)' % n_bytes
 
     def to_python(self, value):
         return value
@@ -226,10 +226,10 @@ class Patch(models.Model):
         return self.name
 
     def comments(self):
-	return Comment.objects.filter(patch = self)
+        return Comment.objects.filter(patch = self)
 
     def save(self):
-	try:
+        try:
             s = self.state
         except:
             self.state = State.objects.get(ordering =  0)

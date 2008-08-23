@@ -24,9 +24,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib import auth
 from django.http import HttpResponse, HttpResponseRedirect
 from patchwork.models import Project, Patch, Bundle, Person, UserProfile, \
-	 UserPersonConfirmation, State
+         UserPersonConfirmation, State
 from patchwork.forms import MultiplePatchForm, UserProfileForm, \
-	 UserPersonLinkForm
+         UserPersonLinkForm
 from patchwork.utils import Order, get_patch_ids
 from patchwork.filters import DelegateFilter
 from patchwork.paginator import Paginator

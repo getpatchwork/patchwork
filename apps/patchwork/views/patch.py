@@ -25,7 +25,7 @@ from patchwork.utils import get_patch_ids, set_patches, Order
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, \
-	     HttpResponseForbidden
+        HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -71,7 +71,7 @@ def patch(request, patch_id):
             bundle.save()
             context.add_message('Patch added to bundle "%s"' % bundle.name)
 
-	# all other actions require edit privs
+        # all other actions require edit privs
         elif not editable:
             return HttpResponseForbidden()
 
@@ -81,14 +81,14 @@ def patch(request, patch_id):
                 form.save()
                 context.add_message('Patch updated')
 
-	elif action == 'archive':
-	    patch.archived = True
-	    patch.save()
+        elif action == 'archive':
+            patch.archived = True
+            patch.save()
             context.add_message('Patch archived')
 
-	elif action == 'unarchive':
-	    patch.archived = False
-	    patch.save()
+        elif action == 'unarchive':
+            patch.archived = False
+            patch.save()
             context.add_message('Patch un-archived')
 
         elif action == 'ack':
@@ -157,13 +157,13 @@ def list(request, project_id):
             ps.append(patch)
 
         (errors, form) = set_patches(request.user, project, action, \
-				request.POST, ps)
+                                        request.POST, ps)
         if errors:
             context['errors'] = errors
 
 
     elif request.user.is_authenticated() and \
-	    project in request.user.get_profile().maintainer_projects.all():
+            project in request.user.get_profile().maintainer_projects.all():
         form = MultiplePatchForm(project)
 
     patches = Patch.objects.filter(project=project).order_by(order)

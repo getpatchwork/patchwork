@@ -170,8 +170,8 @@ def patch_hash(str):
         if len(line) <= 0:
             continue
 
-	hunk_match = _hunk_re.match(line)
-	filename_match = _filename_re.match(line)
+        hunk_match = _hunk_re.match(line)
+        filename_match = _filename_re.match(line)
 
         if filename_match:
             # normalise -p1 top-directories
@@ -184,7 +184,7 @@ def patch_hash(str):
             line = filename_match.group(1) + ' ' + filename
 
             
-	elif hunk_match:
+        elif hunk_match:
             # remove line numbers
             def fn(x):
                 if not x:

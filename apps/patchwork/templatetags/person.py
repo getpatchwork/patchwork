@@ -28,9 +28,9 @@ register = template.Library()
 def personify(person):
 
     if person.name:
-	linktext = escape(person.name)
+        linktext = escape(person.name)
     else:
-	linktext = escape(person.email)
+        linktext = escape(person.email)
 
     str = '<a href="mailto:%s">%s</a>' % \
                 (escape(person.email), linktext)

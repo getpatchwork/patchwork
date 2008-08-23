@@ -79,7 +79,7 @@ class SubmitterFilter(Filter):
     def __init__(self, filters):
         super(SubmitterFilter, self).__init__(filters)
         self.name = 'Submitter'
-	self.person = None
+        self.person = None
         self.person_match = None
 
     def _set_key(self, str):
@@ -127,14 +127,14 @@ class SubmitterFilter(Filter):
         return ''
 
     def _form(self):
-	name = ''
-	if self.person:
-	    name = self.person.name
-	return mark_safe(('<input onKeyUp="submitter_field_change(this)" ' +
-			'name="submitter" id="submitter_input" ' +
+        name = ''
+        if self.person:
+            name = self.person.name
+        return mark_safe(('<input onKeyUp="submitter_field_change(this)" ' +
+                'name="submitter" id="submitter_input" ' +
                         'value="%s">&nbsp;' % escape(name)) +
-			'<select id="submitter_select" ' +
-			'disabled="true"></select>')
+                '<select id="submitter_select" ' +
+                'disabled="true"></select>')
 
     def key(self):
         if self.person:
@@ -146,7 +146,7 @@ class StateFilter(Filter):
     def __init__(self, filters):
         super(StateFilter, self).__init__(filters)
         self.name = 'State'
-	self.state = None
+        self.state = None
 
     def _set_key(self, str):
         try:
@@ -171,12 +171,12 @@ class StateFilter(Filter):
         str = '<select name="%s">' % self.param
         str += '<option value="">any</option>'
         for state in State.objects.all():
-	    selected = ''
+            selected = ''
             if self.state and self.state == state:
-	        selected = ' selected="true"'
+                selected = ' selected="true"'
 
             str += '<option value="%d" %s>%s</option>' % \
-		(state.id, selected, state.name)
+                (state.id, selected, state.name)
         str += '</select>'
         return mark_safe(str);
 
@@ -189,12 +189,12 @@ class SearchFilter(Filter):
         super(SearchFilter, self).__init__(filters)
         self.name = 'Search'
         self.param = 'q'
-	self.search = None
+        self.search = None
 
     def _set_key(self, str):
-	str = str.strip()
-	if str == '':
-	    return
+        str = str.strip()
+        if str == '':
+            return
         self.search = str
         self.applied = True
 
@@ -208,11 +208,11 @@ class SearchFilter(Filter):
         return self.search
 
     def _form(self):
-	value = ''
-	if self.search:
-	    value = escape(self.search)
+        value = ''
+        if self.search:
+            value = escape(self.search)
         return mark_safe('<input name="%s" value="%s">' %\
-			(self.param, value))
+                (self.param, value))
 
     def form_function(self):
         return mark_safe('function(form) { return form.x.value }')
@@ -253,9 +253,9 @@ class ArchiveFilter(Filter):
         return self.description_map[self.archive_state]
 
     def key(self):
-	if self.archive_state == False:
-	    return None
-	return self.param_map[self.archive_state]
+        if self.archive_state == False:
+            return None
+        return self.param_map[self.archive_state]
 
     def _form(self):
         s = ''
@@ -402,7 +402,7 @@ class Filters:
 
     def params(self):
         return [ (f.param, f.key()) for f in self._filters \
-		if f.key() is not None ]
+                if f.key() is not None ]
 
     def querystring(self, remove = None):
         params = dict(self.params())

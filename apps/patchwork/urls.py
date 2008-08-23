@@ -36,9 +36,9 @@ urlpatterns = patterns('',
     (r'^user/todo/(?P<project_id>[^/]+)/$', 'patchwork.views.user.todo_list'),
 
     (r'^user/bundle/(?P<bundle_id>[^/]+)/$',
-	'patchwork.views.bundle.bundle'),
+        'patchwork.views.bundle.bundle'),
     (r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
-	'patchwork.views.bundle.mbox'),
+        'patchwork.views.bundle.mbox'),
 
     (r'^user/link/$', 'patchwork.views.user.link'),
     (r'^user/link/(?P<key>[^/]+)/$', 'patchwork.views.user.link_confirm'),

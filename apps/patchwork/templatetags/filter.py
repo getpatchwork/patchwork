@@ -28,9 +28,9 @@ register = template.Library()
 @register.filter
 def personify(person):
     if person.name:
-	linktext = escape(person.name)
+        linktext = escape(person.name)
     else:
-	linktext = escape(person.email)
+        linktext = escape(person.email)
 
     return '<a href="javascript:personpopup(\'%s\')">%s</a>' % (escape(person.email), linktext)
 

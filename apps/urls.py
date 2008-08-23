@@ -31,8 +31,8 @@ urlpatterns = patterns('',
     # override the default registration form
     url(r'^accounts/register/$',
         register,
-	{'form_class': RegistrationForm,
-	 'profile_callback': userprofile_register_callback},
+        {'form_class': RegistrationForm,
+         'profile_callback': userprofile_register_callback},
         name='registration_register'),
 
     (r'^accounts/', include('registration.urls')),
@@ -41,9 +41,9 @@ urlpatterns = patterns('',
      (r'^admin/(.*)', admin_site.root),
 
      (r'^css/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/srv/patchwork/htdocs/css'}),
+        {'document_root': '/srv/patchwork/htdocs/css'}),
      (r'^js/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/srv/patchwork/htdocs/js'}),
+        {'document_root': '/srv/patchwork/htdocs/js'}),
      (r'^images/(?P<path>.*)$', 'django.views.static.serve',
-	{'document_root': '/srv/patchwork/htdocs/images'}),
+        {'document_root': '/srv/patchwork/htdocs/images'}),
 )

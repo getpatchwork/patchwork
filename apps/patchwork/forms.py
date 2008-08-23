@@ -77,7 +77,7 @@ class CreateBundleForm(forms.ModelForm):
 
 class DelegateField(forms.ModelChoiceField):
     def __init__(self, project, *args, **kwargs):
-	queryset = User.objects.filter(userprofile__in = \
+        queryset = User.objects.filter(userprofile__in = \
                 UserProfile.objects \
                         .filter(maintainer_projects = project) \
                         .values('pk').query)
@@ -86,10 +86,10 @@ class DelegateField(forms.ModelChoiceField):
 
 class PatchForm(forms.ModelForm):
     def __init__(self, instance = None, project = None, *args, **kwargs):
-	if (not project) and instance:
+        if (not project) and instance:
             project = instance.project
         if not project:
-	    raise Exception("meep")
+            raise Exception("meep")
         super(PatchForm, self).__init__(instance = instance, *args, **kwargs)
         self.fields['delegate'] = DelegateField(project, required = False)
 
@@ -172,7 +172,7 @@ class MultiplePatchForm(PatchForm):
         super(MultiplePatchForm, self).__init__(project = project,
                 *args, **kwargs)
         self.fields['delegate'] = OptionalDelegateField(project = project,
-		required = False)
+                required = False)
 
     def save(self, instance, commit = True):
         opts = instance.__class__._meta
