@@ -1,0 +1,31 @@
+#
+# NOTE! Don't add files that are generated in specific
+# subdirectories here. Add them in the ".gitignore" file
+# in that subdirectory instead.
+#
+# Normal rules
+#
+.*
+*.pyc
+*.patch
+lib/packages/*
+
+#
+# Top-level generic files
+#
+tags
+TAGS
+!.gitignore
+
+# stgit generated dirs
+patches-*
+
+# quilt's files
+patches
+series
+
+# cscope files
+cscope.*
+
+*.orig
+*.rej
