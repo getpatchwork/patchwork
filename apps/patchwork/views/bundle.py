@@ -135,6 +135,8 @@ def bundle(request, bundle_id):
 def mbox(request, bundle_id):
     bundle = get_object_or_404(Bundle, id = bundle_id)
     response = HttpResponse(mimetype='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=bundle-%d.mbox' % \
+	    bundle.id
     response.write(bundle.mbox())
     return response
 
