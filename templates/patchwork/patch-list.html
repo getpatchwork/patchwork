@@ -68,6 +68,19 @@
   </th>
 
   <th>
+   {% ifequal order.name "delegate" %}
+    <a class="colactive"
+     href="{% listurl order=order.reversed_name %}"><img
+     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+     width="16" height="16"
+    ></a> <a class="colactive"
+     href="{% listurl order=order.reversed_name %}">Delegate</a>
+   {% else %}
+    <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+   {% endifequal %}
+  </th>
+
+  <th>
    {% ifequal order.name "state" %}
     <a class="colactive"
      href="{% listurl order=order.reversed_name %}"><img
@@ -94,6 +107,7 @@
      >{{ patch.name }}</a></td>
    <td>{{ patch.date|date:"Y-m-d" }}</td>
    <td>{{ patch.submitter|personify }}</td>
+   <td>{{ patch.delegate.username }}</td>
    <td>{{ patch.state }}</td>
   </tr>
  {% endfor %}

@@ -43,7 +43,8 @@ class Order(object):
         'date':         'date',
         'name':         'name',
         'state':        'state__ordering',
-        'submitter':    'submitter__name'
+        'submitter':    'submitter__name',
+        'delegate':     'delegate__username',
     }
     default_order = 'date'
 
