@@ -62,15 +62,17 @@ in brackets):
          cd ../../apps
          ln -s ../lib/packages/django-registration ./registration
 
-	You'll need to customise apps/settings.py to suit your database, and
-	change the SECRET_KEY variable too. While you're there, change the
-	following to suit your installation:
+	The settings.py file contains default settings for patchwork, you'll
+	need to configure settings for your own setup.
 
-          SECRET_KEY
+	Rather than edit settings.py, create a file 'local_settings.py', and
+	override or add settings as necessary. You'll need to define the
+	following:
+
+	  SECRET_KEY
 	  ADMINS
 	  TIME_ZONE
 	  LANGUAGE_CODE
-	  MEDIA_ROOT
 
         You can generate the SECRET_KEY with the following python code:
 
@@ -78,10 +80,16 @@ in brackets):
           chars = string.letters + string.digits + string.punctuation
           print repr("".join([random.choice(chars) for i in range(0,50)]))
 
+	If you have patchwork installed in somewhere other than /srv/patchwork,
+	you'll also need to define:
+
+	  MEDIA_ROOT
+	  TEMPLATE_DIRS
+
 	Then, get patchwork to create its tables in your configured database:
 
 	 cd apps/
-	 ./manage.py syncdb
+	 PYTHONPATH=../lib/python ./manage.py syncdb
 
 	And add privileges for your mail and web users:
 

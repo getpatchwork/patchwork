@@ -97,3 +97,13 @@ DEFAULT_PATCHES_PER_PAGE = 100
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
 ACCOUNT_ACTIVATION_DAYS = 7
+
+try:
+    from local_settings import *
+except ImportError, ex:
+    import sys
+    sys.stderr.write(\
+            ("settings.py: error importing local settings file:\n" + \
+            "\t%s\n" + \
+            "Do you have a local_settings.py module?\n") % str(ex))
+    raise
