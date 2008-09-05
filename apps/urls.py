@@ -46,4 +46,5 @@ urlpatterns = patterns('',
         {'document_root': '/srv/patchwork/htdocs/js'}),
      (r'^images/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': '/srv/patchwork/htdocs/images'}),
+     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 )

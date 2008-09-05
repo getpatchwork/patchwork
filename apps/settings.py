@@ -98,8 +98,28 @@ DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
+# Set to True to enable the Patchwork XML-RPC interface
+ENABLE_XMLRPC = False
+
+XMLRPC_METHODS = (
+    # List methods to be exposed in the form (<method path>, <xml-rpcname>,)
+    ('patchwork.xmlrpc.pw_rpc_version', 'pw_rpc_version',),
+    ('patchwork.xmlrpc.patch_list',     'patch_list',),
+    ('patchwork.xmlrpc.patch_get',      'patch_get',),
+    ('patchwork.xmlrpc.patch_get_mbox', 'patch_get_mbox',),
+    ('patchwork.xmlrpc.patch_get_diff', 'patch_get_diff',),
+    ('patchwork.xmlrpc.project_list',   'project_list',),
+    ('patchwork.xmlrpc.project_get',    'project_get',),
+    ('patchwork.xmlrpc.person_list',    'person_list',),
+    ('patchwork.xmlrpc.person_get',     'person_get',),
+    ('patchwork.xmlrpc.state_list',     'state_list',),
+    ('patchwork.xmlrpc.state_get',      'state_get',),
+)
+
 try:
     from local_settings import *
+    if ENABLE_XMLRPC:
+        INSTALLED_APPS = INSTALLED_APPS + ('django_xmlrpc',)
 except ImportError, ex:
     import sys
     sys.stderr.write(\
