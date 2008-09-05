@@ -24,7 +24,7 @@
 <input type="hidden" name="project" value="{{project.id}}"/>
 <table class="patchlist">
  <tr>
-  {% if patchform or bundle %}
+  {% if user.is_authenticated %}
   <th/>
   {% endif %}
 
@@ -98,7 +98,7 @@
 {% if page %}
  {% for patch in page.object_list %}
   <tr class="{% cycle 'odd' 'even' %}">
-    {% if patchform or bundle %}
+    {% if user.is_authenticated %}
     <td>
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
     </td>
