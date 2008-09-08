@@ -26,16 +26,14 @@ import getopt
 import string
 import tempfile
 import subprocess
+import ConfigParser
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
 # for the URL to access.  If that is unspecified, it will fallback to
 # the hardcoded default value specified here.
-DEFAULT_URL = "http://patchwork:80/xmlrpc/"
-
-PW_XMLRPC_URL = os.getenv("PW_XMLRPC_URL")
-if not PW_XMLRPC_URL:
-    PW_XMLRPC_URL = DEFAULT_URL
+DEFAULT_URL = "http://patchwork/xmlrpc/"
+CONFIG_FILES = [os.path.expanduser('~/.pwclientrc')]
 
 class Filter:
     """Filter for selecting patches."""
@@ -249,15 +247,28 @@ def main():
 
     action = sys.argv[1].lower()
 
+    # set defaults
     filt = Filter()
     submitter_str = ""
     delegate_str = ""
+    project_str = ""
+    url = DEFAULT_URL
+
+    config = ConfigParser.ConfigParser()
+    config.read(CONFIG_FILES)
+
+    # grab settings from config files
+    if config.has_option('base', 'url'):
+        url = config.get('base', 'url')
+
+    if config.has_option('base', 'project'):
+        project_str = config.get('base', 'project')
 
     for name, value in opts:
         if name == '-s':
             filt.add("state", value)
         elif name == '-p':
-            filt.add("project", value)
+            project_str = value
         elif name == '-w':
             submitter_str = value
         elif name == '-d':
@@ -276,10 +287,13 @@ def main():
         sys.stderr.write("Too many arguments specified\n")
         usage()
 
+    if project_str:
+        filt.add("project", project_str)
+
     try:
-        rpc = xmlrpclib.Server(PW_XMLRPC_URL)
+        rpc = xmlrpclib.Server(url)
     except:
-        sys.stderr.write("Unable to connect to %s\n" % PW_XMLRPC_URL)
+        sys.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
 
     if action == 'list' or action == 'search':
