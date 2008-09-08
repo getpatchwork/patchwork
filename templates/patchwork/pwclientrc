@@ -1,0 +1,13 @@
+# Sample .pwclientrc file for the {{ project.linkname }} project,
+# running on {{ site.domain }}.
+#
+# Save this file to ~/.pwclientrc
+#
+[base]
+url: http://{{site.domain}}{% url django_xmlrpc.views.handle_xmlrpc %}
+project: {{ project.linkname }}
+{% if user.is_authenticated %}
+[auth]
+user: {{ user.username }}
+password: <add your patchwork password here>
+{% endif %}

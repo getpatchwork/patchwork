@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 urlpatterns = patterns('',
     # Example:
@@ -54,3 +55,9 @@ urlpatterns = patterns('',
     # help!
     (r'^help/(?P<path>.*)$', 'patchwork.views.help'),
 )
+
+if settings.ENABLE_XMLRPC:
+    urlpatterns += patterns('',
+        (r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
+             'patchwork.views.pwclientrc'),
+    )

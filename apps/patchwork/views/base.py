@@ -56,6 +56,14 @@ def project(request, project_id):
 
     return render_to_response('patchwork/project.html', context)
 
+def pwclientrc(request, project_id):
+    project = get_object_or_404(Project, linkname = project_id)
+    context = PatchworkRequestContext(request)
+    context.project = project
+    return render_to_response('patchwork/pwclientrc', context,
+            mimetype = 'text/plain')
+
+
 def submitter_complete(request):
     search = request.GET.get('q', '')
     response = HttpResponse(mimetype = "text/plain")
