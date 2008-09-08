@@ -178,7 +178,7 @@ def patch_list(filter={}):
 
         for key in filter:
             parts = key.split("__")
-            if ok_fields.count(parts[0]) == 0:
+            if parts[0] not in ok_fields:
                 # Invalid field given
                 return []
             if len(parts) > 1:
