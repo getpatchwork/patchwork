@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 import django.core.urlresolvers
 from patchwork.requestcontext import PatchworkRequestContext
 from django.core import serializers
+from django.template.loader import render_to_string
 
 def projects(request):
     context = PatchworkRequestContext(request)
@@ -60,9 +61,10 @@ def pwclientrc(request, project_id):
     project = get_object_or_404(Project, linkname = project_id)
     context = PatchworkRequestContext(request)
     context.project = project
-    return render_to_response('patchwork/pwclientrc', context,
-            mimetype = 'text/plain')
-
+    response = HttpResponse(mimetype = "text/plain")
+    response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
+    response.write(render_to_string('patchwork/pwclientrc', context))
+    return response
 
 def submitter_complete(request):
     search = request.GET.get('q', '')
