@@ -49,7 +49,3 @@ urlpatterns = patterns('',
         {'document_root': '/srv/patchwork/htdocs/images'}),
 )
 
-if settings.ENABLE_XMLRPC:
-    urlpatterns += patterns('',
-		    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc'),
-    )

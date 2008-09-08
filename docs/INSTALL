@@ -62,17 +62,6 @@ in brackets):
          cd ../../apps
          ln -s ../lib/packages/django-registration ./registration
 
-	(OPTIONAL) If you want to enable the Patchwork XML-RPC interface,
-        which is required for pwclient to work, you'll need to set up the
-        django_xmlrpc package:
-
-         cd lib/packages/
-         wget \
-             http://django-xmlrpc.googlecode.com/files/django_xmlrpc-0.1.tar.gz
-         tar -zxf django_xmlrpc-0.1.tar.gz
-         cd ../../apps
-         ln -s ../lib/packages/django_xmlrpc ./django_xmlrpc
-
 	The settings.py file contains default settings for patchwork, you'll
 	need to configure settings for your own setup.
 

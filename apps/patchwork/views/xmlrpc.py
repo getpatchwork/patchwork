@@ -1,5 +1,5 @@
 # Patchwork - automated patch tracking system
-# Copyright (C) 2008 Nate Case <ncase@xes-inc.com>
+# Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
 #
 # This file is part of the Patchwork package.
 #
@@ -17,13 +17,122 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# The XML-RPC interface provides a watered down, read-only interface to
-# the Patchwork database.  It's intended to be safe to export to the public
-# Internet.  A small subset of the object data is included, and the type
-# of requests/queries you can do is limited by the methods
-# that we export.
+# Patchwork XMLRPC interface
+#
 
+from django.core.exceptions import ImproperlyConfigured
+from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
+from django.http import HttpResponse, HttpResponseRedirect, \
+     HttpResponseServerError
+from django.conf import settings
+from django.core import urlresolvers
+from django.shortcuts import render_to_response
+from django.contrib.auth import authenticate
 from patchwork.models import Patch, Project, Person, Bundle, State
+
+import sys
+import base64
+import xmlrpclib
+
+class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
+    def __init__(self):
+        if sys.version_info[:3] >= (2,5,):
+            SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
+                    encoding=None)
+        else:
+            SimpleXMLRPCDispatcher.__init__(self)
+
+        # map of name => (auth, func)
+        self.func_map = {}
+
+
+    def register_function(self, fn, auth_required):
+        self.func_map[fn.__name__] = (auth_required, fn)
+
+
+    def _user_for_request(self, request):
+        if not request.META.has_key('HTTP_AUTHORIZATION'):
+            raise Exception("No authentication credentials given")
+
+        str = request.META.get('HTTP_AUTHORIZATION').strip()
+        if not str.startswith('Basic '):
+            raise Exception("Authentication scheme not supported")
+
+        str = str[len('Basic '):].strip()
+
+        try:
+            decoded = base64.decodestring(str)
+            username, password = decoded.split(':', 1)
+        except:
+            raise Exception("Invalid authentication credentials")
+
+        return authenticate(username = username, password = password)
+
+
+    def _dispatch(self, request, method, params):
+        if method not in self.func_map.keys():
+            raise Exception('method "%s" is not supported' % method)
+
+        auth_required, fn = self.func_map[method]
+
+        if auth_required:
+            user = self._user_for_request(request)
+            if not user:
+                raise Exception("Invalid username/password")
+
+            params = (user,) + params
+
+        return fn(*params)
+
+    def _marshaled_dispatch(self, request):
+        try:
+            params, method = xmlrpclib.loads(request.raw_post_data)
+
+            response = self._dispatch(request, method, params)
+            # wrap response in a singleton tuple
+            response = (response,)
+            response = xmlrpclib.dumps(response, methodresponse=1,
+                           allow_none=self.allow_none, encoding=self.encoding)
+        except xmlrpclib.Fault, fault:
+            response = xmlrpclib.dumps(fault, allow_none=self.allow_none,
+                                       encoding=self.encoding)
+        except:
+            # report exception back to server
+            response = xmlrpclib.dumps(
+                xmlrpclib.Fault(1, "%s:%s" % (sys.exc_type, sys.exc_value)),
+                encoding=self.encoding, allow_none=self.allow_none,
+                )
+
+        return response
+
+dispatcher = PatchworkXMLRPCDispatcher()
+
+# XMLRPC view function
+def xmlrpc(request):
+    if request.method != 'POST':
+        return HttpResponseRedirect(
+                urlresolvers.reverse('patchwork.views.help',
+                    kwargs = {'path': 'pwclient/'}))
+
+    response = HttpResponse()
+    try:
+        ret = dispatcher._marshaled_dispatch(request)
+        response.write(ret)
+    except Exception, e:
+        return HttpResponseServerError()
+
+    return response
+
+# decorator for XMLRPC methods. Setting login_required to true will call
+# the decorated function with a non-optional user as the first argument.
+def xmlrpc_method(login_required = False):
+    def wrap(f):
+        dispatcher.register_function(f, login_required)
+        return f
+
+    return wrap
+
+
 
 # We allow most of the Django field lookup types for remote queries
 LOOKUP_TYPES = ["iexact", "contains", "icontains", "gt", "gte", "lt",
@@ -100,10 +209,12 @@ def state_to_dict(obj):
 # Public XML-RPC methods
 #######################################################################
 
+@xmlrpc_method(False)
 def pw_rpc_version():
     """Return Patchwork XML-RPC interface version."""
     return 1
 
+@xmlrpc_method(False)
 def project_list(search_str="", max_count=0):
     """Get a list of projects matching the given filters."""
     try:
@@ -119,6 +230,7 @@ def project_list(search_str="", max_count=0):
     except:
         return []
 
+@xmlrpc_method(False)
 def project_get(project_id):
     """Return structure for the given project ID."""
     try:
@@ -127,6 +239,7 @@ def project_get(project_id):
     except:
         return {}
 
+@xmlrpc_method(False)
 def person_list(search_str="", max_count=0):
     """Get a list of Person objects matching the given filters."""
     try:
@@ -144,6 +257,7 @@ def person_list(search_str="", max_count=0):
     except:
         return []
 
+@xmlrpc_method(False)
 def person_get(person_id):
     """Return structure for the given person ID."""
     try:
@@ -152,6 +266,7 @@ def person_get(person_id):
     except:
         return {}
 
+@xmlrpc_method(False)
 def patch_list(filter={}):
     """Get a list of patches matching the given filters."""
     try:
@@ -210,6 +325,7 @@ def patch_list(filter={}):
     except:
         return []
 
+@xmlrpc_method(False)
 def patch_get(patch_id):
     """Return structure for the given patch ID."""
     try:
@@ -218,6 +334,7 @@ def patch_get(patch_id):
     except:
         return {}
 
+@xmlrpc_method(False)
 def patch_get_mbox(patch_id):
     """Return mbox string for the given patch ID."""
     try:
@@ -226,6 +343,7 @@ def patch_get_mbox(patch_id):
     except:
         return ""
 
+@xmlrpc_method(False)
 def patch_get_diff(patch_id):
     """Return diff for the given patch ID."""
     try:
@@ -234,6 +352,36 @@ def patch_get_diff(patch_id):
     except:
         return ""
 
+@xmlrpc_method(True)
+def patch_set(user, patch_id, params):
+    """Update a patch with the key,value pairs in params. Only some parameters
+       can be set"""
+    try:
+        ok_params = ['state', 'commit_ref', 'archived']
+
+        patch = Patch.objects.get(id = patch_id)
+
+        if not patch.is_editable(user):
+            raise Exception('No permissions to edit this patch')
+
+        for (k, v) in params.iteritems():
+            if k not in ok_params:
+                continue
+
+            if k == 'state':
+                patch.state = State.objects.get(id = v)
+
+            else:
+                setattr(patch, k, v)
+
+        patch.save()
+
+        return True
+
+    except:
+        raise
+
+@xmlrpc_method(False)
 def state_list(search_str="", max_count=0):
     """Get a list of state structures matching the given search string."""
     try:
@@ -249,6 +397,7 @@ def state_list(search_str="", max_count=0):
     except:
         return []
 
+@xmlrpc_method(False)
 def state_get(state_id):
     """Return structure for the given state ID."""
     try:

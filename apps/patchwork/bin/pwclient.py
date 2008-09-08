@@ -26,6 +26,7 @@ import getopt
 import string
 import tempfile
 import subprocess
+import base64
 import ConfigParser
 
 # Default Patchwork remote XML-RPC server URL
@@ -77,6 +78,24 @@ class Filter:
     def __str__(self):
         """Return human-readable description of the filter."""
         return str(self.d)
+
+class BasicHTTPAuthTransport(xmlrpclib.Transport):
+
+    def __init__(self, username = None, password = None):
+        self.username = username
+        self.password = password
+        xmlrpclib.Transport.__init__(self)
+
+    def authenticated(self):
+        return self.username != None and self.password != None
+
+    def send_host(self, connection, host):
+        xmlrpclib.Transport.send_host(self, connection, host)
+        if not self.authenticated():
+            return
+        credentials = '%s:%s' % (self.username, self.password)
+        auth = 'Basic ' + base64.encodestring(credentials).strip()
+        connection.putheader('Authorization', auth)
 
 def usage():
     sys.stderr.write("Usage: %s <action> [options]\n\n" % \
@@ -235,9 +254,39 @@ def action_apply(rpc, patch_id):
         sys.stderr.write("Error: No patch content found\n")
         sys.exit(1)
 
+def action_update_patch(rpc, patch_id, state = None, commit = None):
+    patch = rpc.patch_get(patch_id)
+    if patch == {}:
+        sys.stderr.write("Error getting information on patch ID %d\n" % \
+                         patch_id)
+        sys.exit(1)
+
+    params = {}
+
+    if state:
+        state_id = state_id_by_name(rpc, state)
+        if state_id == 0:
+            sys.stderr.write("Error: No State found matching %s*\n" % state)
+            sys.exit(1)
+        params['state'] = state_id
+
+    if commit:
+        params['commit_ref'] = commit
+
+    success = False
+    try:
+        success = rpc.patch_set(patch_id, params)
+    except xmlrpclib.Fault, f:
+        sys.stderr.write("Error updating patch: %s\n" % f.faultString)
+
+    if not success:
+        sys.stderr.write("Patch not updated\n")
+
+auth_actions = ['update']
+
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:')
+        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:')
     except getopt.GetoptError, err:
         print str(err)
         usage()
@@ -252,6 +301,8 @@ def main():
     submitter_str = ""
     delegate_str = ""
     project_str = ""
+    commit_str = ""
+    state_str = ""
     url = DEFAULT_URL
 
     config = ConfigParser.ConfigParser()
@@ -266,13 +317,15 @@ def main():
 
     for name, value in opts:
         if name == '-s':
-            filt.add("state", value)
+            state_str = value
         elif name == '-p':
             project_str = value
         elif name == '-w':
             submitter_str = value
         elif name == '-d':
             delegate_str = value
+        elif name == '-c':
+            commit_str = value
         elif name == '-n':
             try:
                 filt.add("max_count", int(value))
@@ -287,11 +340,29 @@ def main():
         sys.stderr.write("Too many arguments specified\n")
         usage()
 
+    (username, password) = (None, None)
+    transport = None
+    if action in auth_actions:
+        if config.has_option('auth', 'username') and \
+                config.has_option('auth', 'password'):
+
+            transport = BasicHTTPAuthTransport( \
+                    config.get('auth', 'username'),
+                    config.get('auth', 'password'))
+
+        else:
+            sys.stderr.write(("The %s action requires authentication, "
+                    "but no username or password\nis configured\n") % action)
+            sys.exit(1)
+
     if project_str:
         filt.add("project", project_str)
 
+    if state_str:
+        filt.add("state", state_str)
+
     try:
-        rpc = xmlrpclib.Server(url)
+        rpc = xmlrpclib.Server(url, transport = transport)
     except:
         sys.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
@@ -335,6 +406,16 @@ def main():
             sys.exit(1)
 
         action_apply(rpc, patch_id)
+
+    elif action == 'update':
+        try:
+            patch_id = int(args[0])
+        except:
+            sys.stderr.write("Invalid patch ID given\n")
+            sys.exit(1)
+
+        action_update_patch(rpc, patch_id, state = state_str,
+                commit = commit_str)
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)
