@@ -110,7 +110,9 @@ def usage():
                         below and an optional substring to search for patches
                         by name
         search [str]  : Same as 'list'
-        view <ID>     : View a patch\n""")
+        view <ID>     : View a patch
+        update [-s state] [-c commit-ref] <ID>
+                      : Update patch\n""")
     sys.stderr.write("""\nFilter options for 'list' and 'search':
         -s <state>    : Filter by patch state (e.g., 'New', 'Accepted', etc.)
         -p <project>  : Filter by project name (see 'projects' for list)
