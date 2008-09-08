@@ -108,7 +108,7 @@ def project_list(search_str="", max_count=0):
     """Get a list of projects matching the given filters."""
     try:
         if len(search_str) > 0:
-            projects = Project.objects.filter(name__icontains = search_str)
+            projects = Project.objects.filter(linkname__icontains = search_str)
         else:
             projects = Project.objects.all()
 
