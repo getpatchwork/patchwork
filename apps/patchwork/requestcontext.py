@@ -20,6 +20,7 @@
 from django.template import RequestContext
 from django.utils.html import escape
 from django.contrib.sites.models import Site
+from django.conf import settings
 from patchwork.filters import Filters
 from patchwork.models import Bundle, Project
 
@@ -67,6 +68,7 @@ class PatchworkRequestContext(RequestContext):
         self.update({
                 'project': self.project,
                 'site': Site.objects.get_current(),
+                'settings': settings,
                 'other_projects': len(self.projects) > 1
             })
 

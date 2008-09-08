@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Command-line client{% endblock %}
+{% block heading %} - Command-line client{% endblock %}
+
+{% block body %}
+
+<p><code>pwclient</code> is the command-line client for patchwork. Currently,
+it provides access to some read-only features of patchwork, such as downloading
+and applying patches.</p>
+
+<p>To use pwclient, you will need:</p>
+<ul>
+ <li>The <a href="{% url patchwork.views.pwclient %}">pwclient.py</a>
+  program (11kB, python script)</li>
+ <li>(optional) a <code>.pwclientrc</code> file in your home directory.</li>
+</ul>
+
+<p>You can create your own <code>.pwclientrc</code> file. Each
+<a href="{% url patchwork.views.projects %}">patchwork project</a>
+provides a sample linked from the 'project info' page.</p>
+
+{% endblock %}

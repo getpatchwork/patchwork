@@ -30,6 +30,7 @@ import django.core.urlresolvers
 from patchwork.requestcontext import PatchworkRequestContext
 from django.core import serializers
 from django.template.loader import render_to_string
+from django.conf import settings
 
 def projects(request):
     context = PatchworkRequestContext(request)
@@ -66,6 +67,13 @@ def pwclientrc(request, project_id):
     response.write(render_to_string('patchwork/pwclientrc', context))
     return response
 
+def pwclient(request):
+    context = PatchworkRequestContext(request)
+    response = HttpResponse(mimetype = "text/x-python")
+    response['Content-Disposition'] = 'attachment; filename=pwclient.py'
+    response.write(render_to_string('patchwork/pwclient.py', context))
+    return response
+
 def submitter_complete(request):
     search = request.GET.get('q', '')
     response = HttpResponse(mimetype = "text/plain")
@@ -75,7 +83,12 @@ def submitter_complete(request):
         json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
     return response
 
-help_pages = {'': 'index.html', 'about/': 'about.html'}
+help_pages = {'':           'index.html',
+              'about/':     'about.html',
+             }
+
+if settings.ENABLE_XMLRPC:
+    help_pages['pwclient/'] = 'pwclient.html'
 
 def help(request, path):
     context = PatchworkRequestContext(request)
