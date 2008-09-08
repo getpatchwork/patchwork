@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf.urls.defaults import *
+from django.conf import settings
 from patchwork.admin import admin_site
 
 from registration.views import register
@@ -46,5 +47,9 @@ urlpatterns = patterns('',
         {'document_root': '/srv/patchwork/htdocs/js'}),
      (r'^images/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': '/srv/patchwork/htdocs/images'}),
-     (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc',),
 )
+
+if settings.ENABLE_XMLRPC:
+    urlpatterns += patterns('',
+		    (r'xmlrpc/$', 'django_xmlrpc.views.handle_xmlrpc'),
+    )
