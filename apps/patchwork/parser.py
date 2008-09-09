@@ -22,6 +22,16 @@
 
 import re
 
+try:
+    import hashlib
+    sha1_hash = hashlib.sha1
+except ImportError:
+    import sha
+    sha1_hash = sha.sha
+
+_hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
+_filename_re = re.compile('^(---|\+\+\+) (\S+)')
+
 def parse_patch(text):
     patchbuf = ''
     commentbuf = ''
@@ -53,7 +63,6 @@ def parse_patch(text):
     lc = (0, 0)
     hunk = 0
 
-    hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 
     for line in text.split('\n'):
         line += '\n'
@@ -91,7 +100,7 @@ def parse_patch(text):
                 buf = ''
 
         elif state == 3:
-            match = hunk_re.match(line)
+            match = _hunk_re.match(line)
             if match:
 
                 def fn(x):
@@ -149,10 +158,58 @@ def parse_patch(text):
 
     return (patchbuf, commentbuf)
 
+def hash_patch(str):
+    # normalise spaces
+    str = str.replace('\r', '')
+    str = str.strip() + '\n'
+
+    prefixes = ['-', '+', ' ']
+    hash = sha1_hash()
+
+    for line in str.split('\n'):
+
+        if len(line) <= 0:
+            continue
+
+        hunk_match = _hunk_re.match(line)
+        filename_match = _filename_re.match(line)
+
+        if filename_match:
+            # normalise -p1 top-directories
+            if filename_match.group(1) == '---':
+                filename = 'a/'
+            else:
+                filename = 'b/'
+            filename += '/'.join(filename_match.group(2).split('/')[1:])
+
+            line = filename_match.group(1) + ' ' + filename
+
+        elif hunk_match:
+            # remove line numbers, but leave line counts
+            def fn(x):
+                if not x:
+                    return 1
+                return int(x)
+            line_nos = map(fn, hunk_match.groups())
+            line = '@@ -%d +%d @@' % tuple(line_nos)
+
+        elif line[0] in prefixes:
+            # if we have a +, - or context line, leave as-is
+            pass
+
+        else:
+            # other lines are ignored
+            continue
+
+        hash.update(line.encode('utf-8') + '\n')
+
+    return hash
+
 if __name__ == '__main__':
     import sys
     (patch, comment) = parse_patch(sys.stdin.read())
     if patch:
         print "Patch: ------\n" + patch
+        print "hash: %s" % hash_patch(patch).hexdigest()
     if comment:
         print "Comment: ----\n" + comment

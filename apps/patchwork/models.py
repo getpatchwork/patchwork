@@ -22,6 +22,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.conf import settings
+from patchwork.parser import hash_patch
 import django.oldforms as oldforms
 
 import re
@@ -223,7 +224,7 @@ class Patch(models.Model):
     headers = models.TextField(blank = True)
     content = models.TextField()
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
-    hash = HashField()
+    hash = HashField(null = True)
 
     def __str__(self):
         return self.name
@@ -236,8 +237,10 @@ class Patch(models.Model):
             s = self.state
         except:
             self.state = State.objects.get(ordering =  0)
-        if hash is None:
-            print "no hash"
+
+        if self.hash is None:
+            self.hash = hash_patch(self.content).digest()
+
         super(Patch, self).save()
 
     def is_editable(self, user):
