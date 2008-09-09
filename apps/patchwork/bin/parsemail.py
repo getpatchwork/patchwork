@@ -33,7 +33,7 @@ except ImportError:
     from email.Header import Header
     from email.Utils import parsedate_tz, mktime_tz
 
-from patchparser import parse_patch
+from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment
 
 list_id_headers = ['List-ID', 'X-Mailing-List']
