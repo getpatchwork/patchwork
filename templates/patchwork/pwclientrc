@@ -6,9 +6,10 @@
 [base]
 url: http://{{site.domain}}{% url patchwork.views.xmlrpc.xmlrpc %}
 project: {{ project.linkname }}
-
 {% if user.is_authenticated %}
+# Adding authentication parameters will allow you to use the 'update'
+# command on patches that you are allowed to edit.
 [auth]
-user: {{ user.username }}
+username: {{ user.username }}
 password: <add your patchwork password here>
 {% endif %}
