@@ -343,6 +343,15 @@ def patch_get(patch_id):
         return {}
 
 @xmlrpc_method(False)
+def patch_get_by_hash(hash):
+    """Return structure for the given patch hash."""
+    try:
+        patch = Patch.objects.filter(hash = hash)[0]
+        return patch_to_dict(patch)
+    except:
+        return {}
+
+@xmlrpc_method(False)
 def patch_get_mbox(patch_id):
     """Return mbox string for the given patch ID."""
     try:
