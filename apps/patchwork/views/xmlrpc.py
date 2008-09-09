@@ -51,10 +51,18 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 
 
     def _user_for_request(self, request):
-        if not request.META.has_key('HTTP_AUTHORIZATION'):
+	auth_header = None
+
+        if request.META.has_key('HTTP_AUTHORIZATION'):
+	    auth_header = request.META.get('HTTP_AUTHORIZATION')
+        elif request.META.has_key('Authorization'):
+	    auth_header = request.META.get('Authorization')
+
+	if auth_header is None or auth_header == '':
             raise Exception("No authentication credentials given")
 
-        str = request.META.get('HTTP_AUTHORIZATION').strip()
+        str = auth_header.strip()
+
         if not str.startswith('Basic '):
             raise Exception("Authentication scheme not supported")
 
