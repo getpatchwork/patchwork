@@ -70,8 +70,8 @@ def pwclientrc(request, project_id):
 def pwclient(request):
     context = PatchworkRequestContext(request)
     response = HttpResponse(mimetype = "text/x-python")
-    response['Content-Disposition'] = 'attachment; filename=pwclient.py'
-    response.write(render_to_string('patchwork/pwclient.py', context))
+    response['Content-Disposition'] = 'attachment; filename=pwclient'
+    response.write(render_to_string('patchwork/pwclient', context))
     return response
 
 def submitter_complete(request):

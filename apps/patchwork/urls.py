@@ -59,7 +59,7 @@ urlpatterns = patterns('',
 if settings.ENABLE_XMLRPC:
     urlpatterns += patterns('',
         (r'xmlrpc/$', 'patchwork.views.xmlrpc.xmlrpc'),
-        (r'^pwclient.py/$', 'patchwork.views.pwclient'),
+        (r'^pwclient/$', 'patchwork.views.pwclient'),
         (r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
              'patchwork.views.pwclientrc'),
     )
