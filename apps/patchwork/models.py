@@ -192,6 +192,7 @@ class HashField(models.Field):
 
     def db_type(self):
         if self.hashlib:
+            import hashlib
             n_bytes = len(hashlib.new(self.algorithm).digest())
         else:
             n_bytes = len(self.hash_constructor().digest())
