@@ -122,7 +122,7 @@ class UserProfile(models.Model):
             person.save()
         else:
             for person in people:
-                 person.user = self.user
+                 person.link_to_user(self.user)
                  person.save()
 
     def __str__(self):

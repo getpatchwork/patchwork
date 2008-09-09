@@ -44,6 +44,11 @@ class RegistrationForm(RegistrationFormUniqueEmail):
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
         user.save()
+
+	# saving the userprofile causes the firstname/lastname to propagate
+	# to the person objects.
+	user.get_profile().save()
+
         return user
 
     def clean(self):
