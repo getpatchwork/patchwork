@@ -205,11 +205,31 @@ def hash_patch(str):
 
     return hash
 
+
+def main(args):
+    from optparse import OptionParser
+
+    parser = OptionParser()
+    parser.add_option('-p', '--patch', action = 'store_true',
+            dest = 'print_patch', help = 'print parsed patch')
+    parser.add_option('-c', '--comment', action = 'store_true',
+            dest = 'print_comment', help = 'print parsed comment')
+    parser.add_option('-#', '--hash', action = 'store_true',
+            dest = 'print_hash', help = 'print patch hash')
+
+    (options, args) = parser.parse_args()
+
+    (patch, comment) = parse_patch(sys.stdin.read())
+
+    if options.print_hash and patch:
+        print hash_patch(patch).hexdigest()
+
+    if options.print_patch and patch:
+        print "Patch: ------\n" + patch
+
+    if options.print_comment and comment:
+        print "Comment: ----\n" + comment
+
 if __name__ == '__main__':
     import sys
-    (patch, comment) = parse_patch(sys.stdin.read())
-    if patch:
-        print "Patch: ------\n" + patch
-        print "hash: %s" % hash_patch(patch).hexdigest()
-    if comment:
-        print "Comment: ----\n" + comment
+    sys.exit(main(sys.argv))
