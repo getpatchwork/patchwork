@@ -177,29 +177,24 @@ class HashField(models.CharField):
         try:
             import hashlib
             self.hashlib = True
-            n_bytes = len(hashlib.new(self.algorithm).hexdigest())
+            self.n_bytes = len(hashlib.new(self.algorithm).hexdigest())
         except ImportError:
             self.hashlib = False
             if algorithm == 'sha1':
                 import sha
-                self.hash_constructor = sha.new
+                hash_constructor = sha.new
             elif algorithm == 'md5':
                 import md5
-                self.hash_constructor = md5.new
+                hash_constructor = md5.new
             else:
                 raise NameError("Unknown algorithm '%s'" % algorithm)
-            n_bytes = len(self.hash_constructor().hexdigest())
+            self.n_bytes = len(hash_constructor().hexdigest())
 
-        kwargs['max_length'] = n_bytes
+        kwargs['max_length'] = self.n_bytes
         super(HashField, self).__init__(*args, **kwargs)
 
     def db_type(self):
-        if self.hashlib:
-            import hashlib
-            n_bytes = len(hashlib.new(self.algorithm).hexdigest())
-        else:
-            n_bytes = len(self.hash_constructor().hexdigest())
-        return 'char(%d)' % n_bytes
+        return 'char(%d)' % self.n_bytes
 
 class Patch(models.Model):
     project = models.ForeignKey(Project)
