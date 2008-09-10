@@ -128,11 +128,9 @@ def project_id_by_name(rpc, linkname):
     """Given a project short name, look up the Project ID."""
     if len(linkname) == 0:
         return 0
-    # The search requires - instead of _
-    search = linkname.replace("_", "-")
-    projects = rpc.project_list(search, 0)
+    projects = rpc.project_list(linkname, 0)
     for project in projects:
-        if project['linkname'].replace("_", "-") == search:
+        if project['linkname'] == linkname:
             return project['id']
     return 0
 
@@ -205,7 +203,7 @@ def action_projects(rpc):
     print("%-5s %-24s %s" % ("--", "----", "-----------"))
     for project in projects:
         print("%-5d %-24s %s" % (project['id'], \
-                project['linkname'].replace("_", "-"), \
+                project['linkname'], \
                 project['name']))
 
 def action_states(rpc):
