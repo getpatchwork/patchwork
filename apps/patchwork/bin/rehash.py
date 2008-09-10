@@ -20,9 +20,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from patchwork.models import Patch
+import sys
 
 if __name__ == '__main__':
-    for patch in Patch.objects.all():
+    if len(sys.argv) > 1:
+        patches = Patch.objects.filter(id__in = sys.argv[1:])
+    else:
+        patches = Patch.objects.all()
+
+    for patch in patches:
         print patch.id, patch.name
         patch.hash = None
         patch.save()
