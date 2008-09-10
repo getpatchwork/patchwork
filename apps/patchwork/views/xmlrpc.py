@@ -39,12 +39,19 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
         if sys.version_info[:3] >= (2,5,):
             SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
                     encoding=None)
+            def _dumps(obj, *args, **kwargs):
+                kwargs['allow_none'] = self.allow_none
+                kwargs['encoding'] = self.encoding
+                return xmlrpclib.dumps(obj, *args, **kwargs)
         else:
+            def _dumps(obj, *args, **kwargs):
+                return xmlrpclib.dumps(obj, *args, **kwargs)
             SimpleXMLRPCDispatcher.__init__(self)
+
+        self.dumps = _dumps
 
         # map of name => (auth, func)
         self.func_map = {}
-
 
     def register_function(self, fn, auth_required):
         self.func_map[fn.__name__] = (auth_required, fn)
@@ -99,16 +106,13 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
             response = self._dispatch(request, method, params)
             # wrap response in a singleton tuple
             response = (response,)
-            response = xmlrpclib.dumps(response, methodresponse=1,
-                           allow_none=self.allow_none, encoding=self.encoding)
+            response = self.dumps(response, methodresponse=1)
         except xmlrpclib.Fault, fault:
-            response = xmlrpclib.dumps(fault, allow_none=self.allow_none,
-                                       encoding=self.encoding)
+            response = self.dumps(fault)
         except:
             # report exception back to server
-            response = xmlrpclib.dumps(
+            response = self.dumps(
                 xmlrpclib.Fault(1, "%s:%s" % (sys.exc_type, sys.exc_value)),
-                encoding=self.encoding, allow_none=self.allow_none,
                 )
 
         return response
