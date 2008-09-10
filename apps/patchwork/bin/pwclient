@@ -119,6 +119,9 @@ def usage():
         -w <who>      : Filter by submitter (name, e-mail substring search)
         -d <who>      : Filter by delegate (name, e-mail substring search)
         -n <max #>    : Restrict number of results\n""")
+    sys.stderr.write("""\nActions that take an ID argument can also be \
+invoked with:
+        -h <hash>     : Lookup by patch hash\n""")
     sys.exit(1)
 
 def project_id_by_name(rpc, linkname):
@@ -284,11 +287,18 @@ def action_update_patch(rpc, patch_id, state = None, commit = None):
     if not success:
         sys.stderr.write("Patch not updated\n")
 
+def patch_id_from_hash(rpc, hash):
+    patch = rpc.patch_get_by_hash(hash)
+    if patch == {}:
+        return None
+
+    return patch['id']
+
 auth_actions = ['update']
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:')
+        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:h:')
     except getopt.GetoptError, err:
         print str(err)
         usage()
@@ -305,6 +315,7 @@ def main():
     project_str = ""
     commit_str = ""
     state_str = ""
+    hash_str = ""
     url = DEFAULT_URL
 
     config = ConfigParser.ConfigParser()
@@ -328,6 +339,8 @@ def main():
             delegate_str = value
         elif name == '-c':
             commit_str = value
+        elif name == '-h':
+            hash_str = value
         elif name == '-n':
             try:
                 filt.add("max_count", int(value))
@@ -369,6 +382,14 @@ def main():
         sys.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
 
+    patch_id = None
+    if hash_str:
+        patch_id = patch_id_from_hash(rpc, hash_str)
+        if patch_id is None:
+            sys.stderr.write("No patch has the hash provided")
+            sys.exit(1)
+
+
     if action == 'list' or action == 'search':
         if len(args) > 0:
             filt.add("name__icontains", args[0])
@@ -382,7 +403,7 @@ def main():
 
     elif action == 'view':
         try:
-            patch_id = int(args[0])
+            patch_id = patch_id or int(args[0])
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -393,7 +414,7 @@ def main():
 
     elif action == 'get' or action == 'save':
         try:
-            patch_id = int(args[0])
+            patch_id = patch_id or int(args[0])
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -402,7 +423,7 @@ def main():
 
     elif action == 'apply':
         try:
-            patch_id = int(args[0])
+            patch_id = patch_id or int(args[0])
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -411,7 +432,7 @@ def main():
 
     elif action == 'update':
         try:
-            patch_id = int(args[0])
+            patch_id = patch_id or int(args[0])
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
