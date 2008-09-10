@@ -169,7 +169,7 @@ class State(models.Model):
     class Meta:
         ordering = ['ordering']
 
-class HashField(models.Field):
+class HashField(models.CharField):
     __metaclass__ = models.SubfieldBase
 
     def __init__(self, algorithm = 'sha1', *args, **kwargs):
@@ -177,6 +177,7 @@ class HashField(models.Field):
         try:
             import hashlib
             self.hashlib = True
+            n_bytes = len(hashlib.new(self.algorithm).hexdigest())
         except ImportError:
             self.hashlib = False
             if algorithm == 'sha1':
@@ -187,31 +188,18 @@ class HashField(models.Field):
                 self.hash_constructor = md5.new
             else:
                 raise NameError("Unknown algorithm '%s'" % algorithm)
-            
+            n_bytes = len(self.hash_constructor().hexdigest())
+
+        kwargs['max_length'] = n_bytes
         super(HashField, self).__init__(*args, **kwargs)
 
     def db_type(self):
         if self.hashlib:
             import hashlib
-            n_bytes = len(hashlib.new(self.algorithm).digest())
+            n_bytes = len(hashlib.new(self.algorithm).hexdigest())
         else:
-            n_bytes = len(self.hash_constructor().digest())
-        if settings.DATABASE_ENGINE.startswith('postgresql'):
-            return 'bytea'
-        elif settings.DATABASE_ENGINE == 'mysql':
-            return 'binary(%d)' % n_bytes
-        else:
-            raise Exception("Unknown database engine '%s'" % \
-                            settings.DATABASE_ENGINE)
-
-    def to_python(self, value):
-        return value
-
-    def get_db_prep_save(self, value):
-        return ''.join(map(lambda x: '\\%03o' % ord(x), value))
-
-    def get_manipulator_field_objs(self):
-        return [oldforms.TextField]
+            n_bytes = len(self.hash_constructor().hexdigest())
+        return 'char(%d)' % n_bytes
 
 class Patch(models.Model):
     project = models.ForeignKey(Project)
@@ -225,7 +213,7 @@ class Patch(models.Model):
     headers = models.TextField(blank = True)
     content = models.TextField()
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
-    hash = HashField(null = True)
+    hash = HashField(null = True, db_index = True)
 
     def __str__(self):
         return self.name
@@ -240,7 +228,7 @@ class Patch(models.Model):
             self.state = State.objects.get(ordering =  0)
 
         if self.hash is None:
-            self.hash = hash_patch(self.content).digest()
+            self.hash = hash_patch(self.content).hexdigest()
 
         super(Patch, self).save()
 
