@@ -308,6 +308,7 @@ class UserPersonConfirmation(models.Model):
         person.link_to_user(self.user)
         person.save()
         self.active = False
+        self.save()
 
     def save(self):
         max = 1 << 32
