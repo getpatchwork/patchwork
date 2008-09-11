@@ -176,19 +176,19 @@ class HashField(models.CharField):
         self.algorithm = algorithm
         try:
             import hashlib
-            self.hashlib = True
+            def _construct(string = ''):
+                return hashlib.new(self.algorithm, string)
+            self.construct = _construct
             self.n_bytes = len(hashlib.new(self.algorithm).hexdigest())
         except ImportError:
-            self.hashlib = False
-            if algorithm == 'sha1':
-                import sha
-                hash_constructor = sha.new
-            elif algorithm == 'md5':
-                import md5
-                hash_constructor = md5.new
-            else:
+            modules = { 'sha1': 'sha', 'md5': 'md5'}
+
+            if algorithm not in modules.keys():
                 raise NameError("Unknown algorithm '%s'" % algorithm)
-            self.n_bytes = len(hash_constructor().hexdigest())
+
+            self.construct = __import__(modules[algorithm]).new
+
+        self.n_bytes = len(self.construct().hexdigest())
 
         kwargs['max_length'] = self.n_bytes
         super(HashField, self).__init__(*args, **kwargs)
