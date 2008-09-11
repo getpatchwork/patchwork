@@ -129,35 +129,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.name()
 
-def _confirm_key():
-    allowedchars = string.ascii_lowercase + string.digits
-    str = ''
-    for i in range(1, 32):
-        str += random.choice(allowedchars)
-    return str;
-
-class UserPersonConfirmation(models.Model):
-    user = models.ForeignKey(User)
-    email = models.CharField(max_length = 200)
-    key = models.CharField(max_length = 32, default = _confirm_key)
-    date = models.DateTimeField(default=datetime.datetime.now)
-    active = models.BooleanField(default = True)
-
-    def confirm(self):
-        if not self.active:
-            return
-        person = None
-        try:
-            person = Person.objects.get(email = self.email)
-        except Exception:
-            pass
-        if not person:
-            person = Person(email = self.email)
-
-        person.link_to_user(self.user)
-        person.save()
-        self.active = False
-
 class State(models.Model):
     name = models.CharField(max_length = 100)
     ordering = models.IntegerField(unique = True)
@@ -315,4 +286,34 @@ class Bundle(models.Model):
     def mbox(self):
         return '\n'.join([p.mbox().as_string(True) \
                         for p in self.patches.all()])
+
+class UserPersonConfirmation(models.Model):
+    user = models.ForeignKey(User)
+    email = models.CharField(max_length = 200)
+    key = HashField()
+    date = models.DateTimeField(default=datetime.datetime.now)
+    active = models.BooleanField(default = True)
+
+    def confirm(self):
+        if not self.active:
+            return
+        person = None
+        try:
+            person = Person.objects.get(email = self.email)
+        except Exception:
+            pass
+        if not person:
+            person = Person(email = self.email)
+
+        person.link_to_user(self.user)
+        person.save()
+        self.active = False
+
+    def save(self):
+        max = 1 << 32
+        if self.key == '':
+            str = '%s%s%d' % (self.user, self.email, random.randint(0, max))
+            self.key = self._meta.get_field('key').construct(str).hexdigest()
+        super(UserPersonConfirmation, self).save()
+
 
