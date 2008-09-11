@@ -69,6 +69,7 @@ def link(request):
         if form.is_valid():
             conf = UserPersonConfirmation(user = request.user,
                     email = form.cleaned_data['email'])
+            conf.save()
             context['confirmation'] = conf
 
             try:
@@ -77,7 +78,6 @@ def link(request):
                                 context),
                             settings.DEFAULT_FROM_EMAIL,
                             [form.cleaned_data['email']])
-                conf.save()
             except Exception, ex:
                 context['confirmation'] = None
                 context['error'] = 'An error occurred during confirmation. ' + \
