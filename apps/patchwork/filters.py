@@ -438,7 +438,7 @@ class Filters:
 
         for (k, v) in self.dict.iteritems():
             if k not in params:
-                params[k] = v[0]
+                params[k] = v
 
         if remove is not None:
             if remove.param in params.keys():
