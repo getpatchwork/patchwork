@@ -143,21 +143,20 @@ class SubmitterFilter(Filter):
 
 class StateFilter(Filter):
     param = 'state'
-    action_req_key = '!'
+    any_key = '*'
+    action_req_str = 'Action Required'
 
     def __init__(self, filters):
         super(StateFilter, self).__init__(filters)
         self.name = 'State'
         self.state = None
-        self.action_req = None
+        self.applied = True
 
     def _set_key(self, str):
-        self.action_req = None
         self.state = None
 
-        if str == self.action_req_key:
-            self.action_req = True
-            self.applied = True
+        if str == self.any_key:
+            self.applied = False
             return
 
         try:
@@ -168,34 +167,29 @@ class StateFilter(Filter):
         self.applied = True
 
     def kwargs(self):
-        if self.action_req == True:
+        if self.state is not None:
+            return {'state': self.state}
+        else:
             return {'state__in': \
                         State.objects.filter(action_required = True) \
                             .values('pk').query}
-        if self.state is not None:
-            return {'state': self.state}
 
     def condition(self):
         if self.state:
             return self.state.name
-        elif self.action_req == True:
-            return 'Action Required'
-        return None
-
+        return self.action_req_str
 
     def key(self):
-        if self.action_req == True:
-            return self.action_req_key
-        if self.state is None:
-            return None
-        return self.state.id
+        if self.state is not None:
+            return self.state.id
+        if not self.applied:
+            return '*'
+        return None
 
     def _form(self):
         str = '<select name="%s">' % self.param
-        str += '<option value="">any</option>'
-        if self.action_req_key:
-            str += '<option value="%s">Action Required</option>' % \
-                   self.action_req_key
+        str += '<option value="%s">any</option>' % self.any_key
+        str += '<option value="">%s</option>' % self.action_req_str
         for state in State.objects.all():
             selected = ''
             if self.state and self.state == state:
@@ -208,6 +202,12 @@ class StateFilter(Filter):
 
     def form_function(self):
         return 'function(form) { return form.x.value }'
+
+    def url_without_me(self):
+        qs = self.filters.querystring_without_filter(self)
+        if qs != '?':
+            qs += '&'
+        return qs + '%s=%s' % (self.param, self.any_key)
 
 class SearchFilter(Filter):
     param = 'q'
