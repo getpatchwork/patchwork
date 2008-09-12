@@ -143,12 +143,23 @@ class SubmitterFilter(Filter):
 
 class StateFilter(Filter):
     param = 'state'
+    action_req_key = '!'
+
     def __init__(self, filters):
         super(StateFilter, self).__init__(filters)
         self.name = 'State'
         self.state = None
+        self.action_req = None
 
     def _set_key(self, str):
+        self.action_req = None
+        self.state = None
+
+        if str == self.action_req_key:
+            self.action_req = True
+            self.applied = True
+            return
+
         try:
             self.state = State.objects.get(id=int(str))
         except:
@@ -157,12 +168,24 @@ class StateFilter(Filter):
         self.applied = True
 
     def kwargs(self):
-        return {'state': self.state}
+        if self.action_req == True:
+            return {'state__in': \
+                        State.objects.filter(action_required = True) \
+                            .values('pk').query}
+        if self.state is not None:
+            return {'state': self.state}
 
     def condition(self):
-        return self.state.name
+        if self.state:
+            return self.state.name
+        elif self.action_req == True:
+            return 'Action Required'
+        return None
+
 
     def key(self):
+        if self.action_req == True:
+            return self.action_req_key
         if self.state is None:
             return None
         return self.state.id
@@ -170,6 +193,9 @@ class StateFilter(Filter):
     def _form(self):
         str = '<select name="%s">' % self.param
         str += '<option value="">any</option>'
+        if self.action_req_key:
+            str += '<option value="%s">Action Required</option>' % \
+                   self.action_req_key
         for state in State.objects.all():
             selected = ''
             if self.state and self.state == state:
