@@ -188,8 +188,18 @@ class StateFilter(Filter):
 
     def _form(self):
         str = '<select name="%s">' % self.param
-        str += '<option value="%s">any</option>' % self.any_key
-        str += '<option value="">%s</option>' % self.action_req_str
+
+        selected = ''
+        if not self.applied:
+            selected = 'selected'
+        str += '<option %s value="%s">any</option>' % (selected, self.any_key)
+
+        selected = ''
+        if self.applied and self.state == None:
+            selected = 'selected'
+        str += '<option %s value="">%s</option>' % \
+               (selected, self.action_req_str)
+
         for state in State.objects.all():
             selected = ''
             if self.state and self.state == state:
