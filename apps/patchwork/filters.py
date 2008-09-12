@@ -309,21 +309,19 @@ class ArchiveFilter(Filter):
 
 class DelegateFilter(Filter):
     param = 'delegate'
+    no_delegate_key = '-'
+    no_delegate_str = 'Nobody'
     AnyDelegate = 1
 
     def __init__(self, filters):
         super(DelegateFilter, self).__init__(filters)
         self.name = 'Delegate'
         self.param = 'delegate'
-
-        # default to applied, but no delegate - this will result in patches with
-        # no delegate
         self.delegate = None
-        self.applied = True
 
     def _set_key(self, str):
-        if str == "*":
-            self.applied = False
+        if str == self.no_delegate_key:
+            self.applied = True
             self.delegate = None
             return
 
@@ -342,7 +340,7 @@ class DelegateFilter(Filter):
     def condition(self):
         if self.delegate:
             return self.delegate.get_profile().name()
-        return 'Nobody'
+        return self.no_delegate_str
 
     def _form(self):
         delegates = User.objects.filter(userprofile__maintainer_projects =
@@ -354,13 +352,14 @@ class DelegateFilter(Filter):
         if not self.applied:
             selected = 'selected'
 
-        str += '<option %s value="*">------</option>' % selected
+        str += '<option %s value="">------</option>' % selected
 
         selected = ''
-        if self.delegate is None:
+        if self.applied and self.delegate is None:
             selected = 'selected'
 
-        str += '<option %s value="">Nobody</option>' % selected
+        str += '<option %s value="%s">%s</option>' % \
+                (selected, self.no_delegate_key, self.no_delegate_str)
 
         for d in delegates:
             selected = ''
@@ -377,14 +376,8 @@ class DelegateFilter(Filter):
         if self.delegate:
             return self.delegate.id
         if self.applied:
-            return None
-        return '*'
-
-    def url_without_me(self):
-        qs = self.filters.querystring_without_filter(self)
-        if qs != '?':
-            qs += '&'
-        return qs + ('%s=*' % self.param)
+            return self.no_delegate_key
+        return None
 
     def set_status(self, *args, **kwargs):
         if 'delegate' in kwargs:
