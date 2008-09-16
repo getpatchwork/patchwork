@@ -199,15 +199,100 @@ def find_patch_for_comment(mail):
 
     return None
 
+split_re = re.compile('[,\s]+')
+
+def split_prefixes(prefix):
+    """ Turn a prefix string into a list of prefix tokens
+
+    >>> split_prefixes('PATCH')
+    ['PATCH']
+    >>> split_prefixes('PATCH,RFC')
+    ['PATCH', 'RFC']
+    >>> split_prefixes('')
+    []
+    >>> split_prefixes('PATCH,')
+    ['PATCH']
+    >>> split_prefixes('PATCH ')
+    ['PATCH']
+    >>> split_prefixes('PATCH,RFC')
+    ['PATCH', 'RFC']
+    >>> split_prefixes('PATCH 1/2')
+    ['PATCH', '1/2']
+    """
+    matches = split_re.split(prefix)
+    return [ s for s in matches if s != '' ]
+
 re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
-prefix_re = re.compile('^\[.*\]\s*')
+prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
 whitespace_re = re.compile('\s+')
 
-def clean_subject(subject):
+def clean_subject(subject, drop_prefixes = None):
+    """ Clean a Subject: header from an incoming patch.
+
+    Removes Re: and Fwd: strings, as well as [PATCH]-style prefixes. By
+    default, only [PATCH] is removed, and we keep any other bracketed data
+    in the subject. If drop_prefixes is provided, remove those too,
+    comparing case-insensitively.
+
+    >>> clean_subject('meep')
+    'meep'
+    >>> clean_subject('Re: meep')
+    'meep'
+    >>> clean_subject('[PATCH] meep')
+    'meep'
+    >>> clean_subject('[PATCH RFC] meep')
+    '[RFC] meep'
+    >>> clean_subject('[PATCH,RFC] meep')
+    '[RFC] meep'
+    >>> clean_subject('[PATCH,1/2] meep')
+    '[1/2] meep'
+    >>> clean_subject('[PATCH RFC 1/2] meep')
+    '[RFC,1/2] meep'
+    >>> clean_subject('[PATCH] [RFC] meep')
+    '[RFC] meep'
+    >>> clean_subject('[PATCH] [RFC,1/2] meep')
+    '[RFC,1/2] meep'
+    >>> clean_subject('[PATCH] [RFC] [1/2] meep')
+    '[RFC,1/2] meep'
+    >>> clean_subject('[PATCH] rewrite [a-z] regexes')
+    'rewrite [a-z] regexes'
+    >>> clean_subject('[PATCH] [RFC] rewrite [a-z] regexes')
+    '[RFC] rewrite [a-z] regexes'
+    >>> clean_subject('[foo] [bar] meep', ['foo'])
+    '[bar] meep'
+    >>> clean_subject('[FOO] [bar] meep', ['foo'])
+    '[bar] meep'
+    """
+
+    if drop_prefixes is None:
+        drop_prefixes = []
+    else:
+        drop_prefixes = [ s.lower() for s in drop_prefixes ]
+
+    drop_prefixes.append('patch')
+
+    # remove Re:, Fwd:, etc
     subject = re_re.sub(' ', subject)
-    subject = prefix_re.sub('', subject)
+
+    prefixes = []
+
+    match = prefix_re.match(subject)
+
+    while match:
+        prefix_str = match.group(1)
+        prefixes += [ p for p in split_prefixes(prefix_str) \
+                        if p.lower() not in drop_prefixes]
+
+        subject = match.group(2)
+        match = prefix_re.match(subject)
+
     subject = whitespace_re.sub(' ', subject)
-    return subject.strip()
+
+    subject = subject.strip()
+    if prefixes:
+        subject = '[%s] %s' % (','.join(prefixes), subject)
+
+    return subject
 
 sig_re = re.compile('^(-{2,3} ?|_+)\n.*', re.S | re.M)
 def clean_content(str):
