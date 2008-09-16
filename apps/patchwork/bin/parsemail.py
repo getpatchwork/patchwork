@@ -240,6 +240,8 @@ def clean_subject(subject, drop_prefixes = None):
     'meep'
     >>> clean_subject('[PATCH] meep')
     'meep'
+    >>> clean_subject('[PATCH] meep \\n meep')
+    'meep meep'
     >>> clean_subject('[PATCH RFC] meep')
     '[RFC] meep'
     >>> clean_subject('[PATCH,RFC] meep')
@@ -273,6 +275,9 @@ def clean_subject(subject, drop_prefixes = None):
 
     # remove Re:, Fwd:, etc
     subject = re_re.sub(' ', subject)
+
+    # normalise whitespace
+    subject = whitespace_re.sub(' ', subject)
 
     prefixes = []
 
