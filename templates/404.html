@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}404: File not found{% endblock %}
+{% block heading %}404: File not found{% endblock %}
+
+{% block body %}
+
+<p>The page URL requested (<code>{{ request_path }}</code>) does not exist.</p>
+
+{% endblock %}
