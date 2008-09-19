@@ -103,7 +103,6 @@ def find_author(mail):
 def mail_date(mail):
     t = parsedate_tz(mail.get('Date', ''))
     if not t:
-        print "using now()"
         return datetime.datetime.utcnow()
     return datetime.datetime.utcfromtimestamp(mktime_tz(t))
 
