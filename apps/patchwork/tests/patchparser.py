@@ -89,3 +89,16 @@ class AttachmentPatchTest(InlinePatchTest):
         attachment = MIMEText(self.orig_patch, _subtype = 'x-patch')
         email.attach(attachment)
         (self.patch, self.comment) = find_content(self.project, email)
+
+
+class SignatureCommentTest(InlinePatchTest):
+    patch_filename = '0001-add-line.patch'
+    test_comment = 'Test comment\nmore comment'
+
+    def setUp(self):
+        self.orig_patch = self.read_patch(self.patch_filename)
+        email = self.create_email( \
+                self.test_comment + '\n' + \
+                '-- \nsig\n' + self.orig_patch)
+        (self.patch, self.comment) = find_content(self.project, email)
+
