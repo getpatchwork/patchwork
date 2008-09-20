@@ -71,7 +71,7 @@ def generic_list(request, project, view,
         else:
             context.filters.set_status(filterclass, setting)
 
-    if not patches:
+    if patches is None:
         patches = Patch.objects.filter(project=project)
 
     patches = context.filters.apply(patches)
