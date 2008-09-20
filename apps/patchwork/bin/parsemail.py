@@ -38,16 +38,22 @@ from patchwork.models import Patch, Project, Person, Comment
 
 list_id_headers = ['List-ID', 'X-Mailing-List']
 
+whitespace_re = re.compile('\s+')
+def normalise_space(str):
+    return whitespace_re.sub(' ', str).strip()
+
 def clean_header(header):
     """ Decode (possibly non-ascii) headers """
 
-    def decode(str, fragment):
+    def decode(fragment):
         (frag_str, frag_encoding) = fragment
         if frag_encoding:
-            return str + frag_str.decode(frag_encoding)
-        return str + frag_str.decode()
+            return frag_str.decode(frag_encoding)
+        return frag_str.decode()
 
-    return reduce(decode, decode_header(header), u'').strip()
+    fragments = map(decode, decode_header(header))
+
+    return normalise_space(u' '.join(fragments))
 
 def find_project(mail):
     project = None
@@ -234,7 +240,6 @@ def split_prefixes(prefix):
 
 re_re = re.compile('^(re|fwd?)[:\s]\s*', re.I)
 prefix_re = re.compile('^\[([^\]]*)\]\s*(.*)$')
-whitespace_re = re.compile('\s+')
 
 def clean_subject(subject, drop_prefixes = None):
     """ Clean a Subject: header from an incoming patch.
@@ -286,8 +291,7 @@ def clean_subject(subject, drop_prefixes = None):
     # remove Re:, Fwd:, etc
     subject = re_re.sub(' ', subject)
 
-    # normalise whitespace
-    subject = whitespace_re.sub(' ', subject)
+    subject = normalise_space(subject)
 
     prefixes = []
 
@@ -301,7 +305,7 @@ def clean_subject(subject, drop_prefixes = None):
         subject = match.group(2)
         match = prefix_re.match(subject)
 
-    subject = whitespace_re.sub(' ', subject)
+    subject = normalise_space(subject)
 
     subject = subject.strip()
     if prefixes:

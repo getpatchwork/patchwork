@@ -171,7 +171,7 @@ class SenderUTF8QPEncodingTest(SenderEncodingTest):
 
 class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
     sender_name = u'\xe9xample user'
-    from_header = '=?utf-8?q?=C3=A9xample=20?= user <user@example.com>'
+    from_header = '=?utf-8?q?=C3=A9xample?= user <user@example.com>'
 
 class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
     from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
