@@ -226,7 +226,16 @@ class Patch(models.Model):
 
         body = ''
         if comment:
-            body = comment.content.strip() + "\n\n"
+            body = comment.content.strip() + "\n"
+
+        responses = False
+        for comment in Comment.objects.filter(patch = self) \
+                .exclude(msgid = self.msgid):
+            body += comment.patch_responses()
+
+        if body:
+            body += '\n'
+
         body += self.content
 
         mail = MIMEText(body)
@@ -255,6 +264,12 @@ class Comment(models.Model):
     date = models.DateTimeField(default = datetime.datetime.now)
     headers = models.TextField(blank = True)
     content = models.TextField()
+
+    response_re = re.compile('^(Acked|Signed-off|Nacked)-by: .*$', re.M)
+
+    def patch_responses(self):
+        return ''.join([ match.group(0) + '\n' for match in \
+                                self.response_re.finditer(self.content)])
 
     class Meta:
         ordering = ['date']
