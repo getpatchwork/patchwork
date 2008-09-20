@@ -220,7 +220,7 @@ class Patch(models.Model):
     def mbox(self):
         comment = None
         try:
-            comment = Comment.objects.get(msgid = self.msgid)
+            comment = Comment.objects.get(patch = self, msgid = self.msgid)
         except Exception:
             pass
 
