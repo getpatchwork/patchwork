@@ -102,3 +102,27 @@ class SignatureCommentTest(InlinePatchTest):
                 '-- \nsig\n' + self.orig_patch)
         (self.patch, self.comment) = find_content(self.project, email)
 
+
+class ListFooterTest(InlinePatchTest):
+    patch_filename = '0001-add-line.patch'
+    test_comment = 'Test comment\nmore comment'
+
+    def setUp(self):
+        self.orig_patch = self.read_patch(self.patch_filename)
+        email = self.create_email( \
+                self.test_comment + '\n' + \
+                '_______________________________________________\n' + \
+                'Linuxppc-dev mailing list\n' + \
+                self.orig_patch)
+        (self.patch, self.comment) = find_content(self.project, email)
+
+
+class UpdateCommentTest(InlinePatchTest):
+    """ Test for '---\nUpdate: v2' style comments to patches. """
+    patch_filename = '0001-add-line.patch'
+    test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
+
+class UpdateSigCommentTest(SignatureCommentTest):
+    """ Test for '---\nUpdate: v2' style comments to patches, with a sig """
+    patch_filename = '0001-add-line.patch'
+    test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'

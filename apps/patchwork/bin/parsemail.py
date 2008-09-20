@@ -298,8 +298,9 @@ def clean_subject(subject, drop_prefixes = None):
 
     return subject
 
-sig_re = re.compile('^(-{2,3} ?|_+)\n.*', re.S | re.M)
+sig_re = re.compile('^(-- |_+)\n.*', re.S | re.M)
 def clean_content(str):
+    """ Try to remove signature (-- ) and list footer (_____) cruft """
     str = sig_re.sub('', str)
     return str.strip()
 
