@@ -26,17 +26,28 @@ import time
 import operator
 from email import message_from_file
 try:
-    from email.header import Header
+    from email.header import Header, decode_header
     from email.utils import parsedate_tz, mktime_tz
 except ImportError:
     # Python 2.4 compatibility
-    from email.Header import Header
+    from email.Header import Header, decode_header
     from email.Utils import parsedate_tz, mktime_tz
 
 from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment
 
 list_id_headers = ['List-ID', 'X-Mailing-List']
+
+def clean_header(header):
+    """ Decode (possibly non-ascii) headers """
+
+    def decode(str, fragment):
+        (frag_str, frag_encoding) = fragment
+        if frag_encoding:
+            return str + frag_str.decode(frag_encoding)
+        return str + frag_str.decode()
+
+    return reduce(decode, decode_header(header), u'').strip()
 
 def find_project(mail):
     project = None
@@ -60,7 +71,7 @@ def find_project(mail):
 
 def find_author(mail):
 
-    from_header = mail.get('From').strip()
+    from_header = clean_header(mail.get('From'))
     (name, email) = (None, None)
 
     # tuple of (regex, fn)

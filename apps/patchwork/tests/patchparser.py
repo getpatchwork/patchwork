@@ -21,7 +21,8 @@ import unittest
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from patchwork.models import Project
+from email import message_from_string
+from patchwork.models import Project, Person
 
 test_mail_dir  = 'patchwork/tests/mail'
 test_patch_dir = 'patchwork/tests/patches'
@@ -55,7 +56,7 @@ class PatchTest(unittest.TestCase):
         return file(os.path.join(test_patch_dir, filename)).read()
 
 
-from patchwork.bin.parsemail import find_content
+from patchwork.bin.parsemail import find_content, find_author
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
@@ -126,3 +127,45 @@ class UpdateSigCommentTest(SignatureCommentTest):
     """ Test for '---\nUpdate: v2' style comments to patches, with a sig """
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
+
+class SenderEncodingTest(unittest.TestCase):
+    sender_name = u'example user'
+    sender_email = 'user@example.com'
+    from_header = 'example user <user@example.com>'
+
+    def setUp(self):
+        mail = 'From: %s\n' % self.from_header + \
+               'Subject: test\n\n' + \
+               'test'
+        self.email = message_from_string(mail)
+        (self.person, new) = find_author(self.email)
+        self.person.save()
+
+    def tearDown(self):
+        self.person.delete()
+
+    def testName(self):
+        self.assertEquals(self.person.name, self.sender_name)
+
+    def testEmail(self):
+        self.assertEquals(self.person.email, self.sender_email)
+
+    def testDBQueryName(self):
+        db_person = Person.objects.get(name = self.sender_name)
+        self.assertEquals(self.person, db_person)
+
+    def testDBQueryEmail(self):
+        db_person = Person.objects.get(email = self.sender_email)
+        self.assertEquals(self.person, db_person)
+
+
+class SenderUTF8QPEncodingTest(SenderEncodingTest):
+    sender_name = u'\xe9xample user'
+    from_header = '=?utf-8?q?=C3=A9xample=20user?= <user@example.com>'
+
+class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
+    sender_name = u'\xe9xample user'
+    from_header = '=?utf-8?q?=C3=A9xample=20?= user <user@example.com>'
+
+class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
+    from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
