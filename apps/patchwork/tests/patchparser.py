@@ -21,46 +21,18 @@ import unittest
 import os
 from email import message_from_string
 from patchwork.models import Project, Person
+from patchwork.tests.utils import read_patch, create_email, defaults
 
 try:
     from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
 except ImportError:
     # Python 2.4 compatibility
     from email.MIMEText import MIMEText
-    from email.MIMEMultipart import MIMEMultipart
-
-test_mail_dir  = 'patchwork/tests/mail'
-test_patch_dir = 'patchwork/tests/patches'
 
 class PatchTest(unittest.TestCase):
-    default_sender = 'Test Author <test@exmaple.com>'
-    default_subject = 'Test Subject'
-    project = Project(linkname = 'test-project')
-
-    def create_email(self, content, subject = None, sender = None,
-            multipart = False):
-        if subject is None:
-            subject = self.default_subject
-        if sender is None:
-            sender = self.default_sender
-
-        if multipart:
-            msg = MIMEMultipart()
-            body = MIMEText(content, _subtype = 'plain')
-            msg.attach(body)
-        else:
-            msg = MIMEText(content)
-
-        msg['Subject'] = subject
-        msg['From'] = sender
-        msg['List-Id'] = self.project.linkname
-
-        return msg
-
-    def read_patch(self, filename):
-        return file(os.path.join(test_patch_dir, filename)).read()
-
+    default_sender = defaults.sender
+    default_subject = defaults.subject
+    project = defaults.project
 
 from patchwork.bin.parsemail import find_content, find_author
 
@@ -69,8 +41,8 @@ class InlinePatchTest(PatchTest):
     test_comment = 'Test for attached patch'
 
     def setUp(self):
-        self.orig_patch = self.read_patch(self.patch_filename)
-        email = self.create_email(self.test_comment + '\n' + self.orig_patch)
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email(self.test_comment + '\n' + self.orig_patch)
         (self.patch, self.comment) = find_content(self.project, email)
 
     def testPatchPresence(self):
@@ -91,8 +63,8 @@ class AttachmentPatchTest(InlinePatchTest):
     test_comment = 'Test for attached patch'
 
     def setUp(self):
-        self.orig_patch = self.read_patch(self.patch_filename)
-        email = self.create_email(self.test_comment, multipart = True)
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email(self.test_comment, multipart = True)
         attachment = MIMEText(self.orig_patch, _subtype = 'x-patch')
         email.attach(attachment)
         (self.patch, self.comment) = find_content(self.project, email)
@@ -103,8 +75,8 @@ class SignatureCommentTest(InlinePatchTest):
     test_comment = 'Test comment\nmore comment'
 
     def setUp(self):
-        self.orig_patch = self.read_patch(self.patch_filename)
-        email = self.create_email( \
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email( \
                 self.test_comment + '\n' + \
                 '-- \nsig\n' + self.orig_patch)
         (self.patch, self.comment) = find_content(self.project, email)
@@ -115,8 +87,8 @@ class ListFooterTest(InlinePatchTest):
     test_comment = 'Test comment\nmore comment'
 
     def setUp(self):
-        self.orig_patch = self.read_patch(self.patch_filename)
-        email = self.create_email( \
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email( \
                 self.test_comment + '\n' + \
                 '_______________________________________________\n' + \
                 'Linuxppc-dev mailing list\n' + \
