@@ -175,3 +175,44 @@ class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
 
 class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
     from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
+
+
+class SenderCorrelationTest(unittest.TestCase):
+    existing_sender = 'Existing Sender <existing@example.com>'
+    non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
+
+    def mail(self, sender):
+        return message_from_string('From: %s\nSubject: Test\n\ntest\n' % sender)
+
+    def setUp(self):
+        self.existing_sender_mail = self.mail(self.existing_sender)
+        self.non_existing_sender_mail = self.mail(self.non_existing_sender)
+        (self.person, new) = find_author(self.existing_sender_mail)
+        self.person.save()
+
+        print Person.objects.all()
+
+    def testExisingSender(self):
+        (person, new) = find_author(self.existing_sender_mail)
+        self.assertEqual(new, False)
+        self.assertEqual(person.id, self.person.id)
+
+    def testNonExisingSender(self):
+        (person, new) = find_author(self.non_existing_sender_mail)
+        self.assertEqual(new, True)
+        self.assertEqual(person.id, None)
+
+    def testExistingDifferentFormat(self):
+        mail = self.mail('existing@example.com')
+        (person, new) = find_author(mail)
+        self.assertEqual(new, False)
+        self.assertEqual(person.id, self.person.id)
+
+    def testExistingDifferentCase(self):
+        mail = self.mail(self.existing_sender.upper())
+        (person, new) = find_author(mail)
+        self.assertEqual(new, False)
+        self.assertEqual(person.id, self.person.id)
+
+    def tearDown(self):
+        self.person.delete()

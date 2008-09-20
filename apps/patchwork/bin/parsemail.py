@@ -104,7 +104,7 @@ def find_author(mail):
     new_person = False
 
     try:
-        person = Person.objects.get(email = email)
+        person = Person.objects.get(email__iexact = email)
     except Person.DoesNotExist:
         person = Person(name = name, email = email)
         new_person = True
