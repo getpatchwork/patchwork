@@ -19,10 +19,16 @@
 
 import unittest
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from email import message_from_string
 from patchwork.models import Project, Person
+
+try:
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+except ImportError:
+    # Python 2.4 compatibility
+    from email.MIMEText import MIMEText
+    from email.MIMEMultipart import MIMEMultipart
 
 test_mail_dir  = 'patchwork/tests/mail'
 test_patch_dir = 'patchwork/tests/patches'
