@@ -80,6 +80,11 @@ class CreateBundleForm(forms.ModelForm):
                     % name)
         return name
 
+class DeleteBundleForm(forms.Form):
+    name = 'deletebundleform'
+    form_name = forms.CharField(initial = name, widget = forms.HiddenInput)
+    bundle_id = forms.IntegerField(widget = forms.HiddenInput)
+
 class DelegateField(forms.ModelChoiceField):
     def __init__(self, project, *args, **kwargs):
         queryset = User.objects.filter(userprofile__in = \

@@ -267,6 +267,10 @@ span.p_mod	{ color: #0000ff; }
 
 /* bundles */
 table.bundlelist {
+	margin-top: 2em;
+	margin-bottom: 4em;
+	margin-left: auto;
+	margin-right: auto;
 	border: thin solid black;
 }
 
@@ -399,4 +403,35 @@ table.vertical th, table.vertical td {
 
 td.numberformat {
 	text-align: right;
+}
+
+/* boxes */
+div.box {
+	border: thin solid gray;
+	margin: 1em;
+	padding: 0.5em;
+}
+
+div.box h2 {
+	background: #786fb4;
+	color: white;
+	margin: -0.5em -0.5em 1em; -0.5em;
+	padding: 0em 0.5em;
+	font-size: 100%;
+}
+
+div.box table.vertical {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* columns */
+.leftcol {
+	float: left;
+	width: 49%;
+}
+
+.rightcol {
+	float: right;
+	width: 49%;
 }

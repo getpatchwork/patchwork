@@ -22,42 +22,20 @@ Contributor to
 {% endif %}
 </p>
 
-<h2>Todo</h2>
+<div class="leftcol">
+<div class="box">
+ <h2>Todo</h2>
 {% if user.get_profile.n_todo_patches %}
-<p>Your <a href="{% url patchwork.views.user.todo_lists %}">todo
-list</a> contains {{ user.get_profile.n_todo_patches }}
-patch{{ user.get_profile.n_todo_patches|pluralize:"es" }}.</p>
+ <p>Your <a href="{% url patchwork.views.user.todo_lists %}">todo
+  list</a> contains {{ user.get_profile.n_todo_patches }}
+  patch{{ user.get_profile.n_todo_patches|pluralize:"es" }}.</p>
 {% else %}
-<p>Your todo list contains patches that have been delegated to you. You
-have no items in your todo list at present.</p>
+ <p>Your todo list contains patches that have been delegated to you. You
+  have no items in your todo list at present.</p>
 {% endif %}
-<h2>Bundles</h2>
+</div>
 
-{% if bundles %}
-<table class="bundlelist">
- <tr>
-  <th>Bundle name</th>
-  <th>Patches</td>
-  <th>Public Link</th>
- </tr>
-{% for bundle in bundles %}
- <tr>
-  <td><a href="{% url patchwork.views.bundle.bundle bundle_id=bundle.id %}"
-   >{{ bundle.name }}</a></td>
-  <td style="text-align: right">{{ bundle.n_patches }}</td>
-  <td>
-   {% if bundle.public %}
-    <a href="{{ bundle.public_url }}">{{ bundle.public_url }}</a>
-   {% endif %}
-  </td>
- </tr>
-{% endfor %}
-</table>
-{% else %}
-<p>no bundles</p>
-{% endif %}
-
-
+<div class="box">
 <h2>Linked email addresses</h2>
 <p>The following email addresses are associated with this patchwork account.
 Adding alternative addresses allows patchwork to group contributions that
@@ -96,7 +74,31 @@ address.</p>
   </td>
  </tr>
 </table>
+</div>
+</div>
 
+<div class="rightcol">
+
+<div class="box">
+<h2>Bundles</h2>
+
+{% if bundles %}
+<p>You have the following bundle{{ bundle|length|pluralize }}:</p>
+<ul>
+{% for bundle in bundles %}
+ <li><a href="{% url patchwork.views.bundle.bundle bundle_id=bundle.id %}"
+   >{{ bundle.name }}</a></li>
+{% endfor %}
+</ul>
+<p>Visit the <a href="{%url patchwork.views.bundle.bundles %}">bundles
+ page</a> to manage your bundles.</p>
+{% else %}
+<p>You have no bundles.</p>
+{% endif %}
+</div>
+
+
+<div class="box">
 <h2>Settings</h2>
 
 <form method="post">
@@ -110,5 +112,10 @@ address.</p>
   </tr>
  </table>
 </form>
+</div>
+
+</div>
+
+<p style="clear: both"></p>
 
 {% endblock %}

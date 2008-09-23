@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Bundles{% endblock %}
+{% block heading %}Bundles{% endblock %}
+
+{% block headers %}
+ <script language="JavaScript" type="text/javascript" src="/js/confirm.js">
+ </script>
+{% endblock %}
+
+{% block body %}
+
+{% if bundles %}
+<table class="bundlelist">
+ <tr>
+  <th>Name</th>
+  <th>Project</th>
+  <th>Public Link</th>
+  <th>Patches</td>
+  <th>Download</th>
+  <th>Delete</th>
+ </tr>
+{% for bundle in bundles %}
+ <tr>
+  <td><a href="{% url patchwork.views.bundle.bundle bundle_id=bundle.id %}"
+   >{{ bundle.name }}</a></td>
+  <td>{{ bundle.project.linkname }}</td>
+  <td>
+   {% if bundle.public %}
+    <a href="{{ bundle.public_url }}">{{ bundle.public_url }}</a>
+   {% endif %}
+  </td>
+  <td style="text-align: right">{{ bundle.n_patches }}</td>
+  <td style="text-align: center;"><a
+   href="{% url patchwork.views.bundle.mbox bundle_id=bundle.id %}"
+   ><img src="/images/16-em-down.png" width="16" height="16" alt="download"
+   title="download"/></a></td>
+  <td style="text-align: center;">
+   <form method="post"
+    onsubmit="return confirm_delete('bundle', '{{bundle.name|escapejs}}');">
+    {{ bundle.delete_form.as_p }}
+    <input type="image"
+     src="/images/16-em-cross.png" width="16" height="16" alt="delete"
+     title="delete" border="0" style="border: none;"/>
+   </form>
+  </td>
+
+ </tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<p>Bundles are groups of related patches. You can create bundles by
+selecting patches from a project, then using the 'create bundle' form
+to give your bundle a name. Each bundle can be public or private; public
+bundles are given a persistent URL, based you your username and the name
+of the bundle. Private bundles are only visible to you.</p>
+
+{% if not bundles %}
+<p>You have no bundles.</p>
+{% endif %}
+{% endblock %}

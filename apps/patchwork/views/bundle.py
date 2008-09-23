@@ -25,7 +25,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 import django.core.urlresolvers
 from patchwork.models import Patch, Bundle, Project
 from patchwork.utils import get_patch_ids
-from patchwork.forms import BundleForm
+from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.views import generic_list
 from patchwork.filters import DelegateFilter
 from patchwork.paginator import Paginator
@@ -99,6 +99,29 @@ def setbundle(request):
                 django.core.urlresolvers.reverse(
                     'patchwork.views.bundle.list')
                 )
+
+@login_required
+def bundles(request):
+    context = PatchworkRequestContext(request)
+
+    if request.method == 'POST':
+        form_name = request.POST.get('form_name', '')
+
+	if form_name == DeleteBundleForm.name:
+	    form = DeleteBundleForm(request.POST)
+	    if form.is_valid():
+	        bundle = get_object_or_404(Bundle,
+				id = form.cleaned_data['bundle_id'])
+		bundle.delete()
+
+    bundles = Bundle.objects.filter(owner = request.user)
+    for bundle in bundles:
+        bundle.delete_form = DeleteBundleForm(auto_id = False,
+				initial = {'bundle_id': bundle.id})
+
+    context['bundles'] = bundles
+
+    return render_to_response('patchwork/bundles.html', context)
 
 @login_required
 def bundle(request, bundle_id):

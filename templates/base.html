@@ -21,11 +21,12 @@
     <a href="{% url patchwork.views.user.profile %}"
      ><strong>{{ user.username }}</strong></a>
     <br/>
-     <a href="{% url patchwork.views.user.profile %}">profile</a> ::
      <a href="{% url patchwork.views.user.todo_lists %}">todo
-      ({{ user.get_profile.n_todo_patches }})</a><br/>
-     <a href="{% url auth_logout %}">logout</a> ::
-     <a href="{% url patchwork.views.help path="about/" %}">about</a>
+      ({{ user.get_profile.n_todo_patches }})</a> ::
+     <a href="{% url patchwork.views.bundle.bundles %}">bundles</a>
+     <br/>
+     <a href="{% url patchwork.views.user.profile %}">profile</a> ::
+     <a href="{% url auth_logout %}">logout</a>
 {% else %}
      <a href="{% url auth_login %}">login</a>
      <br/>
