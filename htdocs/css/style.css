@@ -15,7 +15,6 @@ body {
 #title {
 	background: url('/images/title-background.png') top left repeat-x;
 	background-color: #786fb4;
-	width: 100%;
 	margin: 0px;
 	padding-top: 0.1em;
 	padding-bottom: 0.0em;
@@ -37,8 +36,8 @@ body {
 #auth {
 	border-left: thin solid white;
 	padding-top: 0em;
-	padding-left: 2em;
-	padding-right: 5em;
+	padding-left: 1.5em;
+	padding-right: 1.5em;
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
 	font-size: 90%;
