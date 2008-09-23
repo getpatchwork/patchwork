@@ -38,23 +38,29 @@
    <div style="clear: both;"></div>
   </div>
   <div id="nav">
-  {% if project %}
-   <strong>Project</strong>: {{ project.linkname }}
-    :
-    <a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
-     >patches</a>
-    :
-    <a href="{% url patchwork.views.project project_id=project.linkname %}"
-     >project info</a>
-   {% if other_projects %}
-    :
-    <a href="{% url patchwork.views.projects %}"
-    >other projects</a>
+   <div id="navleft">
+   {% if project %}
+    <strong>Project</strong>: {{ project.linkname }}
+     :
+     <a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+      >patches</a>
+     :
+     <a href="{% url patchwork.views.project project_id=project.linkname %}"
+      >project info</a>
+    {% if other_projects %}
+     :
+     <a href="{% url patchwork.views.projects %}"
+     >other projects</a>
+     {% endif %}
+    {% else %}
+     <a href="{% url patchwork.views.projects %}"
+     >project list</a>
     {% endif %}
-   {% else %}
-    <a href="{% url patchwork.views.projects %}"
-    >project list</a>
-   {% endif %}
+   </div>
+   <div id="navright">
+    <a href="{% url patchwork.views.help path="about/" %}">about</a>
+   </div>
+   <div style="clear: both"></div>
   </div>
 {% if messages %}
   <div id="messages">
