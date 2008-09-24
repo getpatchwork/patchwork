@@ -25,7 +25,9 @@
 <table class="patchlist">
  <tr>
   {% if user.is_authenticated %}
-  <th/>
+  <th>
+   <input type="checkbox" onChange="select_all(this)"/>
+  </th>
   {% endif %}
 
   <th>
