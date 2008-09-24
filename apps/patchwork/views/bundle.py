@@ -173,6 +173,6 @@ def public(request, username, bundlename):
             filter_settings = filter_settings,
             patches = bundle.patches.all())
 
-    context.update({'bundle': bundle,
-            'user': user});
+    context['bundle'] = bundle
+
     return render_to_response('patchwork/bundle-public.html', context)
