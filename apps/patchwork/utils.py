@@ -46,13 +46,13 @@ class Order(object):
         'submitter':    'submitter__name',
         'delegate':     'delegate__username',
     }
-    default_order = 'date'
+    default_order = ('date', True)
 
     def __init__(self, str = None):
         self.reversed = False
 
         if str is None or str == '':
-            self.order = self.default_order
+            (self.order, self.reversed) = self.default_order
             return
 
         reversed = False
@@ -61,7 +61,7 @@ class Order(object):
             reversed = True
 
         if str not in self.order_map.keys():
-            self.order = self.default_order
+            (self.order, self.reversed) = self.default_order
             return
 
         self.order = str
