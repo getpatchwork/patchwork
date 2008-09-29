@@ -238,7 +238,7 @@ class Patch(models.Model):
 
         body += self.content
 
-        mail = MIMEText(body)
+        mail = MIMEText(body, _charset = 'utf-8')
         mail['Subject'] = self.name
         mail['Date'] = email.utils.formatdate(
                         time.mktime(self.date.utctimetuple()))
