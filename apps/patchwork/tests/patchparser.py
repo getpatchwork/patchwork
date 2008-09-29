@@ -171,8 +171,6 @@ class SenderCorrelationTest(unittest.TestCase):
         (self.person, new) = find_author(self.existing_sender_mail)
         self.person.save()
 
-        print Person.objects.all()
-
     def testExisingSender(self):
         (person, new) = find_author(self.existing_sender_mail)
         self.assertEqual(new, False)
