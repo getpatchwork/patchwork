@@ -18,7 +18,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
-from patchwork.models import Project
+import codecs
+from patchwork.models import Project, Person
 try:
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
@@ -35,6 +36,8 @@ class defaults(object):
     project = Project(linkname = 'test-project', name = 'Test Project')
 
     patch_author = 'Patch Author <patch-author@example.com>'
+    patch_author_person = Person(name = 'Patch Author',
+				 email = 'patch-author@example.com')
 
     comment_author = 'Comment Author <comment-author@example.com>'
 
@@ -45,11 +48,17 @@ class defaults(object):
     patch_name = 'Test Patch'
 
 
-def read_patch(filename):
-    return file(os.path.join(_test_patch_dir, filename)).read()
+def read_patch(filename, encoding = None):
+    file_path = os.path.join(_test_patch_dir, filename)
+    if encoding is not None:
+	f = codecs.open(file_path, encoding = encoding)
+    else:
+        f = file(file_path)
+
+    return f.read()
 
 def create_email(content, subject = None, sender = None, multipart = False,
-        project = None):
+        project = None, content_encoding = None):
     if subject is None:
         subject = defaults.subject
     if sender is None:
@@ -60,12 +69,17 @@ def create_email(content, subject = None, sender = None, multipart = False,
     if multipart:
         msg = MIMEMultipart()
         body = MIMEText(content, _subtype = 'plain')
+        if content_encoding is not None:
+            body.set_charset(content_encoding)
         msg.attach(body)
     else:
         msg = MIMEText(content)
+        if content_encoding is not None:
+            msg.set_charset(content_encoding)
 
     msg['Subject'] = subject
     msg['From'] = sender
     msg['List-Id'] = project.linkname
+
 
     return msg

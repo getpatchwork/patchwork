@@ -137,16 +137,7 @@ def find_content(project, mail):
         if part.get_content_maintype() != 'text':
             continue
 
-        #print "\t%s, %s" % \
-        #    (part.get_content_subtype(), part.get_content_charset())
-
-        charset = part.get_content_charset()
-        if not charset:
-            charset = mail.get_charset()
-        if not charset:
-            charset = 'utf-8'
-
-        payload = unicode(part.get_payload(decode=True), charset, "replace")
+        payload = part.get_payload(decode=True)
 
         if part.get_content_subtype() == 'x-patch':
             patchbuf = payload

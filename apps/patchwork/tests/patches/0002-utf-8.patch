@@ -1,0 +1,7 @@
+diff --git a/meep.text b/meep.text
+index 3d75d48..a57f4dd 100644
+--- a/meep.text
++++ b/meep.text
+@@ -1,1 +1,2 @@
+ meep
++meëp

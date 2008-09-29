@@ -69,6 +69,15 @@ class AttachmentPatchTest(InlinePatchTest):
         email.attach(attachment)
         (self.patch, self.comment) = find_content(self.project, email)
 
+class UTF8InlinePatchTest(InlinePatchTest):
+    patch_filename = '0002-utf-8.patch'
+    patch_encoding = 'utf-8'
+
+    def setUp(self):
+        self.orig_patch = read_patch(self.patch_filename, self.patch_encoding)
+        email = create_email(self.test_comment + '\n' + self.orig_patch,
+                             content_encoding = self.patch_encoding)
+        (self.patch, self.comment) = find_content(self.project, email)
 
 class SignatureCommentTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
