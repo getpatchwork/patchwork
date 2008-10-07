@@ -31,11 +31,13 @@ import string
 import random
 
 try:
-    from email.mime.text import MIMEText
+    from email.mime.nonmultipart import MIMENonMultipart
+    from email.encoders import encode_7or8bit
     import email.utils
 except ImportError:
     # Python 2.4 compatibility
-    from email.MIMEText import MIMEText
+    from email.MIMENonMultipart import MIMENonMultipart
+    from email.Encoders import encode_7or8bit
     import email.Utils
     email.utils = email.Utils
 
@@ -167,6 +169,14 @@ class HashField(models.CharField):
     def db_type(self):
         return 'char(%d)' % self.n_bytes
 
+class PatchMbox(MIMENonMultipart):
+    patch_charset = 'utf-8'
+    def __init__(self, _text):
+        MIMENonMultipart.__init__(self, 'text', 'plain',
+                        **{'charset': self.patch_charset})
+        self.set_payload(_text.encode(self.patch_charset))
+        encode_7or8bit(self)
+
 class Patch(models.Model):
     project = models.ForeignKey(Project)
     msgid = models.CharField(max_length=255, unique = True)
@@ -238,7 +248,7 @@ class Patch(models.Model):
 
         body += self.content
 
-        mail = MIMEText(body, _charset = 'utf-8')
+        mail = PatchMbox(body)
         mail['Subject'] = self.name
         mail['Date'] = email.utils.formatdate(
                         time.mktime(self.date.utctimetuple()))
