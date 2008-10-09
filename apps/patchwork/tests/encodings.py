@@ -20,7 +20,7 @@
 import unittest
 import os
 import time
-from patchwork.models import Patch
+from patchwork.models import Patch, Person
 from patchwork.tests.utils import defaults, read_patch
 from django.test import TestCase
 from django.test.client import Client
@@ -62,3 +62,26 @@ class UTF8PatchViewTest(TestCase):
         defaults.patch_author_person.delete()
         defaults.project.delete()
 
+class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
+    patch_filename = '0002-utf-8.patch'
+    patch_encoding = 'utf-8'
+    patch_author_name = u'P\xe4tch Author'
+
+    def setUp(self):
+        defaults.project.save()
+	self.patch_author = Person(name = self.patch_author_name,
+			email = defaults.patch_author_person.email)
+	self.patch_author.save()
+        self.patch_content = read_patch(self.patch_filename,
+                encoding = self.patch_encoding)
+        self.patch = Patch(project = defaults.project,
+                           msgid = 'x', name = defaults.patch_name,
+                           submitter = self.patch_author,
+                           content = self.patch_content)
+        self.patch.save()
+        self.client = Client()
+
+    def tearDown(self):
+        self.patch.delete()
+        self.patch_author.delete()
+        defaults.project.delete()

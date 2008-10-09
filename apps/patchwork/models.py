@@ -252,7 +252,7 @@ class Patch(models.Model):
         mail['Subject'] = self.name
         mail['Date'] = email.utils.formatdate(
                         time.mktime(self.date.utctimetuple()))
-        mail['From'] = str(self.submitter)
+        mail['From'] = unicode(self.submitter)
         mail['X-Patchwork-Id'] = str(self.id)
         mail.set_unixfrom('From patchwork ' + self.date.ctime())
 
