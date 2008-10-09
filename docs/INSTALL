@@ -29,16 +29,21 @@ in brackets):
     user that your mail server runs as). On Ubuntu these are
     www-data and nobody, respectively.
 
-      PostgreSQL:
-        createdb patchwork
-        createuser www-data
-        createuser nobody
+    For PostgreSQL
 
-      MySQL:
+        $ createdb patchwork
+        $ createuser www-data
+        $ createuser nobody
+
+	- postgres uses the standard UNIX authentication, so these users
+	  will only be accessible for processes running as the same username.
+	  This means that no passwords need to be set.
+
+     For MySQL:
         $ mysql
 	> CREATE DATABASE 'patchwork';
-        > INSERT INTO user (Host, User) VALUES ('localhost', 'www-data');
-        > INSERT INTO user (Host, User) VALUES ('localhost', 'nobody');
+        > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
+        > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
 
 2. Django setup
 
@@ -99,8 +104,10 @@ in brackets):
 	And add privileges for your mail and web users:
 
 	Postgresql:
-	  psql -f lib/sql/grant-all.sql patchwork
+	  psql -f lib/sql/grant-all.postgres.sql patchwork
 
+	MySQL:
+	  mysql patchwork < lib/sql/grant-all.mysql.sql
 
 
 3. Apache setup
