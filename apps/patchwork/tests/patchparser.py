@@ -61,13 +61,17 @@ class InlinePatchTest(PatchTest):
 class AttachmentPatchTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test for attached patch'
+    content_subtype = 'x-patch'
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
         email = create_email(self.test_comment, multipart = True)
-        attachment = MIMEText(self.orig_patch, _subtype = 'x-patch')
+        attachment = MIMEText(self.orig_patch, _subtype = self.content_subtype)
         email.attach(attachment)
         (self.patch, self.comment) = find_content(self.project, email)
+
+class AttachmentXDiffPatchTest(AttachmentPatchTest):
+    content_subtype = 'x-diff'
 
 class UTF8InlinePatchTest(InlinePatchTest):
     patch_filename = '0002-utf-8.patch'

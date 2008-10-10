@@ -138,11 +138,12 @@ def find_content(project, mail):
             continue
 
         payload = part.get_payload(decode=True)
+        subtype = part.get_content_subtype()
 
-        if part.get_content_subtype() == 'x-patch':
+        if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload
 
-        if part.get_content_subtype() == 'plain':
+        elif subtype == 'plain':
             if not patchbuf:
                 (patchbuf, c) = parse_patch(payload)
             else:
