@@ -33,7 +33,7 @@ list_params = [ c.param for c in filterclasses ] + ['order', 'page']
 
 class ListURLNode(template.defaulttags.URLNode):
     def __init__(self, kwargs):
-        super(ListURLNode, self).__init__(None, [], {})
+        super(ListURLNode, self).__init__(None, [], {}, False)
         self.params = {}
         for (k, v) in kwargs.iteritems():
             if k in list_params:

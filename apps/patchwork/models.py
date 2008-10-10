@@ -23,7 +23,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.conf import settings
 from patchwork.parser import hash_patch
-import django.oldforms as oldforms
 
 import re
 import datetime, time

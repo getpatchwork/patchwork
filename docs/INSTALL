@@ -51,13 +51,12 @@ in brackets):
 
 	 mkdir -p lib/packages lib/python
 
-        At the time of initial release, patchwork depends on a svn version of
-        django. I've been using svn commit 7854 - but anything after this
-        point should be fine. If your distribution provides a sufficiently
-        recent version of django, you can use that; if not, do a:
+        At the time of release, patchwork depends on django version 1.0.
+        However, most distros don't provide 1.0 yet. If yours does, then you
+        can skip this step. Otherwise, do a:
 
          cd lib/packages
-         svn checkout http://code.djangoproject.com/svn/django/trunk django
+         svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.0
          cd ../python
          ln -s ../packages/django/django ./django
 
