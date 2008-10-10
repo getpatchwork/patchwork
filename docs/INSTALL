@@ -47,6 +47,10 @@ in brackets):
 
 2. Django setup
 
+        Set up some initial directories in the patchwork base directory:
+
+	 mkdir -p lib/packages lib/python
+
         At the time of initial release, patchwork depends on a svn version of
         django. I've been using svn commit 7854 - but anything after this
         point should be fine. If your distribution provides a sufficiently
