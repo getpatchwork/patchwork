@@ -114,6 +114,7 @@ class UserProfileForm(forms.ModelForm):
 
 class OptionalDelegateField(DelegateField):
     no_change_choice = ('*', 'no change')
+    to_field_name = None
 
     def __init__(self, no_change_choice = None, *args, **kwargs):
         self.filter = None
