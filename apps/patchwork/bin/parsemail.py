@@ -138,6 +138,8 @@ def find_content(project, mail):
             continue
 
         payload = part.get_payload(decode=True)
+        if not isinstance(payload, unicode):
+            payload = unicode(payload, part.get_content_charset())
         subtype = part.get_content_subtype()
 
         if subtype in ['x-patch', 'x-diff']:
