@@ -133,6 +133,9 @@ def parse_patch(text):
                 lc[0] -= 1
             elif line.startswith('+'):
                 lc[1] -= 1
+            elif line.startswith('\ No newline at end of file'):
+                # Special case: Not included as part of the hunk's line count
+                pass
             else:
                 lc[0] -= 1
                 lc[1] -= 1
