@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 from patchwork.models import Project, Person, UserProfile, State, Patch, \
          Comment, Bundle
 
@@ -34,8 +35,6 @@ class BundleAdmin(admin.ModelAdmin):
     pass
 admin_site.register(Bundle, BundleAdmin)
 
-class UserAdmin(admin.ModelAdmin):
-    pass
 admin_site.register(User, UserAdmin)
 
 class SiteAdmin(admin.ModelAdmin):
