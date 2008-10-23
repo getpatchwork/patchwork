@@ -138,9 +138,15 @@ def find_content(project, mail):
             continue
 
         payload = part.get_payload(decode=True)
-        if not isinstance(payload, unicode):
-            payload = unicode(payload, part.get_content_charset())
+        charset = part.get_content_charset()
         subtype = part.get_content_subtype()
+
+        # if we don't have a charset, assume utf-8
+        if charset is None:
+            charset = 'utf-8'
+
+        if not isinstance(payload, unicode):
+            payload = unicode(payload, charset)
 
         if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload

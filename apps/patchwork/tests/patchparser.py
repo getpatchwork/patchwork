@@ -83,6 +83,17 @@ class UTF8InlinePatchTest(InlinePatchTest):
                              content_encoding = self.patch_encoding)
         (self.patch, self.comment) = find_content(self.project, email)
 
+class NoCharsetInlinePatchTest(InlinePatchTest):
+    """ Test mails with no content-type or content-encoding header """
+    patch_filename = '0001-add-line.patch'
+
+    def setUp(self):
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email(self.test_comment + '\n' + self.orig_patch)
+        del email['Content-Type']
+        del email['Content-Transfer-Encoding']
+        (self.patch, self.comment) = find_content(self.project, email)
+
 class SignatureCommentTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment'
