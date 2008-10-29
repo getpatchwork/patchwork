@@ -173,7 +173,7 @@ def find_content(project, mail):
         if patch:
             cpatch = patch
         else:
-            cpatch = find_patch_for_comment(mail)
+            cpatch = find_patch_for_comment(project, mail)
             if not cpatch:
                 return (None, None)
         comment = Comment(patch = cpatch, date = mail_date(mail),
@@ -182,7 +182,7 @@ def find_content(project, mail):
 
     return (patch, comment)
 
-def find_patch_for_comment(mail):
+def find_patch_for_comment(project, mail):
     # construct a list of possible reply message ids
     refs = []
     if 'In-Reply-To' in mail:
@@ -200,14 +200,14 @@ def find_patch_for_comment(mail):
 
         # first, check for a direct reply
         try:
-            patch = Patch.objects.get(msgid = ref)
+            patch = Patch.objects.get(project = project, msgid = ref)
             return patch
         except Patch.DoesNotExist:
             pass
 
         # see if we have comments that refer to a patch
         try:
-            comment = Comment.objects.get(msgid = ref)
+            comment = Comment.objects.get(patch__project = project, msgid = ref)
             return comment.patch
         except Comment.DoesNotExist:
             pass
@@ -319,8 +319,7 @@ def clean_content(str):
     str = sig_re.sub('', str)
     return str.strip()
 
-def main(args):
-    mail = message_from_file(sys.stdin)
+def parse_mail(mail):
 
     # some basic sanity checks
     if 'From' not in mail:
@@ -375,6 +374,10 @@ def main(args):
             print str(ex)
 
     return 0
+
+def main(args):
+    mail = message_from_file(sys.stdin)
+    return parse_mail(mail)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

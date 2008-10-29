@@ -178,7 +178,7 @@ class PatchMbox(MIMENonMultipart):
 
 class Patch(models.Model):
     project = models.ForeignKey(Project)
-    msgid = models.CharField(max_length=255, unique = True)
+    msgid = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     date = models.DateTimeField(default=datetime.datetime.now)
     submitter = models.ForeignKey(Person)
@@ -265,10 +265,11 @@ class Patch(models.Model):
     class Meta:
         verbose_name_plural = 'Patches'
         ordering = ['date']
+        unique_together = [('msgid', 'project')]
 
 class Comment(models.Model):
     patch = models.ForeignKey(Patch)
-    msgid = models.CharField(max_length=255, unique = True)
+    msgid = models.CharField(max_length=255)
     submitter = models.ForeignKey(Person)
     date = models.DateTimeField(default = datetime.datetime.now)
     headers = models.TextField(blank = True)
@@ -282,6 +283,7 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['date']
+        unique_together = [('msgid', 'patch')]
 
 class Bundle(models.Model):
     owner = models.ForeignKey(User)

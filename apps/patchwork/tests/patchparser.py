@@ -20,7 +20,7 @@
 import unittest
 import os
 from email import message_from_string
-from patchwork.models import Project, Person
+from patchwork.models import Project, Person, Patch, Comment
 from patchwork.tests.utils import read_patch, create_email, defaults
 
 try:
@@ -34,7 +34,7 @@ class PatchTest(unittest.TestCase):
     default_subject = defaults.subject
     project = defaults.project
 
-from patchwork.bin.parsemail import find_content, find_author
+from patchwork.bin.parsemail import find_content, find_author, parse_mail
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
@@ -210,3 +210,68 @@ class SenderCorrelationTest(unittest.TestCase):
 
     def tearDown(self):
         self.person.delete()
+
+class MultipleProjectPatchTest(unittest.TestCase):
+    """ Test that patches sent to multiple patchwork projects are
+        handled correctly """
+
+    test_comment = 'Test Comment'
+    patch_filename = '0001-add-line.patch'
+    msgid = '<1@example.com>'
+
+    def setUp(self):
+        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
+                listid = '1.example.com', listemail='1@example.com')
+        self.p2 = Project(linkname = 'test-project-2', name = 'Project 2',
+                listid = '2.example.com', listemail='2@example.com')
+
+        self.p1.save()
+        self.p2.save()
+
+        patch = read_patch(self.patch_filename)
+        email = create_email(self.test_comment + '\n' + patch)
+        email['Message-Id'] = self.msgid
+
+        del email['List-ID']
+        email['List-ID'] = '<' + self.p1.listid + '>'
+        parse_mail(email)
+
+        del email['List-ID']
+        email['List-ID'] = '<' + self.p2.listid + '>'
+        parse_mail(email)
+
+    def testParsedProjects(self):
+        self.assertEquals(Patch.objects.filter(project = self.p1).count(), 1)
+        self.assertEquals(Patch.objects.filter(project = self.p2).count(), 1)
+
+    def tearDown(self):
+        self.p1.delete()
+        self.p2.delete()
+
+
+class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
+    """ Test that followups to multiple-project patches end up on the
+        correct patch """
+
+    comment_msgid = '<2@example.com>'
+    comment_content = 'test comment'
+
+    def setUp(self):
+        super(MultipleProjectPatchCommentTest, self).setUp()
+
+        for project in [self.p1, self.p2]:
+            email = MIMEText(self.comment_content)
+            email['From'] = defaults.sender
+            email['Subject'] = defaults.subject
+            email['Message-Id'] = self.comment_msgid
+            email['List-ID'] = '<' + project.listid + '>'
+            email['In-Reply-To'] = self.msgid
+            parse_mail(email)
+
+    def testParsedComment(self):
+        for project in [self.p1, self.p2]:
+            patch = Patch.objects.filter(project = project)[0]
+            # we should see two comments now - the original mail with the patch,
+            # and the one we parsed in setUp()
+            self.assertEquals(Comment.objects.filter(patch = patch).count(), 2)
+
