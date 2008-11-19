@@ -173,7 +173,7 @@ def person_to_dict(obj):
          'id'           : obj.id,
          'email'        : obj.email,
          'name'         : obj.name,
-         'user'         : str(obj.user),
+         'user'         : unicode(obj.user).encode("utf-8"),
         }
 
 def patch_to_dict(obj):
@@ -182,17 +182,17 @@ def patch_to_dict(obj):
     return \
         {
          'id'           : obj.id,
-         'date'         : str(obj.date),
+         'date'         : unicode(obj.date).encode("utf-8"),
          'filename'     : obj.filename(),
          'msgid'        : obj.msgid,
          'name'         : obj.name,
-         'project'      : str(obj.project),
+         'project'      : unicode(obj.project).encode("utf-8"),
          'project_id'   : obj.project_id,
-         'state'        : str(obj.state),
+         'state'        : unicode(obj.state).encode("utf-8"),
          'state_id'     : obj.state_id,
-         'submitter'    : str(obj.submitter),
+         'submitter'    : unicode(obj.submitter).encode("utf-8"),
          'submitter_id' : obj.submitter_id,
-         'delegate'     : str(obj.delegate),
+         'delegate'     : unicode(obj.delegate).encode("utf-8"),
          'delegate_id'  : max(obj.delegate_id, 0),
          'commit_ref'   : max(obj.commit_ref, ''),
         }
