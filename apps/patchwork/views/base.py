@@ -26,9 +26,8 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-import django.core.urlresolvers
 from patchwork.requestcontext import PatchworkRequestContext
-from django.core import serializers
+from django.core import serializers, urlresolvers
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -38,7 +37,7 @@ def projects(request):
 
     if projects.count() == 1:
         return HttpResponseRedirect(
-                django.core.urlresolvers.reverse('patchwork.views.patch.list',
+                urlresolvers.reverse('patchwork.views.patch.list',
                     kwargs = {'project_id': projects[0].linkname}))
 
     context['projects'] = projects
