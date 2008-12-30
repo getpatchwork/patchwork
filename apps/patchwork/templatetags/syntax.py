@@ -41,6 +41,8 @@ _patch_chunk_re = \
 _comment_span_res = map(_compile, [
         ('^\s*Signed-off-by: .*$', 'signed-off-by'),
         ('^\s*Acked-by: .*$', 'acked-by'),
+        ('^\s*Tested-by: .*$', 'tested-by'),
+        ('^\s*Reviewed-by: .*$', 'reviewed-by'),
         ('^\s*From: .*$', 'from'),
         ('^\s*&gt;.*$', 'quote'),
         ])
