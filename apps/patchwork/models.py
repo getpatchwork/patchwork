@@ -325,7 +325,7 @@ class UserPersonConfirmation(models.Model):
             return
         person = None
         try:
-            person = Person.objects.get(email = self.email)
+            person = Person.objects.get(email__iexact = self.email)
         except Exception:
             pass
         if not person:
