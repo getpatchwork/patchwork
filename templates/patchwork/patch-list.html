@@ -22,84 +22,87 @@
 <form method="post">
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
-<table class="patchlist">
- <tr>
-  {% if user.is_authenticated %}
-  <th>
-   <input type="checkbox" onChange="select_all(this)"/>
-  </th>
-  {% endif %}
+<table class="patchlist" id="patchlist">
+ <thead>
+  <tr>
+   {% if user.is_authenticated %}
+   <th>
+    <input type="checkbox" onChange="select_all(this)"/>
+   </th>
+   {% endif %}
 
-  <th>
-   {% ifequal order.name "name" %}
-    <a class="colactive"
-     href="{% listurl order=order.reversed_name %}"><img
-     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
-     width="16" height="16"
-    ></a> <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">Patch</a>
-   {% else %}
-    <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
-   {% endifequal %}
-  </th>
+   <th>
+    {% ifequal order.name "name" %}
+     <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><img
+      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      width="16" height="16"
+     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}">Patch</a>
+    {% else %}
+     <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+    {% endifequal %}
+   </th>
 
-  <th>
-   {% ifequal order.name "date" %}
-    <a class="colactive"
-     href="{% listurl order=order.reversed_name %}"><img
-     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
-     width="16" height="16"
-    ></a> <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">Date</a>
-   {% else %}
-    <a class="colinactive" href="{% listurl order="date" %}">Date</a>
-   {% endifequal %}
-  </th>
+   <th>
+    {% ifequal order.name "date" %}
+     <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><img
+      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      width="16" height="16"
+     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}">Date</a>
+    {% else %}
+     <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+    {% endifequal %}
+   </th>
 
-  <th>
-   {% ifequal order.name "submitter" %}
-    <a class="colactive"
-     href="{% listurl order=order.reversed_name %}"><img
-     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
-     width="16" height="16"
-    ></a> <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">Submitter</a>
-   {% else %}
-    <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
-   {% endifequal %}
-  </th>
+   <th>
+    {% ifequal order.name "submitter" %}
+     <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><img
+      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      width="16" height="16"
+     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}">Submitter</a>
+    {% else %}
+     <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
+    {% endifequal %}
+   </th>
 
-  <th>
-   {% ifequal order.name "delegate" %}
-    <a class="colactive"
-     href="{% listurl order=order.reversed_name %}"><img
-     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
-     width="16" height="16"
-    ></a> <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">Delegate</a>
-   {% else %}
-    <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
-   {% endifequal %}
-  </th>
+   <th>
+    {% ifequal order.name "delegate" %}
+     <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><img
+      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      width="16" height="16"
+     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}">Delegate</a>
+    {% else %}
+     <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+    {% endifequal %}
+   </th>
 
-  <th>
-   {% ifequal order.name "state" %}
-    <a class="colactive"
-     href="{% listurl order=order.reversed_name %}"><img
-     src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
-     width="16" height="16"
-    ></a> <a class="colactive"
-     href="{% listurl order=order.reversed_name %}">State</a>
-   {% else %}
-    <a class="colinactive" href="{% listurl order="state" %}">State</a>
-   {% endifequal %}
-  </th>
+   <th>
+    {% ifequal order.name "state" %}
+     <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><img
+      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      width="16" height="16"
+     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}">State</a>
+    {% else %}
+     <a class="colinactive" href="{% listurl order="state" %}">State</a>
+    {% endifequal %}
+   </th>
 
- </tr>
+  </tr>
+ </thead>
 
 {% if page %}
+ <tbody>
  {% for patch in page.object_list %}
-  <tr class="{% cycle 'odd' 'even' %}">
+  <tr id="patch_row:{{patch.id}}" class="{% cycle 'odd' 'even' %}">
     {% if user.is_authenticated %}
     <td>
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
@@ -113,6 +116,7 @@
    <td>{{ patch.state }}</td>
   </tr>
  {% endfor %}
+ </tbody>
 </table>
 
 {% include "patchwork/pagination.html" %}

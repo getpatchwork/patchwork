@@ -2,6 +2,17 @@
 
 {% load person %}
 
+{% block headers %}
+  <script language="JavaScript" type="text/javascript"
+   src="/js/jquery-1.2.6.js">
+  </script>
+  <script language="JavaScript" type="text/javascript"
+   src="/js/jquery.tablednd_0_5.js">
+  </script>
+  <script language="JavaScript" type="text/javascript"
+   src="/js/bundle.js">
+  </script>
+{% endblock %}
 {% block title %}{{project.name}}{% endblock %}
 {% block heading %}bundle: {{bundle.name}}{% endblock %}
 

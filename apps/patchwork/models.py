@@ -289,11 +289,19 @@ class Bundle(models.Model):
     owner = models.ForeignKey(User)
     project = models.ForeignKey(Project)
     name = models.CharField(max_length = 50, null = False, blank = False)
-    patches = models.ManyToManyField(Patch)
+    patches = models.ManyToManyField(Patch, through = 'BundlePatch')
     public = models.BooleanField(default = False)
 
     def n_patches(self):
         return self.patches.all().count()
+
+    def append_patch(self, patch):
+        # todo: use the aggregate queries in django 1.1
+        orders = BundlePatch.objects.filter(bundle = self).values('order')
+        max_order = max([ v for (k, v) in orders])
+
+        bp = BundlePatch.objects.create(bundle = self, patch = patch, order = max_order + 1)
+        bp.save()
 
     class Meta:
         unique_together = [('owner', 'name')]
@@ -312,6 +320,14 @@ class Bundle(models.Model):
     def mbox(self):
         return '\n'.join([p.mbox().as_string(True) \
                         for p in self.patches.all()])
+
+class BundlePatch(models.Model):
+    patch = models.ForeignKey(Patch)
+    bundle = models.ForeignKey(Bundle)
+    order = models.IntegerField()
+
+    class Meta:
+        unique_together = [('bundle', 'patch'), ('bundle', 'order')]
 
 class UserPersonConfirmation(models.Model):
     user = models.ForeignKey(User)
