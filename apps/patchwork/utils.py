@@ -48,8 +48,12 @@ class Order(object):
     }
     default_order = ('date', True)
 
-    def __init__(self, str = None):
+    def __init__(self, str = None, editable = False):
         self.reversed = False
+        self.editable = editable
+
+        if self.editable:
+            return
 
         if str is None or str == '':
             (self.order, self.reversed) = self.default_order
@@ -114,7 +118,7 @@ def set_bundle(user, project, action, data, patches, context):
 
     for patch in patches:
         if action == 'create' or action == 'add':
-            bundle.patches.add(patch)
+            bundle.append_patch(patch)
 
         elif action == 'remove':
             bundle.patches.remove(patch)

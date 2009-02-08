@@ -24,14 +24,15 @@ from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
 
 def generic_list(request, project, view,
-        view_args = {}, filter_settings = [], patches = None):
+        view_args = {}, filter_settings = [], patches = None,
+        editable_order = False):
 
     context = PatchworkRequestContext(request,
             list_view = view,
             list_view_params = view_args)
 
     context.project = project
-    order = Order(request.REQUEST.get('order'))
+    order = Order(request.REQUEST.get('order'), editable = editable_order)
 
     form = MultiplePatchForm(project)
 
@@ -75,7 +76,8 @@ def generic_list(request, project, view,
         patches = Patch.objects.filter(project=project)
 
     patches = context.filters.apply(patches)
-    patches = patches.order_by(order.query())
+    if not editable_order:
+        patches = patches.order_by(order.query())
 
     paginator = Paginator(request, patches)
 
