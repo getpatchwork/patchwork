@@ -59,7 +59,7 @@ def patch(request, patch_id):
                     data = request.POST)
             if createbundleform.is_valid():
                 createbundleform.save()
-                bundle.patches.add(patch)
+                bundle.append_patch(patch)
                 bundle.save()
                 createbundleform = CreateBundleForm()
                 context.add_message('Bundle %s created' % bundle.name)
@@ -67,9 +67,13 @@ def patch(request, patch_id):
         elif action == 'addtobundle':
             bundle = get_object_or_404(Bundle, id = \
                         request.POST.get('bundle_id'))
-            bundle.patches.add(patch)
-            bundle.save()
-            context.add_message('Patch added to bundle "%s"' % bundle.name)
+            try:
+                bundle.append_patch(patch)
+                bundle.save()
+                context.add_message('Patch added to bundle "%s"' % bundle.name)
+            except Exception, ex:
+                context.add_message("Couldn't add patch '%s' to bundle %s: %s" \
+                        % (patch.name, bundle.name, ex.message))
 
         # all other actions require edit privs
         elif not editable:

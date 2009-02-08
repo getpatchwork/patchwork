@@ -19,7 +19,7 @@
 
 
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Bundle, Project, State, UserProfile
+from patchwork.models import Bundle, Project, BundlePatch, State, UserProfile
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 
@@ -100,35 +100,35 @@ def set_bundle(user, project, action, data, patches, context):
         bundle = Bundle(owner = user, project = project,
                 name = data['bundle_name'])
         bundle.save()
-        str = 'added to new bundle "%s"' % bundle.name
-        auth_required = False
+        context.add_message("Bundle %s created" % bundle.name)
 
     elif action =='add':
         bundle = get_object_or_404(Bundle, id = data['bundle_id'])
-        str = 'added to bundle "%s"' % bundle.name
-        auth_required = False
 
     elif action =='remove':
         bundle = get_object_or_404(Bundle, id = data['removed_bundle_id'])
-        str = 'removed from bundle "%s"' % bundle.name
-        auth_required = False
 
     if not bundle:
         return ['no such bundle']
 
     for patch in patches:
         if action == 'create' or action == 'add':
-            bundle.append_patch(patch)
+            try:
+                bundle.append_patch(patch)
+                context.add_message("Patch '%s' added to bundle %s" % \
+                        (patch.name, bundle.name))
+            except Exception, ex:
+                context.add_message("Couldn't add patch '%s' to bundle: %s" % \
+                        (patch.name, ex.message))
 
         elif action == 'remove':
-            bundle.patches.remove(patch)
-
-    if len(patches) > 0:
-        if len(patches) == 1:
-            str = 'patch ' + str
-        else:
-            str = 'patches ' + str
-        context.add_message(str)
+            try:
+                bp = BundlePatch.objects.get(bundle = bundle, patch = patch)
+                bp.delete()
+                context.add_message("Patch '%s' removed from bundle %s\n" % \
+                        (patch.name, bundle.name))
+            except Exception:
+                pass
 
     bundle.save()
 

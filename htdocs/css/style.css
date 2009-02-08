@@ -152,7 +152,13 @@ table.patchlist td.patchlistfilters {
 	border-top: thin solid gray;
 	border-bottom: thin solid black;
 	font-size: smaller;
-
+}
+table.patchlist td.patchlistreorder {
+	background: #c0c0ff;
+	border-top: thin solid gray;
+	border-bottom: thin solid black;
+	font-size: smaller;
+	text-align: right;
 }
 table.patchlist tr.odd {
 	background: #ffffff;
@@ -176,6 +182,25 @@ div.filters {
 
 div.patchforms {
 	margin-top: 2em;
+}
+
+/* list order manipulation */
+
+table.patchlist tr.draghover {
+	background: #e8e8e8 !important;
+}
+
+.dragging {
+	border: thin solid black;
+	background: #e8e8e8 !important;
+}
+
+input#reorder-cancel {
+	display: none;
+	color: #505050;
+}
+
+input#reorder-change {
 }
 
 /* list pagination */

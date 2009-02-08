@@ -23,7 +23,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from patchwork.requestcontext import PatchworkRequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 import django.core.urlresolvers
-from patchwork.models import Patch, Bundle, Project
+from patchwork.models import Patch, Bundle, BundlePatch, Project
 from patchwork.utils import get_patch_ids
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.views import generic_list
@@ -49,7 +49,10 @@ def setbundle(request):
             patch_id = request.POST.get('patch_id', None)
             if patch_id:
                 patch = get_object_or_404(Patch, id = patch_id)
-                bundle.patches.add(patch)
+                try:
+                    bundle.append_patch(patch)
+                except Exception:
+                    pass
             bundle.save()
         elif action == 'add':
             bundle = get_object_or_404(Bundle,
@@ -65,7 +68,7 @@ def setbundle(request):
             for id in patch_ids:
                 try:
                     patch = Patch.objects.get(id = id)
-                    bundle.patches.add(patch)
+                    bundle.append_patch(patch)
                 except ex:
                     pass
 
@@ -143,11 +146,23 @@ def bundle(request, bundle_id):
     else:
         form = BundleForm(instance = bundle)
 
+    if request.method == 'POST' and request.POST.get('form') == 'reorderform':
+        order = get_object_or_404(BundlePatch, bundle = bundle,
+                        patch__id = request.POST.get('order_start')).order
+
+        for patch_id in request.POST.getlist('neworder'):
+            bundlepatch = get_object_or_404(BundlePatch,
+                        bundle = bundle, patch__id = patch_id)
+            bundlepatch.order = order
+            bundlepatch.save()
+            order += 1
+
     context = generic_list(request, bundle.project,
             'patchwork.views.bundle.bundle',
             view_args = {'bundle_id': bundle_id},
             filter_settings = filter_settings,
-            patches = bundle.patches.all())
+            patches = bundle.ordered_patches(),
+            editable_order = True)
 
     context['bundle'] = bundle
     context['bundleform'] = form

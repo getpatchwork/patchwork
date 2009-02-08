@@ -9,6 +9,19 @@
   <td class="patchlistfilters">
  {% include "patchwork/filters.html" %}
   </td>
+ {% if order.editable %}
+  <td class="patchlistreorder">
+   <form method="post" id="reorderform">
+    <input type="hidden" name="form" value="reorderform"/>
+    <input type="hidden" name="order_start" value="0"/>
+    <span id="reorderhelp"></span>
+    <input id="reorder-cancel" type="button" value="Cancel"
+     onClick="order_cancel_click(this)"/>
+    <input id="reorder-change" type="button" value="Change order"
+     onClick="order_button_click(this)"/>
+    </form>
+  </td>
+ {% endif %}
  </tr>
 </table>
 
@@ -40,7 +53,11 @@
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Patch</a>
     {% else %}
+     {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+     {% else %}
+     <span class="colinactive">Patch</span>
+     {% endif %}
     {% endifequal %}
    </th>
 
@@ -53,7 +70,11 @@
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Date</a>
     {% else %}
+     {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+     {% else %}
+     <span class="colinactive">Date</span>
+     {% endif %}
     {% endifequal %}
    </th>
 
@@ -66,7 +87,11 @@
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Submitter</a>
     {% else %}
+     {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
+     {% else %}
+     <span class="colinactive">Submitter</span>
+     {% endif %}
     {% endifequal %}
    </th>
 
@@ -79,7 +104,11 @@
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Delegate</a>
     {% else %}
+     {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+     {% else %}
+     <span class="colinactive">Delegate</span>
+     {% endif %}
     {% endifequal %}
    </th>
 
@@ -92,7 +121,11 @@
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">State</a>
     {% else %}
+     {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="state" %}">State</a>
+     {% else %}
+     <span class="colinactive">State</span>
+     {% endif %}
     {% endifequal %}
    </th>
 

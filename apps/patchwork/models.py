@@ -295,12 +295,25 @@ class Bundle(models.Model):
     def n_patches(self):
         return self.patches.all().count()
 
+    def ordered_patches(self):
+        return self.patches.order_by('bundlepatch__order');
+
     def append_patch(self, patch):
         # todo: use the aggregate queries in django 1.1
-        orders = BundlePatch.objects.filter(bundle = self).values('order')
-        max_order = max([ v for (k, v) in orders])
+        orders = BundlePatch.objects.filter(bundle = self).order_by('-order') \
+                 .values('order')
 
-        bp = BundlePatch.objects.create(bundle = self, patch = patch, order = max_order + 1)
+        if len(orders) > 0:
+            max_order = orders[0]['order']
+        else:
+            max_order = 0
+
+        # see if the patch is already in this bundle
+        if BundlePatch.objects.filter(bundle = self, patch = patch).count():
+            raise Exception("patch is already in bundle")
+
+        bp = BundlePatch.objects.create(bundle = self, patch = patch,
+                order = max_order + 1)
         bp.save()
 
     class Meta:
@@ -327,7 +340,8 @@ class BundlePatch(models.Model):
     order = models.IntegerField()
 
     class Meta:
-        unique_together = [('bundle', 'patch'), ('bundle', 'order')]
+        unique_together = [('bundle', 'patch')]
+        ordering = ['order']
 
 class UserPersonConfirmation(models.Model):
     user = models.ForeignKey(User)
