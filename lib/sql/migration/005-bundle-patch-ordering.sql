@@ -23,10 +23,14 @@ BEGIN;
 ALTER TABLE patchwork_bundlepatch
     ALTER COLUMN "order" TYPE INTEGER;
 
+DROP TABLE patchwork_bundle_patches;
+
 -- normalise ordering: order should start with 1 in each bundle
 UPDATE patchwork_bundlepatch SET "order" = 1 + "order" -
 	(SELECT min("order") FROM patchwork_bundlepatch AS p2
 		WHERE p2.bundle_id = patchwork_bundlepatch.bundle_id);
 
-SELECT * FROM patchwork_bundlepatch;
+GRANT SELECT, INSERT, UPDATE, DELETE ON patchwork_bundlepatch TO "www-data";
+GRANT SELECT, UPDATE ON patchwork_bundlepatch_id_seq TO "www-data";
+
 COMMIT;
