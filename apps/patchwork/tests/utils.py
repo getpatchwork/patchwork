@@ -19,7 +19,9 @@
 
 import os
 import codecs
-from patchwork.models import Project, Person
+from patchwork.models import Project, Person, UserProfile
+from django.contrib.auth.models import User
+
 try:
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
@@ -47,6 +49,31 @@ class defaults(object):
 
     patch_name = 'Test Patch'
 
+_user_idx = 1
+def create_user():
+    global _user_idx
+    userid = 'test-%d' % _user_idx
+    email = '%s@example.com' % userid
+    _user_idx += 1
+
+    user = User.objects.create_user(userid, email, userid)
+    user.save()
+
+    profile = UserProfile(user = user)
+    profile.save()
+
+    return user
+
+def find_in_context(context, key):
+    if isinstance(context, list):
+        for c in context:
+            v = find_in_context(c, key)
+            if v is not None:
+                return v
+    else:
+        if key in context:
+            return context[key]
+    return None
 
 def read_patch(filename, encoding = None):
     file_path = os.path.join(_test_patch_dir, filename)
