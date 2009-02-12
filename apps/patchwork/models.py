@@ -258,7 +258,7 @@ class Patch(models.Model):
         if postscript:
             body += '---\n' + postscript.strip() + '\n'
 
-        body += self.content
+        body += '\n' + self.content
 
         mail = PatchMbox(body)
         mail['Subject'] = self.name
