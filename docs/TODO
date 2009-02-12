@@ -4,11 +4,9 @@
 * https for logins
 * Patch flags
 * Help: XML RPC interface, bundling, Hint headers
-* Bundle ordering
 * Allow manual update of commit ref
 * Add Msg-ID to mbox view
 * store rejected mails
 * Reviewed-by and Tested-by
 * In-message From: header
-* ACKs and Signoffs better-places in mbox view
 * Per-user default filter settings
