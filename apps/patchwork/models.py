@@ -227,6 +227,8 @@ class Patch(models.Model):
         return str.strip('-') + '.patch'
 
     def mbox(self):
+        postscript_re = re.compile('\n-{2,3} ?\n')
+
         comment = None
         try:
             comment = Comment.objects.get(patch = self, msgid = self.msgid)
@@ -237,6 +239,14 @@ class Patch(models.Model):
         if comment:
             body = comment.content.strip() + "\n"
 
+        parts = postscript_re.split(body, 1)
+        if len(parts) == 2:
+            (body, postscript) = parts
+            body = body.strip() + "\n"
+            postscript = postscript.strip() + "\n"
+        else:
+            postscript = ''
+
         responses = False
         for comment in Comment.objects.filter(patch = self) \
                 .exclude(msgid = self.msgid):
@@ -244,6 +254,9 @@ class Patch(models.Model):
 
         if body:
             body += '\n'
+
+        if postscript:
+            body += '---\n' + postscript.strip() + '\n'
 
         body += self.content
 
