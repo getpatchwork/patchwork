@@ -240,6 +240,49 @@ class BundleAddFromListTest(BundleTestBase):
                 for i in [0, 1] ]
         self.failUnless(bps[0].order < bps[1].order)
 
+    def testAddDuplicate(self):
+        self.bundle.append_patch(self.patches[0])
+        count = self.bundle.patches.count()
+        patch = self.patches[0]
+
+        params = {'form': 'patchlistform',
+                  'action': 'Add',
+                  'project': defaults.project.id,
+                  'bundle_id': self.bundle.id,
+                  'patch_id:%d' % patch.id: 'checked'}
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                params)
+
+        self.assertContains(response, 'Patch &#39;%s&#39; already in bundle' \
+                            % patch.name, count = 1, status_code = 200)
+
+        self.assertEquals(count, self.bundle.patches.count())
+
+    def testAddNewAndDuplicate(self):
+        self.bundle.append_patch(self.patches[0])
+        count = self.bundle.patches.count()
+        patch = self.patches[0]
+
+        params = {'form': 'patchlistform',
+                  'action': 'Add',
+                  'project': defaults.project.id,
+                  'bundle_id': self.bundle.id,
+                  'patch_id:%d' % patch.id: 'checked',
+                  'patch_id:%d' % self.patches[1].id: 'checked'}
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                params)
+
+        self.assertContains(response, 'Patch &#39;%s&#39; already in bundle' \
+                            % patch.name, count = 1, status_code = 200)
+        self.assertContains(response, 'Patch &#39;%s&#39; added to bundle' \
+                            % self.patches[1].name, count = 1,
+                            status_code = 200)
+        self.assertEquals(count + 1, self.bundle.patches.count())
+
 class BundleAddFromPatchTest(BundleTestBase):
     def testAddToEmptyBundle(self):
         patch = self.patches[0]

@@ -117,13 +117,15 @@ def set_bundle(user, project, action, data, patches, context):
 
     for patch in patches:
         if action == 'create' or action == 'add':
-            try:
+            bundlepatch_count = BundlePatch.objects.filter(bundle = bundle,
+                        patch = patch).count()
+            if bundlepatch_count == 0:
                 bundle.append_patch(patch)
                 context.add_message("Patch '%s' added to bundle %s" % \
                         (patch.name, bundle.name))
-            except Exception, ex:
-                context.add_message("Couldn't add patch '%s' to bundle: %s" % \
-                        (patch.name, ex.message))
+            else:
+                context.add_message("Patch '%s' already in bundle %s" % \
+                        (patch.name, bundle.name))
 
         elif action == 'remove':
             try:
