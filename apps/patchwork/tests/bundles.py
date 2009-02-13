@@ -155,6 +155,28 @@ class BundleCreateFromListTest(BundleTestBase):
         self.failUnlessEqual(bundle.patches.count(), 1)
         self.failUnlessEqual(bundle.patches.all()[0], patch)
 
+    def testCreateNonEmptyBundleEmptyName(self):
+        newbundlename = 'testbundle-new'
+        patch = self.patches[0]
+
+        n_bundles = Bundle.objects.count()
+
+        params = {'form': 'patchlistform',
+                  'bundle_name': '',
+                  'action': 'Create',
+                  'project': defaults.project.id,
+                  'patch_id:%d' % patch.id: 'checked'}
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                params)
+
+        self.assertContains(response, 'No bundle name was specified',
+                status_code = 200)
+
+        # test that no new bundles are present
+        self.failUnlessEqual(n_bundles, Bundle.objects.count())
+
 class BundleCreateFromPatchTest(BundleTestBase):
     def testCreateNonEmptyBundle(self):
         newbundlename = 'testbundle-new'

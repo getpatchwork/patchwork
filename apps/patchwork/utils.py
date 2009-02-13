@@ -97,8 +97,12 @@ def set_bundle(user, project, action, data, patches, context):
     # set up the bundle
     bundle = None
     if action == 'create':
+        bundle_name = data['bundle_name'].strip()
+        if not bundle_name:
+            return ['No bundle name was specified']
+
         bundle = Bundle(owner = user, project = project,
-                name = data['bundle_name'])
+                name = bundle_name)
         bundle.save()
         context.add_message("Bundle %s created" % bundle.name)
 
