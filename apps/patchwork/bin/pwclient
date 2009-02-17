@@ -408,7 +408,7 @@ def main():
 
         s = rpc.patch_get_mbox(patch_id)
         if len(s) > 0:
-            print s
+            print unicode(s).encode("utf-8")
 
     elif action == 'get' or action == 'save':
         try:
