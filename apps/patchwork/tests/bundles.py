@@ -194,6 +194,20 @@ class BundleCreateFromPatchTest(BundleTestBase):
         self.failUnlessEqual(bundle.patches.count(), 1)
         self.failUnlessEqual(bundle.patches.all()[0], patch)
 
+    def testCreateWithExistingName(self):
+        newbundlename = self.bundle.name
+        patch = self.patches[0]
+
+        params = {'name': newbundlename,
+                  'action': 'createbundle'}
+
+        response = self.client.post('/patch/%d/' % patch.id, params)
+
+        self.assertContains(response,
+                'A bundle called %s already exists' % newbundlename)
+
+        count = Bundle.objects.count()
+        self.failUnlessEqual(Bundle.objects.count(), 1)
 
 class BundleAddFromListTest(BundleTestBase):
     def testAddToEmptyBundle(self):
