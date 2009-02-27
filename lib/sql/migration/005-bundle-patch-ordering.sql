@@ -1,5 +1,5 @@
 BEGIN;
-CREATE TABLE "patchwork_bundlepatch" (                                          
+CREATE TABLE "patchwork_bundlepatch" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "patch_id" INTEGER NOT NULL
         REFERENCES "patchwork_patch" ("id") DEFERRABLE INITIALLY DEFERRED,
