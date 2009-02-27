@@ -10,3 +10,10 @@
 * Reviewed-by and Tested-by
 * In-message From: header
 * Per-user default filter settings
+* pwclient: -b <bundle> to specify multiple patch ids
+* pwclient: pwclient git-am [-b <bundle>|<id>] --signoff
+   (or pwclient exec [-b <bundle>|<id>] 'git am --signoff'?)
+* pwclient: add bundle manipulation and retrieval ops
+* pwclient: specify multiple patches by ID range
+* pwclient: integrate hash parser
+* pwclient: add example scripts (eg, git post-commit hook) to online help
