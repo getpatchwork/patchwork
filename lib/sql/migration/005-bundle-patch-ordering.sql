@@ -23,6 +23,10 @@ BEGIN;
 ALTER TABLE patchwork_bundlepatch
     ALTER COLUMN "order" TYPE INTEGER;
 
+-- initialise the starting number for this sequence
+SELECT setval('patchwork_bundlepatch_id_seq',
+        (SELECT max(id) + 1 FROM patchwork_bundlepatch));
+
 DROP TABLE patchwork_bundle_patches;
 
 -- normalise ordering: order should start with 1 in each bundle
