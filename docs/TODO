@@ -1,13 +1,11 @@
 * Better footer stripping. need to leave 'Update: messages' but remove sigs
 * Person link should go to -> (person,project) patch list view
-* Case-insensitive email address matching
 * https for logins
 * Patch flags
 * Help: XML RPC interface, bundling, Hint headers
 * Allow manual update of commit ref
 * Add Msg-ID to mbox view
 * store rejected mails
-* Reviewed-by and Tested-by
 * In-message From: header
 * Per-user default filter settings
 * pwclient: -b <bundle> to specify multiple patch ids
