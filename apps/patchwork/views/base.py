@@ -43,20 +43,6 @@ def projects(request):
     context['projects'] = projects
     return render_to_response('patchwork/projects.html', context)
 
-def project(request, project_id):
-    context = PatchworkRequestContext(request)
-    project = get_object_or_404(Project, linkname = project_id)
-    context.project = project
-
-    context['maintainers'] = User.objects.filter( \
-            userprofile__maintainer_projects = project)
-    context['n_patches'] = Patch.objects.filter(project = project,
-            archived = False).count()
-    context['n_archived_patches'] = Patch.objects.filter(project = project,
-            archived = True).count()
-
-    return render_to_response('patchwork/project.html', context)
-
 def pwclientrc(request, project_id):
     project = get_object_or_404(Project, linkname = project_id)
     context = PatchworkRequestContext(request)
