@@ -345,7 +345,7 @@ class Bundle(models.Model):
 
     def mbox(self):
         return '\n'.join([p.mbox().as_string(True) \
-                        for p in self.patches.all()])
+                        for p in self.ordered_patches()])
 
 class BundlePatch(models.Model):
     patch = models.ForeignKey(Patch)
