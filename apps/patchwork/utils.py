@@ -183,7 +183,7 @@ def set_patches(user, project, action, data, patches, context):
             str = 'archived'
 
         elif action == 'unarchive':
-            patch.archived = True
+            patch.archived = False
             patch.save()
             str = 'un-archived'
 
