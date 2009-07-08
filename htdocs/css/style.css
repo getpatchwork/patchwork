@@ -293,6 +293,11 @@ span.p_mod	{ color: #0000ff; }
 
 }
 
+.nacked-by {
+	color: #2d4566;
+
+}
+
 .signed-off-by {
 	color: #672d45;
 	font-weight: bold;
