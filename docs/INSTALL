@@ -204,3 +204,11 @@ Some errors:
    doesn't have access to the patchwork tables in the database. Check that
    your web-server user exists in the database, and that it has permissions
    to the tables.
+
+* pwclient fails for actions that require authentication, but a username
+  and password is given int ~/.pwclient rc. Server reports "No authentication
+  credentials given".
+
+ - if you're using the FastCGI interface to apache, you'll need the
+   '-pass-header Authorization' option to the FastCGIExternalServer
+   configuration directive.
