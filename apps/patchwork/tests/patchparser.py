@@ -34,7 +34,8 @@ class PatchTest(unittest.TestCase):
     default_subject = defaults.subject
     project = defaults.project
 
-from patchwork.bin.parsemail import find_content, find_author, parse_mail
+from patchwork.bin.parsemail import find_content, find_author, find_project, \
+                                    parse_mail
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
@@ -275,3 +276,49 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
             # and the one we parsed in setUp()
             self.assertEquals(Comment.objects.filter(patch = patch).count(), 2)
 
+class ListIdHeaderTest(unittest.TestCase):
+    """ Test that we parse List-Id headers from mails correctly """
+    def setUp(self):
+        self.project = Project(linkname = 'test-project-1', name = 'Project 1',
+                listid = '1.example.com', listemail='1@example.com')
+        self.project.save()
+
+    def testNoListId(self):
+        email = MIMEText('')
+        project = find_project(email)
+        self.assertEquals(project, None)
+
+    def testBlankListId(self):
+        email = MIMEText('')
+        email['List-Id'] = ''
+        project = find_project(email)
+        self.assertEquals(project, None)
+
+    def testWhitespaceListId(self):
+        email = MIMEText('')
+        email['List-Id'] = ' '
+        project = find_project(email)
+        self.assertEquals(project, None)
+
+    def testSubstringListId(self):
+        email = MIMEText('')
+        email['List-Id'] = 'example.com'
+        project = find_project(email)
+        self.assertEquals(project, None)
+
+    def testShortListId(self):
+        """ Some mailing lists have List-Id headers in short formats, where it
+            is only the list ID itself (without enclosing angle-brackets). """
+        email = MIMEText('')
+        email['List-Id'] = self.project.listid
+        project = find_project(email)
+        self.assertEquals(project, self.project)
+
+    def testLongListId(self):
+        email = MIMEText('')
+        email['List-Id'] = 'Test text <%s>' % self.project.listid
+        project = find_project(email)
+        self.assertEquals(project, self.project)
+
+    def tearDown(self):
+        self.project.delete()

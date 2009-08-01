@@ -57,11 +57,17 @@ def clean_header(header):
 
 def find_project(mail):
     project = None
-    listid_re = re.compile('.*<([^>]+)>.*', re.S)
+    listid_res = [re.compile('.*<([^>]+)>.*', re.S),
+                  re.compile('^([\S]+)$', re.S)]
 
     for header in list_id_headers:
         if header in mail:
-            match = listid_re.match(mail.get(header))
+
+            for listid_re in listid_res:
+                match = listid_re.match(mail.get(header))
+                if match:
+                    break
+
             if not match:
                 continue
 
