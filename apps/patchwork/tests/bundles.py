@@ -349,7 +349,7 @@ class BundleReorderTest(BundleTestBase):
         neworder_ids = [ p.id for p in neworder ]
 
         params = {'form': 'reorderform',
-                  'order_start': bundlepatch.order,
+                  'order_start': bundlepatch.patch.id,
                   'neworder': neworder_ids}
 
         response = self.client.post('/user/bundle/%d/' % self.bundle.id,
