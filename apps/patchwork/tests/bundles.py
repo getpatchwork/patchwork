@@ -48,8 +48,8 @@ class BundleListTest(TestCase):
         self.user.delete()
 
 class BundleTestBase(TestCase):
-    def setUp(self):
-        patch_names = ['testpatch1', 'testpatch2', 'testpatch3']
+    def setUp(self, patch_count=3):
+        patch_names = ['testpatch%d' % (i) for i in range(1, patch_count+1)]
         self.user = create_user()
         self.client.login(username = self.user.username,
                 password = self.user.username)
@@ -336,31 +336,50 @@ class BundleAddFromPatchTest(BundleTestBase):
 
 class BundleReorderTest(BundleTestBase):
     def setUp(self):
-        super(BundleReorderTest, self).setUp()
-        self.bundle.append_patch(self.patches[0])
-        self.bundle.append_patch(self.patches[1])
-        self.bundle.append_patch(self.patches[2])
+        super(BundleReorderTest, self).setUp(5)
+        for i in range(5):
+            self.bundle.append_patch(self.patches[i])
 
-    def testBundleReorder(self):
-        bundlepatch = BundlePatch.objects.get(bundle = self.bundle,
-                patch = self.patches[0])
+    def checkReordering(self, neworder, start, end):
+        neworder_ids = [ self.patches[i].id for i in neworder ]
 
-        neworder = [self.patches[2], self.patches[0], self.patches[1]]
-        neworder_ids = [ p.id for p in neworder ]
+        firstpatch = BundlePatch.objects.get(bundle = self.bundle,
+                patch = self.patches[start]).patch
 
+        slice_ids = neworder_ids[start:end]
         params = {'form': 'reorderform',
-                  'order_start': bundlepatch.patch.id,
-                  'neworder': neworder_ids}
+                  'order_start': firstpatch.id,
+                  'neworder': slice_ids}
 
         response = self.client.post('/user/bundle/%d/' % self.bundle.id,
                                     params)
 
         self.failUnlessEqual(response.status_code, 200)
 
-        bundle_ids = [ bp.patch.id for bp in \
-                        BundlePatch.objects.filter(bundle = self.bundle) \
-                        .order_by('order') ]
+        bps = BundlePatch.objects.filter(bundle = self.bundle) \
+                        .order_by('order')
 
+        # check if patch IDs are in the expected order:
+        bundle_ids = [ bp.patch.id for bp in bps ]
         self.failUnlessEqual(neworder_ids, bundle_ids)
 
+        # check if order field is still sequential:
+        order_numbers = [ bp.order for bp in bps ]
+        expected_order = range(1, len(neworder)+1) # [1 ... len(neworder)]
+        self.failUnlessEqual(order_numbers, expected_order)
 
+    def testBundleReorderAll(self):
+        # reorder all patches:
+        self.checkReordering([2,1,4,0,3], 0, 5)
+
+    def testBundleReorderEnd(self):
+        # reorder only the last three patches
+        self.checkReordering([0,1,3,2,4], 2, 5)
+
+    def testBundleReorderBegin(self):
+        # reorder only the first three patches
+        self.checkReordering([2,0,1,3,4], 0, 3)
+
+    def testBundleReorderMiddle(self):
+        # reorder only 2nd, 3rd, and 4th patches
+        self.checkReordering([0,2,3,1,4], 1, 4)
