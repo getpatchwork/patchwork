@@ -296,7 +296,6 @@ def patch_list(filter={}):
             "commit_ref",
             "hash",
             "msgid",
-            "name",
             "max_count",
             ]
 
