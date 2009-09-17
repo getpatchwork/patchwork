@@ -266,6 +266,7 @@ class Patch(models.Model):
                         time.mktime(self.date.utctimetuple()))
         mail['From'] = unicode(self.submitter)
         mail['X-Patchwork-Id'] = str(self.id)
+        mail['Message-Id'] = self.msgid
         mail.set_unixfrom('From patchwork ' + self.date.ctime())
 
         return mail
