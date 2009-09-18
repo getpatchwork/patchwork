@@ -15,3 +15,5 @@
 * pwclient: specify multiple patches by ID range
 * pwclient: integrate hash parser
 * pwclient: add example scripts (eg, git post-commit hook) to online help
+* pwclient: multiple project
+* pwclient: case-insensitive searches for author and project name
