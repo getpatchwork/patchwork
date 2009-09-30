@@ -77,3 +77,33 @@ class MboxPatchSplitResponseTest(TestCase):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response,
                 'Acked-by: 1\nAcked-by: 2\n')
+
+class MboxPassThroughHeaderTest(TestCase):
+    """ Test that we see 'Cc' and 'To' headers passed through from original
+        message to mbox view """
+
+    def setUp(self):
+        defaults.project.save()
+        self.person = defaults.patch_author_person
+        self.person.save()
+
+        self.cc_header = 'Cc: CC Person <cc@example.com>'
+        self.to_header = 'To: To Person <to@example.com>'
+
+        self.patch = Patch(project = defaults.project,
+                           msgid = 'p1', name = 'testpatch',
+                           submitter = self.person, content = '')
+
+    def testCCHeader(self):
+        self.patch.headers = self.cc_header + '\n'
+        self.patch.save()
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, self.cc_header)
+
+    def testToHeader(self):
+        self.patch.headers = self.to_header + '\n'
+        self.patch.save()
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, self.to_header)

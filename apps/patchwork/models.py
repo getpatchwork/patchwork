@@ -32,6 +32,7 @@ import random
 try:
     from email.mime.nonmultipart import MIMENonMultipart
     from email.encoders import encode_7or8bit
+    from email.parser import HeaderParser
     import email.utils
 except ImportError:
     # Python 2.4 compatibility
@@ -269,8 +270,14 @@ class Patch(models.Model):
         mail['Message-Id'] = self.msgid
         mail.set_unixfrom('From patchwork ' + self.date.ctime())
 
-        return mail
 
+        copied_headers = ['To', 'Cc']
+        orig_headers = HeaderParser().parsestr(str(self.headers))
+        for header in copied_headers:
+            if header in orig_headers:
+                mail[header] = orig_headers[header]
+
+        return mail
 
     @models.permalink
     def get_absolute_url(self):
