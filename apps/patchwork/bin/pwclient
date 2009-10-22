@@ -384,7 +384,7 @@ def main():
     if hash_str:
         patch_id = patch_id_from_hash(rpc, hash_str)
         if patch_id is None:
-            sys.stderr.write("No patch has the hash provided")
+            sys.stderr.write("No patch has the hash provided\n")
             sys.exit(1)
 
 
