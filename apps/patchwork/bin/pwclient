@@ -285,8 +285,8 @@ def action_update_patch(rpc, patch_id, state = None, commit = None):
     if not success:
         sys.stderr.write("Patch not updated\n")
 
-def patch_id_from_hash(rpc, hash):
-    patch = rpc.patch_get_by_hash(hash)
+def patch_id_from_hash(rpc, project, hash):
+    patch = rpc.patch_get_by_project_hash(project, hash)
     if patch == {}:
         return None
 
@@ -382,7 +382,7 @@ def main():
 
     patch_id = None
     if hash_str:
-        patch_id = patch_id_from_hash(rpc, hash_str)
+        patch_id = patch_id_from_hash(rpc, project_str, hash_str)
         if patch_id is None:
             sys.stderr.write("No patch has the hash provided\n")
             sys.exit(1)
