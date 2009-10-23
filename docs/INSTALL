@@ -9,7 +9,7 @@ You'll need the following (applications used for patchwork development are
 in brackets):
 
   * A python interpreter
-  * djano
+  * django
   * A webserver (apache)
   * mod_python or flup
   * A database server (postgresql)
