@@ -296,7 +296,9 @@ class Comment(models.Model):
     headers = models.TextField(blank = True)
     content = models.TextField()
 
-    response_re = re.compile('^(Tested|Reviewed|Acked|Signed-off|Nacked)-by: .*$', re.M | re.I)
+    response_re = re.compile( \
+            '^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
+            re.M | re.I)
 
     def patch_responses(self):
         return ''.join([ match.group(0) + '\n' for match in \
