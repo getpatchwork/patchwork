@@ -21,7 +21,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_userprofile_maintainer_projects,
 	patchwork_project,
 	patchwork_bundle,
-	patchwork_bundle_patches,
+	patchwork_bundlepatch,
 	patchwork_patch,
 	registration_registrationprofile
 TO "www-data";
@@ -37,7 +37,7 @@ GRANT SELECT, UPDATE ON
 	django_content_type_id_seq,
 	django_site_id_seq,
 	patchwork_bundle_id_seq,
-	patchwork_bundle_patches_id_seq,
+	patchwork_bundlepatch_id_seq,
 	patchwork_comment_id_seq,
 	patchwork_patch_id_seq,
 	patchwork_person_id_seq,
