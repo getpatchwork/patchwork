@@ -286,7 +286,13 @@ def action_update_patch(rpc, patch_id, state = None, commit = None):
         sys.stderr.write("Patch not updated\n")
 
 def patch_id_from_hash(rpc, project, hash):
-    patch = rpc.patch_get_by_project_hash(project, hash)
+    try:
+        patch = rpc.patch_get_by_project_hash(project, hash)
+    except xmlrpclib.Fault:
+        # the server may not have the newer patch_get_by_project_hash function,
+        # so fall back to hash-only.
+        patch = rpc.patch_get_by_hash(hash)
+
     if patch == {}:
         return None
 
