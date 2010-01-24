@@ -234,7 +234,7 @@ def action_get(rpc, patch_id):
         sys.exit(1)
 
     try:
-        f.write(s)
+        f.write(unicode(s).encode("utf-8"))
         f.close()
         print "Saved patch to %s" % fname
     except:
