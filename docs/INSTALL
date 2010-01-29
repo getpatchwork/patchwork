@@ -61,14 +61,12 @@ in brackets):
          ln -s ../packages/django/django ./django
 
         We also use the django-registration infrastructure from
-        http://code.google.com/p/django-registration/
+        http://bitbucket.org/ubernostrum/django-registration/
 
          cd lib/packages/
-         svn checkout \
-             http://django-registration.googlecode.com/svn/trunk/registration/ \
-             django-registration
+         hg clone http://bitbucket.org/ubernostrum/django-registration/
          cd ../../apps
-         ln -s ../lib/packages/django-registration ./registration
+         ln -s ../lib/packages/django-registration/registration ./registration
 
 		We also use some Javascript libraries:
 
