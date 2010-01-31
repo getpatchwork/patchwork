@@ -153,10 +153,22 @@ in brackets):
 
 Example apache configuration files are in lib/apache/.
 
+wsgi:
+        django has built-in support for WSGI, which supersedes the fastcgi
+        handler. It is thus the preferred method to run patchwork.
+
+        The necessary configuration for Apache2 may be found in
+
+         lib/apache2/patchwork.wsgi.conf.
+
+        You will need to install/enable mod_wsgi for this to work:
+
+         a2enmod wsgi
+         apache2ctl restart
+
 mod_python:
 
-        This should be the simpler of the two to set up. An example apache
-        configuration file is in:
+        An example apache configuration file for mod_python is in:
 
           lib/apache/patchwork.mod_python.conf
 
