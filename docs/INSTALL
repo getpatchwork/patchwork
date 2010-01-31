@@ -29,7 +29,10 @@ in brackets):
     user that your mail server runs as). On Ubuntu these are
     www-data and nobody, respectively.
 
-    For PostgreSQL
+    As an alternative, you can use password-based login and a single database
+    account. This is described further down.
+
+    For PostgreSQL (ident-based)
 
         $ createdb patchwork
         $ createuser www-data
@@ -39,7 +42,23 @@ in brackets):
           will only be accessible for processes running as the same username.
           This means that no passwords need to be set.
 
-     For MySQL:
+    For PostgreSQL (password-based)
+
+        $ createuser -PE patchwork
+        $ createdb -O patchwork patchwork
+
+        Once that is done, you need to tell Django about the new Database
+        settings, using local_settings.py (see below) to override the defaults
+        in settings.py:
+
+        DATABASE_ENGINE = 'postgresql_psycopg2'
+        DATABASE_NAME = 'patchwork'
+        DATABASE_USER = 'patchwork'
+        DATABASE_PASSWORD = 'my_secret_password
+        DATABASE_HOST = 'localhost'
+        DATABASE_PORT = ''
+
+    For MySQL:
         $ mysql
         > CREATE DATABASE 'patchwork';
         > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
@@ -119,7 +138,9 @@ in brackets):
          cd apps/
          PYTHONPATH=../lib/python ./manage.py syncdb
 
-        And add privileges for your mail and web users:
+        And add privileges for your mail and web users. This is only needed if
+        you use the ident-based approach. If you use password-based database
+        authentication, you can skip this step.
 
         Postgresql:
           psql -f lib/sql/grant-all.postgres.sql patchwork
