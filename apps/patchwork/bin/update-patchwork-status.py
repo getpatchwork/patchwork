@@ -25,7 +25,7 @@ import subprocess
 from optparse import OptionParser
 
 def commits(options, revlist):
-    cmd = ['git-rev-list', revlist]
+    cmd = ['git', 'rev-list', revlist]
     proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, cwd = options.repodir)
 
     revs = []
@@ -36,7 +36,7 @@ def commits(options, revlist):
     return revs
 
 def commit(options, rev):
-    cmd = ['git-diff', '%(rev)s^..%(rev)s' % {'rev': rev}]
+    cmd = ['git', 'diff', '%(rev)s^..%(rev)s' % {'rev': rev}]
     proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, cwd = options.repodir)
 
     buf = proc.communicate()[0]
