@@ -79,12 +79,13 @@ class Filter:
         """Return human-readable description of the filter."""
         return str(self.d)
 
-class BasicHTTPAuthTransport(xmlrpclib.Transport):
+class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
 
-    def __init__(self, username = None, password = None):
+    def __init__(self, username = None, password = None, use_https = False):
         self.username = username
         self.password = password
-        xmlrpclib.Transport.__init__(self)
+        self.use_https = use_https
+        xmlrpclib.SafeTransport.__init__(self)
 
     def authenticated(self):
         return self.username != None and self.password != None
@@ -96,6 +97,13 @@ class BasicHTTPAuthTransport(xmlrpclib.Transport):
         credentials = '%s:%s' % (self.username, self.password)
         auth = 'Basic ' + base64.encodestring(credentials).strip()
         connection.putheader('Authorization', auth)
+
+    def make_connection(self, host):
+        if self.use_https:
+            fn = xmlrpclib.SafeTransport.make_connection
+        else:
+            fn = xmlrpclib.Transport.make_connection
+        return fn(self, host)
 
 def usage():
     sys.stderr.write("Usage: %s <action> [options]\n\n" % \
@@ -365,9 +373,12 @@ def main():
         if config.has_option('auth', 'username') and \
                 config.has_option('auth', 'password'):
 
+            use_https = url.startswith('https')
+
             transport = BasicHTTPAuthTransport( \
                     config.get('auth', 'username'),
-                    config.get('auth', 'password'))
+                    config.get('auth', 'password'),
+                    use_https)
 
         else:
             sys.stderr.write(("The %s action requires authentication, "
