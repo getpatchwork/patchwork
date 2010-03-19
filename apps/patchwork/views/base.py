@@ -47,6 +47,10 @@ def pwclientrc(request, project_id):
     project = get_object_or_404(Project, linkname = project_id)
     context = PatchworkRequestContext(request)
     context.project = project
+    if request.is_secure():
+        context['scheme'] = 'https'
+    else:
+        context['scheme'] = 'http'
     response = HttpResponse(mimetype = "text/plain")
     response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
     response.write(render_to_string('patchwork/pwclientrc', context))
