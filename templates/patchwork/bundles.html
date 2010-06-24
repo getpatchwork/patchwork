@@ -33,6 +33,7 @@
   <td style="text-align: center;">
    <form method="post"
     onsubmit="return confirm_delete('bundle', '{{bundle.name|escapejs}}');">
+    {% csrf_token %}
     {{ bundle.delete_form.as_p }}
     <input type="image"
      src="/images/16-em-cross.png" width="16" height="16" alt="delete"

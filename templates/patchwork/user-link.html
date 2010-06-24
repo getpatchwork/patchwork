@@ -22,6 +22,7 @@ you.</p>
    {% endif %}
 
    <form action="{% url patchwork.views.user.link %}" method="post">
+    {% csrf_token %}
     {{linkform.email.errors}}
     Link an email address: {{ linkform.email }}
    </form>

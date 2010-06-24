@@ -6,6 +6,7 @@
 
 {% block body %}
 <form method="post">
+{% csrf_token %}
 <table class="form loginform">
  <tr>
   <th colspan="2" class="headerrow">login</th>

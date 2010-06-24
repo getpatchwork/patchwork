@@ -12,6 +12,7 @@
  {% if order.editable %}
   <td class="patchlistreorder">
    <form method="post" id="reorderform">
+    {% csrf_token %}
     <input type="hidden" name="form" value="reorderform"/>
     <input type="hidden" name="order_start" value="0"/>
     <span id="reorderhelp"></span>
@@ -33,6 +34,7 @@
 {% endif %}
 
 <form method="post">
+{% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
 <table class="patchlist" id="patchlist">

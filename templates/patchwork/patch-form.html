@@ -32,6 +32,7 @@
      <td>
       <form action="{% url patchwork.views.patch patch=patch.id %}"
        method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="act"/>
        <input type="submit" value="Ack"/>
       </form>
@@ -44,6 +45,7 @@
        <span class="errors">{{createbundleform.errors}}</span>
        {% endif %}
       <form method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="createbundle"/>
         {{ createbundleform.name }}
        <input value="Create" type="submit"/>
@@ -55,6 +57,7 @@
      <td>Add to bundle:</td>
      <td>
       <form action="{% url patchwork.views.bundle.setbundle %}" method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="add"/>
        <input type="hidden" name="patch_id" value="{{ patch.id }}"/>
        <select name="name"/>
@@ -71,6 +74,7 @@
      <td>Archive:</td>
      <td>
       <form method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="archive"/>
        <input type="submit" value="Archive"/>
       </form>

@@ -59,6 +59,7 @@ address.</p>
    {% ifnotequal user.email email.email %}
    <form action="{% url patchwork.views.user.unlink person_id=email.id %}"
     method="post">
+    {% csrf_token %}
     <input type="submit" value="Unlink"/>
    </form>
     {% endifnotequal %}
@@ -68,6 +69,7 @@ address.</p>
  <tr>
   <td colspan="2">
    <form action="{% url patchwork.views.user.link %}" method="post">
+    {% csrf_token %}
     {{ linkform.email }}
     <input type="submit" value="Add"/>
    </form>
@@ -102,6 +104,7 @@ address.</p>
 <h2>Settings</h2>
 
 <form method="post">
+ {% csrf_token %}
  <table class="form">
 {{ profileform }}
   <tr>

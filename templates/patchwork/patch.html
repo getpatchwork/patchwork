@@ -87,6 +87,7 @@ function toggle_headers(link_id, headers_id)
  <div class="patchform patchform-properties">
   <h3>Patch Properties</h3>
    <form method="post">
+    {% csrf_token %}
     <table class="form">
      <tr>
       <th>Change state:</th>
@@ -130,6 +131,7 @@ function toggle_headers(link_id, headers_id)
      <td>
       <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
        method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="act"/>
        <input type="submit" value="Ack"/>
       </form>
@@ -143,6 +145,7 @@ function toggle_headers(link_id, headers_id)
        <dd class="errors">{{createbundleform.non_field_errors}}</dd>
        {% endif %}
       <form method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="createbundle"/>
        {% if createbundleform.name.errors %}
        <dd class="errors">{{createbundleform.name.errors}}</dd>
@@ -157,6 +160,7 @@ function toggle_headers(link_id, headers_id)
      <td>Add to bundle:</td>
      <td>
       <form method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="addtobundle"/>
        <select name="bundle_id"/>
         {% for bundle in bundles %}
@@ -183,6 +187,7 @@ function toggle_headers(link_id, headers_id)
      <td>
       <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
        method="post">
+       {% csrf_token %}
        <input type="hidden" name="action" value="act"/>
        <input type="submit" value="Ack"/>
       </form>

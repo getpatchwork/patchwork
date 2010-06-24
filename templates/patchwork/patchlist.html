@@ -3,6 +3,7 @@
 
 {% if patches %}
 <form method="post">
+{% csrf_token %}
 <table class="patchlist">
  <tr>
   {% if patchform %}
