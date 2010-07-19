@@ -180,7 +180,8 @@ def mbox(request, bundle_id):
 
 def public(request, username, bundlename):
     user = get_object_or_404(User, username = username)
-    bundle = get_object_or_404(Bundle, name = bundlename, public = True)
+    bundle = get_object_or_404(Bundle, name = bundlename, owner = user,
+                                public = True)
     filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
     context = generic_list(request, bundle.project,
             'patchwork.views.bundle.public',
