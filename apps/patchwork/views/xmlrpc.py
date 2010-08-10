@@ -29,6 +29,7 @@ from django.core import urlresolvers
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate
 from patchwork.models import Patch, Project, Person, Bundle, State
+from django.views.decorators.csrf import csrf_exempt
 
 import sys
 import base64
@@ -120,6 +121,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 dispatcher = PatchworkXMLRPCDispatcher()
 
 # XMLRPC view function
+@csrf_exempt
 def xmlrpc(request):
     if request.method != 'POST':
         return HttpResponseRedirect(
