@@ -222,7 +222,10 @@ def main(args):
 
     (options, args) = parser.parse_args()
 
-    (patch, comment) = parse_patch(sys.stdin.read())
+    # decode from (assumed) UTF-8
+    content = sys.stdin.read().decode('utf-8')
+
+    (patch, comment) = parse_patch(content)
 
     if options.print_hash and patch:
         print hash_patch(patch).hexdigest()
