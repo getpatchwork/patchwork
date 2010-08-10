@@ -151,7 +151,7 @@ in brackets):
 
 3. Apache setup
 
-Example apache configuration files are in lib/apache/.
+Example apache configuration files are in lib/apache2/.
 
 wsgi:
         django has built-in support for WSGI, which supersedes the fastcgi
@@ -170,7 +170,7 @@ mod_python:
 
         An example apache configuration file for mod_python is in:
 
-          lib/apache/patchwork.mod_python.conf
+          lib/apache2/patchwork.mod_python.conf
 
         However, mod_python and mod_php may not work well together. So, if your
         web server is used for serving php files, the fastcgi method may suit
@@ -181,7 +181,7 @@ fastcgi:
         django has built-in support for fastcgi, which requires the
         'flup' python module. An example configuration is in:
 
-          lib/apache/patchwork.fastcgi.conf
+          lib/apache2/patchwork.fastcgi.conf
 
         - this also requires the mod_rewrite apache module to be loaded.
 
