@@ -51,6 +51,9 @@ in brackets):
 
 	 mkdir -p lib/packages lib/python
 
+        lib/packages is for stuff we'll download, lib/python is to add
+        to our python path. We'll symlink python modules into lib/python.
+
         At the time of release, patchwork depends on django version 1.0 or
         later. Your distro probably provides this. If not, do a:
 
