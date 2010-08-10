@@ -35,13 +35,13 @@ in brackets):
         $ createuser www-data
         $ createuser nobody
 
-	- postgres uses the standard UNIX authentication, so these users
-	  will only be accessible for processes running as the same username.
-	  This means that no passwords need to be set.
+        - postgres uses the standard UNIX authentication, so these users
+          will only be accessible for processes running as the same username.
+          This means that no passwords need to be set.
 
      For MySQL:
         $ mysql
-	> CREATE DATABASE 'patchwork';
+        > CREATE DATABASE 'patchwork';
         > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
         > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
 
@@ -49,7 +49,7 @@ in brackets):
 
         Set up some initial directories in the patchwork base directory:
 
-	 mkdir -p lib/packages lib/python
+         mkdir -p lib/packages lib/python
 
         lib/packages is for stuff we'll download, lib/python is to add
         to our python path. We'll symlink python modules into lib/python.
@@ -73,29 +73,29 @@ in brackets):
          cd ../python
          ln -s ../lib/packages/django-registration/registration ./registration
 
-		We also use some Javascript libraries:
+        We also use some Javascript libraries:
 
-		 cd lib/packages
-		 mkdir jquery
-		 cd jquery
-		 wget http://jqueryjs.googlecode.com/files/jquery-1.3.min.js
-		 wget http://www.isocra.com/articles/jquery.tablednd_0_5.js.zip
-		 unzip jquery.tablednd_0_5.js.zip jquery.tablednd_0_5.js
-		 cd ../../../htdocs/js/
-		 ln -s ../../lib/packages/jquery/jquery-1.3.min.js ./
-		 ln -s ../../lib/packages/jquery/jquery.tablednd_0_5.js ./
+         cd lib/packages
+         mkdir jquery
+         cd jquery
+         wget http://jqueryjs.googlecode.com/files/jquery-1.3.min.js
+         wget http://www.isocra.com/articles/jquery.tablednd_0_5.js.zip
+         unzip jquery.tablednd_0_5.js.zip jquery.tablednd_0_5.js
+         cd ../../../htdocs/js/
+         ln -s ../../lib/packages/jquery/jquery-1.3.min.js ./
+         ln -s ../../lib/packages/jquery/jquery.tablednd_0_5.js ./
 
-	The settings.py file contains default settings for patchwork, you'll
-	need to configure settings for your own setup.
+        The settings.py file contains default settings for patchwork, you'll
+        need to configure settings for your own setup.
 
-	Rather than edit settings.py, create a file 'local_settings.py', and
-	override or add settings as necessary. You'll need to define the
-	following:
+        Rather than edit settings.py, create a file 'local_settings.py', and
+        override or add settings as necessary. You'll need to define the
+        following:
 
-	  SECRET_KEY
-	  ADMINS
-	  TIME_ZONE
-	  LANGUAGE_CODE
+          SECRET_KEY
+          ADMINS
+          TIME_ZONE
+          LANGUAGE_CODE
 
         You can generate the SECRET_KEY with the following python code:
 
@@ -103,29 +103,29 @@ in brackets):
           chars = string.letters + string.digits + string.punctuation
           print repr("".join([random.choice(chars) for i in range(0,50)]))
 
-	If you have patchwork installed in somewhere other than /srv/patchwork,
-	you'll also need to define:
+        If you have patchwork installed in somewhere other than /srv/patchwork,
+        you'll also need to define:
 
-	  MEDIA_ROOT
-	  TEMPLATE_DIRS
+          MEDIA_ROOT
+          TEMPLATE_DIRS
 
         If you wish to enable the XML-RPC interface, add the following to
         your local_settings.py file:
 
-	  ENABLE_XMLRPC = True
+          ENABLE_XMLRPC = True
 
-	Then, get patchwork to create its tables in your configured database:
+        Then, get patchwork to create its tables in your configured database:
 
-	 cd apps/
-	 PYTHONPATH=../lib/python ./manage.py syncdb
+         cd apps/
+         PYTHONPATH=../lib/python ./manage.py syncdb
 
-	And add privileges for your mail and web users:
+        And add privileges for your mail and web users:
 
-	Postgresql:
-	  psql -f lib/sql/grant-all.postgres.sql patchwork
+        Postgresql:
+          psql -f lib/sql/grant-all.postgres.sql patchwork
 
-	MySQL:
-	  mysql patchwork < lib/sql/grant-all.mysql.sql
+        MySQL:
+          mysql patchwork < lib/sql/grant-all.mysql.sql
 
 
 3. Apache setup
@@ -134,30 +134,30 @@ Example apache configuration files are in lib/apache/.
 
 mod_python:
 
-	This should be the simpler of the two to set up. An example apache
-	configuration file is in:
+        This should be the simpler of the two to set up. An example apache
+        configuration file is in:
 
-	  lib/apache/patchwork.mod_python.conf
+          lib/apache/patchwork.mod_python.conf
 
-	However, mod_python and mod_php may not work well together. So, if your
-	web server is used for serving php files, the fastcgi method may suit
-	instead.
+        However, mod_python and mod_php may not work well together. So, if your
+        web server is used for serving php files, the fastcgi method may suit
+        instead.
 
 fastcgi:
 
-	django has built-in support for fastcgi, which requires the
-	'flup' python module. An example configuration is in:
+        django has built-in support for fastcgi, which requires the
+        'flup' python module. An example configuration is in:
 
-	  lib/apache/patchwork.fastcgi.conf
+          lib/apache/patchwork.fastcgi.conf
 
-	- this also requires the mod_rewrite apache module to be loaded.
+        - this also requires the mod_rewrite apache module to be loaded.
 
-	Once you have apache set up, you can start the fastcgi server with:
+        Once you have apache set up, you can start the fastcgi server with:
 
-	  cd /srv/patchwork/apps
-	  ./manage.py runfcgi method=prefork \
-			      socket=/srv/patchwork/var/fcgi.sock \
-			      pidfile=/srv/patchwork/var/fcgi.pid
+          cd /srv/patchwork/apps
+          ./manage.py runfcgi method=prefork \
+                              socket=/srv/patchwork/var/fcgi.sock \
+                              pidfile=/srv/patchwork/var/fcgi.pid
 
 4. Configure patchwork
     Now, you should be able to administer patchwork, by visiting the
