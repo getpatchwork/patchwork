@@ -3,8 +3,7 @@
 # Git post-receive hook to update Patchwork patches after Git pushes
 #
 # Copyright © 2010 martin f. krafft <madduck@madduck.net>
-# Released under the terms of the Artistic Licence 2.0
-#
+# Released under the GNU General Public License v2 or later.
 set -eu
 
 #TODO: the state map should really live in the repo's git-config
