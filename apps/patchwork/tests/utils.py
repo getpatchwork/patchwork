@@ -92,17 +92,16 @@ def create_email(content, subject = None, sender = None, multipart = False,
         sender = defaults.sender
     if project is None:
         project = defaults.project
+    if content_encoding is None:
+        content_encoding = 'us-ascii'
 
     if multipart:
         msg = MIMEMultipart()
-        body = MIMEText(content, _subtype = 'plain')
-        if content_encoding is not None:
-            body.set_charset(content_encoding)
+        body = MIMEText(content, _subtype = 'plain',
+                        _charset = content_encoding)
         msg.attach(body)
     else:
-        msg = MIMEText(content)
-        if content_encoding is not None:
-            msg.set_charset(content_encoding)
+        msg = MIMEText(content, _charset = content_encoding)
 
     msg['Subject'] = subject
     msg['From'] = sender
