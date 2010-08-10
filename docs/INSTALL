@@ -51,21 +51,23 @@ in brackets):
 
 	 mkdir -p lib/packages lib/python
 
-        At the time of release, patchwork depends on django version 1.0.
-        However, most distros don't provide 1.0 yet. If yours does, then you
-        can skip this step. Otherwise, do a:
+        At the time of release, patchwork depends on django version 1.0 or
+        later. Your distro probably provides this. If not, do a:
 
          cd lib/packages
-         svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.0
+         svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.2
          cd ../python
          ln -s ../packages/django/django ./django
 
         We also use the django-registration infrastructure from
-        http://bitbucket.org/ubernostrum/django-registration/
+        http://bitbucket.org/ubernostrum/django-registration/. Your distro
+        may provide the django-registration python module (in Ubuntu/Debian it's
+        called 'python-django-registration'). If not, download the module
+        and symlink it to lib/python/ :
 
          cd lib/packages/
          hg clone http://bitbucket.org/ubernostrum/django-registration/
-         cd ../../apps
+         cd ../python
          ln -s ../lib/packages/django-registration/registration ./registration
 
 		We also use some Javascript libraries:
