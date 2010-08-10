@@ -27,12 +27,6 @@ body {
 	margin-bottom: 0;
 }
 
-.beta {
-	font-size: 60%;
-	vertical-align: sub;
-	line-height: 2em;
-}
-
 #auth {
 	border-left: thin solid white;
 	padding-top: 0em;
