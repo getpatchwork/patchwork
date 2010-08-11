@@ -379,6 +379,7 @@ class EmailConfirmation(models.Model):
     type = models.CharField(max_length = 20, choices = [
                                 ('userperson', 'User-Person association'),
                                 ('registration', 'Registration'),
+                                ('optout', 'Email opt-out'),
                             ])
     email = models.CharField(max_length = 200)
     user = models.ForeignKey(User, null = True)
@@ -400,4 +401,8 @@ class EmailConfirmation(models.Model):
             self.key = self._meta.get_field('key').construct(str).hexdigest()
         super(EmailConfirmation, self).save()
 
+class EmailOptout(models.Model):
+    email = models.CharField(max_length = 200, primary_key = True)
 
+    def __unicode__(self):
+        return self.email

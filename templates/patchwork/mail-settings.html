@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}mail settings{% endblock %}
+{% block heading %}mail settings{% endblock %}
+
+{% block body %}
+<p>Settings for <strong>{{email}}</strong>:</p>
+
+<table class="horizontal">
+ <tr>
+  <th>Opt-out list</th>
+{% if is_optout %}
+  <td>Patchwork <strong>may not</strong> send automated notifications to
+   this address.</td>
+  <td>
+   <form method="post" action="{% url patchwork.views.mail.optin %}">
+    {% csrf_token %}
+    <input type="hidden" name="email" value="{{email}}"/>
+    <input type="submit" value="Opt-in"/>
+   </form>
+  </td>
+   
+{% else %}
+  <td>Patchwork <strong>may</strong> send automated notifications to
+   this address.</td>
+  <td>
+   <form method="post" action="{% url patchwork.views.mail.optout %}">
+    {% csrf_token %}
+    <input type="hidden" name="email" value="{{email}}"/>
+    <input type="submit" value="Opt-out"/>
+   </form>
+  </td>
+{% endif %}
+ </tr>
+</table>
+
+{% endblock %}

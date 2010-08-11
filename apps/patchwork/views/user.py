@@ -24,7 +24,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib import auth
 from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
-from patchwork.models import Project, Bundle, Person, EmailConfirmation, State
+from patchwork.models import Project, Bundle, Person, EmailConfirmation, \
+         State, EmailOptout
 from patchwork.forms import UserProfileForm, UserPersonLinkForm, \
          RegistrationForm
 from patchwork.filters import DelegateFilter
@@ -99,7 +100,13 @@ def profile(request):
     context['bundles'] = Bundle.objects.filter(owner = request.user)
     context['profileform'] = form
 
-    people = Person.objects.filter(user = request.user)
+    optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
+                        Person._meta.db_table,
+                        Person._meta.get_field('email').column,
+                        EmailOptout._meta.get_field('email').column,
+                        EmailOptout._meta.db_table)
+    people = Person.objects.filter(user = request.user) \
+             .extra(select = {'is_optout': optout_query})
     context['linked_emails'] = people
     context['linkform'] = UserPersonLinkForm()
 

@@ -73,6 +73,11 @@ urlpatterns = patterns('',
     # submitter autocomplete
     (r'^submitter/$', 'patchwork.views.submitter_complete'),
 
+    # email setup
+    (r'^mail/$', 'patchwork.views.mail.settings'),
+    (r'^mail/optout/$', 'patchwork.views.mail.optout'),
+    (r'^mail/optin/$', 'patchwork.views.mail.optin'),
+
     # help!
     (r'^help/(?P<path>.*)$', 'patchwork.views.help'),
 )

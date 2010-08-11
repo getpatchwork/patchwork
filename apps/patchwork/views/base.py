@@ -59,10 +59,12 @@ def pwclient(request):
     return response
 
 def confirm(request, key):
-    import patchwork.views.user
+    import patchwork.views.user, patchwork.views.mail
     views = {
         'userperson': patchwork.views.user.link_confirm,
         'registration': patchwork.views.user.register_confirm,
+        'optout': patchwork.views.mail.optout_confirm,
+        'optin': patchwork.views.mail.optin_confirm,
     }
 
     conf = get_object_or_404(EmailConfirmation, key = key)

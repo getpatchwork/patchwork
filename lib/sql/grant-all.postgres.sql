@@ -22,7 +22,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_project,
 	patchwork_bundle,
 	patchwork_bundlepatch,
-	patchwork_patch
+	patchwork_patch,
+	patchwork_emailoptout
 TO "www-data";
 GRANT SELECT, UPDATE ON
 	auth_group_id_seq,
