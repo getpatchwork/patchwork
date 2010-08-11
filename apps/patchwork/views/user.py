@@ -63,7 +63,6 @@ def profile(request):
 def link(request):
     context = PatchworkRequestContext(request)
 
-    form = UserPersonLinkForm(request.POST)
     if request.method == 'POST':
         form = UserPersonLinkForm(request.POST)
         if form.is_valid():
@@ -82,6 +81,8 @@ def link(request):
                 context['confirmation'] = None
                 context['error'] = 'An error occurred during confirmation. ' + \
                                    'Please try again later'
+    else:
+        form = UserPersonLinkForm()
     context['linkform'] = form
 
     return render_to_response('patchwork/user-link.html', context)
