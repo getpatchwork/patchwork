@@ -12,7 +12,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON auth_user_groups TO 'www-data'@localhost
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_group TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_user_user_permissions TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_permission TO 'www-data'@localhost;
-GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_userpersonconfirmation TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailconfirmation TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_state TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_comment TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_person TO 'www-data'@localhost;

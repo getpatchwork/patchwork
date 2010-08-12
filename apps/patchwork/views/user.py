@@ -22,8 +22,7 @@ from django.contrib.auth.decorators import login_required
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
-from patchwork.models import Project, Bundle, Person, UserPersonConfirmation, \
-         State
+from patchwork.models import Project, Bundle, Person, EmailConfirmation, State
 from patchwork.forms import UserProfileForm, UserPersonLinkForm
 from patchwork.filters import DelegateFilter
 from patchwork.views import generic_list
@@ -61,7 +60,8 @@ def link(request):
     if request.method == 'POST':
         form = UserPersonLinkForm(request.POST)
         if form.is_valid():
-            conf = UserPersonConfirmation(user = request.user,
+            conf = EmailConfirmation(type = 'userperson',
+                    user = request.user,
                     email = form.cleaned_data['email'])
             conf.save()
             context['confirmation'] = conf
@@ -83,15 +83,19 @@ def link(request):
     return render_to_response('patchwork/user-link.html', context)
 
 @login_required
-def link_confirm(request, key):
+def link_confirm(request, conf):
     context = PatchworkRequestContext(request)
-    confirmation = get_object_or_404(UserPersonConfirmation, key = key)
 
-    errors = confirmation.confirm()
-    if errors:
-        context['errors'] = errors
-    else:
-        context['person'] = Person.objects.get(email = confirmation.email)
+    try:
+        person = Person.objects.get(email__iexact = conf.email)
+    except Person.DoesNotExist:
+        person = Person(email = conf.email)
+
+    person.link_to_user(conf.user)
+    person.save()
+    conf.deactivate()
+
+    context['person'] = person
 
     return render_to_response('patchwork/user-link-confirm.html', context)
 

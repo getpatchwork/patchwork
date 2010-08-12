@@ -44,12 +44,13 @@ urlpatterns = patterns('',
         'patchwork.views.bundle.mbox'),
 
     (r'^user/link/$', 'patchwork.views.user.link'),
-    (r'^user/link/(?P<key>[^/]+)/$', 'patchwork.views.user.link_confirm'),
     (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
 
     # public view for bundles
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
                                 'patchwork.views.bundle.public'),
+
+    (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
 
     # submitter autocomplete
     (r'^submitter/$', 'patchwork.views.submitter_complete'),

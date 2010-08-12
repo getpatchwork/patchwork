@@ -373,34 +373,29 @@ class BundlePatch(models.Model):
         unique_together = [('bundle', 'patch')]
         ordering = ['order']
 
-class UserPersonConfirmation(models.Model):
-    user = models.ForeignKey(User)
+class EmailConfirmation(models.Model):
+    validity = datetime.timedelta(days = 30)
+    type = models.CharField(max_length = 20, choices = [
+                                ('userperson', 'User-Person association'),
+                            ])
     email = models.CharField(max_length = 200)
+    user = models.ForeignKey(User, null = True)
     key = HashField()
-    date = models.DateTimeField(default=datetime.datetime.now)
+    date = models.DateTimeField(default = datetime.datetime.now)
     active = models.BooleanField(default = True)
 
-    def confirm(self):
-        if not self.active:
-            return
-        person = None
-        try:
-            person = Person.objects.get(email__iexact = self.email)
-        except Exception:
-            pass
-        if not person:
-            person = Person(email = self.email)
-
-        person.link_to_user(self.user)
-        person.save()
+    def deactivate(self):
         self.active = False
         self.save()
+
+    def is_valid(self):
+        return self.date + self.validity > datetime.datetime.now()
 
     def save(self):
         max = 1 << 32
         if self.key == '':
             str = '%s%s%d' % (self.user, self.email, random.randint(0, max))
             self.key = self._meta.get_field('key').construct(str).hexdigest()
-        super(UserPersonConfirmation, self).save()
+        super(EmailConfirmation, self).save()
 
 
