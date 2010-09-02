@@ -38,15 +38,13 @@ class MultipleUpdateTest(TestCase):
             patch.save()
             self.patches.append(patch)
         
-    def testStateChangeValid(self):
-        states = [patch.state.pk for patch in self.patches]
-        state = State.objects.exclude(pk__in = states)[0]
+    def _testStateChange(self, state):
         data = {'action':   'Update',
                 'project':  str(defaults.project.id),
                 'form':     'patchlistform',
                 'archived': '*',
                 'delegate': '*',
-                'state':    str(state.pk),
+                'state':    str(state),
         }
         for patch in self.patches:
             data['patch_id:%d' % patch.id] = 'checked'
@@ -55,9 +53,24 @@ class MultipleUpdateTest(TestCase):
                 args = [defaults.project.linkname])
         response = self.client.post(url, data)
         self.failUnlessEqual(response.status_code, 200)
-        
+        return response
+
+    def testStateChangeValid(self):
+        states = [patch.state.pk for patch in self.patches]
+        state = State.objects.exclude(pk__in = states)[0]
+        self._testStateChange(state.pk)
         for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
             self.assertEquals(patch.state, state)
+
+    def testStateChangeInvalid(self):
+        state = max(State.objects.all().values_list('id', flat = True)) + 1
+        orig_states = [patch.state for patch in self.patches]
+        response = self._testStateChange(state)
+        self.assertEquals( \
+                [Patch.objects.get(pk = p.pk).state for p in self.patches],
+                orig_states)
+        self.assertEquals(response.context['errors'],
+                    ['The submitted form data was invalid'])
 
     def tearDown(self):
         for p in self.patches:
