@@ -186,6 +186,21 @@ class MultiplePatchForm(PatchForm):
         self.fields['delegate'] = OptionalDelegateField(project = project,
                 required = False)
 
+    def _clean_fields(self):
+        super(MultiplePatchForm, self)._clean_fields()
+        # remove optional fields
+        opts = self.instance._meta
+        for f in opts.fields:
+            if not f.name in self.cleaned_data:
+                continue
+
+            field = self.fields.get(f.name, None)
+            if field is None:
+                continue
+
+            if field.is_no_change(self.cleaned_data[f.name]):
+                del self.cleaned_data[f.name]
+
     def save(self, instance, commit = True):
         opts = instance.__class__._meta
         if self.errors:
