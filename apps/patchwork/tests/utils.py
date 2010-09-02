@@ -64,6 +64,13 @@ def create_user():
 
     return user
 
+def create_maintainer(project):
+    user = create_user()
+    profile = user.get_profile()
+    profile.maintainer_projects.add(project)
+    profile.save()
+    return user
+
 def find_in_context(context, key):
     if isinstance(context, list):
         for c in context:

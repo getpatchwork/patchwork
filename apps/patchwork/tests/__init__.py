@@ -18,9 +18,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import unittest
-from patchwork.tests import patchparser, encodings, bundles, mboxviews
+from patchwork.tests import patchparser, encodings, bundles, mboxviews, updates
 
-modules = [patchparser, encodings, bundles, mboxviews]
+modules = [patchparser, encodings, bundles, mboxviews, updates]
 
 def suite():
     suite = unittest.TestSuite()
