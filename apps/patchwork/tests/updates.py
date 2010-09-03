@@ -69,17 +69,17 @@ class MultipleUpdateTest(TestCase):
         self.assertEquals( \
                 [Patch.objects.get(pk = p.pk).state for p in self.patches],
                 orig_states)
-        self.assertEquals(response.context['errors'],
-                    ['The submitted form data was invalid'])
+        self.assertFormError(response, 'patchform', 'state',
+                    'Select a valid choice. That choice is not one ' + \
+                        'of the available choices.')
 
-    def testDelegateChange(self):
-        delegate = create_maintainer(defaults.project)
+    def _testDelegateChange(self, delegate_str):
         data = {'action':   'Update',
                 'project':  str(defaults.project.id),
                 'form':     'patchlistform',
                 'archived': '*',
                 'state':    '*',
-                'delegate': str(delegate.pk),
+                'delegate': delegate_str
         }
         for patch in self.patches:
             data['patch_id:%d' % patch.id] = 'checked'
@@ -88,8 +88,18 @@ class MultipleUpdateTest(TestCase):
                 args = [defaults.project.linkname])
         response = self.client.post(url, data)
         self.failUnlessEqual(response.status_code, 200)
+        return response
+
+    def testDelegateChangeValid(self):
+        delegate = create_maintainer(defaults.project)
+        response = self._testDelegateChange(str(delegate.pk))
         for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
             self.assertEquals(patch.delegate, delegate)
+
+    def testDelegateClear(self):
+        response = self._testDelegateChange('')
+        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+            self.assertEquals(patch.delegate, None)
 
     def tearDown(self):
         for p in self.patches:
