@@ -72,6 +72,25 @@ class MultipleUpdateTest(TestCase):
         self.assertEquals(response.context['errors'],
                     ['The submitted form data was invalid'])
 
+    def testDelegateChange(self):
+        delegate = create_maintainer(defaults.project)
+        data = {'action':   'Update',
+                'project':  str(defaults.project.id),
+                'form':     'patchlistform',
+                'archived': '*',
+                'state':    '*',
+                'delegate': str(delegate.pk),
+        }
+        for patch in self.patches:
+            data['patch_id:%d' % patch.id] = 'checked'
+
+        url = reverse('patchwork.views.patch.list',
+                args = [defaults.project.linkname])
+        response = self.client.post(url, data)
+        self.failUnlessEqual(response.status_code, 200)
+        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+            self.assertEquals(patch.delegate, delegate)
+
     def tearDown(self):
         for p in self.patches:
             p.delete()

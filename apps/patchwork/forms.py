@@ -176,30 +176,14 @@ class MultipleBooleanField(forms.ChoiceField):
     def is_no_change(self, value):
         return value == self.no_change_choice[0]
 
-class MultiplePatchForm(PatchForm):
+class MultiplePatchForm(forms.Form):
     state = OptionalModelChoiceField(queryset = State.objects.all())
     archived = MultipleBooleanField()
 
     def __init__(self, project, *args, **kwargs):
-        super(MultiplePatchForm, self).__init__(project = project,
-                *args, **kwargs)
+        super(MultiplePatchForm, self).__init__(*args, **kwargs)
         self.fields['delegate'] = OptionalDelegateField(project = project,
                 required = False)
-
-    def _clean_fields(self):
-        super(MultiplePatchForm, self)._clean_fields()
-        # remove optional fields
-        opts = self.instance._meta
-        for f in opts.fields:
-            if not f.name in self.cleaned_data:
-                continue
-
-            field = self.fields.get(f.name, None)
-            if field is None:
-                continue
-
-            if field.is_no_change(self.cleaned_data[f.name]):
-                del self.cleaned_data[f.name]
 
     def save(self, instance, commit = True):
         opts = instance.__class__._meta
@@ -207,7 +191,7 @@ class MultiplePatchForm(PatchForm):
             raise ValueError("The %s could not be changed because the data "
                     "didn't validate." % opts.object_name)
         data = self.cleaned_data
-        # remove 'no change fields' from the data
+        # Update the instance
         for f in opts.fields:
             if not f.name in data:
                 continue
@@ -217,10 +201,13 @@ class MultiplePatchForm(PatchForm):
                 continue
 
             if field.is_no_change(data[f.name]):
-                del data[f.name]
+                continue
 
-        return forms.save_instance(self, instance,
-                self._meta.fields, 'changed', commit)
+            setattr(instance, f.name, data[f.name])
+
+        if commit:
+            instance.save()
+        return instance
 
 class UserPersonLinkForm(forms.Form):
     email = forms.EmailField(max_length = 200)
