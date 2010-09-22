@@ -36,7 +36,7 @@ except ImportError:
 from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment
 
-list_id_headers = ['List-ID', 'X-Mailing-List']
+list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 whitespace_re = re.compile('\s+')
 def normalise_space(str):
