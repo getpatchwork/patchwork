@@ -272,6 +272,10 @@ table.patchmeta tr th, table.patchmeta tr td {
 	padding: 1em;
 }
 
+.patch-pull-url {
+	font-family: "DejaVu Sans Mono", fixed;
+}
+
 .quote {
 	color: #007f00;
 }

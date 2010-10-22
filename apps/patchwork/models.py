@@ -187,7 +187,8 @@ class Patch(models.Model):
     state = models.ForeignKey(State)
     archived = models.BooleanField(default = False)
     headers = models.TextField(blank = True)
-    content = models.TextField()
+    content = models.TextField(null = True)
+    pull_url = models.CharField(max_length=255, null = True)
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
     hash = HashField(null = True, db_index = True)
 
@@ -203,7 +204,7 @@ class Patch(models.Model):
         except:
             self.state = State.objects.get(ordering =  0)
 
-        if self.hash is None:
+        if self.hash is None and self.content is not None:
             self.hash = hash_patch(self.content).hexdigest()
 
         super(Patch, self).save()
@@ -259,7 +260,8 @@ class Patch(models.Model):
         if postscript:
             body += '---\n' + postscript.strip() + '\n'
 
-        body += '\n' + self.content
+        if self.content:
+            body += '\n' + self.content
 
         mail = PatchMbox(body)
         mail['Subject'] = self.name

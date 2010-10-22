@@ -22,6 +22,7 @@ import codecs
 from patchwork.models import Project, Person, UserProfile
 from django.contrib.auth.models import User
 
+from email import message_from_file
 try:
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
@@ -90,6 +91,13 @@ def read_patch(filename, encoding = None):
         f = file(file_path)
 
     return f.read()
+
+def read_mail(filename, project = None):
+    file_path = os.path.join(_test_mail_dir, filename)
+    mail = message_from_file(open(file_path))
+    if project is not None:
+        mail['List-Id'] = project.listid
+    return mail
 
 def create_email(content, subject = None, sender = None, multipart = False,
         project = None, content_encoding = None):

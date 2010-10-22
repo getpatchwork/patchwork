@@ -44,9 +44,11 @@ function toggle_headers(link_id, headers_id)
   <th>Download</th>
   <td>
    <a href="{% url patchwork.views.patch.mbox patch_id=patch.id %}"
-   >mbox</a> |
+   >mbox</a>
+{% if patch.content %}|
    <a href="{% url patchwork.views.patch.content patch_id=patch.id %}"
    >patch</a>
+{% endif %}
    </td>
  </tr>
  <tr>
@@ -202,8 +204,11 @@ function toggle_headers(link_id, headers_id)
  </div>
 </div>
 
-
-
+{% if patch.pull_url %}
+<h2>Pull-request</h2>
+<a class="patch-pull-url" href="{{patch.pull_url}}"
+ >{{ patch.pull_url }}</a>
+{% endif %}
 
 <h2>Comments</h2>
 {% for comment in patch.comments %}
@@ -215,11 +220,14 @@ function toggle_headers(link_id, headers_id)
 </div>
 {% endfor %}
 
+{% if patch.content %}
 <h2>Patch</h2>
 <div class="patch">
 <pre class="content">
 {{ patch|patchsyntax }}
 </pre>
 </div>
+{% endif %}
+
 
 {% endblock %}

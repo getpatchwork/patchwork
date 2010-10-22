@@ -21,7 +21,7 @@ import unittest
 import os
 from email import message_from_string
 from patchwork.models import Project, Person, Patch, Comment
-from patchwork.tests.utils import read_patch, create_email, defaults
+from patchwork.tests.utils import read_patch, read_mail, create_email, defaults
 
 try:
     from email.mime.text import MIMEText
@@ -322,3 +322,14 @@ class ListIdHeaderTest(unittest.TestCase):
 
     def tearDown(self):
         self.project.delete()
+
+
+class GitPullTest(PatchTest):
+    def testGitPullRequest(self):
+        mail = read_mail('0001-git-pull-request.mbox',
+                        project = self.project)
+        (patch, comment) = find_content(self.project, mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(patch.pull_url is not None)
+        self.assertTrue(patch.content is None)
+        self.assertTrue(comment is not None)

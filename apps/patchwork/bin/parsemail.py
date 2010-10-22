@@ -135,9 +135,20 @@ def mail_headers(mail):
                     continuation_ws = '\t').encode()) \
                 for (k, v) in mail.items()])
 
+def find_pull_request(content):
+    git_re = re.compile('^The following changes since commit .*' +
+                        '^are available in the git repository at:\n'
+                        '^\s*(git://[^\n]+)$',
+                           re.DOTALL | re.MULTILINE)
+    match = git_re.search(content)
+    if match:
+        return match.group(1)
+    return None
+
 def find_content(project, mail):
     patchbuf = None
     commentbuf = ''
+    pullurl = None
 
     for part in mail.walk():
         if part.get_content_maintype() != 'text':
@@ -158,10 +169,13 @@ def find_content(project, mail):
             patchbuf = payload
 
         elif subtype == 'plain':
+            c = payload
+
             if not patchbuf:
                 (patchbuf, c) = parse_patch(payload)
-            else:
-                c = payload
+
+            if not pullurl:
+                pullurl = find_pull_request(payload)
 
             if c is not None:
                 commentbuf += c.strip() + '\n'
@@ -173,6 +187,11 @@ def find_content(project, mail):
         mail_headers(mail)
         name = clean_subject(mail.get('Subject'), [project.linkname])
         patch = Patch(name = name, content = patchbuf,
+                    date = mail_date(mail), headers = mail_headers(mail))
+
+    if pullurl:
+        name = clean_subject(mail.get('Subject'), [project.linkname])
+        patch = Patch(name = name, pull_url = pullurl,
                     date = mail_date(mail), headers = mail_headers(mail))
 
     if commentbuf:
