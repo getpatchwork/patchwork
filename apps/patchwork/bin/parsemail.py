@@ -171,7 +171,7 @@ def find_content(project, mail):
 
     if patchbuf:
         mail_headers(mail)
-	name = clean_subject(mail.get('Subject'), [project.linkname])
+        name = clean_subject(mail.get('Subject'), [project.linkname])
         patch = Patch(name = name, content = patchbuf,
                     date = mail_date(mail), headers = mail_headers(mail))
 
