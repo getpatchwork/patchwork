@@ -21,15 +21,67 @@
 from django.contrib.auth.decorators import login_required
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib import auth
+from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
 from patchwork.models import Project, Bundle, Person, EmailConfirmation, State
-from patchwork.forms import UserProfileForm, UserPersonLinkForm
+from patchwork.forms import UserProfileForm, UserPersonLinkForm, \
+         RegistrationForm
 from patchwork.filters import DelegateFilter
 from patchwork.views import generic_list
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import send_mail
 import django.core.urlresolvers
+
+def register(request):
+    context = PatchworkRequestContext(request)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            # create inactive user
+            user = auth.models.User.objects.create_user(data['username'],
+                                                        data['email'],
+                                                        data['password'])
+            user.is_active = False;
+            user.first_name = data.get('first_name', '')
+            user.last_name = data.get('last_name', '')
+            user.save()
+
+            # create confirmation
+            conf = EmailConfirmation(type = 'registration', user = user,
+                                     email = user.email)
+            conf.save()
+
+            # send email
+            mail_ctx = {'site': Site.objects.get_current(),
+                        'confirmation': conf}
+
+            subject = render_to_string('patchwork/activation_email_subject.txt',
+                                mail_ctx).replace('\n', ' ').strip()
+            
+            message = render_to_string('patchwork/activation_email.txt',
+                                    mail_ctx)
+            
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
+                            [conf.email])
+
+            # setting 'confirmation' in the template indicates success
+            context['confirmation'] = conf
+
+    else:
+        form = RegistrationForm()
+    
+    return render_to_response('patchwork/registration_form.html',
+                              { 'form': form },
+                              context_instance=context)
+
+def register_confirm(request, conf):
+    conf.user.is_active = True
+    conf.user.save()
+    conf.deactivate()
+    return render_to_response('patchwork/registration-confirm.html')
 
 @login_required
 def profile(request):

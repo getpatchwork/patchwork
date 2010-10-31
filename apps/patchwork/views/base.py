@@ -62,6 +62,7 @@ def confirm(request, key):
     import patchwork.views.user
     views = {
         'userperson': patchwork.views.user.link_confirm,
+        'registration': patchwork.views.user.register_confirm,
     }
 
     conf = get_object_or_404(EmailConfirmation, key = key)

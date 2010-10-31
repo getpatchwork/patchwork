@@ -22,9 +22,9 @@ from django.test import TestCase
 from django.test.client import Client
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.models import User
 from patchwork.models import EmailConfirmation, Person
-from patchwork.utils import userprofile_register_callback
 
 def _confirmation_url(conf):
     return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
@@ -39,7 +39,6 @@ class TestUser(object):
         self.password = User.objects.make_random_password()
         self.user = User.objects.create_user(self.username,
                             self.email, self.password)
-        userprofile_register_callback(self.user)
 
 class UserPersonRequestTest(TestCase):
     def setUp(self):
@@ -119,3 +118,11 @@ class UserPersonConfirmTest(TestCase):
         # need to reload the confirmation to check this.
         conf = EmailConfirmation.objects.get(pk = self.conf.pk)
         self.assertEquals(conf.active, False)
+
+class UserLoginRedirectTest(TestCase):
+    
+    def testUserLoginRedirect(self):
+        url = '/user/'
+        response = self.client.get(url)
+        self.assertRedirects(response, settings.LOGIN_URL + '?next=' + url)
+

@@ -6,12 +6,11 @@
 
 {% block body %}
 
-{% if request and not error %}
+{% if confirmation and not error %}
  <p>Registration successful!</p>
- <p>A confirmation email has been sent to {{ request.email }}. You'll
+ <p>A confirmation email has been sent to {{ confirmation.email }}. You'll
  need to visit the link provided in that email to confirm your
  registration.</p>
- <pre>{{email}}</pre>
 </p>
 {% else %}
 <p>By creating a patchwork account, you can:<p>

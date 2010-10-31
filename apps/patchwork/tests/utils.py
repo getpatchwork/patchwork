@@ -59,7 +59,7 @@ class defaults(object):
 _user_idx = 1
 def create_user():
     global _user_idx
-    userid = 'test-%d' % _user_idx
+    userid = 'test%d' % _user_idx
     email = '%s@example.com' % userid
     _user_idx += 1
 

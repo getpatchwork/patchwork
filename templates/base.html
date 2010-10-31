@@ -30,7 +30,7 @@
 {% else %}
      <a href="{% url auth_login %}">login</a>
      <br/>
-     <a href="{% url registration_register %}">register</a>
+     <a href="{% url patchwork.views.user.register %}">register</a>
 {% endif %}
    </div>
    <div style="clear: both;"></div>

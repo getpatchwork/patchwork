@@ -24,3 +24,5 @@ from patchwork.tests.mboxviews import *
 from patchwork.tests.updates import *
 from patchwork.tests.filters import *
 from patchwork.tests.confirm import *
+from patchwork.tests.registration import *
+from patchwork.tests.user import *

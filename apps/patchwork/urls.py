@@ -19,6 +19,7 @@
 
 from django.conf.urls.defaults import *
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
     # Example:
@@ -45,6 +46,23 @@ urlpatterns = patterns('',
 
     (r'^user/link/$', 'patchwork.views.user.link'),
     (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
+
+    # password change
+    url(r'^user/password-change/$', auth_views.password_change,
+            name='auth_password_change'),
+    url(r'^user/password-change/done/$', auth_views.password_change_done,
+            name='auth_password_change_done'),
+
+    # login/logout
+    url(r'^user/login/$', auth_views.login,
+        {'template_name': 'patchwork/login.html'},
+        name = 'auth_login'),
+    url(r'^user/logout/$', auth_views.logout,
+        {'template_name': 'patchwork/logout.html'},
+        name = 'auth_logout'),
+
+    # registration
+    (r'^register/', 'patchwork.views.user.register'),
 
     # public view for bundles
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',

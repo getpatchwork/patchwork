@@ -21,6 +21,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from django.conf import settings
 from patchwork.parser import hash_patch
 
 import re
@@ -374,9 +375,10 @@ class BundlePatch(models.Model):
         ordering = ['order']
 
 class EmailConfirmation(models.Model):
-    validity = datetime.timedelta(days = 30)
+    validity = datetime.timedelta(days = settings.CONFIRMATION_VALIDITY_DAYS)
     type = models.CharField(max_length = 20, choices = [
                                 ('userperson', 'User-Person association'),
+                                ('registration', 'Registration'),
                             ])
     email = models.CharField(max_length = 200)
     user = models.ForeignKey(User, null = True)

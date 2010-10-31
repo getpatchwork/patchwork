@@ -64,7 +64,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'apps.urls'
 
-LOGIN_URL = '/accounts/login'
+LOGIN_URL = '/user/login/'
 LOGIN_REDIRECT_URL = '/user/'
 
 # If you change the ROOT_DIR setting in your local_settings.py, you'll need to
@@ -96,13 +96,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'patchwork',
-    'registration',
 )
 
 DEFAULT_PATCHES_PER_PAGE = 100
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
-ACCOUNT_ACTIVATION_DAYS = 7
+CONFIRMATION_VALIDITY_DAYS = 7
 
 # Set to True to enable the Patchwork XML-RPC interface
 ENABLE_XMLRPC = False
