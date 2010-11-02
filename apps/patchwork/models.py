@@ -38,6 +38,7 @@ except ImportError:
     # Python 2.4 compatibility
     from email.MIMENonMultipart import MIMENonMultipart
     from email.Encoders import encode_7or8bit
+    from email.Parser import HeaderParser
     import email.Utils
     email.utils = email.Utils
 
