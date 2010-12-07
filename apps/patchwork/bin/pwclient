@@ -179,7 +179,8 @@ def action_list(rpc, filter, submitter_str, delegate_str):
             for id in ids:
                 person = rpc.person_get(id)
                 print "Patches submitted by %s <%s>:" % \
-                        (person['name'], person['email'])
+                        (unicode(person['name']).encode("utf-8"), \
+                         unicode(person['email']).encode("utf-8"))
                 f = filter
                 f.add("submitter_id", id)
                 patches = rpc.patch_list(f.d)
