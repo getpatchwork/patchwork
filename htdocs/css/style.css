@@ -393,7 +393,7 @@ table.form tr td.submitrow {
 	text-align: center;
 }
 
-table.registerform {
+table.registerform, table.passwordform {
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -409,6 +409,9 @@ table.loginform {
 	list-style-type: none;
 	padding-left: 0.2em;
 	margin: 0em;
+}
+.error {
+	color: red;
 }
 
 /* generic table with header columns on the left */
