@@ -173,7 +173,7 @@ def action_list(rpc, filter, submitter_str, delegate_str):
     if submitter_str != "":
         ids = person_ids_by_name(rpc, submitter_str)
         if len(ids) == 0:
-            sys.stderr.write("Note: Nobody found matching *%s*\n", \
+            sys.stderr.write("Note: Nobody found matching *%s*\n" % \
                              submitter_str)
         else:
             for id in ids:
@@ -190,7 +190,7 @@ def action_list(rpc, filter, submitter_str, delegate_str):
     if delegate_str != "":
         ids = person_ids_by_name(rpc, delegate_str)
         if len(ids) == 0:
-            sys.stderr.write("Note: Nobody found matching *%s*\n", \
+            sys.stderr.write("Note: Nobody found matching *%s*\n" % \
                              delegate_str)
         else:
             for id in ids:
