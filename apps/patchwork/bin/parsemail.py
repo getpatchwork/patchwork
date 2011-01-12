@@ -306,6 +306,8 @@ def clean_subject(subject, drop_prefixes = None):
     '[bar] meep'
     """
 
+    subject = clean_header(subject)
+
     if drop_prefixes is None:
         drop_prefixes = []
     else:
