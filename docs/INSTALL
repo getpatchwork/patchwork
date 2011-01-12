@@ -90,7 +90,7 @@ in brackets):
          cd lib/packages/
          hg clone http://bitbucket.org/ubernostrum/django-registration/
          cd ../python
-         ln -s ../lib/packages/django-registration/registration ./registration
+         ln -s ../packages/django-registration/registration ./registration
 
         We also use some Javascript libraries:
 
