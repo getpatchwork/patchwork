@@ -59,14 +59,14 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 
 
     def _user_for_request(self, request):
-	auth_header = None
+        auth_header = None
 
         if request.META.has_key('HTTP_AUTHORIZATION'):
-	    auth_header = request.META.get('HTTP_AUTHORIZATION')
+            auth_header = request.META.get('HTTP_AUTHORIZATION')
         elif request.META.has_key('Authorization'):
-	    auth_header = request.META.get('Authorization')
+            auth_header = request.META.get('Authorization')
 
-	if auth_header is None or auth_header == '':
+        if auth_header is None or auth_header == '':
             raise Exception("No authentication credentials given")
 
         str = auth_header.strip()

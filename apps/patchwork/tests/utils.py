@@ -40,7 +40,7 @@ class defaults(object):
 
     patch_author = 'Patch Author <patch-author@example.com>'
     patch_author_person = Person(name = 'Patch Author',
-				 email = 'patch-author@example.com')
+            email = 'patch-author@example.com')
 
     comment_author = 'Comment Author <comment-author@example.com>'
 
@@ -92,7 +92,7 @@ def find_in_context(context, key):
 def read_patch(filename, encoding = None):
     file_path = os.path.join(_test_patch_dir, filename)
     if encoding is not None:
-	f = codecs.open(file_path, encoding = encoding)
+        f = codecs.open(file_path, encoding = encoding)
     else:
         f = file(file_path)
 

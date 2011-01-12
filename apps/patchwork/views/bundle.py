@@ -110,17 +110,17 @@ def bundles(request):
     if request.method == 'POST':
         form_name = request.POST.get('form_name', '')
 
-	if form_name == DeleteBundleForm.name:
-	    form = DeleteBundleForm(request.POST)
-	    if form.is_valid():
-	        bundle = get_object_or_404(Bundle,
-				id = form.cleaned_data['bundle_id'])
-		bundle.delete()
+        if form_name == DeleteBundleForm.name:
+            form = DeleteBundleForm(request.POST)
+            if form.is_valid():
+                bundle = get_object_or_404(Bundle,
+                        id = form.cleaned_data['bundle_id'])
+                bundle.delete()
 
     bundles = Bundle.objects.filter(owner = request.user)
     for bundle in bundles:
         bundle.delete_form = DeleteBundleForm(auto_id = False,
-				initial = {'bundle_id': bundle.id})
+                initial = {'bundle_id': bundle.id})
 
     context['bundles'] = bundles
 
@@ -174,7 +174,7 @@ def mbox(request, bundle_id):
     bundle = get_object_or_404(Bundle, id = bundle_id)
     response = HttpResponse(mimetype='text/plain')
     response['Content-Disposition'] = 'attachment; filename=bundle-%d.mbox' % \
-	    bundle.id
+            bundle.id
     response.write(bundle.mbox())
     return response
 

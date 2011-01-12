@@ -69,9 +69,9 @@ class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
 
     def setUp(self):
         defaults.project.save()
-	self.patch_author = Person(name = self.patch_author_name,
-			email = defaults.patch_author_person.email)
-	self.patch_author.save()
+        self.patch_author = Person(name = self.patch_author_name,
+                email = defaults.patch_author_person.email)
+        self.patch_author.save()
         self.patch_content = read_patch(self.patch_filename,
                 encoding = self.patch_encoding)
         self.patch = Patch(project = defaults.project,
