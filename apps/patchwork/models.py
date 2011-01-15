@@ -47,9 +47,9 @@ class Person(models.Model):
     name = models.CharField(max_length=255, null = True)
     user = models.ForeignKey(User, null = True)
 
-    def __str__(self):
+    def __unicode__(self):
         if self.name:
-            return '%s <%s>' % (self.name, self.email)
+            return u'%s <%s>' % (self.name, self.email)
         else:
             return self.email
 
@@ -66,7 +66,7 @@ class Project(models.Model):
     listid = models.CharField(max_length=255, unique=True)
     listemail = models.CharField(max_length=200)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 class UserProfile(models.Model):
@@ -84,7 +84,7 @@ class UserProfile(models.Model):
     def name(self):
         if self.user.first_name or self.user.last_name:
             names = filter(bool, [self.user.first_name, self.user.last_name])
-            return ' '.join(names)
+            return u' '.join(names)
         return self.user.username
 
     def contributor_projects(self):
@@ -129,7 +129,7 @@ class UserProfile(models.Model):
                  person.link_to_user(self.user)
                  person.save()
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name()
 
 class State(models.Model):
@@ -137,7 +137,7 @@ class State(models.Model):
     ordering = models.IntegerField(unique = True)
     action_required = models.BooleanField(default = True)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     class Meta:
@@ -193,7 +193,7 @@ class Patch(models.Model):
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
     hash = HashField(null = True, db_index = True)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     def comments(self):
