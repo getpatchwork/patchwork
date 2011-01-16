@@ -44,8 +44,8 @@ except ImportError:
 
 class Person(models.Model):
     email = models.CharField(max_length=255, unique = True)
-    name = models.CharField(max_length=255, null = True)
-    user = models.ForeignKey(User, null = True)
+    name = models.CharField(max_length=255, null = True, blank = True)
+    user = models.ForeignKey(User, null = True, blank = True)
 
     def __unicode__(self):
         if self.name:
@@ -71,7 +71,7 @@ class Project(models.Model):
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User, unique = True)
-    primary_project = models.ForeignKey(Project, null = True)
+    primary_project = models.ForeignKey(Project, null = True, blank = True)
     maintainer_projects = models.ManyToManyField(Project,
             related_name = 'maintainer_project')
     send_email = models.BooleanField(default = False,
@@ -188,10 +188,10 @@ class Patch(models.Model):
     state = models.ForeignKey(State)
     archived = models.BooleanField(default = False)
     headers = models.TextField(blank = True)
-    content = models.TextField(null = True)
-    pull_url = models.CharField(max_length=255, null = True)
+    content = models.TextField(null = True, blank = True)
+    pull_url = models.CharField(max_length=255, null = True, blank = True)
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
-    hash = HashField(null = True, db_index = True)
+    hash = HashField(null = True, blank = True)
 
     def __unicode__(self):
         return self.name
