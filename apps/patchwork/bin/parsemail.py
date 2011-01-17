@@ -136,7 +136,7 @@ def mail_headers(mail):
                 for (k, v) in mail.items()])
 
 def find_pull_request(content):
-    git_re = re.compile('^The following changes since commit .*' +
+    git_re = re.compile('^The following changes since commit.*' +
                         '^are available in the git repository at:\n'
                         '^\s*(git://[^\n]+)$',
                            re.DOTALL | re.MULTILINE)
