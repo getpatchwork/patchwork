@@ -34,8 +34,10 @@ except ImportError:
     from email.Utils import parsedate_tz, mktime_tz
 
 from patchwork.parser import parse_patch
-from patchwork.models import Patch, Project, Person, Comment
+from patchwork.models import Patch, Project, Person, Comment, State
+from django.contrib.auth.models import User
 
+default_patch_state = 'New'
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 whitespace_re = re.compile('\s+')
@@ -346,6 +348,24 @@ def clean_content(str):
     str = sig_re.sub('', str)
     return str.strip()
 
+def get_state(state_name):
+    """ Return the state with the given name or the default State """
+    if state_name:
+        try:
+            return State.objects.get(name__iexact=state_name)
+        except State.DoesNotExist:
+            pass
+    return State.objects.get(name=default_patch_state)
+
+def get_delegate(delegate_email):
+    """ Return the delegate with the given email or None """
+    if delegate_email:
+        try:
+            return User.objects.get(email__iexact=delegate_email)
+        except User.DoesNotExist:
+            pass
+    return None
+
 def parse_mail(mail):
 
     # some basic sanity checks
@@ -381,6 +401,9 @@ def parse_mail(mail):
         patch.submitter = author
         patch.msgid = msgid
         patch.project = project
+        patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
+        patch.delegate = get_delegate(
+                mail.get('X-Patchwork-Delegate', '').strip())
         try:
             patch.save()
         except Exception, ex:
