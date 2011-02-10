@@ -63,7 +63,8 @@ def parse_patch(text):
     lc = (0, 0)
     hunk = 0
 
-    for line in text.decode('utf-8').split('\n'):
+
+    for line in text.split('\n'):
         line += '\n'
 
         if state == 0:
