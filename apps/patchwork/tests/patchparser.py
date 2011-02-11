@@ -348,11 +348,15 @@ class ListIdHeaderTest(unittest.TestCase):
 
 
 class GitPullTest(PatchTest):
+    mail_file = '0001-git-pull-request.mbox'
+
     def testGitPullRequest(self):
-        mail = read_mail('0001-git-pull-request.mbox',
-                        project = self.project)
+        mail = read_mail(self.mail_file, project = self.project)
         (patch, comment) = find_content(self.project, mail)
         self.assertTrue(patch is not None)
         self.assertTrue(patch.pull_url is not None)
         self.assertTrue(patch.content is None)
         self.assertTrue(comment is not None)
+
+class GitPullWrappedTest(GitPullTest):
+    mail_file = '0002-git-pull-request-wrapped.mbox'
