@@ -50,6 +50,12 @@ class defaults(object):
 
     patch_name = 'Test Patch'
 
+    patch = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
++++ a	2011-01-01 00:00:00.000000000 +0800
+@@ -0,0 +1 @@
++a
+"""
+
 _user_idx = 1
 def create_user():
     global _user_idx

@@ -173,6 +173,29 @@ class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
 class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
     from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
 
+class SubjectEncodingTest(PatchTest):
+    sender = 'example user <user@example.com>'
+    subject = 'test subject'
+    subject_header = 'test subject'
+
+    def setUp(self):
+        mail = 'From: %s\n' % self.sender + \
+               'Subject: %s\n\n' % self.subject_header + \
+               'test\n\n' + defaults.patch
+        self.projects = defaults.project
+        self.email = message_from_string(mail)
+
+    def testSubjectEncoding(self):
+        (patch, comment) = find_content(self.project, self.email)
+        self.assertEquals(patch.name, self.subject)
+
+class SubjectUTF8QPEncodingTest(SubjectEncodingTest):
+    subject = u'test s\xfcbject'
+    subject_header = '=?utf-8?q?test=20s=c3=bcbject?='
+
+class SubjectUTF8QPMultipleEncodingTest(SubjectEncodingTest):
+    subject = u'test s\xfcbject'
+    subject_header = 'test =?utf-8?q?s=c3=bcbject?='
 
 class SenderCorrelationTest(unittest.TestCase):
     existing_sender = 'Existing Sender <existing@example.com>'
