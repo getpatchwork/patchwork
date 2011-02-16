@@ -17,17 +17,8 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
-from patchwork.tests import patchparser, encodings, bundles, mboxviews, updates
-
-modules = [patchparser, encodings, bundles, mboxviews, updates]
-
-def suite():
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-
-    for module in modules:
-        tests = loader.loadTestsFromModule(module)
-        suite.addTests(tests)
-
-    return suite
+from patchwork.tests.patchparser import *
+from patchwork.tests.encodings import *
+from patchwork.tests.bundles import *
+from patchwork.tests.mboxviews import *
+from patchwork.tests.updates import *
