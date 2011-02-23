@@ -85,23 +85,6 @@ def patch(request, patch_id):
                 form.save()
                 context.add_message('Patch updated')
 
-        elif action == 'archive':
-            patch.archived = True
-            patch.save()
-            context.add_message('Patch archived')
-
-        elif action == 'unarchive':
-            patch.archived = False
-            patch.save()
-            context.add_message('Patch un-archived')
-
-        elif action == 'ack':
-            pass
-
-        elif action == 'delete':
-            patch.delete()
-
-
     context['patch'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform

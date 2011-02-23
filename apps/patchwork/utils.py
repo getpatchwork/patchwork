@@ -174,23 +174,6 @@ def set_patches(user, project, action, data, patches, context):
             form.save(patch)
             str = 'updated'
 
-        elif action == 'ack':
-            pass
-
-        elif action == 'archive':
-            patch.archived = True
-            patch.save()
-            str = 'archived'
-
-        elif action == 'unarchive':
-            patch.archived = False
-            patch.save()
-            str = 'un-archived'
-
-        elif action == 'delete':
-            patch.delete()
-            str = 'un-archived'
-
 
     if len(patches) > 0:
         if len(patches) == 1:

@@ -127,19 +127,6 @@ function toggle_headers(link_id, headers_id)
  <div class="patchform patchform-bundle">
   <h3>Bundling</h3>
    <table class="form">
-   <!--
-    <tr>
-     <td>Ack:</td>
-     <td>
-      <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
-       method="post">
-       {% csrf_token %}
-       <input type="hidden" name="action" value="act"/>
-       <input type="submit" value="Ack"/>
-      </form>
-     </td>
-    </tr>
-    -->
     <tr>
      <td>Create bundle:</td>
      <td>
@@ -180,26 +167,6 @@ function toggle_headers(link_id, headers_id)
  </div>
 {% endif %}
 
-{% if actionsform %}
- <div class="patchform patchform-actions">
-  <h3>Actions</h3>
-   <table class="form">
-    <tr>
-     <td>Ack:</td>
-     <td>
-      <form action="{% url patchwork.views.patch.patch patch_id=patch.id %}"
-       method="post">
-       {% csrf_token %}
-       <input type="hidden" name="action" value="act"/>
-       <input type="submit" value="Ack"/>
-      </form>
-     </td>
-    </tr>
-   </table>
-  </form>
- </div>
-
-{% endif %}
  <div style="clear: both;">
  </div>
 </div>
