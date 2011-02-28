@@ -22,3 +22,4 @@ from patchwork.tests.encodings import *
 from patchwork.tests.bundles import *
 from patchwork.tests.mboxviews import *
 from patchwork.tests.updates import *
+from patchwork.tests.filters import *

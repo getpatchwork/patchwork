@@ -22,6 +22,7 @@ from patchwork.models import Person, State
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.contrib.auth.models import User
+from urllib import quote
 
 class Filter(object):
     def __init__(self, filters):
@@ -444,7 +445,8 @@ class Filters:
             if remove.param in params.keys():
                 del params[remove.param]
 
-        return '?' + '&'.join(['%s=%s' % x for x in params.iteritems()])
+        return '?' + '&'.join(['%s=%s' % (quote(k), quote(v))
+                                for (k,v) in params.iteritems()])
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)
