@@ -17,12 +17,10 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 from patchwork.models import Patch, Person, State
-from patchwork.tests.utils import defaults, create_maintainer, find_in_context
+from patchwork.tests.utils import defaults, create_maintainer
 
 class MultipleUpdateTest(TestCase):
     def setUp(self):
@@ -30,6 +28,13 @@ class MultipleUpdateTest(TestCase):
         self.user = create_maintainer(defaults.project)
         self.client.login(username = self.user.username,
                 password = self.user.username)
+        self.properties_form_id = 'patchform-properties'
+        self.url = reverse(
+            'patchwork.views.patch.list', args = [defaults.project.linkname])
+        self.base_data = {
+            'action': 'Update', 'project': str(defaults.project.id),
+            'form': 'patchlistform', 'archived': '*', 'delegate': '*',
+            'state': '*'}
         self.patches = []
         for name in ['patch one', 'patch two', 'patch three']:
             patch = Patch(project = defaults.project, msgid = name,
@@ -37,30 +42,49 @@ class MultipleUpdateTest(TestCase):
                             submitter = Person.objects.get(user = self.user))
             patch.save()
             self.patches.append(patch)
-        
-    def _testStateChange(self, state):
-        data = {'action':   'Update',
-                'project':  str(defaults.project.id),
-                'form':     'patchlistform',
-                'archived': '*',
-                'delegate': '*',
-                'state':    str(state),
-        }
+
+    def _selectAllPatches(self, data):
         for patch in self.patches:
             data['patch_id:%d' % patch.id] = 'checked'
 
-        url = reverse('patchwork.views.patch.list',
-                args = [defaults.project.linkname])
-        response = self.client.post(url, data)
-        self.failUnlessEqual(response.status_code, 200)
+    def testArchivingPatches(self):
+        data = self.base_data.copy()
+        data.update({'archived': 'True'})
+        self._selectAllPatches(data)
+        response = self.client.post(self.url, data)
+        self.assertContains(response, self.properties_form_id,
+                            status_code = 200)
+        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+            self.assertTrue(patch.archived)
+
+    def testUnArchivingPatches(self):
+        # Start with one patch archived and the remaining ones unarchived.
+        self.patches[0].archived = True
+        self.patches[0].save()
+        data = self.base_data.copy()
+        data.update({'archived': 'False'})
+        self._selectAllPatches(data)
+        response = self.client.post(self.url, data)
+        self.assertContains(response, self.properties_form_id,
+                            status_code = 200)
+        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+            self.assertFalse(patch.archived)
+
+    def _testStateChange(self, state):
+        data = self.base_data.copy()
+        data.update({'state': str(state)})
+        self._selectAllPatches(data)
+        response = self.client.post(self.url, data)
+        self.assertContains(response, self.properties_form_id,
+                            status_code = 200)
         return response
 
     def testStateChangeValid(self):
         states = [patch.state.pk for patch in self.patches]
         state = State.objects.exclude(pk__in = states)[0]
         self._testStateChange(state.pk)
-        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
-            self.assertEquals(patch.state, state)
+        for p in self.patches:
+            self.assertEquals(Patch.objects.get(pk = p.pk).state, state)
 
     def testStateChangeInvalid(self):
         state = max(State.objects.all().values_list('id', flat = True)) + 1
@@ -74,34 +98,21 @@ class MultipleUpdateTest(TestCase):
                         'of the available choices.')
 
     def _testDelegateChange(self, delegate_str):
-        data = {'action':   'Update',
-                'project':  str(defaults.project.id),
-                'form':     'patchlistform',
-                'archived': '*',
-                'state':    '*',
-                'delegate': delegate_str
-        }
-        for patch in self.patches:
-            data['patch_id:%d' % patch.id] = 'checked'
-
-        url = reverse('patchwork.views.patch.list',
-                args = [defaults.project.linkname])
-        response = self.client.post(url, data)
-        self.failUnlessEqual(response.status_code, 200)
+        data = self.base_data.copy()
+        data.update({'delegate': delegate_str})
+        self._selectAllPatches(data)
+        response = self.client.post(self.url, data)
+        self.assertContains(response, self.properties_form_id,
+                            status_code=200)
         return response
 
     def testDelegateChangeValid(self):
         delegate = create_maintainer(defaults.project)
         response = self._testDelegateChange(str(delegate.pk))
-        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
-            self.assertEquals(patch.delegate, delegate)
+        for p in self.patches:
+            self.assertEquals(Patch.objects.get(pk = p.pk).delegate, delegate)
 
     def testDelegateClear(self):
         response = self._testDelegateChange('')
-        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
-            self.assertEquals(patch.delegate, None)
-
-    def tearDown(self):
         for p in self.patches:
-            p.delete()
-
+            self.assertEquals(Patch.objects.get(pk = p.pk).delegate, None)
