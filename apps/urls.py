@@ -17,12 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import os
+
 from django.conf.urls.defaults import *
 from django.conf import settings
 from patchwork.admin import admin_site
 
 from registration.views import register
 from patchwork.forms import RegistrationForm
+
+htdocs = os.path.join(settings.ROOT_DIR, 'htdocs')
 
 urlpatterns = patterns('',
     # Example:
@@ -39,10 +43,10 @@ urlpatterns = patterns('',
      (r'^admin/(.*)', admin_site.root),
 
      (r'^css/(?P<path>.*)$', 'django.views.static.serve',
-        {'document_root': '/srv/patchwork/htdocs/css'}),
+        {'document_root': os.path.join(htdocs, 'css')}),
      (r'^js/(?P<path>.*)$', 'django.views.static.serve',
-        {'document_root': '/srv/patchwork/htdocs/js'}),
+        {'document_root': os.path.join(htdocs, 'js')}),
      (r'^images/(?P<path>.*)$', 'django.views.static.serve',
-        {'document_root': '/srv/patchwork/htdocs/images'}),
+        {'document_root': os.path.join(htdocs, 'images')}),
 )
 

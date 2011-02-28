@@ -1,4 +1,5 @@
 # Django settings for patchwork project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -34,10 +35,6 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/srv/patchwork/lib/python/django/contrib/admin/media'
-
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
 MEDIA_URL = ''
@@ -70,12 +67,20 @@ ROOT_URLCONF = 'apps.urls'
 LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = '/user/'
 
+# If you change the ROOT_DIR setting in your local_settings.py, you'll need to
+# re-define the variables that use this (MEDIA_ROOT and TEMPLATE_DIRS) too.
+ROOT_DIR = '/srv/patchwork'
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/srv/patchwork/templates'
+    os.path.join(ROOT_DIR, 'templates')
 )
+# Absolute path to the directory that holds media.
+# Example: "/home/media/media.lawrence.com/"
+MEDIA_ROOT = os.path.join(
+    ROOT_DIR, 'lib', 'python', 'django', 'contrib', 'admin', 'media')
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.auth",
     "django.core.context_processors.debug",
