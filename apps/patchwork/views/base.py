@@ -76,7 +76,7 @@ if settings.ENABLE_XMLRPC:
 
 def help(request, path):
     context = PatchworkRequestContext(request)
-    if help_pages.has_key(path):
+    if path in help_pages:
         return render_to_response('patchwork/help/' + help_pages[path], context)
     raise Http404
 
