@@ -360,3 +360,16 @@ class GitPullTest(PatchTest):
 
 class GitPullWrappedTest(GitPullTest):
     mail_file = '0002-git-pull-request-wrapped.mbox'
+
+class GitPullWithDiffTest(PatchTest):
+    def testGitPullWithDiff(self):
+        mail = read_mail('0003-git-pull-request-with-diff.mbox',
+                        project = self.project)
+        (patch, comment) = find_content(self.project, mail)
+        self.assertTrue(patch is not None)
+        self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/' +
+             'linux-2.6-tip.git x86-fixes-for-linus', patch.pull_url)
+        self.assertTrue(
+            patch.content.startswith('diff --git a/arch/x86/include/asm/smp.h'),
+            patch.content)
+        self.assertTrue(comment is not None)

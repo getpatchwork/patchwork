@@ -185,15 +185,9 @@ def find_content(project, mail):
     patch = None
     comment = None
 
-    if patchbuf:
-        mail_headers(mail)
+    if pullurl or patchbuf:
         name = clean_subject(mail.get('Subject'), [project.linkname])
-        patch = Patch(name = name, content = patchbuf,
-                    date = mail_date(mail), headers = mail_headers(mail))
-
-    if pullurl:
-        name = clean_subject(mail.get('Subject'), [project.linkname])
-        patch = Patch(name = name, pull_url = pullurl,
+        patch = Patch(name = name, pull_url = pullurl, content = patchbuf,
                     date = mail_date(mail), headers = mail_headers(mail))
 
     if commentbuf:

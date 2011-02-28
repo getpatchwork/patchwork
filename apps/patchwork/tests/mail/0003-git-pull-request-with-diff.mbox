@@ -1,0 +1,141 @@
+From benh@kernel.crashing.org Fri Oct 22 11:51:02 2010
+Return-Path: <linuxppc-dev-bounces+jk=ozlabs.org@lists.ozlabs.org>
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on bilbo.ozlabs.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.0 required=3.0 tests=none autolearn=disabled
+     version=3.3.1
+X-Original-To: jk@ozlabs.org
+Delivered-To: jk@ozlabs.org
+Received: from bilbo.ozlabs.org (localhost [127.0.0.1])
+     by ozlabs.org (Postfix) with ESMTP id ED4B3100937
+     for <jk@ozlabs.org>; Fri, 22 Oct 2010 14:51:54 +1100 (EST)
+Received: by ozlabs.org (Postfix)
+     id BF799B70CB; Fri, 22 Oct 2010 14:51:50 +1100 (EST)
+Delivered-To: linuxppc-dev@ozlabs.org
+Received: from gate.crashing.org (gate.crashing.org [63.228.1.57])
+     (using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+     (Client did not present a certificate)
+     by ozlabs.org (Postfix) with ESMTPS id 94629B7043
+     for <linuxppc-dev@ozlabs.org>; Fri, 22 Oct 2010 14:51:49 +1100 (EST)
+Received: from [IPv6:::1] (localhost.localdomain [127.0.0.1])
+     by gate.crashing.org (8.14.1/8.13.8) with ESMTP id o9M3p3SP018234;
+     Thu, 21 Oct 2010 22:51:04 -0500
+Subject: [git pull] Please pull powerpc.git next branch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 22 Oct 2010 14:51:02 +1100
+Message-ID: <1287719462.2198.37.camel@pasglop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.30.3 
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Linux Kernel list <linux-kernel@vger.kernel.org>
+X-BeenThere: linuxppc-dev@lists.ozlabs.org
+X-Mailman-Version: 2.1.13
+Precedence: list
+List-Id: Linux on PowerPC Developers Mail List <cbe-oss-dev.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+     <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+     <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: linuxppc-dev-bounces+jk=ozlabs.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+jk=ozlabs.org@lists.ozlabs.org
+X-UID: 11446
+X-Length: 16781
+Status: R
+X-Status: N
+X-KMail-EncryptionState:  
+X-KMail-SignatureState:  
+X-KMail-MDN-Sent:  
+
+The following changes since commit e10117d36ef758da0690c95ecffc09d5dd7da479:
+  Linus Torvalds (1):
+        Merge branch 'upstream-linus' of git://git.kernel.org/.../jgarzik/libata-dev
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/tip/linux-2.6-tip.git x86-fixes-for-linus
+
+------------------>
+H. Peter Anvin (1):
+      x86-32: Make sure the stack is set up before we use it
+Matthieu CASTET (1):
+      x86, nx: Don't force pages RW when setting NX bits
+
+Suresh Siddha (1):
+      x86, mtrr: Avoid MTRR reprogramming on BP during boot on UP platforms
+
+
+ arch/x86/include/asm/smp.h      |    5 +----
+ arch/x86/kernel/acpi/sleep.c    |    2 +-
+ arch/x86/kernel/cpu/mtrr/main.c |   10 +++++++++-
+ arch/x86/kernel/head_32.S       |   30 +++++++++++++-----------------
+ arch/x86/kernel/smpboot.c       |    4 ++--
+ arch/x86/mm/pageattr.c          |    8 --------
+ 6 files changed, 26 insertions(+), 33 deletions(-)
+diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
+index 4c2f63c..1f46951 100644
+--- a/arch/x86/include/asm/smp.h
++++ b/arch/x86/include/asm/smp.h
+@@ -40,10 +40,7 @@ DECLARE_EARLY_PER_CPU(u16, x86_cpu_to_apicid);
+ DECLARE_EARLY_PER_CPU(u16, x86_bios_cpu_apicid);
+ 
+ /* Static state in head.S used to set up a CPU */
+-extern struct {
+-    void *sp;
+-    unsigned short ss;
+-} stack_start;
++extern unsigned long stack_start; /* Initial stack pointer address */
+ 
+ struct smp_ops {
+     void (*smp_prepare_boot_cpu)(void);
+diff --git a/arch/x86/kernel/acpi/sleep.c b/arch/x86/kernel/acpi/sleep.c
+index 69fd72a..4d9ebba 100644
+--- a/arch/x86/kernel/acpi/sleep.c
++++ b/arch/x86/kernel/acpi/sleep.c
+@@ -100,7 +100,7 @@ int acpi_save_state_mem(void)
+ #else /* CONFIG_64BIT */
+     header->trampoline_segment = setup_trampoline() >> 4;
+ #ifdef CONFIG_SMP
+-    stack_start.sp = temp_stack + sizeof(temp_stack);
++    stack_start = (unsigned long)temp_stack + sizeof(temp_stack);
+     early_gdt_descr.address =
+                     (unsigned long)get_cpu_gdt_table(smp_processor_id());
+     initial_gs = per_cpu_offset(smp_processor_id());
+diff --git a/arch/x86/kernel/cpu/mtrr/main.c b/arch/x86/kernel/cpu/mtrr/main.c
+index 01c0f3e..bebabec 100644
+--- a/arch/x86/kernel/cpu/mtrr/main.c
++++ b/arch/x86/kernel/cpu/mtrr/main.c
+@@ -793,13 +793,21 @@ void set_mtrr_aps_delayed_init(void)
+ }
+ 
+ /*
+- * MTRR initialization for all AP's
++ * Delayed MTRR initialization for all AP's
+  */
+ void mtrr_aps_init(void)
+ {
+     if (!use_intel())
+             return;
+ 
++    /*
++     * Check if someone has requested the delay of AP MTRR initialization,
++     * by doing set_mtrr_aps_delayed_init(), prior to this point. If not,
++     * then we are done.
++     */
++    if (!mtrr_aps_delayed_init)
++            return;
++
+     set_mtrr(~0U, 0, 0, 0);
+     mtrr_aps_delayed_init = false;
+ }
+_______________________________________________
+Linuxppc-dev mailing list
+Linuxppc-dev@lists.ozlabs.org
+https://lists.ozlabs.org/listinfo/linuxppc-dev
