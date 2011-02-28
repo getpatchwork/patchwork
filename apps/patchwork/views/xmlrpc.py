@@ -129,7 +129,7 @@ def xmlrpc(request):
     try:
         ret = dispatcher._marshaled_dispatch(request)
         response.write(ret)
-    except Exception, e:
+    except Exception:
         return HttpResponseServerError()
 
     return response

@@ -68,7 +68,7 @@ def setbundle(request):
                 try:
                     patch = Patch.objects.get(id = id)
                     bundle.append_patch(patch)
-                except ex:
+                except:
                     pass
 
             bundle.save()

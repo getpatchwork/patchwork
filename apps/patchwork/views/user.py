@@ -72,7 +72,7 @@ def link(request):
                                 context),
                             settings.DEFAULT_FROM_EMAIL,
                             [form.cleaned_data['email']])
-            except Exception, ex:
+            except Exception:
                 context['confirmation'] = None
                 context['error'] = 'An error occurred during confirmation. ' + \
                                    'Please try again later'
@@ -97,7 +97,6 @@ def link_confirm(request, key):
 
 @login_required
 def unlink(request, person_id):
-    context = PatchworkRequestContext(request)
     person = get_object_or_404(Person, id = person_id)
 
     if request.method == 'POST':

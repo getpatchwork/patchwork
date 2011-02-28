@@ -223,12 +223,7 @@ class Patch(models.Model):
         if self.submitter.user == user or self.delegate == user:
             return True
 
-        profile = user.get_profile()
         return self.project in user.get_profile().maintainer_projects.all()
-
-    def form(self):
-        f = PatchForm(instance = self, prefix = self.id)
-        return f
 
     def filename(self):
         fname_re = re.compile('[^-_A-Za-z0-9\.]+')
@@ -256,7 +251,6 @@ class Patch(models.Model):
         else:
             postscript = ''
 
-        responses = False
         for comment in Comment.objects.filter(patch = self) \
                 .exclude(msgid = self.msgid):
             body += comment.patch_responses()

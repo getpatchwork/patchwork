@@ -30,7 +30,6 @@ def patch(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     context.project = patch.project
     editable = patch.is_editable(request.user)
-    messages = []
 
     form = None
     createbundleform = None
