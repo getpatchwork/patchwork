@@ -19,7 +19,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-PATCHWORK_BASE="/srv/patchwork"
+PATCHWORK_BINDIR=`dirname $0`
 
 if [ $# -ne 1 ]
 then
@@ -41,11 +41,5 @@ ls -1rt "$mail_dir" |
 while read line;
 do
 	echo $line
-	PYTHONPATH="$PATCHWORK_BASE/apps":"$PATCHWORK_BASE/lib/python" \
-		DJANGO_SETTINGS_MODULE=settings \
-		"$PATCHWORK_BASE/apps/patchwork/bin/parsemail.py" < \
-		"$mail_dir/$line"
+	$PATCHWORK_BINDIR/parsemail.sh < "$mail_dir/$line"
 done
-
-
-
