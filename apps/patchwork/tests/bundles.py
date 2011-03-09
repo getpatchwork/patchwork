@@ -18,8 +18,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import unittest
+import datetime
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.http import urlencode
 from patchwork.models import Patch, Bundle, BundlePatch, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
 
@@ -333,6 +335,66 @@ class BundleAddFromPatchTest(BundleTestBase):
                                         patch = self.patches[i]) \
                 for i in [0, 1] ]
         self.failUnless(bps[0].order < bps[1].order)
+
+class BundleInitialOrderTest(BundleTestBase):
+    """When creating bundles from a patch list, ensure that the patches in the
+       bundle are ordered by date"""
+
+    def setUp(self):
+        super(BundleInitialOrderTest, self).setUp(5)
+
+        # put patches in an arbitrary order
+        idxs = [2, 4, 3, 1, 0]
+        self.patches = [ self.patches[i] for i in idxs ]
+
+        # set dates to be sequential
+        last_patch = self.patches[0]
+        for patch in self.patches[1:]:
+            patch.date = last_patch.date + datetime.timedelta(0, 1)
+            patch.save()
+            last_patch = patch
+
+    def _testOrder(self, ids, expected_order):
+        newbundlename = 'testbundle-new'
+
+        # need to define our querystring explicity to enforce ordering
+        params = {'form': 'patchlistform',
+                  'bundle_name': newbundlename,
+                  'action': 'Create',
+                  'project': defaults.project.id,
+        }
+
+        data = urlencode(params) + \
+               ''.join([ '&patch_id:%d=checked' % i for i in ids ])
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                data = data,
+                content_type = 'application/x-www-form-urlencoded',
+                )
+
+        self.assertContains(response, 'Bundle %s created' % newbundlename)
+        self.assertContains(response, 'added to bundle %s' % newbundlename,
+            count = 5)
+
+        bundle = Bundle.objects.get(name = newbundlename)
+
+        # BundlePatches should be sorted by .order by default
+        bps = BundlePatch.objects.filter(bundle = bundle)
+
+        for (bp, p) in zip(bps, expected_order):
+            self.assertEqual(bp.patch.pk, p.pk)
+
+        bundle.delete()
+
+    def testBundleForwardOrder(self):
+        ids = map(lambda p: p.id, self.patches)
+        self._testOrder(ids, self.patches)
+
+    def testBundleReverseOrder(self):
+        ids = map(lambda p: p.id, self.patches)
+        ids.reverse()
+        self._testOrder(ids, self.patches)
 
 class BundleReorderTest(BundleTestBase):
     def setUp(self):

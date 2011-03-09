@@ -47,13 +47,7 @@ def generic_list(request, project, view,
         if request.POST.get('bundle_name', False):
             action = 'create'
 
-        ps = []
-        for patch_id in get_patch_ids(request.POST):
-            try:
-                patch = Patch.objects.get(id = patch_id)
-            except Patch.DoesNotExist:
-                pass
-            ps.append(patch)
+        ps = Patch.objects.filter(id__in = get_patch_ids(request.POST))
 
         (errors, form) = set_patches(request.user, project, action, \
                 request.POST, ps, context)
