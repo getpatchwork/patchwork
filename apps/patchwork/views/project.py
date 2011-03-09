@@ -18,10 +18,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.models import Patch, Project, Person
+from patchwork.models import Patch, Project
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from patchwork.requestcontext import PatchworkRequestContext
 
 def project(request, project_id):

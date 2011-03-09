@@ -18,19 +18,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.models import Patch, Project, Person, Bundle
-from patchwork.filters import Filters
-from patchwork.forms import PatchForm, MultiplePatchForm, CreateBundleForm
-from patchwork.utils import get_patch_ids, set_patches, Order
+from patchwork.models import Patch, Project, Bundle
+from patchwork.forms import PatchForm, CreateBundleForm
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, \
-        HttpResponseForbidden
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
-import django.core.urlresolvers
-from patchwork.paginator import Paginator
+from django.http import HttpResponse, HttpResponseForbidden
 from patchwork.views import generic_list
 
 def patch(request, patch_id):

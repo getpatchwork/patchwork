@@ -20,15 +20,12 @@
 # Patchwork XMLRPC interface
 #
 
-from django.core.exceptions import ImproperlyConfigured
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from django.http import HttpResponse, HttpResponseRedirect, \
      HttpResponseServerError
-from django.conf import settings
 from django.core import urlresolvers
-from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate
-from patchwork.models import Patch, Project, Person, Bundle, State
+from patchwork.models import Patch, Project, Person, State
 from django.views.decorators.csrf import csrf_exempt
 
 import sys

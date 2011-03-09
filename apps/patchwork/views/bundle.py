@@ -28,7 +28,6 @@ from patchwork.utils import get_patch_ids
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.views import generic_list
 from patchwork.filters import DelegateFilter
-from patchwork.paginator import Paginator
 
 @login_required
 def setbundle(request):

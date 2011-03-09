@@ -19,9 +19,8 @@
 
 
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Bundle, Project, BundlePatch, State, UserProfile
-from django.conf import settings
-from django.shortcuts import render_to_response, get_object_or_404
+from patchwork.models import Bundle, Project, BundlePatch, UserProfile
+from django.shortcuts import get_object_or_404
 
 def get_patch_ids(d, prefix = 'patch_id'):
     ids = []

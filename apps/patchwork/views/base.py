@@ -19,13 +19,8 @@
 
 
 from patchwork.models import Patch, Project, Person
-from patchwork.filters import Filters
-from patchwork.forms import LoginForm, PatchForm
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.db import transaction
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from patchwork.requestcontext import PatchworkRequestContext
 from django.core import serializers, urlresolvers
 from django.template.loader import render_to_string

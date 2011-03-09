@@ -21,12 +21,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.conf import settings
 from patchwork.parser import hash_patch
 
 import re
 import datetime, time
-import string
 import random
 
 try:
@@ -322,7 +320,7 @@ class Bundle(models.Model):
         return self.patches.all().count()
 
     def ordered_patches(self):
-        return self.patches.order_by('bundlepatch__order');
+        return self.patches.order_by('bundlepatch__order')
 
     def append_patch(self, patch):
         # todo: use the aggregate queries in django 1.1
