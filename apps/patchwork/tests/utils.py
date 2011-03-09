@@ -40,7 +40,7 @@ class defaults(object):
 
     patch_author = 'Patch Author <patch-author@example.com>'
     patch_author_person = Person(name = 'Patch Author',
-            email = 'patch-author@example.com')
+        email = 'patch-author@example.com')
 
     comment_author = 'Comment Author <comment-author@example.com>'
 
