@@ -19,7 +19,7 @@
 
 import os
 import codecs
-from patchwork.models import Project, Person, UserProfile
+from patchwork.models import Project, Person
 from django.contrib.auth.models import User
 
 from email import message_from_file
@@ -65,9 +65,6 @@ def create_user():
 
     user = User.objects.create_user(userid, email, userid)
     user.save()
-
-    profile = UserProfile(user = user)
-    profile.save()
 
     return user
 

@@ -182,8 +182,3 @@ def set_patches(user, project, action, data, patches, context):
         context.add_message(str)
 
     return (errors, form)
-
-def userprofile_register_callback(user):
-    profile = UserProfile(user = user)
-    profile.save()
-

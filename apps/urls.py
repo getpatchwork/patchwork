@@ -23,7 +23,6 @@ from patchwork.admin import admin_site
 
 from registration.views import register
 from patchwork.forms import RegistrationForm
-from patchwork.utils import userprofile_register_callback
 
 urlpatterns = patterns('',
     # Example:
@@ -31,9 +30,7 @@ urlpatterns = patterns('',
 
     # override the default registration form
     url(r'^accounts/register/$',
-        register,
-        {'form_class': RegistrationForm,
-         'profile_callback': userprofile_register_callback},
+        register, {'form_class': RegistrationForm},
         name='registration_register'),
 
     (r'^accounts/', include('registration.urls')),
