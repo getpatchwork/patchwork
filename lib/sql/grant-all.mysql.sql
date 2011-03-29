@@ -23,6 +23,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_bundle TO 'www-data'@localhost
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_bundle_patches TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
 
 -- allow the mail user (in this case, 'nobody') to add patches
 GRANT INSERT, SELECT ON patchwork_patch TO 'nobody'@localhost;

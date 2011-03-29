@@ -27,3 +27,4 @@ from patchwork.tests.confirm import *
 from patchwork.tests.registration import *
 from patchwork.tests.user import *
 from patchwork.tests.mail_settings import *
+from patchwork.tests.notifications import *

@@ -64,6 +64,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255, unique=True)
     listemail = models.CharField(max_length=200)
+    send_notifications = models.BooleanField()
 
     def __unicode__(self):
         return self.name
@@ -406,3 +407,46 @@ class EmailOptout(models.Model):
 
     def __unicode__(self):
         return self.email
+
+class PatchChangeNotification(models.Model):
+    patch = models.ForeignKey(Patch, primary_key = True)
+    last_modified = models.DateTimeField(default = datetime.datetime.now)
+    orig_state = models.ForeignKey(State)
+
+def _patch_change_callback(sender, instance, **kwargs):
+    # we only want notification of modified patches
+    if instance.pk is None:
+        return
+
+    if instance.project is None or not instance.project.send_notifications:
+        return
+
+    try:
+        orig_patch = Patch.objects.get(pk = instance.pk)
+    except Patch.DoesNotExist:
+        return
+
+    # If there's no interesting changes, abort without creating the
+    # notification
+    if orig_patch.state == instance.state:
+        return
+
+    notification = None
+    try:
+        notification = PatchChangeNotification.objects.get(patch = instance)
+    except PatchChangeNotification.DoesNotExist:
+        pass
+
+    if notification is None:
+        notification = PatchChangeNotification(patch = instance,
+                                               orig_state = orig_patch.state)
+
+    elif notification.orig_state == instance.state:
+        # If we're back at the original state, there is no need to notify
+        notification.delete()
+        return
+
+    notification.last_modified = datetime.datetime.now()
+    notification.save()
+
+models.signals.pre_save.connect(_patch_change_callback, sender = Patch)
