@@ -1,0 +1,19 @@
+Hello,
+
+The following patch{{notifications|length|pluralize:"es"}} (submitted by you) {{notifications|length|pluralize:"has,have"}} been updated in patchwork:
+{% for notification in notifications %}
+ * {{notification.patch.name}}
+     - http://{{site.domain}}{{notification.patch.get_absolute_url}}
+    was: {{notification.orig_state}}
+    now: {{notification.patch.state}}
+{% endfor %}
+This email is a notification only - you do not need to respond.
+
+Happy patchworking.
+
+--
+
+This is an automated mail sent by the patchwork system at
+{{site.domain}}. To stop receiving these notifications, edit
+your mail settings at:
+  http://{{site.domain}}{% url patchwork.views.mail.settings %}

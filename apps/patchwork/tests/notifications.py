@@ -17,11 +17,15 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.core import mail
+from django.conf import settings
 from django.db.utils import IntegrityError
 from patchwork.models import Patch, State, PatchChangeNotification
 from patchwork.tests.utils import defaults, create_maintainer
+from patchwork.utils import send_notifications
 
 class PatchNotificationModelTest(TestCase):
     """Tests for the creation & update of the PatchChangeNotification model"""
@@ -115,3 +119,111 @@ class PatchNotificationModelTest(TestCase):
         self.patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
+class PatchNotificationEmailTest(TestCase):
+
+    def setUp(self):
+        self.project = defaults.project
+        self.project.send_notifications = True
+        self.project.save()
+        self.submitter = defaults.patch_author_person
+        self.submitter.save()
+        self.patch = Patch(project = self.project, msgid = 'testpatch',
+                        name = 'testpatch', content = '',
+                        submitter = self.submitter)
+        self.patch.save()
+
+    def tearDown(self):
+        self.patch.delete()
+        self.submitter.delete()
+        self.project.delete()
+
+    def _expireNotifications(self, **kwargs):
+        timestamp = datetime.datetime.now() - \
+                    datetime.timedelta(minutes =
+                            settings.NOTIFICATION_DELAY_MINUTES + 1)
+
+        qs = PatchChangeNotification.objects.all()
+        if kwargs:
+            qs = qs.filter(**kwargs)
+
+        qs.update(last_modified = timestamp)
+
+    def testNoNotifications(self):
+        self.assertEquals(send_notifications(), [])
+
+    def testNoReadyNotifications(self):
+        """ We shouldn't see immediate notifications"""
+        PatchChangeNotification(patch = self.patch,
+                               orig_state = self.patch.state).save()
+
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 0)
+
+    def testNotifications(self):
+        PatchChangeNotification(patch = self.patch,
+                               orig_state = self.patch.state).save()
+        self._expireNotifications()
+
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEquals(msg.to, [self.submitter.email])
+        self.assertTrue(self.patch.get_absolute_url() in msg.body)
+
+    def testNotificationMerge(self):
+        patches = [self.patch,
+                   Patch(project = self.project, msgid = 'testpatch-2',
+                         name = 'testpatch 2', content = '',
+                         submitter = self.submitter)]
+
+        for patch in patches:
+            patch.save()
+            PatchChangeNotification(patch = patch,
+                                   orig_state = patch.state).save()
+
+        self.assertEquals(PatchChangeNotification.objects.count(), len(patches))
+        self._expireNotifications()
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertTrue(patches[0].get_absolute_url() in msg.body)
+        self.assertTrue(patches[1].get_absolute_url() in msg.body)
+
+    def testUnexpiredNotificationMerge(self):
+        """Test that when there are multiple pending notifications, with
+           at least one within the notification delay, that other notifications
+           are held"""
+        patches = [self.patch,
+                   Patch(project = self.project, msgid = 'testpatch-2',
+                         name = 'testpatch 2', content = '',
+                         submitter = self.submitter)]
+
+        for patch in patches:
+            patch.save()
+            PatchChangeNotification(patch = patch,
+                                   orig_state = patch.state).save()
+
+        self.assertEquals(PatchChangeNotification.objects.count(), len(patches))
+        self._expireNotifications()
+
+        # update one notification, to bring it out of the notification delay
+        patches[0].state = State.objects.exclude(pk = patches[0].state.pk)[0]
+        patches[0].save()
+
+        # the updated notification should prevent the other from being sent
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 0)
+
+        # expire the updated notification
+        self._expireNotifications()
+
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertTrue(patches[0].get_absolute_url() in msg.body)
+        self.assertTrue(patches[1].get_absolute_url() in msg.body)

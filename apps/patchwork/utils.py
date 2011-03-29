@@ -18,8 +18,17 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.models import Bundle, Project, BundlePatch
+import itertools
+import datetime
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.db.models import Max
+from patchwork.forms import MultiplePatchForm
+from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
+        PatchChangeNotification
 
 def get_patch_ids(d, prefix = 'patch_id'):
     ids = []
@@ -137,3 +146,51 @@ def set_bundle(user, project, action, data, patches, context):
     bundle.save()
 
     return []
+
+def send_notifications():
+    date_limit = datetime.datetime.now() - \
+                     datetime.timedelta(minutes =
+                                settings.NOTIFICATION_DELAY_MINUTES)
+
+    # This gets funky: we want to filter out any notifications that should
+    # be grouped with other notifications that aren't ready to go out yet. To
+    # do that, we join back onto PatchChangeNotification (PCN -> Patch ->
+    # Person -> Patch -> max(PCN.last_modified)), filtering out any maxima
+    # that are with the date_limit.
+    qs = PatchChangeNotification.objects \
+            .annotate(m = Max('patch__submitter__patch__patchchangenotification'
+                        '__last_modified')) \
+                .filter(m__lt = date_limit)
+
+    groups = itertools.groupby(qs.order_by('patch__submitter'),
+                               lambda n: n.patch.submitter)
+
+    errors = []
+
+    for (recipient, notifications) in groups:
+        notifications = list(notifications)
+        context = {
+            'site': Site.objects.get_current(),
+            'person': recipient,
+            'notifications': notifications,
+        }
+        subject = render_to_string(
+                        'patchwork/patch-change-notification-subject.text',
+                        context).strip()
+        content = render_to_string('patchwork/patch-change-notification.mail',
+                                context)
+
+        message = EmailMessage(subject = subject, body = content,
+                               from_email = settings.DEFAULT_FROM_EMAIL,
+                               to = [recipient.email],
+                               headers = {'Precedence': 'bulk'})
+
+        try:
+            message.send()
+        except ex:
+            errors.append((recipient, ex))
+            continue
+
+        PatchChangeNotification.objects.filter(pk__in = notifications).delete()
+
+    return errors
