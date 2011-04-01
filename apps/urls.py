@@ -21,10 +21,12 @@ import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
-from patchwork.admin import admin_site
+from django.contrib import admin
 
 from registration.views import register
 from patchwork.forms import RegistrationForm
+
+admin.autodiscover()
 
 htdocs = os.path.join(settings.ROOT_DIR, 'htdocs')
 
@@ -40,7 +42,7 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.urls')),
 
     # Uncomment this for admin:
-     (r'^admin/(.*)', admin_site.root),
+     (r'^admin/', include(admin.site.urls)),
 
      (r'^css/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': os.path.join(htdocs, 'css')}),
