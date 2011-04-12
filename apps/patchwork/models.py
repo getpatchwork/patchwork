@@ -67,6 +67,11 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    def is_editable(self, user):
+        if not user.is_authenticated():
+            return False
+        return self in user.get_profile().maintainer_projects.all()
+
 class UserProfile(models.Model):
     user = models.ForeignKey(User, unique = True)
     primary_project = models.ForeignKey(Project, null = True, blank = True)
@@ -223,7 +228,7 @@ class Patch(models.Model):
         if self.submitter.user == user or self.delegate == user:
             return True
 
-        return self.project in user.get_profile().maintainer_projects.all()
+        return self.project.is_editable(user)
 
     def filename(self):
         fname_re = re.compile('[^-_A-Za-z0-9\.]+')

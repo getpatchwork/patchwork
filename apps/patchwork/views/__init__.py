@@ -43,8 +43,7 @@ def generic_list(request, project, view,
         data = request.POST
     user = request.user
     properties_form = None
-    if (user.is_authenticated()
-            and project in user.get_profile().maintainer_projects.all()):
+    if project.is_editable(user):
         properties_form = MultiplePatchForm(project, data = data)
 
     if request.method == 'POST' and data.get('form') == 'patchlistform':
