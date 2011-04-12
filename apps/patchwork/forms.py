@@ -195,6 +195,7 @@ class MultipleBooleanField(forms.ChoiceField):
             raise ValueError('Unknown value: %s' % value)
 
 class MultiplePatchForm(forms.Form):
+    action = 'update'
     state = OptionalModelChoiceField(queryset = State.objects.all())
     archived = MultipleBooleanField()
 

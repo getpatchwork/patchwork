@@ -18,8 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.forms import MultiplePatchForm
-from patchwork.models import Bundle, Project, BundlePatch, UserProfile
+from patchwork.models import Bundle, Project, BundlePatch
 from django.shortcuts import get_object_or_404
 
 def get_patch_ids(d, prefix = 'patch_id'):
@@ -138,47 +137,3 @@ def set_bundle(user, project, action, data, patches, context):
     bundle.save()
 
     return []
-
-
-def set_patches(user, project, action, data, patches, context):
-    errors = []
-    form = MultiplePatchForm(project = project, data = data)
-
-    try:
-        project = Project.objects.get(id = data['project'])
-    except:
-        errors = ['No such project']
-        return (errors, form)
-
-    str = ''
-
-    # this may be a bundle action, which doesn't modify a patch. in this
-    # case, don't require a valid form, or patch editing permissions
-    if action in bundle_actions:
-        errors = set_bundle(user, project, action, data, patches, context)
-        return (errors, form)
-
-    if not form.is_valid():
-        errors = ['The submitted form data was invalid']
-        return (errors, form)
-
-    for patch in patches:
-        if not patch.is_editable(user):
-            errors.append('You don\'t have permissions to edit the ' + \
-                    'patch "%s"' \
-                    % patch.name)
-            continue
-
-        if action == 'update':
-            form.save(patch)
-            str = 'updated'
-
-
-    if len(patches) > 0:
-        if len(patches) == 1:
-            str = 'patch ' + str
-        else:
-            str = 'patches ' + str
-        context.add_message(str)
-
-    return (errors, form)

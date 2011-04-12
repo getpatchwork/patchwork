@@ -19,7 +19,7 @@
 
 
 from base import *
-from patchwork.utils import Order, get_patch_ids, set_patches
+from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
 
@@ -34,29 +34,40 @@ def generic_list(request, project, view,
     context.project = project
     order = Order(request.REQUEST.get('order'), editable = editable_order)
 
-    form = MultiplePatchForm(project)
+    # Explicitly set data to None because request.POST will be an empty dict
+    # when the form is not submitted, but passing a non-None data argument to
+    # a forms.Form will make it bound and we don't want that to happen unless
+    # there's been a form submission.
+    data = None
+    if request.method == 'POST':
+        data = request.POST
+    user = request.user
+    properties_form = None
+    if (user.is_authenticated()
+            and project in user.get_profile().maintainer_projects.all()):
+        properties_form = MultiplePatchForm(project, data = data)
 
-    if request.method == 'POST' and \
-                       request.POST.get('form') == 'patchlistform':
-        action = request.POST.get('action', None)
-        if action:
-            action = action.lower()
+    if request.method == 'POST' and data.get('form') == 'patchlistform':
+        action = data.get('action', '').lower()
 
         # special case: the user may have hit enter in the 'create bundle'
         # text field, so if non-empty, assume the create action:
-        if request.POST.get('bundle_name', False):
+        if data.get('bundle_name', False):
             action = 'create'
 
-        ps = Patch.objects.filter(id__in = get_patch_ids(request.POST))
+        ps = Patch.objects.filter(id__in = get_patch_ids(data))
 
-        (errors, form) = set_patches(request.user, project, action, \
-                request.POST, ps, context)
+        if action in bundle_actions:
+            errors = set_bundle(user, project, action, data, ps, context)
+
+        elif properties_form and action == properties_form.action:
+            errors = process_multiplepatch_form(properties_form, user,
+                                                action, ps, context)
+        else:
+            errors = []
+
         if errors:
             context['errors'] = errors
-
-    if not (request.user.is_authenticated() and \
-            project in request.user.get_profile().maintainer_projects.all()):
-        form = None
 
     for (filterclass, setting) in filter_settings:
         if isinstance(setting, dict):
@@ -77,10 +88,38 @@ def generic_list(request, project, view,
 
     context.update({
             'page':             paginator.current_page,
-            'patchform':        form,
+            'patchform':        properties_form,
             'project':          project,
             'order':            order,
             })
 
     return context
 
+
+def process_multiplepatch_form(form, user, action, patches, context):
+    errors = []
+    if not form.is_valid() or action != form.action:
+        return ['The submitted form data was invalid']
+
+    if len(patches) == 0:
+        context.add_message("No patches selected; nothing updated")
+        return errors
+
+    changed_patches = 0
+    for patch in patches:
+        if not patch.is_editable(user):
+            errors.append("You don't have permissions to edit patch '%s'"
+                            % patch.name)
+            continue
+
+        changed_patches += 1
+        form.save(patch)
+
+    if changed_patches == 1:
+        context.add_message("1 patch updated")
+    elif changed_patches > 1:
+        context.add_message("%d patches updated" % changed_patches)
+    else:
+        context.add_message("No patches updated")
+
+    return errors
