@@ -185,8 +185,8 @@ class MultipleBooleanField(forms.ChoiceField):
         return False
 
     def to_python(self, value):
-        if self.is_no_change(value):
-            return value
+        if value is None or self.is_no_change(value):
+            return self.no_change_choice[0]
         elif value == 'True':
             return True
         elif value == 'False':
