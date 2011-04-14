@@ -3,13 +3,13 @@ Deploying Patchwork
 Patchwork uses the django framework - there is some background on deploying
 django applications here:
 
- http://www.djangobook.com/en/1.0/chapter20/
+ http://www.djangobook.com/en/2.0/chapter12/
 
 You'll need the following (applications used for patchwork development are
 in brackets):
 
   * A python interpreter
-  * django
+  * django >= 1.2
   * A webserver (apache)
   * mod_python or flup
   * A database server (postgresql)
@@ -73,7 +73,7 @@ in brackets):
         lib/packages is for stuff we'll download, lib/python is to add
         to our python path. We'll symlink python modules into lib/python.
 
-        At the time of release, patchwork depends on django version 1.0 or
+        At the time of release, patchwork depends on django version 1.2 or
         later. Your distro probably provides this. If not, do a:
 
          cd lib/packages
