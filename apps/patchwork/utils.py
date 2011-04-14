@@ -28,7 +28,7 @@ from django.core.mail import EmailMessage
 from django.db.models import Max
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
-        PatchChangeNotification
+        PatchChangeNotification, EmailOptout
 
 def get_patch_ids(d, prefix = 'patch_id'):
     ids = []
@@ -169,6 +169,15 @@ def send_notifications():
 
     for (recipient, notifications) in groups:
         notifications = list(notifications)
+
+        def delete_notifications():
+            PatchChangeNotification.objects.filter(
+                                pk__in = notifications).delete()
+
+        if EmailOptout.is_optout(recipient.email):
+            delete_notifications()
+            continue
+
         context = {
             'site': Site.objects.get_current(),
             'person': recipient,
@@ -191,6 +200,6 @@ def send_notifications():
             errors.append((recipient, ex))
             continue
 
-        PatchChangeNotification.objects.filter(pk__in = notifications).delete()
+        delete_notifications()
 
     return errors

@@ -408,6 +408,11 @@ class EmailOptout(models.Model):
     def __unicode__(self):
         return self.email
 
+    @classmethod
+    def is_optout(cls, email):
+        email = email.lower().strip()
+        return cls.objects.filter(email = email).count() > 0
+
 class PatchChangeNotification(models.Model):
     patch = models.ForeignKey(Patch, primary_key = True)
     last_modified = models.DateTimeField(default = datetime.datetime.now)

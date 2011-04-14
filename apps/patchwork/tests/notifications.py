@@ -23,7 +23,7 @@ from django.core.urlresolvers import reverse
 from django.core import mail
 from django.conf import settings
 from django.db.utils import IntegrityError
-from patchwork.models import Patch, State, PatchChangeNotification
+from patchwork.models import Patch, State, PatchChangeNotification, EmailOptout
 from patchwork.tests.utils import defaults, create_maintainer
 from patchwork.utils import send_notifications
 
@@ -171,6 +171,18 @@ class PatchNotificationEmailTest(TestCase):
         msg = mail.outbox[0]
         self.assertEquals(msg.to, [self.submitter.email])
         self.assertTrue(self.patch.get_absolute_url() in msg.body)
+
+    def testNotificationOptout(self):
+        """ensure opt-out addresses don't get notifications"""
+        PatchChangeNotification(patch = self.patch,
+                               orig_state = self.patch.state).save()
+        self._expireNotifications()
+
+        EmailOptout(email = self.submitter.email).save()
+
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 0)
 
     def testNotificationMerge(self):
         patches = [self.patch,
