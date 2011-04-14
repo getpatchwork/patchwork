@@ -104,6 +104,7 @@ DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 CONFIRMATION_VALIDITY_DAYS = 7
 
 NOTIFICATION_DELAY_MINUTES = 10
+NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set to True to enable the Patchwork XML-RPC interface
 ENABLE_XMLRPC = False

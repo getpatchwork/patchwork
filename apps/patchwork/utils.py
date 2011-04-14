@@ -181,7 +181,7 @@ def send_notifications():
                                 context)
 
         message = EmailMessage(subject = subject, body = content,
-                               from_email = settings.DEFAULT_FROM_EMAIL,
+                               from_email = settings.NOTIFICATION_FROM_EMAIL,
                                to = [recipient.email],
                                headers = {'Precedence': 'bulk'})
 

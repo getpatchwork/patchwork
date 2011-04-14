@@ -104,6 +104,8 @@ in brackets):
           ADMINS
           TIME_ZONE
           LANGUAGE_CODE
+          DEFAULT_FROM_EMAIL
+          NOTIFICATION_FROM_EMAIL
 
         You can generate the SECRET_KEY with the following python code:
 
