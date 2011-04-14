@@ -92,11 +92,10 @@ class UserProfile(models.Model):
 
     def contributor_projects(self):
         submitters = Person.objects.filter(user = self.user)
-        return Project.objects \
-            .filter(id__in = \
-                    Patch.objects.filter(
-                        submitter__in = submitters) \
-                    .values('project_id').query)
+        return Project.objects.filter(id__in =
+                                        Patch.objects.filter(
+                                            submitter__in = submitters)
+                                        .values('project_id').query)
 
 
     def sync_person(self):
@@ -115,8 +114,8 @@ class UserProfile(models.Model):
 
         qs = qs.filter(archived = False) \
              .filter(delegate = self.user) \
-             .filter(state__in = \
-                     State.objects.filter(action_required = True) \
+             .filter(state__in =
+                     State.objects.filter(action_required = True)
                          .values('pk').query)
         return qs
 
@@ -309,7 +308,7 @@ class Comment(models.Model):
             re.M | re.I)
 
     def patch_responses(self):
-        return ''.join([ match.group(0) + '\n' for match in \
+        return ''.join([ match.group(0) + '\n' for match in
                                 self.response_re.finditer(self.content)])
 
     class Meta:
@@ -362,7 +361,7 @@ class Bundle(models.Model):
                         }))
 
     def mbox(self):
-        return '\n'.join([p.mbox().as_string(True) \
+        return '\n'.join([p.mbox().as_string(True)
                         for p in self.ordered_patches()])
 
 class BundlePatch(models.Model):
