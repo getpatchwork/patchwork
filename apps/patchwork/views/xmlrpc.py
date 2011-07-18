@@ -328,7 +328,7 @@ def patch_list(filter={}):
         patches = Patch.objects.filter(**dfilter)
 
         if max_count > 0:
-            return map(patch_to_dict, patches)[:max_count]
+            return map(patch_to_dict, patches[:max_count])
         else:
             return map(patch_to_dict, patches)
 
