@@ -23,9 +23,6 @@ from django.conf.urls.defaults import *
 from django.conf import settings
 from django.contrib import admin
 
-from registration.views import register
-from patchwork.forms import RegistrationForm
-
 admin.autodiscover()
 
 htdocs = os.path.join(settings.ROOT_DIR, 'htdocs')
@@ -33,13 +30,6 @@ htdocs = os.path.join(settings.ROOT_DIR, 'htdocs')
 urlpatterns = patterns('',
     # Example:
     (r'^', include('patchwork.urls')),
-
-    # override the default registration form
-    url(r'^accounts/register/$',
-        register, {'form_class': RegistrationForm},
-        name='registration_register'),
-
-    (r'^accounts/', include('registration.urls')),
 
     # Uncomment this for admin:
      (r'^admin/', include(admin.site.urls)),

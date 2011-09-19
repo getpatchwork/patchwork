@@ -13,7 +13,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	auth_group,
 	auth_user_user_permissions,
 	auth_permission,
-	patchwork_userpersonconfirmation,
+	patchwork_emailconfirmation,
 	patchwork_state,
 	patchwork_comment,
 	patchwork_person,
@@ -23,7 +23,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_bundle,
 	patchwork_bundlepatch,
 	patchwork_patch,
-	registration_registrationprofile
+	patchwork_emailoptout,
+	patchwork_patchchangenotification
 TO "www-data";
 GRANT SELECT, UPDATE ON
 	auth_group_id_seq,
@@ -43,10 +44,10 @@ GRANT SELECT, UPDATE ON
 	patchwork_person_id_seq,
 	patchwork_project_id_seq,
 	patchwork_state_id_seq,
-	patchwork_userpersonconfirmation_id_seq,
+	patchwork_emailconfirmation_id_seq,
 	patchwork_userprofile_id_seq,
 	patchwork_userprofile_maintainer_projects_id_seq,
-	registration_registrationprofile_id_seq
+	patchwork_patchchangenotification_id_seq
 TO "www-data";
 
 -- allow the mail user (in this case, 'nobody') to add patches

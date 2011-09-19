@@ -40,34 +40,50 @@ Contributor to
 <p>The following email addresses are associated with this patchwork account.
 Adding alternative addresses allows patchwork to group contributions that
 you have made under different addresses.</p>
+<p>The "notify?" column allows you to opt-in or -out of automated
+patchwork notification emails. Setting it to "no" will disable automated
+notifications for that address.</p>
 <p>Adding a new email address will send a confirmation email to that
 address.</p>
-<table class="vertical" style="width: 20em;">
+<table class="vertical">
  <tr>
   <th>email</th>
-  <th/>
- </tr>
- <tr>
-  <td>{{ user.email }}</td>
-  <td></td>
+  <th>action</th>
+  <th>notify?</th>
  </tr>
 {% for email in linked_emails %}
- {% ifnotequal email.email user.email %}
  <tr>
   <td>{{ email.email }}</td>
   <td>
-   {% ifnotequal user.email email.email %}
+  {% ifnotequal user.email email.email %}
    <form action="{% url patchwork.views.user.unlink person_id=email.id %}"
     method="post">
     {% csrf_token %}
     <input type="submit" value="Unlink"/>
    </form>
     {% endifnotequal %}
+  </td>
+  <td>
+   {% if email.is_optout %}
+   <form method="post" action="{% url patchwork.views.mail.optin %}">
+    No,
+     {% csrf_token %}
+     <input type="hidden" name="email" value="{{email.email}}"/>
+     <input type="submit" value="Opt-in"/>
+    </form>
+   {% else %}
+    <form method="post" action="{% url patchwork.views.mail.optout %}">
+    Yes,
+     {% csrf_token %}
+     <input type="hidden" name="email" value="{{email.email}}"/>
+     <input type="submit" value="Opt-out"/>
+    </form>
+   {% endif %}
+  </td>
  </tr>
- {% endifnotequal %}
 {% endfor %}
  <tr>
-  <td colspan="2">
+  <td colspan="3">
    <form action="{% url patchwork.views.user.link %}" method="post">
     {% csrf_token %}
     {{ linkform.email }}

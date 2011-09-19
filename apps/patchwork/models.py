@@ -21,6 +21,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from django.conf import settings
 from patchwork.parser import hash_patch
 
 import re
@@ -63,6 +64,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255, unique=True)
     listemail = models.CharField(max_length=200)
+    send_notifications = models.BooleanField()
 
     def __unicode__(self):
         return self.name
@@ -373,34 +375,83 @@ class BundlePatch(models.Model):
         unique_together = [('bundle', 'patch')]
         ordering = ['order']
 
-class UserPersonConfirmation(models.Model):
-    user = models.ForeignKey(User)
+class EmailConfirmation(models.Model):
+    validity = datetime.timedelta(days = settings.CONFIRMATION_VALIDITY_DAYS)
+    type = models.CharField(max_length = 20, choices = [
+                                ('userperson', 'User-Person association'),
+                                ('registration', 'Registration'),
+                                ('optout', 'Email opt-out'),
+                            ])
     email = models.CharField(max_length = 200)
+    user = models.ForeignKey(User, null = True)
     key = HashField()
-    date = models.DateTimeField(default=datetime.datetime.now)
+    date = models.DateTimeField(default = datetime.datetime.now)
     active = models.BooleanField(default = True)
 
-    def confirm(self):
-        if not self.active:
-            return
-        person = None
-        try:
-            person = Person.objects.get(email__iexact = self.email)
-        except Exception:
-            pass
-        if not person:
-            person = Person(email = self.email)
-
-        person.link_to_user(self.user)
-        person.save()
+    def deactivate(self):
         self.active = False
         self.save()
+
+    def is_valid(self):
+        return self.date + self.validity > datetime.datetime.now()
 
     def save(self):
         max = 1 << 32
         if self.key == '':
             str = '%s%s%d' % (self.user, self.email, random.randint(0, max))
             self.key = self._meta.get_field('key').construct(str).hexdigest()
-        super(UserPersonConfirmation, self).save()
+        super(EmailConfirmation, self).save()
 
+class EmailOptout(models.Model):
+    email = models.CharField(max_length = 200, primary_key = True)
 
+    def __unicode__(self):
+        return self.email
+
+    @classmethod
+    def is_optout(cls, email):
+        email = email.lower().strip()
+        return cls.objects.filter(email = email).count() > 0
+
+class PatchChangeNotification(models.Model):
+    patch = models.ForeignKey(Patch, primary_key = True)
+    last_modified = models.DateTimeField(default = datetime.datetime.now)
+    orig_state = models.ForeignKey(State)
+
+def _patch_change_callback(sender, instance, **kwargs):
+    # we only want notification of modified patches
+    if instance.pk is None:
+        return
+
+    if instance.project is None or not instance.project.send_notifications:
+        return
+
+    try:
+        orig_patch = Patch.objects.get(pk = instance.pk)
+    except Patch.DoesNotExist:
+        return
+
+    # If there's no interesting changes, abort without creating the
+    # notification
+    if orig_patch.state == instance.state:
+        return
+
+    notification = None
+    try:
+        notification = PatchChangeNotification.objects.get(patch = instance)
+    except PatchChangeNotification.DoesNotExist:
+        pass
+
+    if notification is None:
+        notification = PatchChangeNotification(patch = instance,
+                                               orig_state = orig_patch.state)
+
+    elif notification.orig_state == instance.state:
+        # If we're back at the original state, there is no need to notify
+        notification.delete()
+        return
+
+    notification.last_modified = datetime.datetime.now()
+    notification.save()
+
+models.signals.pre_save.connect(_patch_change_callback, sender = Patch)

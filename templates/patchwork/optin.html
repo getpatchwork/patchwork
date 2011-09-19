@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}opt-in{% endblock %}
+{% block heading %}opt-in{% endblock %}
+
+{% block body %}
+
+<p><strong>Opt-in complete</strong>. You have sucessfully opted back in to
+automated email from this patchwork system, using the address
+<strong>{{email}}</strong>.</p>
+<p>If you later decide that you no longer want to receive automated mail from
+patchwork, just visit <a href="{% url patchwork.views.mail.settings %}"
+>http://{{site.domain}}{% url patchwork.views.mail.settings %}</a>, or
+visit the main patchwork page and navigate from there.</p>
+{% if user.is_authenticated %}
+<p>Return to your <a href="{% url patchwork.views.user.profile %}">user
+profile</a>.</p>
+{% endif %}
+{% endblock %}

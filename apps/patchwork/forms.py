@@ -22,34 +22,33 @@ from django.contrib.auth.models import User
 from django import forms
 
 from patchwork.models import Patch, State, Bundle, UserProfile
-from registration.forms import RegistrationFormUniqueEmail
-from registration.models import RegistrationProfile
 
-class RegistrationForm(RegistrationFormUniqueEmail):
+class RegistrationForm(forms.Form):
     first_name = forms.CharField(max_length = 30, required = False)
     last_name = forms.CharField(max_length = 30, required = False)
-    username = forms.CharField(max_length=30, label=u'Username')
+    username = forms.RegexField(regex = r'^\w+$', max_length=30,
+                                label=u'Username')
     email = forms.EmailField(max_length=100, label=u'Email address')
     password = forms.CharField(widget=forms.PasswordInput(),
                                 label='Password')
-    password1 = forms.BooleanField(required = False)
-    password2 = forms.BooleanField(required = False)
 
-    def save(self, profile_callback = None):
-        user = RegistrationProfile.objects.create_inactive_user( \
-                username = self.cleaned_data['username'],
-                password = self.cleaned_data['password'],
-                email = self.cleaned_data['email'],
-                profile_callback = profile_callback)
-        user.first_name = self.cleaned_data.get('first_name', '')
-        user.last_name = self.cleaned_data.get('last_name', '')
-        user.save()
+    def clean_username(self):
+        value = self.cleaned_data['username']
+        try:
+            user = User.objects.get(username__iexact = value)
+        except User.DoesNotExist:
+            return self.cleaned_data['username']
+        raise forms.ValidationError('This username is already taken. ' + \
+                                    'Please choose another.')
 
-        # saving the userprofile causes the firstname/lastname to propagate
-        # to the person objects.
-        user.get_profile().save()
-
-        return user
+    def clean_email(self):
+        value = self.cleaned_data['email']
+        try:
+            user = User.objects.get(email__iexact = value)
+        except User.DoesNotExist:
+            return self.cleaned_data['email']
+        raise forms.ValidationError('This email address is already in use ' + \
+                                    'for the account "%s".\n' % user.username)
 
     def clean(self):
         return self.cleaned_data
@@ -228,5 +227,8 @@ class MultiplePatchForm(forms.Form):
             instance.save()
         return instance
 
-class UserPersonLinkForm(forms.Form):
+class EmailForm(forms.Form):
     email = forms.EmailField(max_length = 200)
+
+UserPersonLinkForm = EmailForm
+OptinoutRequestForm = EmailForm

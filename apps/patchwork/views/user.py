@@ -21,16 +21,68 @@
 from django.contrib.auth.decorators import login_required
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib import auth
+from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
-from patchwork.models import Project, Bundle, Person, UserPersonConfirmation, \
-         State
-from patchwork.forms import UserProfileForm, UserPersonLinkForm
+from patchwork.models import Project, Bundle, Person, EmailConfirmation, \
+         State, EmailOptout
+from patchwork.forms import UserProfileForm, UserPersonLinkForm, \
+         RegistrationForm
 from patchwork.filters import DelegateFilter
 from patchwork.views import generic_list
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import send_mail
 import django.core.urlresolvers
+
+def register(request):
+    context = PatchworkRequestContext(request)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            # create inactive user
+            user = auth.models.User.objects.create_user(data['username'],
+                                                        data['email'],
+                                                        data['password'])
+            user.is_active = False;
+            user.first_name = data.get('first_name', '')
+            user.last_name = data.get('last_name', '')
+            user.save()
+
+            # create confirmation
+            conf = EmailConfirmation(type = 'registration', user = user,
+                                     email = user.email)
+            conf.save()
+
+            # send email
+            mail_ctx = {'site': Site.objects.get_current(),
+                        'confirmation': conf}
+
+            subject = render_to_string('patchwork/activation_email_subject.txt',
+                                mail_ctx).replace('\n', ' ').strip()
+            
+            message = render_to_string('patchwork/activation_email.txt',
+                                    mail_ctx)
+            
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
+                            [conf.email])
+
+            # setting 'confirmation' in the template indicates success
+            context['confirmation'] = conf
+
+    else:
+        form = RegistrationForm()
+    
+    return render_to_response('patchwork/registration_form.html',
+                              { 'form': form },
+                              context_instance=context)
+
+def register_confirm(request, conf):
+    conf.user.is_active = True
+    conf.user.save()
+    conf.deactivate()
+    return render_to_response('patchwork/registration-confirm.html')
 
 @login_required
 def profile(request):
@@ -48,7 +100,13 @@ def profile(request):
     context['bundles'] = Bundle.objects.filter(owner = request.user)
     context['profileform'] = form
 
-    people = Person.objects.filter(user = request.user)
+    optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
+                        Person._meta.db_table,
+                        Person._meta.get_field('email').column,
+                        EmailOptout._meta.get_field('email').column,
+                        EmailOptout._meta.db_table)
+    people = Person.objects.filter(user = request.user) \
+             .extra(select = {'is_optout': optout_query})
     context['linked_emails'] = people
     context['linkform'] = UserPersonLinkForm()
 
@@ -61,7 +119,8 @@ def link(request):
     if request.method == 'POST':
         form = UserPersonLinkForm(request.POST)
         if form.is_valid():
-            conf = UserPersonConfirmation(user = request.user,
+            conf = EmailConfirmation(type = 'userperson',
+                    user = request.user,
                     email = form.cleaned_data['email'])
             conf.save()
             context['confirmation'] = conf
@@ -83,15 +142,19 @@ def link(request):
     return render_to_response('patchwork/user-link.html', context)
 
 @login_required
-def link_confirm(request, key):
+def link_confirm(request, conf):
     context = PatchworkRequestContext(request)
-    confirmation = get_object_or_404(UserPersonConfirmation, key = key)
 
-    errors = confirmation.confirm()
-    if errors:
-        context['errors'] = errors
-    else:
-        context['person'] = Person.objects.get(email = confirmation.email)
+    try:
+        person = Person.objects.get(email__iexact = conf.email)
+    except Person.DoesNotExist:
+        person = Person(email = conf.email)
+
+    person.link_to_user(conf.user)
+    person.save()
+    conf.deactivate()
+
+    context['person'] = person
 
     return render_to_response('patchwork/user-link-confirm.html', context)
 

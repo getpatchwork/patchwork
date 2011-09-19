@@ -19,6 +19,7 @@
 
 from django.conf.urls.defaults import *
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
     # Example:
@@ -44,15 +45,38 @@ urlpatterns = patterns('',
         'patchwork.views.bundle.mbox'),
 
     (r'^user/link/$', 'patchwork.views.user.link'),
-    (r'^user/link/(?P<key>[^/]+)/$', 'patchwork.views.user.link_confirm'),
     (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
+
+    # password change
+    url(r'^user/password-change/$', auth_views.password_change,
+            name='auth_password_change'),
+    url(r'^user/password-change/done/$', auth_views.password_change_done,
+            name='auth_password_change_done'),
+
+    # login/logout
+    url(r'^user/login/$', auth_views.login,
+        {'template_name': 'patchwork/login.html'},
+        name = 'auth_login'),
+    url(r'^user/logout/$', auth_views.logout,
+        {'template_name': 'patchwork/logout.html'},
+        name = 'auth_logout'),
+
+    # registration
+    (r'^register/', 'patchwork.views.user.register'),
 
     # public view for bundles
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
                                 'patchwork.views.bundle.public'),
 
+    (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
+
     # submitter autocomplete
     (r'^submitter/$', 'patchwork.views.submitter_complete'),
+
+    # email setup
+    (r'^mail/$', 'patchwork.views.mail.settings'),
+    (r'^mail/optout/$', 'patchwork.views.mail.optout'),
+    (r'^mail/optin/$', 'patchwork.views.mail.optin'),
 
     # help!
     (r'^help/(?P<path>.*)$', 'patchwork.views.help'),

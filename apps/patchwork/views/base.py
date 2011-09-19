@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-from patchwork.models import Patch, Project, Person
+from patchwork.models import Patch, Project, Person, EmailConfirmation
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from patchwork.requestcontext import PatchworkRequestContext
@@ -57,6 +57,31 @@ def pwclient(request):
     response['Content-Disposition'] = 'attachment; filename=pwclient'
     response.write(render_to_string('patchwork/pwclient', context))
     return response
+
+def confirm(request, key):
+    import patchwork.views.user, patchwork.views.mail
+    views = {
+        'userperson': patchwork.views.user.link_confirm,
+        'registration': patchwork.views.user.register_confirm,
+        'optout': patchwork.views.mail.optout_confirm,
+        'optin': patchwork.views.mail.optin_confirm,
+    }
+
+    conf = get_object_or_404(EmailConfirmation, key = key)
+    if conf.type not in views:
+        raise Http404
+
+    if conf.active and conf.is_valid():
+        return views[conf.type](request, conf)
+
+    context = PatchworkRequestContext(request)
+    context['conf'] = conf
+    if not conf.active:
+        context['error'] = 'inactive'
+    elif not conf.is_valid():
+        context['error'] = 'expired'
+
+    return render_to_response('patchwork/confirm-error.html', context)
 
 def submitter_complete(request):
     search = request.GET.get('q', '')

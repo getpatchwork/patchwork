@@ -1,0 +1,1 @@
+Patch update notification: {{notifications|length}} patch{{notifications|length|pluralize:"es"}} updated

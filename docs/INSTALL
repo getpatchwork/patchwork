@@ -81,17 +81,6 @@ in brackets):
          cd ../python
          ln -s ../packages/django/django ./django
 
-        We also use the django-registration infrastructure from
-        http://bitbucket.org/ubernostrum/django-registration/. Your distro
-        may provide the django-registration python module (in Ubuntu/Debian it's
-        called 'python-django-registration'). If not, download the module
-        and symlink it to lib/python/ :
-
-         cd lib/packages/
-         hg clone http://bitbucket.org/ubernostrum/django-registration/
-         cd ../python
-         ln -s ../packages/django-registration/registration ./registration
-
         We also use some Javascript libraries:
 
          cd lib/packages
@@ -115,6 +104,8 @@ in brackets):
           ADMINS
           TIME_ZONE
           LANGUAGE_CODE
+          DEFAULT_FROM_EMAIL
+          NOTIFICATION_FROM_EMAIL
 
         You can generate the SECRET_KEY with the following python code:
 
