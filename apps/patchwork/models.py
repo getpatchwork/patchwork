@@ -136,13 +136,14 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return self.name()
 
-def _user_created_callback(sender, created, instance, **kwargs):
-    if not created:
-        return
-    profile = UserProfile(user = instance)
+def _user_saved_callback(sender, created, instance, **kwargs):
+    try:
+        profile = instance.get_profile()
+    except UserProfile.DoesNotExist:
+        profile = UserProfile(user = instance)
     profile.save()
 
-models.signals.post_save.connect(_user_created_callback, sender = User)
+models.signals.post_save.connect(_user_saved_callback, sender = User)
 
 class State(models.Model):
     name = models.CharField(max_length = 100)

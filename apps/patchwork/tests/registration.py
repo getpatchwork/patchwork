@@ -147,4 +147,44 @@ class RegistrationConfirmationTest(TestCase):
         self.assertTrue(conf.user.is_active)
         self.assertFalse(conf.active)
 
+    def testRegistrationNewPersonSetup(self):
+        """ Check that the person object created after registration has the
+            correct details """
+
+        # register
+        self.assertEqual(EmailConfirmation.objects.count(), 0)
+        response = self.client.post('/register/', self.default_data)
+        self.assertEquals(response.status_code, 200)
+
+        # confirm
+        conf = EmailConfirmation.objects.filter()[0]
+        response = self.client.get(_confirmation_url(conf))
+        self.assertEquals(response.status_code, 200)
+
+        person = Person.objects.get(email = self.user.email)
+
+        self.assertEquals(person.name,
+                    self.user.firstname + ' ' + self.user.lastname)
+
+    def testRegistrationExistingPersonSetup(self):
+        """ Check that the person object created after registration has the
+            correct details """
+
+        fullname = self.user.firstname + ' '  + self.user.lastname
+        person = Person(name = fullname, email = self.user.email)
+        person.save()
+
+        # register
+        self.assertEqual(EmailConfirmation.objects.count(), 0)
+        response = self.client.post('/register/', self.default_data)
+        self.assertEquals(response.status_code, 200)
+
+        # confirm
+        conf = EmailConfirmation.objects.filter()[0]
+        response = self.client.get(_confirmation_url(conf))
+        self.assertEquals(response.status_code, 200)
+
+        person = Person.objects.get(email = self.user.email)
+
+        self.assertEquals(person.name, fullname)
 
