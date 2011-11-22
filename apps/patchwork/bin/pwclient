@@ -111,6 +111,7 @@ def usage():
     sys.stderr.write("Where <action> is one of:\n")
     sys.stderr.write(
 """        apply <ID>    : Apply a patch (in the current dir, using -p1)
+        git-am <ID>   : Apply a patch to current git branch using "git am"
         get <ID>      : Download a patch and save it locally
         projects      : List all projects
         states        : Show list of potential patch states
@@ -250,17 +251,24 @@ def action_get(rpc, patch_id):
         sys.stderr.write("Failed to write to %s\n" % fname)
         sys.exit(1)
 
-def action_apply(rpc, patch_id):
+def action_apply(rpc, patch_id, apply_cmd=None):
     patch = rpc.patch_get(patch_id)
     if patch == {}:
         sys.stderr.write("Error getting information on patch ID %d\n" % \
                          patch_id)
         sys.exit(1)
-    print "Applying patch #%d to current directory" % patch_id
+
+    if apply_cmd is None:
+      print "Applying patch #%d to current directory" % patch_id
+      apply_cmd = ['patch', '-p1']
+    else:
+      print "Applying patch #%d using %s" % (
+          patch_id, repr(' '.join(apply_cmd)))
+
     print "Description: %s" % patch['name']
     s = rpc.patch_get_mbox(patch_id)
     if len(s) > 0:
-        proc = subprocess.Popen(['patch', '-p1'], stdin = subprocess.PIPE)
+        proc = subprocess.Popen(apply_cmd, stdin = subprocess.PIPE)
         proc.communicate(s)
     else:
         sys.stderr.write("Error: No patch content found\n")
@@ -445,6 +453,15 @@ def main():
             sys.exit(1)
 
         action_apply(rpc, patch_id)
+
+    elif action == 'git-am':
+        try:
+            patch_id = patch_id or int(args[0])
+        except:
+            sys.stderr.write("Invalid patch ID given\n")
+            sys.exit(1)
+
+        action_apply(rpc, patch_id, ['git', 'am'])
 
     elif action == 'update':
         try:
