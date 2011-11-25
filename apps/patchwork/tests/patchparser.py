@@ -373,3 +373,13 @@ class GitPullWithDiffTest(PatchTest):
             patch.content.startswith('diff --git a/arch/x86/include/asm/smp.h'),
             patch.content)
         self.assertTrue(comment is not None)
+
+class GitPullGitSSHUrlTest(GitPullTest):
+    mail_file = '0004-git-pull-request-git+ssh.mbox'
+
+class GitPullSSHUrlTest(GitPullTest):
+    mail_file = '0005-git-pull-request-ssh.mbox'
+
+class GitPullHTTPUrlTest(GitPullTest):
+    mail_file = '0006-git-pull-request-http.mbox'
+
