@@ -385,3 +385,11 @@ class GitPullSSHUrlTest(GitPullTest):
 class GitPullHTTPUrlTest(GitPullTest):
     mail_file = '0006-git-pull-request-http.mbox'
 
+class CVSFormatPatchTest(MBoxPatchTest):
+    mail_file = '0007-cvs-format-diff.mbox'
+
+    def testPatch(self):
+        (patch, comment) = find_content(self.project, self.mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(comment is not None)
+        self.assertTrue(patch.content.startswith('Index'))
