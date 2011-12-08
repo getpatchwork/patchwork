@@ -34,3 +34,12 @@ class FilterQueryStringTest(TestCase):
         self.failUnlessEqual(response.status_code, 200)
         self.failIf('submitter=a&amp;b=c' in response.content)
         self.failIf('submitter=a&b=c' in response.content)
+
+    def testUTF8QSHandling(self):
+        """test that non-ascii characters can be handled by the filter
+           code"""
+        project = defaults.project
+        defaults.project.save()
+        url = '/project/%s/list/?submitter=%%E2%%98%%83' % project.linkname
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)

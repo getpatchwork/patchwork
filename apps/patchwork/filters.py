@@ -445,8 +445,14 @@ class Filters:
             if remove.param in params.keys():
                 del params[remove.param]
 
-        return '?' + '&'.join(['%s=%s' % (quote(k), quote(v))
-                                for (k,v) in params.iteritems()])
+        pairs = params.iteritems()
+
+        def sanitise(s):
+            if not isinstance(s, basestring):
+                s = unicode(s)
+            return quote(s.encode('utf-8'))
+
+        return '?' + '&'.join(['%s=%s' % map(sanitise, p) for p in pairs])
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)
