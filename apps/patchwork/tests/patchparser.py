@@ -346,13 +346,15 @@ class ListIdHeaderTest(unittest.TestCase):
     def tearDown(self):
         self.project.delete()
 
+class MBoxPatchTest(PatchTest):
+    def setUp(self):
+        self.mail = read_mail(self.mail_file, project = self.project)
 
-class GitPullTest(PatchTest):
+class GitPullTest(MBoxPatchTest):
     mail_file = '0001-git-pull-request.mbox'
 
     def testGitPullRequest(self):
-        mail = read_mail(self.mail_file, project = self.project)
-        (patch, comment) = find_content(self.project, mail)
+        (patch, comment) = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertTrue(patch.pull_url is not None)
         self.assertTrue(patch.content is None)
@@ -361,11 +363,11 @@ class GitPullTest(PatchTest):
 class GitPullWrappedTest(GitPullTest):
     mail_file = '0002-git-pull-request-wrapped.mbox'
 
-class GitPullWithDiffTest(PatchTest):
+class GitPullWithDiffTest(MBoxPatchTest):
+    mail_file = '0003-git-pull-request-with-diff.mbox'
+
     def testGitPullWithDiff(self):
-        mail = read_mail('0003-git-pull-request-with-diff.mbox',
-                        project = self.project)
-        (patch, comment) = find_content(self.project, mail)
+        (patch, comment) = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/' +
              'linux-2.6-tip.git x86-fixes-for-linus', patch.pull_url)
