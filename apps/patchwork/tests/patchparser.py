@@ -121,6 +121,11 @@ class ListFooterTest(InlinePatchTest):
         (self.patch, self.comment) = find_content(self.project, email)
 
 
+class DiffWordInCommentTest(InlinePatchTest):
+    test_comment = 'Lines can start with words beginning in "diff"\n' + \
+                   'difficult\nDifferent'
+
+
 class UpdateCommentTest(InlinePatchTest):
     """ Test for '---\nUpdate: v2' style comments to patches. """
     patch_filename = '0001-add-line.patch'

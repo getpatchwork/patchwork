@@ -68,7 +68,7 @@ def parse_patch(text):
         line += '\n'
 
         if state == 0:
-            if line.startswith('diff') or line.startswith('===') \
+            if line.startswith('diff ') or line.startswith('===') \
                     or line.startswith('Index: '):
                 state = 1
                 buf += line
