@@ -2,7 +2,7 @@ Hello,
 
 The following patch{{notifications|length|pluralize:"es"}} (submitted by you) {{notifications|length|pluralize:"has,have"}} been updated in patchwork:
 {% for notification in notifications %}
- * {{notification.patch.name}}
+ * {{notification.patch.name|safe}}
      - http://{{site.domain}}{{notification.patch.get_absolute_url}}
     was: {{notification.orig_state}}
     now: {{notification.patch.state}}
