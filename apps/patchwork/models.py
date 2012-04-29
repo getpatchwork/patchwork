@@ -191,6 +191,9 @@ class PatchMbox(MIMENonMultipart):
         self.set_payload(_text.encode(self.patch_charset))
         encode_7or8bit(self)
 
+def get_default_initial_patch_state():
+    return State.objects.get(ordering=0)
+
 class Patch(models.Model):
     project = models.ForeignKey(Project)
     msgid = models.CharField(max_length=255)
@@ -198,7 +201,7 @@ class Patch(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now)
     submitter = models.ForeignKey(Person)
     delegate = models.ForeignKey(User, blank = True, null = True)
-    state = models.ForeignKey(State)
+    state = models.ForeignKey(State, default=get_default_initial_patch_state)
     archived = models.BooleanField(default = False)
     headers = models.TextField(blank = True)
     content = models.TextField(null = True, blank = True)
