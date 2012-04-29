@@ -20,8 +20,10 @@
 import unittest
 import os
 from email import message_from_string
-from patchwork.models import Project, Person, Patch, Comment
-from patchwork.tests.utils import read_patch, read_mail, create_email, defaults
+from patchwork.models import Project, Person, Patch, Comment, State, \
+         get_default_initial_patch_state
+from patchwork.tests.utils import read_patch, read_mail, create_email, \
+         defaults, create_user
 
 try:
     from email.mime.text import MIMEText
@@ -398,3 +400,105 @@ class CVSFormatPatchTest(MBoxPatchTest):
         self.assertTrue(patch is not None)
         self.assertTrue(comment is not None)
         self.assertTrue(patch.content.startswith('Index'))
+
+class DelegateRequestTest(unittest.TestCase):
+    patch_filename = '0001-add-line.patch'
+    msgid = '<1@example.com>'
+    invalid_delegate_email = "nobody"
+
+    def setUp(self):
+        self.patch = read_patch(self.patch_filename)
+        self.user = create_user()
+        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
+                listid = '1.example.com', listemail='1@example.com')
+        self.p1.save()
+
+    def get_email(self):
+        email = create_email(self.patch)
+        del email['List-ID']
+        email['List-ID'] = '<' + self.p1.listid + '>'
+        email['Message-Id'] = self.msgid
+        return email
+
+    def testDelegate(self):
+        email = self.get_email()
+        email['X-Patchwork-Delegate'] = self.user.email
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).delegate, self.user)
+
+    def testNoDelegate(self):
+        email = self.get_email()
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).delegate, None)
+
+    def testInvalidDelegateFallsBackToNoDelegate(self):
+        email = self.get_email()
+        email['X-Patchwork-Delegate'] = self.invalid_delegate_email
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).delegate, None)
+
+    def tearDown(self):
+        self.p1.delete()
+        self.user.delete()
+
+class InitialPatchStateTest(unittest.TestCase):
+    patch_filename = '0001-add-line.patch'
+    msgid = '<1@example.com>'
+    invalid_state_name = "Nonexistent Test State"
+
+    def setUp(self):
+        self.patch = read_patch(self.patch_filename)
+        self.user = create_user()
+        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
+                listid = '1.example.com', listemail='1@example.com')
+        self.p1.save()
+        self.default_state = get_default_initial_patch_state()
+        self.nondefault_state = State.objects.get(name="Accepted")
+
+    def get_email(self):
+        email = create_email(self.patch)
+        del email['List-ID']
+        email['List-ID'] = '<' + self.p1.listid + '>'
+        email['Message-Id'] = self.msgid
+        return email
+
+    def testNonDefaultStateIsActuallyNotTheDefaultState(self):
+        self.assertNotEqual(self.default_state, self.nondefault_state)
+
+    def testExplicitNonDefaultStateRequest(self):
+        email = self.get_email()
+        email['X-Patchwork-State'] = self.nondefault_state.name
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).state, self.nondefault_state)
+
+    def testExplicitDefaultStateRequest(self):
+        email = self.get_email()
+        email['X-Patchwork-State'] = self.default_state.name
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+
+    def testImplicitDefaultStateRequest(self):
+        email = self.get_email()
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+
+    def testInvalidTestStateDoesNotExist(self):
+        with self.assertRaises(State.DoesNotExist):
+            State.objects.get(name=self.invalid_state_name)
+
+    def testInvalidStateRequestFallsBackToDefaultState(self):
+        email = self.get_email()
+        email['X-Patchwork-State'] = self.invalid_state_name
+        parse_mail(email)
+        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+
+    def tearDown(self):
+        self.p1.delete()
+        self.user.delete()
