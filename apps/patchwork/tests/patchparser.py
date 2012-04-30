@@ -424,21 +424,24 @@ class DelegateRequestTest(unittest.TestCase):
         email = self.get_email()
         email['X-Patchwork-Delegate'] = self.user.email
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).delegate, self.user)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].delegate, self.user)
 
     def testNoDelegate(self):
         email = self.get_email()
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).delegate, None)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].delegate, None)
 
     def testInvalidDelegateFallsBackToNoDelegate(self):
         email = self.get_email()
         email['X-Patchwork-Delegate'] = self.invalid_delegate_email
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).delegate, None)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].delegate, None)
 
     def tearDown(self):
         self.p1.delete()
@@ -472,21 +475,24 @@ class InitialPatchStateTest(unittest.TestCase):
         email = self.get_email()
         email['X-Patchwork-State'] = self.nondefault_state.name
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).state, self.nondefault_state)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].state, self.nondefault_state)
 
     def testExplicitDefaultStateRequest(self):
         email = self.get_email()
         email['X-Patchwork-State'] = self.default_state.name
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].state, self.default_state)
 
     def testImplicitDefaultStateRequest(self):
         email = self.get_email()
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].state, self.default_state)
 
     def testInvalidTestStateDoesNotExist(self):
         with self.assertRaises(State.DoesNotExist):
@@ -496,8 +502,9 @@ class InitialPatchStateTest(unittest.TestCase):
         email = self.get_email()
         email['X-Patchwork-State'] = self.invalid_state_name
         parse_mail(email)
-        self.assertEquals(Patch.objects.filter(project=self.p1).count(), 1)
-        self.assertEquals(Patch.objects.get(pk=1).state, self.default_state)
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].state, self.default_state)
 
     def tearDown(self):
         self.p1.delete()
