@@ -420,28 +420,27 @@ class DelegateRequestTest(unittest.TestCase):
         email['Message-Id'] = self.msgid
         return email
 
+    def _assertDelegate(self, delegate):
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].delegate, delegate)
+
     def testDelegate(self):
         email = self.get_email()
         email['X-Patchwork-Delegate'] = self.user.email
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].delegate, self.user)
+        self._assertDelegate(self.user)
 
     def testNoDelegate(self):
         email = self.get_email()
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].delegate, None)
+        self._assertDelegate(None)
 
     def testInvalidDelegateFallsBackToNoDelegate(self):
         email = self.get_email()
         email['X-Patchwork-Delegate'] = self.invalid_delegate_email
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].delegate, None)
+        self._assertDelegate(None)
 
     def tearDown(self):
         self.p1.delete()
@@ -468,6 +467,11 @@ class InitialPatchStateTest(unittest.TestCase):
         email['Message-Id'] = self.msgid
         return email
 
+    def _assertState(self, state):
+        query = Patch.objects.filter(project=self.p1)
+        self.assertEquals(query.count(), 1)
+        self.assertEquals(query[0].state, state)
+
     def testNonDefaultStateIsActuallyNotTheDefaultState(self):
         self.assertNotEqual(self.default_state, self.nondefault_state)
 
@@ -475,24 +479,18 @@ class InitialPatchStateTest(unittest.TestCase):
         email = self.get_email()
         email['X-Patchwork-State'] = self.nondefault_state.name
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].state, self.nondefault_state)
+        self._assertState(self.nondefault_state)
 
     def testExplicitDefaultStateRequest(self):
         email = self.get_email()
         email['X-Patchwork-State'] = self.default_state.name
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].state, self.default_state)
+        self._assertState(self.default_state)
 
     def testImplicitDefaultStateRequest(self):
         email = self.get_email()
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].state, self.default_state)
+        self._assertState(self.default_state)
 
     def testInvalidTestStateDoesNotExist(self):
         with self.assertRaises(State.DoesNotExist):
@@ -502,9 +500,7 @@ class InitialPatchStateTest(unittest.TestCase):
         email = self.get_email()
         email['X-Patchwork-State'] = self.invalid_state_name
         parse_mail(email)
-        query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].state, self.default_state)
+        self._assertState(self.default_state)
 
     def tearDown(self):
         self.p1.delete()
