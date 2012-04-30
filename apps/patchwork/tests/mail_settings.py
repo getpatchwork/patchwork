@@ -296,7 +296,7 @@ class UserProfileOptoutFormTest(TestCase):
         p.save()
         EmailOptout(email = p.email).save()
 
-        form_re = self._form_re(self.optin_url, self.user.email)
+        form_re = self._form_re(self.optin_url, p.email)
         response = self.client.get(self.url)
         self.assertEquals(response.status_code, 200)
         self.assertTrue(form_re.search(response.content) is not None)
