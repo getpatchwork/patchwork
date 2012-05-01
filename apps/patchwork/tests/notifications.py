@@ -172,6 +172,20 @@ class PatchNotificationEmailTest(TestCase):
         self.assertEquals(msg.to, [self.submitter.email])
         self.assertTrue(self.patch.get_absolute_url() in msg.body)
 
+    def testNotificationEscaping(self):
+        self.patch.name = 'Patch name with " character'
+        self.patch.save()
+        PatchChangeNotification(patch = self.patch,
+                               orig_state = self.patch.state).save()
+        self._expireNotifications()
+
+        errors = send_notifications()
+        self.assertEquals(errors, [])
+        self.assertEquals(len(mail.outbox), 1)
+        msg = mail.outbox[0]
+        self.assertEquals(msg.to, [self.submitter.email])
+        self.assertFalse('&quot;' in msg.body)
+
     def testNotificationOptout(self):
         """ensure opt-out addresses don't get notifications"""
         PatchChangeNotification(patch = self.patch,
