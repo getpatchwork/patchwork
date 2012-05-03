@@ -32,8 +32,8 @@ except ImportError:
     from email.MIMEMultipart import MIMEMultipart
 
 # helper functions for tests
-_test_mail_dir  = 'patchwork/tests/mail'
-_test_patch_dir = 'patchwork/tests/patches'
+_test_mail_dir  = os.path.join(os.path.dirname(__file__), 'mail')
+_test_patch_dir = os.path.join(os.path.dirname(__file__), 'patches')
 
 class defaults(object):
     project = Project(linkname = 'test-project', name = 'Test Project')
