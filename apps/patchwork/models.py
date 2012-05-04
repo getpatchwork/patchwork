@@ -180,7 +180,7 @@ class HashField(models.CharField):
         kwargs['max_length'] = self.n_bytes
         super(HashField, self).__init__(*args, **kwargs)
 
-    def db_type(self):
+    def db_type(self, connection=None):
         return 'char(%d)' % self.n_bytes
 
 class PatchMbox(MIMENonMultipart):
