@@ -49,7 +49,10 @@ class PatchworkRequestContext(RequestContext):
         super(PatchworkRequestContext, self). \
                 __init__(request, dict, processors);
 
-        self.update({'filters': self.filters})
+        self.update({
+                'filters': self.filters,
+                'messages': [],
+            })
         if list_view:
             params = self.filters.params()
             for param in ['order', 'page']:
