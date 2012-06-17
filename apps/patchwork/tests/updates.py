@@ -52,7 +52,7 @@ class MultipleUpdateTest(TestCase):
         data.update({'archived': 'True'})
         self._selectAllPatches(data)
         response = self.client.post(self.url, data)
-        self.assertContains(response, self.properties_form_id,
+        self.assertContains(response, 'No patches to display',
                             status_code = 200)
         for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
             self.assertTrue(patch.archived)

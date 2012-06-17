@@ -1,5 +1,5 @@
 # Patchwork - automated patch tracking system
-# Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
+# Copyright (C) 2012 Jeremy Kerr <jk@ozlabs.org>
 #
 # This file is part of the Patchwork package.
 #
@@ -17,15 +17,22 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from patchwork.tests.patchparser import *
-from patchwork.tests.encodings import *
-from patchwork.tests.bundles import *
-from patchwork.tests.mboxviews import *
-from patchwork.tests.updates import *
-from patchwork.tests.filters import *
-from patchwork.tests.confirm import *
-from patchwork.tests.registration import *
-from patchwork.tests.user import *
-from patchwork.tests.mail_settings import *
-from patchwork.tests.notifications import *
-from patchwork.tests.list import *
+import unittest
+from django.test import TestCase
+from django.test.client import Client
+from patchwork.tests.utils import defaults, create_user, find_in_context
+from django.core.urlresolvers import reverse
+
+class EmptyPatchListTest(TestCase):
+
+    def testEmptyPatchList(self):
+        """test that we don't output an empty table when there are no
+           patches present"""
+        project = defaults.project
+        defaults.project.save()
+        url = reverse('patchwork.views.patch.list',
+                kwargs={'project_id': project.linkname})
+        response = self.client.get(url)
+        self.assertContains(response, 'No patches to display')
+        self.assertNotContains(response, 'tbody')
+

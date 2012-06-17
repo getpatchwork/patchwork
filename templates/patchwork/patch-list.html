@@ -134,7 +134,7 @@
   </tr>
  </thead>
 
-{% if page %}
+{% if page.paginator.count %}
  <tbody>
  {% for patch in page.object_list %}
   <tr id="patch_row:{{patch.id}}" class="{% cycle 'odd' 'even' %}">
