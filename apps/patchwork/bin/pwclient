@@ -269,7 +269,7 @@ def action_apply(rpc, patch_id, apply_cmd=None):
     s = rpc.patch_get_mbox(patch_id)
     if len(s) > 0:
         proc = subprocess.Popen(apply_cmd, stdin = subprocess.PIPE)
-        proc.communicate(s)
+        proc.communicate(unicode(s).encode('utf-8'))
     else:
         sys.stderr.write("Error: No patch content found\n")
         sys.exit(1)
