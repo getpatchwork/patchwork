@@ -179,6 +179,38 @@ class BundleCreateFromListTest(BundleTestBase):
         # test that no new bundles are present
         self.failUnlessEqual(n_bundles, Bundle.objects.count())
 
+    def testCreateDuplicateName(self):
+        newbundlename = 'testbundle-dup'
+        patch = self.patches[0]
+
+        params = {'form': 'patchlistform',
+                  'bundle_name': newbundlename,
+                  'action': 'Create',
+                  'project': defaults.project.id,
+                  'patch_id:%d' % patch.id: 'checked'}
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                params)
+
+        n_bundles = Bundle.objects.count()
+        self.assertContains(response, 'Bundle %s created' % newbundlename)
+        self.assertContains(response, 'added to bundle %s' % newbundlename,
+            count = 1)
+
+        bundle = Bundle.objects.get(name = newbundlename)
+        self.failUnlessEqual(bundle.patches.count(), 1)
+        self.failUnlessEqual(bundle.patches.all()[0], patch)
+
+        response = self.client.post(
+                '/project/%s/list/' % defaults.project.linkname,
+                params)
+
+        self.assertNotContains(response, 'Bundle %s created' % newbundlename)
+        self.assertContains(response, 'You already have a bundle called')
+        self.assertEqual(Bundle.objects.count(), n_bundles)
+        self.assertEqual(bundle.patches.count(), 1)
+
 class BundleCreateFromPatchTest(BundleTestBase):
     def testCreateNonEmptyBundle(self):
         newbundlename = 'testbundle-new'

@@ -26,6 +26,7 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Max
+from django.db.utils import IntegrityError
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
         PatchChangeNotification, EmailOptout
@@ -106,6 +107,9 @@ def set_bundle(user, project, action, data, patches, context):
         bundle_name = data['bundle_name'].strip()
         if not bundle_name:
             return ['No bundle name was specified']
+
+        if Bundle.objects.filter(owner = user, name = bundle_name).count() > 0:
+            return ['You already have a bundle called "%s"' % bundle_name]
 
         bundle = Bundle(owner = user, project = project,
                 name = bundle_name)
