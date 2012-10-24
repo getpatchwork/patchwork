@@ -46,8 +46,7 @@ GRANT SELECT, UPDATE ON
 	patchwork_state_id_seq,
 	patchwork_emailconfirmation_id_seq,
 	patchwork_userprofile_id_seq,
-	patchwork_userprofile_maintainer_projects_id_seq,
-	patchwork_patchchangenotification_id_seq
+	patchwork_userprofile_maintainer_projects_id_seq
 TO "www-data";
 
 -- allow the mail user (in this case, 'nobody') to add patches
