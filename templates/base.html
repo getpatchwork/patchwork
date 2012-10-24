@@ -26,6 +26,9 @@
      <a href="{% url patchwork.views.bundle.bundles %}">bundles</a>
      <br/>
      <a href="{% url patchwork.views.user.profile %}">profile</a> ::
+{% if user.is_staff %}
+     <a href="{% url admin:index %}">admin</a> ::
+{% endif %}
      <a href="{% url auth_logout %}">logout</a>
 {% else %}
      <a href="{% url auth_login %}">login</a>
