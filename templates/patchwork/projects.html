@@ -10,8 +10,13 @@
  {% for p in projects %}
   <dt>
    <a href="{% url patchwork.views.patch.list project_id=p.linkname %}"
-    >{{p.linkname}}</a></dt>
-  <dd>{{p.name}}</dd>
+    >{{p.linkname}}</a>
+  </dt>
+  <dd>{{p.name}}
+{% if p.web_url %}
+   (<a href="{{p.web_url}}">website</a>)
+{% endif %}
+  </dd>
  {% endfor %}
  </dl>
 {% else %}
