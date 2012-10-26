@@ -64,6 +64,9 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255, unique=True)
     listemail = models.CharField(max_length=200)
+    web_url = models.CharField(max_length=2000, blank=True)
+    scm_url = models.CharField(max_length=2000, blank=True)
+    webscm_url = models.CharField(max_length=2000, blank=True)
     send_notifications = models.BooleanField()
 
     def __unicode__(self):

@@ -28,6 +28,24 @@
   <th>Patch count</th>
   <td>{{n_patches}} (+ {{n_archived_patches}} archived)</td>
  </tr>
+{% if project.web_url %}
+ <tr>
+  <th>Website</th>
+  <td><a href="{{project.web_url}}">{{project.web_url}}</a></td>
+ </tr>
+{% endif %}
+{% if project.webscm_url %}
+ <tr>
+  <th>Source Code Web Interface</th>
+  <td><a href="{{project.webscm_url}}">{{project.webscm_url}}</a></td>
+ </tr>
+{% endif %}
+{% if project.scm_url %}
+ <tr>
+  <th>Source Code Manager URL</th>
+  <td><a href="{{project.scm_url}}">{{project.scm_url}}</a></td>
+ </tr>
+{% endif %}
 </table>
 
 {% if settings.ENABLE_XMLRPC %}
