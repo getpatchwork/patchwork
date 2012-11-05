@@ -127,7 +127,8 @@ def usage():
         -p <project>  : Filter by project name (see 'projects' for list)
         -w <who>      : Filter by submitter (name, e-mail substring search)
         -d <who>      : Filter by delegate (name, e-mail substring search)
-        -n <max #>    : Restrict number of results\n""")
+        -n <max #>    : Restrict number of results
+        -m <messageid>: Filter by Message-Id\n""")
     sys.stderr.write("""\nActions that take an ID argument can also be \
 invoked with:
         -h <hash>     : Lookup by patch hash\n""")
@@ -319,7 +320,7 @@ auth_actions = ['update']
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:h:')
+        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:h:m:')
     except getopt.GetoptError, err:
         print str(err)
         usage()
@@ -337,6 +338,7 @@ def main():
     commit_str = ""
     state_str = ""
     hash_str = ""
+    msgid_str = ""
     url = DEFAULT_URL
 
     config = ConfigParser.ConfigParser()
@@ -362,6 +364,8 @@ def main():
             commit_str = value
         elif name == '-h':
             hash_str = value
+        elif name == '-m':
+            msgid_str = value
         elif name == '-n':
             try:
                 filt.add("max_count", int(value))
@@ -399,6 +403,9 @@ def main():
 
     if state_str:
         filt.add("state", state_str)
+
+    if msgid_str:
+        filt.add("msgid", msgid_str)
 
     try:
         rpc = xmlrpclib.Server(url, transport = transport)
