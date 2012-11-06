@@ -168,14 +168,17 @@ def bundle(request, bundle_id):
 
     return render_to_response('patchwork/bundle.html', context)
 
+def mbox_response(bundle):
+    response = HttpResponse(mimetype='text/plain')
+    response['Content-Disposition'] = \
+	'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+    response.write(bundle.mbox())
+    return response
+
 @login_required
 def mbox(request, bundle_id):
     bundle = get_object_or_404(Bundle, id = bundle_id)
-    response = HttpResponse(mimetype='text/plain')
-    response['Content-Disposition'] = 'attachment; filename=bundle-%d.mbox' % \
-        bundle.id
-    response.write(bundle.mbox())
-    return response
+    return mbox_response(bundle)
 
 def public(request, username, bundlename):
     user = get_object_or_404(User, username = username)
@@ -191,3 +194,8 @@ def public(request, username, bundlename):
     context['bundle'] = bundle
 
     return render_to_response('patchwork/bundle-public.html', context)
+
+def public_mbox(request, username, bundlename):
+    bundle = get_object_or_404(Bundle, name = bundlename, public = True)
+    return mbox_response(bundle)
+    return response

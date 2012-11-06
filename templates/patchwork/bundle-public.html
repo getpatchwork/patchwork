@@ -7,6 +7,8 @@
 
 {% block body %}
 
+<a href="{% url patchwork.views.bundle.public_mbox username=bundle.owner.username bundlename=bundle.name %}">Download</a> bundle as mbox
+
 {% include "patchwork/patch-list.html" %}
 
 {% endblock %}

@@ -67,6 +67,8 @@ urlpatterns = patterns('',
     # public view for bundles
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
                                 'patchwork.views.bundle.public'),
+    (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/mbox/$',
+                                'patchwork.views.bundle.public_mbox'),
 
     (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
 
