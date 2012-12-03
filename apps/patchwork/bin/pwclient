@@ -165,10 +165,10 @@ def person_ids_by_name(rpc, name):
 
 def list_patches(patches):
     """Dump a list of patches to stdout."""
-    print("%-5s %-12s %s" % ("ID", "State", "Name"))
-    print("%-5s %-12s %s" % ("--", "-----", "----"))
+    print("%-7s %-12s %s" % ("ID", "State", "Name"))
+    print("%-7s %-12s %s" % ("--", "-----", "----"))
     for patch in patches:
-        print("%-5d %-12s %s" % (patch['id'], patch['state'], patch['name']))
+        print("%-7d %-12s %s" % (patch['id'], patch['state'], patch['name']))
 
 def action_list(rpc, filter, submitter_str, delegate_str):
     filter.resolve_ids(rpc)
