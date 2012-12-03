@@ -113,6 +113,7 @@ def usage():
 """        apply <ID>    : Apply a patch (in the current dir, using -p1)
         git-am <ID>   : Apply a patch to current git branch using "git am"
         get <ID>      : Download a patch and save it locally
+        info <ID>     : Display patchwork info about a given patch ID
         projects      : List all projects
         states        : Show list of potential patch states
         list [str]    : List patches, using the optional filters specified
@@ -223,6 +224,14 @@ def action_states(rpc):
     print("%-5s %s" % ("--", "----"))
     for state in states:
         print("%-5d %s" % (state['id'], state['name']))
+
+def action_info(rpc, patch_id):
+    patch = rpc.patch_get(patch_id)
+    s = "Information for patch id %d" % (patch_id)
+    print(s)
+    print('-' * len(s))
+    for key, value in sorted(patch.iteritems()):
+        print("- %- 14s: %s" % (key, value))
 
 def action_get(rpc, patch_id):
     patch = rpc.patch_get(patch_id)
@@ -443,14 +452,17 @@ def main():
         if len(s) > 0:
             print unicode(s).encode("utf-8")
 
-    elif action == 'get' or action == 'save':
+    elif action in ('get', 'save', 'info'):
         try:
             patch_id = patch_id or int(args[0])
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
 
-        action_get(rpc, patch_id)
+        if action == 'info':
+            action_info(rpc, patch_id)
+        else:
+            action_get(rpc, patch_id)
 
     elif action == 'apply':
         try:
