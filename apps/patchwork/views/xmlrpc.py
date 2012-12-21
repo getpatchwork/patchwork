@@ -167,11 +167,19 @@ def project_to_dict(obj):
 def person_to_dict(obj):
     """Return a trimmed down dictionary representation of a Person
     object which is OK to send to the client."""
+
+    # Make sure we don't return None even if the user submitted a patch
+    # with no real name.  XMLRPC can't marshall None.
+    if obj.name is not None:
+        name = obj.name
+    else:
+        name = obj.email
+
     return \
         {
          'id'           : obj.id,
          'email'        : obj.email,
-         'name'         : obj.name,
+         'name'         : name,
          'user'         : unicode(obj.user).encode("utf-8"),
         }
 
