@@ -121,6 +121,33 @@ class BundleViewTest(BundleTestBase):
             self.failUnless(next_pos < pos)
             pos = next_pos
 
+class BundlePublicViewTest(BundleTestBase):
+
+    def setUp(self):
+        super(BundlePublicViewTest, self).setUp()
+        self.client.logout()
+        self.bundle.append_patch(self.patches[0])
+        self.url = '/bundle/%s/%s/' % (self.user.username, self.bundle.name)
+
+    def testPublicBundle(self):
+        self.bundle.public = True
+        self.bundle.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.patches[0].name)
+
+    def testPrivateBundle(self):
+        self.bundle.public = False
+        self.bundle.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+
+class BundlePublicViewMboxTest(BundlePublicViewTest):
+    def setUp(self):
+        super(BundlePublicViewMboxTest, self).setUp()
+        self.url = '/bundle/%s/%s/mbox/' % (self.user.username,
+                                            self.bundle.name)
+
 class BundleCreateFromListTest(BundleTestBase):
     def testCreateEmptyBundle(self):
         newbundlename = 'testbundle-new'
