@@ -44,7 +44,14 @@ def generic_list(request, project, view,
     user = request.user
     properties_form = None
     if project.is_editable(user):
-        properties_form = MultiplePatchForm(project, data = data)
+
+        # we only pass the post data to the MultiplePatchForm if that was
+        # the actual form submitted
+        data_tmp = None
+        if data and data.get('form', '') == 'patchlistform':
+            data_tmp = data
+
+        properties_form = MultiplePatchForm(project, data = data_tmp)
 
     if request.method == 'POST' and data.get('form') == 'patchlistform':
         action = data.get('action', '').lower()
