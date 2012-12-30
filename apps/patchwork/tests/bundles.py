@@ -127,6 +127,15 @@ class BundleUpdateTest(BundleTestBase):
         super(BundleUpdateTest, self).setUp()
         self.newname = 'newbundlename'
 
+    def checkPatchformErrors(self, response):
+        formname = 'patchform'
+        if not formname in response.context:
+            return
+        form = response.context[formname]
+        if not form:
+            return
+        self.assertEquals(form.errors, {})
+
     def publicString(self, public):
         if public:
             return 'on'
@@ -159,6 +168,9 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.name, newname)
         self.assertEqual(bundle.public, self.bundle.public)
 
+        # check other forms for errors
+        self.checkPatchformErrors(response)
+
     def testUpdatePublic(self):
         newname = 'newbundlename'
         data = {
@@ -172,6 +184,17 @@ class BundleUpdateTest(BundleTestBase):
         bundle = Bundle.objects.get(pk = self.bundle.pk)
         self.assertEqual(bundle.name, self.bundle.name)
         self.assertEqual(bundle.public, not self.bundle.public)
+
+        # check other forms for errors
+        self.checkPatchformErrors(response)
+
+class BundleMaintainerUpdateTest(BundleUpdateTest):
+
+    def setUp(self):
+        super(BundleMaintainerUpdateTest, self).setUp()
+        profile = self.user.get_profile()
+        profile.maintainer_projects.add(defaults.project)
+        profile.save()
 
 class BundlePublicViewTest(BundleTestBase):
 
