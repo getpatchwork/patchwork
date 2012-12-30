@@ -142,6 +142,9 @@ def bundle(request, bundle_id):
             form = BundleForm(request.POST, instance = bundle)
             if form.is_valid():
                 form.save()
+
+        else:
+            form = BundleForm(instance = bundle)
     else:
         form = BundleForm(instance = bundle)
 

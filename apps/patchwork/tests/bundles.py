@@ -121,6 +121,58 @@ class BundleViewTest(BundleTestBase):
             self.failUnless(next_pos < pos)
             pos = next_pos
 
+class BundleUpdateTest(BundleTestBase):
+
+    def setUp(self):
+        super(BundleUpdateTest, self).setUp()
+        self.newname = 'newbundlename'
+
+    def publicString(self, public):
+        if public:
+            return 'on'
+        return ''
+
+    def testNoAction(self):
+        data = {
+            'form': 'bundle',
+            'name': self.newname,
+            'public': self.publicString(not self.bundle.public)
+        }
+        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
+        self.assertEqual(response.status_code, 200)
+
+        bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertEqual(bundle.name, self.bundle.name)
+        self.assertEqual(bundle.public, self.bundle.public)
+
+    def testUpdateName(self):
+        newname = 'newbundlename'
+        data = {
+            'form': 'bundle',
+            'action': 'update',
+            'name': newname,
+            'public': self.publicString(self.bundle.public)
+        }
+        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
+        self.assertEqual(response.status_code, 200)
+        bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertEqual(bundle.name, newname)
+        self.assertEqual(bundle.public, self.bundle.public)
+
+    def testUpdatePublic(self):
+        newname = 'newbundlename'
+        data = {
+            'form': 'bundle',
+            'action': 'update',
+            'name': self.bundle.name,
+            'public': self.publicString(not self.bundle.public)
+        }
+        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
+        self.assertEqual(response.status_code, 200)
+        bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertEqual(bundle.name, self.bundle.name)
+        self.assertEqual(bundle.public, not self.bundle.public)
+
 class BundlePublicViewTest(BundleTestBase):
 
     def setUp(self):
