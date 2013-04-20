@@ -105,6 +105,9 @@ def set_bundle(user, project, action, data, patches, context):
     bundle = None
     if action == 'create':
         bundle_name = data['bundle_name'].strip()
+        if '/' in bundle_name:
+            return ['Bundle names can\'t contain slashes']
+
         if not bundle_name:
             return ['No bundle name was specified']
 

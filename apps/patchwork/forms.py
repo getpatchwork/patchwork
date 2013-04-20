@@ -58,11 +58,14 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget = forms.PasswordInput)
 
 class BundleForm(forms.ModelForm):
+    name = forms.RegexField(regex = r'^[^/]+$', max_length=50, label=u'Name',
+            error_messages = {'invalid': 'Bundle names can\'t contain slashes'})
+
     class Meta:
         model = Bundle
         fields = ['name', 'public']
 
-class CreateBundleForm(forms.ModelForm):
+class CreateBundleForm(BundleForm):
     def __init__(self, *args, **kwargs):
         super(CreateBundleForm, self).__init__(*args, **kwargs)
 
