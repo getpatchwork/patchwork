@@ -363,11 +363,18 @@ class Bundle(models.Model):
             return None
         site = Site.objects.get_current()
         return 'http://%s%s' % (site.domain,
-                reverse('patchwork.views.bundle.public',
+                reverse('patchwork.views.bundle.bundle',
                         kwargs = {
                                 'username': self.owner.username,
                                 'bundlename': self.name
                         }))
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('patchwork.views.bundle.bundle', (), {
+                                'username': self.owner.username,
+                                'bundlename': self.name,
+                            })
 
     def mbox(self):
         return '\n'.join([p.mbox().as_string(True)

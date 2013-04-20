@@ -39,10 +39,6 @@ urlpatterns = patterns('',
 
     (r'^user/bundles/$',
         'patchwork.views.bundle.bundles'),
-    (r'^user/bundle/(?P<bundle_id>[^/]+)/$',
-        'patchwork.views.bundle.bundle'),
-    (r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
-        'patchwork.views.bundle.mbox'),
 
     (r'^user/link/$', 'patchwork.views.user.link'),
     (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
@@ -66,9 +62,9 @@ urlpatterns = patterns('',
 
     # public view for bundles
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
-                                'patchwork.views.bundle.public'),
+                                'patchwork.views.bundle.bundle'),
     (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/mbox/$',
-                                'patchwork.views.bundle.public_mbox'),
+                                'patchwork.views.bundle.mbox'),
 
     (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
 
@@ -91,3 +87,13 @@ if settings.ENABLE_XMLRPC:
         (r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
              'patchwork.views.pwclientrc'),
     )
+
+# redirect from old urls
+if settings.COMPAT_REDIR:
+    urlpatterns += patterns('',
+        (r'^user/bundle/(?P<bundle_id>[^/]+)/$',
+            'patchwork.views.bundle.bundle_redir'),
+        (r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
+            'patchwork.views.bundle.mbox_redir'),
+    )
+

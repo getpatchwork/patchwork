@@ -21,7 +21,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response, get_object_or_404
 from patchwork.requestcontext import PatchworkRequestContext
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 import django.core.urlresolvers
 from patchwork.models import Patch, Bundle, BundlePatch, Project
 from patchwork.utils import get_patch_ids
@@ -125,43 +125,58 @@ def bundles(request):
 
     return render_to_response('patchwork/bundles.html', context)
 
-@login_required
-def bundle(request, bundle_id):
-    bundle = get_object_or_404(Bundle, id = bundle_id)
+def bundle(request, username, bundlename):
+    bundle = get_object_or_404(Bundle, owner__username = username,
+                                name = bundlename)
     filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
 
-    if request.method == 'POST' and request.POST.get('form') == 'bundle':
-        action = request.POST.get('action', '').lower()
-        if action == 'delete':
-            bundle.delete()
-            return HttpResponseRedirect(
-                    django.core.urlresolvers.reverse(
-                        'patchwork.views.user.profile')
-                    )
-        elif action == 'update':
-            form = BundleForm(request.POST, instance = bundle)
-            if form.is_valid():
-                form.save()
+    is_owner = request.user == bundle.owner
 
+    if not (is_owner or bundle.public):
+        return HttpResponseNotFound()
+
+    if is_owner:
+        if request.method == 'POST' and request.POST.get('form') == 'bundle':
+            action = request.POST.get('action', '').lower()
+            if action == 'delete':
+                bundle.delete()
+                return HttpResponseRedirect(
+                        django.core.urlresolvers.reverse(
+                            'patchwork.views.user.profile')
+                        )
+            elif action == 'update':
+                form = BundleForm(request.POST, instance = bundle)
+                if form.is_valid():
+                    form.save()
+
+                # if we've changed the bundle name, redirect to new URL
+                bundle = Bundle.objects.get(pk = bundle.pk)
+                if bundle.name != bundlename:
+                    return HttpResponseRedirect(bundle.get_absolute_url())
+
+            else:
+                form = BundleForm(instance = bundle)
         else:
             form = BundleForm(instance = bundle)
+
+        if request.method == 'POST' and \
+                           request.POST.get('form') == 'reorderform':
+            order = get_object_or_404(BundlePatch, bundle = bundle,
+                            patch__id = request.POST.get('order_start')).order
+
+            for patch_id in request.POST.getlist('neworder'):
+                bundlepatch = get_object_or_404(BundlePatch,
+                            bundle = bundle, patch__id = patch_id)
+                bundlepatch.order = order
+                bundlepatch.save()
+                order += 1
     else:
-        form = BundleForm(instance = bundle)
-
-    if request.method == 'POST' and request.POST.get('form') == 'reorderform':
-        order = get_object_or_404(BundlePatch, bundle = bundle,
-                        patch__id = request.POST.get('order_start')).order
-
-        for patch_id in request.POST.getlist('neworder'):
-            bundlepatch = get_object_or_404(BundlePatch,
-                        bundle = bundle, patch__id = patch_id)
-            bundlepatch.order = order
-            bundlepatch.save()
-            order += 1
+        form = None
 
     context = generic_list(request, bundle.project,
             'patchwork.views.bundle.bundle',
-            view_args = {'bundle_id': bundle_id},
+            view_args = {'username': bundle.owner.username,
+                         'bundlename': bundle.name},
             filter_settings = filter_settings,
             patches = bundle.ordered_patches(),
             editable_order = True)
@@ -171,7 +186,13 @@ def bundle(request, bundle_id):
 
     return render_to_response('patchwork/bundle.html', context)
 
-def mbox_response(bundle):
+def mbox(request, username, bundlename):
+    bundle = get_object_or_404(Bundle, owner__username = username,
+                                name = bundlename)
+
+    if not (request.user == bundle.owner or bundle.public):
+        return HttpResponseNotFound()
+
     response = HttpResponse(mimetype='text/plain')
     response['Content-Disposition'] = \
 	'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
@@ -179,26 +200,18 @@ def mbox_response(bundle):
     return response
 
 @login_required
-def mbox(request, bundle_id):
-    bundle = get_object_or_404(Bundle, id = bundle_id)
-    return mbox_response(bundle)
+def bundle_redir(request, bundle_id):
+    bundle = get_object_or_404(Bundle, id = bundle_id, owner = request.user)
+    return HttpResponseRedirect(bundle.get_absolute_url())
 
-def public(request, username, bundlename):
-    user = get_object_or_404(User, username = username)
-    bundle = get_object_or_404(Bundle, name = bundlename, owner = user,
-                                public = True)
-    filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
-    context = generic_list(request, bundle.project,
-            'patchwork.views.bundle.public',
-            view_args = {'username': username, 'bundlename': bundlename},
-            filter_settings = filter_settings,
-            patches = bundle.patches.all())
+@login_required
+def mbox_redir(request, bundle_id):
+    bundle = get_object_or_404(Bundle, id = bundle_id, owner = request.user)
+    return HttpResponseRedirect(django.core.urlresolvers.reverse(
+                                'patchwork.views.bundle.mbox', kwargs = {
+                                    'username': request.user.username,
+                                    'bundlename': bundle.name,
+                                }))
 
-    context['bundle'] = bundle
 
-    return render_to_response('patchwork/bundle-public.html', context)
 
-def public_mbox(request, username, bundlename):
-    bundle = get_object_or_404(Bundle, name = bundlename, public = True)
-    return mbox_response(bundle)
-    return response

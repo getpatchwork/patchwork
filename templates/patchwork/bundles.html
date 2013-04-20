@@ -17,8 +17,7 @@
  </tr>
 {% for bundle in bundles %}
  <tr>
-  <td><a href="{% url patchwork.views.bundle.bundle bundle_id=bundle.id %}"
-   >{{ bundle.name }}</a></td>
+  <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
   <td>{{ bundle.project.linkname }}</td>
   <td>
    {% if bundle.public %}
@@ -27,7 +26,7 @@
   </td>
   <td style="text-align: right">{{ bundle.n_patches }}</td>
   <td style="text-align: center;"><a
-   href="{% url patchwork.views.bundle.mbox bundle_id=bundle.id %}"
+   href="{% url patchwork.views.bundle.mbox username=bundle.owner.username bundlename=bundle.name %}"
    ><img src="/images/16-em-down.png" width="16" height="16" alt="download"
    title="download"/></a></td>
   <td style="text-align: center;">

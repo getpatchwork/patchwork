@@ -24,7 +24,8 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
-from patchwork.models import EmailConfirmation, Person
+from patchwork.models import EmailConfirmation, Person, Bundle
+from patchwork.tests.utils import defaults
 
 def _confirmation_url(conf):
     return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
@@ -126,3 +127,31 @@ class UserLoginRedirectTest(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, settings.LOGIN_URL + '?next=' + url)
 
+class UserProfileTest(TestCase):
+
+    def setUp(self):
+        self.user = TestUser()
+        self.client.login(username = self.user.username,
+                          password = self.user.password)
+
+    def testUserProfile(self):
+        response = self.client.get('/user/')
+        self.assertContains(response, 'User Profile: %s' % self.user.username)
+        self.assertContains(response, 'User Profile: %s' % self.user.username)
+
+    def testUserProfileNoBundles(self):
+        response = self.client.get('/user/')
+        self.assertContains(response, 'You have no bundles')
+
+    def testUserProfileBundles(self):
+        project = defaults.project
+        project.save()
+
+        bundle = Bundle(project = project, name = 'test-1',
+                        owner = self.user.user)
+        bundle.save()
+
+        response = self.client.get('/user/')
+
+        self.assertContains(response, 'You have the following bundle')
+        self.assertContains(response, bundle.get_absolute_url())

@@ -22,8 +22,12 @@ import datetime
 from django.test import TestCase
 from django.test.client import Client
 from django.utils.http import urlencode
+from django.conf import settings
 from patchwork.models import Patch, Bundle, BundlePatch, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
+
+def bundle_url(bundle):
+    return '/bundle/%s/%s/' % (bundle.owner.username, bundle.name)
 
 class BundleListTest(TestCase):
     def setUp(self):
@@ -78,7 +82,7 @@ class BundleTestBase(TestCase):
 class BundleViewTest(BundleTestBase):
 
     def testEmptyBundle(self):
-        response = self.client.get('/user/bundle/%d/' % self.bundle.id)
+        response = self.client.get(bundle_url(self.bundle))
         self.failUnlessEqual(response.status_code, 200)
         page = find_in_context(response.context, 'page')
         self.failUnlessEqual(len(page.object_list), 0)
@@ -86,7 +90,7 @@ class BundleViewTest(BundleTestBase):
     def testNonEmptyBundle(self):
         self.bundle.append_patch(self.patches[0])
 
-        response = self.client.get('/user/bundle/%d/' % self.bundle.id)
+        response = self.client.get(bundle_url(self.bundle))
         self.failUnlessEqual(response.status_code, 200)
         page = find_in_context(response.context, 'page')
         self.failUnlessEqual(len(page.object_list), 1)
@@ -95,7 +99,7 @@ class BundleViewTest(BundleTestBase):
         for patch in self.patches:
             self.bundle.append_patch(patch)
 
-        response = self.client.get('/user/bundle/%d/' % self.bundle.id)
+        response = self.client.get(bundle_url(self.bundle))
 
         pos = 0
         for patch in self.patches:
@@ -113,7 +117,7 @@ class BundleViewTest(BundleTestBase):
             bundlepatch.save()
             i += 1
 
-        response = self.client.get('/user/bundle/%d/' % self.bundle.id)
+        response = self.client.get(bundle_url(self.bundle))
         pos = len(response.content)
         for patch in self.patches:
             next_pos = response.content.find(patch.name)
@@ -147,7 +151,7 @@ class BundleUpdateTest(BundleTestBase):
             'name': self.newname,
             'public': self.publicString(not self.bundle.public)
         }
-        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
+        response = self.client.post(bundle_url(self.bundle), data)
         self.assertEqual(response.status_code, 200)
 
         bundle = Bundle.objects.get(pk = self.bundle.pk)
@@ -162,14 +166,11 @@ class BundleUpdateTest(BundleTestBase):
             'name': newname,
             'public': self.publicString(self.bundle.public)
         }
-        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(bundle_url(self.bundle), data)
         bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertRedirects(response, bundle_url(bundle))
         self.assertEqual(bundle.name, newname)
         self.assertEqual(bundle.public, self.bundle.public)
-
-        # check other forms for errors
-        self.checkPatchformErrors(response)
 
     def testUpdatePublic(self):
         newname = 'newbundlename'
@@ -179,7 +180,7 @@ class BundleUpdateTest(BundleTestBase):
             'name': self.bundle.name,
             'public': self.publicString(not self.bundle.public)
         }
-        response = self.client.post('/user/bundle/%d/' % self.bundle.id, data)
+        response = self.client.post(bundle_url(self.bundle), data)
         self.assertEqual(response.status_code, 200)
         bundle = Bundle.objects.get(pk = self.bundle.pk)
         self.assertEqual(bundle.name, self.bundle.name)
@@ -202,7 +203,7 @@ class BundlePublicViewTest(BundleTestBase):
         super(BundlePublicViewTest, self).setUp()
         self.client.logout()
         self.bundle.append_patch(self.patches[0])
-        self.url = '/bundle/%s/%s/' % (self.user.username, self.bundle.name)
+        self.url = bundle_url(self.bundle)
 
     def testPublicBundle(self):
         self.bundle.public = True
@@ -220,8 +221,52 @@ class BundlePublicViewTest(BundleTestBase):
 class BundlePublicViewMboxTest(BundlePublicViewTest):
     def setUp(self):
         super(BundlePublicViewMboxTest, self).setUp()
-        self.url = '/bundle/%s/%s/mbox/' % (self.user.username,
-                                            self.bundle.name)
+        self.url = bundle_url(self.bundle) + "mbox/"
+
+class BundlePublicModifyTest(BundleTestBase):
+    """Ensure that non-owners can't modify bundles"""
+
+    def setUp(self):
+        super(BundlePublicModifyTest, self).setUp()
+        self.bundle.public = True
+        self.bundle.save()
+        self.other_user = create_user()
+
+    def testBundleFormPresence(self):
+        """Check for presence of the modify form on the bundle"""
+        self.client.login(username = self.other_user.username,
+                password = self.other_user.username)
+        response = self.client.get(bundle_url(self.bundle))
+        self.assertNotContains(response, 'name="form" value="bundle"')
+
+    def testBundleFormSubmission(self):
+        oldname = 'oldbundlename'
+        newname = 'newbundlename'
+        data = {
+            'form': 'bundle',
+            'action': 'update',
+            'name': newname,
+        }
+        self.bundle.name = oldname
+        self.bundle.save()
+
+        # first, check that we can modify with the owner
+        self.client.login(username = self.user.username,
+                password = self.user.username)
+        response = self.client.post(bundle_url(self.bundle), data)
+        self.bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertEqual(self.bundle.name, newname)
+
+        # reset bundle name
+        self.bundle.name = oldname
+        self.bundle.save()
+
+        # log in with a different user, and check that we can no longer modify
+        self.client.login(username = self.other_user.username,
+                password = self.other_user.username)
+        response = self.client.post(bundle_url(self.bundle), data)
+        self.bundle = Bundle.objects.get(pk = self.bundle.pk)
+        self.assertNotEqual(self.bundle.name, newname)
 
 class BundleCreateFromListTest(BundleTestBase):
     def testCreateEmptyBundle(self):
@@ -547,8 +592,7 @@ class BundleReorderTest(BundleTestBase):
                   'order_start': firstpatch.id,
                   'neworder': slice_ids}
 
-        response = self.client.post('/user/bundle/%d/' % self.bundle.id,
-                                    params)
+        response = self.client.post(bundle_url(self.bundle), params)
 
         self.failUnlessEqual(response.status_code, 200)
 
@@ -579,3 +623,23 @@ class BundleReorderTest(BundleTestBase):
     def testBundleReorderMiddle(self):
         # reorder only 2nd, 3rd, and 4th patches
         self.checkReordering([0,2,3,1,4], 1, 4)
+
+class BundleRedirTest(BundleTestBase):
+    # old URL: private bundles used to be under /user/bundle/<id>
+
+    def setUp(self):
+        super(BundleRedirTest, self).setUp()
+
+    @unittest.skipIf(not settings.COMPAT_REDIR, "compat redirections disabled")
+    def testBundleRedir(self):
+        url = '/user/bundle/%d/' % self.bundle.id
+        response = self.client.get(url)
+        self.assertRedirects(response, bundle_url(self.bundle))
+
+    @unittest.skipIf(not settings.COMPAT_REDIR, "compat redirections disabled")
+    def testMboxRedir(self):
+        url = '/user/bundle/%d/mbox/' % self.bundle.id
+        response = self.client.get(url)
+        self.assertRedirects(response,'/bundle/%s/%s/mbox/' %
+                                        (self.bundle.owner.username,
+                                         self.bundle.name))

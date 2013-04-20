@@ -110,6 +110,10 @@ NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 # Set to True to enable the Patchwork XML-RPC interface
 ENABLE_XMLRPC = False
 
+# set to True to enable redirections or URLs from previous versions
+# of patchwork
+COMPAT_REDIR = True
+
 try:
     from local_settings import *
 except ImportError, ex:
