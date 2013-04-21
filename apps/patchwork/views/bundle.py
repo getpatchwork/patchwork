@@ -179,7 +179,7 @@ def bundle(request, username, bundlename):
                          'bundlename': bundle.name},
             filter_settings = filter_settings,
             patches = bundle.ordered_patches(),
-            editable_order = True)
+            editable_order = is_owner)
 
     context['bundle'] = bundle
     context['bundleform'] = form

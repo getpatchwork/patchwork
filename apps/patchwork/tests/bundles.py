@@ -238,6 +238,7 @@ class BundlePublicModifyTest(BundleTestBase):
                 password = self.other_user.username)
         response = self.client.get(bundle_url(self.bundle))
         self.assertNotContains(response, 'name="form" value="bundle"')
+        self.assertNotContains(response, 'Change order')
 
     def testBundleFormSubmission(self):
         oldname = 'oldbundlename'
