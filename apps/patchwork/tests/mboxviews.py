@@ -1,3 +1,5 @@
+# vim: set fileencoding=utf-8 :
+#
 # Patchwork - automated patch tracking system
 # Copyright (C) 2009 Jeremy Kerr <jk@ozlabs.org>
 #
@@ -107,3 +109,26 @@ class MboxPassThroughHeaderTest(TestCase):
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response, self.to_header)
+
+class MboxBrokenFromHeaderTest(TestCase):
+    """ Test that a person with characters outside ASCII in his name do
+        produce correct From header. As RFC 2822 state we must retain the
+        <user@doamin.tld> format for the mail while the name part may be coded
+        in some ways. """
+
+    def setUp(self):
+        defaults.project.save()
+        self.person = defaults.patch_author_person
+        self.person.name = u'©ool guŷ'
+        self.person.save()
+
+        self.patch = Patch(project = defaults.project,
+                msgid = 'p1', name = 'testpatch',
+                submitter = self.person, content = '')
+
+    def testFromHeader(self):
+        self.patch.save()
+        from_email = '<' + self.person.email + '>'
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, from_email)
