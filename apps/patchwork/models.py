@@ -32,12 +32,14 @@ try:
     from email.mime.nonmultipart import MIMENonMultipart
     from email.encoders import encode_7or8bit
     from email.parser import HeaderParser
+    from email.header import Header
     import email.utils
 except ImportError:
     # Python 2.4 compatibility
     from email.MIMENonMultipart import MIMENonMultipart
     from email.Encoders import encode_7or8bit
     from email.Parser import HeaderParser
+    from email.Header import Header
     import email.Utils
     email.utils = email.Utils
 
@@ -281,7 +283,9 @@ class Patch(models.Model):
         mail['Subject'] = self.name
         mail['Date'] = email.utils.formatdate(
                         time.mktime(self.date.utctimetuple()))
-        mail['From'] = unicode(self.submitter)
+        mail['From'] = email.utils.formataddr((
+                        str(Header(self.submitter.name, mail.patch_charset)),
+                        self.submitter.email))
         mail['X-Patchwork-Id'] = str(self.id)
         mail['Message-Id'] = self.msgid
         mail.set_unixfrom('From patchwork ' + self.date.ctime())
