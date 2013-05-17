@@ -175,6 +175,7 @@ def send_notifications():
 
     for (recipient, notifications) in groups:
         notifications = list(notifications)
+        projects = set([ n.patch.project.linkname for n in notifications ])
 
         def delete_notifications():
             PatchChangeNotification.objects.filter(
@@ -188,7 +189,9 @@ def send_notifications():
             'site': Site.objects.get_current(),
             'person': recipient,
             'notifications': notifications,
+            'projects': projects,
         }
+
         subject = render_to_string(
                         'patchwork/patch-change-notification-subject.text',
                         context).strip()

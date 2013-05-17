@@ -1,1 +1,1 @@
-Patch update notification: {{notifications|length}} patch{{notifications|length|pluralize:"es"}} updated
+[{{ projects|join:"," }}] Patch notification: {{notifications|length}} patch{{notifications|length|pluralize:"es"}} updated
