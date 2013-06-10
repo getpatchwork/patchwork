@@ -93,6 +93,7 @@ class MboxPassThroughHeaderTest(TestCase):
 
         self.cc_header = 'Cc: CC Person <cc@example.com>'
         self.to_header = 'To: To Person <to@example.com>'
+        self.date_header = 'Date: Fri, 7 Jun 2013 15:42:54 +1000'
 
         self.patch = Patch(project = defaults.project,
                            msgid = 'p1', name = 'testpatch',
@@ -111,6 +112,13 @@ class MboxPassThroughHeaderTest(TestCase):
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response, self.to_header)
+
+    def testDateHeader(self):
+        self.patch.headers = self.date_header + '\n'
+        self.patch.save()
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, self.date_header)
 
 class MboxBrokenFromHeaderTest(TestCase):
     """ Test that a person with characters outside ASCII in his name do

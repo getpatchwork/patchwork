@@ -195,7 +195,6 @@ def patch_to_mbox(patch):
 
     mail = PatchMbox(body)
     mail['Subject'] = patch.name
-    mail['Date'] = email.utils.formatdate(utc_timestamp)
     mail['From'] = email.utils.formataddr((
                     str(Header(patch.submitter.name, mail.patch_charset)),
                     patch.submitter.email))
@@ -204,10 +203,13 @@ def patch_to_mbox(patch):
     mail.set_unixfrom('From patchwork ' + patch.date.ctime())
 
 
-    copied_headers = ['To', 'Cc']
+    copied_headers = ['To', 'Cc', 'Date']
     orig_headers = HeaderParser().parsestr(str(patch.headers))
     for header in copied_headers:
         if header in orig_headers:
             mail[header] = orig_headers[header]
+
+    if 'Date' not in mail:
+        mail['Date'] = email.utils.formatdate(utc_timestamp)
 
     return mail
