@@ -21,6 +21,7 @@
 
 import unittest
 import email
+import datetime
 import dateutil.parser, dateutil.tz
 from django.test import TestCase
 from django.test.client import Client
@@ -164,3 +165,17 @@ class MboxDateHeaderTest(TestCase):
         patch_date = self.patch.date.replace(tzinfo=dateutil.tz.tzutc(),
                                             microsecond=0)
         self.assertEqual(mail_date, patch_date)
+
+    def testSuppliedDateHeader(self):
+        hour_offset = 3
+        tz = dateutil.tz.tzoffset(None, hour_offset * 60 * 60)
+        date = datetime.datetime.utcnow() - datetime.timedelta(days = 1)
+        date = date.replace(tzinfo=tz, microsecond=0)
+
+        self.patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")
+        self.patch.save()
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        mail = email.message_from_string(response.content)
+        mail_date = dateutil.parser.parse(mail['Date'])
+        self.assertEqual(mail_date, date)
