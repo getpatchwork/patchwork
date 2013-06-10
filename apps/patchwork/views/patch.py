@@ -23,7 +23,7 @@ from patchwork.forms import PatchForm, CreateBundleForm
 from patchwork.requestcontext import PatchworkRequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
-from patchwork.views import generic_list
+from patchwork.views import generic_list, patch_to_mbox
 
 def patch(request, patch_id):
     context = PatchworkRequestContext(request)
@@ -94,7 +94,7 @@ def content(request, patch_id):
 def mbox(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     response = HttpResponse(mimetype="text/plain")
-    response.write(patch.mbox().as_string(True))
+    response.write(patch_to_mbox(patch).as_string(True))
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename().replace(';', '').replace('\n', '')
     return response

@@ -22,6 +22,24 @@ from base import *
 from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
+from patchwork.models import Comment
+import re
+import datetime
+
+try:
+    from email.mime.nonmultipart import MIMENonMultipart
+    from email.encoders import encode_7or8bit
+    from email.parser import HeaderParser
+    from email.header import Header
+    import email.utils
+except ImportError:
+    # Python 2.4 compatibility
+    from email.MIMENonMultipart import MIMENonMultipart
+    from email.Encoders import encode_7or8bit
+    from email.Parser import HeaderParser
+    from email.Header import Header
+    import email.Utils
+    email.utils = email.Utils
 
 def generic_list(request, project, view,
         view_args = {}, filter_settings = [], patches = None,
@@ -129,3 +147,67 @@ def process_multiplepatch_form(form, user, action, patches, context):
         context.add_message("No patches updated")
 
     return errors
+
+class PatchMbox(MIMENonMultipart):
+    patch_charset = 'utf-8'
+    def __init__(self, _text):
+        MIMENonMultipart.__init__(self, 'text', 'plain',
+                        **{'charset': self.patch_charset})
+        self.set_payload(_text.encode(self.patch_charset))
+        encode_7or8bit(self)
+
+def patch_to_mbox(patch):
+    postscript_re = re.compile('\n-{2,3} ?\n')
+
+    comment = None
+    try:
+        comment = Comment.objects.get(patch = patch, msgid = patch.msgid)
+    except Exception:
+        pass
+
+    body = ''
+    if comment:
+        body = comment.content.strip() + "\n"
+
+    parts = postscript_re.split(body, 1)
+    if len(parts) == 2:
+        (body, postscript) = parts
+        body = body.strip() + "\n"
+        postscript = postscript.strip() + "\n"
+    else:
+        postscript = ''
+
+    for comment in Comment.objects.filter(patch = patch) \
+            .exclude(msgid = patch.msgid):
+        body += comment.patch_responses()
+
+    if body:
+        body += '\n'
+
+    if postscript:
+        body += '---\n' + postscript.strip() + '\n'
+
+    if patch.content:
+        body += '\n' + patch.content
+
+    utc_timestamp = (patch.date -
+            datetime.datetime.utcfromtimestamp(0)).total_seconds()
+
+    mail = PatchMbox(body)
+    mail['Subject'] = patch.name
+    mail['Date'] = email.utils.formatdate(utc_timestamp)
+    mail['From'] = email.utils.formataddr((
+                    str(Header(patch.submitter.name, mail.patch_charset)),
+                    patch.submitter.email))
+    mail['X-Patchwork-Id'] = str(patch.id)
+    mail['Message-Id'] = patch.msgid
+    mail.set_unixfrom('From patchwork ' + patch.date.ctime())
+
+
+    copied_headers = ['To', 'Cc']
+    orig_headers = HeaderParser().parsestr(str(patch.headers))
+    for header in copied_headers:
+        if header in orig_headers:
+            mail[header] = orig_headers[header]
+
+    return mail

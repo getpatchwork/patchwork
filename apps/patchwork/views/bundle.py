@@ -26,7 +26,7 @@ import django.core.urlresolvers
 from patchwork.models import Patch, Bundle, BundlePatch, Project
 from patchwork.utils import get_patch_ids
 from patchwork.forms import BundleForm, DeleteBundleForm
-from patchwork.views import generic_list
+from patchwork.views import generic_list, patch_to_mbox
 from patchwork.filters import DelegateFilter
 
 @login_required
@@ -193,10 +193,14 @@ def mbox(request, username, bundlename):
     if not (request.user == bundle.owner or bundle.public):
         return HttpResponseNotFound()
 
+    mbox = '\n'.join([patch_to_mbox(p).as_string(True)
+                        for p in bundle.ordered_patches()])
+
     response = HttpResponse(mimetype='text/plain')
     response['Content-Disposition'] = \
 	'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
-    response.write(bundle.mbox())
+
+    response.write(mbox)
     return response
 
 @login_required

@@ -26,6 +26,7 @@ from django.http import HttpResponse, HttpResponseRedirect, \
 from django.core import urlresolvers
 from django.contrib.auth import authenticate
 from patchwork.models import Patch, Project, Person, State
+from patchwork.views import patch_to_mbox
 from django.views.decorators.csrf import csrf_exempt
 
 import sys
@@ -376,7 +377,7 @@ def patch_get_mbox(patch_id):
     """Return mbox string for the given patch ID."""
     try:
         patch = Patch.objects.filter(id = patch_id)[0]
-        return patch.mbox().as_string()
+        return patch_to_mbox(patch).as_string()
     except:
         return ""
 
