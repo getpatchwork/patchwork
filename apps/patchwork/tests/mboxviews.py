@@ -20,6 +20,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import unittest
+import email
+import dateutil.parser, dateutil.tz
 from django.test import TestCase
 from django.test.client import Client
 from patchwork.models import Patch, Comment, Person
@@ -132,3 +134,25 @@ class MboxBrokenFromHeaderTest(TestCase):
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response, from_email)
+
+class MboxDateHeaderTest(TestCase):
+    """ Test that the date provided in the patch mail view is correct """
+
+    def setUp(self):
+        defaults.project.save()
+        self.person = defaults.patch_author_person
+        self.person.save()
+
+        self.patch = Patch(project = defaults.project,
+                           msgid = 'p1', name = 'testpatch',
+                           submitter = self.person, content = '')
+        self.patch.save()
+
+    def testDateHeader(self):
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        mail = email.message_from_string(response.content)
+        mail_date = dateutil.parser.parse(mail['Date'])
+        # patch dates are all in UTC
+        patch_date = self.patch.date.replace(tzinfo=dateutil.tz.tzutc(),
+                                            microsecond=0)
+        self.assertEqual(mail_date, patch_date)

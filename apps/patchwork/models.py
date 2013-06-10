@@ -279,10 +279,12 @@ class Patch(models.Model):
         if self.content:
             body += '\n' + self.content
 
+        utc_timestamp = (self.date -
+                datetime.datetime.utcfromtimestamp(0)).total_seconds()
+
         mail = PatchMbox(body)
         mail['Subject'] = self.name
-        mail['Date'] = email.utils.formatdate(
-                        time.mktime(self.date.utctimetuple()))
+        mail['Date'] = email.utils.formatdate(utc_timestamp)
         mail['From'] = email.utils.formataddr((
                         str(Header(self.submitter.name, mail.patch_charset)),
                         self.submitter.email))
