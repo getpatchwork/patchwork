@@ -190,8 +190,8 @@ def patch_to_mbox(patch):
     if patch.content:
         body += '\n' + patch.content
 
-    utc_timestamp = (patch.date -
-            datetime.datetime.utcfromtimestamp(0)).total_seconds()
+    delta = patch.date - datetime.datetime.utcfromtimestamp(0)
+    utc_timestamp = delta.seconds + delta.days*24*3600
 
     mail = PatchMbox(body)
     mail['Subject'] = patch.name
