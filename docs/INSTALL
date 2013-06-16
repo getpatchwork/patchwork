@@ -81,18 +81,6 @@ in brackets):
          cd ../python
          ln -s ../packages/django/django ./django
 
-        We also use some Javascript libraries:
-
-         cd lib/packages
-         mkdir jquery
-         cd jquery
-         wget http://jqueryjs.googlecode.com/files/jquery-1.3.min.js
-         wget http://www.isocra.com/articles/jquery.tablednd_0_5.js.zip
-         unzip jquery.tablednd_0_5.js.zip jquery.tablednd_0_5.js
-         cd ../../../htdocs/js/
-         ln -s ../../lib/packages/jquery/jquery-1.3.min.js ./
-         ln -s ../../lib/packages/jquery/jquery.tablednd_0_5.js ./
-
         The settings.py file contains default settings for patchwork, you'll
         need to configure settings for your own setup.
 
