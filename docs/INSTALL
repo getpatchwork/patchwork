@@ -12,7 +12,8 @@ in brackets):
   * django >= 1.2
   * A webserver (apache)
   * mod_python or flup
-  * A database server (postgresql)
+  * A database server (postgresql, mysql)
+  * relevant python modules for the database server (e.g: python-mysqldb)
 
 1. Database setup
 
@@ -63,6 +64,17 @@ in brackets):
         > CREATE DATABASE 'patchwork';
         > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
         > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
+
+	Once that is done, you need to tell Django about the new Database
+	settings, using local_settings.py (see below) to override the defaults
+	in settings.py:
+
+	DATABASE_ENGINE = 'mysql'
+	DATABASE_NAME = 'patchwork'
+	DATABASE_USER = 'root'
+	DATABASE_PASSWORD = 'my_secret_root_password'
+	DATABSE_HOST = 'localhost'
+	DATABASE_PORT = ''
 
 2. Django setup
 
