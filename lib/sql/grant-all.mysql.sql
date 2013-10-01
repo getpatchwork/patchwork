@@ -20,7 +20,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_userprofile TO 'www-data'@loca
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_userprofile_maintainer_projects TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_project TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_bundle TO 'www-data'@localhost;
-GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_bundle_patches TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_bundlepatch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
