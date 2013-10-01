@@ -116,6 +116,7 @@ in brackets):
         If you have patchwork installed in somewhere other than /srv/patchwork,
         you'll also need to define:
 
+          ROOT_DIR
           MEDIA_ROOT
           TEMPLATE_DIRS
 
