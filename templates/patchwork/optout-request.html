@@ -44,7 +44,7 @@ without your consent.</p>
 {% endif %}
 
 {% if user.is_authenticated %}
-<p>Return to your <a href="{% url patchwork.views.user.profile %}">user
+<p>Return to your <a href="{% url 'patchwork.views.user.profile' %}">user
 profile</a>.</p>
 {% endif %}
 

@@ -5,7 +5,7 @@ from the patchwork system at {{site.domain}}.
 
 To complete the opt-out process, visit:
 
- http://{{site.domain}}{% url patchwork.views.confirm key=confirmation.key %}
+ http://{{site.domain}}{% url 'patchwork.views.confirm' key=confirmation.key %}
 
 If you didn't request this opt-out, you don't need to do anything.
 

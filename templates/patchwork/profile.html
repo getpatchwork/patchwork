@@ -10,14 +10,14 @@
 {% if user.get_profile.maintainer_projects.count %}
 Maintainer of
 {% for project in user.get_profile.maintainer_projects.all %}
-<a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+<a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
 >{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 {% endif %}
 
 {% if user.get_profile.contributor_projects.count %}
 Contributor to
 {% for project in user.get_profile.contributor_projects.all %}
-<a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+<a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
 >{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 {% endif %}
 </p>
@@ -26,7 +26,7 @@ Contributor to
 <div class="box">
  <h2>Todo</h2>
 {% if user.get_profile.n_todo_patches %}
- <p>Your <a href="{% url patchwork.views.user.todo_lists %}">todo
+ <p>Your <a href="{% url 'patchwork.views.user.todo_lists' %}">todo
   list</a> contains {{ user.get_profile.n_todo_patches }}
   patch{{ user.get_profile.n_todo_patches|pluralize:"es" }}.</p>
 {% else %}
@@ -56,7 +56,7 @@ address.</p>
   <td>{{ email.email }}</td>
   <td>
   {% ifnotequal user.email email.email %}
-   <form action="{% url patchwork.views.user.unlink person_id=email.id %}"
+   <form action="{% url 'patchwork.views.user.unlink' person_id=email.id %}"
     method="post">
     {% csrf_token %}
     <input type="submit" value="Unlink"/>
@@ -65,14 +65,14 @@ address.</p>
   </td>
   <td>
    {% if email.is_optout %}
-   <form method="post" action="{% url patchwork.views.mail.optin %}">
+   <form method="post" action="{% url 'patchwork.views.mail.optin' %}">
     No,
      {% csrf_token %}
      <input type="hidden" name="email" value="{{email.email}}"/>
      <input type="submit" value="Opt-in"/>
     </form>
    {% else %}
-    <form method="post" action="{% url patchwork.views.mail.optout %}">
+    <form method="post" action="{% url 'patchwork.views.mail.optout' %}">
     Yes,
      {% csrf_token %}
      <input type="hidden" name="email" value="{{email.email}}"/>
@@ -84,7 +84,7 @@ address.</p>
 {% endfor %}
  <tr>
   <td colspan="3">
-   <form action="{% url patchwork.views.user.link %}" method="post">
+   <form action="{% url 'patchwork.views.user.link' %}" method="post">
     {% csrf_token %}
     {{ linkform.email }}
     <input type="submit" value="Add"/>
@@ -107,7 +107,7 @@ address.</p>
  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></li>
 {% endfor %}
 </ul>
-<p>Visit the <a href="{%url patchwork.views.bundle.bundles %}">bundles
+<p>Visit the <a href="{%url 'patchwork.views.bundle.bundles' %}">bundles
  page</a> to manage your bundles.</p>
 {% else %}
 <p>You have no bundles.</p>
@@ -134,7 +134,7 @@ address.</p>
 
 <div class="box">
 <h2>Authentication</h2>
-<a href="{% url django.contrib.auth.views.password_change %}">Change password</a>
+<a href="{% url 'django.contrib.auth.views.password_change' %}">Change password</a>
 </div>
 
 </div>

@@ -12,11 +12,11 @@ automated notifications from this patchwork system, from the address
 different sites, as they are run independently. You may need to opt-out of
 those separately.</p>
 <p>If you later decide to receive mail from patchwork, just visit
-<a href="{% url patchwork.views.mail.settings %}"
->http://{{site.domain}}{% url patchwork.views.mail.settings %}</a>, or
+<a href="{% url 'patchwork.views.mail.settings' %}"
+>http://{{site.domain}}{% url 'patchwork.views.mail.settings' %}</a>, or
 visit the main patchwork page and navigate from there.</p>
 {% if user.is_authenticated %}
-<p>Return to your <a href="{% url patchwork.views.user.profile %}">user
+<p>Return to your <a href="{% url 'patchwork.views.user.profile' %}">user
 profile</a>.</p>
 {% endif %}
 {% endblock %}

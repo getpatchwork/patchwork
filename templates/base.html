@@ -13,29 +13,29 @@
   <div id="title">
   <h1 style="float: left;">
      <a
-      href="{% url patchwork.views.projects %}">Patchwork</a>
+      href="{% url 'patchwork.views.projects' %}">Patchwork</a>
     {% block heading %}{% endblock %}</h1>
   <div id="auth">
 {% if user.is_authenticated %}
    Logged in as
-    <a href="{% url patchwork.views.user.profile %}"
+    <a href="{% url 'patchwork.views.user.profile' %}"
      ><strong>{{ user.username }}</strong></a>
     <br/>
-     <a href="{% url patchwork.views.user.todo_lists %}">todo
+     <a href="{% url 'patchwork.views.user.todo_lists' %}">todo
       ({{ user.get_profile.n_todo_patches }})</a> ::
-     <a href="{% url patchwork.views.bundle.bundles %}">bundles</a>
+     <a href="{% url 'patchwork.views.bundle.bundles' %}">bundles</a>
      <br/>
-     <a href="{% url patchwork.views.user.profile %}">profile</a> ::
+     <a href="{% url 'patchwork.views.user.profile' %}">profile</a> ::
 {% if user.is_staff %}
-     <a href="{% url admin:index %}">admin</a> ::
+     <a href="{% url 'admin:index' %}">admin</a> ::
 {% endif %}
-     <a href="{% url auth_logout %}">logout</a>
+     <a href="{% url 'auth_logout' %}">logout</a>
 {% else %}
-     <a href="{% url auth_login %}">login</a>
+     <a href="{% url 'auth_login' %}">login</a>
      <br/>
-     <a href="{% url patchwork.views.user.register %}">register</a>
+     <a href="{% url 'patchwork.views.user.register' %}">register</a>
      <br/>
-     <a href="{% url patchwork.views.mail.settings %}">mail settings</a>
+     <a href="{% url 'patchwork.views.mail.settings' %}">mail settings</a>
 {% endif %}
    </div>
    <div style="clear: both;"></div>
@@ -45,23 +45,23 @@
    {% if project %}
     <strong>Project</strong>: {{ project.linkname }}
      :
-     <a href="{% url patchwork.views.patch.list project_id=project.linkname %}"
+     <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
       >patches</a>
      :
-     <a href="{% url patchwork.views.project.project project_id=project.linkname %}"
+     <a href="{% url 'patchwork.views.project.project' project_id=project.linkname %}"
       >project info</a>
     {% if other_projects %}
      :
-     <a href="{% url patchwork.views.projects %}"
+     <a href="{% url 'patchwork.views.projects' %}"
      >other projects</a>
      {% endif %}
     {% else %}
-     <a href="{% url patchwork.views.projects %}"
+     <a href="{% url 'patchwork.views.projects' %}"
      >project list</a>
     {% endif %}
    </div>
    <div id="navright">
-    <a href="{% url patchwork.views.help path="about/" %}">about</a>
+    <a href="{% url 'patchwork.views.help' path="about/" %}">about</a>
    </div>
    <div style="clear: both"></div>
   </div>

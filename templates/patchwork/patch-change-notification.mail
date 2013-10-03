@@ -17,4 +17,4 @@ Happy patchworking.
 This is an automated mail sent by the patchwork system at
 {{site.domain}}. To stop receiving these notifications, edit
 your mail settings at:
-  http://{{site.domain}}{% url patchwork.views.mail.settings %}
+  http://{{site.domain}}{% url 'patchwork.views.mail.settings' %}

@@ -43,10 +43,10 @@ function toggle_headers(link_id, headers_id)
  <tr>
   <th>Download</th>
   <td>
-   <a href="{% url patchwork.views.patch.mbox patch_id=patch.id %}"
+   <a href="{% url 'patchwork.views.patch.mbox' patch_id=patch.id %}"
    >mbox</a>
 {% if patch.content %}|
-   <a href="{% url patchwork.views.patch.content patch_id=patch.id %}"
+   <a href="{% url 'patchwork.views.patch.content' patch_id=patch.id %}"
    >patch</a>
 {% endif %}
    </td>

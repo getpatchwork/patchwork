@@ -5,7 +5,7 @@ email from the patchwork system at {{site.domain}}.
 
 To complete the opt-in process, visit:
 
- http://{{site.domain}}{% url patchwork.views.confirm key=confirmation.key %}
+ http://{{site.domain}}{% url 'patchwork.views.confirm' key=confirmation.key %}
 
 If you didn't request this opt-in, you don't need to do anything.
 
