@@ -43,7 +43,7 @@ def pwclientrc(request, project_id):
     project = get_object_or_404(Project, linkname = project_id)
     context = PatchworkRequestContext(request)
     context.project = project
-    if request.is_secure():
+    if settings.FORCE_HTTPS_LINKS or request.is_secure():
         context['scheme'] = 'https'
     else:
         context['scheme'] = 'http'
