@@ -9,7 +9,7 @@ You'll need the following (applications used for patchwork development are
 in brackets):
 
   * A python interpreter
-  * django >= 1.2
+  * django >= 1.5
   * A webserver (apache)
   * mod_python or flup
   * A database server (postgresql, mysql)
@@ -85,11 +85,11 @@ in brackets):
         lib/packages is for stuff we'll download, lib/python is to add
         to our python path. We'll symlink python modules into lib/python.
 
-        At the time of release, patchwork depends on django version 1.2 or
+        At the time of release, patchwork depends on django version 1.5 or
         later. Your distro probably provides this. If not, do a:
 
          cd lib/packages
-	  git clone https://github.com/django/django.git -b stable/1.2.x
+	  git clone https://github.com/django/django.git -b stable/1.5.x
          cd ../python
          ln -s ../packages/django/django ./django
 
