@@ -45,6 +45,7 @@ def parse_patch(text):
     # 3: patch header line 2 (+++)
     # 4: patch hunk header line (@@ line)
     # 5: patch hunk content
+    # 6: patch meta header (rename from/rename to)
     #
     # valid transitions:
     #  0 -> 1 (diff, ===, Index:)
@@ -54,6 +55,9 @@ def parse_patch(text):
     #  3 -> 4 (@@ line)
     #  4 -> 5 (patch content)
     #  5 -> 1 (run out of lines from @@-specifed count)
+    #  1 -> 6 (rename from / rename to)
+    #  6 -> 2 (---)
+    #  6 -> 1 (other text)
     #
     # Suspected patch header is stored into buf, and appended to
     # patchbuf if we find a following hunk. Otherwise, append to
@@ -84,6 +88,9 @@ def parse_patch(text):
             buf += line
             if line.startswith('--- '):
                 state = 2
+
+            if line.startswith('rename from ') or line.startswith('rename to '):
+                state = 6
 
         elif state == 2:
             if line.startswith('+++ '):
@@ -147,6 +154,20 @@ def parse_patch(text):
                 hunk += 1
             else:
                 state = 5
+
+        elif state == 6:
+            if line.startswith('rename to ') or line.startswith('rename from '):
+                patchbuf += buf + line
+                buf = ''
+
+            elif line.startswith('--- '):
+                patchbuf += buf + line
+                buf = ''
+                state = 2
+
+            else:
+                buf += line
+                state = 1
 
         else:
             raise Exception("Unknown state %d! (line '%s')" % (state, line))

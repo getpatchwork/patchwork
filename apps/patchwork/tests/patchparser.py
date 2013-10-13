@@ -392,6 +392,27 @@ class GitPullSSHUrlTest(GitPullTest):
 class GitPullHTTPUrlTest(GitPullTest):
     mail_file = '0006-git-pull-request-http.mbox'
 
+class GitRenameOnlyTest(MBoxPatchTest):
+    mail_file = '0008-git-rename.mbox'
+
+    def testGitRename(self):
+        (patch, comment) = find_content(self.project, self.mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(comment is not None)
+        self.assertEqual(patch.content.count("\nrename from "), 2)
+        self.assertEqual(patch.content.count("\nrename to "), 2)
+
+class GitRenameWithDiffTest(MBoxPatchTest):
+    mail_file = '0009-git-rename-with-diff.mbox'
+
+    def testGitRename(self):
+        (patch, comment) = find_content(self.project, self.mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(comment is not None)
+        self.assertEqual(patch.content.count("\nrename from "), 2)
+        self.assertEqual(patch.content.count("\nrename to "), 2)
+        self.assertEqual(patch.content.count('\n-a\n+b'), 1)
+
 class CVSFormatPatchTest(MBoxPatchTest):
     mail_file = '0007-cvs-format-diff.mbox'
 
