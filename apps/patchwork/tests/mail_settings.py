@@ -25,7 +25,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from patchwork.models import EmailOptout, EmailConfirmation, Person
-from patchwork.tests.utils import create_user
+from patchwork.tests.utils import create_user, error_strings
 
 class MailSettingsTest(TestCase):
     view = 'patchwork.views.mail.settings'
@@ -54,8 +54,7 @@ class MailSettingsTest(TestCase):
         response = self.client.post(self.url, {'email': 'foo'})
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-form.html')
-        self.assertFormError(response, 'form', 'email',
-                'Enter a valid e-mail address.')
+        self.assertFormError(response, 'form', 'email', error_strings['email'])
 
     def testMailSettingsPOSTOptedIn(self):
         email = u'foo@example.com'
@@ -119,8 +118,7 @@ class OptoutRequestTest(TestCase):
     def testOptoutRequestInvalidPOSTNonEmail(self):
         response = self.client.post(self.url, {'email': 'foo'})
         self.assertEquals(response.status_code, 200)
-        self.assertFormError(response, 'form', 'email',
-                'Enter a valid e-mail address.')
+        self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
         self.assertTrue('email_sent' not in response.context)
         self.assertEquals(len(mail.outbox), 0)
@@ -202,8 +200,7 @@ class OptinRequestTest(TestCase):
     def testOptoutRequestInvalidPOSTNonEmail(self):
         response = self.client.post(self.url, {'email': 'foo'})
         self.assertEquals(response.status_code, 200)
-        self.assertFormError(response, 'form', 'email',
-                'Enter a valid e-mail address.')
+        self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
         self.assertTrue('email_sent' not in response.context)
         self.assertEquals(len(mail.outbox), 0)

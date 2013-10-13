@@ -21,6 +21,7 @@ import os
 import codecs
 from patchwork.models import Project, Person
 from django.contrib.auth.models import User
+from django.forms.fields import EmailField
 
 from email import message_from_file
 try:
@@ -55,6 +56,10 @@ class defaults(object):
 @@ -0,0 +1 @@
 +a
 """
+
+error_strings = {
+    'email': EmailField.default_error_messages['invalid'],
+}
 
 _user_idx = 1
 def create_user():

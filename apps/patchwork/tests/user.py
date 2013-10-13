@@ -25,7 +25,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
 from patchwork.models import EmailConfirmation, Person, Bundle
-from patchwork.tests.utils import defaults
+from patchwork.tests.utils import defaults, error_strings
 
 def _confirmation_url(conf):
     return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
@@ -65,7 +65,7 @@ class UserPersonRequestTest(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
-                'Enter a valid e-mail address.')
+                                error_strings['email'])
 
     def testUserPersonRequestValid(self):
         response = self.client.post('/user/link/',
