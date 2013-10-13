@@ -86,12 +86,25 @@ def confirm(request, key):
 
 def submitter_complete(request):
     search = request.GET.get('q', '')
+    limit = request.GET.get('l', None)
     response = HttpResponse(mimetype = "text/plain")
-    if len(search) > 3:
-        queryset = Person.objects.filter(Q(name__icontains = search) |
-                                         Q(email__icontains = search))
-        json_serializer = serializers.get_serializer("json")()
-        json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
+
+    if len(search) <= 3:
+        return response
+
+    queryset = Person.objects.filter(Q(name__icontains = search) |
+                                     Q(email__icontains = search))
+    if limit is not None:
+        try:
+            limit = int(limit)
+        except ValueError:
+            limit = None
+
+    if limit is not None and limit > 0:
+            queryset = queryset[:limit]
+
+    json_serializer = serializers.get_serializer("json")()
+    json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
     return response
 
 help_pages = {'':           'index.html',

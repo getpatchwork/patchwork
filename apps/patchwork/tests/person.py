@@ -44,3 +44,12 @@ class SubmitterCompletionTest(TestCase):
         data = json.loads(response.content)
         self.assertEquals(len(data), 1)
         self.assertEquals(data[0]['fields']['email'], 'test2@example.com')
+
+    def testCompleteLimit(self):
+        for i in range(3,10):
+            person = Person(email = 'test%d@example.com' % i)
+            person.save()
+        response = self.client.get('/submitter/', {'q': 'test', 'l': 5})
+        self.assertEquals(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEquals(len(data), 5)

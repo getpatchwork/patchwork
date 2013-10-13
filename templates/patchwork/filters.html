@@ -122,6 +122,7 @@ function submitter_complete_response()
 
 function submitter_field_change(field)
 {
+    var limit = 20;
     var value = field.value;
     if (value.length < 4) {
         return;
@@ -131,7 +132,8 @@ function submitter_field_change(field)
          return;
     }
 
-    var url = '{% url patchwork.views.submitter_complete %}?q=' + value;
+    var url = '{% url patchwork.views.submitter_complete %}?q=' + value +
+                        '&l=' + limit;
     req = new XMLHttpRequest();
     req.onreadystatechange = submitter_complete_response;
     req.open("GET", url, true);
