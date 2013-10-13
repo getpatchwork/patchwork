@@ -25,6 +25,7 @@ from patchwork.requestcontext import PatchworkRequestContext
 from django.core import serializers, urlresolvers
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.db.models import Q
 
 def projects(request):
     context = PatchworkRequestContext(request)
@@ -87,7 +88,8 @@ def submitter_complete(request):
     search = request.GET.get('q', '')
     response = HttpResponse(mimetype = "text/plain")
     if len(search) > 3:
-        queryset = Person.objects.filter(name__icontains = search)
+        queryset = Person.objects.filter(Q(name__icontains = search) |
+                                         Q(email__icontains = search))
         json_serializer = serializers.get_serializer("json")()
         json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
     return response

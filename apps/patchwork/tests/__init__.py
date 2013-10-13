@@ -29,3 +29,4 @@ from patchwork.tests.user import *
 from patchwork.tests.mail_settings import *
 from patchwork.tests.notifications import *
 from patchwork.tests.list import *
+from patchwork.tests.person import *
