@@ -179,3 +179,31 @@ class MboxDateHeaderTest(TestCase):
         mail = email.message_from_string(response.content)
         mail_date = dateutil.parser.parse(mail['Date'])
         self.assertEqual(mail_date, date)
+
+class MboxCommentPostcriptUnchangedTest(TestCase):
+    """ Test that the mbox view doesn't change the postscript part of a mail.
+        There where always a missing blank right after the postscript
+        delimiter '---' and an additional newline right before. """
+    def setUp(self):
+        defaults.project.save()
+
+        self.person = defaults.patch_author_person
+        self.person.save()
+
+        self.patch = Patch(project = defaults.project,
+                           msgid = 'p1', name = 'testpatch',
+                           submitter = self.person, content = '')
+        self.patch.save()
+
+        self.txt = 'some comment\n---\n some/file | 1 +\n'
+
+        comment = Comment(patch = self.patch, msgid = 'p1',
+                submitter = self.person,
+                content = self.txt)
+        comment.save()
+
+    def testCommentUnchanged(self):
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, self.txt)
+        self.txt += "\n"
+        self.assertNotContains(response, self.txt)
