@@ -68,9 +68,7 @@ ROOT_URLCONF = 'urls'
 LOGIN_URL = '/user/login/'
 LOGIN_REDIRECT_URL = '/user/'
 
-# If you change the ROOT_DIR setting in your local_settings.py, you'll need to
-# re-define the variables that use this (MEDIA_ROOT and TEMPLATE_DIRS) too.
-ROOT_DIR = '/srv/patchwork'
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
