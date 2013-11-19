@@ -181,7 +181,7 @@ def patch_to_mbox(patch):
     if len(parts) == 2:
         (body, postscript) = parts
         body = body.strip() + "\n"
-        postscript = postscript.strip() + "\n"
+        postscript = postscript.rstrip()
     else:
         postscript = ''
 
@@ -189,11 +189,8 @@ def patch_to_mbox(patch):
             .exclude(msgid = patch.msgid):
         body += comment.patch_responses()
 
-    if body:
-        body += '\n'
-
     if postscript:
-        body += '---\n' + postscript.strip() + '\n'
+        body += '---\n' + postscript + '\n'
 
     if patch.content:
         body += '\n' + patch.content
