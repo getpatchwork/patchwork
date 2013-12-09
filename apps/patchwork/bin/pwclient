@@ -231,7 +231,7 @@ def action_info(rpc, patch_id):
     print(s)
     print('-' * len(s))
     for key, value in sorted(patch.iteritems()):
-        print("- %- 14s: %s" % (key, value))
+        print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
 
 def action_get(rpc, patch_id):
     patch = rpc.patch_get(patch_id)
