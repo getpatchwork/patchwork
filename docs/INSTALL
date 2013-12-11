@@ -217,6 +217,23 @@ fastcgi:
 
      sudo -u nobody /srv/patchwork/apps/patchwork/bin/parsemail.sh < mail
 
+7. Optional: Configure your VCS to automatically update patches
+
+    The tools directory of the patchwork distribution contains a file
+    named post-receive.hook which is an example git hook that can be
+    used to automatically update patches to the Accepted state when
+    corresponding comits are pushed via git.
+
+    To install this hook, simply copy it to the .git/hooks directory on
+    your server, name it post-receive, and make it executable.
+
+    This sample hook has support to update patches to different states
+    depending on which branch is being pushed to. See the STATE_MAP
+    setting in that file.
+
+    If you are using a system other than git, you can likely write a
+    similar hook using pwclient to update patch state. If you do write
+    one, please contribute it.
 
 Some errors:
 
