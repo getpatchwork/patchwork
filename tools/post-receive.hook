@@ -39,7 +39,7 @@ set_patch_state()
 update_patches()
 {
   local cnt; cnt=0
-  for rev in $(git rev-list --no-merges --reverse ${1}^..${2}); do
+  for rev in $(git rev-list --no-merges --reverse ${1}..${2}); do
     if [ "$do_exit" = 1 ]; then
       echo "I: exiting..." >&2
       break
