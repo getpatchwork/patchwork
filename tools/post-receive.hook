@@ -25,8 +25,8 @@ get_patchwork_hash()
 get_patch_id()
 {
   local id
-  id=$($PWDIR/bin/pwclient view -h $1 2>/dev/null \
-    | sed -rne 's,X-Patchwork-Id: ,,p')
+  id=$($PWDIR/bin/pwclient info -h $1 2>/dev/null \
+    | sed -rne 's,- id[[:space:]]*: ,,p')
   echo $id
   test -n "$id"
 }
