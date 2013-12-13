@@ -67,6 +67,6 @@ while read oldrev newrev refname; do
     fi
   done
   if [ $found -eq 0 ]; then
-    echo "E: no mapping for refname $key" >&2
+    echo "E: STATE_MAP has no mapping for branch $refname" >&2
   fi
 done
