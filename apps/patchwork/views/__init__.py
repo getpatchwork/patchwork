@@ -106,7 +106,7 @@ def generic_list(request, project, view,
 
     patches = context.filters.apply(patches)
     if not editable_order:
-        patches = patches.order_by(order.query())
+        patches = order.apply(patches)
 
     paginator = Paginator(request, patches)
 

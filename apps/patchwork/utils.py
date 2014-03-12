@@ -93,11 +93,23 @@ class Order(object):
         else:
             return '-' + self.order
 
-    def query(self):
+    def apply(self, qs):
         q = self.order_map[self.order]
         if self.reversed:
             q = '-' + q
-        return q
+
+        qs = qs.order_by(q)
+
+        # if we're using a non-default order, add the default as a secondary
+        # ordering. We reverse the default if the primary is reversed.
+        (default_name, default_reverse) = self.default_order
+        if self.order != default_name:
+            q = self.order_map[default_name]
+            if self.reversed ^ default_reverse:
+                q = '-' + q
+            qs = qs.order_by(q)
+
+        return qs
 
 bundle_actions = ['create', 'add', 'remove']
 def set_bundle(user, project, action, data, patches, context):
