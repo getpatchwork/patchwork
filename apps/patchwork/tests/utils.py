@@ -58,7 +58,7 @@ class defaults(object):
 """
 
 error_strings = {
-    'email': EmailField.default_error_messages['invalid'],
+    'email': 'Enter a valid email address.',
 }
 
 _user_idx = 1
