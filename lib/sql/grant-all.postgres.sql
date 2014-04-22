@@ -2,7 +2,6 @@ BEGIN;
 -- give necessary permissions to the web server. Becuase the admin is all
 -- web-based, these need to be quite permissive
 GRANT SELECT, UPDATE, INSERT, DELETE ON
-	auth_message,
 	django_session,
 	django_site,
 	django_admin_log,
@@ -29,7 +28,6 @@ TO "www-data";
 GRANT SELECT, UPDATE ON
 	auth_group_id_seq,
 	auth_group_permissions_id_seq,
-	auth_message_id_seq,
 	auth_permission_id_seq,
 	auth_user_groups_id_seq,
 	auth_user_id_seq,
