@@ -22,14 +22,15 @@ import itertools
 import datetime
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.mail import EmailMessage
-from django.db.models import Max
+from django.db.models import Max, Q, F
 from django.db.utils import IntegrityError
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
-        PatchChangeNotification, EmailOptout
+        PatchChangeNotification, EmailOptout, EmailConfirmation
 
 def get_patch_ids(d, prefix = 'patch_id'):
     ids = []
@@ -224,3 +225,24 @@ def send_notifications():
         delete_notifications()
 
     return errors
+
+def do_expiry():
+    # expire any pending confirmations
+    q = (Q(date__lt = datetime.datetime.now() - EmailConfirmation.validity) |
+            Q(active = False))
+    EmailConfirmation.objects.filter(q).delete()
+
+    # expire inactive users with no pending confirmation
+    pending_confs = EmailConfirmation.objects.values('user')
+    users = User.objects.filter(
+                is_active = False,
+                last_login = F('date_joined')
+            ).exclude(
+                id__in = pending_confs
+            )
+
+    # delete users
+    users.delete()
+
+
+

@@ -31,7 +31,8 @@ import random
 class Person(models.Model):
     email = models.CharField(max_length=255, unique = True)
     name = models.CharField(max_length=255, null = True, blank = True)
-    user = models.ForeignKey(User, null = True, blank = True)
+    user = models.ForeignKey(User, null = True, blank = True,
+            on_delete = models.SET_NULL)
 
     def __unicode__(self):
         if self.name:
