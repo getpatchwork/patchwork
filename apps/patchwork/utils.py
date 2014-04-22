@@ -191,8 +191,8 @@ def send_notifications():
         projects = set([ n.patch.project.linkname for n in notifications ])
 
         def delete_notifications():
-            PatchChangeNotification.objects.filter(
-                                pk__in = notifications).delete()
+            pks = [ n.pk for n in notifications ]
+            PatchChangeNotification.objects.filter(pk__in = pks).delete()
 
         if EmailOptout.is_optout(recipient.email):
             delete_notifications()

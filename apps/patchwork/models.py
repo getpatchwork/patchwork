@@ -55,7 +55,7 @@ class Project(models.Model):
     web_url = models.CharField(max_length=2000, blank=True)
     scm_url = models.CharField(max_length=2000, blank=True)
     webscm_url = models.CharField(max_length=2000, blank=True)
-    send_notifications = models.BooleanField()
+    send_notifications = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
