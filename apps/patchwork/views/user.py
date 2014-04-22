@@ -82,6 +82,14 @@ def register_confirm(request, conf):
     conf.user.is_active = True
     conf.user.save()
     conf.deactivate()
+    try:
+        person = Person.objects.get(email__iexact = conf.user.email)
+    except Person.DoesNotExist:
+        person = Person(email = conf.user.email,
+                name = conf.user.get_profile().name())
+    person.user = conf.user
+    person.save()
+
     return render_to_response('patchwork/registration-confirm.html')
 
 @login_required

@@ -71,6 +71,9 @@ def create_user():
     user = User.objects.create_user(userid, email, userid)
     user.save()
 
+    person = Person(email = email, name = userid, user = user)
+    person.save()
+
     return user
 
 def create_maintainer(project):

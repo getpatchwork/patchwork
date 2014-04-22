@@ -112,18 +112,6 @@ class UserProfile(models.Model):
                          .values('pk').query)
         return qs
 
-    def save(self):
-        super(UserProfile, self).save()
-        people = Person.objects.filter(email = self.user.email)
-        if not people:
-            person = Person(email = self.user.email,
-                    name = self.name(), user = self.user)
-            person.save()
-        else:
-            for person in people:
-                 person.link_to_user(self.user)
-                 person.save()
-
     def __unicode__(self):
         return self.name()
 

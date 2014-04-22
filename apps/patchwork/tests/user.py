@@ -105,12 +105,12 @@ class UserPersonConfirmTest(TestCase):
         self.conf.save()
 
     def testUserPersonConfirm(self):
-        self.assertEquals(Person.objects.count(), 1)
+        self.assertEquals(Person.objects.count(), 0)
         response = self.client.get(_confirmation_url(self.conf))
         self.assertEquals(response.status_code, 200)
 
         # check that the Person object has been created and linked
-        self.assertEquals(Person.objects.count(), 2)
+        self.assertEquals(Person.objects.count(), 1)
         person = Person.objects.get(email = self.user.secondary_email)
         self.assertEquals(person.email, self.user.secondary_email)
         self.assertEquals(person.user, self.user.user)

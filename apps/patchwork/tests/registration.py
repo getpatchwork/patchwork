@@ -155,12 +155,15 @@ class RegistrationConfirmationTest(TestCase):
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
         self.assertEquals(response.status_code, 200)
+        self.assertFalse(Person.objects.exists())
 
         # confirm
         conf = EmailConfirmation.objects.filter()[0]
         response = self.client.get(_confirmation_url(conf))
         self.assertEquals(response.status_code, 200)
 
+        qs = Person.objects.filter(email = self.user.email)
+        self.assertTrue(qs.exists())
         person = Person.objects.get(email = self.user.email)
 
         self.assertEquals(person.name,
@@ -188,3 +191,20 @@ class RegistrationConfirmationTest(TestCase):
 
         self.assertEquals(person.name, fullname)
 
+    def testRegistrationExistingPersonUnmodified(self):
+        """ Check that an unconfirmed registration can't modify an existing
+            Person object"""
+
+        fullname = self.user.firstname + ' '  + self.user.lastname
+        person = Person(name = fullname, email = self.user.email)
+        person.save()
+
+        # register
+        data = self.default_data.copy()
+        data['first_name'] = 'invalid'
+        data['last_name'] = 'invalid'
+        self.assertEquals(data['email'], person.email)
+        response = self.client.post('/register/', data)
+        self.assertEquals(response.status_code, 200)
+
+        self.assertEquals(Person.objects.get(pk = person.pk).name, fullname)
