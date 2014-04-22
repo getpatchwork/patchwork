@@ -17,9 +17,9 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
 import os
 from email import message_from_string
+from django.test import TestCase
 from patchwork.models import Project, Person, Patch, Comment, State, \
          get_default_initial_patch_state
 from patchwork.tests.utils import read_patch, read_mail, create_email, \
@@ -31,7 +31,7 @@ except ImportError:
     # Python 2.4 compatibility
     from email.MIMEText import MIMEText
 
-class PatchTest(unittest.TestCase):
+class PatchTest(TestCase):
     default_sender = defaults.sender
     default_subject = defaults.subject
     project = defaults.project
@@ -138,7 +138,7 @@ class UpdateSigCommentTest(SignatureCommentTest):
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
 
-class SenderEncodingTest(unittest.TestCase):
+class SenderEncodingTest(TestCase):
     sender_name = u'example user'
     sender_email = 'user@example.com'
     from_header = 'example user <user@example.com>'
@@ -204,7 +204,7 @@ class SubjectUTF8QPMultipleEncodingTest(SubjectEncodingTest):
     subject = u'test s\xfcbject'
     subject_header = 'test =?utf-8?q?s=c3=bcbject?='
 
-class SenderCorrelationTest(unittest.TestCase):
+class SenderCorrelationTest(TestCase):
     existing_sender = 'Existing Sender <existing@example.com>'
     non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
 
@@ -242,7 +242,7 @@ class SenderCorrelationTest(unittest.TestCase):
     def tearDown(self):
         self.person.delete()
 
-class MultipleProjectPatchTest(unittest.TestCase):
+class MultipleProjectPatchTest(TestCase):
     """ Test that patches sent to multiple patchwork projects are
         handled correctly """
 
@@ -306,7 +306,7 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
             # and the one we parsed in setUp()
             self.assertEquals(Comment.objects.filter(patch = patch).count(), 2)
 
-class ListIdHeaderTest(unittest.TestCase):
+class ListIdHeaderTest(TestCase):
     """ Test that we parse List-Id headers from mails correctly """
     def setUp(self):
         self.project = Project(linkname = 'test-project-1', name = 'Project 1',
@@ -422,7 +422,7 @@ class CVSFormatPatchTest(MBoxPatchTest):
         self.assertTrue(comment is not None)
         self.assertTrue(patch.content.startswith('Index'))
 
-class DelegateRequestTest(unittest.TestCase):
+class DelegateRequestTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_delegate_email = "nobody"
@@ -467,7 +467,7 @@ class DelegateRequestTest(unittest.TestCase):
         self.p1.delete()
         self.user.delete()
 
-class InitialPatchStateTest(unittest.TestCase):
+class InitialPatchStateTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_state_name = "Nonexistent Test State"
