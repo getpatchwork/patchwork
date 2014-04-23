@@ -17,17 +17,17 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from patchwork.tests.patchparser import *
-from patchwork.tests.encodings import *
-from patchwork.tests.bundles import *
-from patchwork.tests.mboxviews import *
-from patchwork.tests.updates import *
-from patchwork.tests.filters import *
-from patchwork.tests.confirm import *
-from patchwork.tests.registration import *
-from patchwork.tests.user import *
-from patchwork.tests.mail_settings import *
-from patchwork.tests.notifications import *
-from patchwork.tests.list import *
-from patchwork.tests.person import *
-from patchwork.tests.expiry import *
+from patchwork.tests.test_patchparser import *
+from patchwork.tests.test_encodings import *
+from patchwork.tests.test_bundles import *
+from patchwork.tests.test_mboxviews import *
+from patchwork.tests.test_updates import *
+from patchwork.tests.test_filters import *
+from patchwork.tests.test_confirm import *
+from patchwork.tests.test_registration import *
+from patchwork.tests.test_user import *
+from patchwork.tests.test_mail_settings import *
+from patchwork.tests.test_notifications import *
+from patchwork.tests.test_list import *
+from patchwork.tests.test_person import *
+from patchwork.tests.test_expiry import *
