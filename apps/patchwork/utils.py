@@ -99,7 +99,7 @@ class Order(object):
         if self.reversed:
             q = '-' + q
 
-        qs = qs.order_by(q)
+        orders = [q]
 
         # if we're using a non-default order, add the default as a secondary
         # ordering. We reverse the default if the primary is reversed.
@@ -108,9 +108,9 @@ class Order(object):
             q = self.order_map[default_name]
             if self.reversed ^ default_reverse:
                 q = '-' + q
-            qs = qs.order_by(q)
+            orders.append(q)
 
-        return qs
+        return qs.order_by(*orders)
 
 bundle_actions = ['create', 'add', 'remove']
 def set_bundle(user, project, action, data, patches, context):
