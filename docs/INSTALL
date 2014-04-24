@@ -217,7 +217,23 @@ fastcgi:
 
      sudo -u nobody /srv/patchwork/apps/patchwork/bin/parsemail.sh < mail
 
-7. Optional: Configure your VCS to automatically update patches
+7. Set up the patchwork cron script
+
+    Patchwork uses a cron script to clean up expired registrations, and
+    send notifications of patch changes (for projects with this enabled).
+
+    Something like this in your crontab should work:
+
+      # m h  dom mon dow   command
+      PYTHONPATH=apps:.
+      DJANGO_SETTINGS_MODULE=settings
+      */10 * * * * cd patchwork; python apps/patchwork/bin/patchwork-cron.py
+
+
+    - the frequency should be the same as the NOTIFICATION_DELAY_MINUTES
+    setting, which defaults to 10 minutes.
+
+8. Optional: Configure your VCS to automatically update patches
 
     The tools directory of the patchwork distribution contains a file
     named post-receive.hook which is an example git hook that can be
