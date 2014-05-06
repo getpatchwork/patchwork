@@ -100,7 +100,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 
     def _marshaled_dispatch(self, request):
         try:
-            params, method = xmlrpclib.loads(request.raw_post_data)
+            params, method = xmlrpclib.loads(request.body)
 
             response = self._dispatch(request, method, params)
             # wrap response in a singleton tuple
