@@ -155,3 +155,41 @@ class UserProfileTest(TestCase):
 
         self.assertContains(response, 'You have the following bundle')
         self.assertContains(response, bundle.get_absolute_url())
+
+class UserPasswordChangeTest(TestCase):
+    form_url = reverse('django.contrib.auth.views.password_change')
+    done_url = reverse('django.contrib.auth.views.password_change_done')
+
+    def testPasswordChangeForm(self):
+        self.user = TestUser()
+        self.client.login(username = self.user.username,
+                          password = self.user.password)
+
+        response = self.client.get(self.form_url)
+        self.assertContains(response, 'Change my password')
+
+    def testPasswordChange(self):
+        self.user = TestUser()
+        self.client.login(username = self.user.username,
+                          password = self.user.password)
+
+        old_password = self.user.password
+        new_password = User.objects.make_random_password()
+
+        data = {
+            'old_password': old_password,
+            'new_password1': new_password,
+            'new_password2': new_password,
+        }
+
+        response = self.client.post(self.form_url, data)
+        self.assertRedirects(response, self.done_url)
+
+        user = User.objects.get(id = self.user.user.id)
+
+        self.assertFalse(user.check_password(old_password))
+        self.assertTrue(user.check_password(new_password))
+
+        response = self.client.get(self.done_url)
+        self.assertContains(response,
+                "Your password has been changed sucessfully")

@@ -45,9 +45,9 @@ urlpatterns = patterns('',
 
     # password change
     url(r'^user/password-change/$', auth_views.password_change,
-            name='auth_password_change'),
+            name='password_change'),
     url(r'^user/password-change/done/$', auth_views.password_change_done,
-            name='auth_password_change_done'),
+            name='password_change_done'),
 
     # login/logout
     url(r'^user/login/$', auth_views.login,
