@@ -65,6 +65,10 @@ class Project(models.Model):
             return False
         return self in user.get_profile().maintainer_projects.all()
 
+    class Meta:
+        ordering = ['linkname']
+
+
 class UserProfile(models.Model):
     user = models.ForeignKey(User, unique = True)
     primary_project = models.ForeignKey(Project, null = True, blank = True)
