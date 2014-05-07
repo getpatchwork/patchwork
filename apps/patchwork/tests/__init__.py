@@ -31,3 +31,4 @@ from patchwork.tests.test_notifications import *
 from patchwork.tests.test_list import *
 from patchwork.tests.test_person import *
 from patchwork.tests.test_expiry import *
+from patchwork.tests.test_xmlrpc import *
