@@ -6,19 +6,20 @@
 {% block body %}
 
 {% if projects %}
- <dl>
+ <div class="project-set">
  {% for p in projects %}
-  <dt>
+ <div class="project">
+  <h2 class="project-title">
    <a href="{% url 'patchwork.views.patch.list' project_id=p.linkname %}"
     >{{p.linkname}}</a>
-  </dt>
-  <dd>{{p.name}}
+  </h2>
+  <div class="project-name">{{p.name}}</div>
 {% if p.web_url %}
-   (<a href="{{p.web_url}}">website</a>)
+  <div class="project-url"><a href="{{p.web_url}}">website</a></div>
 {% endif %}
-  </dd>
+  </div>
  {% endfor %}
- </dl>
+ </div>
 {% else %}
  <p>Patchwork doesn't have any projects to display!</p>
 {% endif %}
