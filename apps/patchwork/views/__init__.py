@@ -108,6 +108,14 @@ def generic_list(request, project, view,
     if not editable_order:
         patches = order.apply(patches)
 
+    # we don't need the content or headers for a list; they're text fields
+    # that can potentially contain a lot of data
+    patches = patches.defer('content', 'headers')
+
+    # but we will need to follow the state and submitter relations for
+    # rendering the list template
+    patches = patches.select_related('state', 'submitter')
+
     paginator = Paginator(request, patches)
 
     context.update({
