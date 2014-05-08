@@ -452,7 +452,8 @@ class Filters:
                 s = unicode(s)
             return quote(s.encode('utf-8'))
 
-        return '?' + '&'.join(['%s=%s' % map(sanitise, p) for p in pairs])
+        return '?' + '&'.join(['%s=%s' % (sanitise(k), sanitise(v))
+                                    for (k, v) in pairs])
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)
