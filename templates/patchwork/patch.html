@@ -30,7 +30,7 @@ function toggle_headers(link_id, headers_id)
 <table class="patchmeta">
  <tr>
   <th>Submitter</th>
-  <td>{{ patch.submitter|personify }}</td></tr>
+  <td>{{ patch.submitter|personify }}</td>
  </tr>
  <tr>
   <th>Date</th>
@@ -56,18 +56,18 @@ function toggle_headers(link_id, headers_id)
   <td><a href="{{ patch.get_absolute_url }}">{{ patch.get_absolute_url }}</a>
  </tr>
   <tr>
-   <th>State</td>
+   <th>State</th>
    <td>{{ patch.state.name }}{% if patch.archived %}, archived{% endif %}</td>
   </tr>
 {% if patch.commit_ref %}
   <tr>
-   <th>Commit</td>
+   <th>Commit</th>
    <td>{{ patch.commit_ref }}</td>
   </tr>
 {% endif %}
 {% if patch.delegate %}
   <tr>
-   <th>Delegated to:</td>
+   <th>Delegated to:</th>
    <td>{{ patch.delegate.get_profile.name }}</td>
   </tr>
 {% endif %}
@@ -99,14 +99,14 @@ function toggle_headers(link_id, headers_id)
       </td>
      </tr>
      <tr>
-      <th>Delegate to:</td>
+      <th>Delegate to:</th>
       <td>
        {{ patchform.delegate }}
        {{ patchform.delegate.errors }}
       </td>
      </tr>
      <tr>
-      <th>Archived:</td>
+      <th>Archived:</th>
       <td>
        {{ patchform.archived }}
        {{ patchform.archived.errors }}
@@ -162,7 +162,6 @@ function toggle_headers(link_id, headers_id)
     </tr>
 {% endif %}
    </table>
-  </form>
 
  </div>
 {% endif %}
