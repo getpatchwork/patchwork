@@ -256,7 +256,8 @@ def find_content(project, mail):
         filenames = patch_get_filenames(patchbuf)
 
     if pullurl or patchbuf:
-        name = clean_subject(mail.get('Subject'), [project.linkname])
+        name, prefixes = clean_subject(mail.get('Subject'),
+                                       [project.linkname])
         patch = Patch(name=name, pull_url=pullurl, diff=patchbuf,
                       content=clean_content(commentbuf), date=mail_date(mail),
                       headers=mail_headers(mail))
@@ -362,7 +363,7 @@ def clean_subject(subject, drop_prefixes=None):
     if prefixes:
         subject = '[%s] %s' % (','.join(prefixes), subject)
 
-    return subject
+    return (subject, prefixes)
 
 
 def clean_content(content):

@@ -648,26 +648,30 @@ class PrefixTest(TestCase):
 class SubjectTest(TestCase):
 
     def testCleanSubject(self):
-        self.assertEqual(clean_subject('meep'), 'meep')
-        self.assertEqual(clean_subject('Re: meep'), 'meep')
-        self.assertEqual(clean_subject('[PATCH] meep'), 'meep')
-        self.assertEqual(clean_subject('[PATCH] meep \n meep'), 'meep meep')
-        self.assertEqual(clean_subject('[PATCH RFC] meep'), '[RFC] meep')
-        self.assertEqual(clean_subject('[PATCH,RFC] meep'), '[RFC] meep')
-        self.assertEqual(clean_subject('[PATCH,1/2] meep'), '[1/2] meep')
+        self.assertEqual(clean_subject('meep'), ('meep', []))
+        self.assertEqual(clean_subject('Re: meep'), ('meep', []))
+        self.assertEqual(clean_subject('[PATCH] meep'), ('meep', []))
+        self.assertEqual(clean_subject("[PATCH] meep \n meep"),
+                         ('meep meep', []))
+        self.assertEqual(clean_subject('[PATCH RFC] meep'),
+                         ('[RFC] meep', ['RFC']))
+        self.assertEqual(clean_subject('[PATCH,RFC] meep'),
+                         ('[RFC] meep', ['RFC']))
+        self.assertEqual(clean_subject('[PATCH,1/2] meep'),
+                         ('[1/2] meep', ['1/2']))
         self.assertEqual(clean_subject('[PATCH RFC 1/2] meep'),
-                         '[RFC,1/2] meep')
+                         ('[RFC,1/2] meep', ['RFC', '1/2']))
         self.assertEqual(clean_subject('[PATCH] [RFC] meep'),
-                         '[RFC] meep')
+                         ('[RFC] meep', ['RFC']))
         self.assertEqual(clean_subject('[PATCH] [RFC,1/2] meep'),
-                         '[RFC,1/2] meep')
+                         ('[RFC,1/2] meep', ['RFC', '1/2']))
         self.assertEqual(clean_subject('[PATCH] [RFC] [1/2] meep'),
-                         '[RFC,1/2] meep')
+                         ('[RFC,1/2] meep', ['RFC', '1/2']))
         self.assertEqual(clean_subject('[PATCH] rewrite [a-z] regexes'),
-                         'rewrite [a-z] regexes')
+                         ('rewrite [a-z] regexes', []))
         self.assertEqual(clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
-                         '[RFC] rewrite [a-z] regexes')
+                         ('[RFC] rewrite [a-z] regexes', ['RFC']))
         self.assertEqual(clean_subject('[foo] [bar] meep', ['foo']),
-                         '[bar] meep')
+                         ('[bar] meep', ['bar']))
         self.assertEqual(clean_subject('[FOO] [bar] meep', ['foo']),
-                         '[bar] meep')
+                         ('[bar] meep', ['bar']))
