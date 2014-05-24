@@ -193,6 +193,29 @@ def try_decode(payload, charset):
     return payload
 
 
+def parse_series_marker(subject_prefixes):
+    """Extract series markers from subject.
+
+    Extract the markers of multi-patches series, i.e. 'x/n', from the
+    provided subject series.
+
+    Args:
+        subject_prefixes: List of subject prefixes to extract markers
+          from
+
+    Returns:
+        (x, n) if markers found, else (None, None)
+    """
+
+    regex = re.compile('^([0-9]+)/([0-9]+)$')
+    for prefix in subject_prefixes:
+        m = regex.match(prefix)
+        if not m:
+            continue
+        return (int(m.group(1)), int(m.group(2)))
+    return (None, None)
+
+
 def find_content(project, mail):
     patchbuf = None
     commentbuf = ''

@@ -25,7 +25,8 @@ from django.test import TestCase
 
 from patchwork.bin.parsemail import (find_content, find_author,
                                      find_project_by_header, parse_mail,
-                                     split_prefixes, clean_subject)
+                                     split_prefixes, clean_subject,
+                                     parse_series_marker)
 from patchwork.models import (Project, Person, Patch, Comment, State,
                               get_default_initial_patch_state)
 from patchwork.tests.utils import (read_patch, read_mail, create_email,
@@ -643,6 +644,12 @@ class PrefixTest(TestCase):
         self.assertEqual(split_prefixes('PATCH '), ['PATCH'])
         self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
         self.assertEqual(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
+
+    def testSeriesMarkers(self):
+        self.assertEqual(parse_series_marker([]), (None, None))
+        self.assertEqual(parse_series_marker(['bar']), (None, None))
+        self.assertEqual(parse_series_marker(['bar', '1/2']), (1, 2))
+        self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
 
 
 class SubjectTest(TestCase):
