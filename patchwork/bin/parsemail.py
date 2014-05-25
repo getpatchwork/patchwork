@@ -193,6 +193,23 @@ def try_decode(payload, charset):
     return payload
 
 
+def build_references_list(mail):
+    """Construct a list of possible reply message ids."""
+    refs = []
+
+    if 'In-Reply-To' in mail:
+        refs.append(mail.get('In-Reply-To'))
+
+    if 'References' in mail:
+        rs = mail.get('References').split()
+        rs.reverse()
+        for r in rs:
+            if r not in refs:
+                refs.append(r)
+
+    return refs
+
+
 def parse_series_marker(subject_prefixes):
     """Extract series markers from subject.
 
@@ -286,7 +303,8 @@ def find_content(project, mail):
                       headers=mail_headers(mail))
 
     if commentbuf and not patch:
-        cpatch = find_patch_for_comment(project, mail)
+        refs = build_references_list(mail)
+        cpatch = find_patch_for_comment(project, refs)
         if not cpatch:
             return (None, None, None)
         comment = Comment(submission=cpatch,
@@ -297,19 +315,7 @@ def find_content(project, mail):
     return (patch, comment, filenames)
 
 
-def find_patch_for_comment(project, mail):
-    # construct a list of possible reply message ids
-    refs = []
-    if 'In-Reply-To' in mail:
-        refs.append(mail.get('In-Reply-To'))
-
-    if 'References' in mail:
-        rs = mail.get('References').split()
-        rs.reverse()
-        for r in rs:
-            if r not in refs:
-                refs.append(r)
-
+def find_patch_for_comment(project, refs):
     for ref in refs:
         patch = None
 
