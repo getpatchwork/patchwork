@@ -37,7 +37,8 @@ _test_mail_dir  = os.path.join(os.path.dirname(__file__), 'mail')
 _test_patch_dir = os.path.join(os.path.dirname(__file__), 'patches')
 
 class defaults(object):
-    project = Project(linkname = 'test-project', name = 'Test Project')
+    project = Project(linkname = 'test-project', name = 'Test Project',
+                      listid = 'test.example.com')
 
     patch_author = 'Patch Author <patch-author@example.com>'
     patch_author_person = Person(name = 'Patch Author',
@@ -131,7 +132,7 @@ def create_email(content, subject = None, sender = None, multipart = False,
 
     msg['Subject'] = subject
     msg['From'] = sender
-    msg['List-Id'] = project.linkname
+    msg['List-Id'] = project.listid
 
 
     return msg
