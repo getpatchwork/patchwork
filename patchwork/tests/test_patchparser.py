@@ -19,6 +19,7 @@
 
 import os
 from email import message_from_string
+from email.utils import make_msgid
 from django.test import TestCase
 from patchwork.models import Project, Person, Patch, Comment, State, \
          get_default_initial_patch_state
@@ -141,7 +142,8 @@ class SenderEncodingTest(TestCase):
     from_header = 'example user <user@example.com>'
 
     def setUp(self):
-        mail = 'From: %s\n' % self.from_header + \
+        mail = 'Message-Id: %s\n' % make_msgid() + \
+               'From: %s\n' % self.from_header + \
                'Subject: test\n\n' + \
                'test'
         self.email = message_from_string(mail)
@@ -183,7 +185,8 @@ class SubjectEncodingTest(PatchTest):
     subject_header = 'test subject'
 
     def setUp(self):
-        mail = 'From: %s\n' % self.sender + \
+        mail = 'Message-Id: %s\n' % make_msgid() + \
+               'From: %s\n' % self.sender + \
                'Subject: %s\n\n' % self.subject_header + \
                'test\n\n' + defaults.patch
         self.projects = defaults.project
@@ -206,7 +209,11 @@ class SenderCorrelationTest(TestCase):
     non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
 
     def mail(self, sender):
-        return message_from_string('From: %s\nSubject: Test\n\ntest\n' % sender)
+        mail = 'Message-Id: %s\n' % make_msgid() + \
+               'From: %s\n' % sender + \
+               'Subject: Tests\n\n'\
+               'test\n'
+        return message_from_string(mail)
 
     def setUp(self):
         self.existing_sender_mail = self.mail(self.existing_sender)
@@ -259,6 +266,7 @@ class MultipleProjectPatchTest(TestCase):
 
         patch = read_patch(self.patch_filename)
         email = create_email(self.test_comment + '\n' + patch)
+        del email['Message-Id']
         email['Message-Id'] = self.msgid
 
         del email['List-ID']
