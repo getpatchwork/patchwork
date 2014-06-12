@@ -8,6 +8,12 @@ set -eu
 
 #TODO: the state map should really live in the repo's git-config
 STATE_MAP="refs/heads/master:Accepted"
+#
+# ignore all commits already present in these refs
+# e.g.,
+#   EXCLUDE="refs/heads/upstream refs/heads/other-project"
+#
+EXCLUDE=""
 
 PWDIR=/srv/patchwork/apps/patchwork
 
@@ -39,7 +45,8 @@ set_patch_state()
 update_patches()
 {
   local cnt; cnt=0
-  for rev in $(git rev-list --no-merges --reverse ${1}..${2}); do
+  for rev in $(git rev-parse --not ${EXCLUDE} |
+               git rev-list --stdin --no-merges --reverse ${1}..${2}); do
     if [ "$do_exit" = 1 ]; then
       echo "I: exiting..." >&2
       break
