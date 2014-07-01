@@ -34,7 +34,7 @@ import ConfigParser
 # for the URL to access.  If that is unspecified, it will fallback to
 # the hardcoded default value specified here.
 DEFAULT_URL = "http://patchwork/xmlrpc/"
-CONFIG_FILES = [os.path.expanduser('~/.pwclientrc')]
+CONFIG_FILE = os.path.expanduser('~/.pwclientrc')
 
 class Filter:
     """Filter for selecting patches."""
@@ -351,7 +351,7 @@ def main():
     url = DEFAULT_URL
 
     config = ConfigParser.ConfigParser()
-    config.read(CONFIG_FILES)
+    config.read([CONFIG_FILE])
 
     # grab settings from config files
     if config.has_option('base', 'url'):
