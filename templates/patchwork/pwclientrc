@@ -1,15 +1,15 @@
 # Sample .pwclientrc file for the {{ project.linkname }} project,
 # running on {{ site.domain }}.
 #
-# Save this file to ~/.pwclientrc
-#
-[base]
-url: {{scheme}}://{{site.domain}}{% url 'patchwork.views.xmlrpc.xmlrpc' %}
-project: {{ project.linkname }}
+# Just append this file to your existing ~/.pwclientrc
+# If you do not already have a ~/.pwclientrc, then copy this file to
+# ~/.pwclientrc, and uncomment the following two lines:
+# [options]
+# default={{ project.linkname }}
+
+[{{ project.linkname }}]
+url= {{scheme}}://{{site.domain}}{% url 'patchwork.views.xmlrpc.xmlrpc' %}
 {% if user.is_authenticated %}
-# Adding authentication parameters will allow you to use the 'update'
-# command on patches that you are allowed to edit.
-[auth]
 username: {{ user.username }}
 password: <add your patchwork password here>
 {% endif %}

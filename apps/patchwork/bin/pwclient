@@ -28,6 +28,7 @@ import tempfile
 import subprocess
 import base64
 import ConfigParser
+import shutil
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
@@ -350,16 +351,6 @@ def main():
     msgid_str = ""
     url = DEFAULT_URL
 
-    config = ConfigParser.ConfigParser()
-    config.read([CONFIG_FILE])
-
-    # grab settings from config files
-    if config.has_option('base', 'url'):
-        url = config.get('base', 'url')
-
-    if config.has_option('base', 'project'):
-        project_str = config.get('base', 'project')
-
     for name, value in opts:
         if name == '-s':
             state_str = value
@@ -389,17 +380,67 @@ def main():
         sys.stderr.write("Too many arguments specified\n")
         usage()
 
+    # grab settings from config files
+    config = ConfigParser.ConfigParser()
+    config.read([CONFIG_FILE])
+
+    if not config.has_section('options'):
+        sys.stderr.write('~/.pwclientrc is in the old format. Migrating it...')
+
+        old_project = config.get('base','project')
+
+        new_config = ConfigParser.ConfigParser()
+        new_config.add_section('options')
+
+        new_config.set('options','default',old_project)
+        new_config.add_section(old_project)
+
+        new_config.set(old_project,'url',config.get('base','url'))
+        if config.has_option('auth', 'username'):
+            new_config.set(old_project,'username',config.get('auth','username'))
+        if config.has_option('auth', 'password'):
+            new_config.set(old_project,'password',config.get('auth','password'))
+
+        old_config_file = CONFIG_FILE + '.orig'
+        shutil.copy2(CONFIG_FILE,old_config_file)
+
+        with open(CONFIG_FILE, 'wb') as fd:
+            new_config.write(fd)
+
+        sys.stderr.write(' Done.\n')
+        sys.stderr.write('Your old ~/.pwclientrc was saved to %s\n' % old_config_file)
+        sys.stderr.write('and was converted to the new format. You may want to\n')
+        sys.stderr.write('inspect it before continuing.\n')
+        sys.exit(1)
+
+    if not project_str:
+        try:
+            project_str = config.get('options', 'default')
+        except:
+            sys.stderr.write("No default project configured in ~/.pwclientrc\n")
+            usage()
+
+    if not config.has_section(project_str):
+        sys.stderr.write("No section for project %s\n" % project_str)
+        sys.exit(1)
+
+    if not config.has_option(project_str, 'url'):
+        sys.stderr.write("No URL for project %s\n" % project_str)
+        sys.exit(1)
+
+    url = config.get(project_str, 'url')
+
     (username, password) = (None, None)
     transport = None
     if action in auth_actions:
-        if config.has_option('auth', 'username') and \
-                config.has_option('auth', 'password'):
+        if config.has_option(project_str, 'username') and \
+                config.has_option(project_str, 'password'):
 
             use_https = url.startswith('https')
 
             transport = BasicHTTPAuthTransport( \
-                    config.get('auth', 'username'),
-                    config.get('auth', 'password'),
+                    config.get(project_str, 'username'),
+                    config.get(project_str, 'password'),
                     use_https)
 
         else:
