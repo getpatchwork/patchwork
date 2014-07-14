@@ -24,6 +24,7 @@ import re
 import datetime
 import time
 import operator
+import codecs
 from email import message_from_file
 try:
     from email.header import Header, decode_header
@@ -147,6 +148,13 @@ def find_pull_request(content):
         return match.group(1)
     return None
 
+def try_decode(payload, charset):
+    try:
+        payload = unicode(payload, charset)
+    except UnicodeDecodeError:
+        return None
+    return payload
+
 def find_content(project, mail):
     patchbuf = None
     commentbuf = ''
@@ -157,15 +165,35 @@ def find_content(project, mail):
             continue
 
         payload = part.get_payload(decode=True)
-        charset = part.get_content_charset()
         subtype = part.get_content_subtype()
 
-        # if we don't have a charset, assume utf-8
-        if charset is None:
-            charset = 'utf-8'
-
         if not isinstance(payload, unicode):
-            payload = unicode(payload, charset)
+            charset = part.get_content_charset()
+
+            # Check that we have a charset that we understand. Otherwise,
+            # ignore it and fallback to our standard set.
+            if charset is not None:
+                try:
+                    codec = codecs.lookup(charset)
+                except LookupError:
+                    charset = None
+
+            # If there is no charset or if it is unknown, then try some common
+            # charsets before we fail.
+            if charset is None:
+                try_charsets = ['utf-8', 'windows-1252', 'iso-8859-1']
+            else:
+                try_charsets = [charset]
+
+            for cset in try_charsets:
+                decoded_payload = try_decode(payload, cset)
+                if decoded_payload is not None:
+                    break
+            payload = decoded_payload
+
+            # Could not find a valid decoded payload.  Fail.
+            if payload is None:
+                return (None, None)
 
         if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload

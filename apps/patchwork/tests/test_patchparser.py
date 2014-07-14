@@ -422,6 +422,17 @@ class CVSFormatPatchTest(MBoxPatchTest):
         self.assertTrue(comment is not None)
         self.assertTrue(patch.content.startswith('Index'))
 
+class CharsetFallbackPatchTest(MBoxPatchTest):
+    """ Test mail with and invalid charset name, and check that we can parse
+        with one of the fallback encodings"""
+
+    mail_file = '0010-invalid-charset.mbox'
+
+    def testPatch(self):
+        (patch, comment) = find_content(self.project, self.mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(comment is not None)
+
 class DelegateRequestTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'

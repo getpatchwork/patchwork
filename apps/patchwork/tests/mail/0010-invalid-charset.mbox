@@ -1,0 +1,90 @@
+From libc-alpha-return-50517-siddhesh=redhat.com@sourceware.org Thu Jun  5 10:36:33 2014
+Received: (qmail 11948 invoked by alias); 4 Jun 2014 17:51:01 -0000
+Mailing-List: contact libc-alpha-help@sourceware.org; run by ezmlm
+List-Id: <libc-alpha.sourceware.org>
+Sender: libc-alpha-owner@sourceware.org
+Date: Wed, 4 Jun 2014 17:50:46 +0000
+From: "Joseph S. Myers" <joseph@codesourcery.com>
+To: <libc-alpha@sourceware.org>
+Subject: Fix pow overflow in non-default rounding modes (bug 16315)
+Message-ID: <Pine.LNX.4.64.1406041749420.3719@digraph.polyomino.org.uk>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="-1152306461-1522705971-1401904246=:3719"
+Content-Length: 24171
+
+---1152306461-1522705971-1401904246=:3719
+Content-Type: text/plain; charset="none"
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+This patch, relative to a tree with
+<https://sourceware.org/ml/libc-alpha/2014-06/msg00076.html> applied,
+fixes bug 16315, bad pow handling of overflow/underflow in non-default
+rounding modes.  Tests of pow are duly converted to ALL_RM_TEST to run
+all tests in all rounding modes.
+
+There are two main issues here.  First, various implementations
+compute a negative result by negating a positive result, but this
+yields inappropriate overflow / underflow values for directed
+rounding, so either overflow / underflow results need recomputing in
+the correct sign, or the relevant overflowing / underflowing operation
+needs to be made to have a result of the correct sign.  Second, the
+dbl-64 implementation sets FE_TONEAREST internally; in the overflow /
+underflow case, the result needs recomputing in the original rounding
+mode.
+
+Tested x86_64 and x86 and ulps updated accordingly.
+
+(auto-libm-test-out diffs omitted below.)
+
+2014-06-04  Joseph Myers  <joseph@codesourcery.com>
+
+=09[BZ #16315]
+=09* sysdeps/i386/fpu/e_pow.S (__ieee754_pow): Ensure possibly
+=09overflowing or underflowing operations take place with sign of
+=09result.
+=09* sysdeps/i386/fpu/e_powf.S (__ieee754_powf): Likewise.
+=09* sysdeps/i386/fpu/e_powl.S (__ieee754_powl): Likewise.
+=09* sysdeps/ieee754/dbl-64/e_pow.c: Include <math.h>.
+=09(__ieee754_pow): Recompute overflowing and underflowing results in
+=09original rounding mode.
+=09* sysdeps/x86/fpu/powl_helper.c: Include <stdbool.h>.
+=09(__powl_helper): Allow negative argument X and scale negated value
+=09as needed.  Avoid passing value outside [-1, 1] to f2xm1.
+=09* sysdeps/x86_64/fpu/e_powl.S (__ieee754_powl): Ensure possibly
+=09overflowing or underflowing operations take place with sign of
+=09result.
+=09* sysdeps/x86_64/fpu/multiarch/e_pow.c [HAVE_FMA4_SUPPORT]:
+=09Include <math.h>.
+=09* math/auto-libm-test-in: Add more tests of pow.
+=09* math/auto-libm-test-out: Regenerated.
+=09* math/libm-test.inc (pow_test): Use ALL_RM_TEST.
+=09(pow_tonearest_test_data): Remove.
+=09(pow_test_tonearest): Likewise.
+=09(pow_towardzero_test_data): Likewise.
+=09(pow_test_towardzero): Likewise.
+=09(pow_downward_test_data): Likewise.
+=09(pow_test_downward): Likewise.
+=09(pow_upward_test_data): Likewise.
+=09(pow_test_upward): Likewise.
+=09(main): Don't call removed functions.
+=09* sysdeps/i386/fpu/libm-test-ulps: Update.
+=09* sysdeps/x86_64/fpu/libm-test-ulps: Likewise.
+
+diff --git a/sysdeps/x86_64/fpu/multiarch/e_pow.c b/sysdeps/x86_64/fpu/mult=
+iarch/e_pow.c
+index a740b6c..433cce0 100644
+--- a/sysdeps/x86_64/fpu/multiarch/e_pow.c
++++ b/sysdeps/x86_64/fpu/multiarch/e_pow.c
+@@ -1,5 +1,6 @@
+ #ifdef HAVE_FMA4_SUPPORT
+ # include <init-arch.h>
++# include <math.h>
+ # include <math_private.h>
+=20
+ extern double __ieee754_pow_sse2 (double, double);
+
+--=20
+Joseph S. Myers
+joseph@codesourcery.com
+---1152306461-1522705971-1401904246=:3719--
