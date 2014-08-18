@@ -513,6 +513,8 @@ def main():
             action_parser.print_help()
             sys.exit(1)
 
+    do_signoff = args.get('signoff')
+
     # grab settings from config files
     config = ConfigParser.ConfigParser()
     config.read([CONFIG_FILE])
@@ -561,6 +563,10 @@ def main():
     if not config.has_option(project_str, 'url'):
         sys.stderr.write("No URL for project %s\n" % project_str)
         sys.exit(1)
+    if not do_signoff and config.has_option('options', 'signoff'):
+        do_signoff = config.getboolean('options', 'signoff')
+    if not do_signoff and config.has_option(project_str, 'signoff'):
+        do_signoff = config.getboolean(project_str, 'signoff')
 
     url = config.get(project_str, 'url')
 
@@ -632,7 +638,7 @@ def main():
 
     elif action == 'git-am':
         cmd = ['git', 'am']
-        if args.get('signoff'):
+        if do_signoff:
             cmd.append('-s')
         action_apply(rpc, patch_id, cmd)
 
