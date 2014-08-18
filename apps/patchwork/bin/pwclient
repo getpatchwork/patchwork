@@ -106,36 +106,6 @@ class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
             fn = xmlrpclib.Transport.make_connection
         return fn(self, host)
 
-def usage():
-    sys.stderr.write("Usage: %s <action> [options]\n\n" % \
-                        (os.path.basename(sys.argv[0])))
-    sys.stderr.write("Where <action> is one of:\n")
-    sys.stderr.write(
-"""        apply <ID>    : Apply a patch (in the current dir, using -p1)
-        git-am <ID>   : Apply a patch to current git branch using "git am"
-        get <ID>      : Download a patch and save it locally
-        info <ID>     : Display patchwork info about a given patch ID
-        projects      : List all projects
-        states        : Show list of potential patch states
-        list [str]    : List patches, using the optional filters specified
-                        below and an optional substring to search for patches
-                        by name
-        search [str]  : Same as 'list'
-        view <ID>     : View a patch
-        update [-s state] [-c commit-ref] <ID>
-                      : Update patch\n""")
-    sys.stderr.write("""\nFilter options for 'list' and 'search':
-        -s <state>    : Filter by patch state (e.g., 'New', 'Accepted', etc.)
-        -p <project>  : Filter by project name (see 'projects' for list)
-        -w <who>      : Filter by submitter (name, e-mail substring search)
-        -d <who>      : Filter by delegate (name, e-mail substring search)
-        -n <max #>    : Restrict number of results
-        -m <messageid>: Filter by Message-Id\n""")
-    sys.stderr.write("""\nActions that take an ID argument can also be \
-invoked with:
-        -h <hash>     : Lookup by patch hash\n""")
-    sys.exit(1)
-
 def project_id_by_name(rpc, linkname):
     """Given a project short name, look up the Project ID."""
     if len(linkname) == 0:
@@ -581,7 +551,8 @@ def main():
             project_str = config.get('options', 'default')
         except:
             sys.stderr.write("No default project configured in ~/.pwclientrc\n")
-            usage()
+            action_parser.print_help()
+            sys.exit(1)
 
     if not config.has_section(project_str):
         sys.stderr.write("No section for project %s\n" % project_str)
@@ -671,7 +642,8 @@ def main():
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)
-        usage()
+        action_parser.print_help()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
