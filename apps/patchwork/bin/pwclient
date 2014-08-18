@@ -22,7 +22,7 @@
 import os
 import sys
 import xmlrpclib
-import getopt
+import argparse
 import string
 import tempfile
 import subprocess
@@ -328,15 +328,163 @@ def patch_id_from_hash(rpc, project, hash):
 
 auth_actions = ['update']
 
-def main():
-    try:
-        opts, args = getopt.getopt(sys.argv[2:], 's:p:w:d:n:c:h:m:')
-    except getopt.GetoptError, err:
-        print str(err)
-        usage()
+# unfortunately we currently have to revert to this ugly hack..
+class _RecursiveHelpAction(argparse._HelpAction):
 
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.print_help()
+        print
+
+        subparsers_actions = [
+            action for action in parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+        ]
+        for subparsers_action in subparsers_actions:
+            for choice, subparser in subparsers_action.choices.items():
+                # gross but the whole thing is..
+                if (len(subparser._actions) == 2 \
+                    and ['hash', 'id'] == [a.dest for a in subparser._actions])\
+                   or len(subparser._actions) == 0:
+                    continue
+                print("command '{}'".format(choice))
+                print(subparser.format_help())
+
+        parser.exit()
+
+def main():
+    hash_parser = argparse.ArgumentParser(add_help=False, version=False)
+    hash_parser_x = hash_parser.add_mutually_exclusive_group(required=True)
+    hash_parser_x.add_argument(
+        '-h', metavar='HASH', dest='hash', action='store', required=False,
+        help='''Lookup by patch hash'''
+    )
+    hash_parser_x.add_argument(
+        'id', metavar='ID', nargs='?', action='store', type=int,
+        help='Patch ID',
+    )
+
+    filter_parser = argparse.ArgumentParser(add_help=False, version=False)
+    filter_parser.add_argument(
+        '-s', metavar='STATE',
+        help='''Filter by patch state (e.g., 'New', 'Accepted', etc.)'''
+    )
+    filter_parser.add_argument(
+        '-p', metavar='PROJECT',
+        help='''Filter by project name (see 'projects' for list)'''
+    )
+    filter_parser.add_argument(
+        '-w', metavar='WHO',
+        help='''Filter by submitter (name, e-mail substring search)'''
+    )
+    filter_parser.add_argument(
+        '-d', metavar='WHO',
+        help='''Filter by delegate (name, e-mail substring search)'''
+    )
+    filter_parser.add_argument(
+        '-n', metavar='MAX#',
+        type=int,
+        help='''Restrict number of results'''
+    )
+    filter_parser.add_argument(
+        '-m', metavar='MESSAGEID',
+        help='''Filter by Message-Id'''
+    )
+    filter_parser.add_argument(
+        'patch_name', metavar='STR', nargs='?',
+        help='substring to search for patches by name',
+    )
+
+    action_parser = argparse.ArgumentParser(
+        prog='pwclient',
+        add_help=False,
+        version=False,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''(apply | get | info | view | update) (-h HASH | ID)''',
+    )
+    action_parser.add_argument(
+        '--help',
+        #action='help',
+        action=_RecursiveHelpAction,
+        help='''Print this help text'''
+    )
+
+    subparsers = action_parser.add_subparsers(
+        title='Commands',
+        metavar=''
+    )
+    apply_parser = subparsers.add_parser(
+        'apply', parents=[hash_parser],
+        add_help=False,
+        help='''Apply a patch (in the current dir, using -p1)'''
+    )
+    git_am_parser = subparsers.add_parser(
+        'git-am', parents=[hash_parser],
+        add_help=False,
+        help='''Apply a patch to current git branch using "git am".'''
+    )
+    git_am_parser.add_argument(
+        '-s', '--signoff',
+        action='store_true',
+        help='''pass --signoff to git-am'''
+    )
+    get_parser = subparsers.add_parser(
+        'get', parents=[hash_parser],
+        add_help=False,
+        help='''Download a patch and save it locally'''
+    )
+    info_parser = subparsers.add_parser(
+        'info', parents=[hash_parser],
+        add_help=False,
+        help='''Display patchwork info about a given patch ID'''
+    )
+    projects_parser = subparsers.add_parser(
+        'projects',
+        add_help=False,
+        help='''List all projects'''
+    )
+    states_parser = subparsers.add_parser(
+        'states',
+        add_help=False,
+        help='''Show list of potential patch states'''
+    )
+    view_parser = subparsers.add_parser(
+        'view', parents=[hash_parser],
+        add_help=False,
+        help='''View a patch'''
+    )
+    update_parser = subparsers.add_parser(
+        'update', parents=[hash_parser],
+        add_help=False,
+        help='''Update patch'''
+    )
+    update_parser.add_argument(
+        '-c', metavar='COMMIT-REF',
+        help='''commit reference hash'''
+    )
+    update_parser.add_argument(
+        '-s', metavar='STATE',
+        required=True,
+        help='''Set patch state (e.g., 'Accepted', 'Superseded' etc.)'''
+    )
+
+    list_parser = subparsers.add_parser("list",
+        add_help=False,
+        #aliases=['search'],
+        parents=[filter_parser],
+        help='''List patches, using the optional filters specified
+        below and an optional substring to search for patches
+        by name'''
+    )
+    search_parser = subparsers.add_parser("search",
+        add_help=False,
+        parents=[filter_parser],
+        help='''Alias for "list"'''
+    )
     if len(sys.argv) < 2:
-        usage()
+        action_parser.print_help()
+        sys.exit(0)
+
+    args = action_parser.parse_args()
 
     action = sys.argv[1].lower()
 
@@ -349,36 +497,33 @@ def main():
     state_str = ""
     hash_str = ""
     msgid_str = ""
+    id_str = None
     url = DEFAULT_URL
 
-    for name, value in opts:
-        if name == '-s':
-            state_str = value
-        elif name == '-p':
-            project_str = value
-        elif name == '-w':
-            submitter_str = value
-        elif name == '-d':
-            delegate_str = value
-        elif name == '-c':
-            commit_str = value
-        elif name == '-h':
-            hash_str = value
-        elif name == '-m':
-            msgid_str = value
-        elif name == '-n':
-            try:
-                filt.add("max_count", int(value))
-            except:
-                sys.stderr.write("Invalid maximum count '%s'\n" % value)
-                usage()
-        else:
-            sys.stderr.write("Unknown option '%s'\n" % name)
-            usage()
-
-    if len(args) > 1:
-        sys.stderr.write("Too many arguments specified\n")
-        usage()
+    args=dict(vars(args))
+    if args.get('s'):
+        state_str = args.get('s')
+    if args.get('p'):
+        project_str = args.get('p')
+    if args.get('w'):
+        submitter_str = args.get('w')
+    if args.get('d'):
+        delegate_str = args.get('d')
+    if args.get('c'):
+        commit_str = args.get('c')
+    if args.get('hash'):
+        hash_str = args.get('hash')
+    if args.get('id'):
+        id_str = args.get('id')
+    if args.get('m'):
+        msgid_str = args.get('m')
+    if args.get('n') != None:
+        try:
+            filt.add("max_count", args.get('n'))
+        except:
+            sys.stderr.write("Invalid maximum count '%s'\n" % args.get('n'))
+            action_parser.print_help()
+            sys.exit(1)
 
     # grab settings from config files
     config = ConfigParser.ConfigParser()
@@ -470,10 +615,9 @@ def main():
             sys.stderr.write("No patch has the hash provided\n")
             sys.exit(1)
 
-
     if action == 'list' or action == 'search':
-        if len(args) > 0:
-            filt.add("name__icontains", args[0])
+        if args.get('patch_name') != None:
+            filt.add("name__icontains", args.get('patch_name'))
         action_list(rpc, filt, submitter_str, delegate_str)
 
     elif action.startswith('project'):
@@ -484,7 +628,7 @@ def main():
 
     elif action == 'view':
         try:
-            patch_id = patch_id or int(args[0])
+            patch_id = patch_id or int(id_str)
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -495,7 +639,7 @@ def main():
 
     elif action in ('get', 'save', 'info'):
         try:
-            patch_id = patch_id or int(args[0])
+            patch_id = patch_id or int(id_str)
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -507,7 +651,7 @@ def main():
 
     elif action == 'apply':
         try:
-            patch_id = patch_id or int(args[0])
+            patch_id = patch_id or int(id_str)
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
@@ -516,16 +660,19 @@ def main():
 
     elif action == 'git-am':
         try:
-            patch_id = patch_id or int(args[0])
+            patch_id = patch_id or int(id_str)
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
 
-        action_apply(rpc, patch_id, ['git', 'am'])
+        cmd = ['git', 'am']
+        if args.get('signoff'):
+            cmd.append('-s')
+        action_apply(rpc, patch_id, cmd)
 
     elif action == 'update':
         try:
-            patch_id = patch_id or int(args[0])
+            patch_id = patch_id or int(id_str)
         except:
             sys.stderr.write("Invalid patch ID given\n")
             sys.exit(1)
