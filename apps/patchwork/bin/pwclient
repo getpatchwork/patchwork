@@ -332,7 +332,7 @@ class _RecursiveHelpAction(argparse._HelpAction):
 def main():
     hash_parser = argparse.ArgumentParser(add_help=False, version=False)
     hash_parser.add_argument(
-        '-h', metavar='HASH', dest='hash', action='store', required=False,
+        '-h', metavar='HASH', dest='hash', action='store',
         help='''Lookup by patch hash'''
     )
     hash_parser.add_argument(
@@ -474,11 +474,13 @@ def main():
 
     args = action_parser.parse_args()
     args=dict(vars(args))
+    action = args.get('subcmd')
 
     if args.get('hash') and len(args.get('id')):
         # mimic mutual exclusive group
-        sys.stderr.write("[-h HASH] and [ID [ID ...]] are mutually exlusive!\n")
-        action_parser.print_help()
+        sys.stderr.write("Error: [-h HASH] and [ID [ID ...]] " +
+          "are mutually exlusive\n")
+        locals()[action + '_parser'].print_help()
         sys.exit(1)
 
     # set defaults
@@ -492,8 +494,6 @@ def main():
     msgid_str = ""
     patch_ids = None
     url = DEFAULT_URL
-
-    action = args.get('subcmd')
 
     if args.get('s'):
         state_str = args.get('s')
@@ -510,7 +510,9 @@ def main():
     if args.get('c'):
         # update multiple IDs with a single commit-hash does not make sense
         if action == 'update' and patch_ids and len(patch_ids) > 1:
-            sys.stderr.write("Declining update with COMMIT-REF on multiple IDs\n")
+            sys.stderr.write(
+              "Declining update with COMMIT-REF on multiple IDs\n"
+            )
             update_parser.print_help()
             sys.exit(1)
         commit_str = args.get('c')
@@ -618,6 +620,23 @@ def main():
     if hash_str != None:
         patch_ids = [patch_id_from_hash(rpc, project_str, hash_str)]
 
+    # helper for non_empty() to print correct helptext
+    h = None
+    try:
+        h = locals()[action + '_parser']
+    except:
+        pass # never happens
+    # Require either hash_str or IDs for
+    def non_empty(h, patch_ids):
+        """Error out if no patch IDs were specified"""
+        if patch_ids == None or len(patch_ids) < 1:
+            sys.stderr.write("Error: Missing Argument! " +
+              "Either [-h HASH] or [ID [ID ...]] are required\n")
+            if h:
+                h.print_help()
+            sys.exit(1)
+        return patch_ids
+
     if action == 'list' or action == 'search':
         if args.get('patch_name') != None:
             filt.add("name__icontains", args.get('patch_name'))
@@ -630,29 +649,31 @@ def main():
         action_states(rpc)
 
     elif action == 'view':
-        for patch_id in patch_ids:
+        for patch_id in non_empty(h, patch_ids):
             s = rpc.patch_get_mbox(patch_id)
             if len(s) > 0:
                 print unicode(s).encode("utf-8")
 
     elif action in ('get', 'save', 'info'):
         if action == 'info':
-            [action_info(rpc, patch_id) for patch_id in patch_ids]
+            [action_info(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
         else:
-            [action_get(rpc, patch_id) for patch_id in patch_ids]
+            [action_get(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
 
     elif action == 'apply':
-        [action_apply(rpc, patch_id) for patch_id in patch_ids]
+        [action_apply(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
 
     elif action == 'git-am':
         cmd = ['git', 'am']
         if do_signoff:
             cmd.append('-s')
-        [action_apply(rpc, patch_id, cmd) for patch_id in patch_ids]
+        [action_apply(rpc, patch_id, cmd) for patch_id in
+         non_empty(h, patch_ids)]
 
     elif action == 'update':
         [action_update_patch(rpc, patch_id, state = state_str,
-                commit = commit_str) for patch_id in patch_ids]
+                commit = commit_str
+         ) for patch_id in non_empty(h, patch_ids)]
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)
