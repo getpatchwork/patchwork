@@ -52,12 +52,16 @@ in brackets):
         settings, using local_settings.py (see below) to override the defaults
         in settings.py:
 
-        DATABASE_ENGINE = 'postgresql_psycopg2'
-        DATABASE_NAME = 'patchwork'
-        DATABASE_USER = 'patchwork'
-        DATABASE_PASSWORD = 'my_secret_password
-        DATABASE_HOST = 'localhost'
-        DATABASE_PORT = ''
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'HOST': 'localhost',
+                'PORT': '',
+                'USER': 'patchwork',
+                'PASSWORD': 'my_secret_password',
+                'NAME': 'patchwork',
+            },
+        }
 
     For MySQL:
         $ mysql
@@ -69,12 +73,16 @@ in brackets):
 	settings, using local_settings.py (see below) to override the defaults
 	in settings.py:
 
-	DATABASE_ENGINE = 'mysql'
-	DATABASE_NAME = 'patchwork'
-	DATABASE_USER = 'root'
-	DATABASE_PASSWORD = 'my_secret_root_password'
-	DATABSE_HOST = 'localhost'
-	DATABASE_PORT = ''
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': 'localhost',
+                'PORT': '',
+                'USER': 'patchwork',
+                'PASSWORD': 'my_secret_password',
+                'NAME': 'patchwork',
+            },
+        }
 
 2. Django setup
 
