@@ -65,7 +65,7 @@ in brackets):
 
     For MySQL:
         $ mysql
-        > CREATE DATABASE 'patchwork';
+        > CREATE DATABASE 'patchwork' CHARACTER SET utf8;
         > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
         > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
 
@@ -81,8 +81,13 @@ in brackets):
                 'USER': 'patchwork',
                 'PASSWORD': 'my_secret_password',
                 'NAME': 'patchwork',
+                'TEST_CHARSET': 'utf8',
             },
         }
+
+        TEST_CHARSET is used when creating tables for the test suite. Without
+        it, tests checking for the correct handling of non-ASCII characters
+        fail.
 
 2. Django setup
 
