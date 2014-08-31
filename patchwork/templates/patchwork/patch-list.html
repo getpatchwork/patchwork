@@ -53,14 +53,9 @@
    <th>
     {% ifequal order.name "name" %}
      <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><img
-      {% if order.reversed %}
-      src="{% static "images/16-arrow-up.png" %}"
-      {% else %}
-      src="{% static "images/16-arrow-down.png" %}"
-      {%endif%}
-      width="16" height="16"
-     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><span
+	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
+      ></span></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Patch</a>
     {% else %}
      {% if not order.editable %}
@@ -80,14 +75,9 @@
    <th>
     {% ifequal order.name "date" %}
      <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><img
-      {% if order.reversed %}
-      src="{% static "images/16-arrow-up.png" %}"
-      {% else %}
-      src="{% static "images/16-arrow-down.png" %}"
-      {%endif%}
-      width="16" height="16"
-     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><span
+	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
+      ></span></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Date</a>
     {% else %}
      {% if not order.editable %}
@@ -101,14 +91,9 @@
    <th>
     {% ifequal order.name "submitter" %}
      <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><img
-      {% if order.reversed %}
-      src="{% static "images/16-arrow-up.png" %}"
-      {% else %}
-      src="{% static "images/16-arrow-down.png" %}"
-      {%endif%}
-      width="16" height="16"
-     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><span
+	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
+      ></span></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Submitter</a>
     {% else %}
      {% if not order.editable %}
@@ -122,14 +107,9 @@
    <th>
     {% ifequal order.name "delegate" %}
      <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><img
-      {% if order.reversed %}
-      src="{% static "images/16-arrow-up.png" %}"
-      {% else %}
-      src="{% static "images/16-arrow-down.png" %}"
-      {%endif%}
-      width="16" height="16"
-     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><span
+	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
+      ></span></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Delegate</a>
     {% else %}
      {% if not order.editable %}
@@ -143,14 +123,9 @@
    <th>
     {% ifequal order.name "state" %}
      <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><img
-      {% if order.reversed %}
-      src="{% static "images/16-arrow-up.png" %}"
-      {% else %}
-      src="{% static "images/16-arrow-down.png" %}"
-      {%endif%}
-      width="16" height="16"
-     ></a> <a class="colactive"
+      href="{% listurl order=order.reversed_name %}"><span
+	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
+      ></span></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">State</a>
     {% else %}
      {% if not order.editable %}

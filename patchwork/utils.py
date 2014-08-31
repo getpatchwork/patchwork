@@ -93,6 +93,11 @@ class Order(object):
         else:
             return '-' + self.order
 
+    def updown(self):
+        if self.reversed:
+            return 'up'
+        return 'down'
+
     def apply(self, qs):
         q = self.order_map[self.order]
         if self.reversed:
