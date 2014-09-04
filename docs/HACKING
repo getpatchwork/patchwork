@@ -1,0 +1,52 @@
+== Using virtualenv
+
+It's always a good idea to use virtualenv to develop python software.
+
+1. Install pip, virtualenv (python-pip, python-virtualenv packages)
+
+   Because we're going to recompile our dependencies, we'll also need
+   development headers:
+
+   - For the MySQL/MariaDB setups: mariadb-devel (Fedora)
+
+2. Create a new virtual environement. Virtual environments are "instances" of
+   your system python, without any of the extra python packages installed.
+   Inside a virtual env, we'll just install the dependencies needed for
+   patchwork and run it from there.
+
+   Virtual envs are useful to develop and deploy patchwork against a "well
+   known" set of dependencies. They can also be used to test patchwork against
+   several versions of django, creating a separate virtual env per version.
+
+   $ virtualenv django-1.7
+
+   will create a virtual env called 'django-1.7' in eponymous directory.
+
+3. Activate a virtual environment
+
+   $ sources django-1.7/bin/activate
+   (django-1.7)$
+
+   The shell prompt is preprended with the virtual env name.
+
+4. Install the required dependencies
+
+   To ease this task, it's customary to maintain a list of dependencies in a
+   text file and install them in one go. One can maintain such a list of
+   dependencies per interesting configuration.
+
+   (django-1.7)$ pip install -r docs/requirements-django-1.7-mysql.txt
+
+   Of course, this is a one-time step, once installed in the virtual
+   environment, no need to to install the requirements everytime.
+
+5. Now one can run patchwork within that environment
+
+   (django-1.7)$ ./apps/manage.py --version
+   1.7
+   (django-1.7)$ ./apps/manage.py runserver
+
+6. To exit the virtual environment
+
+   (django-1.7)$ deactivate
+   $
