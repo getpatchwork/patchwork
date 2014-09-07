@@ -506,7 +506,7 @@ def main():
     if args.get('hash'):
         hash_str = args.get('hash')
     if args.get('id'):
-        patch_ids = frozenset(args.get('id'))
+        patch_ids = args.get('id')
     if args.get('c'):
         # update multiple IDs with a single commit-hash does not make sense
         if action == 'update' and patch_ids and len(patch_ids) > 1:
