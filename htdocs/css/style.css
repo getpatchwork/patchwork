@@ -1,11 +1,3 @@
-body {
-	background-color: white;
-	color: black;
-	margin: 0em;
-	font-size: 9pt;
-	font-family: "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
-}
-
 .floaty {
 	position: fixed;
 	left: 0.1em;
