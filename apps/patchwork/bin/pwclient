@@ -317,11 +317,13 @@ class _RecursiveHelpAction(argparse._HelpAction):
             action for action in parser._actions
             if isinstance(action, argparse._SubParsersAction)
         ]
+        hash_n_id_actions = set(['hash', 'id', 'help'])
         for subparsers_action in subparsers_actions:
             for choice, subparser in subparsers_action.choices.items():
                 # gross but the whole thing is..
-                if (len(subparser._actions) == 2 \
-                    and ['hash', 'id'] == [a.dest for a in subparser._actions])\
+                if (len(subparser._actions) == 3 \
+                    and set([a.dest for a in subparser._actions]) \
+                        == hash_n_id_actions) \
                    or len(subparser._actions) == 0:
                     continue
                 print("command '{}'".format(choice))
@@ -370,6 +372,11 @@ def main():
         'patch_name', metavar='STR', nargs='?',
         help='substring to search for patches by name',
     )
+    help_parser = argparse.ArgumentParser(add_help=False, version=False)
+    help_parser.add_argument(
+        '--help', action='help', help=argparse.SUPPRESS,
+        #help='''show this help message and exit'''
+    )
 
     action_parser = argparse.ArgumentParser(
         prog='pwclient',
@@ -390,30 +397,30 @@ def main():
         metavar=''
     )
     apply_parser = subparsers.add_parser(
-        'apply', parents=[hash_parser],
+        'apply', parents=[hash_parser, help_parser],
         add_help=False,
         help='''Apply a patch (in the current dir, using -p1)'''
     )
     apply_parser.set_defaults(subcmd='apply')
     git_am_parser = subparsers.add_parser(
-        'git-am', parents=[hash_parser],
+        'git-am', parents=[hash_parser, help_parser],
         add_help=False,
         help='''Apply a patch to current git branch using "git am".'''
     )
-    git_am_parser.set_defaults(subcmd='git-am')
+    git_am_parser.set_defaults(subcmd='git_am')
     git_am_parser.add_argument(
         '-s', '--signoff',
         action='store_true',
         help='''pass --signoff to git-am'''
     )
     get_parser = subparsers.add_parser(
-        'get', parents=[hash_parser],
+        'get', parents=[hash_parser, help_parser],
         add_help=False,
         help='''Download a patch and save it locally'''
     )
     get_parser.set_defaults(subcmd='get')
     info_parser = subparsers.add_parser(
-        'info', parents=[hash_parser],
+        'info', parents=[hash_parser, help_parser],
         add_help=False,
         help='''Display patchwork info about a given patch ID'''
     )
@@ -431,18 +438,17 @@ def main():
     )
     states_parser.set_defaults(subcmd='states')
     view_parser = subparsers.add_parser(
-        'view', parents=[hash_parser],
+        'view', parents=[hash_parser, help_parser],
         add_help=False,
         help='''View a patch'''
     )
     view_parser.set_defaults(subcmd='view')
     update_parser = subparsers.add_parser(
-        'update', parents=[hash_parser],
+        'update', parents=[hash_parser, help_parser],
         add_help=False,
         help='''Update patch''',
         epilog='''Using a COMMIT-REF allows for only one ID to be specified''',
     )
-    update_parser.set_defaults(subcmd='update')
     update_parser.add_argument(
         '-c', metavar='COMMIT-REF',
         help='''commit reference hash'''
@@ -452,11 +458,11 @@ def main():
         required=True,
         help='''Set patch state (e.g., 'Accepted', 'Superseded' etc.)'''
     )
-
+    update_parser.set_defaults(subcmd='update')
     list_parser = subparsers.add_parser("list",
         add_help=False,
         #aliases=['search'],
-        parents=[filter_parser],
+        parents=[filter_parser, help_parser],
         help='''List patches, using the optional filters specified
         below and an optional substring to search for patches
         by name'''
@@ -464,9 +470,12 @@ def main():
     list_parser.set_defaults(subcmd='list')
     search_parser = subparsers.add_parser("search",
         add_help=False,
-        parents=[filter_parser],
+        parents=[filter_parser, help_parser],
         help='''Alias for "list"'''
     )
+    # Poor man's argparse aliases:
+    # We register the "search" parser but effectively use "list" for the
+    # help-text.
     search_parser.set_defaults(subcmd='list')
     if len(sys.argv) < 2:
         action_parser.print_help()
@@ -621,11 +630,8 @@ def main():
         patch_ids = [patch_id_from_hash(rpc, project_str, hash_str)]
 
     # helper for non_empty() to print correct helptext
-    h = None
-    try:
-        h = locals()[action + '_parser']
-    except:
-        pass # never happens
+    h = locals()[action + '_parser']
+
     # Require either hash_str or IDs for
     def non_empty(h, patch_ids):
         """Error out if no patch IDs were specified"""
@@ -663,7 +669,7 @@ def main():
     elif action == 'apply':
         [action_apply(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
 
-    elif action == 'git-am':
+    elif action == 'git_am':
         cmd = ['git', 'am']
         if do_signoff:
             cmd.append('-s')
