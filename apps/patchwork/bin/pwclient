@@ -650,7 +650,7 @@ def main():
         for patch_id in non_empty(h, patch_ids):
             action_info(rpc, patch_id)
 
-    elif action in ('get', 'save'):
+    elif action == 'get':
         for patch_id in non_empty(h, patch_ids):
             action_get(rpc, patch_id)
 
