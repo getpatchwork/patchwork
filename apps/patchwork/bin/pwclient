@@ -646,26 +646,30 @@ def main():
             if len(s) > 0:
                 print unicode(s).encode("utf-8")
 
-    elif action in ('get', 'save', 'info'):
-        if action == 'info':
-            [action_info(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
-        else:
-            [action_get(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
+    elif action == 'info':
+        for patch_id in non_empty(h, patch_ids):
+            action_info(rpc, patch_id)
+
+    elif action in ('get', 'save'):
+        for patch_id in non_empty(h, patch_ids):
+            action_get(rpc, patch_id)
 
     elif action == 'apply':
-        [action_apply(rpc, patch_id) for patch_id in non_empty(h, patch_ids)]
+        for patch_id in non_empty(h, patch_ids):
+            action_apply(rpc, patch_id)
 
     elif action == 'git_am':
         cmd = ['git', 'am']
         if do_signoff:
             cmd.append('-s')
-        [action_apply(rpc, patch_id, cmd) for patch_id in
-         non_empty(h, patch_ids)]
+        for patch_id in non_empty(h, patch_ids):
+            action_apply(rpc, patch_id, cmd)
 
     elif action == 'update':
-        [action_update_patch(rpc, patch_id, state = state_str,
+        for patch_id in non_empty(h, patch_ids):
+            action_update_patch(rpc, patch_id, state = state_str,
                 commit = commit_str
-         ) for patch_id in non_empty(h, patch_ids)]
+            )
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)
