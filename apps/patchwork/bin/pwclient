@@ -68,7 +68,7 @@ class Filter:
             else:
                 self.d['state_id'] = id
 
-        if self.project != "":
+        if self.project != None:
             id = project_id_by_name(rpc, self.project)
             if id == 0:
                 sys.stderr.write("Note: No Project found matching %s, " \
@@ -144,7 +144,7 @@ def list_patches(patches):
 def action_list(rpc, filter, submitter_str, delegate_str):
     filter.resolve_ids(rpc)
 
-    if submitter_str != "":
+    if submitter_str != None:
         ids = person_ids_by_name(rpc, submitter_str)
         if len(ids) == 0:
             sys.stderr.write("Note: Nobody found matching *%s*\n" % \
@@ -161,7 +161,7 @@ def action_list(rpc, filter, submitter_str, delegate_str):
                 list_patches(patches)
         return
 
-    if delegate_str != "":
+    if delegate_str != None:
         ids = person_ids_by_name(rpc, delegate_str)
         if len(ids) == 0:
             sys.stderr.write("Note: Nobody found matching *%s*\n" % \
@@ -482,7 +482,7 @@ def main():
         sys.exit(0)
 
     args = action_parser.parse_args()
-    args=dict(vars(args))
+    args = dict(vars(args))
     action = args.get('subcmd')
 
     if args.get('hash') and len(args.get('id')):
@@ -494,28 +494,16 @@ def main():
 
     # set defaults
     filt = Filter()
-    submitter_str = ""
-    delegate_str = ""
-    project_str = ""
-    commit_str = ""
-    state_str = ""
-    hash_str = None
-    msgid_str = ""
-    patch_ids = None
+    commit_str = None
     url = DEFAULT_URL
 
-    if args.get('s'):
-        state_str = args.get('s')
-    if args.get('p'):
-        project_str = args.get('p')
-    if args.get('w'):
-        submitter_str = args.get('w')
-    if args.get('d'):
-        delegate_str = args.get('d')
-    if args.get('hash'):
-        hash_str = args.get('hash')
-    if args.get('id'):
-        patch_ids = args.get('id')
+    state_str = args.get('s')
+    project_str = args.get('p')
+    submitter_str = args.get('w')
+    delegate_str = args.get('d')
+    hash_str = args.get('hash')
+    patch_ids = args.get('id')
+    msgid_str = args.get('m')
     if args.get('c'):
         # update multiple IDs with a single commit-hash does not make sense
         if action == 'update' and patch_ids and len(patch_ids) > 1:
@@ -525,8 +513,7 @@ def main():
             update_parser.print_help()
             sys.exit(1)
         commit_str = args.get('c')
-    if args.get('m'):
-        msgid_str = args.get('m')
+
     if args.get('n') != None:
         try:
             filt.add("max_count", args.get('n'))
@@ -581,7 +568,6 @@ def main():
     if not config.has_section(project_str):
         sys.stderr.write("No section for project %s\n" % project_str)
         sys.exit(1)
-
     if not config.has_option(project_str, 'url'):
         sys.stderr.write("No URL for project %s\n" % project_str)
         sys.exit(1)
