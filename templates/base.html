@@ -20,36 +20,40 @@
 {% block headers %}{% endblock %}
  </head>
  <body>
-  <div id="title">
-  <h1 style="float: left;">
-     <a
-      href="{% url 'patchwork.views.projects' %}">Patchwork</a>
-    {% block heading %}{% endblock %}</h1>
-  <div id="auth">
+  <nav class="navbar navbar-patchwork" role="navigation">
+   <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <span class="navbar-brand"><a
+         href="{% url 'patchwork.views.projects' %}">Patchwork</a>
+       {% block heading %}{% endblock %}</span>
+    </div>
+    <div class="collapse navbar-collapse" id="navbar-collapse">
+     <ul class="nav navbar-nav navbar-right">
 {% if user.is_authenticated %}
-   Logged in as
-    <a href="{% url 'patchwork.views.user.profile' %}"
-     ><strong>{{ user.username }}</strong></a>
-    <br/>
-     <a href="{% url 'patchwork.views.user.todo_lists' %}">todo
-      ({{ user.profile.n_todo_patches }})</a> ::
-     <a href="{% url 'patchwork.views.bundle.bundles' %}">bundles</a>
-     <br/>
-     <a href="{% url 'patchwork.views.user.profile' %}">profile</a> ::
+     <li><p class="navbar-text">Logged in as <a href="{% url 'patchwork.views.user.profile' %}"
+     ><strong>{{ user.username }}</strong></a></p></li>
+     <li><a href="{% url 'patchwork.views.user.todo_lists' %}">todo
+      ({{ user.profile.n_todo_patches }})</a></li>
+     <li><a href="{% url 'patchwork.views.bundle.bundles' %}">bundles</a></li>
+     <li><a href="{% url 'patchwork.views.user.profile' %}">profile</a></li>
 {% if user.is_staff %}
-     <a href="{% url 'admin:index' %}">admin</a> ::
+     <li><a href="{% url 'admin:index' %}">admin</a></li>
 {% endif %}
-     <a href="{% url 'auth_logout' %}">logout</a>
+     <li><a href="{% url 'auth_logout' %}">logout</a></li>
 {% else %}
-     <a href="{% url 'auth_login' %}">login</a>
-     <br/>
-     <a href="{% url 'patchwork.views.user.register' %}">register</a>
-     <br/>
-     <a href="{% url 'patchwork.views.mail.settings' %}">mail settings</a>
+     <li><a href="{% url 'auth_login' %}">login</a></li>
+     <li><a href="{% url 'patchwork.views.user.register' %}">register</a></li>
+     <li><a href="{% url 'patchwork.views.mail.settings' %}">mail settings</a></li>
 {% endif %}
+    </div>
    </div>
-   <div style="clear: both;"></div>
-  </div>
+  </nav>
   <div id="nav">
    <div id="navleft">
    {% if project %}

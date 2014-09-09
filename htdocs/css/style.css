@@ -12,35 +12,30 @@ a:hover {
 	top: 17em;
 }
 
-
-#title {
-	background: url('/static/images/title-background.png') top left repeat-x;
-	background-color: #786fb4;
-	margin: 0px;
-	padding-top: 0.1em;
-	padding-bottom: 0.0em;
-	padding-left: 2em;
-}
-
-#title h1, #title h1 a {
-	font-size: 16pt;
-	color: white;
+.navbar-patchwork {
+	background-color: #0A0A47;
+	border-color: #e7e7e7;
 	margin-bottom: 0;
+	border-radius: 0;
+	color: #fff;
 }
 
-#auth {
-	border-left: thin solid white;
-	padding-top: 0em;
-	padding-left: 1.5em;
-	padding-right: 1.5em;
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
-	font-size: 90%;
-	float: right;
-	color: white;
+.navbar-patchwork .navbar-toggle {
+	border-color: #ddd;
 }
-#auth a {
-	color: white;
+
+.navbar-patchwork .nav > li > a:hover,
+.navbar-patchwork .nav > li > a:focus {
+	text-decoration: none;
+	background-color: #2E2E70;
+}
+
+.navbar-patchwork .navbar-toggle .icon-bar {
+	background-color: #eee;
+}
+
+.navbar-patchwork a {
+	color: #fff;
 }
 
 #nav {
