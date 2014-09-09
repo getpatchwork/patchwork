@@ -1,3 +1,6 @@
+a:visited { color: #000000; }
+a { color: #786fb4; }
+
 .floaty {
 	position: fixed;
 	left: 0.1em;
@@ -64,9 +67,6 @@ form {
 	padding: 0em;
 	margin: 0em;
 }
-
-a:visited { color: #000000; }
-a { color: #786fb4; }
 
 table {
 	border-collapse: collapse;
