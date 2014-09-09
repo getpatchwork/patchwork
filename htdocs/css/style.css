@@ -41,14 +41,9 @@ a:hover {
 #nav {
 	float: left
 	width: 100%;
-	background: #e8e8e8;
-	border-bottom: 0.2em solid #786fb4;
-	font-size: 90%;
-	padding: 0.2em 0.5em;
-}
-
-#nav a {
-	text-decoration: underline;
+	border-bottom: 0.1em solid #ddd;
+	padding: 0.2em 1em;
+	color: #a0a0a0;
 }
 
 #navleft {
