@@ -74,9 +74,6 @@
      >project list</a>
     {% endif %}
    </div>
-   <div id="navright">
-    <a href="{% url 'patchwork.views.help' path="about/" %}">about</a>
-   </div>
    <div style="clear: both"></div>
   </div>
 {% if messages %}
@@ -92,7 +89,8 @@
   </div>
   <div id="footer">
    <a href="http://jk.ozlabs.org/projects/patchwork/">patchwork</a>
-   patch tracking system
+   patch tracking system | <a
+   href="{% url 'patchwork.views.help' path="about/" %}">about patchwork</a>
   </div>
  </body>
 </html>
