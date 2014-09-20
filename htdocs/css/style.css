@@ -43,7 +43,7 @@ h2 {
 	color: #fff;
 }
 
-#nav {
+#breadcrumb {
 	float: left
 	width: 100%;
 	border-bottom: 0.1em solid #ddd;
@@ -51,11 +51,11 @@ h2 {
 	color: #a0a0a0;
 }
 
-#navleft {
+#breadcrumb-left {
 	float: left;
 }
 
-#navright {
+#breadcrum-right {
 	float: right;
 }
 
