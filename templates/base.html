@@ -59,9 +59,9 @@
     </div>
    </div>
   </nav>
+{% if project %}
   <div id="nav">
    <div id="navleft">
-   {% if project %}
     <strong>Project</strong>: {{ project.linkname }}
      :
      <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
@@ -70,14 +70,11 @@
      :
      <a href="{% url 'patchwork.views.projects' %}"
      >other projects</a>
-     {% endif %}
-    {% else %}
-     <a href="{% url 'patchwork.views.projects' %}"
-     >project list</a>
     {% endif %}
    </div>
    <div style="clear: both"></div>
   </div>
+{% endif %}
 {% if messages %}
   <div id="messages">
   {% for message in messages %}
