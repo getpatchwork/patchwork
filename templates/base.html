@@ -62,15 +62,12 @@
 {% if project %}
   <div id="nav">
    <div id="navleft">
-    <strong>Project</strong>: {{ project.linkname }}
-     :
-     <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
-      >patches</a>
-    {% if other_projects %}
-     :
-     <a href="{% url 'patchwork.views.projects' %}"
-     >other projects</a>
-    {% endif %}
+     <a href="{% url 'patchwork.views.projects' %}">All projects</a>
+     &#8594;
+     {% block breadcrumb %}
+      <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
+       >{{ project.linkname }} patches</a>
+     {% endblock %}
    </div>
    <div style="clear: both"></div>
   </div>

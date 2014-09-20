@@ -5,7 +5,12 @@
 {% load patch %}
 
 {% block title %}{{patch.name}}{% endblock %}
-{% block heading %}{{patch.name}}{%endblock%}
+{% block breadcrumb %}
+<a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
+ >{{ project.linkname }} patches</a>
+ &#8594;
+ {{ patch.name }}
+{% endblock %}
 
 {% block body %}
 <script language="JavaScript" type="text/javascript">
