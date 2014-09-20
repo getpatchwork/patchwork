@@ -140,6 +140,11 @@ table.patchlist td.patchlistfilters {
 	border-bottom: thin solid black;
 	font-size: smaller;
 }
+
+td.patchlistfilters a {
+   color: black;
+}
+
 table.patchlist td.patchlistreorder {
 	background: #c0c0ff;
 	border-top: thin solid gray;

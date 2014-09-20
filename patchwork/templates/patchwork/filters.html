@@ -149,17 +149,14 @@ function submitter_field_change(field)
   {% for filter in filters.applied_filters %}
    {{ filter.name }} = {{ filter.condition }}
     {% if not filter.forced %}
-     <a href="{{ filter.url_without_me }}"><img
-      width="16" height="16" alt="remove filter" title="remove filter"
-      src="{% static "images/16-circle-blue-remove.png" %}"></a>
+     <a href="{{ filter.url_without_me }}">&nbsp;&nbsp;<span
+      class="glyphicon glyphicon-minus-sign" /></a>
     {% endif %}
    {% if not forloop.last %}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{% endif %}
   {% endfor %}
  {% else %}
-  none
-  <a href="javascript:filter_click()"><img
-  width="16" height="16" alt="add filter" title="add filter"
-  src="{% static "images/16-circle-blue-add.png" %}"></a>
+  none&nbsp;&nbsp;<a href="javascript:filter_click()"><span
+   class="glyphicon glyphicon-plus-sign"></span></a>
  {% endif %}
  </div>
  <div id="filterform" style="padding-top: 1em; display: none">
