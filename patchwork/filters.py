@@ -41,7 +41,7 @@ class Filter(object):
 
     def key(self):
         """The key for this filter, to appear in the querystring. A key of
-           None will remove the param=ley pair from the querystring."""
+           None will remove the param=key pair from the querystring."""
         return None
 
     def set_status(self, *kwargs):
