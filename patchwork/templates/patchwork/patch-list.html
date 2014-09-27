@@ -7,13 +7,11 @@
 
 {% include "patchwork/pagination.html" %}
 
+{% include "patchwork/filters.html" %}
 
+{% if order.editable %}
 <table class="patchlist">
  <tr>
-  <td class="patchlistfilters">
- {% include "patchwork/filters.html" %}
-  </td>
- {% if order.editable %}
   <td class="patchlistreorder">
    <form method="post" id="reorderform">
     {% csrf_token %}
@@ -26,9 +24,9 @@
      onClick="order_button_click(this)"/>
     </form>
   </td>
- {% endif %}
  </tr>
 </table>
+{% endif %}
 
 {% if page.paginator.long_page and user.is_authenticated %}
 <div class="floaty">
