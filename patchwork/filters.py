@@ -87,6 +87,11 @@ class SubmitterFilter(Filter):
         self.person = None
         self.person_match = None
         submitter_id = None
+
+        str = str.strip()
+        if str == '':
+            return
+
         try:
             submitter_id = int(str)
         except ValueError:
@@ -128,15 +133,8 @@ class SubmitterFilter(Filter):
         return ''
 
     def _form(self):
-        name = ''
-        if self.person:
-            name = self.person.name
-        return mark_safe(('<input onKeyUp="submitter_field_change(this)" ' +
-                'name="submitter" id="submitter_input" ' +
-                'class="form-control"' +
-                        'value="%s">' % escape(name)) +
-                '<select id="submitter_select" ' +
-                'disabled="true"></select>')
+        return mark_safe(('<input type="text" name="submitter" ' + \
+                          'id="submitter_input" class="form-control">'))
 
     def key(self):
         if self.person:

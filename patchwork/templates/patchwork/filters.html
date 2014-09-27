@@ -19,127 +19,40 @@ function filter_click()
 
 
 }
-function enable_selected_submitter(select, input)
-{
-    select.name = 'submitter';
-    input.name = '';
-}
-function filter_form_submit(form)
-{
-    var i;
 
-    var submitter_select = document.getElementById("submitter_select");
-    var submitter_input = document.getElementById("submitter_input");
-    if (!submitter_select || !submitter_input) {
-        req = null;
-        return;
-    }
-
-    /* submitter handling. if possible, use the select box, otherwise leave
-     * as-is (and so the text box is used). */
-
-    if (submitter_select.options.length == 0) {
-        /* if there's no match, just use the input */
-
-    } else if (submitter_select.options.length == 1) {
-        /* if there's only one match, request by id */
-        submitter_select.selectedIndex = 0;
-        enable_selected_submitter(submitter_select, submitter_input);
-
-    } else if (submitter_select.selectedIndex != -1) {
-        /* if the user has explicitly selected, request by id */
-        enable_selected_submitter(submitter_select, submitter_input);
-
-    }
-
-    for (i = 0; i < form.elements.length; i++) {
-        var e = form.elements[i];
-        if (e.type == 'submit') {
-            continue;
-        }
-
-        /* handle submitter data */
-        if (e.type == 'select-one') {
-            if (e.name == '') {
-                e.disabled = true;
+$(document).ready(function() {
+    $('#submitter_input').selectize({
+        valueField: 'pk',
+        labelField: 'name',
+        searchField: ['name', 'email'],
+        maxItems: 1,
+        persist: false,
+        render: {
+            option: function(item, escape) {
+                return '<div>' + escape(item.name) + ' &lt;' +
+                                 escape(item.email) + '&gt;' + '</div>';
+            },
+            item: function(item, escape) {
+                return '<div>' + escape(item.name) + '</div>';
             }
-            if (e.selectedIndex != -1
-                    && e.options[e.selectedIndex].value == '') {
-                e.disabled = true;
-            }
+        },
+        load: function(query, callback) {
+            if (query.length < 4)
+                return callback();
 
-            continue;
+            req = $.ajax({
+                url: '{% url 'patchwork.views.submitter_complete' %}?q=' +
+                      encodeURIComponent(query) + '&l=10',
+                error: function() {
+                    callback();
+                },
+                success: function(res) {
+                    callback(res);
+                }
+            });
         }
-
-        if (e.value == '') {
-            e.disabled = true;
-        }
-    }
-}
-
-var req = null;
-
-function submitter_complete_response()
-{
-    if (req.readyState != 4) {
-        return
-    }
-
-    var completions;
-    eval("completions = " + req.responseText);
-
-    if (completions.length == 0) {
-        req = null;
-        return;
-    }
-
-    var submitter_select = document.getElementById("submitter_select");
-    var submitter_input = document.getElementById("submitter_input");
-    if (!submitter_select || !submitter_input) {
-        req = null;
-        return;
-    }
-
-    for (i = 0; i < completions.length; i++) {
-        name = completions[i]['fields']['name'];
-        if (name) {
-            name = completions[i]['fields']['name'] +
-                ' <' + completions[i]['fields']['email'] + '>';
-        } else {
-            name = completions[i]['fields']['email'];
-        }
-        o = new Option(name, completions[i]['pk']);
-        submitter_select.options[i] = o;
-    }
-
-    /* remove remaining options */
-    for (; i < submitter_select.length; i++) {
-        submitter_select.options[i] = null;
-    }
-
-    submitter_select.disabled = false;
-    req = null;
-}
-
-function submitter_field_change(field)
-{
-    var limit = 20;
-    var value = field.value;
-    if (value.length < 4) {
-        return;
-    }
-
-    if (req) {
-         return;
-    }
-
-    var url = '{% url 'patchwork.views.submitter_complete' %}?q=' + value +
-                        '&l=' + limit;
-    req = new XMLHttpRequest();
-    req.onreadystatechange = submitter_complete_response;
-    req.open("GET", url, true);
-    req.send('');
-}
+    });
+});
 </script>
 
 <div class="filters">
@@ -162,8 +75,7 @@ function submitter_field_change(field)
  {% endif %}
  </div>
  <div id="filterform" style="padding-top: 1em; display: none">
-  <form class="form-horizontal" role="form" method="get"
-   onSubmit="return filter_form_submit(this)">
+  <form class="form-horizontal" role="form" method="get">
    {% for filter in filters.available_filters %}
    <div class="form-group">
     <label class="col-sm-2 control-label">{{ filter.name }}</label>

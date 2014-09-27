@@ -17,12 +17,13 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import json
 
 from patchwork.models import Patch, Project, Person, EmailConfirmation
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from patchwork.requestcontext import PatchworkRequestContext
-from django.core import serializers, urlresolvers
+from django.core import urlresolvers
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.db.models import Q
@@ -87,10 +88,9 @@ def confirm(request, key):
 def submitter_complete(request):
     search = request.GET.get('q', '')
     limit = request.GET.get('l', None)
-    response = HttpResponse(content_type = "text/plain")
 
     if len(search) <= 3:
-        return response
+        return HttpResponse(content_type="application/json")
 
     queryset = Person.objects.filter(Q(name__icontains = search) |
                                      Q(email__icontains = search))
@@ -103,9 +103,15 @@ def submitter_complete(request):
     if limit is not None and limit > 0:
             queryset = queryset[:limit]
 
-    json_serializer = serializers.get_serializer("json")()
-    json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
-    return response
+    data = []
+    for submitter in queryset:
+        item = {}
+        item['pk'] = submitter.id
+        item['name'] = submitter.name
+        item['email'] = submitter.email
+        data.append(item)
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 help_pages = {'':           'index.html',
               'about/':     'about.html',

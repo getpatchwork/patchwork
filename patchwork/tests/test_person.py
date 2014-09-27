@@ -36,14 +36,14 @@ class SubmitterCompletionTest(TestCase):
         self.assertEquals(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEquals(len(data), 1)
-        self.assertEquals(data[0]['fields']['name'], 'Test Name')
+        self.assertEquals(data[0]['name'], 'Test Name')
 
     def testEmailComplete(self):
         response = self.client.get('/submitter/', {'q': 'test2'})
         self.assertEquals(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEquals(len(data), 1)
-        self.assertEquals(data[0]['fields']['email'], 'test2@example.com')
+        self.assertEquals(data[0]['email'], 'test2@example.com')
 
     def testCompleteLimit(self):
         for i in range(3,10):
