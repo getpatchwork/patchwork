@@ -144,10 +144,10 @@ function submitter_field_change(field)
 
 <div class="filters">
  <div id="filtersummary">
-  <strong><a href="javascript:filter_click()">Filters</a>:</strong>
+  <a href="javascript:filter_click()">Show patches with</a>:
  {% if filters.applied_filters %}
   {% for filter in filters.applied_filters %}
-   {{ filter.name }} = {{ filter.condition }}
+   {{ filter.name }} = <strong>{{ filter.condition }}</strong>
     {% if not filter.forced %}
      <a href="{{ filter.url_without_me }}">&nbsp;&nbsp;<span
       class="glyphicon glyphicon-minus-sign" /></a>
