@@ -149,30 +149,34 @@ function submitter_field_change(field)
   {% for filter in filters.applied_filters %}
    {{ filter.name }} = <strong>{{ filter.condition }}</strong>
     {% if not filter.forced %}
-     <a href="{{ filter.url_without_me }}">&nbsp;&nbsp;<span
-      class="glyphicon glyphicon-minus-sign" /></a>
+     <a class="filter-action"
+        href="{{ filter.url_without_me }}">&nbsp;&nbsp;<span
+        class="glyphicon glyphicon-minus-sign" /></a>
     {% endif %}
    {% if not forloop.last %}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{% endif %}
   {% endfor %}
  {% else %}
-  none&nbsp;&nbsp;<a href="javascript:filter_click()"><span
+  none&nbsp;&nbsp;<a class="filter-action"
+   href="javascript:filter_click()"><span
    class="glyphicon glyphicon-plus-sign"></span></a>
  {% endif %}
  </div>
  <div id="filterform" style="padding-top: 1em; display: none">
-  <form action="" method="get" onSubmit="return filter_form_submit(this)">
-    <table>
-    {% for filter in filters.available_filters %}
-     <tr>
-      <td>{{ filter.name }}</td>
-      <td>{{ filter.form }}</td>
-     </tr>
-    {% endfor %}
-     <tr>
-      <td/>
-      <td><input type="submit" value="Apply"/></td>
-     </tr>
-    </table>
+  <form class="form-horizontal" role="form" method="get"
+   onSubmit="return filter_form_submit(this)">
+   {% for filter in filters.available_filters %}
+   <div class="form-group">
+    <label class="col-sm-2 control-label">{{ filter.name }}</label>
+    <div class="col-sm-5">
+      {{ filter.form }}
+    </div>
+   </div>
+   {% endfor %}
+   <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-5">
+     <button type="submit" class="btn btn-default">Apply</button>
+    </div>
+   </div>
   </form>
  </div>
 </div>

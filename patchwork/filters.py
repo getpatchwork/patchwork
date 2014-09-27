@@ -133,7 +133,8 @@ class SubmitterFilter(Filter):
             name = self.person.name
         return mark_safe(('<input onKeyUp="submitter_field_change(this)" ' +
                 'name="submitter" id="submitter_input" ' +
-                        'value="%s">&nbsp;' % escape(name)) +
+                'class="form-control"' +
+                        'value="%s">' % escape(name)) +
                 '<select id="submitter_select" ' +
                 'disabled="true"></select>')
 
@@ -188,7 +189,7 @@ class StateFilter(Filter):
         return None
 
     def _form(self):
-        str = '<select name="%s">' % self.param
+        str = '<select name="%s" class="form-control">' % self.param
 
         selected = ''
         if not self.applied:
@@ -248,7 +249,7 @@ class SearchFilter(Filter):
         value = ''
         if self.search:
             value = escape(self.search)
-        return mark_safe('<input name="%s" value="%s">' %\
+        return mark_safe('<input name="%s" class="form-control" value="%s">' %\
                 (self.param, value))
 
     def form_function(self):
@@ -301,9 +302,10 @@ class ArchiveFilter(Filter):
             selected = ''
             if self.archive_state == b:
                 selected = 'checked="true"'
-            s += ('<input type="radio" name="%(param)s" ' + \
-                   '%(selected)s value="%(value)s">%(label)s' + \
-                   '&nbsp;&nbsp;&nbsp;&nbsp;') % \
+            s += ('<label class="checkbox-inline">' \
+                  ' <input type="radio" name="%(param)s" ' + \
+                           '%(selected)s value="%(value)s">%(label)s' + \
+                   '</label>') % \
                     {'label': label,
                      'param': self.param,
                      'selected': selected,
@@ -357,7 +359,7 @@ class DelegateFilter(Filter):
         delegates = User.objects.filter(profile__maintainer_projects =
                 self.filters.project)
 
-        str = '<select name="delegate">'
+        str = '<select name="delegate" class="form-control">'
 
         selected = ''
         if not self.applied:

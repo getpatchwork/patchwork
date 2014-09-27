@@ -134,16 +134,20 @@ table.patchlist td img {
 	vertical-align: bottom;
 }
 
-table.patchlist td.patchlistfilters {
-	background: #c0c0ff;
-	border-top: thin solid gray;
-	border-bottom: thin solid black;
-	font-size: smaller;
+.filters {
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
 }
 
-td.patchlistfilters a {
-   color: black;
+a.filter-action {
+    color: black;
 }
+a.filter-action:hover {
+    text-decoration: none;
+}
+
 
 table.patchlist td.patchlistreorder {
 	background: #c0c0ff;
