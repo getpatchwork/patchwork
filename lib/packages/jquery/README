@@ -1,7 +1,16 @@
-This directory contains the jQuery Javascript library, and jQuery
-Table Drag & Drop plugin. These are available from:
+This directory contains the jQuery Javascript library, and jQuery plugins:
 
-  http://jquery.com/
-  http://isocra.com/2008/02/table-drag-and-drop-jquery-plugin/
+jQuery:
 
-Both are redistributable under the MIT license.
+  - http://jquery.com/
+  - MIT license
+
+Table Drag & Drop plugin:
+
+  - http://isocra.com/2008/02/table-drag-and-drop-jquery-plugin/
+  - MIT license
+
+Sticky Table Headers:
+
+  - https://github.com/jmosbech/StickyTableHeaders
+  - MIT license
