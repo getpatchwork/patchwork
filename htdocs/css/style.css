@@ -106,34 +106,6 @@ dl dt {
 	color: green;
 }
 
-/* patch lists */
-table.patchlist {
-	width: 98%;
-	border: thin solid black;
-	padding: 0em 1em;
-}
-
-table.patchlist th {
-	background: #eeeeee;
-	border-bottom: thin solid black;
-	text-align: left;
-	padding-left: 6px;
-}
-
-table.patchlist th img {
-	vertical-align: bottom;
-}
-
-table.patchlist td {
-	padding: 2px 6px 2px 6px;
-	margin: 0px;
-	margin-top: 10px;
-}
-
-table.patchlist td img {
-	vertical-align: bottom;
-}
-
 .filters {
     border: 1px solid #cccccc;
     border-radius: 4px;
@@ -148,21 +120,6 @@ a.filter-action:hover {
     text-decoration: none;
 }
 
-
-table.patchlist td.patchlistreorder {
-	background: #c0c0ff;
-	border-top: thin solid gray;
-	border-bottom: thin solid black;
-	font-size: smaller;
-	text-align: right;
-}
-table.patchlist tr.odd {
-	background: #ffffff;
-}
-
-table.patchlist tr.even {
-	background: #e8e8e8;
-}
 
 a.colinactive, a.colactive {
 	color: black;

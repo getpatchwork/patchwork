@@ -39,7 +39,7 @@
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
-<table class="patchlist" id="patchlist">
+<table class="table table-hover" id="patchlist">
  <thead>
   <tr>
    {% if user.is_authenticated %}
@@ -140,7 +140,7 @@
 {% if page.paginator.count %}
  <tbody>
  {% for patch in page.object_list %}
-  <tr id="patch_row:{{patch.id}}" class="{% cycle 'odd' 'even' %}">
+  <tr id="patch_row:{{patch.id}}">
     {% if user.is_authenticated %}
     <td>
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
