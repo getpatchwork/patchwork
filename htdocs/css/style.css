@@ -120,6 +120,9 @@ a.filter-action:hover {
     text-decoration: none;
 }
 
+table#patchlist > thead {
+    background-color: white;
+}
 
 a.colinactive, a.colactive {
 	color: black;

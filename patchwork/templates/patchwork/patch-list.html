@@ -35,6 +35,11 @@
 </div>
 {% endif %}
 
+<script type="text/javascript" language="JavaScript">
+$(document).ready(function() {
+    $('#patchlist').stickyTableHeaders();
+});
+</script>
 <form method="post">
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
