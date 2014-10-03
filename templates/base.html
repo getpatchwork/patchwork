@@ -46,7 +46,8 @@
 {% endif %}
 {% if user.is_authenticated %}
      <li><a href="{% url 'patchwork.views.user.todo_lists' %}">Todo
-      ({{ user.profile.n_todo_patches }})</a></li>
+      <span class="badge">{{ user.profile.n_todo_patches }}</span></a>
+     </li>
      <li><a href="{% url 'patchwork.views.bundle.bundles' %}">Bundles</a></li>
 {% if user.is_staff %}
      <li><a href="{% url 'admin:index' %}">Admin</a></li>
