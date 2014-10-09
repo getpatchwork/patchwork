@@ -1,5 +1,10 @@
-a:visited { color: #000000; }
-a { color: #786fb4; }
+a {
+	color: #2E2E70;
+}
+
+a:hover {
+	color: #0A0A47;
+}
 
 .floaty {
 	position: fixed;
