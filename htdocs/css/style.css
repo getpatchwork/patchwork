@@ -160,24 +160,24 @@ input#reorder-change {
 }
 
 /* list pagination */
-.paginator { padding-bottom: 1em; padding-top: 1em; font-size: 80%; }
+.paginator {
+	text-align: right;
+	margin: 10px 0;
+	clear: both;
+	margin-top: 20px;
+}
 
 .paginator .prev-na,
 .paginator .next-na {
 	padding:.3em;
 	font-weight: normal;
-	border: 0.1em solid #c0c0c0;
-	background-color: #f9f9f9;
 	color: #a0a0a0;
 }
 
 .paginator .prev a, .paginator .prev a:visited,
 .paginator .next a, .paginator .next a:visited {
-	border: 0.1em solid #b0b0d0;
-	background-color: #eeeeee;
-	color: #786fb4;
 	padding: .3em;
-	font-weight: bold;
+	font-weight: normal;
 }
 
 .paginator .prev, .paginator .prev-na { margin-right:.5em; }
@@ -185,27 +185,13 @@ input#reorder-change {
 
 .paginator .page a, .paginator .page a:visited, .paginator .curr {
 	padding: .25em;
-	font-weight: bold;
-	border: 1px solid #b0b0d0;
-	background-color: #eeeeee;
+	font-weight: normal;
 	margin: 0em .25em;
-	color: #786fb4;
 }
-
 .paginator .curr {
-	background-color: #b0b0d0;
-	color:#fff;
-	border:1px solid #c0c0ff;
-	font-weight:bold;
-}
-
-.paginator .page a:hover,
-.paginator .curr a:hover,
-.paginator .prev a:hover,
-.paginator .next a:hover {
-	color: #ffffff;
-	background-color: #c0c0ff;
-	border:1px solid #234f32;
+	background-color: #2E2E70;
+	color: #fff;
+	font-weight:normal;
 }
 
 /* project list view */

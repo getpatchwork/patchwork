@@ -5,9 +5,9 @@
 
 {% load cycle from future %}
 
-{% include "patchwork/pagination.html" %}
-
 {% include "patchwork/filters.html" %}
+
+{% include "patchwork/pagination.html" %}
 
 {% if order.editable %}
 <table class="patchlist">
