@@ -29,6 +29,7 @@ import subprocess
 import base64
 import ConfigParser
 import shutil
+import re
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
@@ -134,14 +135,24 @@ def person_ids_by_name(rpc, name):
     people = rpc.person_list(name, 0)
     return map(lambda x: x['id'], people)
 
-def list_patches(patches):
+def list_patches(patches, format_str=None):
     """Dump a list of patches to stdout."""
-    print("%-7s %-12s %s" % ("ID", "State", "Name"))
-    print("%-7s %-12s %s" % ("--", "-----", "----"))
-    for patch in patches:
-        print("%-7d %-12s %s" % (patch['id'], patch['state'], patch['name']))
+    if format_str:
+        format_field_re = re.compile("%{([a-z0-9_]+)}")
 
-def action_list(rpc, filter, submitter_str, delegate_str):
+        def patch_field(matchobj):
+            fieldname = matchobj.group(1)
+            return str(patch[fieldname])
+
+        for patch in patches:
+            print(format_field_re.sub(patch_field, format_str))
+    else:
+        print("%-7s %-12s %s" % ("ID", "State", "Name"))
+        print("%-7s %-12s %s" % ("--", "-----", "----"))
+        for patch in patches:
+            print("%-7d %-12s %s" % (patch['id'], patch['state'], patch['name']))
+
+def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     filter.resolve_ids(rpc)
 
     if submitter_str != None:
@@ -158,7 +169,7 @@ def action_list(rpc, filter, submitter_str, delegate_str):
                 f = filter
                 f.add("submitter_id", id)
                 patches = rpc.patch_list(f.d)
-                list_patches(patches)
+                list_patches(patches, format_str)
         return
 
     if delegate_str != None:
@@ -174,11 +185,11 @@ def action_list(rpc, filter, submitter_str, delegate_str):
                 f = filter
                 f.add("delegate_id", id)
                 patches = rpc.patch_list(f.d)
-                list_patches(patches)
+                list_patches(patches, format_str)
         return
 
     patches = rpc.patch_list(filter.d)
-    list_patches(patches)
+    list_patches(patches, format_str)
 
 def action_projects(rpc):
     projects = rpc.project_list("", 0)
@@ -369,6 +380,11 @@ def main():
         help='''Filter by Message-Id'''
     )
     filter_parser.add_argument(
+        '-f', metavar='FORMAT',
+        help='''Print output in the given format. You can use tags matching '''
+            '''fields, e.g. %%{id}, %%{state}, or %%{msgid}.'''
+    )
+    filter_parser.add_argument(
         'patch_name', metavar='STR', nargs='?',
         help='substring to search for patches by name',
     )
@@ -501,6 +517,7 @@ def main():
     project_str = args.get('p')
     submitter_str = args.get('w')
     delegate_str = args.get('d')
+    format_str = args.get('f')
     hash_str = args.get('hash')
     patch_ids = args.get('id')
     msgid_str = args.get('m')
@@ -632,7 +649,7 @@ def main():
     if action == 'list' or action == 'search':
         if args.get('patch_name') != None:
             filt.add("name__icontains", args.get('patch_name'))
-        action_list(rpc, filt, submitter_str, delegate_str)
+        action_list(rpc, filt, submitter_str, delegate_str, format_str)
 
     elif action.startswith('project'):
         action_projects(rpc)
