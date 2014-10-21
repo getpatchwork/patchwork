@@ -142,7 +142,14 @@ def list_patches(patches, format_str=None):
 
         def patch_field(matchobj):
             fieldname = matchobj.group(1)
-            return str(patch[fieldname])
+
+            if fieldname == "_msgid_":
+                # naive way to strip < and > from message-id
+                val = string.strip(str(patch["msgid"]), "<>")
+            else:
+                val = str(patch[fieldname])
+
+            return val
 
         for patch in patches:
             print(format_field_re.sub(patch_field, format_str))
