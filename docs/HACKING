@@ -7,7 +7,8 @@ It's always a good idea to use virtualenv to develop python software.
    Because we're going to recompile our dependencies, we'll also need
    development headers:
 
-   - For the MySQL/MariaDB setups: mariadb-devel (Fedora)
+   - For the MySQL/MariaDB setups: mariadb-devel (Fedora), libmysqlclient-dev
+     (Debian)
 
 2. Create a new virtual environement. Virtual environments are "instances" of
    your system python, without any of the extra python packages installed.
