@@ -56,10 +56,6 @@ function toggle_headers(link_id, headers_id)
 {% endif %}
    </td>
  </tr>
- <tr>
-  <th>Permalink</th>
-  <td><a href="{{ patch.get_absolute_url }}">{{ patch.get_absolute_url }}</a>
- </tr>
   <tr>
    <th>State</th>
    <td>{{ patch.state.name }}{% if patch.archived %}, archived{% endif %}</td>
