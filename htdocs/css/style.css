@@ -402,7 +402,7 @@ table.vertical {
 	border-collapse: collapse;
 }
 table.vertical th {
-	background: #786fb4;
+	background: #0A0A47;
 	color: white;
 	font-weight: bold;
 	text-align: center;
@@ -425,10 +425,10 @@ div.box {
 }
 
 div.box h2 {
-	background: #786fb4;
+	background: #0A0A47;
 	color: white;
 	margin: -0.5em -0.5em 1em; -0.5em;
-	padding: 0em 0.5em;
+	padding: 0.3em 0.3em 0.3em 0.6em;
 	font-size: 100%;
 }
 
