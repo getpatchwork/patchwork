@@ -310,9 +310,8 @@ div.patchform h3 {
 	margin-top: 0em;
 	margin-left: -0.6em;
 	margin-right: -0.6em;
-	padding-left: 0.3em;
-	padding-right: 0.3em;
-	background: #786fb4;
+	padding: 0.3em 0.3em 0.3em 0.6em;
+	background-color: #0A0A47;
 	color: white;
 	font-size: 100%;
 }
