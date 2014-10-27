@@ -337,7 +337,7 @@ table.form td {
 }
 
 table.form th.headerrow {
-	background: #786fb4;
+	background: #0A0A47;
 	color: white;
 	font-weight: bold;
 	text-align: center;
@@ -357,7 +357,7 @@ table.form td.form-help {
 }
 
 table.form tr td.submitrow {
-	border-bottom: 0.2em solid #786fb4;
+	border-bottom: 0.2em solid #0A0A47;
 	text-align: center;
 }
 
