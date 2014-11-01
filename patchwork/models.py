@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
@@ -257,7 +258,22 @@ class Patch(models.Model):
     def __unicode__(self):
         return self.name
 
+    def commit_message(self):
+        """Retrieve the commit message."""
+        return Comment.objects.filter(patch=self, msgid=self.msgid)
+
+    def answers(self):
+        """Retrieve replies.
+
+        This includes all repliess but not the commit message)
+        """
+        return Comment.objects.filter(Q(patch=self) & ~Q(msgid=self.msgid))
+
     def comments(self):
+        """Retrieves all comments of this patch.
+
+        This includes the commit message and all other replies.
+        """
         return Comment.objects.filter(patch = self)
 
     def _set_tag(self, tag, count):
