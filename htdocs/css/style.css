@@ -11,6 +11,12 @@ h2 {
 	margin: 18px 0 18px 0;
 }
 
+pre {
+	line-height: 110%;
+	background-color: white;
+	border-radius: 0;
+}
+
 .floaty {
 	position: fixed;
 	left: 0.1em;
@@ -236,8 +242,11 @@ table.patchmeta tr th, table.patchmeta tr td {
 	background: #f0f0f0;
 }
 
+.comment .content {
+	border: 0;
+}
+
 .patch .content {
-	border: thin solid gray;
 	padding: 1em;
 }
 
