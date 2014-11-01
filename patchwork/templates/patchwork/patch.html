@@ -187,6 +187,15 @@ function toggle_headers(link_id, headers_id)
 </div>
 {% endfor %}
 
+{% if patch.content %}
+<h2>Patch</h2>
+<div class="patch">
+<pre class="content">
+{{ patch|patchsyntax }}
+</pre>
+</div>
+{% endif %}
+
 {% for item in patch.answers %}
 {% if forloop.first %}
 <h2>Comments</h2>
@@ -199,15 +208,5 @@ function toggle_headers(link_id, headers_id)
 </pre>
 </div>
 {% endfor %}
-
-{% if patch.content %}
-<h2>Patch</h2>
-<div class="patch">
-<pre class="content">
-{{ patch|patchsyntax }}
-</pre>
-</div>
-{% endif %}
-
 
 {% endblock %}
