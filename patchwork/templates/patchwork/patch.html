@@ -45,17 +45,6 @@ function toggle_headers(link_id, headers_id)
   <th>Message ID</th>
   <td>{{ patch.msgid }}</td>
  </tr>
- <tr>
-  <th>Download</th>
-  <td>
-   <a href="{% url 'patchwork.views.patch.mbox' patch_id=patch.id %}"
-   >mbox</a>
-{% if patch.content %}|
-   <a href="{% url 'patchwork.views.patch.content' patch_id=patch.id %}"
-   >patch</a>
-{% endif %}
-   </td>
- </tr>
   <tr>
    <th>State</th>
    <td>{{ patch.state.name }}{% if patch.archived %}, archived{% endif %}</td>
@@ -188,8 +177,19 @@ function toggle_headers(link_id, headers_id)
 {% endfor %}
 
 {% if patch.content %}
-<h2>Patch</h2>
-<div class="patch">
+<h2>
+ Patch
+ <a href="javascript:toggle_headers('hide-patch', 'patch')" id="hide-patch">hide</a></span>
+{% if patch.content %}
+ <span>|</span>
+ <a href="{% url 'patchwork.views.patch.content' patch_id=patch.id %}"
+   >download patch</a>
+{% endif %}
+ <span>|</span>
+ <a href="{% url 'patchwork.views.patch.mbox' patch_id=patch.id %}"
+   >download mbox</a>
+</h2>
+<div id="patch" class="patch">
 <pre class="content">
 {{ patch|patchsyntax }}
 </pre>
