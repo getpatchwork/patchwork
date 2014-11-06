@@ -246,6 +246,7 @@ table.patchmeta tr th, table.patchmeta tr td {
 
 .comment .meta {
 	background: #f0f0f0;
+	padding: 0.3em 0.5em;
 }
 
 .comment .content {

@@ -169,7 +169,10 @@ function toggle_headers(link_id, headers_id)
 {% for item in patch.commit_message %}
 <h2>Commit Message</h2>
 <div class="comment">
-<div class="meta">{{ item.submitter|personify:project }} - {{item.date}}</div>
+<div class="meta">
+ <span>{{ item.submitter|personify:project }}</span>
+ <span class="pull-right">{{ item.date }}</span>
+</div>
 <pre class="content">
 {{ item|commentsyntax }}
 </pre>
@@ -202,7 +205,10 @@ function toggle_headers(link_id, headers_id)
 {% endif %}
 
 <div class="comment">
-<div class="meta">{{ item.submitter|personify:project }} - {{item.date}}</div>
+<div class="meta">
+ <span>{{ item.submitter|personify:project }}</span>
+ <span class="pull-right">{{ item.date }}</span>
+</div>
 <pre class="content">
 {{ item|commentsyntax }}
 </pre>
