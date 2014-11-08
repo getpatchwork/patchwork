@@ -32,15 +32,14 @@ function toggle_headers(link_id, headers_id)
 }
 </script>
 
+<h2>{{ patch.name }}</h2>
+<div class="core-info">
+    <span>Submitted by {{ patch.submitter|personify:project }} on {{ patch.date }}</span>
+</div>
+
+<h2>Details</h2>
+
 <table class="patchmeta">
- <tr>
-  <th>Submitter</th>
-  <td>{{ patch.submitter|personify:project }}</td>
- </tr>
- <tr>
-  <th>Date</th>
-  <td>{{ patch.date }}</td>
- </tr>
  <tr>
   <th>Message ID</th>
   <td>{{ patch.msgid }}</td>
