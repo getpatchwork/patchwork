@@ -103,7 +103,7 @@ class PatchNotificationModelTest(TestCase):
         self.assertEqual(PatchChangeNotification.objects.count(), 1)
         notification = PatchChangeNotification.objects.all()[0]
         self.assertEqual(notification.orig_state, oldstate)
-        self.assertTrue(notification.last_modified > orig_timestamp)
+        self.assertTrue(notification.last_modified >= orig_timestamp)
 
     def testProjectNotificationsDisabled(self):
         """Ensure we don't see notifications created when a project is
