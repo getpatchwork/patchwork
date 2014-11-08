@@ -51,3 +51,19 @@ It's always a good idea to use virtualenv to develop python software.
 
    (django-1.7)$ deactivate
    $
+
+
+== Running tests
+
+- To run all tests:
+
+  $ ./manage.py test
+
+- To run all test methods (methods which name starts with 'test') of a TestCase
+  subclass:
+
+  $ ./manage.py test patchwork.tests.SubjectCleanUpTest
+
+- To run a single test:
+
+  $ ./manage.py test patchwork.tests.SubjectCleanUpTest.testSubjectCleanup
