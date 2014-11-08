@@ -152,7 +152,7 @@ $(document).ready(function() {
     </td>
     {% endif %}
    <td><a href="{% url 'patchwork.views.patch.patch' patch_id=patch.id %}"
-     >{{ patch.name|default:"[no subject]" }}</a></td>
+     >{{ patch.name|default:"[no subject]"|truncatechars:100 }}</a></td>
    <td style="white-space: nowrap;">{{ patch|patch_tags }}</td>
    <td>{{ patch.date|date:"Y-m-d" }}</td>
    <td>{{ patch.submitter|personify:project }}</td>
