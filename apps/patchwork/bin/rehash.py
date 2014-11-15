@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Patchwork - automated patch tracking system
 # Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
