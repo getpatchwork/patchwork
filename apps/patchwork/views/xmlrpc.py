@@ -198,6 +198,7 @@ def patch_to_dict(obj):
          'project_id'   : obj.project_id,
          'state'        : unicode(obj.state).encode("utf-8"),
          'state_id'     : obj.state_id,
+         'archived'     : obj.archived,
          'submitter'    : unicode(obj.submitter).encode("utf-8"),
          'submitter_id' : obj.submitter_id,
          'delegate'     : unicode(obj.delegate).encode("utf-8"),
