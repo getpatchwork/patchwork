@@ -65,7 +65,7 @@ in brackets):
 
     For MySQL:
         $ mysql
-        > CREATE DATABASE 'patchwork' CHARACTER SET utf8;
+        > CREATE DATABASE patchwork CHARACTER SET utf8;
         > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
         > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
 
