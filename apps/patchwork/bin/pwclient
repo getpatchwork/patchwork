@@ -359,6 +359,10 @@ def main():
         'id', metavar='ID', nargs='*', action='store', type=int,
         help='Patch ID',
     )
+    hash_parser.add_argument(
+        '-p', metavar='PROJECT',
+        help='''Lookup patch in project'''
+    )
 
     filter_parser = argparse.ArgumentParser(add_help=False, version=False)
     filter_parser.add_argument(
