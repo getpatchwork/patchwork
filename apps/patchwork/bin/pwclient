@@ -607,7 +607,6 @@ def main():
 
     url = config.get(project_str, 'url')
 
-    (username, password) = (None, None)
     transport = None
     if action in auth_actions:
         if config.has_option(project_str, 'username') and \
