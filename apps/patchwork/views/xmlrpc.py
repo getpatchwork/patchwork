@@ -300,6 +300,7 @@ def patch_list(filter={}):
             "project_id",
             "submitter_id",
             "delegate_id",
+            "archived",
             "state_id",
             "date",
             "commit_ref",
