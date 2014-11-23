@@ -56,7 +56,7 @@ def generic_list(request, project, view,
         data = None
     user = request.user
     properties_form = None
-    if project.is_editable(user):
+    if user.is_authenticated():
 
         # we only pass the post data to the MultiplePatchForm if that was
         # the actual form submitted
