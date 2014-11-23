@@ -274,7 +274,7 @@ def action_apply(rpc, patch_id, apply_cmd=None):
         sys.stderr.write("Error: No patch content found\n")
         sys.exit(1)
 
-def action_update_patch(rpc, patch_id, state = None, commit = None):
+def action_update_patch(rpc, patch_id, state = None, archived = None, commit = None):
     patch = rpc.patch_get(patch_id)
     if patch == {}:
         sys.stderr.write("Error getting information on patch ID %d\n" % \
@@ -292,6 +292,9 @@ def action_update_patch(rpc, patch_id, state = None, commit = None):
 
     if commit:
         params['commit_ref'] = commit
+
+    if archived:
+        params['archived'] = archived == 'yes'
 
     success = False
     try:
@@ -369,6 +372,10 @@ def main():
     filter_parser.add_argument(
         '-s', metavar='STATE',
         help='''Filter by patch state (e.g., 'New', 'Accepted', etc.)'''
+    )
+    filter_parser.add_argument(
+        '-a', choices=['yes','no'],
+        help='''Filter by patch archived state'''
     )
     filter_parser.add_argument(
         '-p', metavar='PROJECT',
@@ -486,6 +493,10 @@ def main():
         required=True,
         help='''Set patch state (e.g., 'Accepted', 'Superseded' etc.)'''
     )
+    update_parser.add_argument(
+        '-a', choices=['yes', 'no'],
+        help='''Set patch archived state'''
+    )
     update_parser.set_defaults(subcmd='update')
     list_parser = subparsers.add_parser("list",
         add_help=False,
@@ -525,6 +536,7 @@ def main():
     commit_str = None
     url = DEFAULT_URL
 
+    archived_str = args.get('a')
     state_str = args.get('s')
     project_str = args.get('p')
     submitter_str = args.get('w')
@@ -630,6 +642,9 @@ def main():
     if state_str:
         filt.add("state", state_str)
 
+    if archived_str:
+        filt.add("archived", archived_str == 'yes')
+
     if msgid_str:
         filt.add("msgid", msgid_str)
 
@@ -702,7 +717,7 @@ def main():
     elif action == 'update':
         for patch_id in non_empty(h, patch_ids):
             action_update_patch(rpc, patch_id, state = state_str,
-                commit = commit_str
+                archived = archived_str, commit = commit_str
             )
 
     else:
