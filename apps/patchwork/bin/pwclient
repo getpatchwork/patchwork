@@ -269,6 +269,7 @@ def action_apply(rpc, patch_id, apply_cmd=None):
     if len(s) > 0:
         proc = subprocess.Popen(apply_cmd, stdin = subprocess.PIPE)
         proc.communicate(unicode(s).encode('utf-8'))
+        return proc.returncode
     else:
         sys.stderr.write("Error: No patch content found\n")
         sys.exit(1)
@@ -684,14 +685,20 @@ def main():
 
     elif action == 'apply':
         for patch_id in non_empty(h, patch_ids):
-            action_apply(rpc, patch_id)
+            ret = action_apply(rpc, patch_id)
+            if ret:
+                sys.stderr.write("Apply failed with exit status %d\n" % ret)
+                sys.exit(1)
 
     elif action == 'git_am':
         cmd = ['git', 'am']
         if do_signoff:
             cmd.append('-s')
         for patch_id in non_empty(h, patch_ids):
-            action_apply(rpc, patch_id, cmd)
+            ret = action_apply(rpc, patch_id, cmd)
+            if ret:
+                sys.stderr.write("'git am' failed with exit status %d\n" % ret)
+                sys.exit(1)
 
     elif action == 'update':
         for patch_id in non_empty(h, patch_ids):
