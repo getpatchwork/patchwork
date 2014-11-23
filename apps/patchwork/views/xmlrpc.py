@@ -381,7 +381,7 @@ def patch_get_mbox(patch_id):
     """Return mbox string for the given patch ID."""
     try:
         patch = Patch.objects.filter(id = patch_id)[0]
-        return patch_to_mbox(patch).as_string()
+        return patch_to_mbox(patch).as_string(True)
     except:
         return ""
 
