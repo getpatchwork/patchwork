@@ -132,7 +132,7 @@ a.filter-action:hover {
     text-decoration: none;
 }
 
-table#patchlist > thead {
+table.pw-list > thead {
     background-color: white;
 }
 
