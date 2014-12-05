@@ -15,6 +15,7 @@ in brackets):
   * A database server (postgresql, mysql)
   * relevant python modules for the database server (e.g: python-mysqldb)
 
+
 1. Database setup
 
     At present, I've tested with PostgreSQL and (to a lesser extent) MySQL
@@ -89,69 +90,71 @@ in brackets):
         it, tests checking for the correct handling of non-ASCII characters
         fail.
 
+
 2. Django setup
 
-        Set up some initial directories in the patchwork base directory:
+    Set up some initial directories in the patchwork base directory:
 
-         mkdir -p lib/packages lib/python
+      mkdir -p lib/packages lib/python
 
-        lib/packages is for stuff we'll download; lib/python is to add
-        to our python path. We'll symlink python modules into lib/python.
+    lib/packages is for stuff we'll download; lib/python is to add
+    to our python path. We'll symlink python modules into lib/python.
 
-        At the time of release, patchwork depends on django version 1.5 or
-        later. Your distro probably provides this. If not, do a:
+    At the time of release, patchwork depends on django version 1.5 or
+    later. Your distro probably provides this. If not, do a:
 
-         cd lib/packages
-	  git clone https://github.com/django/django.git -b stable/1.5.x
-         cd ../python
-         ln -s ../packages/django/django ./django
+      cd lib/packages
+      git clone https://github.com/django/django.git -b stable/1.5.x
+      cd ../python
+      ln -s ../packages/django/django ./django
 
-        The settings.py file contains default settings for patchwork, you'll
-        need to configure settings for your own setup.
+    The settings.py file contains default settings for patchwork, you'll
+    need to configure settings for your own setup.
 
-        Rather than edit settings.py, create a file 'local_settings.py', and
-        override or add settings as necessary. You'll need to define the
-        following:
+    Rather than edit settings.py, create a file 'local_settings.py', and
+    override or add settings as necessary. You'll need to define the
+    following:
 
-          SECRET_KEY
-          ADMINS
-          TIME_ZONE
-          LANGUAGE_CODE
-          DEFAULT_FROM_EMAIL
-          NOTIFICATION_FROM_EMAIL
+      SECRET_KEY
+      ADMINS
+      TIME_ZONE
+      LANGUAGE_CODE
+      DEFAULT_FROM_EMAIL
+      NOTIFICATION_FROM_EMAIL
 
-        You can generate the SECRET_KEY with the following python code:
+    You can generate the SECRET_KEY with the following python code:
 
-          import string, random
-          chars = string.letters + string.digits + string.punctuation
-          print repr("".join([random.choice(chars) for i in range(0,50)]))
+      import string, random
+      chars = string.letters + string.digits + string.punctuation
+      print repr("".join([random.choice(chars) for i in range(0,50)]))
 
-        If you wish to enable the XML-RPC interface, add the following to
-        your local_settings.py file:
+    If you wish to enable the XML-RPC interface, add the following to
+    your local_settings.py file:
 
-          ENABLE_XMLRPC = True
+      ENABLE_XMLRPC = True
 
-        Then, get patchwork to create its tables in your configured database:
+    Then, get patchwork to create its tables in your configured database:
 
-         cd apps/
-         PYTHONPATH=../lib/python ./manage.py syncdb
+     cd apps/
+     PYTHONPATH=../lib/python ./manage.py syncdb
 
-        And add privileges for your mail and web users. This is only needed if
-        you use the ident-based approach. If you use password-based database
-        authentication, you can skip this step.
+    And add privileges for your mail and web users. This is only needed if
+    you use the ident-based approach. If you use password-based database
+    authentication, you can skip this step.
 
-        Postgresql:
-          psql -f lib/sql/grant-all.postgres.sql patchwork
+    Postgresql:
+      psql -f lib/sql/grant-all.postgres.sql patchwork
 
-        MySQL:
-          mysql patchwork < lib/sql/grant-all.mysql.sql
+    MySQL:
+      mysql patchwork < lib/sql/grant-all.mysql.sql
 
 
 3. Apache setup
 
-Example apache configuration files are in lib/apache2/.
+    Example apache configuration files are in lib/apache2/.
 
-wsgi:
+    wsgi:
+
         django has built-in support for WSGI, which supersedes the fastcgi
         handler. It is thus the preferred method to run patchwork.
 
@@ -164,7 +167,8 @@ wsgi:
          a2enmod wsgi
          apache2ctl restart
 
-mod_python:
+
+     mod_python:
 
         An example apache configuration file for mod_python is in:
 
@@ -174,7 +178,8 @@ mod_python:
         web server is used for serving php files, the fastcgi method may suit
         instead.
 
-fastcgi:
+
+    fastcgi:
 
         django has built-in support for fastcgi, which requires the
         'flup' python module. An example configuration is in:
@@ -190,6 +195,7 @@ fastcgi:
                               socket=/srv/patchwork/var/fcgi.sock \
                               pidfile=/srv/patchwork/var/fcgi.pid
 
+
 4. Configure patchwork
     Now, you should be able to administer patchwork, by visiting the
     URL:
@@ -201,12 +207,14 @@ fastcgi:
       * Set up your projects
       * Configure your website address (in the Sites) section
 
+    
 5. Subscribe a local address to the mailing list
 
-     You will need an email address for patchwork to receive email on - for
-     example - patchwork@, and this address will need to be subscribed to the
-     list. Depending on the mailing list, you will probably need to confirm the
-     subscription - temporarily direct the alias to yourself to do this.
+    You will need an email address for patchwork to receive email on - for
+    example - patchwork@, and this address will need to be subscribed to the
+    list. Depending on the mailing list, you will probably need to confirm the
+    subscription - temporarily direct the alias to yourself to do this.
+
 
 6. Setup your MTA to deliver mail to the parsemail script
 
@@ -223,6 +231,7 @@ fastcgi:
 
      sudo -u nobody /srv/patchwork/apps/patchwork/bin/parsemail.sh < mail
 
+
 7. Set up the patchwork cron script
 
     Patchwork uses a cron script to clean up expired registrations, and
@@ -238,6 +247,7 @@ fastcgi:
 
     - the frequency should be the same as the NOTIFICATION_DELAY_MINUTES
     setting, which defaults to 10 minutes.
+
 
 8. Optional: Configure your VCS to automatically update patches
 
@@ -256,6 +266,7 @@ fastcgi:
     If you are using a system other than git, you can likely write a
     similar hook using pwclient to update patch state. If you do write
     one, please contribute it.
+
 
 Some errors:
 
