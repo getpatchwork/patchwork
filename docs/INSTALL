@@ -22,7 +22,7 @@ in brackets):
     either, email me.
 
     For the following commands, a $ prefix signifies that the command should be
-    entered at your shell prompt, and a > prefix signifies the commant-line
+    entered at your shell prompt, and a > prefix signifies the command-line
     client for your sql server (psql or mysql)
 
     Create a database for the system, add accounts for two system users: the
@@ -95,7 +95,7 @@ in brackets):
 
          mkdir -p lib/packages lib/python
 
-        lib/packages is for stuff we'll download, lib/python is to add
+        lib/packages is for stuff we'll download; lib/python is to add
         to our python path. We'll symlink python modules into lib/python.
 
         At the time of release, patchwork depends on django version 1.5 or
@@ -199,7 +199,7 @@ fastcgi:
     You'll probably want to do the following:
 
       * Set up your projects
-      * Configure your website address (in the Sites) section of the admin
+      * Configure your website address (in the Sites) section
 
 5. Subscribe a local address to the mailing list
 
@@ -273,7 +273,7 @@ Some errors:
    to the tables.
 
 * pwclient fails for actions that require authentication, but a username
-  and password is given int ~/.pwclient rc. Server reports "No authentication
+  and password is given in ~/.pwclientrc. Server reports "No authentication
   credentials given".
 
  - if you're using the FastCGI interface to apache, you'll need the
