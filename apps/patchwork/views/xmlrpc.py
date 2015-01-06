@@ -326,6 +326,9 @@ def patch_list(filter={}):
             elif parts[0] == 'submitter_id':
                 dfilter['submitter'] = Person.objects.filter(id =
                                         filter[key])[0]
+            elif parts[0] == 'delegate_id':
+                dfilter['delegate'] = Person.objects.filter(id =
+                                        filter[key])[0]
             elif parts[0] == 'state_id':
                 dfilter['state'] = State.objects.filter(id =
                                         filter[key])[0]
