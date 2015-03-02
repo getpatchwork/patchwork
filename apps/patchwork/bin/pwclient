@@ -684,10 +684,25 @@ def main():
         action_states(rpc)
 
     elif action == 'view':
-        for patch_id in non_empty(h, patch_ids):
-            s = rpc.patch_get_mbox(patch_id)
-            if len(s) > 0:
-                print unicode(s).encode("utf-8")
+        pager = os.environ.get('PAGER')
+        if pager:
+            pager = subprocess.Popen(
+                pager.split(), stdin=subprocess.PIPE
+            )
+        if pager:
+            i = list()
+            for patch_id in non_empty(h, patch_ids):
+                s = rpc.patch_get_mbox(patch_id)
+                if len(s) > 0:
+                    i.append(unicode(s).encode("utf-8"))
+            if len(i) > 0:
+                pager.communicate(input="\n".join(i))
+            pager.stdin.close()
+        else:
+            for patch_id in non_empty(h, patch_ids):
+                s = rpc.patch_get_mbox(patch_id)
+                if len(s) > 0:
+                    print unicode(s).encode("utf-8")
 
     elif action == 'info':
         for patch_id in non_empty(h, patch_ids):
