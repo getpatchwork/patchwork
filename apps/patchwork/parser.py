@@ -126,6 +126,11 @@ def parse_patch(text):
                 buf = ''
                 state = 2
 
+            elif hunk and line.startswith('\ No newline at end of file'):
+                # If we had a hunk and now we see this, it's part of the patch,
+                # and we're still expecting another @@ line.
+                patchbuf += line
+
             elif hunk:
                 state = 1
                 buf += line

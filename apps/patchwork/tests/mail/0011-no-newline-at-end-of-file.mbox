@@ -1,0 +1,45 @@
+Subject: [PATCH v3 5/5] selftests, powerpc: Add test for VPHN
+From: Greg Kurz <gkurz@linux.vnet.ibm.com>
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ linuxppc-dev@lists.ozlabs.org
+Date: Mon, 23 Feb 2015 16:14:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+The goal is to verify vphn_unpack_associativity() parses VPHN numbers
+correctly. We feed it with a variety of input values and compare with
+expected results.
+
+diff --git a/tools/testing/selftests/powerpc/Makefile b/tools/testing/selftests/powerpc/Makefile
+index 1d5e7ad..476b8dd 100644
+--- a/tools/testing/selftests/powerpc/Makefile
++++ b/tools/testing/selftests/powerpc/Makefile
+@@ -13,7 +13,7 @@ CFLAGS := -Wall -O2 -flto -Wall -Werror -DGIT_VERSION='"$(GIT_VERSION)"' -I$(CUR
+ 
+ export CC CFLAGS
+ 
+-TARGETS = pmu copyloops mm tm primitives stringloops
++TARGETS = pmu copyloops mm tm primitives stringloops vphn
+ 
+ endif
+ 
+diff --git a/tools/testing/selftests/powerpc/vphn/vphn.c b/tools/testing/selftests/powerpc/vphn/vphn.c
+new file mode 120000
+index 0000000..186b906
+--- /dev/null
++++ b/tools/testing/selftests/powerpc/vphn/vphn.c
+@@ -0,0 +1 @@
++../../../../../arch/powerpc/mm/vphn.c
+\ No newline at end of file
+diff --git a/tools/testing/selftests/powerpc/vphn/vphn.h b/tools/testing/selftests/powerpc/vphn/vphn.h
+new file mode 120000
+index 0000000..7131efe
+--- /dev/null
++++ b/tools/testing/selftests/powerpc/vphn/vphn.h
+@@ -0,0 +1 @@
++../../../../../arch/powerpc/mm/vphn.h
+\ No newline at end of file
+
+

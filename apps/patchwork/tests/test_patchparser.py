@@ -433,6 +433,21 @@ class CharsetFallbackPatchTest(MBoxPatchTest):
         self.assertTrue(patch is not None)
         self.assertTrue(comment is not None)
 
+class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
+    mail_file = '0011-no-newline-at-end-of-file.mbox'
+
+    def testPatch(self):
+        (patch, comment) = find_content(self.project, self.mail)
+        self.assertTrue(patch is not None)
+        self.assertTrue(comment is not None)
+        self.assertTrue(patch.content.startswith('diff --git a/tools/testing/selftests/powerpc/Makefile'))
+        # Confirm the trailing no newline marker doesn't end up in the comment
+        self.assertFalse(comment.content.rstrip().endswith('\ No newline at end of file'))
+        # Confirm it's instead at the bottom of the patch
+        self.assertTrue(patch.content.rstrip().endswith('\ No newline at end of file'))
+        # Confirm we got both markers
+        self.assertEqual(2, patch.content.count('\ No newline at end of file'))
+
 class DelegateRequestTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
