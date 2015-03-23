@@ -20,20 +20,23 @@
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
+from patchwork.filters import SubmitterFilter
 import re
 
 register = template.Library()
 
 @register.filter
-def personify(person):
+def personify(person, project):
 
     if person.name:
         linktext = escape(person.name)
     else:
         linktext = escape(person.email)
 
-    str = '<a href="mailto:%s">%s</a>' % \
-                (escape(person.email), linktext)
+    url = reverse('patchwork.views.patch.list', kwargs = {'project_id' : project.linkname})
+    str = '<a href="%s?%s=%s">%s</a>' % \
+                (url, SubmitterFilter.param, escape(person.id), linktext)
 
     return mark_safe(str)
 

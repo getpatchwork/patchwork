@@ -30,7 +30,7 @@ function toggle_headers(link_id, headers_id)
 <table class="patchmeta">
  <tr>
   <th>Submitter</th>
-  <td>{{ patch.submitter|personify }}</td>
+  <td>{{ patch.submitter|personify:project }}</td>
  </tr>
  <tr>
   <th>Date</th>
@@ -179,7 +179,7 @@ function toggle_headers(link_id, headers_id)
 <h2>Comments</h2>
 {% for comment in patch.comments %}
 <div class="comment">
-<div class="meta">{{ comment.submitter|personify }} - {{comment.date}}</div>
+<div class="meta">{{ comment.submitter|personify:project }} - {{comment.date}}</div>
 <pre class="content">
 {{ comment|commentsyntax }}
 </pre>

@@ -146,7 +146,7 @@
    <td><a href="{% url 'patchwork.views.patch.patch' patch_id=patch.id %}"
      >{{ patch.name|default:"[no subject]" }}</a></td>
    <td>{{ patch.date|date:"Y-m-d" }}</td>
-   <td>{{ patch.submitter|personify }}</td>
+   <td>{{ patch.submitter|personify:project }}</td>
    <td>{{ patch.delegate.username }}</td>
    <td>{{ patch.state }}</td>
   </tr>
