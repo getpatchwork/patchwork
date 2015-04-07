@@ -79,7 +79,7 @@ def create_user():
 
 def create_maintainer(project):
     user = create_user()
-    profile = user.get_profile()
+    profile = user.profile
     profile.maintainer_projects.add(project)
     profile.save()
     return user

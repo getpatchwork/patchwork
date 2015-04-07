@@ -37,7 +37,7 @@ class Paginator(paginator.Paginator):
         patches_per_page = settings.DEFAULT_PATCHES_PER_PAGE
 
         if request.user.is_authenticated():
-            patches_per_page = request.user.get_profile().patches_per_page
+            patches_per_page = request.user.profile.patches_per_page
 
         n = request.META.get('ppp')
         if n:

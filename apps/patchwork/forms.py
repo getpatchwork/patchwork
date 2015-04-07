@@ -89,7 +89,7 @@ class DeleteBundleForm(forms.Form):
 
 class DelegateField(forms.ModelChoiceField):
     def __init__(self, project, *args, **kwargs):
-        queryset = User.objects.filter(userprofile__in = \
+        queryset = User.objects.filter(profile__in = \
                 UserProfile.objects \
                         .filter(maintainer_projects = project) \
                         .values('pk').query)

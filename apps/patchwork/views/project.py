@@ -29,7 +29,7 @@ def project(request, project_id):
     context.project = project
 
     context['maintainers'] = User.objects.filter( \
-            userprofile__maintainer_projects = project)
+            profile__maintainer_projects = project)
     context['n_patches'] = Patch.objects.filter(project = project,
             archived = False).count()
     context['n_archived_patches'] = Patch.objects.filter(project = project,

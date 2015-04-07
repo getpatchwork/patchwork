@@ -41,7 +41,7 @@ class Person(models.Model):
             return self.email
 
     def link_to_user(self, user):
-        self.name = user.get_profile().name()
+        self.name = user.profile.name()
         self.user = user
 
     class Meta:
@@ -63,14 +63,14 @@ class Project(models.Model):
     def is_editable(self, user):
         if not user.is_authenticated():
             return False
-        return self in user.get_profile().maintainer_projects.all()
+        return self in user.profile.maintainer_projects.all()
 
     class Meta:
         ordering = ['linkname']
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, unique = True)
+    user = models.OneToOneField(User, unique = True, related_name='profile')
     primary_project = models.ForeignKey(Project, null = True, blank = True)
     maintainer_projects = models.ManyToManyField(Project,
             related_name = 'maintainer_project')
@@ -93,7 +93,6 @@ class UserProfile(models.Model):
                                         Patch.objects.filter(
                                             submitter__in = submitters)
                                         .values('project_id').query)
-
 
     def sync_person(self):
         pass
@@ -121,7 +120,7 @@ class UserProfile(models.Model):
 
 def _user_saved_callback(sender, created, instance, **kwargs):
     try:
-        profile = instance.get_profile()
+        profile = instance.profile
     except UserProfile.DoesNotExist:
         profile = UserProfile(user = instance)
     profile.save()

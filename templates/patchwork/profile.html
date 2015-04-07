@@ -7,16 +7,16 @@
 {% block body %}
 
 <p>
-{% if user.get_profile.maintainer_projects.count %}
+{% if user.profile.maintainer_projects.count %}
 Maintainer of
-{% for project in user.get_profile.maintainer_projects.all %}
+{% for project in user.profile.maintainer_projects.all %}
 <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
 >{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 {% endif %}
 
-{% if user.get_profile.contributor_projects.count %}
+{% if user.profile.contributor_projects.count %}
 Contributor to
-{% for project in user.get_profile.contributor_projects.all %}
+{% for project in user.profile.contributor_projects.all %}
 <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
 >{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 {% endif %}
@@ -25,10 +25,10 @@ Contributor to
 <div class="leftcol">
 <div class="box">
  <h2>Todo</h2>
-{% if user.get_profile.n_todo_patches %}
+{% if user.profile.n_todo_patches %}
  <p>Your <a href="{% url 'patchwork.views.user.todo_lists' %}">todo
-  list</a> contains {{ user.get_profile.n_todo_patches }}
-  patch{{ user.get_profile.n_todo_patches|pluralize:"es" }}.</p>
+  list</a> contains {{ user.profile.n_todo_patches }}
+  patch{{ user.profile.n_todo_patches|pluralize:"es" }}.</p>
 {% else %}
  <p>Your todo list contains patches that have been delegated to you. You
   have no items in your todo list at present.</p>

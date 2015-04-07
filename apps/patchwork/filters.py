@@ -350,11 +350,11 @@ class DelegateFilter(Filter):
 
     def condition(self):
         if self.delegate:
-            return self.delegate.get_profile().name()
+            return self.delegate.profile.name()
         return self.no_delegate_str
 
     def _form(self):
-        delegates = User.objects.filter(userprofile__maintainer_projects =
+        delegates = User.objects.filter(profile__maintainer_projects =
                 self.filters.project)
 
         str = '<select name="delegate">'
@@ -378,7 +378,7 @@ class DelegateFilter(Filter):
                 selected = ' selected'
 
             str += '<option %s value="%s">%s</option>' % (selected,
-                    d.id, d.get_profile().name())
+                    d.id, d.profile.name())
         str += '</select>'
 
         return mark_safe(str)

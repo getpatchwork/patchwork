@@ -193,7 +193,7 @@ class BundleMaintainerUpdateTest(BundleUpdateTest):
 
     def setUp(self):
         super(BundleMaintainerUpdateTest, self).setUp()
-        profile = self.user.get_profile()
+        profile = self.user.profile
         profile.maintainer_projects.add(defaults.project)
         profile.save()
 

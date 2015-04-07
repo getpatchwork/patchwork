@@ -22,7 +22,7 @@
      ><strong>{{ user.username }}</strong></a>
     <br/>
      <a href="{% url 'patchwork.views.user.todo_lists' %}">todo
-      ({{ user.get_profile.n_todo_patches }})</a> ::
+      ({{ user.profile.n_todo_patches }})</a> ::
      <a href="{% url 'patchwork.views.bundle.bundles' %}">bundles</a>
      <br/>
      <a href="{% url 'patchwork.views.user.profile' %}">profile</a> ::

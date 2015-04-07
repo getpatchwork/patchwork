@@ -86,7 +86,7 @@ def register_confirm(request, conf):
         person = Person.objects.get(email__iexact = conf.user.email)
     except Person.DoesNotExist:
         person = Person(email = conf.user.email,
-                name = conf.user.get_profile().name())
+                name = conf.user.profile.name())
     person.user = conf.user
     person.save()
 
@@ -97,14 +97,14 @@ def profile(request):
     context = PatchworkRequestContext(request)
 
     if request.method == 'POST':
-        form = UserProfileForm(instance = request.user.get_profile(),
+        form = UserProfileForm(instance = request.user.profile,
                 data = request.POST)
         if form.is_valid():
             form.save()
     else:
-        form = UserProfileForm(instance = request.user.get_profile())
+        form = UserProfileForm(instance = request.user.profile)
 
-    context.project = request.user.get_profile().primary_project
+    context.project = request.user.profile.primary_project
     context['bundles'] = Bundle.objects.filter(owner = request.user)
     context['profileform'] = form
 
@@ -184,7 +184,7 @@ def todo_lists(request):
     todo_lists = []
 
     for project in Project.objects.all():
-        patches = request.user.get_profile().todo_patches(project = project)
+        patches = request.user.profile.todo_patches(project = project)
         if not patches.count():
             continue
 
@@ -195,13 +195,13 @@ def todo_lists(request):
 
     context = PatchworkRequestContext(request)
     context['todo_lists'] = todo_lists
-    context.project = request.user.get_profile().primary_project
+    context.project = request.user.profile.primary_project
     return render_to_response('patchwork/todo-lists.html', context)
 
 @login_required
 def todo_list(request, project_id):
     project = get_object_or_404(Project, linkname = project_id)
-    patches = request.user.get_profile().todo_patches(project = project)
+    patches = request.user.profile.todo_patches(project = project)
     filter_settings = [(DelegateFilter,
             {'delegate': request.user})]
 
