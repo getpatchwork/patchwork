@@ -1,10 +1,13 @@
-# Django settings for patchwork project.
+"""
+Base settings for patchwork project.
+"""
 
 import os
 
 import django
 
-ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        os.pardir, os.pardir, os.pardir)
 
 #
 # Core settings
@@ -13,7 +16,7 @@ ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 
 # Models
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -21,7 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'patchwork',
-)
+]
 
 # HTTP
 
@@ -38,36 +41,6 @@ if django.VERSION < (1, 7):
 else:
     MIDDLEWARE_CLASSES.append(
         'django.contrib.admindocs.middleware.XViewMiddleware')
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-# Debugging
-
-DEBUG = True
-
-if django.VERSION >= (1, 7):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
-# Email
-
-ADMINS = (
-     ('Jeremy Kerr', 'jk@ozlabs.org'),
-)
-
-MANAGERS = ADMINS
-
-# Databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'patchwork',
-    },
-}
-
-# File Uploads
-
-MEDIA_ROOT = os.path.join(
-    ROOT_DIR, 'lib', 'python', 'django', 'contrib', 'admin', 'media')
 
 # Globalization
 
@@ -81,14 +54,7 @@ USE_I18N = True
 
 ROOT_URLCONF = 'patchwork.urls'
 
-# Security
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '00000000000000000000000000000000000000000000000000'
-
 # Templates
-
-TEMPLATE_DEBUG = True
 
 TEMPLATE_DIRS = (
     os.path.join(ROOT_DIR, 'templates'),
@@ -139,7 +105,7 @@ NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 # Set to True to enable the Patchwork XML-RPC interface
 ENABLE_XMLRPC = False
 
-# set to True to enable redirections or URLs from previous versions
+# Set to True to enable redirections or URLs from previous versions
 # of patchwork
 COMPAT_REDIR = True
 
@@ -147,13 +113,3 @@ COMPAT_REDIR = True
 # the scheme based on current access. This is useful if SSL protocol
 # is terminated upstream of the server (e.g. at the load balancer)
 FORCE_HTTPS_LINKS = False
-
-try:
-    from local_settings import *
-except ImportError, ex:
-    import sys
-    sys.stderr.write(\
-            ("settings.py: error importing local settings file:\n" + \
-            "\t%s\n" + \
-            "Do you have a local_settings.py module?\n") % str(ex))
-    raise
