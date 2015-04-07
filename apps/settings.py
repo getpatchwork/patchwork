@@ -19,6 +19,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.staticfiles',
     'patchwork',
 )
 
@@ -78,7 +79,7 @@ USE_I18N = True
 
 # URLs
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'patchwork.urls'
 
 # Security
 
@@ -99,8 +100,6 @@ TEMPLATE_DIRS = (
 # https://docs.djangoproject.com/en/1.6/ref/settings/#auth
 #
 
-ADMIN_MEDIA_PREFIX = '/media/'
-
 LOGIN_URL = '/user/login/'
 LOGIN_REDIRECT_URL = '/user/'
 
@@ -111,6 +110,18 @@ LOGIN_REDIRECT_URL = '/user/'
 #
 
 SITE_ID = 1
+
+
+#
+# Static files settings
+# https://docs.djangoproject.com/en/1.6/ref/settings/#static-files
+#
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(ROOT_DIR, 'htdocs'),
+]
 
 
 #

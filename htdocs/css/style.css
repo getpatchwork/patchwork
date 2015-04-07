@@ -14,7 +14,7 @@ body {
 
 
 #title {
-	background: url('/images/title-background.png') top left repeat-x;
+	background: url('/static/images/title-background.png') top left repeat-x;
 	background-color: #786fb4;
 	margin: 0px;
 	padding-top: 0.1em;

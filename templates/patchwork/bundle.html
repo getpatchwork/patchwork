@@ -1,17 +1,12 @@
 {% extends "base.html" %}
 
 {% load person %}
+{% load static %}
 
 {% block headers %}
-  <script language="JavaScript" type="text/javascript"
-   src="/js/jquery-1.10.1.min.js">
-  </script>
-  <script language="JavaScript" type="text/javascript"
-   src="/js/jquery.tablednd.js">
-  </script>
-  <script language="JavaScript" type="text/javascript"
-   src="/js/bundle.js">
-  </script>
+  <script type="text/javascript" src="{% static "js/jquery-1.10.1.min.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/jquery.tablednd.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/bundle.js" %}"></script>
 {% endblock %}
 {% block title %}{{project.name}}{% endblock %}
 {% block heading %}bundle: {{bundle.owner.username}} /

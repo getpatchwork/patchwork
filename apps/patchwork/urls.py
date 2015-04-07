@@ -17,12 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+admin.autodiscover()
+
 urlpatterns = patterns('',
-    # Example:
+    url(r'^admin/', include(admin.site.urls)),
+
     (r'^$', 'patchwork.views.projects'),
     (r'^project/(?P<project_id>[^/]+)/list/$', 'patchwork.views.patch.list'),
     (r'^project/(?P<project_id>[^/]+)/$', 'patchwork.views.project.project'),

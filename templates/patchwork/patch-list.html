@@ -1,5 +1,6 @@
 {% load person %}
 {% load listurl %}
+{% load static %}
 
 {% include "patchwork/pagination.html" %}
 
@@ -50,7 +51,11 @@
     {% ifequal order.name "name" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><img
-      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      {% if order.reversed %}
+      src="{% static "images/16-arrow-up.png" %}"
+      {% else %}
+      src="{% static "images/16-arrow-down.png" %}"
+      {%endif%}
       width="16" height="16"
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Patch</a>
@@ -67,7 +72,11 @@
     {% ifequal order.name "date" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><img
-      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      {% if order.reversed %}
+      src="{% static "images/16-arrow-up.png" %}"
+      {% else %}
+      src="{% static "images/16-arrow-down.png" %}"
+      {%endif%}
       width="16" height="16"
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Date</a>
@@ -84,7 +93,11 @@
     {% ifequal order.name "submitter" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><img
-      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      {% if order.reversed %}
+      src="{% static "images/16-arrow-up.png" %}"
+      {% else %}
+      src="{% static "images/16-arrow-down.png" %}"
+      {%endif%}
       width="16" height="16"
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Submitter</a>
@@ -101,7 +114,11 @@
     {% ifequal order.name "delegate" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><img
-      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      {% if order.reversed %}
+      src="{% static "images/16-arrow-up.png" %}"
+      {% else %}
+      src="{% static "images/16-arrow-down.png" %}"
+      {%endif%}
       width="16" height="16"
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">Delegate</a>
@@ -118,7 +135,11 @@
     {% ifequal order.name "state" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><img
-      src="/images/16-arrow-{% if order.reversed %}up{% else %}down{%endif%}.png"
+      {% if order.reversed %}
+      src="{% static "images/16-arrow-up.png" %}"
+      {% else %}
+      src="{% static "images/16-arrow-down.png" %}"
+      {%endif%}
       width="16" height="16"
      ></a> <a class="colactive"
       href="{% listurl order=order.reversed_name %}">State</a>

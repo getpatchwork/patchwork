@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Bundles{% endblock %}
 {% block heading %}Bundles{% endblock %}
 
@@ -27,7 +29,7 @@
   <td style="text-align: right">{{ bundle.n_patches }}</td>
   <td style="text-align: center;"><a
    href="{% url 'patchwork.views.bundle.mbox' username=bundle.owner.username bundlename=bundle.name %}"
-   ><img src="/images/16-em-down.png" width="16" height="16" alt="download"
+   ><img src="{% static "images/16-em-down.png" %}" width="16" height="16" alt="download"
    title="download"/></a></td>
   <td style="text-align: center;">
    <form method="post"
@@ -35,7 +37,7 @@
     {% csrf_token %}
     {{ bundle.delete_form.as_p }}
     <input type="image"
-     src="/images/16-em-cross.png" width="16" height="16" alt="delete"
+     src="{% static "images/patchwork/16-em-cross.png" %}" width="16" height="16" alt="delete"
      title="delete" border="0" style="border: none;"/>
    </form>
   </td>
