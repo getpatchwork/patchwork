@@ -1,5 +1,6 @@
 # Django settings for patchwork project.
 import os
+import django
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -51,17 +52,23 @@ SECRET_KEY = '00000000000000000000000000000000000000000000000000'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.load_template_source',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-)
+]
+
+if django.VERSION < (1, 7):
+    MIDDLEWARE_CLASSES.append('django.middleware.doc.XViewMiddleware')
+else:
+    MIDDLEWARE_CLASSES.append(
+        'django.contrib.admindocs.middleware.XViewMiddleware')
+    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ROOT_URLCONF = 'urls'
 
