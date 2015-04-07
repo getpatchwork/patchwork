@@ -196,7 +196,7 @@ def mbox(request, username, bundlename):
     mbox = '\n'.join([patch_to_mbox(p).as_string(True)
                         for p in bundle.ordered_patches()])
 
-    response = HttpResponse(mimetype='text/plain')
+    response = HttpResponse(content_type='text/plain')
     response['Content-Disposition'] = \
 	'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
 

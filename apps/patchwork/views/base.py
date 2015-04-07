@@ -47,14 +47,14 @@ def pwclientrc(request, project_id):
         context['scheme'] = 'https'
     else:
         context['scheme'] = 'http'
-    response = HttpResponse(mimetype = "text/plain")
+    response = HttpResponse(content_type = "text/plain")
     response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
     response.write(render_to_string('patchwork/pwclientrc', context))
     return response
 
 def pwclient(request):
     context = PatchworkRequestContext(request)
-    response = HttpResponse(mimetype = "text/x-python")
+    response = HttpResponse(content_type = "text/x-python")
     response['Content-Disposition'] = 'attachment; filename=pwclient'
     response.write(render_to_string('patchwork/pwclient', context))
     return response
@@ -87,7 +87,7 @@ def confirm(request, key):
 def submitter_complete(request):
     search = request.GET.get('q', '')
     limit = request.GET.get('l', None)
-    response = HttpResponse(mimetype = "text/plain")
+    response = HttpResponse(content_type = "text/plain")
 
     if len(search) <= 3:
         return response
