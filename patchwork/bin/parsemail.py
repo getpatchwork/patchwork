@@ -39,6 +39,16 @@ from patchwork.models import (
     Patch, Project, Person, Comment, State, get_default_initial_patch_state)
 from patchwork.parser import parse_patch
 
+LOGGER = logging.getLogger(__name__)
+
+VERBOSITY_LEVELS = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL
+}
+
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 
@@ -93,6 +103,7 @@ def find_project_by_header(mail):
                 break
 
     return project
+
 
 def find_author(mail):
 
@@ -385,16 +396,20 @@ def parse_mail(mail, list_id=None):
     """
     # some basic sanity checks
     if 'From' not in mail:
+        LOGGER.debug("Ignoring patch due to missing 'From'")
         return 0
 
     if 'Subject' not in mail:
+        LOGGER.debug("Ignoring patch due to missing 'Subject'")
         return 0
 
     if 'Message-Id' not in mail:
+        LOGGER.debug("Ignoring patch due to missing 'Message-Id'")
         return 0
 
     hint = mail.get('X-Patchwork-Hint', '').lower()
     if hint == 'ignore':
+        LOGGER.debug("Ignoring patch due to 'ignore' hint")
         return 0
 
     if list_id:
@@ -403,7 +418,7 @@ def parse_mail(mail, list_id=None):
         project = find_project_by_header(mail)
 
     if project is None:
-        print("no project found")
+        LOGGER.error('Failed to find a project for patch')
         return 0
 
     msgid = mail.get('Message-Id').strip()
@@ -472,6 +487,11 @@ def main(args):
     logger = setup_error_handler()
     parser = argparse.ArgumentParser()
 
+    def list_logging_levels():
+        """Give a summary of all available logging levels."""
+        return sorted(VERBOSITY_LEVELS.keys(),
+                      key=lambda x: VERBOSITY_LEVELS[x])
+
     parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
                         default=sys.stdin, help='input mbox file (a filename '
                         'or stdin)')
@@ -479,8 +499,12 @@ def main(args):
     group = parser.add_argument_group('Mail parsing configuration')
     group.add_argument('--list-id', help='mailing list ID. If not supplied '
                        'this will be extracted from the mail headers.')
+    group.add_argument('--verbosity', choices=list_logging_levels(),
+                       help='debug level', default=logging.INFO)
 
     args = vars(parser.parse_args())
+
+    logging.basicConfig(level=args['verbosity'])
 
     mail = message_from_file(args['infile'])
     try:
