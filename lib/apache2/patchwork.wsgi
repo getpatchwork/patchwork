@@ -12,8 +12,7 @@ import sys
 basedir = os.path.join(
     os.path.dirname(__file__), os.path.pardir, os.path.pardir)
 sys.path.append(basedir)
-sys.path.append(os.path.join(basedir, 'apps'))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'apps.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'patchwork.settings.prod'
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()

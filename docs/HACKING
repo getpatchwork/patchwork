@@ -43,9 +43,9 @@ It's always a good idea to use virtualenv to develop python software.
 
 5. Now one can run patchwork within that environment
 
-   (django-1.7)$ ./apps/manage.py --version
+   (django-1.7)$ ./manage.py --version
    1.7
-   (django-1.7)$ ./apps/manage.py runserver
+   (django-1.7)$ ./manage.py runserver
 
 6. To exit the virtual environment
 

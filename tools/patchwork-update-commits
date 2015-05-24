@@ -1,7 +1,7 @@
 #!/bin/bash
 
 toolsdir="$(dirname "$0")"
-pwpath="${toolsdir}"/../apps/patchwork
+pwpath="${toolsdir}"/../patchwork
 
 if [ "$#" -lt 1 ]
 then

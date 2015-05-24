@@ -20,10 +20,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 BIN_DIR=`dirname $0`
-PATCHWORK_BASE=`readlink -e $BIN_DIR/../../..`
+PATCHWORK_BASE=`readlink -e $BIN_DIR/../..`
 
-PYTHONPATH="$PATCHWORK_BASE/apps":"$PATCHWORK_BASE/lib/python:$PYTHONPATH" \
+PYTHONPATH="$PATCHWORK_BASE":"$PATCHWORK_BASE/lib/python:$PYTHONPATH" \
         DJANGO_SETTINGS_MODULE=settings \
-        "$PATCHWORK_BASE/apps/patchwork/bin/parsemail.py"
+        "$PATCHWORK_BASE/patchwork/bin/parsemail.py"
 
 exit 0

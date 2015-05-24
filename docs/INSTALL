@@ -135,8 +135,7 @@ in brackets):
 
     Then, get patchwork to create its tables in your configured database:
 
-     cd apps/
-     PYTHONPATH=../lib/python ./manage.py syncdb
+     PYTHONPATH=lib/python ./manage.py syncdb
 
     And add privileges for your mail and web users. This is only needed if
     you use the ident-based approach. If you use password-based database
@@ -190,7 +189,7 @@ in brackets):
 
         Once you have apache set up, you can start the fastcgi server with:
 
-          cd /srv/patchwork/apps
+          cd /srv/patchwork/
           ./manage.py runfcgi method=prefork \
                               socket=/srv/patchwork/var/fcgi.sock \
                               pidfile=/srv/patchwork/var/fcgi.pid
@@ -222,14 +221,14 @@ in brackets):
     directory. (Note, do not use the parsemail.py script directly). Something
     like this in /etc/aliases is suitable for postfix:
 
-      patchwork: "|/srv/patchwork/apps/patchwork/bin/parsemail.sh"
+      patchwork: "|/srv/patchwork/patchwork/bin/parsemail.sh"
 
     You may need to customise the parsemail.sh script if you haven't installed
     patchwork in /srv/patchwork.
 
     Test that you can deliver a patch to this script:
 
-     sudo -u nobody /srv/patchwork/apps/patchwork/bin/parsemail.sh < mail
+     sudo -u nobody /srv/patchwork/patchwork/bin/parsemail.sh < mail
 
 
 7. Set up the patchwork cron script
@@ -240,9 +239,9 @@ in brackets):
     Something like this in your crontab should work:
 
       # m h  dom mon dow   command
-      PYTHONPATH=apps:.
+      PYTHONPATH=.
       DJANGO_SETTINGS_MODULE=settings
-      */10 * * * * cd patchwork; python apps/patchwork/bin/patchwork-cron.py
+      */10 * * * * cd patchwork; python patchwork/bin/patchwork-cron.py
 
 
     - the frequency should be the same as the NOTIFICATION_DELAY_MINUTES
