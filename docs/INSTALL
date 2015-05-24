@@ -108,11 +108,17 @@ in brackets):
       cd ../python
       ln -s ../packages/django/django ./django
 
-    The settings.py file contains default settings for patchwork, you'll
-    need to configure settings for your own setup.
+    The patchwork/settings/*.py files contain default settings for patchwork,
+    you'll need to configure settings for your own setup.
 
-    Rather than edit settings.py, create a file 'local_settings.py', and
-    override or add settings as necessary. You'll need to define the
+    Rather than editing these files (which will cause conflicts when you
+    update the base patchwork code), create a file 'production.py', based on
+    the example:
+
+       cp patchwork/settings/production.example.py \
+          patchwork/settings/production.py
+
+    and override or add settings as necessary. You'll need to define the
     following:
 
       SECRET_KEY

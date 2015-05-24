@@ -13,7 +13,7 @@ basedir = os.path.join(
     os.path.dirname(__file__), os.path.pardir, os.path.pardir)
 sys.path.append(basedir)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'patchwork.settings.prod'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'patchwork.settings.production'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
