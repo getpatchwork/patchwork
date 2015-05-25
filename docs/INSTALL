@@ -144,7 +144,11 @@ in brackets):
 
      PYTHONPATH=lib/python ./manage.py syncdb
 
-    And add privileges for your mail and web users. This is only needed if
+    and initialise the static content:
+
+     PYTHONPATH=lib/python ./manage.py collectstatic
+
+    and add privileges for your mail and web users. This is only needed if
     you use the ident-based approach. If you use password-based database
     authentication, you can skip this step.
 
