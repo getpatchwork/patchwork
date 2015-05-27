@@ -23,7 +23,7 @@ BIN_DIR=`dirname $0`
 PATCHWORK_BASE=`readlink -e $BIN_DIR/../..`
 
 PYTHONPATH="$PATCHWORK_BASE":"$PATCHWORK_BASE/lib/python:$PYTHONPATH" \
-        DJANGO_SETTINGS_MODULE=settings \
+        DJANGO_SETTINGS_MODULE=patchwork.settings.production \
         "$PATCHWORK_BASE/patchwork/bin/parsemail.py"
 
 exit 0
