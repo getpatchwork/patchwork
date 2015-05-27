@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from patchwork.tests.test_patchparser import *
+from patchwork.tests.test_tags import *
 from patchwork.tests.test_encodings import *
 from patchwork.tests.test_bundles import *
 from patchwork.tests.test_mboxviews import *

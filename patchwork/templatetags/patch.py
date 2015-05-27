@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django import template
+from django.utils.safestring import mark_safe
 import re
 
 register = template.Library()
@@ -63,3 +64,15 @@ class EditablePatchNode(template.Node):
             return self.nodelist_false.render(context)
 
         return self.nodelist_true.render(context)
+
+@register.filter(name='patch_tags')
+def patch_tags(patch):
+    counts = []
+    titles = []
+    for tag in patch.project.tags:
+        count = getattr(patch, tag.attr_name)
+        titles.append('%d %s' % (count, tag.name))
+        counts.append(str(count))
+    return mark_safe('<span title="%s">%s</span>' % (
+            ' / '.join(titles),
+            ' '.join(counts)))

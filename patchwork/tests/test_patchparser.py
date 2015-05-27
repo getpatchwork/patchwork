@@ -552,3 +552,30 @@ class InitialPatchStateTest(TestCase):
     def tearDown(self):
         self.p1.delete()
         self.user.delete()
+
+class ParseInitialTagsTest(PatchTest):
+    patch_filename = '0001-add-line.patch'
+    test_comment = ('test comment\n\n' +
+        'Tested-by: Test User <test@example.com>\n' +
+        'Reviewed-by: Test User <test@example.com>\n')
+    fixtures = ['default_tags']
+
+    def setUp(self):
+        project = defaults.project
+        project.listid = 'test.example.com'
+        project.save()
+        self.orig_patch = read_patch(self.patch_filename)
+        email = create_email(self.test_comment + '\n' + self.orig_patch,
+                             project = project)
+        email['Message-Id'] = '<1@example.com>'
+        parse_mail(email)
+
+    def testTags(self):
+        self.assertEquals(Patch.objects.count(), 1)
+        patch = Patch.objects.all()[0]
+        self.assertEquals(patch.patchtag_set.filter(
+                            tag__name='Acked-by').count(), 0)
+        self.assertEquals(patch.patchtag_set.get(
+                            tag__name='Reviewed-by').count, 1)
+        self.assertEquals(patch.patchtag_set.get(
+                            tag__name='Tested-by').count, 1)

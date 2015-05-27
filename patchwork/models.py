@@ -22,11 +22,13 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.conf import settings
-from patchwork.parser import hash_patch
+from django.utils.functional import cached_property
+from patchwork.parser import hash_patch, extract_tags
 
 import re
 import datetime, time
 import random
+from collections import Counter, OrderedDict
 
 class Person(models.Model):
     email = models.CharField(max_length=255, unique = True)
@@ -56,6 +58,7 @@ class Project(models.Model):
     scm_url = models.CharField(max_length=2000, blank=True)
     webscm_url = models.CharField(max_length=2000, blank=True)
     send_notifications = models.BooleanField(default=False)
+    use_tags = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
@@ -64,6 +67,12 @@ class Project(models.Model):
         if not user.is_authenticated():
             return False
         return self in user.profile.maintainer_projects.all()
+
+    @cached_property
+    def tags(self):
+        if not self.use_tags:
+            return []
+        return list(Tag.objects.all())
 
     class Meta:
         ordering = ['linkname']
@@ -165,8 +174,67 @@ class HashField(models.CharField):
     def db_type(self, connection=None):
         return 'char(%d)' % self.n_bytes
 
+class Tag(models.Model):
+    name = models.CharField(max_length=20)
+    pattern = models.CharField(max_length=50,
+                help_text='A simple regex to match the tag in the content of '
+                    'a message. Will be used with MULTILINE and IGNORECASE '
+                    'flags. eg. ^Acked-by:')
+    abbrev = models.CharField(max_length=2, unique=True,
+                help_text='Short (one-or-two letter) abbreviation for the tag, '
+                    'used in table column headers')
+
+    def __unicode__(self):
+        return self.name
+
+    @property
+    def attr_name(self):
+        return 'tag_%d_count' % self.id
+
+    class Meta:
+        ordering = ['abbrev']
+
+class PatchTag(models.Model):
+    patch = models.ForeignKey('Patch')
+    tag = models.ForeignKey('Tag')
+    count = models.IntegerField(default=1)
+
+    class Meta:
+        unique_together = [('patch', 'tag')]
+
 def get_default_initial_patch_state():
     return State.objects.get(ordering=0)
+
+class PatchQuerySet(models.query.QuerySet):
+
+    def with_tag_counts(self, project):
+        if not project.use_tags:
+            return self
+
+        # We need the project's use_tags field loaded for Project.tags().
+        # Using prefetch_related means we'll share the one instance of
+        # Project, and share the project.tags cache between all patch.project
+        # references.
+        qs = self.prefetch_related('project')
+        select = OrderedDict()
+        select_params = []
+        for tag in project.tags:
+            select[tag.attr_name] = ("coalesce("
+                "(SELECT count FROM patchwork_patchtag "
+                "WHERE patchwork_patchtag.patch_id=patchwork_patch.id "
+                    "AND patchwork_patchtag.tag_id=%s), 0)")
+            select_params.append(tag.id)
+
+        return qs.extra(select=select, select_params=select_params)
+
+class PatchManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return PatchQuerySet(self.model, using=self.db)
+
+    def with_tag_counts(self, project):
+        return self.get_queryset().with_tag_counts(project)
 
 class Patch(models.Model):
     project = models.ForeignKey(Project)
@@ -182,12 +250,33 @@ class Patch(models.Model):
     pull_url = models.CharField(max_length=255, null = True, blank = True)
     commit_ref = models.CharField(max_length=255, null = True, blank = True)
     hash = HashField(null = True, blank = True)
+    tags = models.ManyToManyField(Tag, through=PatchTag)
+
+    objects = PatchManager()
 
     def __unicode__(self):
         return self.name
 
     def comments(self):
         return Comment.objects.filter(patch = self)
+
+    def _set_tag(self, tag, count):
+        if count == 0:
+            self.patchtag_set.filter(tag=tag).delete()
+            return
+        (patchtag, _) = PatchTag.objects.get_or_create(patch=self, tag=tag)
+        if patchtag.count != count:
+            patchtag.count = count
+            patchtag.save()
+
+    def refresh_tag_counts(self):
+        tags = self.project.tags
+        counter = Counter()
+        for comment in self.comment_set.all():
+            counter = counter + extract_tags(comment.content, tags)
+
+        for tag in tags:
+            self._set_tag(tag, counter[tag])
 
     def save(self):
         try:
@@ -238,6 +327,14 @@ class Comment(models.Model):
     def patch_responses(self):
         return ''.join([ match.group(0) + '\n' for match in
                                 self.response_re.finditer(self.content)])
+
+    def save(self, *args, **kwargs):
+        super(Comment, self).save(*args, **kwargs)
+        self.patch.refresh_tag_counts()
+
+    def delete(self, *args, **kwargs):
+        super(Comment, self).delete(*args, **kwargs)
+        self.patch.refresh_tag_counts()
 
     class Meta:
         ordering = ['date']

@@ -104,6 +104,9 @@ def generic_list(request, project, view,
     if patches is None:
         patches = Patch.objects.filter(project=project)
 
+    # annotate with tag counts
+    patches = patches.with_tag_counts(project)
+
     patches = context.filters.apply(patches)
     if not editable_order:
         patches = order.apply(patches)

@@ -1,5 +1,6 @@
 {% load person %}
 {% load listurl %}
+{% load patch %}
 {% load static %}
 
 {% include "patchwork/pagination.html" %}
@@ -66,6 +67,12 @@
      <span class="colinactive">Patch</span>
      {% endif %}
     {% endifequal %}
+   </th>
+
+   <th>
+    <span
+     title="{% for tag in project.tags %}{{tag.name}}{% if not forloop.last %} / {% endif %}{% endfor %}"
+     >{% for tag in project.tags %}{{tag.abbrev}}{% if not forloop.last %}/{% endif %}{% endfor %}</span>
    </th>
 
    <th>
@@ -166,6 +173,7 @@
     {% endif %}
    <td><a href="{% url 'patchwork.views.patch.patch' patch_id=patch.id %}"
      >{{ patch.name|default:"[no subject]" }}</a></td>
+   <td style="white-space: nowrap;">{{ patch|patch_tags }}</td>
    <td>{{ patch.date|date:"Y-m-d" }}</td>
    <td>{{ patch.submitter|personify:project }}</td>
    <td>{{ patch.delegate.username }}</td>
@@ -259,7 +267,7 @@
 
 {% else %}
  <tr>
-  <td colspan="5">No patches to display</td>
+  <td colspan="6">No patches to display</td>
  </tr>
 {% endif %}
 

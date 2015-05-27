@@ -21,6 +21,7 @@
 
 
 import re
+from collections import Counter
 
 try:
     import hashlib
@@ -234,6 +235,14 @@ def hash_patch(str):
 
     return hash
 
+def extract_tags(content, tags):
+    counts = Counter()
+
+    for tag in tags:
+        regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
+        counts[tag] = len(regex.findall(content))
+
+    return counts
 
 def main(args):
     from optparse import OptionParser

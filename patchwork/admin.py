@@ -1,6 +1,6 @@
 from django.contrib import admin
 from patchwork.models import Project, Person, UserProfile, State, Patch, \
-         Comment, Bundle
+         Comment, Bundle, Tag
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'linkname','listid', 'listemail')
@@ -48,3 +48,8 @@ class BundleAdmin(admin.ModelAdmin):
     list_filter = ('public', 'project')
     search_fields = ('name', 'owner')
 admin.site.register(Bundle, BundleAdmin)
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+admin.site.register(Tag, TagAdmin)
+
