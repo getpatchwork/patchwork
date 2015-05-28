@@ -28,7 +28,6 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Max, Q, F
 from django.db.utils import IntegrityError
-from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
         PatchChangeNotification, EmailOptout, EmailConfirmation
 
