@@ -37,7 +37,7 @@ class PatchTest(TestCase):
     project = defaults.project
 
 from patchwork.bin.parsemail import find_content, find_author, find_project, \
-                                    parse_mail
+                                    parse_mail, split_prefixes, clean_subject
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
@@ -579,3 +579,41 @@ class ParseInitialTagsTest(PatchTest):
                             tag__name='Reviewed-by').count, 1)
         self.assertEquals(patch.patchtag_set.get(
                             tag__name='Tested-by').count, 1)
+
+class PrefixTest(TestCase):
+
+    def testSplitPrefixes(self):
+        self.assertEquals(split_prefixes('PATCH'), ['PATCH'])
+        self.assertEquals(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEquals(split_prefixes(''), [])
+        self.assertEquals(split_prefixes('PATCH,'), ['PATCH'])
+        self.assertEquals(split_prefixes('PATCH '), ['PATCH'])
+        self.assertEquals(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEquals(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
+
+class SubjectTest(TestCase):
+
+    def testCleanSubject(self):
+        self.assertEquals(clean_subject('meep'), 'meep')
+        self.assertEquals(clean_subject('Re: meep'), 'meep')
+        self.assertEquals(clean_subject('[PATCH] meep'), 'meep')
+        self.assertEquals(clean_subject('[PATCH] meep \n meep'), 'meep meep')
+        self.assertEquals(clean_subject('[PATCH RFC] meep'), '[RFC] meep')
+        self.assertEquals(clean_subject('[PATCH,RFC] meep'), '[RFC] meep')
+        self.assertEquals(clean_subject('[PATCH,1/2] meep'), '[1/2] meep')
+        self.assertEquals(clean_subject('[PATCH RFC 1/2] meep'),
+                                            '[RFC,1/2] meep')
+        self.assertEquals(clean_subject('[PATCH] [RFC] meep'),
+                                            '[RFC] meep')
+        self.assertEquals(clean_subject('[PATCH] [RFC,1/2] meep'),
+                                            '[RFC,1/2] meep')
+        self.assertEquals(clean_subject('[PATCH] [RFC] [1/2] meep'),
+                                            '[RFC,1/2] meep')
+        self.assertEquals(clean_subject('[PATCH] rewrite [a-z] regexes'),
+                                            'rewrite [a-z] regexes')
+        self.assertEquals(clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
+                                            '[RFC] rewrite [a-z] regexes')
+        self.assertEquals(clean_subject('[foo] [bar] meep', ['foo']),
+                                            '[bar] meep')
+        self.assertEquals(clean_subject('[FOO] [bar] meep', ['foo']),
+                                            '[bar] meep')

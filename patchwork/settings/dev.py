@@ -42,9 +42,6 @@ DATABASES = {
     },
 }
 
-if django.VERSION >= (1, 7):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
 #
 # Patchwork settings
 #
