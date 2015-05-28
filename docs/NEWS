@@ -1,0 +1,60 @@
+== Upgrading to 3b8a61c ==
+
+Recent commits have changed a few admin-visible components of patchwork, so
+upgrading to post-commit 3b8a61c involves a few steps:
+
+- Update the database schema, by running the 015-add-patch-tags.sql script,
+  and re-run the grants script.
+
+  For example, on postgres:
+
+    psql -f lib/sql/migration/015-add-patch-tags.sql patchwork
+    psql -f lib/sql/grant-all.postgres.sql patchwork
+
+- Update to the new settings infrastructure. By default, settings are read
+  from patchwork/settings/production.py. To migrate, use the template:
+
+    cp patchwork/settings/production{.example,}.py
+
+  and merge your previous settings (from apps/local_settings.py) into
+  this file
+
+- Fixup external references to apps/
+
+  The apps/ directory is gone; the patchwork module is now in the top-level
+  directory. If you have scripts that run anything from apps/ (eg, incoming
+  mail parsers that call parsemail.sh, and cron scripts), then remove the apps/
+  directory from those.
+
+    apps/patchwork/ -> patchwork/
+
+  (or you can create a symlink - apps/ -> .)
+
+- Update any external scripts to use the new settings module
+
+  If you have been running scripts (eg, from cron) that set the
+  DJANGO_SETTINGS_MODULE environment variable, you'll need to update that
+  to the new settings system. Typically:
+
+    DJANGO_SETTINGS_MODULE=patchwork.settings.production
+
+  The manage.py script has been moved from apps/ into the top-level directory
+  too.
+
+- Run the 'collectstatic' management command:
+
+    ./manage.py collectstatic
+
+  Ensure that the STATIC_ROOT setting points somewhere sensible (eg, the
+  absolute path of htdocs/static in the patchwork tree).
+
+- Update apache to use the new static content.
+
+  Static content is now in all under STATIC_ROOT, the apache configuration
+  should be simpler now. The core config will be:
+
+        DocumentRoot /srv/patchwork/htdocs/
+        Alias /static/ /srv/patchwork/htdocs/static/
+        WSGIScriptAlias / /srv/pathchwork/lib/apache2/patchwork.wsgi
+        WSGIPassAuthorization On
+
