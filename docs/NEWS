@@ -1,3 +1,10 @@
+== Cron script changes ==
+
+The patchwork cron script has been moved to a manage.py command. Instead
+of running patchwork-cron.py, run:
+
+  ./manage.py cron
+
 == Upgrading to 3b8a61c ==
 
 Recent commits have changed a few admin-visible components of patchwork, so

@@ -255,9 +255,7 @@ in brackets):
     Something like this in your crontab should work:
 
       # m h  dom mon dow   command
-      PYTHONPATH=.
-      DJANGO_SETTINGS_MODULE=patchwork.settings.production
-      */10 * * * * cd patchwork; python patchwork/bin/patchwork-cron.py
+      */10 * * * * cd patchwork; ./manage.py cron
 
 
     - the frequency should be the same as the NOTIFICATION_DELAY_MINUTES
