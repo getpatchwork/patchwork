@@ -37,6 +37,7 @@ except ImportError:
 from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment, State, \
         get_default_initial_patch_state
+import django
 from django.contrib.auth.models import User
 
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
@@ -402,6 +403,7 @@ def parse_mail(mail):
     return 0
 
 def main(args):
+    django.setup()
     mail = message_from_file(sys.stdin)
     return parse_mail(mail)
 
