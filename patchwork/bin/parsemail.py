@@ -80,7 +80,7 @@ def find_project(mail):
             try:
                 project = Project.objects.get(listid = listid)
                 break
-            except:
+            except Project.DoesNotExist:
                 pass
 
     return project
