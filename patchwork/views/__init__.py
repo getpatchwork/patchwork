@@ -117,7 +117,7 @@ def generic_list(request, project, view,
 
     # but we will need to follow the state and submitter relations for
     # rendering the list template
-    patches = patches.select_related('state', 'submitter')
+    patches = patches.select_related('state', 'submitter', 'delegate')
 
     paginator = Paginator(request, patches)
 
