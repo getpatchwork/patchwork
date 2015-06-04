@@ -440,7 +440,7 @@ class EmailOptout(models.Model):
         return cls.objects.filter(email = email).count() > 0
 
 class PatchChangeNotification(models.Model):
-    patch = models.ForeignKey(Patch, primary_key = True)
+    patch = models.OneToOneField(Patch, primary_key = True)
     last_modified = models.DateTimeField(default = datetime.datetime.now)
     orig_state = models.ForeignKey(State)
 
