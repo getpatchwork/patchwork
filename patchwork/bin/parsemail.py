@@ -220,15 +220,20 @@ def find_content(project, mail):
                     date = mail_date(mail), headers = mail_headers(mail))
 
     if commentbuf:
+        # If this is a new patch, we defer setting comment.patch until
+        # patch has been saved by the caller
         if patch:
-            cpatch = patch
+            comment = Comment(date = mail_date(mail),
+                    content = clean_content(commentbuf),
+                    headers = mail_headers(mail))
+
         else:
             cpatch = find_patch_for_comment(project, mail)
             if not cpatch:
                 return (None, None)
-        comment = Comment(patch = cpatch, date = mail_date(mail),
-                content = clean_content(commentbuf),
-                headers = mail_headers(mail))
+            comment = Comment(patch = cpatch, date = mail_date(mail),
+                    content = clean_content(commentbuf),
+                    headers = mail_headers(mail))
 
     return (patch, comment)
 
@@ -389,8 +394,7 @@ def parse_mail(mail):
     if comment:
         if save_required:
             author.save()
-        # looks like the original constructor for Comment takes the pk
-        # when the Comment is created. reset it here.
+        # we defer this assignment until we know that we have a saved patch
         if patch:
             comment.patch = patch
         comment.submitter = author
