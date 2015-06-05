@@ -50,15 +50,19 @@ def generic_list(request, project, view,
             list_view_params = view_args)
 
     context.project = project
-    order = Order(request.REQUEST.get('order'), editable = editable_order)
+    data = {}
+    if request.method == 'GET':
+        data = request.GET
+    elif request.method == 'POST':
+        data = request.POST
+    order = Order(data.get('order'), editable=editable_order)
 
     # Explicitly set data to None because request.POST will be an empty dict
     # when the form is not submitted, but passing a non-None data argument to
     # a forms.Form will make it bound and we don't want that to happen unless
     # there's been a form submission.
-    data = None
-    if request.method == 'POST':
-        data = request.POST
+    if request.method != 'POST':
+        data = None
     user = request.user
     properties_form = None
     if project.is_editable(user):

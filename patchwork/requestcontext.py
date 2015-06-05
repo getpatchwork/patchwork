@@ -56,7 +56,13 @@ class PatchworkRequestContext(RequestContext):
         if list_view:
             params = self.filters.params()
             for param in ['order', 'page']:
-                value = request.REQUEST.get(param, None)
+                data = {}
+                if request.method == 'GET':
+                    data = request.GET
+                elif request.method == 'POST':
+                    data = request.POST
+
+                value = data.get(param, None)
                 if value:
                         params.append((param, value))
             self.update({
