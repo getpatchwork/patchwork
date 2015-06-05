@@ -29,6 +29,8 @@ from patchwork.models import Patch, Comment, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
 
 class MboxPatchResponseTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that the mbox view appends the Acked-by from a patch comment """
     def setUp(self):
         defaults.project.save()
@@ -56,6 +58,8 @@ class MboxPatchResponseTest(TestCase):
                 'Acked-by: 1\nAcked-by: 2\n')
 
 class MboxPatchSplitResponseTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that the mbox view appends the Acked-by from a patch comment,
         and places it before an '---' update line. """
     def setUp(self):
@@ -84,6 +88,8 @@ class MboxPatchSplitResponseTest(TestCase):
                 'Acked-by: 1\nAcked-by: 2\n')
 
 class MboxPassThroughHeaderTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that we see 'Cc' and 'To' headers passed through from original
         message to mbox view """
 
@@ -122,6 +128,8 @@ class MboxPassThroughHeaderTest(TestCase):
         self.assertContains(response, self.date_header)
 
 class MboxBrokenFromHeaderTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that a person with characters outside ASCII in his name do
         produce correct From header. As RFC 2822 state we must retain the
         <user@doamin.tld> format for the mail while the name part may be coded
@@ -145,6 +153,8 @@ class MboxBrokenFromHeaderTest(TestCase):
         self.assertContains(response, from_email)
 
 class MboxDateHeaderTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that the date provided in the patch mail view is correct """
 
     def setUp(self):
@@ -181,6 +191,8 @@ class MboxDateHeaderTest(TestCase):
         self.assertEqual(mail_date, date)
 
 class MboxCommentPostcriptUnchangedTest(TestCase):
+    fixtures = ['default_states']
+
     """ Test that the mbox view doesn't change the postscript part of a mail.
         There where always a missing blank right after the postscript
         delimiter '---' and an additional newline right before. """

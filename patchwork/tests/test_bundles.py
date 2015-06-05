@@ -54,6 +54,7 @@ class BundleListTest(TestCase):
         self.user.delete()
 
 class BundleTestBase(TestCase):
+    fixtures = ['default_states']
     def setUp(self, patch_count=3):
         patch_names = ['testpatch%d' % (i) for i in range(1, patch_count+1)]
         self.user = create_user()

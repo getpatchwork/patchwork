@@ -148,10 +148,10 @@ in brackets):
 
      PYTHONPATH=lib/python ./manage.py collectstatic
 
-    If you'd like to use the default tag set (Acked-by, Reviewed-by and
-    Tested-by), then load these default tags:
+    You'll also need to load the initial tags and states into the
+    patchwork database:
 
-     PYTHONPATH=lib/python ./manage.py loaddata default_tags
+     PYTHONPATH=lib/python ./manage.py loaddata default_tags default_states
 
     Finally, add privileges for your mail and web users. This is only needed if
     you use the ident-based approach. If you use password-based database

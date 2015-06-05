@@ -31,7 +31,7 @@ class ExtractTagsTest(TestCase):
 
     email = 'test@exmaple.com'
     name_email = 'test name <' + email + '>'
-    fixtures = ['default_tags']
+    fixtures = ['default_tags', 'default_states']
 
     def assertTagsEqual(self, str, acks, reviews, tests):
         counts = extract_tags(str, Tag.objects.all())
@@ -83,7 +83,7 @@ class PatchTagsTest(TransactionTestCase):
     ACK = 1
     REVIEW = 2
     TEST = 3
-    fixtures = ['default_tags']
+    fixtures = ['default_tags', 'default_states']
 
     def assertTagsEqual(self, patch, acks, reviews, tests):
         patch = Patch.objects.get(pk=patch.pk)

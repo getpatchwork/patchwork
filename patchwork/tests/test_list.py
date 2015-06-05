@@ -42,6 +42,7 @@ class EmptyPatchListTest(TestCase):
         self.assertNotContains(response, 'tbody')
 
 class PatchOrderTest(TestCase):
+    fixtures = ['default_states']
 
     d = datetime.datetime
     patchmeta = [

@@ -28,6 +28,8 @@ from patchwork.tests.utils import defaults, create_maintainer
 from patchwork.utils import send_notifications
 
 class PatchNotificationModelTest(TestCase):
+    fixtures = ['default_states']
+
     """Tests for the creation & update of the PatchChangeNotification model"""
 
     def setUp(self):
@@ -120,6 +122,7 @@ class PatchNotificationModelTest(TestCase):
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
 class PatchNotificationEmailTest(TestCase):
+    fixtures = ['default_states']
 
     def setUp(self):
         self.project = defaults.project

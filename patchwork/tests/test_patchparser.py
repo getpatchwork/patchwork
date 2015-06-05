@@ -32,6 +32,7 @@ except ImportError:
     from email.MIMEText import MIMEText
 
 class PatchTest(TestCase):
+    fixtures = ['default_states']
     default_sender = defaults.sender
     default_subject = defaults.subject
     project = defaults.project
@@ -246,6 +247,7 @@ class MultipleProjectPatchTest(TestCase):
     """ Test that patches sent to multiple patchwork projects are
         handled correctly """
 
+    fixtures = ['default_states']
     test_comment = 'Test Comment'
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
@@ -449,6 +451,7 @@ class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
         self.assertEqual(2, patch.content.count('\ No newline at end of file'))
 
 class DelegateRequestTest(TestCase):
+    fixtures = ['default_states']
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_delegate_email = "nobody"
@@ -494,6 +497,7 @@ class DelegateRequestTest(TestCase):
         self.user.delete()
 
 class InitialPatchStateTest(TestCase):
+    fixtures = ['default_states']
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_state_name = "Nonexistent Test State"
@@ -558,7 +562,7 @@ class ParseInitialTagsTest(PatchTest):
     test_comment = ('test comment\n\n' +
         'Tested-by: Test User <test@example.com>\n' +
         'Reviewed-by: Test User <test@example.com>\n')
-    fixtures = ['default_tags']
+    fixtures = ['default_tags', 'default_states']
 
     def setUp(self):
         project = defaults.project
