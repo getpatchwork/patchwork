@@ -1,5 +1,6 @@
 # Patchwork - automated patch tracking system
 # Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
+# Copyright (C) 2015 Intel Corporation
 #
 # This file is part of the Patchwork package.
 #
@@ -428,6 +429,50 @@ class BundlePatch(models.Model):
     class Meta:
         unique_together = [('bundle', 'patch')]
         ordering = ['order']
+
+
+class Check(models.Model):
+    """Check for a patch.
+
+    Checks store the results of any tests executed (or executing) for a
+    given patch. This is useful, for example, when using a continuous
+    integration (CI) system to test patches.
+    """
+    STATE_PENDING = 0
+    STATE_SUCCESS = 1
+    STATE_WARNING = 2
+    STATE_FAIL = 3
+    STATE_CHOICES = (
+        (STATE_PENDING, 'pending'),
+        (STATE_SUCCESS, 'success'),
+        (STATE_WARNING, 'warning'),
+        (STATE_FAIL, 'fail'),
+    )
+
+    patch = models.ForeignKey(Patch)
+    user = models.ForeignKey(User)
+    date = models.DateTimeField(default=datetime.datetime.now)
+
+    state = models.SmallIntegerField(
+        choices=STATE_CHOICES, default=STATE_PENDING,
+        help_text='The state of the check.')
+    target_url = models.URLField(
+        blank=True, null=True,
+        help_text='The target URL to associate with this check. This should'
+        ' be specific to the patch.')
+    description = models.TextField(
+        blank=True, null=True, help_text='A brief description of the check.')
+    context = models.CharField(
+        max_length=255, default='default', blank=True, null=True,
+        help_text='A label to discern check from checks of other testing '
+        'systems.')
+
+    def __repr__(self):
+        return "<Check id='%d' context='%s' state='%s'" % (
+            self.id, self.context, self.get_state_display())
+
+    def __unicode__(self):
+        return ('%s (%s)' % (self.context, self.get_state_display()))
 
 
 class EmailConfirmation(models.Model):
