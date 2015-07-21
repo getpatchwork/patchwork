@@ -225,6 +225,11 @@ def action_projects(rpc):
                 project['linkname'], \
                 project['name']))
 
+def action_checks(rpc):
+    checks = rpc.check_list("", 0)
+    for check in checks:
+        print("%d (for '%s')" % (check['id'], check['patch']))
+
 def action_states(rpc):
     states = rpc.state_list("", 0)
     print("%-5s %s" % ("ID", "Name"))
@@ -439,6 +444,12 @@ def main():
         help='''List all projects'''
     )
     projects_parser.set_defaults(subcmd='projects')
+    checks_parser = subparsers.add_parser(
+        'checks',
+        add_help=False,
+        help='''Show list of patch checks'''
+    )
+    checks_parser.set_defaults(subcmd='checks')
     states_parser = subparsers.add_parser(
         'states',
         help='''Show list of potential patch states'''
@@ -639,6 +650,9 @@ def main():
 
     elif action.startswith('project'):
         action_projects(rpc)
+
+    elif action.startswith('check'):
+        action_checks(rpc)
 
     elif action.startswith('state'):
         action_states(rpc)
