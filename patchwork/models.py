@@ -243,7 +243,7 @@ class Patch(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now)
     submitter = models.ForeignKey(Person)
     delegate = models.ForeignKey(User, blank = True, null = True)
-    state = models.ForeignKey(State, default=get_default_initial_patch_state)
+    state = models.ForeignKey(State, null=True)
     archived = models.BooleanField(default = False)
     headers = models.TextField(blank = True)
     content = models.TextField(null = True, blank = True)
@@ -279,10 +279,8 @@ class Patch(models.Model):
             self._set_tag(tag, counter[tag])
 
     def save(self):
-        try:
-            s = self.state
-        except:
-            self.state = State.objects.get(ordering =  0)
+        if not hasattr(self, 'state') or not self.state:
+            self.state = get_default_initial_patch_state()
 
         if self.hash is None and self.content is not None:
             self.hash = hash_patch(self.content).hexdigest()

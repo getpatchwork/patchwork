@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.core.management import call_command
 import datetime
 import patchwork.models
 import django.db.models.deletion
 from django.conf import settings
+
 
 class Migration(migrations.Migration):
 
