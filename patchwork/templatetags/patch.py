@@ -1,5 +1,6 @@
 # Patchwork - automated patch tracking system
 # Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
+# Copyright (C) 2015 Intel Corporation
 #
 # This file is part of the Patchwork package.
 #
@@ -20,6 +21,8 @@
 from django import template
 from django.utils.safestring import mark_safe
 
+from patchwork.models import Check
+
 register = template.Library()
 
 
@@ -37,3 +40,14 @@ def patch_tags(patch):
     return mark_safe('<span title="%s">%s</span>' % (
         ' / '.join(titles),
         ' '.join(counts)))
+
+
+@register.filter(name='patch_checks')
+def patch_checks(patch):
+    required = [Check.STATE_SUCCESS, Check.STATE_WARNING, Check.STATE_FAIL]
+    titles = ['Success', 'Warning', 'Fail']
+    counts = patch.check_count
+
+    return mark_safe('<span title="%s">%s</span>' % (
+        ' / '.join(titles),
+        ' '.join([str(counts[state]) for state in required])))

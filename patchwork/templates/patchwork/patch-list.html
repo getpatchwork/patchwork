@@ -76,6 +76,10 @@ $(document).ready(function() {
    </th>
 
    <th>
+    <span title="Success / Warning / Fail">S/W/F</span>
+   </th>
+
+   <th>
     {% ifequal order.name "date" %}
      <a class="colactive"
       href="{% listurl order=order.reversed_name %}"><span
@@ -154,6 +158,7 @@ $(document).ready(function() {
    <td><a href="{% url 'patchwork.views.patch.patch' patch_id=patch.id %}"
      >{{ patch.name|default:"[no subject]"|truncatechars:100 }}</a></td>
    <td style="white-space: nowrap;">{{ patch|patch_tags }}</td>
+   <td style="white-space: nowrap;">{{ patch|patch_checks }}</td>
    <td>{{ patch.date|date:"Y-m-d" }}</td>
    <td>{{ patch.submitter|personify:project }}</td>
    <td>{{ patch.delegate.username }}</td>
