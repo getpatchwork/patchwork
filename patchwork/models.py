@@ -329,6 +329,76 @@ class Patch(models.Model):
         str = fname_re.sub('-', self.name)
         return str.strip('-') + '.patch'
 
+    @property
+    def combined_check_state(self):
+        """Return the combined state for all checks.
+
+        Generate the combined check's state for this patch. This check
+        is one of the following, based on the value of each unique
+        check:
+
+          * failure, if any context's latest check reports as failure
+          * warning, if any context's latest check reports as warning
+          * pending, if there are no checks, or a context's latest
+              Check reports as pending
+          * success, if latest checks for all contexts reports as
+              success
+        """
+        states = [check.state for check in self.checks]
+
+        if not states:
+            return Check.STATE_PENDING
+
+        for state in [Check.STATE_FAIL, Check.STATE_WARNING,
+                      Check.STATE_PENDING]:  # order sensitive
+            if state in states:
+                return state
+
+        return Check.STATE_SUCCESS
+
+    @property
+    def checks(self):
+        """Return the list of unique checks.
+
+        Generate a list of checks associated with this patch for each
+        type of Check. Only "unique" checks are considered,
+        identified by their 'context' field. This means, given n
+        checks with the same 'context', the newest check is the only
+        one counted regardless of its value. The end result will be a
+        association of types to number of unique checks for said
+        type.
+        """
+        unique = {}
+
+        for check in self.check_set.all():
+            ctx = check.context
+
+            # recheck condition - ignore the older result
+            if ctx in unique and unique[ctx].date > check.date:
+                continue
+
+            unique[ctx] = check
+
+        return unique.values()
+
+    @property
+    def check_count(self):
+        """Generate a list of unique checks for each patch.
+
+        Compile a list of checks associated with this patch for each
+        type of check. Only "unique" checks are considered, identified
+        by their 'context' field. This means, given n checks with the
+        same 'context', the newest check is the only one counted
+        regardless of its value. The end result will be a association
+        of types to number of unique checks for said type.
+        """
+        counts = {key: 0 for key, _ in Check.STATE_CHOICES}
+
+        for check in self.checks:
+            counts[check.state] += 1
+
+        return counts
+
     @models.permalink
     def get_absolute_url(self):
         return ('patchwork.views.patch.patch', (), {'patch_id': self.id})
