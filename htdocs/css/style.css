@@ -244,6 +244,60 @@ table.patchmeta tr th, table.patchmeta tr td {
 	padding-top: 1em;
 }
 
+/* checks forms */
+/* TODO(stephenfin): Merge this with 'div.patchform' rules */
+.checks {
+	border: 1px solid gray;
+	margin: 0.5em 1em;
+}
+
+.checks th {
+	margin-top: 0em;
+	margin-left: -0.6em;
+	margin-right: -0.6em;
+	padding: 0.3em 0.3em 0.3em 0.6em;
+	background-color: #0A0A47;
+	color: white;
+	font-size: 100%;
+	font-weight: normal;
+}
+
+.checks td {
+	border-top: 1px solid gray;
+	padding: 10px 15px;
+	padding-left: 0.2em;
+	margin-top: 0em;
+}
+
+.checks td a {
+	text-decoration: none;
+}
+
+.checks td a:visited {
+	color: #786FB4;
+}
+
+.checks a:hover {
+	text-decoration: underline;
+}
+
+.checks .state {
+	font-weight: bold;
+	color: #ddd;
+}
+
+.checks .state.success {
+	color: #82ca9d;
+}
+
+.checks .state.warning {
+	color: #ffe59a;
+}
+
+.checks .state.fail {
+	color: #f7977a;
+}
+
 .comment .meta {
 	background: #f0f0f0;
 	padding: 0.3em 0.5em;

@@ -51,3 +51,8 @@ def patch_checks(patch):
     return mark_safe('<span title="%s">%s</span>' % (
         ' / '.join(titles),
         ' '.join([str(counts[state]) for state in required])))
+
+
+@register.filter(name='state_class')
+def state_class(state):
+    return '-'.join(state.split())

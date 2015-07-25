@@ -19,6 +19,7 @@ ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load humanize %}
 {% load syntax %}
 {% load person %}
 {% load patch %}
@@ -163,6 +164,37 @@ function toggle_headers(link_id, headers_id)
 <h2>Pull-request</h2>
 <a class="patch-pull-url" href="{{patch.pull_url}}"
  >{{ patch.pull_url }}</a>
+{% endif %}
+
+{% if patch.checks %}
+<h2>Checks</h2>
+<table class="checks">
+<tr>
+  <th>Context</th>
+  <th>Check</th>
+  <th>Description</th>
+</tr>
+{% for check in patch.checks %}
+<tr>
+  <td>{{ check.context }}</td>
+  <td>
+    <span title="Updated {{ check.date|naturaltime }}"
+        class="state {{ check.get_state_display }}">
+      {{ check.get_state_display }}
+    </span>
+  </td>
+  <td>
+    {% if check.target_url %}
+    <a href="{{ check.target_url }}">
+    {% endif %}
+      {{ check.description }}
+    {% if check.target_url %}
+    </a>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+</table>
 {% endif %}
 
 {% for item in patch.commit_message %}
