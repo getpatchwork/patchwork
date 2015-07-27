@@ -32,7 +32,7 @@ from django.http import (
     HttpResponse, HttpResponseRedirect, HttpResponseServerError)
 from django.views.decorators.csrf import csrf_exempt
 
-from patchwork.models import Patch, Project, Person, State
+from patchwork.models import Patch, Project, Person, State, Check
 from patchwork.views import patch_to_mbox
 
 
@@ -326,6 +326,33 @@ def state_to_dict(obj):
     }
 
 
+def check_to_dict(obj):
+    """Return a trimmed down dictionary representation of a Check
+    object which is OK to send to the client."""
+    return {
+        'id': obj.id,
+        'date': unicode(obj.date).encode('utf-8'),
+        'patch': unicode(obj.patch).encode('utf-8'),
+        'patch_id': obj.patch_id,
+        'user': unicode(obj.user).encode('utf-8'),
+        'user_id': obj.user_id,
+        'state': obj.get_state_display(),
+        'target_url': obj.target_url,
+        'description': obj.description,
+        'context': obj.context,
+    }
+
+def patch_check_to_dict(obj):
+    """Return a combined patch check."""
+    state_names = dict(Check.STATE_CHOICES)
+
+    return {
+        'state': state_names[obj.combined_check_state],
+        'total': len(obj.checks),
+        'checks': [check_to_dict(check) for check in obj.checks]
+    }
+
+
 #######################################################################
 # Public XML-RPC methods
 #######################################################################
@@ -343,7 +370,7 @@ def pw_rpc_version():
     Returns:
         Version of the API.
     """
-    return 1
+    return (1, 1, 0)
 
 
 @xmlrpc_method()
@@ -782,4 +809,153 @@ def state_get(state_id):
         state = State.objects.filter(id=state_id)[0]
         return state_to_dict(state)
     except State.DoesNotExist:
+        return {}
+
+
+@xmlrpc_method()
+def check_list(filt=None):
+    """List checks matching all of a given set of filters.
+
+    Filter checks by one or more of the below fields:
+
+     * id
+     * user
+     * project_id
+     * patch_id
+
+    It is also possible to specify the number of patches returned via
+    a ``max_count`` filter.
+
+     * max_count
+
+    With the exception of ``max_count``, the specified field of the
+    patches are compared to the search string using a provided
+    field lookup type, which can be one of:
+
+     * iexact
+     * contains
+     * icontains
+     * gt
+     * gte
+     * lt
+     * in
+     * startswith
+     * istartswith
+     * endswith
+     * iendswith
+     * range
+     * year
+     * month
+     * day
+     * isnull
+
+    Please refer to the Django documentation for more information on
+    these field lookup types.
+
+    An example filter would look like so:
+
+    {
+        'user__icontains': 'Joe Bloggs',
+        'max_count': 1,
+    }
+
+    Args:
+        filt (dict): The filters specifying the field to compare, the
+            lookup type and the value to compare against. Keys are of
+            format ``[FIELD_NAME]`` or ``[FIELD_NAME]__[LOOKUP_TYPE]``.
+            Example: ``name__icontains``. Values are plain strings to
+            compare against.
+
+    Returns:
+        A serialized list of Checks matching filters, if any. A list
+        of all Checks if no filter given.
+    """
+    if filt is None:
+        filt = {}
+
+    try:
+        # We allow access to many of the fields. But, some fields are
+        # filtered by raw object so we must lookup by ID instead over
+        # XML-RPC.
+        ok_fields = [
+            'id',
+            'user',
+            'project_id',
+            'patch_id',
+            'max_count',
+        ]
+
+        dfilter = {}
+        max_count = 0
+
+        for key in filt:
+            parts = key.split('__')
+            if parts[0] not in ok_fields:
+                # Invalid field given
+                return []
+            if len(parts) > 1:
+                if LOOKUP_TYPES.count(parts[1]) == 0:
+                    # Invalid lookup type given
+                    return []
+
+            if parts[0] == 'user_id':
+                dfilter['user'] = Person.objects.filter(id=filt[key])[0]
+            if parts[0] == 'project_id':
+                dfilter['patch__project'] = Project.objects.filter(
+                    id=filt[key])[0]
+            elif parts[0] == 'patch_id':
+                dfilter['patch'] = Patch.objects.filter(id=filt[key])[0]
+            elif parts[0] == 'max_count':
+                max_count = filt[key]
+            else:
+                dfilter[key] = filt[key]
+
+        checks = Check.objects.filter(**dfilter)
+
+        if max_count > 0:
+            return map(check_to_dict, checks[:max_count])
+        else:
+            return map(check_to_dict, checks)
+    except Check.DoesNotExist:
+        return []
+
+
+@xmlrpc_method()
+def check_get(check_id):
+    """Get a check by its ID.
+
+    Retrieve a check matching a given check ID, if any exists.
+
+    Args:
+        check_id (int): The ID of the check to retrieve
+
+    Returns:
+        The serialized check matching the ID, if any, else an empty
+        dict.
+    """
+    try:
+        check = Check.objects.filter(id=check_id)[0]
+        return check_to_dict(check)
+    except Check.DoesNotExist:
+        return {}
+
+
+@xmlrpc_method()
+def patch_check_get(patch_id):
+    """Get a patch's combined checks by its ID.
+
+    Retrieve a patch's combined checks for the patch matching a given
+    patch ID, if any exists.
+
+    Args:
+        patch_id (int): The ID of the patch to retrieve checks for
+
+    Returns:
+        The serialized combined patch checks matching the ID, if any,
+        else an empty dict.
+    """
+    try:
+        patch = Patch.objects.filter(id=patch_id)[0]
+        return patch_check_to_dict(patch)
+    except Patch.DoesNotExist:
         return {}
