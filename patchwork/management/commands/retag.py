@@ -12,7 +12,9 @@ class Command(BaseCommand):
         qs = Patch.objects
 
         if args:
-            qs = qs.filter(id__in = args)
+            qs = qs.filter(id__in=args)
+        else:
+            qs = qs.all()
 
         count = qs.count()
         i = 0
