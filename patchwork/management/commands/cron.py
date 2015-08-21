@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from django.core.management.base import BaseCommand, CommandError
 from patchwork.utils import send_notifications, do_expiry
 
@@ -11,10 +9,6 @@ class Command(BaseCommand):
         errors = send_notifications()
         for (recipient, error) in errors:
             self.stderr.write("Failed sending to %s: %s" %
-                                (recipient.email, ex))
+                                (recipient.email, error))
 
         do_expiry()
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
-
