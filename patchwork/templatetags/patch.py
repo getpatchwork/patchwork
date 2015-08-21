@@ -32,5 +32,5 @@ def patch_tags(patch):
         titles.append('%d %s' % (count, tag.name))
         counts.append(str(count))
     return mark_safe('<span title="%s">%s</span>' % (
-            ' / '.join(titles),
-            ' '.join(counts)))
+        ' / '.join(titles),
+        ' '.join(counts)))

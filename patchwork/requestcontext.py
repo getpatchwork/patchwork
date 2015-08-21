@@ -24,29 +24,31 @@ from django.conf import settings
 from patchwork.filters import Filters
 from patchwork.models import Bundle, Project
 
+
 def bundle(request):
     user = request.user
     if not user.is_authenticated():
         return {}
-    return {'bundles': Bundle.objects.filter(owner = user)}
+    return {'bundles': Bundle.objects.filter(owner=user)}
 
 
 class PatchworkRequestContext(RequestContext):
-    def __init__(self, request, project = None,
-            dict = None, processors = None,
-            list_view = None, list_view_params = {}):
+
+    def __init__(self, request, project=None,
+                 dict=None, processors=None,
+                 list_view=None, list_view_params={}):
         self._project = project
         self.filters = Filters(request)
         if processors is None:
             processors = []
         processors.append(bundle)
-        super(PatchworkRequestContext, self). \
-                __init__(request, dict, processors);
+        super(PatchworkRequestContext, self).__init__(
+            request, dict, processors)
 
         self.update({
-                'filters': self.filters,
-                'messages': [],
-            })
+            'filters': self.filters,
+            'messages': [],
+        })
         if list_view:
             params = self.filters.params()
             for param in ['order', 'page']:
@@ -58,22 +60,22 @@ class PatchworkRequestContext(RequestContext):
 
                 value = data.get(param, None)
                 if value:
-                        params.append((param, value))
+                    params.append((param, value))
             self.update({
                 'list_view': {
-                        'view':         list_view,
-                        'view_params':  list_view_params,
-                        'params':       params
-                }})
+                        'view': list_view,
+                        'view_params': list_view_params,
+                        'params': params
+                        }})
 
         self.projects = Project.objects.all()
 
         self.update({
-                'project': self.project,
-                'site': Site.objects.get_current(),
-                'settings': settings,
-                'other_projects': len(self.projects) > 1
-            })
+            'project': self.project,
+            'site': Site.objects.get_current(),
+            'settings': settings,
+            'other_projects': len(self.projects) > 1
+        })
 
     def _set_project(self, project):
         self._project = project
