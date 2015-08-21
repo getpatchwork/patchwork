@@ -50,6 +50,10 @@ LANGUAGE_CODE = 'en-au'
 
 USE_I18N = True
 
+# Testing
+
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 # URLs
 
 ROOT_URLCONF = 'patchwork.urls'
@@ -113,5 +117,3 @@ COMPAT_REDIR = True
 # the scheme based on current access. This is useful if SSL protocol
 # is terminated upstream of the server (e.g. at the load balancer)
 FORCE_HTTPS_LINKS = False
-
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
