@@ -50,7 +50,7 @@ DATABASES = {
 }
 
 #
-# Static files settings. Set this to the 
+# Static files settings
 # https://docs.djangoproject.com/en/1.7/ref/settings/#static-files
 #
 
