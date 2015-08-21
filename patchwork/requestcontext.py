@@ -30,12 +30,6 @@ def bundle(request):
         return {}
     return {'bundles': Bundle.objects.filter(owner = user)}
 
-def _params_as_qs(params):
-    return '&'.join([ '%s=%s' % (escape(k), escape(v)) for k, v in params ])
-
-def _params_as_hidden_fields(params):
-    return '\n'.join([ '<input type="hidden" name="%s" value="%s"/>' % \
-                (escape(k), escape(v)) for k, v in params ])
 
 class PatchworkRequestContext(RequestContext):
     def __init__(self, request, project = None,

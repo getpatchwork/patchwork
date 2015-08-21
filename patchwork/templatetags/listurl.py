@@ -78,8 +78,8 @@ class ListURLNode(template.defaulttags.URLNode):
 def listurl(parser, token):
     bits = token.contents.split(' ', 1)
     if len(bits) < 1:
-        raise TemplateSyntaxError("'%s' takes at least one argument"
-                                  " (path to a view)" % bits[0])
+        raise template.TemplateSyntaxError(
+            "'%s' takes at least one argument (path to a view)" % bits[0])
     kwargs = {}
     if len(bits) > 1:
         for arg in bits[1].split(','):
@@ -88,49 +88,6 @@ def listurl(parser, token):
                 k = k.strip()
                 kwargs[k] = parser.compile_filter(v)
             else:
-                raise TemplateSyntaxError("'%s' requires name=value params" \
-                                          % bits[0])
+                raise template.TemplateSyntaxError(
+                    "'%s' requires name=value params" % bits[0])
     return ListURLNode(kwargs)
-
-class ListFieldsNode(template.Node):
-    def __init__(self, params):
-        self.params = params
-
-    def render(self, context):
-        self.view_name = template.Variable('list_view.view').resolve(context)
-        try:
-            qs_var = template.Variable('list_view.params')
-            params = dict(qs_var.resolve(context))
-        except Exception:
-            pass
-
-        params.update(self.params)
-
-        if not params:
-            return ''
-
-        str = ''
-        for (k, v) in params.iteritems():
-            str += '<input type="hidden" name="%s" value="%s"\>' % \
-                   (k, escape(v))
-
-        return mark_safe(str)
-
-@register.tag
-def listfields(parser, token):
-    bits = token.contents.split(' ', 1)
-    if len(bits) < 1:
-        raise TemplateSyntaxError("'%s' takes at least one argument"
-                                  " (path to a view)" % bits[0])
-    params = {}
-    if len(bits) > 2:
-        for arg in bits[2].split(','):
-            if '=' in arg:
-                k, v = arg.split('=', 1)
-                k = k.strip()
-                params[k] = parser.compile_filter(v)
-            else:
-                raise TemplateSyntaxError("'%s' requires name=value params" \
-                                          % bits[0])
-    return ListFieldsNode(bits[1], params)
-

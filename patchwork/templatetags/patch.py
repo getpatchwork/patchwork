@@ -19,51 +19,9 @@
 
 from django import template
 from django.utils.safestring import mark_safe
-import re
 
 register = template.Library()
 
-@register.tag(name = 'ifpatcheditable')
-def do_patch_is_editable(parser, token):
-    try:
-        tag_name, patch_var = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError("%r tag requires one argument" \
-                % token.contents.split()[0])
-
-    end_tag = 'endifpatcheditable'
-    nodelist_true = parser.parse([end_tag, 'else'])
-
-    token = parser.next_token()
-    if token.contents == 'else':
-        nodelist_false = parser.parse([end_tag])
-        parser.delete_first_token()
-    else:
-        nodelist_false = template.NodeList()
-
-    return EditablePatchNode(patch_var, nodelist_true, nodelist_false)
-
-class EditablePatchNode(template.Node):
-    def __init__(self, patch_var, nodelist_true, nodelist_false):
-        self.nodelist_true = nodelist_true
-        self.nodelist_false = nodelist_false
-        self.patch_var = template.Variable(patch_var)
-        self.user_var = template.Variable('user')
-
-    def render(self, context):
-        try:
-            patch = self.patch_var.resolve(context)
-            user = self.user_var.resolve(context)
-        except template.VariableDoesNotExist:
-            return ''
-
-        if not user.is_authenticated():
-            return self.nodelist_false.render(context)
-
-        if not patch.is_editable(user):
-            return self.nodelist_false.render(context)
-
-        return self.nodelist_true.render(context)
 
 @register.filter(name='patch_tags')
 def patch_tags(patch):
