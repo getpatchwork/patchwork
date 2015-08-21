@@ -25,8 +25,9 @@ from patchwork.models import EmailOptout, EmailConfirmation, Person
 from patchwork.tests.utils import create_user, error_strings
 
 class MailSettingsTest(TestCase):
-    view = 'patchwork.views.mail.settings'
-    url = reverse(view)
+
+    def setUp(self):
+        self.url = reverse('patchwork.views.mail.settings')
 
     def testMailSettingsGET(self):
         response = self.client.get(self.url)
@@ -75,8 +76,9 @@ class MailSettingsTest(TestCase):
         self.assertTrue(('action="%s"' % optin_url) in response.content)
 
 class OptoutRequestTest(TestCase):
-    view = 'patchwork.views.mail.optout'
-    url = reverse(view)
+
+    def setUp(self):
+        self.url = reverse('patchwork.views.mail.optout')
 
     def testOptOutRequestGET(self):
         response = self.client.get(self.url)
@@ -121,10 +123,9 @@ class OptoutRequestTest(TestCase):
         self.assertEquals(len(mail.outbox), 0)
 
 class OptoutTest(TestCase):
-    view = 'patchwork.views.mail.optout'
-    url = reverse(view)
 
     def setUp(self):
+        self.url = reverse('patchwork.views.mail.optout')
         self.email = u'foo@example.com'
         self.conf = EmailConfirmation(type = 'optout', email = self.email)
         self.conf.save()
@@ -154,10 +155,9 @@ class OptoutPreexistingTest(OptoutTest):
         EmailOptout(email = self.email).save()
 
 class OptinRequestTest(TestCase):
-    view = 'patchwork.views.mail.optin'
-    url = reverse(view)
 
     def setUp(self):
+        self.url = reverse('patchwork.views.mail.optin')
         self.email = u'foo@example.com'
         EmailOptout(email = self.email).save()
 
@@ -229,8 +229,9 @@ class OptinTest(TestCase):
 
 class OptinWithoutOptoutTest(TestCase):
     """Test an opt-in with no existing opt-out"""
-    view = 'patchwork.views.mail.optin'
-    url = reverse(view)
+
+    def setUp(self):
+        self.url = reverse('patchwork.views.mail.optin')
 
     def testOptInWithoutOptout(self):
         email = u'foo@example.com'
@@ -245,16 +246,15 @@ class UserProfileOptoutFormTest(TestCase):
     """Test that the correct optin/optout forms appear on the user profile
        page, for logged-in users"""
 
-    view = 'patchwork.views.user.profile'
-    url = reverse(view)
-    optout_url = reverse('patchwork.views.mail.optout')
-    optin_url = reverse('patchwork.views.mail.optin')
-    form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
-                        '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
-                        '</form>')
-    secondary_email = 'test2@example.com'
-
     def setUp(self):
+        self.url = reverse('patchwork.views.user.profile')
+        self.optout_url = reverse('patchwork.views.mail.optout')
+        self.optin_url = reverse('patchwork.views.mail.optin')
+        self.form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
+                                 '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
+                                 '</form>')
+        self.secondary_email = 'test2@example.com'
+
         self.user = create_user()
         self.client.login(username = self.user.username,
                 password = self.user.username)

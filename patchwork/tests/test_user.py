@@ -25,6 +25,7 @@ from django.contrib.auth.models import User
 from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
 from patchwork.tests.utils import defaults, error_strings
 
+
 def _confirmation_url(conf):
     return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
 
@@ -120,7 +121,7 @@ class UserPersonConfirmTest(TestCase):
         self.assertEquals(conf.active, False)
 
 class UserLoginRedirectTest(TestCase):
-    
+
     def testUserLoginRedirect(self):
         url = '/user/'
         response = self.client.get(url)
@@ -177,8 +178,12 @@ class UserProfileTest(TestCase):
 
 
 class UserPasswordChangeTest(TestCase):
-    form_url = reverse('django.contrib.auth.views.password_change')
-    done_url = reverse('django.contrib.auth.views.password_change_done')
+    user = None
+
+    def setUp(self):
+        self.form_url = reverse('django.contrib.auth.views.password_change')
+        self.done_url = reverse(
+            'django.contrib.auth.views.password_change_done')
 
     def testPasswordChangeForm(self):
         self.user = TestUser()
