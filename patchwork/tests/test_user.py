@@ -24,7 +24,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
-from patchwork.models import EmailConfirmation, Person, Bundle
+from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
 from patchwork.tests.utils import defaults, error_strings
 
 def _confirmation_url(conf):
@@ -156,6 +156,27 @@ class UserProfileTest(TestCase):
 
         self.assertContains(response, 'You have the following bundle')
         self.assertContains(response, bundle.get_absolute_url())
+
+    def testUserProfileValidPost(self):
+        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        old_ppp = user_profile.patches_per_page
+        new_ppp = old_ppp + 1
+
+        response = self.client.post('/user/', {'patches_per_page': new_ppp})
+
+        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        self.assertEquals(user_profile.patches_per_page, new_ppp)
+
+    def testUserProfileInvalidPost(self):
+        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        old_ppp = user_profile.patches_per_page
+        new_ppp = -1
+
+        response = self.client.post('/user/', {'patches_per_page': new_ppp})
+
+        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        self.assertEquals(user_profile.patches_per_page, old_ppp)
+
 
 class UserPasswordChangeTest(TestCase):
     form_url = reverse('django.contrib.auth.views.password_change')
