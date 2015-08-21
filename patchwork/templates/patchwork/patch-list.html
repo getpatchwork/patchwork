@@ -44,7 +44,7 @@ $(document).ready(function() {
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
-<table class="table table-hover" id="patchlist">
+<table class="table table-hover table-condensed" id="patchlist">
  <thead>
   <tr>
    {% if user.is_authenticated %}
