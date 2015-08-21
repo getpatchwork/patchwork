@@ -1,2 +1,2 @@
+MySQL-python==1.2.5
 python-dateutil==1.5
-Django<1.8,>=1.7
