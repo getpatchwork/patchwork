@@ -31,15 +31,16 @@ def _confirmation_url(conf):
     return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
 
 class TestUser(object):
-    username = 'testuser'
-    email = 'test@example.com'
-    secondary_email = 'test2@example.com'
-    password = None
 
-    def __init__(self):
+    def __init__(self, username='testuser', email='test@example.com',
+                 secondary_email='test2@example.com'):
+        self.username = username
+        self.email = email
+        self.secondary_email = secondary_email
         self.password = User.objects.make_random_password()
-        self.user = User.objects.create_user(self.username,
-                            self.email, self.password)
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password)
+
 
 class UserPersonRequestTest(TestCase):
     def setUp(self):
@@ -193,3 +194,81 @@ class UserPasswordChangeTest(TestCase):
         response = self.client.get(self.done_url)
         self.assertContains(response,
                 "Your password has been changed sucessfully")
+
+class UserUnlinkTest(TestCase):
+    def setUp(self):
+        self.form_url = '/user/unlink/{pid}/'
+        self.done_url = '/user/'
+        EmailConfirmation.objects.all().delete()
+        Person.objects.all().delete()
+
+    def testUnlinkPrimaryEmail(self):
+        user = TestUser()
+        self.client.login(username=user.username,
+                          password=user.password)
+        conf = EmailConfirmation(type='userperson',
+                                 email=user.email,
+                                 user=user.user)
+        conf.save()
+        self.client.get(_confirmation_url(conf))
+
+        person = Person.objects.get(email=user.email)
+        response = self.client.post(self.form_url.format(pid=str(person.id)))
+        self.assertRedirects(response, self.done_url)
+
+        person = Person.objects.get(email=user.email)
+        self.assertEquals(person.user, user.user)
+
+    def testUnlinkSecondaryEmail(self):
+        user = TestUser()
+        self.client.login(username=user.username,
+                          password=user.password)
+        conf = EmailConfirmation(type='userperson',
+                                 email=user.secondary_email,
+                                 user=user.user)
+        conf.save()
+        self.client.get(_confirmation_url(conf))
+
+        person = Person.objects.get(email=user.secondary_email)
+        response = self.client.post(self.form_url.format(pid=str(person.id)))
+        self.assertRedirects(response, self.done_url)
+
+        person = Person.objects.get(email=user.secondary_email)
+        self.assertEquals(person.user, None)
+
+    def testUnlinkAnotherUser(self):
+        user = TestUser()
+        self.client.login(username=user.username,
+                          password=user.password)
+
+        other_user = TestUser('testuser_other', 'test_other@example.com',
+                              'test_other2@example.com')
+        conf = EmailConfirmation(type='userperson',
+                                 email=other_user.email,
+                                 user=other_user.user)
+        conf.save()
+        self.client.get(_confirmation_url(conf))
+
+        person = Person.objects.get(email=other_user.email)
+        response = self.client.post(self.form_url.format(pid=str(person.id)))
+        self.assertRedirects(response, self.done_url)
+
+        person = Person.objects.get(email=other_user.email)
+        self.assertEquals(person.user, None)
+
+    def testUnlinkNonPost(self):
+        user = TestUser()
+        self.client.login(username=user.username,
+                          password=user.password)
+        conf = EmailConfirmation(type='userperson',
+                                 email=user.secondary_email,
+                                 user=user.user)
+        conf.save()
+        self.client.get(_confirmation_url(conf))
+
+        person = Person.objects.get(email=user.secondary_email)
+        response = self.client.get(self.form_url.format(pid=str(person.id)))
+        self.assertRedirects(response, self.done_url)
+
+        person = Person.objects.get(email=user.secondary_email)
+        self.assertEquals(person.user, user.user)
