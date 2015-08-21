@@ -26,20 +26,11 @@ from patchwork.models import Comment
 import re
 import datetime
 
-try:
-    from email.mime.nonmultipart import MIMENonMultipart
-    from email.encoders import encode_7or8bit
-    from email.parser import HeaderParser
-    from email.header import Header
-    import email.utils
-except ImportError:
-    # Python 2.4 compatibility
-    from email.MIMENonMultipart import MIMENonMultipart
-    from email.Encoders import encode_7or8bit
-    from email.Parser import HeaderParser
-    from email.Header import Header
-    import email.Utils
-    email.utils = email.Utils
+from email.mime.nonmultipart import MIMENonMultipart
+from email.encoders import encode_7or8bit
+from email.parser import HeaderParser
+from email.header import Header
+import email.utils
 
 def generic_list(request, project, view,
         view_args = {}, filter_settings = [], patches = None,

@@ -26,13 +26,8 @@ import time
 import operator
 import codecs
 from email import message_from_file
-try:
-    from email.header import Header, decode_header
-    from email.utils import parsedate_tz, mktime_tz
-except ImportError:
-    # Python 2.4 compatibility
-    from email.Header import Header, decode_header
-    from email.Utils import parsedate_tz, mktime_tz
+from email.header import Header, decode_header
+from email.utils import parsedate_tz, mktime_tz
 
 from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment, State, \

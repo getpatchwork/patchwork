@@ -22,7 +22,7 @@
 
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from django.http import HttpResponse, HttpResponseRedirect, \
-     HttpResponseServerError
+    HttpResponseServerError
 from django.core import urlresolvers
 from django.contrib.auth import authenticate
 from patchwork.models import Patch, Project, Person, State
@@ -34,18 +34,15 @@ import base64
 import xmlrpclib
 
 class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
+
     def __init__(self):
-        if sys.version_info[:3] >= (2,5,):
-            SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
-                    encoding=None)
-            def _dumps(obj, *args, **kwargs):
-                kwargs['allow_none'] = self.allow_none
-                kwargs['encoding'] = self.encoding
-                return xmlrpclib.dumps(obj, *args, **kwargs)
-        else:
-            def _dumps(obj, *args, **kwargs):
-                return xmlrpclib.dumps(obj, *args, **kwargs)
-            SimpleXMLRPCDispatcher.__init__(self)
+        SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
+                                        encoding=None)
+
+        def _dumps(obj, *args, **kwargs):
+            kwargs['allow_none'] = self.allow_none
+            kwargs['encoding'] = self.encoding
+            return xmlrpclib.dumps(obj, *args, **kwargs)
 
         self.dumps = _dumps
 

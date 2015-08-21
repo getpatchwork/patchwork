@@ -20,15 +20,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
+import hashlib
 import re
 from collections import Counter
-
-try:
-    import hashlib
-    sha1_hash = hashlib.sha1
-except ImportError:
-    import sha
-    sha1_hash = sha.sha
 
 _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')
@@ -194,7 +188,7 @@ def hash_patch(str):
     str = str.strip() + '\n'
 
     prefixes = ['-', '+', ' ']
-    hash = sha1_hash()
+    hash = hashlib.sha1()
 
     for line in str.split('\n'):
 

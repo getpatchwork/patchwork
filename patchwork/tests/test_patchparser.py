@@ -25,11 +25,7 @@ from patchwork.models import Project, Person, Patch, Comment, State, \
 from patchwork.tests.utils import read_patch, read_mail, create_email, \
          defaults, create_user
 
-try:
-    from email.mime.text import MIMEText
-except ImportError:
-    # Python 2.4 compatibility
-    from email.MIMEText import MIMEText
+from email.mime.text import MIMEText
 
 class PatchTest(TestCase):
     fixtures = ['default_states']

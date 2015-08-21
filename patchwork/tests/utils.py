@@ -24,13 +24,8 @@ from django.contrib.auth.models import User
 from django.forms.fields import EmailField
 
 from email import message_from_file
-try:
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-except ImportError:
-    # Python 2.4 compatibility
-    from email.MIMEText import MIMEText
-    from email.MIMEMultipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # helper functions for tests
 _test_mail_dir  = os.path.join(os.path.dirname(__file__), 'mail')
