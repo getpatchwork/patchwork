@@ -38,9 +38,15 @@ DATABASES = {
         'USER': os.environ['PW_TEST_DB_USER'],
         'PASSWORD': os.environ['PW_TEST_DB_PASS'],
         'NAME': 'patchwork',
-        'TEST_CHARSET': 'utf8',
     },
 }
+
+if django.VERSION < (1, 7):
+    DATABASES['default']['TEST_CHARSET'] = 'utf8'
+else:
+    DATABASES['default']['TEST'] = {
+        'CHARSET': 'utf8',
+    }
 
 #
 # Patchwork settings
