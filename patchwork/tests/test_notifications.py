@@ -19,12 +19,10 @@
 
 import datetime
 from django.test import TestCase
-from django.core.urlresolvers import reverse
 from django.core import mail
 from django.conf import settings
-from django.db.utils import IntegrityError
 from patchwork.models import Patch, State, PatchChangeNotification, EmailOptout
-from patchwork.tests.utils import defaults, create_maintainer
+from patchwork.tests.utils import defaults
 from patchwork.utils import send_notifications
 
 class PatchNotificationModelTest(TestCase):

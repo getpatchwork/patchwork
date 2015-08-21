@@ -17,7 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
