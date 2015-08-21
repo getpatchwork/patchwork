@@ -28,13 +28,14 @@ from patchwork.tests.utils import defaults
 @unittest.skipUnless(settings.ENABLE_XMLRPC,
         "requires xmlrpc interface (use the ENABLE_XMLRPC setting)")
 class XMLRPCTest(LiveServerTestCase):
+    fixtures = ['default_states']
 
     def setUp(self):
         settings.STATIC_URL = '/'
-        self.url = (self.live_server_url + 
+        self.url = (self.live_server_url +
                     reverse('patchwork.views.xmlrpc.xmlrpc'))
         self.rpc = xmlrpclib.Server(self.url)
-        
+
     def testGetRedirect(self):
         response = self.client.get(self.url)
         self.assertRedirects(response,
