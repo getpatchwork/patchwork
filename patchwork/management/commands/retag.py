@@ -1,28 +1,24 @@
-
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from patchwork.models import Patch
-import sys
+
 
 class Command(BaseCommand):
     help = 'Update the tag (Ack/Review/Test) counts on existing patches'
     args = '[<patch_id>...]'
 
     def handle(self, *args, **options):
-
-        qs = Patch.objects
+        query = Patch.objects
 
         if args:
-            qs = qs.filter(id__in=args)
+            query = query.filter(id__in=args)
         else:
-            qs = qs.all()
+            query = query.all()
 
-        count = qs.count()
-        i = 0
+        count = query.count()
 
-        for patch in qs.iterator():
+        for i, patch in enumerate(query.iterator()):
             patch.refresh_tag_counts()
-            i += 1
             if (i % 10) == 0 or i == count:
-                sys.stdout.write('%06d/%06d\r' % (i, count))
-                sys.stdout.flush()
-        sys.stderr.write('\ndone\n')
+                self.stdout.write('%06d/%06d\r' % (i, count))
+                self.stdout.flush()
+        self.stderr.write('\ndone\n')
