@@ -99,13 +99,8 @@ class DeleteBundleForm(forms.Form):
 
 class DelegateField(forms.ModelChoiceField):
 
-    def __init__(self, project, instance=None, *args, **kwargs):
-        q = Q(profile__in=UserProfile.objects
-              .filter(maintainer_projects=project)
-              .values('pk').query)
-        if instance and instance.delegate:
-            q = q | Q(username=instance.delegate)
-        queryset = User.objects.complex_filter(q)
+    def __init__(self, *args, **kwargs):
+        queryset = User.objects
         super(DelegateField, self).__init__(queryset, *args, **kwargs)
 
 
@@ -117,8 +112,7 @@ class PatchForm(forms.ModelForm):
         if not project:
             raise Exception("meep")
         super(PatchForm, self).__init__(instance=instance, *args, **kwargs)
-        self.fields['delegate'] = DelegateField(project, instance,
-                                                required=False)
+        self.fields['delegate'] = DelegateField(required=False)
 
     class Meta:
         model = Patch
@@ -225,8 +219,7 @@ class MultiplePatchForm(forms.Form):
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
-        self.fields['delegate'] = OptionalDelegateField(project=project,
-                                                        required=False)
+        self.fields['delegate'] = OptionalDelegateField(required=False)
 
     def save(self, instance, commit=True):
         opts = instance.__class__._meta
