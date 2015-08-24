@@ -27,9 +27,11 @@ Selectize.define('enter_key_submit', function (options) {
         var original = self.onKeyDown;
 
         return function (e) {
+            var wasOpened = this.isOpen;
             original.apply(this, arguments);
 
-            if (e.keyCode === 13 && this.$control_input.val() != '' )
+            if (e.keyCode === 13 &&
+                (this.$control_input.val() != '' || !wasOpened))
                 self.trigger('submit');
         };
     })();
