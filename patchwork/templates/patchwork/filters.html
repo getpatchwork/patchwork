@@ -20,13 +20,36 @@ function filter_click()
 
 }
 
+Selectize.define('enter_key_submit', function (options) {
+    var self = this;
+
+    this.onKeyDown = (function (e) {
+        var original = self.onKeyDown;
+
+        return function (e) {
+            original.apply(this, arguments);
+
+            if (e.keyCode === 13 && this.$control_input.val() != '' )
+                self.trigger('submit');
+        };
+    })();
+});
+
 $(document).ready(function() {
     $('#submitter_input').selectize({
         valueField: 'pk',
         labelField: 'name',
         searchField: ['name', 'email'],
+        plugins: ['enter_key_submit'],
         maxItems: 1,
         persist: false,
+        onInitialize: function() {
+            this.on('submit', function() {
+                if (!this.items.length)
+                    this.$input.val(this.lastValue);
+                this.$input.closest('form').submit();
+            }, this);
+        },
         render: {
             option: function(item, escape) {
                 return '<div>' + escape(item.name) + ' &lt;' +
