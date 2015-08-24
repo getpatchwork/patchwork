@@ -54,11 +54,15 @@ $(document).ready(function() {
         },
         render: {
             option: function(item, escape) {
-                return '<div>' + escape(item.name) + ' &lt;' +
-                                 escape(item.email) + '&gt;' + '</div>';
+                if (item.name)
+                    return '<div>' + escape(item.name) + ' &lt;' +
+                                     escape(item.email) + '&gt;' + '</div>';
+                return '<div>' + escape(item.email) + '</div>';
             },
             item: function(item, escape) {
-                return '<div>' + escape(item.name) + '</div>';
+                if (item.name)
+                    return '<div>' + escape(item.name) + '</div>';
+                return '<div>' + escape(item.email) + '</div>';
             }
         },
         load: function(query, callback) {
