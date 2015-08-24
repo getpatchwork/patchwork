@@ -3,6 +3,13 @@
 {% block title %}Login{% endblock %}
 {% block heading %}Login{% endblock %}
 
+{% block headers %}
+  <script type="text/javascript">
+    $(function() {
+        $('#id_username').focus()
+    });
+  </script>
+{% endblock %}
 
 {% block body %}
 <form method="post">
