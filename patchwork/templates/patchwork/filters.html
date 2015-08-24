@@ -82,6 +82,48 @@ $(document).ready(function() {
         }
     });
 });
+
+
+$(document).ready(function() {
+    $('#delegate_input').selectize({
+        valueField: 'pk',
+        labelField: 'name',
+        searchField: ['name'],
+        plugins: ['enter_key_submit'],
+        maxItems: 1,
+        persist: false,
+        onInitialize: function() {
+            this.on('submit', function() {
+                if (!this.items.length)
+                    this.$input.val(this.lastValue);
+                this.$input.closest('form').submit();
+            }, this);
+        },
+        render: {
+            option: function(item, escape) {
+                if (item.email)
+                    return '<div>' + escape(item.name) + ' &lt;' +
+                                     escape(item.email) + '&gt;' + '</div>';
+                return '<div>' + escape(item.name) + '</div>';
+            },
+            item: function(item, escape) {
+                return '<div>' + escape(item.name) + '</div>';
+            }
+        },
+        load: function(query, callback) {
+            req = $.ajax({
+                url: '{% url 'api-delegates' %}?q=' +
+                      encodeURIComponent(query) + '&l=10',
+                error: function() {
+                    callback();
+                },
+                success: function(res) {
+                    callback(res);
+                }
+            });
+        }
+    });
+});
 </script>
 
 <div class="filters">

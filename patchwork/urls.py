@@ -109,6 +109,7 @@ urlpatterns = [
 
     # submitter autocomplete
     url(r'^submitter/$', api_views.submitters, name='api-submitters'),
+    url(r'^delegate/$', api_views.delegates, name='api-delegates'),
 
     # email setup
     url(r'^mail/$', mail_views.settings, name='mail-settings'),

@@ -330,82 +330,64 @@ class ArchiveFilter(Filter):
 
 class DelegateFilter(Filter):
     param = 'delegate'
-    no_delegate_key = '-'
-    no_delegate_str = 'Nobody'
-    AnyDelegate = 1
 
     def __init__(self, filters):
         super(DelegateFilter, self).__init__(filters)
         self.name = 'Delegate'
-        self.param = 'delegate'
         self.delegate = None
+        self.delegate_match = None
 
-    def _set_key(self, str):
-        if str == self.no_delegate_key:
-            self.applied = True
-            self.delegate = None
+    def _set_key(self, key):
+        self.delegate = None
+        self.delegate_match = None
+        delegate_id = None
+
+        key = key.strip()
+        if not key:
             return
 
         try:
-            self.delegate = User.objects.get(id=str)
-            self.applied = True
-        except:
+            delegate_id = int(key)
+        except ValueError:
             pass
+        except:
+            return
+
+        if delegate_id:
+            self.delegate = User.objects.get(id=int(key))
+            self.applied = True
+            return
+
+        delegates = User.objects.filter(username__icontains=key)
+        if not delegates:
+            return
+
+        self.delegate_match = key
+        self.applied = True
 
     def kwargs(self):
-        if not self.applied:
-            return {}
-        return {'delegate': self.delegate}
+        if self.delegate:
+            return {'delegate': self.delegate}
+
+        if self.delegate_match:
+            return {'delegate__username__icontains': self.delegate_match}
+        return {}
 
     def condition(self):
         if self.delegate:
-            return self.delegate.profile.name()
-        return self.no_delegate_str
+            return str(self.delegate)
+        elif self.delegate_match:
+            return self.delegate_match
+        return ''
 
     def _form(self):
-        delegates = User.objects.filter(
-            profile__maintainer_projects=self.filters.project)
-
-        str = '<select name="delegate" class="form-control">'
-
-        selected = ''
-        if not self.applied:
-            selected = 'selected'
-
-        str += '<option %s value="">------</option>' % selected
-
-        selected = ''
-        if self.applied and self.delegate is None:
-            selected = 'selected'
-
-        str += '<option %s value="%s">%s</option>' % \
-            (selected, self.no_delegate_key, self.no_delegate_str)
-
-        for d in delegates:
-            selected = ''
-            if d == self.delegate:
-                selected = ' selected'
-
-            str += '<option %s value="%s">%s</option>' % (
-                selected, d.id, d.profile.name())
-        str += '</select>'
-
-        return mark_safe(str)
+        return mark_safe('<input type="text" name="delegate" '
+                         'id="delegate_input" class="form-control">')
 
     def key(self):
         if self.delegate:
             return self.delegate.id
-        if self.applied:
-            return self.no_delegate_key
-        return None
-
-    def set_status(self, *args, **kwargs):
-        if 'delegate' in kwargs:
-            self.applied = self.forced = True
-            self.delegate = kwargs['delegate']
-        if self.AnyDelegate in args:
-            self.applied = False
-            self.forced = True
+        return self.delegate_match
 
 filterclasses = [SubmitterFilter,
                  StateFilter,
