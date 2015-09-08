@@ -99,6 +99,10 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     _SCREENSHOT_DIR = os.path.dirname(__file__) + '/../../selenium_screenshots'
 
     def setUp(self):
+        self.skip = os.getenv('PW_SKIP_BROWSER_TESTS', None)
+        if self.skip:
+            self.skipTest('Disabled by environment variable')
+
         super(SeleniumTestCase, self).setUp()
 
         self.browser = os.getenv('SELENIUM_BROWSER', 'chrome')
