@@ -28,3 +28,7 @@ cscope.*
 
 *.orig
 *.rej
+
+# test artifacts
+/selenium.log
+/selenium_screenshots
