@@ -118,6 +118,7 @@ def create_email(content, subject = None, sender = None, multipart = False,
         sender = defaults.sender
     if project is None:
         project = defaults.project
+        project.save()
     if content_encoding is None:
         content_encoding = 'us-ascii'
 
