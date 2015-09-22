@@ -129,5 +129,4 @@ def create_email(content, subject = None, sender = None, multipart = False,
     msg['From'] = sender
     msg['List-Id'] = project.listid
 
-
     return msg
