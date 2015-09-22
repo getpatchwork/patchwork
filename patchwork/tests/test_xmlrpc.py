@@ -31,7 +31,6 @@ class XMLRPCTest(LiveServerTestCase):
     fixtures = ['default_states']
 
     def setUp(self):
-        settings.STATIC_URL = '/'
         self.url = (self.live_server_url +
                     reverse('patchwork.views.xmlrpc.xmlrpc'))
         self.rpc = xmlrpclib.Server(self.url)
