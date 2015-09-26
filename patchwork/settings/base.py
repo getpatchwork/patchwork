@@ -64,6 +64,9 @@ TEMPLATE_DIRS = (
     os.path.join(ROOT_DIR, 'templates'),
 )
 
+# Email
+
+DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
 #
 # Auth settings
@@ -99,7 +102,6 @@ STATICFILES_DIRS = [
 #
 
 DEFAULT_PATCHES_PER_PAGE = 100
-DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
 CONFIRMATION_VALIDITY_DAYS = 7
 
