@@ -34,6 +34,7 @@ ADMINS = (
 )
 
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 # Database

@@ -67,6 +67,7 @@ TEMPLATE_DIRS = (
 # Email
 
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 #
 # Auth settings
