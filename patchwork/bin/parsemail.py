@@ -28,12 +28,15 @@ import codecs
 from email import message_from_file
 from email.header import Header, decode_header
 from email.utils import parsedate_tz, mktime_tz
+import logging
 
 from patchwork.parser import parse_patch
 from patchwork.models import Patch, Project, Person, Comment, State, \
         get_default_initial_patch_state
 import django
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.log import AdminEmailHandler
 
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
@@ -401,10 +404,42 @@ def parse_mail(mail):
 
     return 0
 
+extra_error_message = '''
+== Mail
+
+%(mail)s
+
+
+== Traceback
+
+'''
+
+# Send emails to settings.ADMINS when encountering errors
+def setup_error_handler():
+    if settings.DEBUG:
+        return None
+
+    mail_handler = AdminEmailHandler()
+    mail_handler.setLevel(logging.ERROR)
+    mail_handler.setFormatter(logging.Formatter(extra_error_message))
+
+    logger = logging.getLogger('patchwork')
+    logger.addHandler(mail_handler)
+
+    return logger
+
 def main(args):
     django.setup()
+    logger = setup_error_handler()
     mail = message_from_file(sys.stdin)
-    return parse_mail(mail)
+    try:
+        return parse_mail(mail)
+    except:
+        if logger:
+            logger.exception('Error when parsing incoming email', extra={
+                'mail': mail.as_string(),
+            })
+        raise
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
