@@ -53,7 +53,7 @@ used to test patchwork against several versions of Django.
        1.8
        (django-1.8)$ ./manage.py runserver
 
-Once finished, you can kill the server (`Ctrl` + `C`) and exit the the virtual
+Once finished, you can kill the server (`Ctrl` + `C`) and exit the virtual
 environment:
 
     (django-1.8)$ deactivate
