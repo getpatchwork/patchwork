@@ -86,7 +86,7 @@ command:
 
     $ tox -e py27-django18 patchwork.tests.SubjectCleanUpTest
 
-Because patchwork support multiple versions of Django, it's very important
+Because patchwork supports multiple versions of Django, it's very important
 that you test against all supported versions. When run without argument, tox
 will do this:
 
