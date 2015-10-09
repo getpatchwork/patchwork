@@ -20,8 +20,8 @@ TAGS
 patches-*
 
 # quilt's files
-patches
-series
+/patches
+/series
 
 # cscope files
 cscope.*
