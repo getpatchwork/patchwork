@@ -132,7 +132,7 @@ class MboxBrokenFromHeaderTest(TestCase):
 
     """ Test that a person with characters outside ASCII in his name do
         produce correct From header. As RFC 2822 state we must retain the
-        <user@doamin.tld> format for the mail while the name part may be coded
+        <user@domain.tld> format for the mail while the name part may be coded
         in some ways. """
 
     def setUp(self):
