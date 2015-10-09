@@ -384,10 +384,7 @@ def parse_mail(mail):
         patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
         patch.delegate = get_delegate(
                 mail.get('X-Patchwork-Delegate', '').strip())
-        try:
-            patch.save()
-        except Exception, ex:
-            print str(ex)
+        patch.save()
 
     if comment:
         if save_required:
@@ -397,10 +394,7 @@ def parse_mail(mail):
             comment.patch = patch
         comment.submitter = author
         comment.msgid = msgid
-        try:
-            comment.save()
-        except Exception, ex:
-            print str(ex)
+        comment.save()
 
     return 0
 
