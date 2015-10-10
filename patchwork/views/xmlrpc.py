@@ -21,6 +21,7 @@
 #
 
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
+from DocXMLRPCServer import XMLRPCDocGenerator
 import base64
 import sys
 import xmlrpclib
@@ -35,11 +36,16 @@ from patchwork.models import Patch, Project, Person, State
 from patchwork.views import patch_to_mbox
 
 
-class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
+class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
+                                XMLRPCDocGenerator):
+
+    server_name = 'Patchwork XML-RPC API'
+    server_title = 'Patchwork XML-RPC API v1 Documentation'
 
     def __init__(self):
         SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
                                         encoding=None)
+        XMLRPCDocGenerator.__init__(self)
 
         def _dumps(obj, *args, **kwargs):
             kwargs['allow_none'] = self.allow_none
@@ -52,6 +58,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher):
         self.func_map = {}
 
     def register_function(self, fn, auth_required):
+        self.funcs[fn.__name__] = fn  # needed by superclass methods
         self.func_map[fn.__name__] = (auth_required, fn)
 
     def _user_for_request(self, request):
@@ -120,16 +127,21 @@ dispatcher = PatchworkXMLRPCDispatcher()
 
 @csrf_exempt
 def xmlrpc(request):
-    if request.method != 'POST':
+    if request.method not in ['POST', 'GET']:
         return HttpResponseRedirect(urlresolvers.reverse(
             'patchwork.views.help', kwargs={'path': 'pwclient/'}))
 
     response = HttpResponse()
-    try:
-        ret = dispatcher._marshaled_dispatch(request)
-        response.write(ret)
-    except Exception:
-        return HttpResponseServerError()
+
+    if request.method == 'POST':
+        try:
+            ret = dispatcher._marshaled_dispatch(request)
+        except Exception:
+            return HttpResponseServerError()
+    else:
+        ret = dispatcher.generate_html_documentation()
+
+    response.write(ret)
 
     return response
 

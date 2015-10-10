@@ -37,7 +37,7 @@ class XMLRPCTest(LiveServerTestCase):
         self.rpc = xmlrpclib.Server(self.url)
 
     def testGetRedirect(self):
-        response = self.client.get(self.url)
+        response = self.client.patch(self.url)
         self.assertRedirects(response,
                 reverse('patchwork.views.help',
                     kwargs = {'path': 'pwclient/'}))
