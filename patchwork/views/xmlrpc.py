@@ -244,13 +244,37 @@ def state_to_dict(obj):
 
 @xmlrpc_method()
 def pw_rpc_version():
-    """Return Patchwork XML-RPC interface version."""
+    """Return Patchwork XML-RPC interface version.
+
+    The API is versioned separately from patchwork itself. The API
+    version only changes when the API itself changes. As these changes
+    can include the removal or modification of methods, it is highly
+    recommended that one first test the API version for compatibility
+    before making method calls.
+
+    Returns:
+        Version of the API.
+    """
     return 1
 
 
 @xmlrpc_method()
 def project_list(search_str='', max_count=0):
-    """Get a list of projects matching the given filters."""
+    """List projects matching a given linkname filter.
+
+    Filter projects by linkname. Projects are compared to the search
+    string via a case-insensitive containment test, a.k.a. a partial
+    match.
+
+    Args:
+        search_str: The string to compare project names against. If
+            blank, all projects will be returned.
+        max_count (int): The maximum number of projects to return.
+
+    Returns:
+        A serialized list of projects matching filter, if any. A list
+        of all projects if no filter given.
+    """
     try:
         if len(search_str) > 0:
             projects = Project.objects.filter(linkname__icontains=search_str)
@@ -267,7 +291,17 @@ def project_list(search_str='', max_count=0):
 
 @xmlrpc_method()
 def project_get(project_id):
-    """Return structure for the given project ID."""
+    """Get a project by its ID.
+
+    Retrieve a project matching a given project ID, if any exists.
+
+    Args:
+        project_id (int): The ID of the project to retrieve.
+
+    Returns:
+        The serialized project matching the ID, if any, else an empty
+        dict.
+    """
     try:
         project = Project.objects.filter(id=project_id)[0]
         return project_to_dict(project)
@@ -277,7 +311,21 @@ def project_get(project_id):
 
 @xmlrpc_method()
 def person_list(search_str="", max_count=0):
-    """Get a list of Person objects matching the given filters."""
+    """List persons matching a given name or email filter.
+
+    Filter persons by name and email. Persons are compared to the
+    search string via a case-insensitive containment test, a.k.a. a
+    partial match.
+
+    Args:
+        search_str: The string to compare person names or emails
+            against. If blank, all persons will be returned.
+        max_count (int): The maximum number of persons to return.
+
+    Returns:
+        A serialized list of persons matching filter, if any. A list
+        of all persons if no filter given.
+    """
     try:
         if len(search_str) > 0:
             people = (Person.objects.filter(name__icontains=search_str) |
@@ -295,7 +343,17 @@ def person_list(search_str="", max_count=0):
 
 @xmlrpc_method()
 def person_get(person_id):
-    """Return structure for the given person ID."""
+    """Get a person by its ID.
+
+    Retrieve a person matching a given person ID, if any exists.
+
+    Args:
+        person_id (int): The ID of the person to retrieve.
+
+    Returns:
+        The serialized person matching the ID, if any, else an empty
+        dict.
+    """
     try:
         person = Person.objects.filter(id=person_id)[0]
         return person_to_dict(person)
@@ -305,7 +363,69 @@ def person_get(person_id):
 
 @xmlrpc_method()
 def patch_list(filt=None):
-    """Get a list of patches matching the given filters."""
+    """List patches matching all of a given set of filters.
+
+    Filter patches by one or more of the below fields:
+
+     * id
+     * name
+     * project_id
+     * submitter_id
+     * delegate_id
+     * archived
+     * state_id
+     * date
+     * commit_ref
+     * hash
+     * msgid
+
+    It is also possible to specify the number of patches returned via
+    a ``max_count`` filter.
+
+     * max_count
+
+    With the exception of ``max_count``, the specified field of the
+    patches are compared to the search string using a provided
+    field lookup type, which can be one of:
+
+     * iexact
+     * contains
+     * icontains
+     * gt
+     * gte
+     * lt
+     * in
+     * startswith
+     * istartswith
+     * endswith
+     * iendswith
+     * range
+     * year
+     * month
+     * day
+     * isnull
+
+    Please refer to the Django documentation for more information on
+    these field lookup types.
+
+    An example filter would look like so:
+
+    {
+        'name__icontains': 'Joe Bloggs',
+        'max_count': 1,
+    }
+
+    Args:
+        filt (dict): The filters specifying the field to compare, the
+            lookup type and the value to compare against. Keys are of
+            format ``[FIELD_NAME]`` or ``[FIELD_NAME]__[LOOKUP_TYPE]``.
+            Example: ``name__icontains``. Values are plain strings to
+            compare against.
+
+    Returns:
+        A serialized list of patches matching filters, if any. A list
+        of all patches if no filter given.
+    """
     if filt is None:
         filt = {}
 
@@ -366,7 +486,17 @@ def patch_list(filt=None):
 
 @xmlrpc_method()
 def patch_get(patch_id):
-    """Return structure for the given patch ID."""
+    """Get a patch by its ID.
+
+    Retrieve a patch matching a given patch ID, if any exists.
+
+    Args:
+        patch_id (int): The ID of the patch to retrieve
+
+    Returns:
+        The serialized patch matching the ID, if any, else an empty
+        dict.
+    """
     try:
         patch = Patch.objects.filter(id=patch_id)[0]
         return patch_to_dict(patch)
@@ -376,7 +506,17 @@ def patch_get(patch_id):
 
 @xmlrpc_method()
 def patch_get_by_hash(hash):
-    """Return structure for the given patch hash."""
+    """Get a patch by its hash.
+
+    Retrieve a patch matching a given patch hash, if any exists.
+
+    Args:
+        hash: The hash of the patch to retrieve
+
+    Returns:
+        The serialized patch matching the hash, if any, else an empty
+        dict.
+    """
     try:
         patch = Patch.objects.filter(hash=hash)[0]
         return patch_to_dict(patch)
@@ -386,7 +526,19 @@ def patch_get_by_hash(hash):
 
 @xmlrpc_method()
 def patch_get_by_project_hash(project, hash):
-    """Return structure for the given patch hash."""
+    """Get a patch by its project and hash.
+
+    Retrieve a patch matching a given project and patch hash, if any
+    exists.
+
+    Args:
+        project (str): The project of the patch to retrieve.
+        hash: The hash of the patch to retrieve.
+
+    Returns:
+        The serialized patch matching both the project and the hash,
+        if any, else an empty dict.
+    """
     try:
         patch = Patch.objects.filter(project__linkname=project,
                                      hash=hash)[0]
@@ -397,7 +549,18 @@ def patch_get_by_project_hash(project, hash):
 
 @xmlrpc_method()
 def patch_get_mbox(patch_id):
-    """Return mbox string for the given patch ID."""
+    """Get a patch by its ID in mbox format.
+
+    Retrieve a patch matching a given patch ID, if any exists, and
+    return in mbox format.
+
+    Args:
+        patch_id (int): The ID of the patch to retrieve.
+
+    Returns:
+        The serialized patch matching the ID, if any, in mbox format,
+        else an empty string.
+    """
     try:
         patch = Patch.objects.filter(id=patch_id)[0]
         return patch_to_mbox(patch).as_string(True)
@@ -407,7 +570,18 @@ def patch_get_mbox(patch_id):
 
 @xmlrpc_method()
 def patch_get_diff(patch_id):
-    """Return diff for the given patch ID."""
+    """Get a patch by its ID in diff format.
+
+    Retrieve a patch matching a given patch ID, if any exists, and
+    return in diff format.
+
+    Args:
+        patch_id (int): The ID of the patch to retrieve.
+
+    Returns:
+        The serialized patch matching the ID, if any, in diff format,
+        else an empty string.
+    """
     try:
         patch = Patch.objects.filter(id=patch_id)[0]
         return patch.content
@@ -417,8 +591,36 @@ def patch_get_diff(patch_id):
 
 @xmlrpc_method(login_required=True)
 def patch_set(user, patch_id, params):
-    """Update a patch with the key,value pairs in params. Only some parameters
-       can be set"""
+    """Set fields of a patch.
+
+    Modify a patch matching a given patch ID, if any exists, and using
+    the provided ``key,value`` pairs. Only the following parameters may
+    be set:
+
+     * state
+     * commit_ref
+     * archived
+
+    Any other field will be rejected.
+
+    **NOTE:** Authentication is required for this method.
+
+    Args:
+        user (User): The user making the request. This will be
+            populated from HTTP Basic Auth.
+        patch_id (int): The ID of the patch to modify.
+        params (dict): A dictionary of keys corresponding to patch
+            object fields and the values that said fields should be
+            set to.
+
+    Returns:
+        True, if successful else raise exception.
+
+    Raises:
+        Exception: User did not have necessary permissions to edit this
+            patch
+        Patch.DoesNotExist: The patch did not exist.
+    """
     try:
         ok_params = ['state', 'commit_ref', 'archived']
 
@@ -447,7 +649,20 @@ def patch_set(user, patch_id, params):
 
 @xmlrpc_method()
 def state_list(search_str='', max_count=0):
-    """Get a list of state structures matching the given search string."""
+    """List states matching a given name filter.
+
+    Filter states by name. States are compared to the search string
+    via a case-insensitive containment test, a.k.a. a partial match.
+
+    Args:
+        search_str: The string to compare state names against. If
+            blank, all states will be returned.
+        max_count (int): The maximum number of states to return.
+
+    Returns:
+        A serialized list of states matching filter, if any. A list
+        of all states if no filter given.
+    """
     try:
         if len(search_str) > 0:
             states = State.objects.filter(name__icontains=search_str)
@@ -464,7 +679,17 @@ def state_list(search_str='', max_count=0):
 
 @xmlrpc_method()
 def state_get(state_id):
-    """Return structure for the given state ID."""
+    """Get a state by its ID.
+
+    Retrieve a state matching a given state ID, if any exists.
+
+    Args:
+        state_id: The ID of the state to retrieve.
+
+    Returns:
+        The serialized state matching the ID, if any, else an empty
+        dict.
+    """
     try:
         state = State.objects.filter(id=state_id)[0]
         return state_to_dict(state)
