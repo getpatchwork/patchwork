@@ -347,7 +347,7 @@ def pw_rpc_version():
 
 
 @xmlrpc_method()
-def project_list(search_str='', max_count=0):
+def project_list(search_str=None, max_count=0):
     """List projects matching a given linkname filter.
 
     Filter projects by linkname. Projects are compared to the search
@@ -364,7 +364,7 @@ def project_list(search_str='', max_count=0):
         of all projects if no filter given.
     """
     try:
-        if len(search_str) > 0:
+        if search_str:
             projects = Project.objects.filter(linkname__icontains=search_str)
         else:
             projects = Project.objects.all()
@@ -398,7 +398,7 @@ def project_get(project_id):
 
 
 @xmlrpc_method()
-def person_list(search_str="", max_count=0):
+def person_list(search_str=None, max_count=0):
     """List persons matching a given name or email filter.
 
     Filter persons by name and email. Persons are compared to the
@@ -415,7 +415,7 @@ def person_list(search_str="", max_count=0):
         of all persons if no filter given.
     """
     try:
-        if len(search_str) > 0:
+        if search_str:
             people = (Person.objects.filter(name__icontains=search_str) |
                       Person.objects.filter(email__icontains=search_str))
         else:
@@ -736,7 +736,7 @@ def patch_set(user, patch_id, params):
 
 
 @xmlrpc_method()
-def state_list(search_str='', max_count=0):
+def state_list(search_str=None, max_count=0):
     """List states matching a given name filter.
 
     Filter states by name. States are compared to the search string
@@ -752,7 +752,7 @@ def state_list(search_str='', max_count=0):
         of all states if no filter given.
     """
     try:
-        if len(search_str) > 0:
+        if search_str:
             states = State.objects.filter(name__icontains=search_str)
         else:
             states = State.objects.all()
