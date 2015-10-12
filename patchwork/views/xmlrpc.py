@@ -168,8 +168,23 @@ LOOKUP_TYPES = ['iexact', 'contains', 'icontains', 'gt', 'gte', 'lt',
 #######################################################################
 
 def project_to_dict(obj):
-    """Return a trimmed down dictionary representation of a Project
-    object which is OK to send to the client."""
+    """Serialize a project object.
+
+    Return a trimmed down dictionary representation of a Project
+    object which is safe to send to the client. For example:
+
+    {
+        'id': 1,
+        'linkname': 'my-project',
+        'name': 'My Project',
+    }
+
+    Args:
+        Project object to serialize.
+
+    Returns:
+        Serialized Project object.
+    """
     return {
         'id': obj.id,
         'linkname': obj.linkname,
@@ -178,8 +193,24 @@ def project_to_dict(obj):
 
 
 def person_to_dict(obj):
-    """Return a trimmed down dictionary representation of a Person
-    object which is OK to send to the client."""
+    """Serialize a person object.
+
+    Return a trimmed down dictionary representation of a Person
+    object which is safe to send to the client. For example:
+
+    {
+        'id': 1,
+        'email': 'joe.bloggs@example.com',
+        'name': 'Joe Bloggs',
+        'user': None,
+    }
+
+    Args:
+        Person object to serialize.
+
+    Returns:
+        Serialized Person object.
+    """
 
     # Make sure we don't return None even if the user submitted a patch
     # with no real name.  XMLRPC can't marshall None.
@@ -197,8 +228,35 @@ def person_to_dict(obj):
 
 
 def patch_to_dict(obj):
-    """Return a trimmed down dictionary representation of a Patch
-    object which is OK to send to the client."""
+    """Serialize a patch object.
+
+    Return a trimmed down dictionary representation of a Patch
+    object which is safe to send to the client. For example:
+
+    {
+        'id': 1
+        'date': '2000-12-31 00:11:22',
+        'filename': 'Fix-all-the-bugs.patch',
+        'msgid': '<BLU438-SMTP36690BBDD2CE71A7138B082511A@phx.gbl>',
+        'name': "Fix all the bugs",
+        'project': 'my-project',
+        'project_id': 1,
+        'state': 'New',
+        'state_id': 1,
+        'archived': False,
+        'submitter': 'Joe Bloggs <joe.bloggs at example.com>',
+        'submitter_id': 1,
+        'delegate': 'admin',
+        'delegate_id': 1,
+        'commit_ref': '',
+    }
+
+    Args:
+        Patch object to serialize.
+
+    Returns:
+        Serialized Patch object.
+    """
     return {
         'id': obj.id,
         'date': unicode(obj.date).encode('utf-8'),
@@ -219,8 +277,24 @@ def patch_to_dict(obj):
 
 
 def bundle_to_dict(obj):
-    """Return a trimmed down dictionary representation of a Bundle
-    object which is OK to send to the client."""
+    """Serialize a bundle object.
+
+    Return a trimmed down dictionary representation of a Bundle
+    object which is safe to send to the client. For example:
+
+    {
+        'id': 1,
+        'name': 'New',
+        'n_patches': 2,
+        'public_url': 'http://patchwork.example.com/bundle/admin/stuff/mbox/',
+    }
+
+    Args:
+        Bundle object to serialize.
+
+    Returns:
+        Serialized Bundle object.
+    """
     return {
         'id': obj.id,
         'name': obj.name,
@@ -230,8 +304,22 @@ def bundle_to_dict(obj):
 
 
 def state_to_dict(obj):
-    """Return a trimmed down dictionary representation of a State
-    object which is OK to send to the client."""
+    """Serialize a state object.
+
+    Return a trimmed down dictionary representation of a State
+    object which is safe to send to the client. For example:
+
+    {
+        'id': 1,
+        'name': 'New',
+    }
+
+    Args:
+        State object to serialize.
+
+    Returns:
+        Serialized State object.
+    """
     return {
         'id': obj.id,
         'name': obj.name,
