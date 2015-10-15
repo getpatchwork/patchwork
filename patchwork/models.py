@@ -18,6 +18,8 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import absolute_import
+
 from collections import Counter, OrderedDict
 import datetime
 import random
@@ -29,31 +31,37 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
+from django.utils import six
+from django.utils.six import add_metaclass
+from django.utils.six.moves import filter
 
 from patchwork.parser import extract_tags, hash_patch
 
 
+@python_2_unicode_compatible
 class Person(models.Model):
     email = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True,
                              on_delete=models.SET_NULL)
 
-    def __unicode__(self):
-        if self.name:
-            return u'%s <%s>' % (self.name, self.email)
-        else:
-            return self.email
-
     def link_to_user(self, user):
         self.name = user.profile.name()
         self.user = user
+
+    def __str__(self):
+        if self.name:
+            return '%s <%s>' % (self.name, self.email)
+        else:
+            return self.email
 
     class Meta:
         verbose_name_plural = 'People'
 
 
+@python_2_unicode_compatible
 class Project(models.Model):
     linkname = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
@@ -64,9 +72,6 @@ class Project(models.Model):
     webscm_url = models.CharField(max_length=2000, blank=True)
     send_notifications = models.BooleanField(default=False)
     use_tags = models.BooleanField(default=True)
-
-    def __unicode__(self):
-        return self.name
 
     def is_editable(self, user):
         if not user.is_authenticated():
@@ -79,10 +84,14 @@ class Project(models.Model):
             return []
         return list(Tag.objects.all())
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         ordering = ['linkname']
 
 
+@python_2_unicode_compatible
 class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, related_name='profile')
     primary_project = models.ForeignKey(Project, null=True, blank=True)
@@ -98,8 +107,9 @@ class UserProfile(models.Model):
 
     def name(self):
         if self.user.first_name or self.user.last_name:
-            names = filter(bool, [self.user.first_name, self.user.last_name])
-            return u' '.join(names)
+            names = list(filter(
+                bool, [self.user.first_name, self.user.last_name]))
+            return ' '.join(names)
         return self.user.username
 
     def contributor_projects(self):
@@ -126,7 +136,7 @@ class UserProfile(models.Model):
                 action_required=True).values('pk').query)
         return qs
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name()
 
 
@@ -140,20 +150,21 @@ def _user_saved_callback(sender, created, instance, **kwargs):
 models.signals.post_save.connect(_user_saved_callback, sender=User)
 
 
+@python_2_unicode_compatible
 class State(models.Model):
     name = models.CharField(max_length=100)
     ordering = models.IntegerField(unique=True)
     action_required = models.BooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
         ordering = ['ordering']
 
 
+@add_metaclass(models.SubfieldBase)
 class HashField(models.CharField):
-    __metaclass__ = models.SubfieldBase
 
     def __init__(self, algorithm='sha1', *args, **kwargs):
         self.algorithm = algorithm
@@ -161,13 +172,15 @@ class HashField(models.CharField):
             import hashlib
 
             def _construct(string=''):
+                if isinstance(string, six.text_type):
+                    string = string.encode('utf-8')
                 return hashlib.new(self.algorithm, string)
             self.construct = _construct
             self.n_bytes = len(hashlib.new(self.algorithm).hexdigest())
         except ImportError:
             modules = {'sha1': 'sha', 'md5': 'md5'}
 
-            if algorithm not in modules.keys():
+            if algorithm not in modules:
                 raise NameError("Unknown algorithm '%s'" % algorithm)
 
             self.construct = __import__(modules[algorithm]).new
@@ -181,6 +194,7 @@ class HashField(models.CharField):
         return 'char(%d)' % self.n_bytes
 
 
+@python_2_unicode_compatible
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     pattern = models.CharField(
@@ -191,12 +205,12 @@ class Tag(models.Model):
         max_length=2, unique=True, help_text='Short (one-or-two letter)'
         ' abbreviation for the tag, used in table column headers')
 
-    def __unicode__(self):
-        return self.name
-
     @property
     def attr_name(self):
         return 'tag_%d_count' % self.id
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ['abbrev']
@@ -249,6 +263,7 @@ class PatchManager(models.Manager):
         return self.get_queryset().with_tag_counts(project)
 
 
+@python_2_unicode_compatible
 class Patch(models.Model):
     project = models.ForeignKey(Project)
     msgid = models.CharField(max_length=255)
@@ -266,9 +281,6 @@ class Patch(models.Model):
     tags = models.ManyToManyField(Tag, through=PatchTag)
 
     objects = PatchManager()
-
-    def __unicode__(self):
-        return self.name
 
     def commit_message(self):
         """Retrieve the commit message."""
@@ -379,7 +391,7 @@ class Patch(models.Model):
 
             unique[ctx] = check
 
-        return unique.values()
+        return list(unique.values())
 
     @property
     def check_count(self):
@@ -402,6 +414,9 @@ class Patch(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('patchwork.views.patch.patch', (), {'patch_id': self.id})
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name_plural = 'Patches'
@@ -469,9 +484,6 @@ class Bundle(models.Model):
                                         order=max_order + 1)
         bp.save()
 
-    class Meta:
-        unique_together = [('owner', 'name')]
-
     def public_url(self):
         if not self.public:
             return None
@@ -489,6 +501,9 @@ class Bundle(models.Model):
             'username': self.owner.username,
             'bundlename': self.name,
         })
+
+    class Meta:
+        unique_together = [('owner', 'name')]
 
 
 class BundlePatch(models.Model):
@@ -542,7 +557,7 @@ class Check(models.Model):
             self.id, self.context, self.get_state_display())
 
     def __unicode__(self):
-        return ('%s (%s)' % (self.context, self.get_state_display()))
+        return '%s (%s)' % (self.context, self.get_state_display())
 
 
 class EmailConfirmation(models.Model):
@@ -573,16 +588,17 @@ class EmailConfirmation(models.Model):
         super(EmailConfirmation, self).save()
 
 
+@python_2_unicode_compatible
 class EmailOptout(models.Model):
     email = models.CharField(max_length=200, primary_key=True)
-
-    def __unicode__(self):
-        return self.email
 
     @classmethod
     def is_optout(cls, email):
         email = email.lower().strip()
         return cls.objects.filter(email=email).count() > 0
+
+    def __str__(self):
+        return self.email
 
 
 class PatchChangeNotification(models.Model):

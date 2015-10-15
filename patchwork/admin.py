@@ -31,7 +31,7 @@ admin.site.register(Project, ProjectAdmin)
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'has_account')
+    list_display = ('__str__', 'has_account')
     search_fields = ('name', 'email')
 
     def has_account(self, person):
