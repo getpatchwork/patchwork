@@ -260,12 +260,8 @@ class PatchManager(models.Manager):
         return self.get_queryset().with_tag_counts(project)
 
 
-@python_2_unicode_compatible
-class Patch(models.Model):
-    # parent
-
-    project = models.ForeignKey(Project)
-
+class EmailMixin(models.Model):
+    """Mixin for models with an email-origin."""
     # email metadata
 
     msgid = models.CharField(max_length=255)
@@ -275,12 +271,33 @@ class Patch(models.Model):
     # content
 
     submitter = models.ForeignKey(Person)
-    name = models.CharField(max_length=255)
     content = models.TextField(null=True, blank=True)
-    diff = models.TextField(null=True, blank=True)
+
+    response_re = re.compile(
+        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
+        re.M | re.I)
+
+    def patch_responses(self):
+        if not self.content:
+            return ''
+
+        return ''.join([match.group(0) + '\n' for match in
+                        self.response_re.finditer(self.content)])
+
+    class Meta:
+        abstract = True
+
+
+@python_2_unicode_compatible
+class Patch(EmailMixin, models.Model):
+    # parent
+
+    project = models.ForeignKey(Project)
 
     # patch metadata
 
+    name = models.CharField(max_length=255)
+    diff = models.TextField(null=True, blank=True)
     commit_ref = models.CharField(max_length=255, null=True, blank=True)
     pull_url = models.CharField(max_length=255, null=True, blank=True)
     tags = models.ManyToManyField(Tag, through=PatchTag)
@@ -293,18 +310,6 @@ class Patch(models.Model):
     hash = HashField(null=True, blank=True)
 
     objects = PatchManager()
-
-    response_re = re.compile(
-        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
-        re.M | re.I)
-
-    # TODO(stephenfin) Drag this out into a mixin
-    def patch_responses(self):
-        if not self.content:
-            return ''
-
-        return ''.join([match.group(0) + '\n' for match in
-                        self.response_re.finditer(self.content)])
 
     def _set_tag(self, tag, count):
         if count == 0:
@@ -436,30 +441,11 @@ class Patch(models.Model):
         unique_together = [('msgid', 'project')]
 
 
-class Comment(models.Model):
+class Comment(EmailMixin, models.Model):
     # parent
 
     patch = models.ForeignKey(Patch, related_name='comments',
                               related_query_name='comment')
-
-    # email metadata
-
-    msgid = models.CharField(max_length=255)
-    date = models.DateTimeField(default=datetime.datetime.now)
-    headers = models.TextField(blank=True)
-
-    # content
-
-    submitter = models.ForeignKey(Person)
-    content = models.TextField()
-
-    response_re = re.compile(
-        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
-        re.M | re.I)
-
-    def patch_responses(self):
-        return ''.join([match.group(0) + '\n' for match in
-                        self.response_re.finditer(self.content)])
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
