@@ -41,6 +41,8 @@ from patchwork.parser import extract_tags, hash_patch
 
 @python_2_unicode_compatible
 class Person(models.Model):
+    # properties
+
     email = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True,
@@ -62,13 +64,21 @@ class Person(models.Model):
 
 @python_2_unicode_compatible
 class Project(models.Model):
+    # properties
+
     linkname = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255, unique=True)
     listemail = models.CharField(max_length=200)
+
+    # url metadata
+
     web_url = models.CharField(max_length=2000, blank=True)
     scm_url = models.CharField(max_length=2000, blank=True)
     webscm_url = models.CharField(max_length=2000, blank=True)
+
+    # configuration options
+
     send_notifications = models.BooleanField(default=False)
     use_tags = models.BooleanField(default=True)
 
@@ -108,9 +118,15 @@ class DelegationRule(models.Model):
 @python_2_unicode_compatible
 class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, related_name='profile')
+
+    # projects
+
     primary_project = models.ForeignKey(Project, null=True, blank=True)
     maintainer_projects = models.ManyToManyField(
         Project, related_name='maintainer_project', blank=True)
+
+    # configuration options
+
     send_email = models.BooleanField(
         default=False,
         help_text='Selecting this option allows patchwork to send email on'
@@ -138,7 +154,6 @@ class UserProfile(models.Model):
         return self.todo_patches().count()
 
     def todo_patches(self, project=None):
-
         # filter on project, if necessary
         if project:
             qs = Patch.objects.filter(project=project)
@@ -248,20 +263,34 @@ class PatchManager(models.Manager):
 
 @python_2_unicode_compatible
 class Patch(models.Model):
+    # parent
+
     project = models.ForeignKey(Project)
+
+    # email metadata
+
     msgid = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
     date = models.DateTimeField(default=datetime.datetime.now)
+    headers = models.TextField(blank=True)
+
+    # content
+
     submitter = models.ForeignKey(Person)
+    name = models.CharField(max_length=255)
+    content = models.TextField(null=True, blank=True)
+
+    # patch metadata
+
+    commit_ref = models.CharField(max_length=255, null=True, blank=True)
+    pull_url = models.CharField(max_length=255, null=True, blank=True)
+    tags = models.ManyToManyField(Tag, through=PatchTag)
+
+    # patchwork metadata
+
     delegate = models.ForeignKey(User, blank=True, null=True)
     state = models.ForeignKey(State, null=True)
     archived = models.BooleanField(default=False)
-    headers = models.TextField(blank=True)
-    content = models.TextField(null=True, blank=True)
-    pull_url = models.CharField(max_length=255, null=True, blank=True)
-    commit_ref = models.CharField(max_length=255, null=True, blank=True)
     hash = HashField(null=True, blank=True)
-    tags = models.ManyToManyField(Tag, through=PatchTag)
 
     objects = PatchManager()
 
@@ -408,11 +437,19 @@ class Patch(models.Model):
 
 
 class Comment(models.Model):
+    # parent
+
     patch = models.ForeignKey(Patch)
+
+    # email metadata
+
     msgid = models.CharField(max_length=255)
-    submitter = models.ForeignKey(Person)
     date = models.DateTimeField(default=datetime.datetime.now)
     headers = models.TextField(blank=True)
+
+    # content
+
+    submitter = models.ForeignKey(Person)
     content = models.TextField()
 
     response_re = re.compile(
