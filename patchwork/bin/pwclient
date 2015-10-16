@@ -346,31 +346,6 @@ def patch_id_from_hash(rpc, project, hash):
 
 auth_actions = ['update']
 
-# unfortunately we currently have to revert to this ugly hack..
-class _RecursiveHelpAction(argparse._HelpAction):
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        parser.print_help()
-        print
-
-        subparsers_actions = [
-            action for action in parser._actions
-            if isinstance(action, argparse._SubParsersAction)
-        ]
-        hash_n_id_actions = set(['hash', 'id', 'help'])
-        for subparsers_action in subparsers_actions:
-            for choice, subparser in subparsers_action.choices.items():
-                # gross but the whole thing is..
-                if (len(subparser._actions) == 3 \
-                    and set([a.dest for a in subparser._actions]) \
-                        == hash_n_id_actions) \
-                   or len(subparser._actions) == 0:
-                    continue
-                print("command '{}'".format(choice))
-                print(subparser.format_help())
-
-        parser.exit()
-
 def main():
     hash_parser = argparse.ArgumentParser(add_help=False)
     hash_parser.add_argument(
@@ -425,38 +400,22 @@ def main():
         'patch_name', metavar='STR', nargs='?',
         help='substring to search for patches by name',
     )
-    help_parser = argparse.ArgumentParser(add_help=False)
-    help_parser.add_argument(
-        '--help', action='help', help=argparse.SUPPRESS,
-        #help='''show this help message and exit'''
-    )
 
     action_parser = argparse.ArgumentParser(
         prog='pwclient',
-        add_help=False,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog='''(apply | get | info | view | update) (-h HASH | ID [ID ...])''',
-    )
-    action_parser.add_argument(
-        '--help',
-        #action='help',
-        action=_RecursiveHelpAction,
-        help='''Print this help text'''
+        epilog='Use \'pwclient <command> --help\' for more info',
     )
 
     subparsers = action_parser.add_subparsers(
         title='Commands',
-        metavar=''
     )
     apply_parser = subparsers.add_parser(
-        'apply', parents=[hash_parser, help_parser],
-        add_help=False,
+        'apply', parents=[hash_parser], conflict_handler='resolve',
         help='''Apply a patch (in the current dir, using -p1)'''
     )
     apply_parser.set_defaults(subcmd='apply')
     git_am_parser = subparsers.add_parser(
-        'git-am', parents=[hash_parser, help_parser],
-        add_help=False,
+        'git-am', parents=[hash_parser], conflict_handler='resolve',
         help='''Apply a patch to current git branch using "git am".'''
     )
     git_am_parser.set_defaults(subcmd='git_am')
@@ -466,38 +425,32 @@ def main():
         help='''pass --signoff to git-am'''
     )
     get_parser = subparsers.add_parser(
-        'get', parents=[hash_parser, help_parser],
-        add_help=False,
+        'get', parents=[hash_parser], conflict_handler='resolve',
         help='''Download a patch and save it locally'''
     )
     get_parser.set_defaults(subcmd='get')
     info_parser = subparsers.add_parser(
-        'info', parents=[hash_parser, help_parser],
-        add_help=False,
+        'info', parents=[hash_parser], conflict_handler='resolve',
         help='''Display patchwork info about a given patch ID'''
     )
     info_parser.set_defaults(subcmd='info')
     projects_parser = subparsers.add_parser(
         'projects',
-        add_help=False,
         help='''List all projects'''
     )
     projects_parser.set_defaults(subcmd='projects')
     states_parser = subparsers.add_parser(
         'states',
-        add_help=False,
         help='''Show list of potential patch states'''
     )
     states_parser.set_defaults(subcmd='states')
     view_parser = subparsers.add_parser(
-        'view', parents=[hash_parser, help_parser],
-        add_help=False,
+        'view', parents=[hash_parser], conflict_handler='resolve',
         help='''View a patch'''
     )
     view_parser.set_defaults(subcmd='view')
     update_parser = subparsers.add_parser(
-        'update', parents=[hash_parser, help_parser],
-        add_help=False,
+        'update', parents=[hash_parser], conflict_handler='resolve',
         help='''Update patch''',
         epilog='''Using a COMMIT-REF allows for only one ID to be specified''',
     )
@@ -515,17 +468,15 @@ def main():
     )
     update_parser.set_defaults(subcmd='update')
     list_parser = subparsers.add_parser("list",
-        add_help=False,
         #aliases=['search'],
-        parents=[filter_parser, help_parser],
+        parents=[filter_parser],
         help='''List patches, using the optional filters specified
         below and an optional substring to search for patches
         by name'''
     )
     list_parser.set_defaults(subcmd='list')
     search_parser = subparsers.add_parser("search",
-        add_help=False,
-        parents=[filter_parser, help_parser],
+        parents=[filter_parser],
         help='''Alias for "list"'''
     )
     # Poor man's argparse aliases:
