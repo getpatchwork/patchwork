@@ -2,7 +2,7 @@ site_name: patchwork
 site_url: http://jk.ozlabs.org/projects/patchwork/
 site_description: patchwork - the web-based patch tracking system
 
-repo_url: git://ozlabs.org/home/jk/git/patchwork
+repo_url: git://github.com/getpatchwork/patchwork
 
 pages:
  - Home: 'index.md'

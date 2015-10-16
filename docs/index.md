@@ -20,7 +20,7 @@ of community projects.
 
 The latest version of Patchwork is available with git. To download:
 
-    $ git clone git://ozlabs.org/home/jk/git/patchwork
+    $ git clone git://github.com/getpatchwork/patchwork
 
 Patchwork is distributed under the [GNU General Public License].
 
