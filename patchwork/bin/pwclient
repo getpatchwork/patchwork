@@ -237,7 +237,7 @@ def action_info(rpc, patch_id):
     s = "Information for patch id %d" % (patch_id)
     print(s)
     print('-' * len(s))
-    for key, value in sorted(patch.iteritems()):
+    for key, value in sorted(patch.items()):
         print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
 
 def action_get(rpc, patch_id):
