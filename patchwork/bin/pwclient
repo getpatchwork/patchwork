@@ -507,7 +507,6 @@ def main():
     )
     update_parser.add_argument(
         '-s', metavar='STATE',
-        required=True,
         help='''Set patch state (e.g., 'Accepted', 'Superseded' etc.)'''
     )
     update_parser.add_argument(
@@ -571,6 +570,9 @@ def main():
             update_parser.print_help()
             sys.exit(1)
         commit_str = args.get('c')
+
+    if state_str is None and archived_str is None and action == 'update':
+        update_parser.error('Must specify one or more update options (-a or -s)')
 
     if args.get('n') != None:
         try:
