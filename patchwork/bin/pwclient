@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Patchwork command line client
 # Copyright (C) 2008 Nate Case <ncase@xes-inc.com>
@@ -23,15 +24,30 @@ from __future__ import print_function
 
 import os
 import sys
-import xmlrpclib
+try:
+    import xmlrpclib
+except ImportError:
+    # Python 3 has merged/renamed things.
+    import xmlrpc.client as xmlrpclib
 import argparse
 import string
 import tempfile
 import subprocess
 import base64
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    # Python 3 has renamed things.
+    import configparser as ConfigParser
 import shutil
 import re
+
+# Add a shim for Python 2's unicode() helper.
+try:
+    unicode
+except NameError:
+    # Python 3 does everything by unicode now.
+    unicode = str
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
@@ -40,7 +56,7 @@ import re
 DEFAULT_URL = "http://patchwork/xmlrpc/"
 CONFIG_FILE = os.path.expanduser('~/.pwclientrc')
 
-class Filter:
+class Filter(object):
     """Filter for selecting patches."""
     def __init__(self):
         # These fields refer to specific objects, so they are special
@@ -135,7 +151,7 @@ def person_ids_by_name(rpc, name):
     if len(name) == 0:
         return []
     people = rpc.person_list(name, 0)
-    return map(lambda x: x['id'], people)
+    return [x['id'] for x in people]
 
 def list_patches(patches, format_str=None):
     """Dump a list of patches to stdout."""
@@ -356,7 +372,7 @@ class _RecursiveHelpAction(argparse._HelpAction):
         parser.exit()
 
 def main():
-    hash_parser = argparse.ArgumentParser(add_help=False, version=False)
+    hash_parser = argparse.ArgumentParser(add_help=False)
     hash_parser.add_argument(
         '-h', metavar='HASH', dest='hash', action='store',
         help='''Lookup by patch hash'''
@@ -370,7 +386,7 @@ def main():
         help='''Lookup patch in project'''
     )
 
-    filter_parser = argparse.ArgumentParser(add_help=False, version=False)
+    filter_parser = argparse.ArgumentParser(add_help=False)
     filter_parser.add_argument(
         '-s', metavar='STATE',
         help='''Filter by patch state (e.g., 'New', 'Accepted', etc.)'''
@@ -409,7 +425,7 @@ def main():
         'patch_name', metavar='STR', nargs='?',
         help='substring to search for patches by name',
     )
-    help_parser = argparse.ArgumentParser(add_help=False, version=False)
+    help_parser = argparse.ArgumentParser(add_help=False)
     help_parser.add_argument(
         '--help', action='help', help=argparse.SUPPRESS,
         #help='''show this help message and exit'''
@@ -418,7 +434,6 @@ def main():
     action_parser = argparse.ArgumentParser(
         prog='pwclient',
         add_help=False,
-        version=False,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''(apply | get | info | view | update) (-h HASH | ID [ID ...])''',
     )
