@@ -493,10 +493,8 @@ def main():
 
     if args.get('hash') and len(args.get('id')):
         # mimic mutual exclusive group
-        sys.stderr.write("Error: [-h HASH] and [ID [ID ...]] " +
-          "are mutually exlusive\n")
-        locals()[action + '_parser'].print_help()
-        sys.exit(1)
+        locals()[action + '_parser'].error(
+                "[-h HASH] and [ID [ID ...]] are mutually exlusive")
 
     # set defaults
     filt = Filter()
@@ -515,11 +513,7 @@ def main():
     if args.get('c'):
         # update multiple IDs with a single commit-hash does not make sense
         if action == 'update' and patch_ids and len(patch_ids) > 1:
-            sys.stderr.write(
-              "Declining update with COMMIT-REF on multiple IDs\n"
-            )
-            update_parser.print_help()
-            sys.exit(1)
+            update_parser.error("Declining update with COMMIT-REF on multiple IDs")
         commit_str = args.get('c')
 
     if state_str is None and archived_str is None and action == 'update':
@@ -529,9 +523,7 @@ def main():
         try:
             filt.add("max_count", args.get('n'))
         except:
-            sys.stderr.write("Invalid maximum count '%s'\n" % args.get('n'))
-            action_parser.print_help()
-            sys.exit(1)
+            action_parser.error("Invalid maximum count '%s'" % args.get('n'))
 
     do_signoff = args.get('signoff')
 
@@ -572,9 +564,7 @@ def main():
         try:
             project_str = config.get('options', 'default')
         except:
-            sys.stderr.write("No default project configured in ~/.pwclientrc\n")
-            action_parser.print_help()
-            sys.exit(1)
+            action_parser.error("No default project configured in ~/.pwclientrc")
 
     if not config.has_section(project_str):
         sys.stderr.write('No section for project %s in ~/.pwclientrc\n' % project_str)
