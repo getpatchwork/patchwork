@@ -22,6 +22,7 @@ from __future__ import absolute_import
 
 from django import template
 from django.utils.safestring import mark_safe
+from django.template.defaultfilters import stringfilter
 
 from patchwork.models import Check
 
@@ -59,3 +60,9 @@ def patch_checks(patch):
 @register.filter(name='state_class')
 def state_class(state):
     return '-'.join(state.split())
+
+
+@register.filter
+@stringfilter
+def msgid(value):
+    return mark_safe(value.strip('<>'))
