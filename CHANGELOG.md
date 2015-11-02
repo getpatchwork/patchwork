@@ -15,6 +15,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   '/xmlrpc' in most patchwork deployments
 - Assorted cleanup tasks and bug fixes
 
+### Removed
+
+- Support for Django 1.6
+
 ## [1.0.0] - 2015-10-26
 
 ### Added
