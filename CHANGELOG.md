@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Web UI overhaul
 - Selenium-based UI tests
+- Automated documentation for the XML-RPC API. This can be found at the
+  '/xmlrpc' in most patchwork deployments
+- Assorted cleanup tasks and bug fixes
 
 ## [1.0.0] - 2015-10-26
 
