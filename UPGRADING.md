@@ -13,6 +13,10 @@ and re-run the grants script. For example, on postgres:
     psql -f lib/sql/migration/015-add-patch-tags.sql patchwork
     psql -f lib/sql/grant-all.postgres.sql patchwork
 
+We highly suggest you move to Django Migrations as support for Django 1.6
+(and subsequently manual SQL migrations) will be dropped in an upcoming
+release.
+
 ### Update to the new settings infrastructure
 
 By default, settings are read from `patchwork/settings/production.py`. To
