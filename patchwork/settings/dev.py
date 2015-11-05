@@ -41,12 +41,9 @@ DATABASES = {
     },
 }
 
-if django.VERSION < (1, 7):
-    DATABASES['default']['TEST_CHARSET'] = 'utf8'
-else:
-    DATABASES['default']['TEST'] = {
-        'CHARSET': 'utf8',
-    }
+DATABASES['default']['TEST'] = {
+    'CHARSET': 'utf8',
+}
 
 #
 # Patchwork settings
