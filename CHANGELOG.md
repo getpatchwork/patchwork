@@ -7,7 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-...
+### Added
+
+- Web UI overhaul
+- Selenium-based UI tests
 
 ## [1.0.0] - 2015-10-26
 
