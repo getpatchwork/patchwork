@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
         for i, patch in enumerate(query.iterator()):
             patch.refresh_tag_counts()
-            if (i % 10) == 0 or i == count:
+            if (i % 10) == 0:
                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
                 self.stdout.flush()
         self.stdout.write('\ndone')
