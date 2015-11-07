@@ -56,3 +56,4 @@ DATABASES = {
 #
 
 STATIC_ROOT = '/srv/patchwork/htdocs/static'
+
