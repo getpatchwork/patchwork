@@ -16,6 +16,9 @@ tags
 TAGS
 !.gitignore
 
+# configuration files
+patchwork/settings/production.py
+
 # stgit generated dirs
 patches-*
 
