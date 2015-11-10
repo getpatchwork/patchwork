@@ -137,7 +137,6 @@ class UserProfileTest(TestCase):
     def testUserProfile(self):
         response = self.client.get('/user/')
         self.assertContains(response, 'User Profile: %s' % self.user.username)
-        self.assertContains(response, 'User Profile: %s' % self.user.username)
 
     def testUserProfileNoBundles(self):
         response = self.client.get('/user/')
