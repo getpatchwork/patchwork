@@ -25,8 +25,13 @@
  {% endif %}
  {{ form }}
  <tr>
-  <td colspan="2" class="submitrow">
+  <td class="submitrow">
    <input type="submit" value="Login"/>
+  </td>
+  <td class="submitrow">
+   <a href="{% url 'django.contrib.auth.views.password_reset' %}">
+     Forgot password?
+   </a>
   </td>
  </tr>
 </table>
