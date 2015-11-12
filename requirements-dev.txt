@@ -1,2 +1,2 @@
--r requirements-base.txt
-selenium
+-r requirements-dev.txt
+-r requirements-prod.txt
