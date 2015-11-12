@@ -21,7 +21,7 @@ in brackets):
 [mod_python]: http://modpython.org/
 [Gunicorn]: http://gunicorn.org/
 [nginx]: http://nginx.org/
-[requirements.txt]: ./docs
+[requirements.txt]: ./requirements-prod.txt
 
 ## Database Configuration
 

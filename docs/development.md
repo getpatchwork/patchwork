@@ -36,7 +36,7 @@ used to test patchwork against several versions of Django.
    text file and install them in one go. One can maintain such a list of
    dependencies per interesting configuration.
 
-        (django-1.8)$ pip install -r docs/requirements-dev.txt
+        (django-1.8)$ pip install -r requirements-dev.txt
 
    You will also need to install a version of Django - we don't install this
    by default to allow development against multiple versions of Django. This
