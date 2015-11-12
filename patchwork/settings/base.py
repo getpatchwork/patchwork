@@ -110,8 +110,8 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # https://docs.djangoproject.com/en/1.6/ref/settings/#auth
 #
 
-LOGIN_URL = '/user/login/'
-LOGIN_REDIRECT_URL = '/user/'
+LOGIN_URL = 'auth_login'
+LOGIN_REDIRECT_URL = 'user-profile'
 
 
 #

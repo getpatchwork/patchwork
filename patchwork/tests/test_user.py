@@ -17,7 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -132,7 +131,7 @@ class UserLoginRedirectTest(TestCase):
     def testUserLoginRedirect(self):
         url = '/user/'
         response = self.client.get(url)
-        self.assertRedirects(response, settings.LOGIN_URL + '?next=' + url)
+        self.assertRedirects(response, reverse('auth_login') + '?next=' + url)
 
 
 class UserProfileTest(TestCase):
