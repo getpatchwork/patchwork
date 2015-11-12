@@ -35,11 +35,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': 'localhost',
         'PORT': '',
-        'USER': os.environ['PW_TEST_DB_USER'],
-        'PASSWORD': os.environ['PW_TEST_DB_PASS'],
-        'NAME': 'patchwork',
+        'USER': os.getenv('PW_TEST_DB_USER', 'patchwork'),
+        'PASSWORD': os.getenv('PW_TEST_DB_PASS', 'password'),
+        'NAME': os.getenv('PW_TEST_DB_NAME', 'patchwork'),
     },
 }
+
+if os.getenv('PW_TEST_DB_TYPE', None) == 'postgre':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
 if django.VERSION < (1, 7):
     DATABASES['default']['TEST_CHARSET'] = 'utf8'
