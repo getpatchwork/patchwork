@@ -19,6 +19,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import argparse
 import codecs
 import datetime
 from email import message_from_file
@@ -59,7 +60,17 @@ def clean_header(header):
     return normalise_space(u' '.join(fragments))
 
 
-def find_project(mail):
+def find_project_by_id(list_id):
+    """Find a `project` object with given `list_id`."""
+    project = None
+    try:
+        project = Project.objects.get(listid=list_id)
+    except Project.DoesNotExist:
+        pass
+    return project
+
+
+def find_project_by_header(mail):
     project = None
     listid_res = [re.compile(r'.*<([^>]+)>.*', re.S),
                   re.compile(r'^([\S]+)$', re.S)]
@@ -77,14 +88,11 @@ def find_project(mail):
 
             listid = match.group(1)
 
-            try:
-                project = Project.objects.get(listid=listid)
+            project = find_project_by_id(listid)
+            if project:
                 break
-            except Project.DoesNotExist:
-                pass
 
     return project
-
 
 def find_author(mail):
 
@@ -365,8 +373,16 @@ def get_delegate(delegate_email):
     return None
 
 
-def parse_mail(mail):
-    """Parse a mail and add to the database."""
+def parse_mail(mail, list_id=None):
+    """Parse a mail and add to the database.
+
+    Args:
+        mail (`mbox.Mail`): Mail to parse and add.
+        list_id (str): Mailing list ID
+
+    Returns:
+        None
+    """
     # some basic sanity checks
     if 'From' not in mail:
         return 0
@@ -381,7 +397,10 @@ def parse_mail(mail):
     if hint == 'ignore':
         return 0
 
-    project = find_project(mail)
+    if list_id:
+        project = find_project_by_id(list_id)
+    else:
+        project = find_project_by_header(mail)
 
     if project is None:
         print("no project found")
@@ -451,16 +470,28 @@ def setup_error_handler():
 def main(args):
     django.setup()
     logger = setup_error_handler()
-    mail = message_from_file(sys.stdin)
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
+                        default=sys.stdin, help='input mbox file (a filename '
+                        'or stdin)')
+
+    group = parser.add_argument_group('Mail parsing configuration')
+    group.add_argument('--list-id', help='mailing list ID. If not supplied '
+                       'this will be extracted from the mail headers.')
+
+    args = vars(parser.parse_args())
+
+    mail = message_from_file(args['infile'])
     try:
-        return parse_mail(mail)
+        return parse_mail(mail, args['list_id'])
     except:
         if logger:
             logger.exception('Error when parsing incoming email', extra={
                 'mail': mail.as_string(),
             })
         raise
-
+    return parse_mail(mail, args['list_id'])
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

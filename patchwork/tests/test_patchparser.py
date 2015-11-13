@@ -34,8 +34,9 @@ class PatchTest(TestCase):
     default_subject = defaults.subject
     project = defaults.project
 
-from patchwork.bin.parsemail import find_content, find_author, find_project, \
-                                    parse_mail, split_prefixes, clean_subject
+from patchwork.bin.parsemail import (find_content, find_author,
+                                     find_project_by_header, parse_mail,
+                                     split_prefixes, clean_subject)
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
@@ -321,25 +322,25 @@ class ListIdHeaderTest(TestCase):
 
     def testNoListId(self):
         email = MIMEText('')
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, None)
 
     def testBlankListId(self):
         email = MIMEText('')
         email['List-Id'] = ''
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, None)
 
     def testWhitespaceListId(self):
         email = MIMEText('')
         email['List-Id'] = ' '
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, None)
 
     def testSubstringListId(self):
         email = MIMEText('')
         email['List-Id'] = 'example.com'
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, None)
 
     def testShortListId(self):
@@ -347,13 +348,13 @@ class ListIdHeaderTest(TestCase):
             is only the list ID itself (without enclosing angle-brackets). """
         email = MIMEText('')
         email['List-Id'] = self.project.listid
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, self.project)
 
     def testLongListId(self):
         email = MIMEText('')
         email['List-Id'] = 'Test text <%s>' % self.project.listid
-        project = find_project(email)
+        project = find_project_by_header(email)
         self.assertEquals(project, self.project)
 
     def tearDown(self):
