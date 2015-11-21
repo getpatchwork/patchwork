@@ -51,6 +51,10 @@ else:
         'CHARSET': 'utf8',
     }
 
+# Email
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 #
 # Patchwork settings
 #
