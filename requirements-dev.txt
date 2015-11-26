@@ -1,2 +1,2 @@
--r requirements-dev.txt
--r requirements-prod.txt
+Django<1.9,>=1.8
+-r requirements-test.txt
