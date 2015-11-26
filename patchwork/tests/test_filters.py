@@ -18,9 +18,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import unittest
+
 from django.test import TestCase
 from django.test.client import Client
+
 from patchwork.tests.utils import defaults, create_user, find_in_context
+
 
 class FilterQueryStringTest(TestCase):
     def testFilterQSEscaping(self):

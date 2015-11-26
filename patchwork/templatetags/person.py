@@ -19,12 +19,15 @@
 
 from __future__ import absolute_import
 
+import re
+
+from django.core.urlresolvers import reverse
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
+
 from patchwork.filters import SubmitterFilter
-import re
+
 
 register = template.Library()
 

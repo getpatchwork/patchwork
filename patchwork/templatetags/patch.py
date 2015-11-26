@@ -25,8 +25,8 @@ from django.utils.safestring import mark_safe
 
 from patchwork.models import Check
 
-register = template.Library()
 
+register = template.Library()
 
 @register.filter(name='patch_tags')
 def patch_tags(patch):

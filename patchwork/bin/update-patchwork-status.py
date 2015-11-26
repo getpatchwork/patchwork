@@ -21,9 +21,9 @@
 
 from __future__ import print_function
 
-import sys
-import subprocess
 from optparse import OptionParser
+import subprocess
+import sys
 
 def commits(options, revlist):
     cmd = ['git', 'rev-list', revlist]

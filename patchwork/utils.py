@@ -19,18 +19,21 @@
 
 from __future__ import absolute_import
 
-import itertools
 import datetime
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
+import itertools
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db.models import Max, Q, F
 from django.db.utils import IntegrityError
-from patchwork.models import Bundle, Project, BundlePatch, UserProfile, \
-        PatchChangeNotification, EmailOptout, EmailConfirmation
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+
+from patchwork.models import (Bundle, Project, BundlePatch, UserProfile,
+                              PatchChangeNotification, EmailOptout,
+                              EmailConfirmation)
 
 def get_patch_ids(d, prefix = 'patch_id'):
     ids = []

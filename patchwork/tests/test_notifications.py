@@ -18,12 +18,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import datetime
-from django.test import TestCase
-from django.core import mail
+
 from django.conf import settings
+from django.core import mail
+from django.test import TestCase
+
 from patchwork.models import Patch, State, PatchChangeNotification, EmailOptout
 from patchwork.tests.utils import defaults
 from patchwork.utils import send_notifications
+
 
 class PatchNotificationModelTest(TestCase):
     fixtures = ['default_states']

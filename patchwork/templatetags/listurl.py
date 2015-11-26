@@ -19,12 +19,14 @@
 
 from __future__ import absolute_import
 
-from django import template
-from django.utils.html import escape
-from django.utils.encoding import smart_str
-from patchwork.filters import filterclasses
 from django.conf import settings
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django import template
+from django.utils.encoding import smart_str
+from django.utils.html import escape
+
+from patchwork.filters import filterclasses
+
 
 register = template.Library()
 

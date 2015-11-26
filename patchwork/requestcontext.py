@@ -19,10 +19,11 @@
 
 from __future__ import absolute_import
 
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.template import RequestContext
 from django.utils.html import escape
-from django.contrib.sites.models import Site
-from django.conf import settings
+
 from patchwork.filters import Filters
 from patchwork.models import Bundle, Project
 

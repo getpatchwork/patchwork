@@ -17,11 +17,12 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.test import TestCase
-from django.core import mail
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+
 from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
 from patchwork.tests.utils import defaults, error_strings
 

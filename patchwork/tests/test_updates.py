@@ -17,10 +17,12 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.test import TestCase
+
 from patchwork.models import Patch, Person, State
 from patchwork.tests.utils import defaults, create_maintainer
+
 
 class MultipleUpdateTest(TestCase):
     fixtures = ['default_states']

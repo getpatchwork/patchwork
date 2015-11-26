@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.core.management.base import BaseCommand
+
 from patchwork.utils import send_notifications, do_expiry
 
 

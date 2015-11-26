@@ -19,15 +19,16 @@
 
 from __future__ import absolute_import
 
-from patchwork.requestcontext import PatchworkRequestContext
-from patchwork.models import EmailOptout, EmailConfirmation
-from patchwork.forms import OptinoutRequestForm, EmailForm
-from django.shortcuts import render_to_response
-from django.template.loader import render_to_string
 from django.conf import settings as conf_settings
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template.loader import render_to_string
+
+from patchwork.forms import OptinoutRequestForm, EmailForm
+from patchwork.models import EmailOptout, EmailConfirmation
+from patchwork.requestcontext import PatchworkRequestContext
 
 def settings(request):
     context = PatchworkRequestContext(request)

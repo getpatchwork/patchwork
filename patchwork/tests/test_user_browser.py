@@ -20,6 +20,7 @@
 from patchwork.tests.browser import SeleniumTestCase
 from patchwork.tests.test_user import TestUser
 
+
 class LoginTestCase(SeleniumTestCase):
     def setUp(self):
         super(LoginTestCase, self).setUp()

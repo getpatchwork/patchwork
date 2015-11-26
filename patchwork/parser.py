@@ -22,9 +22,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+from collections import Counter
 import hashlib
 import re
-from collections import Counter
+
 
 _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')

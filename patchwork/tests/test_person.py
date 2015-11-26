@@ -19,11 +19,13 @@
 
 from __future__ import absolute_import
 
-import unittest
-from django.test import TestCase
-from django.test.client import Client
-from patchwork.models import EmailConfirmation, Person, Bundle
 import json
+import unittest
+
+from django.test.client import Client
+from django.test import TestCase
+
+from patchwork.models import EmailConfirmation, Person, Bundle
 
 class SubmitterCompletionTest(TestCase):
     def setUp(self):

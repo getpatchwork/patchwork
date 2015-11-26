@@ -18,11 +18,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import re
-from django.test import TestCase
+
 from django.core import mail
 from django.core.urlresolvers import reverse
+from django.test import TestCase
+
 from patchwork.models import EmailOptout, EmailConfirmation, Person
 from patchwork.tests.utils import create_user, error_strings
+
 
 class MailSettingsTest(TestCase):
 

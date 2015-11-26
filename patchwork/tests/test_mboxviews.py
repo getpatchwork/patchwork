@@ -19,14 +19,18 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
-import email
 import datetime
-import dateutil.parser, dateutil.tz
-from django.test import TestCase
+import dateutil.parser
+import dateutil.tz
+import email
+import unittest
+
 from django.test.client import Client
+from django.test import TestCase
+
 from patchwork.models import Patch, Comment, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
+
 
 class MboxPatchResponseTest(TestCase):
     fixtures = ['default_states']

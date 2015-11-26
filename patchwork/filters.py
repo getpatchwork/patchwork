@@ -17,14 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
 from __future__ import absolute_import
 
-from patchwork.models import Person, State
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
-from django.contrib.auth.models import User
 from urllib import quote
+
+from django.contrib.auth.models import User
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
+
+from patchwork.models import Person, State
+
 
 class Filter(object):
     def __init__(self, filters):

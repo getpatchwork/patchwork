@@ -19,11 +19,12 @@
 
 from __future__ import absolute_import
 
-from patchwork.models import Patch, Project, Bundle
-from patchwork.forms import PatchForm, CreateBundleForm
-from patchwork.requestcontext import PatchworkRequestContext
-from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render_to_response, get_object_or_404
+
+from patchwork.forms import PatchForm, CreateBundleForm
+from patchwork.models import Patch, Project, Bundle
+from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list, patch_to_mbox
 
 def patch(request, patch_id):

@@ -17,13 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
 import os
 import time
+import unittest
+
+from django.test.client import Client
+from django.test import TestCase
+
 from patchwork.models import Patch, Person
 from patchwork.tests.utils import defaults, read_patch
-from django.test import TestCase
-from django.test.client import Client
+
 
 class UTF8PatchViewTest(TestCase):
     fixtures = ['default_states']

@@ -19,8 +19,9 @@
 
 from __future__ import absolute_import
 
-from django.core import paginator
 from django.conf import settings
+from django.core import paginator
+
 
 DEFAULT_PATCHES_PER_PAGE = 100
 LONG_PAGE_THRESHOLD = 30

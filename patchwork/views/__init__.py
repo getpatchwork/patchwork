@@ -19,19 +19,19 @@
 
 from __future__ import absolute_import
 
+import datetime
+from email.encoders import encode_7or8bit
+from email.header import Header
+from email.mime.nonmultipart import MIMENonMultipart
+from email.parser import HeaderParser
+import email.utils
+import re
+
 from .base import *
 from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Comment
-import re
-import datetime
-
-from email.mime.nonmultipart import MIMENonMultipart
-from email.encoders import encode_7or8bit
-from email.parser import HeaderParser
-from email.header import Header
-import email.utils
 
 def generic_list(request, project, view,
         view_args = {}, filter_settings = [], patches = None,

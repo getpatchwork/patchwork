@@ -17,16 +17,17 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os
 import codecs
-from patchwork.models import Project, Person
+from email import message_from_file
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import make_msgid
+import os
+
 from django.contrib.auth.models import User
 from django.forms.fields import EmailField
 
-from email import message_from_file
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.utils import make_msgid
+from patchwork.models import Project, Person
 
 
 # helper functions for tests

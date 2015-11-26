@@ -22,9 +22,9 @@
 
 from __future__ import absolute_import
 
-from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
-from DocXMLRPCServer import XMLRPCDocGenerator
 import base64
+from DocXMLRPCServer import XMLRPCDocGenerator
+from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 import sys
 import xmlrpclib
 

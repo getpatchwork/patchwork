@@ -19,16 +19,19 @@
 
 from __future__ import absolute_import
 
-import unittest
-import random
 import datetime
-import string
+import random
 import re
-from django.test import TestCase
-from django.test.client import Client
-from patchwork.tests.utils import defaults, create_user, find_in_context
-from patchwork.models import Person, Patch
+import string
+import unittest
+
 from django.core.urlresolvers import reverse
+from django.test.client import Client
+from django.test import TestCase
+
+from patchwork.models import Person, Patch
+from patchwork.tests.utils import defaults, create_user, find_in_context
+
 
 class EmptyPatchListTest(TestCase):
 

@@ -17,13 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
 import datetime
-from django.test import TestCase
+import unittest
+
 from django.contrib.auth.models import User
+from django.test import TestCase
+
 from patchwork.models import EmailConfirmation, Person, Patch
 from patchwork.tests.utils import create_user, defaults
 from patchwork.utils import do_expiry
+
 
 class TestRegistrationExpiry(TestCase):
     fixtures = ['default_states']

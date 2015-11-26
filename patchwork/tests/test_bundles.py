@@ -19,12 +19,14 @@
 
 from __future__ import absolute_import
 
-import unittest
 import datetime
+import unittest
+
+from django.conf import settings
 from django.test import TestCase
 from django.test.client import Client
 from django.utils.http import urlencode
-from django.conf import settings
+
 from patchwork.models import Patch, Bundle, BundlePatch, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
 

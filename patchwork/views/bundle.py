@@ -21,15 +21,16 @@ from __future__ import absolute_import
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render_to_response, get_object_or_404
-from patchwork.requestcontext import PatchworkRequestContext
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 import django.core.urlresolvers
-from patchwork.models import Patch, Bundle, BundlePatch, Project
-from patchwork.utils import get_patch_ids
-from patchwork.forms import BundleForm, DeleteBundleForm
-from patchwork.views import generic_list, patch_to_mbox
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.shortcuts import render_to_response, get_object_or_404
+
 from patchwork.filters import DelegateFilter
+from patchwork.forms import BundleForm, DeleteBundleForm
+from patchwork.models import Patch, Bundle, BundlePatch, Project
+from patchwork.requestcontext import PatchworkRequestContext
+from patchwork.utils import get_patch_ids
+from patchwork.views import generic_list, patch_to_mbox
 
 @login_required
 def setbundle(request):

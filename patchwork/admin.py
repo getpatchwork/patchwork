@@ -21,8 +21,8 @@ from __future__ import absolute_import
 
 from django.contrib import admin
 
-from patchwork.models import (
-    Project, Person, UserProfile, State, Patch, Comment, Bundle, Tag, Check)
+from patchwork.models import (Project, Person, UserProfile, State, Patch,
+                              Comment, Bundle, Tag, Check)
 
 
 class ProjectAdmin(admin.ModelAdmin):

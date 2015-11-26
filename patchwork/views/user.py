@@ -19,22 +19,23 @@
 
 from __future__ import absolute_import
 
-from django.contrib.auth.decorators import login_required
-from patchwork.requestcontext import PatchworkRequestContext
-from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
-from django.http import HttpResponseRedirect
-from patchwork.models import Project, Bundle, Person, EmailConfirmation, \
-         State, EmailOptout
-from patchwork.forms import UserProfileForm, UserPersonLinkForm, \
-         RegistrationForm
-from patchwork.filters import DelegateFilter
-from patchwork.views import generic_list
-from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import send_mail
 import django.core.urlresolvers
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template.loader import render_to_string
+
+from patchwork.filters import DelegateFilter
+from patchwork.forms import (UserProfileForm, UserPersonLinkForm,
+                             RegistrationForm)
+from patchwork.models import (Project, Bundle, Person, EmailConfirmation,
+                              State, EmailOptout)
+from patchwork.requestcontext import PatchworkRequestContext
+from patchwork.views import generic_list
 
 def register(request):
     context = PatchworkRequestContext(request)
