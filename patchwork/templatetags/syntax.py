@@ -24,6 +24,7 @@ import re
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.six.moves import map
 
 
 register = template.Library()
@@ -32,17 +33,17 @@ def _compile(t):
     (r, str) = t
     return (re.compile(r, re.M | re.I), str)
 
-_patch_span_res = map(_compile, [
+_patch_span_res = list(map(_compile, [
         ('^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
         ('^\+.*$', 'p_add'),
         ('^-.*$', 'p_del'),
         ('^!.*$', 'p_mod'),
-        ])
+        ]))
 
 _patch_chunk_re = \
         re.compile('^(@@ \-\d+(?:,\d+)? \+\d+(?:,\d+)? @@)(.*)$', re.M | re.I)
 
-_comment_span_res = map(_compile, [
+_comment_span_res = list(map(_compile, [
         ('^\s*Signed-off-by: .*$', 'signed-off-by'),
         ('^\s*Acked-by: .*$', 'acked-by'),
         ('^\s*Nacked-by: .*$', 'nacked-by'),
@@ -50,7 +51,7 @@ _comment_span_res = map(_compile, [
         ('^\s*Reviewed-by: .*$', 'reviewed-by'),
         ('^\s*From: .*$', 'from'),
         ('^\s*&gt;.*$', 'quote'),
-        ])
+        ]))
 
 _span = '<span class="%s">%s</span>'
 

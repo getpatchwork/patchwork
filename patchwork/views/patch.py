@@ -64,7 +64,7 @@ def patch(request, patch_id):
                 bundle.append_patch(patch)
                 bundle.save()
                 context.add_message('Patch added to bundle "%s"' % bundle.name)
-            except Exception, ex:
+            except Exception as ex:
                 context.add_message("Couldn't add patch '%s' to bundle %s: %s" \
                         % (patch.name, bundle.name, ex.message))
 

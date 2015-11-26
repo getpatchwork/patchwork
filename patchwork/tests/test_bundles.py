@@ -29,6 +29,7 @@ from django.utils.http import urlencode
 
 from patchwork.models import Patch, Bundle, BundlePatch, Person
 from patchwork.tests.utils import defaults, create_user, find_in_context
+from django.utils.six.moves import range, zip
 
 def bundle_url(bundle):
     return '/bundle/%s/%s/' % (bundle.owner.username, bundle.name)
@@ -573,11 +574,11 @@ class BundleInitialOrderTest(BundleTestBase):
         bundle.delete()
 
     def testBundleForwardOrder(self):
-        ids = map(lambda p: p.id, self.patches)
+        ids = [p.id for p in self.patches]
         self._testOrder(ids, self.patches)
 
     def testBundleReverseOrder(self):
-        ids = map(lambda p: p.id, self.patches)
+        ids = [p.id for p in self.patches]
         ids.reverse()
         self._testOrder(ids, self.patches)
 
@@ -611,7 +612,7 @@ class BundleReorderTest(BundleTestBase):
 
         # check if order field is still sequential:
         order_numbers = [ bp.order for bp in bps ]
-        expected_order = range(1, len(neworder)+1) # [1 ... len(neworder)]
+        expected_order = list(range(1, len(neworder)+1)) # [1 ... len(neworder)]
         self.failUnlessEqual(order_numbers, expected_order)
 
     def testBundleReorderAll(self):

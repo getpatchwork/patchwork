@@ -28,6 +28,7 @@ import unittest
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test import TestCase
+from django.utils.six.moves import zip
 
 from patchwork.models import Person, Patch
 from patchwork.tests.utils import defaults, create_user, find_in_context
@@ -83,7 +84,7 @@ class PatchOrderTest(TestCase):
         ids = self._extract_patch_ids(response)
         self.assertTrue(bool(ids))
         patches = [ Patch.objects.get(id = i) for i in ids ]
-        pairs = zip(patches, patches[1:])
+        pairs = list(zip(patches, patches[1:]))
         [ test_fn(p1, p2) for (p1, p2) in pairs ]
 
     def testDateOrder(self):

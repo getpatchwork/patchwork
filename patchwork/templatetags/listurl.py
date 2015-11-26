@@ -39,7 +39,7 @@ class ListURLNode(template.defaulttags.URLNode):
     def __init__(self, kwargs):
         super(ListURLNode, self).__init__(None, [], {}, False)
         self.params = {}
-        for (k, v) in kwargs.iteritems():
+        for (k, v) in kwargs.items():
             if k in list_params:
                 self.params[k] = v
 
@@ -68,14 +68,14 @@ class ListURLNode(template.defaulttags.URLNode):
         except Exception:
             pass
 
-        for (k, v) in self.params.iteritems():
+        for (k, v) in self.params.items():
             params[smart_str(k, 'ascii')] = v.resolve(context)
 
         if not params:
             return str
 
         return str + '?' + '&'.join(
-            ['%s=%s' % (k, escape(v)) for (k, v) in params.iteritems()])
+            ['%s=%s' % (k, escape(v)) for (k, v) in list(params.items())])
 
 
 @register.tag

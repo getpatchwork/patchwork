@@ -76,7 +76,7 @@ class Order(object):
             str = str[1:]
             reversed = True
 
-        if str not in self.order_map.keys():
+        if str not in self.order_map:
             return
 
         self.order = str

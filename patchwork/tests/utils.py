@@ -98,7 +98,7 @@ def read_patch(filename, encoding = None):
     if encoding is not None:
         f = codecs.open(file_path, encoding = encoding)
     else:
-        f = file(file_path)
+        f = open(file_path)
 
     return f.read()
 

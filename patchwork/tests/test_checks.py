@@ -81,7 +81,7 @@ class PatchChecksTest(TransactionTestCase):
 
         self.assertEqual(self.patch.check_set.count(), total)
 
-        for state in state_counts.keys():
+        for state in state_counts:
             self.assertEqual(counts[state], state_counts[state])
 
         # also check the ones we didn't explicitly state

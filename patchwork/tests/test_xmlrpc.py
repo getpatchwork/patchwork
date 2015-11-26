@@ -18,11 +18,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import unittest
-import xmlrpclib
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
+from django.utils.six.moves import xmlrpc_client
 
 from patchwork.models import Person, Patch
 from patchwork.tests.utils import defaults
@@ -36,7 +36,7 @@ class XMLRPCTest(LiveServerTestCase):
     def setUp(self):
         self.url = (self.live_server_url +
                     reverse('patchwork.views.xmlrpc.xmlrpc'))
-        self.rpc = xmlrpclib.Server(self.url)
+        self.rpc = xmlrpc_client.Server(self.url)
 
     def testGetRedirect(self):
         response = self.client.patch(self.url)

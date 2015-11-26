@@ -19,11 +19,11 @@
 
 from __future__ import absolute_import
 
-from urllib import quote
-
 from django.contrib.auth.models import User
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils import six
+from django.utils.six.moves.urllib.parse import quote
 
 from patchwork.models import Person, State
 
@@ -55,7 +55,7 @@ class Filter(object):
         pass
 
     def parse(self, dict):
-        if self.param not in dict.keys():
+        if self.param not in dict:
             return
         self._set_key(dict[self.param])
 
@@ -278,7 +278,7 @@ class ArchiveFilter(Filter):
     def _set_key(self, str):
         self.archive_state = False
         self.applied = True
-        for (k, v) in self.param_map.iteritems():
+        for (k, v) in self.param_map.items():
             if str == v:
                 self.archive_state = k
         if self.archive_state == None:
@@ -411,7 +411,7 @@ filterclasses = [SubmitterFilter, \
 class Filters:
 
     def __init__(self, request):
-        self._filters = map(lambda c: c(self), filterclasses)
+        self._filters = [c(self) for c in filterclasses]
         self.dict = request.GET
         self.project = None
 
@@ -441,29 +441,27 @@ class Filters:
     def querystring(self, remove = None):
         params = dict(self.params())
 
-        for (k, v) in self.dict.iteritems():
+        for (k, v) in self.dict.items():
             if k not in params:
                 params[k] = v
 
         if remove is not None:
-            if remove.param in params.keys():
+            if remove.param in list(params.keys()):
                 del params[remove.param]
 
-        pairs = params.iteritems()
-
         def sanitise(s):
-            if not isinstance(s, basestring):
-                s = unicode(s)
+            if not isinstance(s, six.string_types):
+                s = six.text_type(s)
             return quote(s.encode('utf-8'))
 
         return '?' + '&'.join(['%s=%s' % (sanitise(k), sanitise(v))
-                                    for (k, v) in pairs])
+                                    for (k, v) in list(params.items())])
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)
 
     def applied_filters(self):
-        return filter(lambda x: x.applied, self._filters)
+        return [x for x in self._filters if x.applied]
 
     def available_filters(self):
         return self._filters

@@ -26,6 +26,8 @@ from collections import Counter
 import hashlib
 import re
 
+from django.utils.six.moves import map
+
 
 _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')
@@ -113,7 +115,7 @@ def parse_patch(text):
                         return 1
                     return int(x)
 
-                lc = map(fn, match.groups())
+                lc = list(map(fn, match.groups()))
 
                 state = 4
                 patchbuf += buf + line
@@ -217,7 +219,7 @@ def hash_patch(str):
                 if not x:
                     return 1
                 return int(x)
-            line_nos = map(fn, hunk_match.groups())
+            line_nos = list(map(fn, hunk_match.groups()))
             line = '@@ -%d +%d @@' % tuple(line_nos)
 
         elif line[0] in prefixes:

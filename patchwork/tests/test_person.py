@@ -24,6 +24,7 @@ import unittest
 
 from django.test.client import Client
 from django.test import TestCase
+from django.utils.six.moves import map, range
 
 from patchwork.models import EmailConfirmation, Person, Bundle
 
@@ -33,7 +34,7 @@ class SubmitterCompletionTest(TestCase):
             Person(name = "Test Name", email = "test1@example.com"),
             Person(email = "test2@example.com"),
         ]
-        map(lambda p: p.save(), self.people)
+        list(map(lambda p: p.save(), self.people))
 
     def testNameComplete(self):
         response = self.client.get('/submitter/', {'q': 'name'})

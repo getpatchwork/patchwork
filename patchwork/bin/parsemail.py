@@ -27,6 +27,7 @@ import datetime
 from email import message_from_file
 from email.header import Header, decode_header
 from email.utils import parsedate_tz, mktime_tz
+from functools import reduce
 import logging
 import operator
 import re
@@ -36,6 +37,8 @@ import django
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.log import AdminEmailHandler
+from django.utils import six
+from django.utils.six.moves import map
 
 from patchwork.models import (
     Patch, Project, Person, Comment, State, get_default_initial_patch_state)
@@ -67,7 +70,7 @@ def clean_header(header):
             return frag_str.decode(frag_encoding)
         return frag_str.decode()
 
-    fragments = map(decode, decode_header(header))
+    fragments = list(map(decode, decode_header(header)))
 
     return normalise_space(u' '.join(fragments))
 
@@ -161,7 +164,7 @@ def mail_headers(mail):
     return reduce(operator.__concat__,
                   ['%s: %s\n' % (k, Header(v, header_name=k,
                                            continuation_ws='\t').encode())
-                   for (k, v) in mail.items()])
+                   for (k, v) in list(mail.items())])
 
 
 def find_pull_request(content):
@@ -177,7 +180,7 @@ def find_pull_request(content):
 
 def try_decode(payload, charset):
     try:
-        payload = unicode(payload, charset)
+        payload = six.text_type(payload, charset)
     except UnicodeDecodeError:
         return None
     return payload
@@ -195,7 +198,7 @@ def find_content(project, mail):
         payload = part.get_payload(decode=True)
         subtype = part.get_content_subtype()
 
-        if not isinstance(payload, unicode):
+        if not isinstance(payload, six.text_type):
             charset = part.get_content_charset()
 
             # Check that we have a charset that we understand. Otherwise,
@@ -491,7 +494,7 @@ def main(args):
 
     def list_logging_levels():
         """Give a summary of all available logging levels."""
-        return sorted(VERBOSITY_LEVELS.keys(),
+        return sorted(list(VERBOSITY_LEVELS.keys()),
                       key=lambda x: VERBOSITY_LEVELS[x])
 
     parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
