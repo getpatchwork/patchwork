@@ -20,6 +20,8 @@
 # Patchwork XMLRPC interface
 #
 
+from __future__ import absolute_import
+
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 from DocXMLRPCServer import XMLRPCDocGenerator
 import base64

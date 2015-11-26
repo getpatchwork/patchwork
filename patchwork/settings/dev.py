@@ -7,9 +7,11 @@ Design based on:
     http://www.revsys.com/blog/2014/nov/21/recommended-django-project-layout/
 """
 
+from __future__ import absolute_import
+
 import django
 
-from base import *
+from .base import *
 
 #
 # Core settings

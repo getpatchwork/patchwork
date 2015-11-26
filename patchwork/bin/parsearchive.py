@@ -21,13 +21,15 @@
 
 """Utility to parse an mbox archive file."""
 
+from __future__ import absolute_import
+
 import argparse
 import logging
 import mailbox
 
 import django
 
-import parsemail
+from . import parsemail
 
 VERBOSITY_LEVELS = {
     'debug': logging.DEBUG,

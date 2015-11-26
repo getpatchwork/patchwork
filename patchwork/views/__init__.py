@@ -17,8 +17,9 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import absolute_import
 
-from base import *
+from .base import *
 from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm

@@ -19,6 +19,8 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import absolute_import
+from __future__ import print_function
 
 import hashlib
 import re
@@ -257,13 +259,13 @@ def main(args):
     (patch, comment) = parse_patch(content)
 
     if options.print_hash and patch:
-        print hash_patch(patch).hexdigest()
+        print(hash_patch(patch).hexdigest())
 
     if options.print_patch and patch:
-        print "Patch: ------\n" + patch
+        print("Patch: ------\n" + patch)
 
     if options.print_comment and comment:
-        print "Comment: ----\n" + comment
+        print("Comment: ----\n" + comment)
 
 if __name__ == '__main__':
     import sys
