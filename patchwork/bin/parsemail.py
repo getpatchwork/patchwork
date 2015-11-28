@@ -439,15 +439,15 @@ def parse_mail(mail, list_id=None):
     # some basic sanity checks
     if 'From' not in mail:
         LOGGER.debug("Ignoring patch due to missing 'From'")
-        return 0
+        return 1
 
     if 'Subject' not in mail:
         LOGGER.debug("Ignoring patch due to missing 'Subject'")
-        return 0
+        return 1
 
     if 'Message-Id' not in mail:
         LOGGER.debug("Ignoring patch due to missing 'Message-Id'")
-        return 0
+        return 1
 
     hint = mail.get('X-Patchwork-Hint', '').lower()
     if hint == 'ignore':
@@ -461,7 +461,7 @@ def parse_mail(mail, list_id=None):
 
     if project is None:
         LOGGER.error('Failed to find a project for patch')
-        return 0
+        return 1
 
     msgid = mail.get('Message-Id').strip()
 
@@ -485,6 +485,7 @@ def parse_mail(mail, list_id=None):
         patch.delegate = get_delegate(
             mail.get('X-Patchwork-Delegate', '').strip())
         patch.save()
+        LOGGER.debug('Patch saved')
 
     if comment:
         if save_required:
@@ -495,6 +496,7 @@ def parse_mail(mail, list_id=None):
         comment.submitter = author
         comment.msgid = msgid
         comment.save()
+        LOGGER.debug('Comment saved')
 
     return 0
 

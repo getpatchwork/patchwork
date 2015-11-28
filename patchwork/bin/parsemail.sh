@@ -26,4 +26,4 @@ PYTHONPATH="$PATCHWORK_BASE":"$PATCHWORK_BASE/lib/python:$PYTHONPATH" \
         DJANGO_SETTINGS_MODULE=patchwork.settings.production \
         "$PATCHWORK_BASE/patchwork/bin/parsemail.py"
 
-exit 0
+exit $@
