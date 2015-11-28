@@ -207,6 +207,8 @@ def patch_to_mbox(patch):
         str(Header(patch.submitter.name, mail.patch_charset)),
         patch.submitter.email))
     mail['X-Patchwork-Id'] = str(patch.id)
+    if patch.delegate:
+        mail['X-Patchwork-Delegate'] = str(patch.delegate.email)
     mail['Message-Id'] = patch.msgid
     mail.set_unixfrom('From patchwork ' + patch.date.ctime())
 

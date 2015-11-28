@@ -27,7 +27,7 @@ import email
 from django.test import TestCase
 
 from patchwork.models import Patch, Comment
-from patchwork.tests.utils import defaults
+from patchwork.tests.utils import defaults, create_user
 
 
 class MboxPatchResponseTest(TestCase):
@@ -132,6 +132,34 @@ class MboxPassThroughHeaderTest(TestCase):
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response, self.date_header)
+
+
+class MboxGeneratedHeaderTest(TestCase):
+    fixtures = ['default_states']
+
+    def setUp(self):
+        defaults.project.save()
+        self.person = defaults.patch_author_person
+        self.person.save()
+
+        self.user = create_user()
+
+        self.patch = Patch(project=defaults.project,
+                           msgid='p1',
+                           name='testpatch',
+                           submitter=self.person,
+                           delegate=self.user,
+                           content='')
+        self.patch.save()
+
+    def testPatchworkIdHeader(self):
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, 'X-Patchwork-Id: %d' % self.patch.id)
+
+    def testPatchworkDelegateHeader(self):
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response,
+                            'X-Patchwork-Delegate: %s' % self.user.email)
 
 
 class MboxBrokenFromHeaderTest(TestCase):
