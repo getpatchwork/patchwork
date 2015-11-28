@@ -27,6 +27,7 @@ import datetime
 from email import message_from_file
 from email.header import Header, decode_header
 from email.utils import parsedate_tz, mktime_tz
+from fnmatch import fnmatch
 from functools import reduce
 import logging
 import operator
@@ -40,9 +41,9 @@ from django.utils.log import AdminEmailHandler
 from django.utils import six
 from django.utils.six.moves import map
 
-from patchwork.models import (
-    Patch, Project, Person, Comment, State, get_default_initial_patch_state)
-from patchwork.parser import parse_patch
+from patchwork.models import (Patch, Project, Person, Comment, State,
+                              DelegationRule, get_default_initial_patch_state)
+from patchwork.parser import parse_patch, patch_get_filenames
 
 LOGGER = logging.getLogger(__name__)
 
@@ -249,6 +250,10 @@ def find_content(project, mail):
 
     patch = None
     comment = None
+    filenames = None
+
+    if patchbuf:
+        filenames = patch_get_filenames(patchbuf)
 
     if pullurl or patchbuf:
         name = clean_subject(mail.get('Subject'), [project.linkname])
@@ -265,12 +270,12 @@ def find_content(project, mail):
         else:
             cpatch = find_patch_for_comment(project, mail)
             if not cpatch:
-                return (None, None)
+                return (None, None, None)
             comment = Comment(patch=cpatch, date=mail_date(mail),
                               content=clean_content(commentbuf),
                               headers=mail_headers(mail))
 
-    return (patch, comment)
+    return (patch, comment, filenames)
 
 
 def find_patch_for_comment(project, mail):
@@ -385,6 +390,32 @@ def get_state(state_name):
     return get_default_initial_patch_state()
 
 
+def auto_delegate(project, filenames):
+    if not filenames:
+        return None
+
+    rules = list(DelegationRule.objects.filter(project=project))
+
+    patch_delegate = None
+
+    for filename in filenames:
+        file_delegate = None
+        for rule in rules:
+            if fnmatch(filename, rule.path):
+                file_delegate = rule.user
+                break
+
+        if file_delegate is None:
+            return None
+
+        if patch_delegate is not None and file_delegate != patch_delegate:
+            return None
+
+        patch_delegate = file_delegate
+
+    return patch_delegate
+
+
 def get_delegate(delegate_email):
     """Return the delegate with the given email or None."""
     if delegate_email:
@@ -436,9 +467,13 @@ def parse_mail(mail, list_id=None):
 
     (author, save_required) = find_author(mail)
 
-    (patch, comment) = find_content(project, mail)
+    (patch, comment, filenames) = find_content(project, mail)
 
     if patch:
+        delegate = get_delegate(mail.get('X-Patchwork-Delegate', '').strip())
+        if not delegate:
+            delegate = auto_delegate(project, filenames)
+
         # we delay the saving until we know we have a patch.
         if save_required:
             author.save()
