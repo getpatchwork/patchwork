@@ -22,11 +22,19 @@ from __future__ import absolute_import
 from django.contrib import admin
 
 from patchwork.models import (Project, Person, UserProfile, State, Patch,
-                              Comment, Bundle, Tag, Check)
+                              Comment, Bundle, Tag, Check, DelegationRule)
+
+
+class DelegationRuleInline(admin.TabularInline):
+    model = DelegationRule
+    fields = ('path', 'user', 'priority')
 
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'linkname', 'listid', 'listemail')
+    inlines = [
+        DelegationRuleInline,
+    ]
 admin.site.register(Project, ProjectAdmin)
 
 
