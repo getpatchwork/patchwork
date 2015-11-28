@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 
 from django.contrib.auth.models import User
+from django.db.models.query_utils import Q
 from django import forms
 
 from patchwork.models import Patch, State, Bundle, UserProfile
@@ -98,10 +99,13 @@ class DeleteBundleForm(forms.Form):
 
 class DelegateField(forms.ModelChoiceField):
 
-    def __init__(self, project, *args, **kwargs):
-        queryset = User.objects.filter(profile__in=UserProfile.objects
-                                       .filter(maintainer_projects=project)
-                                       .values('pk').query)
+    def __init__(self, project, instance=None, *args, **kwargs):
+        q = Q(profile__in=UserProfile.objects
+              .filter(maintainer_projects=project)
+              .values('pk').query)
+        if instance and instance.delegate:
+            q = q | Q(username=instance.delegate)
+        queryset = User.objects.complex_filter(q)
         super(DelegateField, self).__init__(queryset, *args, **kwargs)
 
 
@@ -113,7 +117,8 @@ class PatchForm(forms.ModelForm):
         if not project:
             raise Exception("meep")
         super(PatchForm, self).__init__(instance=instance, *args, **kwargs)
-        self.fields['delegate'] = DelegateField(project, required=False)
+        self.fields['delegate'] = DelegateField(project, instance,
+                                                required=False)
 
     class Meta:
         model = Patch
