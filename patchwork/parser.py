@@ -246,6 +246,35 @@ def extract_tags(content, tags):
     return counts
 
 
+def patch_get_filenames(str):
+    # normalise spaces
+    str = str.replace('\r', '')
+    str = str.strip() + '\n'
+
+    filenames = {}
+
+    for line in str.split('\n'):
+
+        if len(line) <= 0:
+            continue
+
+        filename_match = _filename_re.match(line)
+        if not filename_match:
+            continue
+
+        filename = filename_match.group(2)
+        if filename.startswith('/dev/null'):
+            continue
+
+        filename = '/'.join(filename.split('/')[1:])
+        filenames[filename] = True
+
+    filenames = filenames.keys()
+    filenames.sort()
+
+    return filenames
+
+
 def main(args):
     from optparse import OptionParser
 
@@ -256,6 +285,8 @@ def main(args):
                       dest='print_comment', help='print parsed comment')
     parser.add_option('-#', '--hash', action='store_true',
                       dest='print_hash', help='print patch hash')
+    parser.add_option('-f', '--filenames', action='store_true',
+                      dest='print_filenames', help='print file names')
 
     (options, args) = parser.parse_args()
 
@@ -272,6 +303,10 @@ def main(args):
 
     if options.print_comment and comment:
         print("Comment: ----\n" + comment)
+
+    if options.print_filenames:
+        filenames = patch_get_filenames(content)
+        print("File names: ----\n" + '\n'.join(filenames))
 
 if __name__ == '__main__':
     import sys
