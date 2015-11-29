@@ -37,7 +37,7 @@ class RegistrationForm(forms.Form):
     def clean_username(self):
         value = self.cleaned_data['username']
         try:
-            user = User.objects.get(username__iexact=value)
+            User.objects.get(username__iexact=value)
         except User.DoesNotExist:
             return self.cleaned_data['username']
         raise forms.ValidationError('This username is already taken. ' +
@@ -62,8 +62,9 @@ class LoginForm(forms.Form):
 
 
 class BundleForm(forms.ModelForm):
-    name = forms.RegexField(regex=r'^[^/]+$', max_length=50, label=u'Name',
-                            error_messages={'invalid': 'Bundle names can\'t contain slashes'})
+    name = forms.RegexField(
+        regex=r'^[^/]+$', max_length=50, label=u'Name',
+        error_messages={'invalid': 'Bundle names can\'t contain slashes'})
 
     class Meta:
         model = Bundle
@@ -230,7 +231,7 @@ class MultiplePatchForm(forms.Form):
         data = self.cleaned_data
         # Update the instance
         for f in opts.fields:
-            if not f.name in data:
+            if f.name not in data:
                 continue
 
             field = self.fields.get(f.name, None)

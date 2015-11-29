@@ -167,7 +167,7 @@ class UserProfileTest(TestCase):
         old_ppp = user_profile.patches_per_page
         new_ppp = old_ppp + 1
 
-        response = self.client.post('/user/', {'patches_per_page': new_ppp})
+        self.client.post('/user/', {'patches_per_page': new_ppp})
 
         user_profile = UserProfile.objects.get(user=self.user.user.id)
         self.assertEqual(user_profile.patches_per_page, new_ppp)
@@ -177,7 +177,7 @@ class UserProfileTest(TestCase):
         old_ppp = user_profile.patches_per_page
         new_ppp = -1
 
-        response = self.client.post('/user/', {'patches_per_page': new_ppp})
+        self.client.post('/user/', {'patches_per_page': new_ppp})
 
         user_profile = UserProfile.objects.get(user=self.user.user.id)
         self.assertEqual(user_profile.patches_per_page, old_ppp)

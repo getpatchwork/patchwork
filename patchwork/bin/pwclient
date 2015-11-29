@@ -31,7 +31,6 @@ except ImportError:
     import xmlrpc.client as xmlrpclib
 import argparse
 import string
-import tempfile
 import subprocess
 import base64
 try:
@@ -90,7 +89,7 @@ class Filter(object):
             else:
                 self.d['state_id'] = id
 
-        if self.project != None:
+        if self.project is not None:
             id = project_id_by_name(rpc, self.project)
             if id == 0:
                 sys.stderr.write("Note: No Project found matching %s, "
@@ -112,7 +111,7 @@ class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
         xmlrpclib.SafeTransport.__init__(self)
 
     def authenticated(self):
-        return self.username != None and self.password != None
+        return self.username is not None and self.password is not None
 
     def send_host(self, connection, host):
         xmlrpclib.Transport.send_host(self, connection, host)
@@ -190,7 +189,7 @@ def list_patches(patches, format_str=None):
 def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     filter.resolve_ids(rpc)
 
-    if submitter_str != None:
+    if submitter_str is not None:
         ids = person_ids_by_name(rpc, submitter_str)
         if len(ids) == 0:
             sys.stderr.write("Note: Nobody found matching *%s*\n" %
@@ -207,7 +206,7 @@ def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
                 list_patches(patches, format_str)
         return
 
-    if delegate_str != None:
+    if delegate_str is not None:
         ids = person_ids_by_name(rpc, delegate_str)
         if len(ids) == 0:
             sys.stderr.write("Note: Nobody found matching *%s*\n" %
@@ -551,7 +550,7 @@ def main():
         update_parser.error(
             'Must specify one or more update options (-a or -s)')
 
-    if args.get('n') != None:
+    if args.get('n') is not None:
         try:
             filt.add("max_count", args.get('n'))
         except:
@@ -631,8 +630,8 @@ def main():
                 use_https)
 
         else:
-            sys.stderr.write(("The %s action requires authentication, "
-                              "but no username or password\nis configured\n") % action)
+            sys.stderr.write("The %s action requires authentication, but no "
+                             "username or password\nis configured\n" % action)
             sys.exit(1)
 
     if project_str:
@@ -654,7 +653,7 @@ def main():
         sys.exit(1)
 
     # It should be safe to assume hash_str is not zero, but who knows..
-    if hash_str != None:
+    if hash_str is not None:
         patch_ids = [patch_id_from_hash(rpc, project_str, hash_str)]
 
     # helper for non_empty() to print correct helptext
@@ -663,16 +662,16 @@ def main():
     # Require either hash_str or IDs for
     def non_empty(h, patch_ids):
         """Error out if no patch IDs were specified"""
-        if patch_ids == None or len(patch_ids) < 1:
-            sys.stderr.write("Error: Missing Argument! " +
-                             "Either [-h HASH] or [ID [ID ...]] are required\n")
+        if patch_ids is None or len(patch_ids) < 1:
+            sys.stderr.write("Error: Missing Argument! Either [-h HASH] or "
+                             "[ID [ID ...]] are required\n")
             if h:
                 h.print_help()
             sys.exit(1)
         return patch_ids
 
     if action == 'list' or action == 'search':
-        if args.get('patch_name') != None:
+        if args.get('patch_name') is not None:
             filt.add("name__icontains", args.get('patch_name'))
         action_list(rpc, filt, submitter_str, delegate_str, format_str)
 

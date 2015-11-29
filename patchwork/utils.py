@@ -27,13 +27,11 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.db.models import Max, Q, F
-from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
-from patchwork.models import (Bundle, Project, BundlePatch, UserProfile,
-                              PatchChangeNotification, EmailOptout,
-                              EmailConfirmation)
+from patchwork.models import (Bundle, BundlePatch, PatchChangeNotification,
+                              EmailOptout, EmailConfirmation)
 
 
 def get_patch_ids(d, prefix='patch_id'):
@@ -54,11 +52,11 @@ def get_patch_ids(d, prefix='patch_id'):
 
 class Order(object):
     order_map = {
-        'date':         'date',
-        'name':         'name',
-        'state':        'state__ordering',
-        'submitter':    'submitter__name',
-        'delegate':     'delegate__username',
+        'date': 'date',
+        'name': 'name',
+        'state': 'state__ordering',
+        'submitter': 'submitter__name',
+        'delegate': 'delegate__username',
     }
     default_order = ('date', True)
 
@@ -180,18 +178,17 @@ def set_bundle(user, project, action, data, patches, context):
 
 
 def send_notifications():
-    date_limit = datetime.datetime.now() - \
-        datetime.timedelta(minutes=settings.NOTIFICATION_DELAY_MINUTES)
+    date_limit = datetime.datetime.now() - datetime.timedelta(
+        minutes=settings.NOTIFICATION_DELAY_MINUTES)
 
     # This gets funky: we want to filter out any notifications that should
     # be grouped with other notifications that aren't ready to go out yet. To
     # do that, we join back onto PatchChangeNotification (PCN -> Patch ->
     # Person -> Patch -> max(PCN.last_modified)), filtering out any maxima
     # that are with the date_limit.
-    qs = PatchChangeNotification.objects \
-        .annotate(m=Max('patch__submitter__patch__patchchangenotification'
-                        '__last_modified')) \
-        .filter(m__lt=date_limit)
+    qs = PatchChangeNotification.objects.annotate(
+        m=Max('patch__submitter__patch__patchchangenotification'
+              '__last_modified')).filter(m__lt=date_limit)
 
     groups = itertools.groupby(qs.order_by('patch__submitter'),
                                lambda n: n.patch.submitter)
@@ -230,7 +227,7 @@ def send_notifications():
 
         try:
             message.send()
-        except ex:
+        except Exception as ex:
             errors.append((recipient, ex))
             continue
 
@@ -247,12 +244,9 @@ def do_expiry():
 
     # expire inactive users with no pending confirmation
     pending_confs = EmailConfirmation.objects.values('user')
-    users = User.objects.filter(
-        is_active=False,
-        last_login=F('date_joined')
-    ).exclude(
-        id__in=pending_confs
-    )
+    users = User.objects.filter(is_active=False,
+                                last_login=F('date_joined')).exclude(
+                                    id__in=pending_confs)
 
     # delete users
     users.delete()

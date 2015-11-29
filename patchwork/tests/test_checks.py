@@ -20,8 +20,6 @@
 from datetime import datetime as dt
 from datetime import timedelta
 
-from django.conf import settings
-from django.db import connection
 from django.test import TransactionTestCase
 
 from patchwork.models import Patch, Check
@@ -105,13 +103,13 @@ class PatchChecksTest(TransactionTestCase):
         self.assertChecksEqual(self.patch, [check_a, check_b])
 
     def test_checks__duplicate_checks(self):
-        check_a = self.create_check(date=(dt.now() - timedelta(days=1)))
-        check_b = self.create_check()
+        self.create_check(date=(dt.now() - timedelta(days=1)))
+        check = self.create_check()
         # this isn't a realistic scenario (dates shouldn't be set by user so
         #   they will always increment), but it's useful to verify the removal
         #   of older duplicates by the function
-        check_c = self.create_check(date=(dt.now() - timedelta(days=2)))
-        self.assertChecksEqual(self.patch, [check_b])
+        self.create_check(date=(dt.now() - timedelta(days=2)))
+        self.assertChecksEqual(self.patch, [check])
 
     def test_check_count__no_checks(self):
         self.assertCheckCountEqual(self.patch, 0)

@@ -18,10 +18,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import datetime
-import unittest
 
 from django.conf import settings
-from django.db import connection
 from django.test import TestCase, TransactionTestCase
 
 from patchwork.models import Project, Patch, Comment, Tag, PatchTag

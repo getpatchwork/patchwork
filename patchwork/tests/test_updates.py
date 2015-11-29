@@ -112,11 +112,11 @@ class MultipleUpdateTest(TestCase):
 
     def testDelegateChangeValid(self):
         delegate = create_maintainer(defaults.project)
-        response = self._testDelegateChange(str(delegate.pk))
+        self._testDelegateChange(str(delegate.pk))
         for p in self.patches:
             self.assertEqual(Patch.objects.get(pk=p.pk).delegate, delegate)
 
     def testDelegateClear(self):
-        response = self._testDelegateChange('')
+        self._testDelegateChange('')
         for p in self.patches:
             self.assertEqual(Patch.objects.get(pk=p.pk).delegate, None)

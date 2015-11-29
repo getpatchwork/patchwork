@@ -17,10 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os
-import time
-import unittest
-
 from django.test.client import Client
 from django.test import TestCase
 

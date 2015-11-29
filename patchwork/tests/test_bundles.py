@@ -24,7 +24,6 @@ import unittest
 
 from django.conf import settings
 from django.test import TestCase
-from django.test.client import Client
 from django.utils.http import urlencode
 
 from patchwork.models import Patch, Bundle, BundlePatch, Person
@@ -146,7 +145,7 @@ class BundleUpdateTest(BundleTestBase):
 
     def checkPatchformErrors(self, response):
         formname = 'patchform'
-        if not formname in response.context:
+        if formname not in response.context:
             return
         form = response.context[formname]
         if not form:
@@ -186,7 +185,6 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.public, self.bundle.public)
 
     def testUpdatePublic(self):
-        newname = 'newbundlename'
         data = {
             'form': 'bundle',
             'action': 'update',
@@ -273,7 +271,7 @@ class BundlePublicModifyTest(BundleTestBase):
         # first, check that we can modify with the owner
         self.client.login(username=self.user.username,
                           password=self.user.username)
-        response = self.client.post(bundle_url(self.bundle), data)
+        self.client.post(bundle_url(self.bundle), data)
         self.bundle = Bundle.objects.get(pk=self.bundle.pk)
         self.assertEqual(self.bundle.name, newname)
 
@@ -284,7 +282,7 @@ class BundlePublicModifyTest(BundleTestBase):
         # log in with a different user, and check that we can no longer modify
         self.client.login(username=self.other_user.username,
                           password=self.other_user.username)
-        response = self.client.post(bundle_url(self.bundle), data)
+        self.client.post(bundle_url(self.bundle), data)
         self.bundle = Bundle.objects.get(pk=self.bundle.pk)
         self.assertNotEqual(self.bundle.name, newname)
 
@@ -327,7 +325,6 @@ class BundleCreateFromListTest(BundleTestBase):
         self.assertEqual(bundle.patches.all()[0], patch)
 
     def testCreateNonEmptyBundleEmptyName(self):
-        newbundlename = 'testbundle-new'
         patch = self.patches[0]
 
         n_bundles = Bundle.objects.count()
@@ -408,10 +405,10 @@ class BundleCreateFromPatchTest(BundleTestBase):
 
         response = self.client.post('/patch/%d/' % patch.id, params)
 
-        self.assertContains(response,
-                            'A bundle called %s already exists' % newbundlename)
+        self.assertContains(
+            response,
+            'A bundle called %s already exists' % newbundlename)
 
-        count = Bundle.objects.count()
         self.assertEqual(Bundle.objects.count(), 1)
 
 
@@ -514,9 +511,10 @@ class BundleAddFromPatchTest(BundleTestBase):
 
         response = self.client.post('/patch/%d/' % patch.id, params)
 
-        self.assertContains(response,
-                            'added to bundle &quot;%s&quot;' % self.bundle.name,
-                            count=1)
+        self.assertContains(
+            response,
+            'added to bundle &quot;%s&quot;' % self.bundle.name,
+            count=1)
 
         self.assertEqual(self.bundle.patches.count(), 1)
         self.assertEqual(self.bundle.patches.all()[0], patch)
@@ -529,9 +527,10 @@ class BundleAddFromPatchTest(BundleTestBase):
 
         response = self.client.post('/patch/%d/' % patch.id, params)
 
-        self.assertContains(response,
-                            'added to bundle &quot;%s&quot;' % self.bundle.name,
-                            count=1)
+        self.assertContains(
+            response,
+            'added to bundle &quot;%s&quot;' % self.bundle.name,
+            count=1)
 
         self.assertEqual(self.bundle.patches.count(), 2)
         self.assertIn(self.patches[0], self.bundle.patches.all())

@@ -9,7 +9,7 @@ Design based on:
 
 from __future__ import absolute_import
 
-from .base import *
+from .base import *  # noqa
 
 #
 # Core settings

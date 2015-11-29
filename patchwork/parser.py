@@ -89,7 +89,7 @@ def parse_patch(text):
             if line.startswith('--- '):
                 state = 2
 
-            if line.startswith('rename from ') or line.startswith('rename to '):
+            if line.startswith(('rename from ', 'rename to ')):
                 state = 6
 
         elif state == 2:
@@ -161,7 +161,7 @@ def parse_patch(text):
                 state = 5
 
         elif state == 6:
-            if line.startswith('rename to ') or line.startswith('rename from '):
+            if line.startswith(('rename to ', 'rename from ')):
                 patchbuf += buf + line
                 buf = ''
 

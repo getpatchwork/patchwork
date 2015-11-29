@@ -28,7 +28,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.loader import render_to_string
 
-from patchwork.models import Patch, Project, Person, EmailConfirmation
+from patchwork.models import Project, Person, EmailConfirmation
 from patchwork.requestcontext import PatchworkRequestContext
 
 
@@ -122,8 +122,8 @@ def submitter_complete(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
-help_pages = {'':           'index.html',
-              'about/':     'about.html',
+help_pages = {'': 'index.html',
+              'about/': 'about.html',
               }
 
 if settings.ENABLE_XMLRPC:
@@ -133,5 +133,6 @@ if settings.ENABLE_XMLRPC:
 def help(request, path):
     context = PatchworkRequestContext(request)
     if path in help_pages:
-        return render_to_response('patchwork/help/' + help_pages[path], context)
+        return render_to_response(
+            'patchwork/help/' + help_pages[path], context)
     raise Http404

@@ -112,9 +112,9 @@ def optinout(request, action, description):
                   conf_settings.DEFAULT_FROM_EMAIL, [email])
         context['email'] = mail
         context['email_sent'] = True
-    except Exception as ex:
-        context['error'] = 'An error occurred during confirmation . ' + \
-                           'Please try again later.'
+    except Exception:
+        context['error'] = ('An error occurred during confirmation . '
+                            'Please try again later.')
         context['admins'] = conf_settings.ADMINS
 
     return render_to_response(html_template, context)

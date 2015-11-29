@@ -23,13 +23,11 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 import email
-import unittest
 
-from django.test.client import Client
 from django.test import TestCase
 
-from patchwork.models import Patch, Comment, Person
-from patchwork.tests.utils import defaults, create_user, find_in_context
+from patchwork.models import Patch, Comment
+from patchwork.tests.utils import defaults
 
 
 class MboxPatchResponseTest(TestCase):

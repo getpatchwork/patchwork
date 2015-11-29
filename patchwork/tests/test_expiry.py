@@ -18,7 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import datetime
-import unittest
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -95,8 +94,9 @@ class TestRegistrationExpiry(TestCase):
         date = ((datetime.datetime.now() - EmailConfirmation.validity) -
                 datetime.timedelta(hours=1))
         userid = 'test-user'
-        user = User.objects.create_user(userid,
-                                        defaults.patch_author_person.email, userid)
+        user = User.objects.create_user(
+            userid,
+            defaults.patch_author_person.email, userid)
         user.is_active = False
         user.date_joined = user.last_login = date
         user.save()

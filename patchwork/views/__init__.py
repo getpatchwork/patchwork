@@ -27,11 +27,11 @@ from email.parser import HeaderParser
 import email.utils
 import re
 
-from .base import *
+from .base import *  # noqa
 from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Comment
+from patchwork.models import Comment, Patch
 
 
 def generic_list(request, project, view,
@@ -119,10 +119,10 @@ def generic_list(request, project, view,
     paginator = Paginator(request, patches)
 
     context.update({
-        'page':             paginator.current_page,
-        'patchform':        properties_form,
-        'project':          project,
-        'order':            order,
+        'page': paginator.current_page,
+        'patchform': properties_form,
+        'project': project,
+        'order': order,
     })
 
     return context

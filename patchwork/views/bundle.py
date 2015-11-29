@@ -20,9 +20,9 @@
 from __future__ import absolute_import
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 import django.core.urlresolvers
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         HttpResponseNotFound)
 from django.shortcuts import render_to_response, get_object_or_404
 
 from patchwork.filters import DelegateFilter
@@ -59,7 +59,8 @@ def setbundle(request):
             bundle.save()
         elif action == 'add':
             bundle = get_object_or_404(Bundle,
-                                       owner=request.user, id=request.POST['id'])
+                                       owner=request.user,
+                                       id=request.POST['id'])
             bundle.save()
 
             patch_id = request.get('patch_id', None)
@@ -165,14 +166,17 @@ def bundle(request, username, bundlename):
         else:
             form = BundleForm(instance=bundle)
 
-        if request.method == 'POST' and \
-                request.POST.get('form') == 'reorderform':
-            order = get_object_or_404(BundlePatch, bundle=bundle,
-                                      patch__id=request.POST.get('order_start')).order
+        if (request.method == 'POST' and
+            request.POST.get('form') == 'reorderform'):
+            order = get_object_or_404(
+                BundlePatch,
+                bundle=bundle,
+                patch__id=request.POST.get('order_start')).order
 
             for patch_id in request.POST.getlist('neworder'):
                 bundlepatch = get_object_or_404(BundlePatch,
-                                                bundle=bundle, patch__id=patch_id)
+                                                bundle=bundle,
+                                                patch__id=patch_id)
                 bundlepatch.order = order
                 bundlepatch.save()
                 order += 1

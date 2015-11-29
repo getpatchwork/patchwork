@@ -43,8 +43,7 @@ urlpatterns = patterns(
     (r'^user/todo/$', 'patchwork.views.user.todo_lists'),
     (r'^user/todo/(?P<project_id>[^/]+)/$', 'patchwork.views.user.todo_list'),
 
-    (r'^user/bundles/$',
-        'patchwork.views.bundle.bundles'),
+    (r'^user/bundles/$', 'patchwork.views.bundle.bundles'),
 
     (r'^user/link/$', 'patchwork.views.user.link'),
     (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
@@ -111,7 +110,7 @@ if settings.COMPAT_REDIR:
     urlpatterns += patterns(
         '',
         (r'^user/bundle/(?P<bundle_id>[^/]+)/$',
-            'patchwork.views.bundle.bundle_redir'),
+         'patchwork.views.bundle.bundle_redir'),
         (r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
-            'patchwork.views.bundle.mbox_redir'),
+         'patchwork.views.bundle.mbox_redir'),
     )

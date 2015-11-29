@@ -17,8 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import unittest
-
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -81,7 +79,8 @@ class RegistrationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'username',
-                             'This username is already taken. Please choose another.')
+                             'This username is already taken. Please choose '
+                             'another.')
 
     def testExistingEmail(self):
         user = create_user()
@@ -90,7 +89,7 @@ class RegistrationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email',
-                             'This email address is already in use ' +
+                             'This email address is already in use '
                              'for the account "%s".\n' % user.username)
 
     def testValidRegistration(self):

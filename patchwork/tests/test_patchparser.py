@@ -20,7 +20,6 @@
 from email import message_from_string
 from email.mime.text import MIMEText
 from email.utils import make_msgid
-import os
 
 from django.test import TestCase
 
@@ -308,8 +307,8 @@ class MultipleProjectPatchTest(TestCase):
 
 class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
 
-    """ Test that followups to multiple-project patches end up on the
-        correct patch """
+    """Test that followups to multiple-project patches end up on the
+       correct patch."""
 
     comment_msgid = '<2@example.com>'
     comment_content = 'test comment'
@@ -329,18 +328,19 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
     def testParsedComment(self):
         for project in [self.p1, self.p2]:
             patch = Patch.objects.filter(project=project)[0]
-            # we should see two comments now - the original mail with the patch,
-            # and the one we parsed in setUp()
+            # we should see two comments now - the original mail with the
+            # patch, and the one we parsed in setUp()
             self.assertEqual(Comment.objects.filter(patch=patch).count(), 2)
 
 
 class ListIdHeaderTest(TestCase):
 
-    """ Test that we parse List-Id headers from mails correctly """
+    """Test that we parse List-Id headers from mails correctly."""
 
     def setUp(self):
         self.project = Project(linkname='test-project-1', name='Project 1',
-                               listid='1.example.com', listemail='1@example.com')
+                               listid='1.example.com',
+                               listemail='1@example.com')
         self.project.save()
 
     def testNoListId(self):
@@ -411,8 +411,9 @@ class GitPullWithDiffTest(MBoxPatchTest):
     def testGitPullWithDiff(self):
         (patch, comment) = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
-        self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/' +
-                         'linux-2.6-tip.git x86-fixes-for-linus', patch.pull_url)
+        self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/'
+                         'linux-2.6-tip.git x86-fixes-for-linus',
+                         patch.pull_url)
         self.assertTrue(
             patch.content.startswith(
                 'diff --git a/arch/x86/include/asm/smp.h'),

@@ -68,8 +68,8 @@ class Filter(object):
 
     def form(self):
         if self.forced:
-            return mark_safe('<input type="hidden" value="%s">%s' % (self.param,
-                                                                     self.condition()))
+            return mark_safe('<input type="hidden" value="%s">%s' % (
+                self.param, self.condition()))
             return self.condition()
         return self._form()
 
@@ -201,18 +201,18 @@ class StateFilter(Filter):
         str += '<option %s value="%s">any</option>' % (selected, self.any_key)
 
         selected = ''
-        if self.applied and self.state == None:
+        if self.applied and self.state is None:
             selected = 'selected'
-        str += '<option %s value="">%s</option>' % \
-               (selected, self.action_req_str)
+        str += '<option %s value="">%s</option>' % (
+            selected, self.action_req_str)
 
         for state in State.objects.all():
             selected = ''
             if self.state and self.state == state:
                 selected = ' selected="true"'
 
-            str += '<option value="%d" %s>%s</option>' % \
-                (state.id, selected, state.name)
+            str += '<option value="%d" %s>%s</option>' % (
+                state.id, selected, state.name)
         str += '</select>'
         return mark_safe(str)
 
@@ -273,7 +273,7 @@ class ArchiveFilter(Filter):
         self.param_map = {
             True: 'true',
             False: '',
-            None:  'both'
+            None: 'both'
         }
         self.description_map = {
             True: 'Yes',
@@ -287,11 +287,11 @@ class ArchiveFilter(Filter):
         for (k, v) in self.param_map.items():
             if str == v:
                 self.archive_state = k
-        if self.archive_state == None:
+        if self.archive_state is None:
             self.applied = False
 
     def kwargs(self):
-        if self.archive_state == None:
+        if self.archive_state is None:
             return {}
         return {'archived': self.archive_state}
 
@@ -299,7 +299,7 @@ class ArchiveFilter(Filter):
         return self.description_map[self.archive_state]
 
     def key(self):
-        if self.archive_state == False:
+        if not self.archive_state:
             return None
         return self.param_map[self.archive_state]
 
@@ -346,7 +346,6 @@ class DelegateFilter(Filter):
             self.delegate = None
             return
 
-        applied = False
         try:
             self.delegate = User.objects.get(id=str)
             self.applied = True
@@ -387,8 +386,8 @@ class DelegateFilter(Filter):
             if d == self.delegate:
                 selected = ' selected'
 
-            str += '<option %s value="%s">%s</option>' % (selected,
-                                                          d.id, d.profile.name())
+            str += '<option %s value="%s">%s</option>' % (
+                selected, d.id, d.profile.name())
         str += '</select>'
 
         return mark_safe(str)

@@ -24,12 +24,13 @@ from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
 from django.utils.six.moves import xmlrpc_client
 
-from patchwork.models import Person, Patch
+from patchwork.models import Patch
 from patchwork.tests.utils import defaults
 
 
 @unittest.skipUnless(settings.ENABLE_XMLRPC,
-                     "requires xmlrpc interface (use the ENABLE_XMLRPC setting)")
+                     'requires xmlrpc interface (use the ENABLE_XMLRPC '
+                     'setting)')
 class XMLRPCTest(LiveServerTestCase):
     fixtures = ['default_states']
 

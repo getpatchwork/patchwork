@@ -25,7 +25,6 @@ from email.utils import make_msgid
 import os
 
 from django.contrib.auth.models import User
-from django.forms.fields import EmailField
 
 from patchwork.models import Project, Person
 

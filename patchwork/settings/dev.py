@@ -11,7 +11,7 @@ from __future__ import absolute_import
 
 import django
 
-from .base import *
+from .base import *  # noqa
 
 #
 # Core settings

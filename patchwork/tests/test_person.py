@@ -20,13 +20,10 @@
 from __future__ import absolute_import
 
 import json
-import unittest
-
-from django.test.client import Client
 from django.test import TestCase
 from django.utils.six.moves import map, range
 
-from patchwork.models import EmailConfirmation, Person, Bundle
+from patchwork.models import Person
 
 
 class SubmitterCompletionTest(TestCase):

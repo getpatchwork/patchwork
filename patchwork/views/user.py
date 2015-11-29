@@ -62,8 +62,9 @@ def register(request):
             mail_ctx = {'site': Site.objects.get_current(),
                         'confirmation': conf}
 
-            subject = render_to_string('patchwork/activation_email_subject.txt',
-                                       mail_ctx).replace('\n', ' ').strip()
+            subject = render_to_string(
+                'patchwork/activation_email_subject.txt',
+                mail_ctx).replace('\n', ' ').strip()
 
             message = render_to_string('patchwork/activation_email.txt',
                                        mail_ctx)
