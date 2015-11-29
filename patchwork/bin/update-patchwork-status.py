@@ -25,9 +25,10 @@ from optparse import OptionParser
 import subprocess
 import sys
 
+
 def commits(options, revlist):
     cmd = ['git', 'rev-list', revlist]
-    proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, cwd = options.repodir)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=options.repodir)
 
     revs = []
 
@@ -36,9 +37,10 @@ def commits(options, revlist):
 
     return revs
 
+
 def commit(options, rev):
     cmd = ['git', 'diff', '%(rev)s^..%(rev)s' % {'rev': rev}]
-    proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, cwd = options.repodir)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=options.repodir)
 
     buf = proc.communicate()[0]
 
@@ -46,11 +48,11 @@ def commit(options, rev):
 
 
 def main(args):
-    parser = OptionParser(usage = '%prog [options] revspec')
-    parser.add_option("-p", "--project", dest = "project", action = 'store',
-                  help="use project PROJECT", metavar="PROJECT")
-    parser.add_option("-d", "--dir", dest = "repodir", action = 'store',
-                  help="use git repo in DIR", metavar="DIR")
+    parser = OptionParser(usage='%prog [options] revspec')
+    parser.add_option("-p", "--project", dest="project", action='store',
+                      help="use project PROJECT", metavar="PROJECT")
+    parser.add_option("-d", "--dir", dest="repodir", action='store',
+                      help="use git repo in DIR", metavar="DIR")
 
     (options, args) = parser.parse_args(args[1:])
 
@@ -67,4 +69,3 @@ def main(args):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
-

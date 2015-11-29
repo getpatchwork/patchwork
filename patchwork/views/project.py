@@ -25,16 +25,17 @@ from django.shortcuts import render_to_response, get_object_or_404
 from patchwork.models import Patch, Project
 from patchwork.requestcontext import PatchworkRequestContext
 
+
 def project(request, project_id):
     context = PatchworkRequestContext(request)
-    project = get_object_or_404(Project, linkname = project_id)
+    project = get_object_or_404(Project, linkname=project_id)
     context.project = project
 
-    context['maintainers'] = User.objects.filter( \
-            profile__maintainer_projects = project)
-    context['n_patches'] = Patch.objects.filter(project = project,
-            archived = False).count()
-    context['n_archived_patches'] = Patch.objects.filter(project = project,
-            archived = True).count()
+    context['maintainers'] = User.objects.filter(
+        profile__maintainer_projects=project)
+    context['n_patches'] = Patch.objects.filter(project=project,
+                                                archived=False).count()
+    context['n_archived_patches'] = Patch.objects.filter(project=project,
+                                                         archived=True).count()
 
     return render_to_response('patchwork/project.html', context)

@@ -37,11 +37,11 @@ class UTF8PatchViewTest(TestCase):
         defaults.project.save()
         defaults.patch_author_person.save()
         self.patch_content = read_patch(self.patch_filename,
-                encoding = self.patch_encoding)
-        self.patch = Patch(project = defaults.project,
-                           msgid = 'x', name = defaults.patch_name,
-                           submitter = defaults.patch_author_person,
-                           content = self.patch_content)
+                                        encoding=self.patch_encoding)
+        self.patch = Patch(project=defaults.project,
+                           msgid='x', name=defaults.patch_name,
+                           submitter=defaults.patch_author_person,
+                           content=self.patch_content)
         self.patch.save()
         self.client = Client()
 
@@ -52,19 +52,20 @@ class UTF8PatchViewTest(TestCase):
     def testMboxView(self):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.patch.content in \
-                response.content.decode(self.patch_encoding))
+        self.assertTrue(self.patch.content in
+                        response.content.decode(self.patch_encoding))
 
     def testRawView(self):
         response = self.client.get('/patch/%d/raw/' % self.patch.id)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode(self.patch_encoding),
-                self.patch.content)
+                         self.patch.content)
 
     def tearDown(self):
         self.patch.delete()
         defaults.patch_author_person.delete()
         defaults.project.delete()
+
 
 class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
     fixtures = ['default_states']
@@ -74,15 +75,15 @@ class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
 
     def setUp(self):
         defaults.project.save()
-        self.patch_author = Person(name = self.patch_author_name,
-            email = defaults.patch_author_person.email)
+        self.patch_author = Person(name=self.patch_author_name,
+                                   email=defaults.patch_author_person.email)
         self.patch_author.save()
         self.patch_content = read_patch(self.patch_filename,
-                encoding = self.patch_encoding)
-        self.patch = Patch(project = defaults.project,
-                           msgid = 'x', name = defaults.patch_name,
-                           submitter = self.patch_author,
-                           content = self.patch_content)
+                                        encoding=self.patch_encoding)
+        self.patch = Patch(project=defaults.project,
+                           msgid='x', name=defaults.patch_name,
+                           submitter=self.patch_author,
+                           content=self.patch_content)
         self.patch.save()
         self.client = Client()
 

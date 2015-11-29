@@ -33,13 +33,14 @@ from patchwork.paginator import Paginator
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Comment
 
+
 def generic_list(request, project, view,
-        view_args = {}, filter_settings = [], patches = None,
-        editable_order = False):
+                 view_args={}, filter_settings=[], patches=None,
+                 editable_order=False):
 
     context = PatchworkRequestContext(request,
-            list_view = view,
-            list_view_params = view_args)
+                                      list_view=view,
+                                      list_view_params=view_args)
 
     context.project = project
     data = {}
@@ -65,7 +66,7 @@ def generic_list(request, project, view,
         if data and data.get('form', '') == 'patchlistform':
             data_tmp = data
 
-        properties_form = MultiplePatchForm(project, data = data_tmp)
+        properties_form = MultiplePatchForm(project, data=data_tmp)
 
     if request.method == 'POST' and data.get('form') == 'patchlistform':
         action = data.get('action', '').lower()
@@ -75,7 +76,7 @@ def generic_list(request, project, view,
         if data.get('bundle_name', False):
             action = 'create'
 
-        ps = Patch.objects.filter(id__in = get_patch_ids(data))
+        ps = Patch.objects.filter(id__in=get_patch_ids(data))
 
         if action in bundle_actions:
             errors = set_bundle(user, project, action, data, ps, context)
@@ -118,11 +119,11 @@ def generic_list(request, project, view,
     paginator = Paginator(request, patches)
 
     context.update({
-            'page':             paginator.current_page,
-            'patchform':        properties_form,
-            'project':          project,
-            'order':            order,
-            })
+        'page':             paginator.current_page,
+        'patchform':        properties_form,
+        'project':          project,
+        'order':            order,
+    })
 
     return context
 
@@ -140,7 +141,7 @@ def process_multiplepatch_form(form, user, action, patches, context):
     for patch in patches:
         if not patch.is_editable(user):
             errors.append("You don't have permissions to edit patch '%s'"
-                            % patch.name)
+                          % patch.name)
             continue
 
         changed_patches += 1
@@ -155,20 +156,23 @@ def process_multiplepatch_form(form, user, action, patches, context):
 
     return errors
 
+
 class PatchMbox(MIMENonMultipart):
     patch_charset = 'utf-8'
+
     def __init__(self, _text):
         MIMENonMultipart.__init__(self, 'text', 'plain',
-                        **{'charset': self.patch_charset})
+                                  **{'charset': self.patch_charset})
         self.set_payload(_text.encode(self.patch_charset))
         encode_7or8bit(self)
+
 
 def patch_to_mbox(patch):
     postscript_re = re.compile('\n-{2,3} ?\n')
 
     comment = None
     try:
-        comment = Comment.objects.get(patch = patch, msgid = patch.msgid)
+        comment = Comment.objects.get(patch=patch, msgid=patch.msgid)
     except Exception:
         pass
 
@@ -184,8 +188,8 @@ def patch_to_mbox(patch):
     else:
         postscript = ''
 
-    for comment in Comment.objects.filter(patch = patch) \
-            .exclude(msgid = patch.msgid):
+    for comment in Comment.objects.filter(patch=patch) \
+            .exclude(msgid=patch.msgid):
         body += comment.patch_responses()
 
     if postscript:
@@ -195,17 +199,16 @@ def patch_to_mbox(patch):
         body += '\n' + patch.content
 
     delta = patch.date - datetime.datetime.utcfromtimestamp(0)
-    utc_timestamp = delta.seconds + delta.days*24*3600
+    utc_timestamp = delta.seconds + delta.days * 24 * 3600
 
     mail = PatchMbox(body)
     mail['Subject'] = patch.name
     mail['From'] = email.utils.formataddr((
-                    str(Header(patch.submitter.name, mail.patch_charset)),
-                    patch.submitter.email))
+        str(Header(patch.submitter.name, mail.patch_charset)),
+        patch.submitter.email))
     mail['X-Patchwork-Id'] = str(patch.id)
     mail['Message-Id'] = patch.msgid
     mail.set_unixfrom('From patchwork ' + patch.date.ctime())
-
 
     copied_headers = ['To', 'Cc', 'Date']
     orig_headers = HeaderParser().parsestr(str(patch.headers))

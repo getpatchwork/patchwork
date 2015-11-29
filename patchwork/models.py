@@ -517,6 +517,7 @@ class BundlePatch(models.Model):
 
 
 class Check(models.Model):
+
     """Check for a patch.
 
     Checks store the results of any tests executed (or executing) for a

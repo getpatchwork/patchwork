@@ -28,6 +28,7 @@ from patchwork.models import Patch, Project, Bundle
 from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list, patch_to_mbox
 
+
 def patch(request, patch_id):
     context = PatchworkRequestContext(request)
     patch = get_object_or_404(Patch, id=patch_id)
@@ -38,7 +39,7 @@ def patch(request, patch_id):
     createbundleform = None
 
     if editable:
-        form = PatchForm(instance = patch)
+        form = PatchForm(instance=patch)
     if request.user.is_authenticated():
         createbundleform = CreateBundleForm()
 
@@ -48,9 +49,9 @@ def patch(request, patch_id):
             action = action.lower()
 
         if action == 'createbundle':
-            bundle = Bundle(owner = request.user, project = patch.project)
-            createbundleform = CreateBundleForm(instance = bundle,
-                    data = request.POST)
+            bundle = Bundle(owner=request.user, project=patch.project)
+            createbundleform = CreateBundleForm(instance=bundle,
+                                                data=request.POST)
             if createbundleform.is_valid():
                 createbundleform.save()
                 bundle.append_patch(patch)
@@ -59,22 +60,22 @@ def patch(request, patch_id):
                 context.add_message('Bundle %s created' % bundle.name)
 
         elif action == 'addtobundle':
-            bundle = get_object_or_404(Bundle, id = \
-                        request.POST.get('bundle_id'))
+            bundle = get_object_or_404(
+                Bundle, id=request.POST.get('bundle_id'))
             try:
                 bundle.append_patch(patch)
                 bundle.save()
                 context.add_message('Patch added to bundle "%s"' % bundle.name)
             except Exception as ex:
-                context.add_message("Couldn't add patch '%s' to bundle %s: %s" \
-                        % (patch.name, bundle.name, ex.message))
+                context.add_message("Couldn't add patch '%s' to bundle %s: %s"
+                                    % (patch.name, bundle.name, ex.message))
 
         # all other actions require edit privs
         elif not editable:
             return HttpResponseForbidden()
 
         elif action is None:
-            form = PatchForm(data = request.POST, instance = patch)
+            form = PatchForm(data=request.POST, instance=patch)
             if form.is_valid():
                 form.save()
                 context.add_message('Patch updated')
@@ -86,6 +87,7 @@ def patch(request, patch_id):
 
     return render_to_response('patchwork/patch.html', context)
 
+
 def content(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     response = HttpResponse(content_type="text/x-patch")
@@ -93,6 +95,7 @@ def content(request, patch_id):
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename().replace(';', '').replace('\n', '')
     return response
+
 
 def mbox(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
@@ -110,5 +113,5 @@ def mbox(request, patch_id):
 def list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
     context = generic_list(request, project, 'patchwork.views.patch.list',
-            view_args = {'project_id': project.linkname})
+                           view_args={'project_id': project.linkname})
     return render_to_response('patchwork/list.html', context)

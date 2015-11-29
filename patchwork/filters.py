@@ -29,6 +29,7 @@ from patchwork.models import Person, State
 
 
 class Filter(object):
+
     def __init__(self, filters):
         self.filters = filters
         self.applied = False
@@ -68,7 +69,7 @@ class Filter(object):
     def form(self):
         if self.forced:
             return mark_safe('<input type="hidden" value="%s">%s' % (self.param,
-                        self.condition()))
+                                                                     self.condition()))
             return self.condition()
         return self._form()
 
@@ -81,6 +82,7 @@ class Filter(object):
 
 class SubmitterFilter(Filter):
     param = 'submitter'
+
     def __init__(self, filters):
         super(SubmitterFilter, self).__init__(filters)
         self.name = 'Submitter'
@@ -104,12 +106,11 @@ class SubmitterFilter(Filter):
             return
 
         if submitter_id:
-            self.person = Person.objects.get(id = int(str))
+            self.person = Person.objects.get(id=int(str))
             self.applied = True
             return
 
-
-        people = Person.objects.filter(name__icontains = str)
+        people = Person.objects.filter(name__icontains=str)
 
         if not people:
             return
@@ -122,7 +123,7 @@ class SubmitterFilter(Filter):
             user = self.person.user
             if user:
                 return {'submitter__in':
-                    Person.objects.filter(user = user).values('pk').query}
+                        Person.objects.filter(user=user).values('pk').query}
             return {'submitter': self.person}
 
         if self.person_match:
@@ -137,13 +138,14 @@ class SubmitterFilter(Filter):
         return ''
 
     def _form(self):
-        return mark_safe(('<input type="text" name="submitter" ' + \
+        return mark_safe(('<input type="text" name="submitter" ' +
                           'id="submitter_input" class="form-control">'))
 
     def key(self):
         if self.person:
             return self.person.id
         return self.person_match
+
 
 class StateFilter(Filter):
     param = 'state'
@@ -174,9 +176,9 @@ class StateFilter(Filter):
         if self.state is not None:
             return {'state': self.state}
         else:
-            return {'state__in': \
-                        State.objects.filter(action_required = True) \
-                            .values('pk').query}
+            return {'state__in':
+                    State.objects.filter(action_required=True)
+                    .values('pk').query}
 
     def condition(self):
         if self.state:
@@ -212,7 +214,7 @@ class StateFilter(Filter):
             str += '<option value="%d" %s>%s</option>' % \
                 (state.id, selected, state.name)
         str += '</select>'
-        return mark_safe(str);
+        return mark_safe(str)
 
     def form_function(self):
         return 'function(form) { return form.x.value }'
@@ -223,8 +225,10 @@ class StateFilter(Filter):
             qs += '&'
         return qs + '%s=%s' % (self.param, self.any_key)
 
+
 class SearchFilter(Filter):
     param = 'q'
+
     def __init__(self, filters):
         super(SearchFilter, self).__init__(filters)
         self.name = 'Search'
@@ -251,14 +255,16 @@ class SearchFilter(Filter):
         value = ''
         if self.search:
             value = escape(self.search)
-        return mark_safe('<input name="%s" class="form-control" value="%s">' %\
-                (self.param, value))
+        return mark_safe('<input name="%s" class="form-control" value="%s">' %
+                         (self.param, value))
 
     def form_function(self):
         return mark_safe('function(form) { return form.x.value }')
 
+
 class ArchiveFilter(Filter):
     param = 'archive'
+
     def __init__(self, filters):
         super(ArchiveFilter, self).__init__(filters)
         self.name = 'Archived'
@@ -304,15 +310,15 @@ class ArchiveFilter(Filter):
             selected = ''
             if self.archive_state == b:
                 selected = 'checked="true"'
-            s += ('<label class="checkbox-inline">' \
-                  ' <input type="radio" name="%(param)s" ' + \
-                           '%(selected)s value="%(value)s">%(label)s' + \
-                   '</label>') % \
-                    {'label': label,
-                     'param': self.param,
-                     'selected': selected,
-                     'value': self.param_map[b]
-                    }
+            s += ('<label class="checkbox-inline">'
+                  ' <input type="radio" name="%(param)s" ' +
+                  '%(selected)s value="%(value)s">%(label)s' +
+                  '</label>') % \
+                {'label': label,
+                 'param': self.param,
+                 'selected': selected,
+                 'value': self.param_map[b]
+                 }
         return mark_safe(s)
 
     def url_without_me(self):
@@ -342,7 +348,7 @@ class DelegateFilter(Filter):
 
         applied = False
         try:
-            self.delegate = User.objects.get(id = str)
+            self.delegate = User.objects.get(id=str)
             self.applied = True
         except:
             pass
@@ -358,8 +364,8 @@ class DelegateFilter(Filter):
         return self.no_delegate_str
 
     def _form(self):
-        delegates = User.objects.filter(profile__maintainer_projects =
-                self.filters.project)
+        delegates = User.objects.filter(
+            profile__maintainer_projects=self.filters.project)
 
         str = '<select name="delegate" class="form-control">'
 
@@ -374,7 +380,7 @@ class DelegateFilter(Filter):
             selected = 'selected'
 
         str += '<option %s value="%s">%s</option>' % \
-                (selected, self.no_delegate_key, self.no_delegate_str)
+            (selected, self.no_delegate_key, self.no_delegate_str)
 
         for d in delegates:
             selected = ''
@@ -382,7 +388,7 @@ class DelegateFilter(Filter):
                 selected = ' selected'
 
             str += '<option %s value="%s">%s</option>' % (selected,
-                    d.id, d.profile.name())
+                                                          d.id, d.profile.name())
         str += '</select>'
 
         return mark_safe(str)
@@ -402,11 +408,12 @@ class DelegateFilter(Filter):
             self.applied = False
             self.forced = True
 
-filterclasses = [SubmitterFilter, \
+filterclasses = [SubmitterFilter,
                  StateFilter,
                  SearchFilter,
                  ArchiveFilter,
                  DelegateFilter]
+
 
 class Filters:
 
@@ -435,10 +442,10 @@ class Filters:
         return queryset.filter(**kwargs)
 
     def params(self):
-        return [ (f.param, f.key()) for f in self._filters \
-                if f.key() is not None ]
+        return [(f.param, f.key()) for f in self._filters
+                if f.key() is not None]
 
-    def querystring(self, remove = None):
+    def querystring(self, remove=None):
         params = dict(self.params())
 
         for (k, v) in self.dict.items():
@@ -455,7 +462,7 @@ class Filters:
             return quote(s.encode('utf-8'))
 
         return '?' + '&'.join(['%s=%s' % (sanitise(k), sanitise(v))
-                                    for (k, v) in list(params.items())])
+                               for (k, v) in list(params.items())])
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)

@@ -29,52 +29,55 @@ from django.utils.six.moves import map
 
 register = template.Library()
 
+
 def _compile(t):
     (r, str) = t
     return (re.compile(r, re.M | re.I), str)
 
 _patch_span_res = list(map(_compile, [
-        ('^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
-        ('^\+.*$', 'p_add'),
-        ('^-.*$', 'p_del'),
-        ('^!.*$', 'p_mod'),
-        ]))
+    ('^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
+    ('^\+.*$', 'p_add'),
+    ('^-.*$', 'p_del'),
+    ('^!.*$', 'p_mod'),
+]))
 
 _patch_chunk_re = \
-        re.compile('^(@@ \-\d+(?:,\d+)? \+\d+(?:,\d+)? @@)(.*)$', re.M | re.I)
+    re.compile('^(@@ \-\d+(?:,\d+)? \+\d+(?:,\d+)? @@)(.*)$', re.M | re.I)
 
 _comment_span_res = list(map(_compile, [
-        ('^\s*Signed-off-by: .*$', 'signed-off-by'),
-        ('^\s*Acked-by: .*$', 'acked-by'),
-        ('^\s*Nacked-by: .*$', 'nacked-by'),
-        ('^\s*Tested-by: .*$', 'tested-by'),
-        ('^\s*Reviewed-by: .*$', 'reviewed-by'),
-        ('^\s*From: .*$', 'from'),
-        ('^\s*&gt;.*$', 'quote'),
-        ]))
+    ('^\s*Signed-off-by: .*$', 'signed-off-by'),
+    ('^\s*Acked-by: .*$', 'acked-by'),
+    ('^\s*Nacked-by: .*$', 'nacked-by'),
+    ('^\s*Tested-by: .*$', 'tested-by'),
+    ('^\s*Reviewed-by: .*$', 'reviewed-by'),
+    ('^\s*From: .*$', 'from'),
+    ('^\s*&gt;.*$', 'quote'),
+]))
 
 _span = '<span class="%s">%s</span>'
+
 
 @register.filter
 def patchsyntax(patch):
     content = escape(patch.content)
 
-    for (r,cls) in _patch_span_res:
+    for (r, cls) in _patch_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)
 
-    content = _patch_chunk_re.sub( \
-            lambda x: \
-                _span % ('p_chunk', x.group(1)) + ' ' + \
-                _span % ('p_context', x.group(2)), \
-            content)
+    content = _patch_chunk_re.sub(
+        lambda x:
+        _span % ('p_chunk', x.group(1)) + ' ' +
+        _span % ('p_context', x.group(2)),
+        content)
 
     return mark_safe(content)
+
 
 @register.filter
 def commentsyntax(comment):
     content = escape(comment.content)
 
-    for (r,cls) in _comment_span_res:
+    for (r, cls) in _comment_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)
 
     return mark_safe(content)

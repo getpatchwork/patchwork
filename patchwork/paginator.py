@@ -36,7 +36,9 @@ ADJACENT_PAGES = 1
 # parts from:
 #  http://blog.localkinegrinds.com/2007/09/06/digg-style-pagination-in-django/
 
+
 class Paginator(paginator.Paginator):
+
     def __init__(self, request, objects):
 
         patches_per_page = settings.DEFAULT_PATCHES_PER_PAGE
@@ -65,29 +67,28 @@ class Paginator(paginator.Paginator):
         pages = self.num_pages
 
         if pages <= LEADING_PAGE_RANGE_DISPLAYED:
-            self.adjacent_set = [n for n in range(1, pages + 1) \
-                           if n > 0 and n <= pages]
+            self.adjacent_set = [n for n in range(1, pages + 1)
+                                 if n > 0 and n <= pages]
         elif page_no <= LEADING_PAGE_RANGE:
-            self.adjacent_set = [n for n in \
-                           range(1, LEADING_PAGE_RANGE_DISPLAYED + 1) \
-                           if n > 0 and n <= pages]
-            self.leading_set = [n + pages for n in \
-                                      range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)]
+            self.adjacent_set = [n for n in
+                                 range(1, LEADING_PAGE_RANGE_DISPLAYED + 1)
+                                 if n > 0 and n <= pages]
+            self.leading_set = [n + pages for n in
+                                range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)]
         elif page_no > pages - TRAILING_PAGE_RANGE:
-            self.adjacent_set = [n for n in \
-                           range(pages - TRAILING_PAGE_RANGE_DISPLAYED + 1, \
-                                   pages + 1) if n > 0 and n <= pages]
-            self.trailing_set = [n + 1 for n in range(0, \
-                    NUM_PAGES_OUTSIDE_RANGE)]
+            self.adjacent_set = [n for n in
+                                 range(pages - TRAILING_PAGE_RANGE_DISPLAYED + 1,
+                                       pages + 1) if n > 0 and n <= pages]
+            self.trailing_set = [n + 1 for n in range(0,
+                                                      NUM_PAGES_OUTSIDE_RANGE)]
         else:
-            self.adjacent_set = [n for n in range(page_no - ADJACENT_PAGES, \
-                    page_no + ADJACENT_PAGES + 1) if n > 0 and n <= pages]
-            self.leading_set = [n + pages for n in \
-                    range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)]
-            self.trailing_set = [n + 1 for n in \
-                                           range(0, NUM_PAGES_OUTSIDE_RANGE)]
-
+            self.adjacent_set = [n for n in range(page_no - ADJACENT_PAGES,
+                                                  page_no + ADJACENT_PAGES + 1) if n > 0 and n <= pages]
+            self.leading_set = [n + pages for n in
+                                range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)]
+            self.trailing_set = [n + 1 for n in
+                                 range(0, NUM_PAGES_OUTSIDE_RANGE)]
 
         self.leading_set.reverse()
         self.long_page = \
-                len(self.current_page.object_list) >= LONG_PAGE_THRESHOLD
+            len(self.current_page.object_list) >= LONG_PAGE_THRESHOLD

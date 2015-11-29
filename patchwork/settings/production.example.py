@@ -32,7 +32,7 @@ from .base import *
 # Replace this with your own details
 
 ADMINS = (
-#    ('Jeremy Kerr', 'jk@ozlabs.org'),
+    #    ('Jeremy Kerr', 'jk@ozlabs.org'),
 )
 
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
@@ -58,4 +58,3 @@ DATABASES = {
 #
 
 STATIC_ROOT = '/srv/patchwork/htdocs/static'
-

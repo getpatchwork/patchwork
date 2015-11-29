@@ -122,7 +122,8 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
         except:
             # report exception back to server
             response = self.dumps(
-                six.moves.xmlrpc_client.Fault(1, '%s:%s' % (sys.exc_info()[0], sys.exc_info()[1])),
+                six.moves.xmlrpc_client.Fault(
+                    1, '%s:%s' % (sys.exc_info()[0], sys.exc_info()[1])),
             )
 
         return response
@@ -348,6 +349,7 @@ def check_to_dict(obj):
         'description': obj.description,
         'context': obj.context,
     }
+
 
 def patch_check_to_dict(obj):
     """Return a combined patch check."""

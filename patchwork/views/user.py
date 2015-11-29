@@ -37,6 +37,7 @@ from patchwork.models import (Project, Bundle, Person, EmailConfirmation,
 from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list
 
+
 def register(request):
     context = PatchworkRequestContext(request)
     if request.method == 'POST':
@@ -47,14 +48,14 @@ def register(request):
             user = auth.models.User.objects.create_user(data['username'],
                                                         data['email'],
                                                         data['password'])
-            user.is_active = False;
+            user.is_active = False
             user.first_name = data.get('first_name', '')
             user.last_name = data.get('last_name', '')
             user.save()
 
             # create confirmation
-            conf = EmailConfirmation(type = 'registration', user = user,
-                                     email = user.email)
+            conf = EmailConfirmation(type='registration', user=user,
+                                     email=user.email)
             conf.save()
 
             # send email
@@ -62,65 +63,68 @@ def register(request):
                         'confirmation': conf}
 
             subject = render_to_string('patchwork/activation_email_subject.txt',
-                                mail_ctx).replace('\n', ' ').strip()
-            
+                                       mail_ctx).replace('\n', ' ').strip()
+
             message = render_to_string('patchwork/activation_email.txt',
-                                    mail_ctx)
-            
+                                       mail_ctx)
+
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
-                            [conf.email])
+                      [conf.email])
 
             # setting 'confirmation' in the template indicates success
             context['confirmation'] = conf
 
     else:
         form = RegistrationForm()
-    
+
     return render_to_response('patchwork/registration_form.html',
-                              { 'form': form },
+                              {'form': form},
                               context_instance=context)
+
 
 def register_confirm(request, conf):
     conf.user.is_active = True
     conf.user.save()
     conf.deactivate()
     try:
-        person = Person.objects.get(email__iexact = conf.user.email)
+        person = Person.objects.get(email__iexact=conf.user.email)
     except Person.DoesNotExist:
-        person = Person(email = conf.user.email,
-                name = conf.user.profile.name())
+        person = Person(email=conf.user.email,
+                        name=conf.user.profile.name())
     person.user = conf.user
     person.save()
 
     return render_to_response('patchwork/registration-confirm.html')
+
 
 @login_required
 def profile(request):
     context = PatchworkRequestContext(request)
 
     if request.method == 'POST':
-        form = UserProfileForm(instance = request.user.profile,
-                data = request.POST)
+        form = UserProfileForm(instance=request.user.profile,
+                               data=request.POST)
         if form.is_valid():
             form.save()
     else:
-        form = UserProfileForm(instance = request.user.profile)
+        form = UserProfileForm(instance=request.user.profile)
 
     context.project = request.user.profile.primary_project
-    context['bundles'] = Bundle.objects.filter(owner = request.user)
+    context['bundles'] = Bundle.objects.filter(owner=request.user)
     context['profileform'] = form
 
     optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
-                        Person._meta.db_table,
-                        Person._meta.get_field('email').column,
-                        EmailOptout._meta.get_field('email').column,
-                        EmailOptout._meta.db_table)
-    people = Person.objects.filter(user = request.user) \
-             .extra(select = {'is_optout': optout_query})
+        Person._meta.db_table,
+        Person._meta.get_field('email').column,
+        EmailOptout._meta.get_field('email').column,
+        EmailOptout._meta.db_table)
+    people = Person.objects.filter(user=request.user) \
+        .extra(select={'is_optout': optout_query})
     context['linked_emails'] = people
     context['linkform'] = UserPersonLinkForm()
 
     return render_to_response('patchwork/profile.html', context)
+
 
 @login_required
 def link(request):
@@ -129,18 +133,18 @@ def link(request):
     if request.method == 'POST':
         form = UserPersonLinkForm(request.POST)
         if form.is_valid():
-            conf = EmailConfirmation(type = 'userperson',
-                    user = request.user,
-                    email = form.cleaned_data['email'])
+            conf = EmailConfirmation(type='userperson',
+                                     user=request.user,
+                                     email=form.cleaned_data['email'])
             conf.save()
             context['confirmation'] = conf
 
             try:
                 send_mail('Patchwork email address confirmation',
-                            render_to_string('patchwork/user-link.mail',
-                                context),
-                            settings.DEFAULT_FROM_EMAIL,
-                            [form.cleaned_data['email']])
+                          render_to_string('patchwork/user-link.mail',
+                                           context),
+                          settings.DEFAULT_FROM_EMAIL,
+                          [form.cleaned_data['email']])
             except Exception:
                 context['confirmation'] = None
                 context['error'] = 'An error occurred during confirmation. ' + \
@@ -151,14 +155,15 @@ def link(request):
 
     return render_to_response('patchwork/user-link.html', context)
 
+
 @login_required
 def link_confirm(request, conf):
     context = PatchworkRequestContext(request)
 
     try:
-        person = Person.objects.get(email__iexact = conf.email)
+        person = Person.objects.get(email__iexact=conf.email)
     except Person.DoesNotExist:
-        person = Person(email = conf.email)
+        person = Person(email=conf.email)
 
     person.link_to_user(conf.user)
     person.save()
@@ -168,9 +173,10 @@ def link_confirm(request, conf):
 
     return render_to_response('patchwork/user-link-confirm.html', context)
 
+
 @login_required
 def unlink(request, person_id):
-    person = get_object_or_404(Person, id = person_id)
+    person = get_object_or_404(Person, id=person_id)
 
     if request.method == 'POST':
         if person.email != request.user.email:
@@ -186,7 +192,7 @@ def todo_lists(request):
     todo_lists = []
 
     for project in Project.objects.all():
-        patches = request.user.profile.todo_patches(project = project)
+        patches = request.user.profile.todo_patches(project=project)
         if not patches.count():
             continue
 
@@ -200,19 +206,20 @@ def todo_lists(request):
     context.project = request.user.profile.primary_project
     return render_to_response('patchwork/todo-lists.html', context)
 
+
 @login_required
 def todo_list(request, project_id):
-    project = get_object_or_404(Project, linkname = project_id)
-    patches = request.user.profile.todo_patches(project = project)
+    project = get_object_or_404(Project, linkname=project_id)
+    patches = request.user.profile.todo_patches(project=project)
     filter_settings = [(DelegateFilter,
-            {'delegate': request.user})]
+                        {'delegate': request.user})]
 
     context = generic_list(request, project,
-            'patchwork.views.user.todo_list',
-            view_args = {'project_id': project.linkname},
-            filter_settings = filter_settings,
-            patches = patches)
+                           'patchwork.views.user.todo_list',
+                           view_args={'project_id': project.linkname},
+                           filter_settings=filter_settings,
+                           patches=patches)
 
     context['action_required_states'] = \
-        State.objects.filter(action_required = True).all()
+        State.objects.filter(action_required=True).all()
     return render_to_response('patchwork/todo-list.html', context)

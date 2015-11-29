@@ -31,6 +31,7 @@ from patchwork.filters import SubmitterFilter
 
 register = template.Library()
 
+
 @register.filter
 def personify(person, project):
 
@@ -39,10 +40,9 @@ def personify(person, project):
     else:
         linktext = escape(person.email)
 
-    url = reverse('patchwork.views.patch.list', kwargs = {'project_id' : project.linkname})
+    url = reverse(
+        'patchwork.views.patch.list', kwargs={'project_id': project.linkname})
     str = '<a href="%s?%s=%s">%s</a>' % \
-                (url, SubmitterFilter.param, escape(person.id), linktext)
+        (url, SubmitterFilter.param, escape(person.id), linktext)
 
     return mark_safe(str)
-
-

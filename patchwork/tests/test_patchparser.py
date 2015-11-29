@@ -69,13 +69,15 @@ class AttachmentPatchTest(InlinePatchTest):
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment, multipart = True)
-        attachment = MIMEText(self.orig_patch, _subtype = self.content_subtype)
+        email = create_email(self.test_comment, multipart=True)
+        attachment = MIMEText(self.orig_patch, _subtype=self.content_subtype)
         email.attach(attachment)
         (self.patch, self.comment) = find_content(self.project, email)
 
+
 class AttachmentXDiffPatchTest(AttachmentPatchTest):
     content_subtype = 'x-diff'
+
 
 class UTF8InlinePatchTest(InlinePatchTest):
     patch_filename = '0002-utf-8.patch'
@@ -84,10 +86,12 @@ class UTF8InlinePatchTest(InlinePatchTest):
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename, self.patch_encoding)
         email = create_email(self.test_comment + '\n' + self.orig_patch,
-                             content_encoding = self.patch_encoding)
+                             content_encoding=self.patch_encoding)
         (self.patch, self.comment) = find_content(self.project, email)
 
+
 class NoCharsetInlinePatchTest(InlinePatchTest):
+
     """ Test mails with no content-type or content-encoding header """
     patch_filename = '0001-add-line.patch'
 
@@ -98,15 +102,16 @@ class NoCharsetInlinePatchTest(InlinePatchTest):
         del email['Content-Transfer-Encoding']
         (self.patch, self.comment) = find_content(self.project, email)
 
+
 class SignatureCommentTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment'
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email( \
-                self.test_comment + '\n' + \
-                '-- \nsig\n' + self.orig_patch)
+        email = create_email(
+            self.test_comment + '\n' +
+            '-- \nsig\n' + self.orig_patch)
         (self.patch, self.comment) = find_content(self.project, email)
 
 
@@ -116,11 +121,11 @@ class ListFooterTest(InlinePatchTest):
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email( \
-                self.test_comment + '\n' + \
-                '_______________________________________________\n' + \
-                'Linuxppc-dev mailing list\n' + \
-                self.orig_patch)
+        email = create_email(
+            self.test_comment + '\n' +
+            '_______________________________________________\n' +
+            'Linuxppc-dev mailing list\n' +
+            self.orig_patch)
         (self.patch, self.comment) = find_content(self.project, email)
 
 
@@ -130,14 +135,18 @@ class DiffWordInCommentTest(InlinePatchTest):
 
 
 class UpdateCommentTest(InlinePatchTest):
+
     """ Test for '---\nUpdate: v2' style comments to patches. """
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
 
+
 class UpdateSigCommentTest(SignatureCommentTest):
+
     """ Test for '---\nUpdate: v2' style comments to patches, with a sig """
     patch_filename = '0001-add-line.patch'
     test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
+
 
 class SenderEncodingTest(TestCase):
     sender_name = u'example user'
@@ -163,11 +172,11 @@ class SenderEncodingTest(TestCase):
         self.assertEqual(self.person.email, self.sender_email)
 
     def testDBQueryName(self):
-        db_person = Person.objects.get(name = self.sender_name)
+        db_person = Person.objects.get(name=self.sender_name)
         self.assertEqual(self.person, db_person)
 
     def testDBQueryEmail(self):
-        db_person = Person.objects.get(email = self.sender_email)
+        db_person = Person.objects.get(email=self.sender_email)
         self.assertEqual(self.person, db_person)
 
 
@@ -175,12 +184,15 @@ class SenderUTF8QPEncodingTest(SenderEncodingTest):
     sender_name = u'\xe9xample user'
     from_header = '=?utf-8?q?=C3=A9xample=20user?= <user@example.com>'
 
+
 class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
     sender_name = u'\xe9xample user'
     from_header = '=?utf-8?q?=C3=A9xample?= user <user@example.com>'
 
+
 class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
     from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
+
 
 class SubjectEncodingTest(PatchTest):
     sender = 'example user <user@example.com>'
@@ -199,13 +211,16 @@ class SubjectEncodingTest(PatchTest):
         (patch, comment) = find_content(self.project, self.email)
         self.assertEqual(patch.name, self.subject)
 
+
 class SubjectUTF8QPEncodingTest(SubjectEncodingTest):
     subject = u'test s\xfcbject'
     subject_header = '=?utf-8?q?test=20s=c3=bcbject?='
 
+
 class SubjectUTF8QPMultipleEncodingTest(SubjectEncodingTest):
     subject = u'test s\xfcbject'
     subject_header = 'test =?utf-8?q?s=c3=bcbject?='
+
 
 class SenderCorrelationTest(TestCase):
     existing_sender = 'Existing Sender <existing@example.com>'
@@ -249,7 +264,9 @@ class SenderCorrelationTest(TestCase):
     def tearDown(self):
         self.person.delete()
 
+
 class MultipleProjectPatchTest(TestCase):
+
     """ Test that patches sent to multiple patchwork projects are
         handled correctly """
 
@@ -259,10 +276,10 @@ class MultipleProjectPatchTest(TestCase):
     msgid = '<1@example.com>'
 
     def setUp(self):
-        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
-                listid = '1.example.com', listemail='1@example.com')
-        self.p2 = Project(linkname = 'test-project-2', name = 'Project 2',
-                listid = '2.example.com', listemail='2@example.com')
+        self.p1 = Project(linkname='test-project-1', name='Project 1',
+                          listid='1.example.com', listemail='1@example.com')
+        self.p2 = Project(linkname='test-project-2', name='Project 2',
+                          listid='2.example.com', listemail='2@example.com')
 
         self.p1.save()
         self.p2.save()
@@ -281,8 +298,8 @@ class MultipleProjectPatchTest(TestCase):
         parse_mail(email)
 
     def testParsedProjects(self):
-        self.assertEqual(Patch.objects.filter(project = self.p1).count(), 1)
-        self.assertEqual(Patch.objects.filter(project = self.p2).count(), 1)
+        self.assertEqual(Patch.objects.filter(project=self.p1).count(), 1)
+        self.assertEqual(Patch.objects.filter(project=self.p2).count(), 1)
 
     def tearDown(self):
         self.p1.delete()
@@ -290,6 +307,7 @@ class MultipleProjectPatchTest(TestCase):
 
 
 class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
+
     """ Test that followups to multiple-project patches end up on the
         correct patch """
 
@@ -310,16 +328,19 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
 
     def testParsedComment(self):
         for project in [self.p1, self.p2]:
-            patch = Patch.objects.filter(project = project)[0]
+            patch = Patch.objects.filter(project=project)[0]
             # we should see two comments now - the original mail with the patch,
             # and the one we parsed in setUp()
-            self.assertEqual(Comment.objects.filter(patch = patch).count(), 2)
+            self.assertEqual(Comment.objects.filter(patch=patch).count(), 2)
+
 
 class ListIdHeaderTest(TestCase):
+
     """ Test that we parse List-Id headers from mails correctly """
+
     def setUp(self):
-        self.project = Project(linkname = 'test-project-1', name = 'Project 1',
-                listid = '1.example.com', listemail='1@example.com')
+        self.project = Project(linkname='test-project-1', name='Project 1',
+                               listid='1.example.com', listemail='1@example.com')
         self.project.save()
 
     def testNoListId(self):
@@ -362,9 +383,12 @@ class ListIdHeaderTest(TestCase):
     def tearDown(self):
         self.project.delete()
 
+
 class MBoxPatchTest(PatchTest):
+
     def setUp(self):
-        self.mail = read_mail(self.mail_file, project = self.project)
+        self.mail = read_mail(self.mail_file, project=self.project)
+
 
 class GitPullTest(MBoxPatchTest):
     mail_file = '0001-git-pull-request.mbox'
@@ -376,8 +400,10 @@ class GitPullTest(MBoxPatchTest):
         self.assertTrue(patch.content is None)
         self.assertTrue(comment is not None)
 
+
 class GitPullWrappedTest(GitPullTest):
     mail_file = '0002-git-pull-request-wrapped.mbox'
+
 
 class GitPullWithDiffTest(MBoxPatchTest):
     mail_file = '0003-git-pull-request-with-diff.mbox'
@@ -386,20 +412,25 @@ class GitPullWithDiffTest(MBoxPatchTest):
         (patch, comment) = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/' +
-             'linux-2.6-tip.git x86-fixes-for-linus', patch.pull_url)
+                         'linux-2.6-tip.git x86-fixes-for-linus', patch.pull_url)
         self.assertTrue(
-            patch.content.startswith('diff --git a/arch/x86/include/asm/smp.h'),
+            patch.content.startswith(
+                'diff --git a/arch/x86/include/asm/smp.h'),
             patch.content)
         self.assertTrue(comment is not None)
+
 
 class GitPullGitSSHUrlTest(GitPullTest):
     mail_file = '0004-git-pull-request-git+ssh.mbox'
 
+
 class GitPullSSHUrlTest(GitPullTest):
     mail_file = '0005-git-pull-request-ssh.mbox'
 
+
 class GitPullHTTPUrlTest(GitPullTest):
     mail_file = '0006-git-pull-request-http.mbox'
+
 
 class GitRenameOnlyTest(MBoxPatchTest):
     mail_file = '0008-git-rename.mbox'
@@ -410,6 +441,7 @@ class GitRenameOnlyTest(MBoxPatchTest):
         self.assertTrue(comment is not None)
         self.assertEqual(patch.content.count("\nrename from "), 2)
         self.assertEqual(patch.content.count("\nrename to "), 2)
+
 
 class GitRenameWithDiffTest(MBoxPatchTest):
     mail_file = '0009-git-rename-with-diff.mbox'
@@ -422,6 +454,7 @@ class GitRenameWithDiffTest(MBoxPatchTest):
         self.assertEqual(patch.content.count("\nrename to "), 2)
         self.assertEqual(patch.content.count('\n-a\n+b'), 1)
 
+
 class CVSFormatPatchTest(MBoxPatchTest):
     mail_file = '0007-cvs-format-diff.mbox'
 
@@ -431,7 +464,9 @@ class CVSFormatPatchTest(MBoxPatchTest):
         self.assertTrue(comment is not None)
         self.assertTrue(patch.content.startswith('Index'))
 
+
 class CharsetFallbackPatchTest(MBoxPatchTest):
+
     """ Test mail with and invalid charset name, and check that we can parse
         with one of the fallback encodings"""
 
@@ -442,6 +477,7 @@ class CharsetFallbackPatchTest(MBoxPatchTest):
         self.assertTrue(patch is not None)
         self.assertTrue(comment is not None)
 
+
 class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
     mail_file = '0011-no-newline-at-end-of-file.mbox'
 
@@ -449,13 +485,17 @@ class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
         (patch, comment) = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertTrue(comment is not None)
-        self.assertTrue(patch.content.startswith('diff --git a/tools/testing/selftests/powerpc/Makefile'))
+        self.assertTrue(patch.content.startswith(
+            'diff --git a/tools/testing/selftests/powerpc/Makefile'))
         # Confirm the trailing no newline marker doesn't end up in the comment
-        self.assertFalse(comment.content.rstrip().endswith('\ No newline at end of file'))
+        self.assertFalse(
+            comment.content.rstrip().endswith('\ No newline at end of file'))
         # Confirm it's instead at the bottom of the patch
-        self.assertTrue(patch.content.rstrip().endswith('\ No newline at end of file'))
+        self.assertTrue(
+            patch.content.rstrip().endswith('\ No newline at end of file'))
         # Confirm we got both markers
         self.assertEqual(2, patch.content.count('\ No newline at end of file'))
+
 
 class DelegateRequestTest(TestCase):
     fixtures = ['default_states']
@@ -466,8 +506,8 @@ class DelegateRequestTest(TestCase):
     def setUp(self):
         self.patch = read_patch(self.patch_filename)
         self.user = create_user()
-        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
-                listid = '1.example.com', listemail='1@example.com')
+        self.p1 = Project(linkname='test-project-1', name='Project 1',
+                          listid='1.example.com', listemail='1@example.com')
         self.p1.save()
 
     def get_email(self):
@@ -503,6 +543,7 @@ class DelegateRequestTest(TestCase):
         self.p1.delete()
         self.user.delete()
 
+
 class InitialPatchStateTest(TestCase):
     fixtures = ['default_states']
     patch_filename = '0001-add-line.patch'
@@ -512,8 +553,8 @@ class InitialPatchStateTest(TestCase):
     def setUp(self):
         self.patch = read_patch(self.patch_filename)
         self.user = create_user()
-        self.p1 = Project(linkname = 'test-project-1', name = 'Project 1',
-                listid = '1.example.com', listemail='1@example.com')
+        self.p1 = Project(linkname='test-project-1', name='Project 1',
+                          listid='1.example.com', listemail='1@example.com')
         self.p1.save()
         self.default_state = get_default_initial_patch_state()
         self.nondefault_state = State.objects.get(name="Accepted")
@@ -564,11 +605,12 @@ class InitialPatchStateTest(TestCase):
         self.p1.delete()
         self.user.delete()
 
+
 class ParseInitialTagsTest(PatchTest):
     patch_filename = '0001-add-line.patch'
     test_comment = ('test comment\n\n' +
-        'Tested-by: Test User <test@example.com>\n' +
-        'Reviewed-by: Test User <test@example.com>\n')
+                    'Tested-by: Test User <test@example.com>\n' +
+                    'Reviewed-by: Test User <test@example.com>\n')
     fixtures = ['default_tags', 'default_states']
 
     def setUp(self):
@@ -577,7 +619,7 @@ class ParseInitialTagsTest(PatchTest):
         project.save()
         self.orig_patch = read_patch(self.patch_filename)
         email = create_email(self.test_comment + '\n' + self.orig_patch,
-                             project = project)
+                             project=project)
         email['Message-Id'] = '<1@example.com>'
         parse_mail(email)
 
@@ -585,11 +627,12 @@ class ParseInitialTagsTest(PatchTest):
         self.assertEqual(Patch.objects.count(), 1)
         patch = Patch.objects.all()[0]
         self.assertEqual(patch.patchtag_set.filter(
-                            tag__name='Acked-by').count(), 0)
+            tag__name='Acked-by').count(), 0)
         self.assertEqual(patch.patchtag_set.get(
-                            tag__name='Reviewed-by').count, 1)
+            tag__name='Reviewed-by').count, 1)
         self.assertEqual(patch.patchtag_set.get(
-                            tag__name='Tested-by').count, 1)
+            tag__name='Tested-by').count, 1)
+
 
 class PrefixTest(TestCase):
 
@@ -602,6 +645,7 @@ class PrefixTest(TestCase):
         self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
         self.assertEqual(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
 
+
 class SubjectTest(TestCase):
 
     def testCleanSubject(self):
@@ -613,18 +657,18 @@ class SubjectTest(TestCase):
         self.assertEqual(clean_subject('[PATCH,RFC] meep'), '[RFC] meep')
         self.assertEqual(clean_subject('[PATCH,1/2] meep'), '[1/2] meep')
         self.assertEqual(clean_subject('[PATCH RFC 1/2] meep'),
-                                            '[RFC,1/2] meep')
+                         '[RFC,1/2] meep')
         self.assertEqual(clean_subject('[PATCH] [RFC] meep'),
-                                            '[RFC] meep')
+                         '[RFC] meep')
         self.assertEqual(clean_subject('[PATCH] [RFC,1/2] meep'),
-                                            '[RFC,1/2] meep')
+                         '[RFC,1/2] meep')
         self.assertEqual(clean_subject('[PATCH] [RFC] [1/2] meep'),
-                                            '[RFC,1/2] meep')
+                         '[RFC,1/2] meep')
         self.assertEqual(clean_subject('[PATCH] rewrite [a-z] regexes'),
-                                            'rewrite [a-z] regexes')
+                         'rewrite [a-z] regexes')
         self.assertEqual(clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
-                                            '[RFC] rewrite [a-z] regexes')
+                         '[RFC] rewrite [a-z] regexes')
         self.assertEqual(clean_subject('[foo] [bar] meep', ['foo']),
-                                            '[bar] meep')
+                         '[bar] meep')
         self.assertEqual(clean_subject('[FOO] [bar] meep', ['foo']),
-                                            '[bar] meep')
+                         '[bar] meep')

@@ -25,7 +25,8 @@ from patchwork.models import EmailConfirmation, Person
 
 
 def _confirmation_url(conf):
-    return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
+    return reverse('patchwork.views.confirm', kwargs={'key': conf.key})
+
 
 class TestUser(object):
     username = 'testuser'
@@ -36,16 +37,18 @@ class TestUser(object):
     def __init__(self):
         self.password = User.objects.make_random_password()
         self.user = User.objects.create_user(self.username,
-                            self.email, self.password)
+                                             self.email, self.password)
+
 
 class InvalidConfirmationTest(TestCase):
+
     def setUp(self):
         EmailConfirmation.objects.all().delete()
         Person.objects.all().delete()
         self.user = TestUser()
-        self.conf = EmailConfirmation(type = 'userperson',
-                                      email = self.user.secondary_email,
-                                      user = self.user.user)
+        self.conf = EmailConfirmation(type='userperson',
+                                      email=self.user.secondary_email,
+                                      user=self.user.user)
         self.conf.save()
 
     def testInactiveConfirmation(self):
@@ -65,4 +68,3 @@ class InvalidConfirmationTest(TestCase):
         self.assertTemplateUsed(response, 'patchwork/confirm-error.html')
         self.assertEqual(response.context['error'], 'expired')
         self.assertEqual(response.context['conf'], self.conf)
-

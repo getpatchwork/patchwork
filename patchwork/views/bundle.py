@@ -32,6 +32,7 @@ from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.utils import get_patch_ids
 from patchwork.views import generic_list, patch_to_mbox
 
+
 @login_required
 def setbundle(request):
     context = PatchworkRequestContext(request)
@@ -44,13 +45,13 @@ def setbundle(request):
             pass
         elif action == 'create':
             project = get_object_or_404(Project,
-                    id = request.POST.get('project'))
-            bundle = Bundle(owner = request.user, project = project,
-                    name = request.POST['name'])
+                                        id=request.POST.get('project'))
+            bundle = Bundle(owner=request.user, project=project,
+                            name=request.POST['name'])
             bundle.save()
             patch_id = request.POST.get('patch_id', None)
             if patch_id:
-                patch = get_object_or_404(Patch, id = patch_id)
+                patch = get_object_or_404(Patch, id=patch_id)
                 try:
                     bundle.append_patch(patch)
                 except Exception:
@@ -58,7 +59,7 @@ def setbundle(request):
             bundle.save()
         elif action == 'add':
             bundle = get_object_or_404(Bundle,
-                    owner = request.user, id = request.POST['id'])
+                                       owner=request.user, id=request.POST['id'])
             bundle.save()
 
             patch_id = request.get('patch_id', None)
@@ -69,7 +70,7 @@ def setbundle(request):
 
             for id in patch_ids:
                 try:
-                    patch = Patch.objects.get(id = id)
+                    patch = Patch.objects.get(id=id)
                     bundle.append_patch(patch)
                 except:
                     pass
@@ -77,8 +78,8 @@ def setbundle(request):
             bundle.save()
         elif action == 'delete':
             try:
-                bundle = Bundle.objects.get(owner = request.user,
-                        id = request.POST['id'])
+                bundle = Bundle.objects.get(owner=request.user,
+                                            id=request.POST['id'])
                 bundle.delete()
             except Exception:
                 pass
@@ -86,24 +87,25 @@ def setbundle(request):
             bundle = None
 
     else:
-        bundle = get_object_or_404(Bundle, owner = request.user,
-                id = request.POST['bundle_id'])
+        bundle = get_object_or_404(Bundle, owner=request.user,
+                                   id=request.POST['bundle_id'])
 
     if 'error' in context:
         pass
 
     if bundle:
         return HttpResponseRedirect(
-                django.core.urlresolvers.reverse(
-                    'patchwork.views.bundle.bundle',
-                    kwargs = {'bundle_id': bundle.id}
-                    )
-                )
+            django.core.urlresolvers.reverse(
+                'patchwork.views.bundle.bundle',
+                kwargs={'bundle_id': bundle.id}
+            )
+        )
     else:
         return HttpResponseRedirect(
-                django.core.urlresolvers.reverse(
-                    'patchwork.views.bundle.list')
-                )
+            django.core.urlresolvers.reverse(
+                'patchwork.views.bundle.list')
+        )
+
 
 @login_required
 def bundles(request):
@@ -116,21 +118,22 @@ def bundles(request):
             form = DeleteBundleForm(request.POST)
             if form.is_valid():
                 bundle = get_object_or_404(Bundle,
-                    id = form.cleaned_data['bundle_id'])
+                                           id=form.cleaned_data['bundle_id'])
                 bundle.delete()
 
-    bundles = Bundle.objects.filter(owner = request.user)
+    bundles = Bundle.objects.filter(owner=request.user)
     for bundle in bundles:
-        bundle.delete_form = DeleteBundleForm(auto_id = False,
-                initial = {'bundle_id': bundle.id})
+        bundle.delete_form = DeleteBundleForm(auto_id=False,
+                                              initial={'bundle_id': bundle.id})
 
     context['bundles'] = bundles
 
     return render_to_response('patchwork/bundles.html', context)
 
+
 def bundle(request, username, bundlename):
-    bundle = get_object_or_404(Bundle, owner__username = username,
-                                name = bundlename)
+    bundle = get_object_or_404(Bundle, owner__username=username,
+                               name=bundlename)
     filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
 
     is_owner = request.user == bundle.owner
@@ -144,32 +147,32 @@ def bundle(request, username, bundlename):
             if action == 'delete':
                 bundle.delete()
                 return HttpResponseRedirect(
-                        django.core.urlresolvers.reverse(
-                            'patchwork.views.user.profile')
-                        )
+                    django.core.urlresolvers.reverse(
+                        'patchwork.views.user.profile')
+                )
             elif action == 'update':
-                form = BundleForm(request.POST, instance = bundle)
+                form = BundleForm(request.POST, instance=bundle)
                 if form.is_valid():
                     form.save()
 
                 # if we've changed the bundle name, redirect to new URL
-                bundle = Bundle.objects.get(pk = bundle.pk)
+                bundle = Bundle.objects.get(pk=bundle.pk)
                 if bundle.name != bundlename:
                     return HttpResponseRedirect(bundle.get_absolute_url())
 
             else:
-                form = BundleForm(instance = bundle)
+                form = BundleForm(instance=bundle)
         else:
-            form = BundleForm(instance = bundle)
+            form = BundleForm(instance=bundle)
 
         if request.method == 'POST' and \
-                           request.POST.get('form') == 'reorderform':
-            order = get_object_or_404(BundlePatch, bundle = bundle,
-                            patch__id = request.POST.get('order_start')).order
+                request.POST.get('form') == 'reorderform':
+            order = get_object_or_404(BundlePatch, bundle=bundle,
+                                      patch__id=request.POST.get('order_start')).order
 
             for patch_id in request.POST.getlist('neworder'):
                 bundlepatch = get_object_or_404(BundlePatch,
-                            bundle = bundle, patch__id = patch_id)
+                                                bundle=bundle, patch__id=patch_id)
                 bundlepatch.order = order
                 bundlepatch.save()
                 order += 1
@@ -177,48 +180,48 @@ def bundle(request, username, bundlename):
         form = None
 
     context = generic_list(request, bundle.project,
-            'patchwork.views.bundle.bundle',
-            view_args = {'username': bundle.owner.username,
-                         'bundlename': bundle.name},
-            filter_settings = filter_settings,
-            patches = bundle.ordered_patches(),
-            editable_order = is_owner)
+                           'patchwork.views.bundle.bundle',
+                           view_args={'username': bundle.owner.username,
+                                      'bundlename': bundle.name},
+                           filter_settings=filter_settings,
+                           patches=bundle.ordered_patches(),
+                           editable_order=is_owner)
 
     context['bundle'] = bundle
     context['bundleform'] = form
 
     return render_to_response('patchwork/bundle.html', context)
 
+
 def mbox(request, username, bundlename):
-    bundle = get_object_or_404(Bundle, owner__username = username,
-                                name = bundlename)
+    bundle = get_object_or_404(Bundle, owner__username=username,
+                               name=bundlename)
 
     if not (request.user == bundle.owner or bundle.public):
         return HttpResponseNotFound()
 
     mbox = '\n'.join([patch_to_mbox(p).as_string(True)
-                        for p in bundle.ordered_patches()])
+                      for p in bundle.ordered_patches()])
 
     response = HttpResponse(content_type='text/plain')
     response['Content-Disposition'] = \
-	'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+        'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
 
     response.write(mbox)
     return response
 
+
 @login_required
 def bundle_redir(request, bundle_id):
-    bundle = get_object_or_404(Bundle, id = bundle_id, owner = request.user)
+    bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(bundle.get_absolute_url())
+
 
 @login_required
 def mbox_redir(request, bundle_id):
-    bundle = get_object_or_404(Bundle, id = bundle_id, owner = request.user)
+    bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(django.core.urlresolvers.reverse(
-                                'patchwork.views.bundle.mbox', kwargs = {
+                                'patchwork.views.bundle.mbox', kwargs={
                                     'username': request.user.username,
                                     'bundlename': bundle.name,
                                 }))
-
-
-

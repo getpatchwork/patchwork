@@ -160,4 +160,3 @@ class PatchChecksTest(TransactionTestCase):
         self.create_check()
         self.create_check(context='new/test1')
         self.assertCheckEqual(self.patch, Check.STATE_SUCCESS)
-

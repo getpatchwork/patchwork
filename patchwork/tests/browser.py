@@ -27,13 +27,14 @@ if django.VERSION < (1, 7):
 else:
     from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.common.exceptions import (
-        NoSuchElementException, StaleElementReferenceException,
-        TimeoutException)
+    NoSuchElementException, StaleElementReferenceException,
+    TimeoutException)
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Wait(WebDriverWait):
+
     """Subclass of WebDriverWait.
 
     Includes a predetermined timeout and poll frequency. Also deals with a

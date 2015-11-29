@@ -22,6 +22,7 @@ from patchwork.tests.test_user import TestUser
 
 
 class LoginTestCase(SeleniumTestCase):
+
     def setUp(self):
         super(LoginTestCase, self).setUp()
         self.user = TestUser()

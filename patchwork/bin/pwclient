@@ -56,8 +56,11 @@ except NameError:
 DEFAULT_URL = "http://patchwork/xmlrpc/"
 CONFIG_FILE = os.path.expanduser('~/.pwclientrc')
 
+
 class Filter(object):
+
     """Filter for selecting patches."""
+
     def __init__(self):
         # These fields refer to specific objects, so they are special
         # because we have to resolve them to IDs before passing the
@@ -82,7 +85,7 @@ class Filter(object):
         if self.state != "":
             id = state_id_by_name(rpc, self.state)
             if id == 0:
-                sys.stderr.write("Note: No State found matching %s*, " \
+                sys.stderr.write("Note: No State found matching %s*, "
                                  "ignoring filter\n" % self.state)
             else:
                 self.d['state_id'] = id
@@ -90,7 +93,7 @@ class Filter(object):
         if self.project != None:
             id = project_id_by_name(rpc, self.project)
             if id == 0:
-                sys.stderr.write("Note: No Project found matching %s, " \
+                sys.stderr.write("Note: No Project found matching %s, "
                                  "ignoring filter\n" % self.project)
             else:
                 self.d['project_id'] = id
@@ -99,9 +102,10 @@ class Filter(object):
         """Return human-readable description of the filter."""
         return str(self.d)
 
+
 class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
 
-    def __init__(self, username = None, password = None, use_https = False):
+    def __init__(self, username=None, password=None, use_https=False):
         self.username = username
         self.password = password
         self.use_https = use_https
@@ -125,6 +129,7 @@ class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
             fn = xmlrpclib.Transport.make_connection
         return fn(self, host)
 
+
 def project_id_by_name(rpc, linkname):
     """Given a project short name, look up the Project ID."""
     if len(linkname) == 0:
@@ -134,6 +139,7 @@ def project_id_by_name(rpc, linkname):
         if project['linkname'] == linkname:
             return project['id']
     return 0
+
 
 def state_id_by_name(rpc, name):
     """Given a partial state name, look up the state ID."""
@@ -145,6 +151,7 @@ def state_id_by_name(rpc, name):
             return state['id']
     return 0
 
+
 def person_ids_by_name(rpc, name):
     """Given a partial name or email address, return a list of the
     person IDs that match."""
@@ -152,6 +159,7 @@ def person_ids_by_name(rpc, name):
         return []
     people = rpc.person_list(name, 0)
     return [x['id'] for x in people]
+
 
 def list_patches(patches, format_str=None):
     """Dump a list of patches to stdout."""
@@ -175,7 +183,9 @@ def list_patches(patches, format_str=None):
         print("%-7s %-12s %s" % ("ID", "State", "Name"))
         print("%-7s %-12s %s" % ("--", "-----", "----"))
         for patch in patches:
-            print("%-7d %-12s %s" % (patch['id'], patch['state'], patch['name']))
+            print("%-7d %-12s %s" %
+                  (patch['id'], patch['state'], patch['name']))
+
 
 def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     filter.resolve_ids(rpc)
@@ -183,7 +193,7 @@ def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     if submitter_str != None:
         ids = person_ids_by_name(rpc, submitter_str)
         if len(ids) == 0:
-            sys.stderr.write("Note: Nobody found matching *%s*\n" % \
+            sys.stderr.write("Note: Nobody found matching *%s*\n" %
                              submitter_str)
         else:
             for id in ids:
@@ -200,7 +210,7 @@ def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     if delegate_str != None:
         ids = person_ids_by_name(rpc, delegate_str)
         if len(ids) == 0:
-            sys.stderr.write("Note: Nobody found matching *%s*\n" % \
+            sys.stderr.write("Note: Nobody found matching *%s*\n" %
                              delegate_str)
         else:
             for id in ids:
@@ -216,19 +226,22 @@ def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
     patches = rpc.patch_list(filter.d)
     list_patches(patches, format_str)
 
+
 def action_projects(rpc):
     projects = rpc.project_list("", 0)
     print("%-5s %-24s %s" % ("ID", "Name", "Description"))
     print("%-5s %-24s %s" % ("--", "----", "-----------"))
     for project in projects:
-        print("%-5d %-24s %s" % (project['id'], \
-                project['linkname'], \
-                project['name']))
+        print("%-5d %-24s %s" % (project['id'],
+                                 project['linkname'],
+                                 project['name']))
+
 
 def action_checks(rpc):
     checks = rpc.check_list("", 0)
     for check in checks:
         print("%d (for '%s')" % (check['id'], check['patch']))
+
 
 def action_states(rpc):
     states = rpc.state_list("", 0)
@@ -237,6 +250,7 @@ def action_states(rpc):
     for state in states:
         print("%-5d %s" % (state['id'], state['name']))
 
+
 def action_info(rpc, patch_id):
     patch = rpc.patch_get(patch_id)
     s = "Information for patch id %d" % (patch_id)
@@ -244,6 +258,7 @@ def action_info(rpc, patch_id):
     print('-' * len(s))
     for key, value in sorted(patch.items()):
         print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
+
 
 def action_get(rpc, patch_id):
     patch = rpc.patch_get(patch_id)
@@ -273,34 +288,36 @@ def action_get(rpc, patch_id):
         sys.stderr.write("Failed to write to %s\n" % fname)
         sys.exit(1)
 
+
 def action_apply(rpc, patch_id, apply_cmd=None):
     patch = rpc.patch_get(patch_id)
     if patch == {}:
-        sys.stderr.write("Error getting information on patch ID %d\n" % \
+        sys.stderr.write("Error getting information on patch ID %d\n" %
                          patch_id)
         sys.exit(1)
 
     if apply_cmd is None:
-      print('Applying patch #%d to current directory' % patch_id)
-      apply_cmd = ['patch', '-p1']
+        print('Applying patch #%d to current directory' % patch_id)
+        apply_cmd = ['patch', '-p1']
     else:
-      print('Applying patch #%d using %s' %
-            (patch_id, repr(' '.join(apply_cmd))))
+        print('Applying patch #%d using %s' %
+              (patch_id, repr(' '.join(apply_cmd))))
 
     print('Description: %s' % patch['name'])
     s = rpc.patch_get_mbox(patch_id)
     if len(s) > 0:
-        proc = subprocess.Popen(apply_cmd, stdin = subprocess.PIPE)
+        proc = subprocess.Popen(apply_cmd, stdin=subprocess.PIPE)
         proc.communicate(unicode(s).encode('utf-8'))
         return proc.returncode
     else:
         sys.stderr.write("Error: No patch content found\n")
         sys.exit(1)
 
-def action_update_patch(rpc, patch_id, state = None, archived = None, commit = None):
+
+def action_update_patch(rpc, patch_id, state=None, archived=None, commit=None):
     patch = rpc.patch_get(patch_id)
     if patch == {}:
-        sys.stderr.write("Error getting information on patch ID %d\n" % \
+        sys.stderr.write("Error getting information on patch ID %d\n" %
                          patch_id)
         sys.exit(1)
 
@@ -328,6 +345,7 @@ def action_update_patch(rpc, patch_id, state = None, archived = None, commit = N
     if not success:
         sys.stderr.write("Patch not updated\n")
 
+
 def patch_id_from_hash(rpc, project, hash):
     try:
         patch = rpc.patch_get_by_project_hash(project, hash)
@@ -351,6 +369,7 @@ def patch_id_from_hash(rpc, project, hash):
 
 auth_actions = ['update']
 
+
 def main():
     hash_parser = argparse.ArgumentParser(add_help=False)
     hash_parser.add_argument(
@@ -372,7 +391,7 @@ def main():
         help='''Filter by patch state (e.g., 'New', 'Accepted', etc.)'''
     )
     filter_parser.add_argument(
-        '-a', choices=['yes','no'],
+        '-a', choices=['yes', 'no'],
         help='''Filter by patch archived state'''
     )
     filter_parser.add_argument(
@@ -399,7 +418,7 @@ def main():
     filter_parser.add_argument(
         '-f', metavar='FORMAT',
         help='''Print output in the given format. You can use tags matching '''
-            '''fields, e.g. %%{id}, %%{state}, or %%{msgid}.'''
+        '''fields, e.g. %%{id}, %%{state}, or %%{msgid}.'''
     )
     filter_parser.add_argument(
         'patch_name', metavar='STR', nargs='?',
@@ -479,17 +498,17 @@ def main():
     )
     update_parser.set_defaults(subcmd='update')
     list_parser = subparsers.add_parser("list",
-        #aliases=['search'],
-        parents=[filter_parser],
-        help='''List patches, using the optional filters specified
+                                        # aliases=['search'],
+                                        parents=[filter_parser],
+                                        help='''List patches, using the optional filters specified
         below and an optional substring to search for patches
         by name'''
-    )
+                                        )
     list_parser.set_defaults(subcmd='list')
     search_parser = subparsers.add_parser("search",
-        parents=[filter_parser],
-        help='''Alias for "list"'''
-    )
+                                          parents=[filter_parser],
+                                          help='''Alias for "list"'''
+                                          )
     # Poor man's argparse aliases:
     # We register the "search" parser but effectively use "list" for the
     # help-text.
@@ -505,7 +524,7 @@ def main():
     if args.get('hash') and len(args.get('id')):
         # mimic mutual exclusive group
         locals()[action + '_parser'].error(
-                "[-h HASH] and [ID [ID ...]] are mutually exlusive")
+            "[-h HASH] and [ID [ID ...]] are mutually exlusive")
 
     # set defaults
     filt = Filter()
@@ -524,11 +543,13 @@ def main():
     if args.get('c'):
         # update multiple IDs with a single commit-hash does not make sense
         if action == 'update' and patch_ids and len(patch_ids) > 1:
-            update_parser.error("Declining update with COMMIT-REF on multiple IDs")
+            update_parser.error(
+                "Declining update with COMMIT-REF on multiple IDs")
         commit_str = args.get('c')
 
     if state_str is None and archived_str is None and action == 'update':
-        update_parser.error('Must specify one or more update options (-a or -s)')
+        update_parser.error(
+            'Must specify one or more update options (-a or -s)')
 
     if args.get('n') != None:
         try:
@@ -545,29 +566,33 @@ def main():
     if not config.has_section('options') and os.path.exists(CONFIG_FILE):
         sys.stderr.write('~/.pwclientrc is in the old format. Migrating it...')
 
-        old_project = config.get('base','project')
+        old_project = config.get('base', 'project')
 
         new_config = ConfigParser.ConfigParser()
         new_config.add_section('options')
 
-        new_config.set('options','default',old_project)
+        new_config.set('options', 'default', old_project)
         new_config.add_section(old_project)
 
-        new_config.set(old_project,'url',config.get('base','url'))
+        new_config.set(old_project, 'url', config.get('base', 'url'))
         if config.has_option('auth', 'username'):
-            new_config.set(old_project,'username',config.get('auth','username'))
+            new_config.set(
+                old_project, 'username', config.get('auth', 'username'))
         if config.has_option('auth', 'password'):
-            new_config.set(old_project,'password',config.get('auth','password'))
+            new_config.set(
+                old_project, 'password', config.get('auth', 'password'))
 
         old_config_file = CONFIG_FILE + '.orig'
-        shutil.copy2(CONFIG_FILE,old_config_file)
+        shutil.copy2(CONFIG_FILE, old_config_file)
 
         with open(CONFIG_FILE, 'wb') as fd:
             new_config.write(fd)
 
         sys.stderr.write(' Done.\n')
-        sys.stderr.write('Your old ~/.pwclientrc was saved to %s\n' % old_config_file)
-        sys.stderr.write('and was converted to the new format. You may want to\n')
+        sys.stderr.write(
+            'Your old ~/.pwclientrc was saved to %s\n' % old_config_file)
+        sys.stderr.write(
+            'and was converted to the new format. You may want to\n')
         sys.stderr.write('inspect it before continuing.\n')
         sys.exit(1)
 
@@ -575,13 +600,16 @@ def main():
         try:
             project_str = config.get('options', 'default')
         except:
-            action_parser.error("No default project configured in ~/.pwclientrc")
+            action_parser.error(
+                "No default project configured in ~/.pwclientrc")
 
     if not config.has_section(project_str):
-        sys.stderr.write('No section for project %s in ~/.pwclientrc\n' % project_str)
+        sys.stderr.write(
+            'No section for project %s in ~/.pwclientrc\n' % project_str)
         sys.exit(1)
     if not config.has_option(project_str, 'url'):
-        sys.stderr.write('No URL for project %s in ~/.pwclientrc\n' % project_str)
+        sys.stderr.write(
+            'No URL for project %s in ~/.pwclientrc\n' % project_str)
         sys.exit(1)
     if not do_signoff and config.has_option('options', 'signoff'):
         do_signoff = config.getboolean('options', 'signoff')
@@ -597,14 +625,14 @@ def main():
 
             use_https = url.startswith('https')
 
-            transport = BasicHTTPAuthTransport( \
-                    config.get(project_str, 'username'),
-                    config.get(project_str, 'password'),
-                    use_https)
+            transport = BasicHTTPAuthTransport(
+                config.get(project_str, 'username'),
+                config.get(project_str, 'password'),
+                use_https)
 
         else:
             sys.stderr.write(("The %s action requires authentication, "
-                    "but no username or password\nis configured\n") % action)
+                              "but no username or password\nis configured\n") % action)
             sys.exit(1)
 
     if project_str:
@@ -620,7 +648,7 @@ def main():
         filt.add("msgid", msgid_str)
 
     try:
-        rpc = xmlrpclib.Server(url, transport = transport)
+        rpc = xmlrpclib.Server(url, transport=transport)
     except:
         sys.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
@@ -637,7 +665,7 @@ def main():
         """Error out if no patch IDs were specified"""
         if patch_ids == None or len(patch_ids) < 1:
             sys.stderr.write("Error: Missing Argument! " +
-              "Either [-h HASH] or [ID [ID ...]] are required\n")
+                             "Either [-h HASH] or [ID [ID ...]] are required\n")
             if h:
                 h.print_help()
             sys.exit(1)
@@ -705,9 +733,9 @@ def main():
 
     elif action == 'update':
         for patch_id in non_empty(h, patch_ids):
-            action_update_patch(rpc, patch_id, state = state_str,
-                archived = archived_str, commit = commit_str
-            )
+            action_update_patch(rpc, patch_id, state=state_str,
+                                archived=archived_str, commit=commit_str
+                                )
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)

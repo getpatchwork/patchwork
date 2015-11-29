@@ -35,7 +35,8 @@ from patchwork.models import (Bundle, Project, BundlePatch, UserProfile,
                               PatchChangeNotification, EmailOptout,
                               EmailConfirmation)
 
-def get_patch_ids(d, prefix = 'patch_id'):
+
+def get_patch_ids(d, prefix='patch_id'):
     ids = []
 
     for (k, v) in d.items():
@@ -50,6 +51,7 @@ def get_patch_ids(d, prefix = 'patch_id'):
 
     return ids
 
+
 class Order(object):
     order_map = {
         'date':         'date',
@@ -60,7 +62,7 @@ class Order(object):
     }
     default_order = ('date', True)
 
-    def __init__(self, str = None, editable = False):
+    def __init__(self, str=None, editable=False):
         self.reversed = False
         self.editable = editable
         (self.order, self.reversed) = self.default_order
@@ -121,6 +123,8 @@ class Order(object):
         return qs.order_by(*orders)
 
 bundle_actions = ['create', 'add', 'remove']
+
+
 def set_bundle(user, project, action, data, patches, context):
     # set up the bundle
     bundle = None
@@ -132,41 +136,41 @@ def set_bundle(user, project, action, data, patches, context):
         if not bundle_name:
             return ['No bundle name was specified']
 
-        if Bundle.objects.filter(owner = user, name = bundle_name).count() > 0:
+        if Bundle.objects.filter(owner=user, name=bundle_name).count() > 0:
             return ['You already have a bundle called "%s"' % bundle_name]
 
-        bundle = Bundle(owner = user, project = project,
-                name = bundle_name)
+        bundle = Bundle(owner=user, project=project,
+                        name=bundle_name)
         bundle.save()
         context.add_message("Bundle %s created" % bundle.name)
 
-    elif action =='add':
-        bundle = get_object_or_404(Bundle, id = data['bundle_id'])
+    elif action == 'add':
+        bundle = get_object_or_404(Bundle, id=data['bundle_id'])
 
-    elif action =='remove':
-        bundle = get_object_or_404(Bundle, id = data['removed_bundle_id'])
+    elif action == 'remove':
+        bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
 
     if not bundle:
         return ['no such bundle']
 
     for patch in patches:
         if action == 'create' or action == 'add':
-            bundlepatch_count = BundlePatch.objects.filter(bundle = bundle,
-                        patch = patch).count()
+            bundlepatch_count = BundlePatch.objects.filter(bundle=bundle,
+                                                           patch=patch).count()
             if bundlepatch_count == 0:
                 bundle.append_patch(patch)
-                context.add_message("Patch '%s' added to bundle %s" % \
-                        (patch.name, bundle.name))
+                context.add_message("Patch '%s' added to bundle %s" %
+                                    (patch.name, bundle.name))
             else:
-                context.add_message("Patch '%s' already in bundle %s" % \
-                        (patch.name, bundle.name))
+                context.add_message("Patch '%s' already in bundle %s" %
+                                    (patch.name, bundle.name))
 
         elif action == 'remove':
             try:
-                bp = BundlePatch.objects.get(bundle = bundle, patch = patch)
+                bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
                 bp.delete()
-                context.add_message("Patch '%s' removed from bundle %s\n" % \
-                        (patch.name, bundle.name))
+                context.add_message("Patch '%s' removed from bundle %s\n" %
+                                    (patch.name, bundle.name))
             except Exception:
                 pass
 
@@ -174,10 +178,10 @@ def set_bundle(user, project, action, data, patches, context):
 
     return []
 
+
 def send_notifications():
     date_limit = datetime.datetime.now() - \
-                     datetime.timedelta(minutes =
-                                settings.NOTIFICATION_DELAY_MINUTES)
+        datetime.timedelta(minutes=settings.NOTIFICATION_DELAY_MINUTES)
 
     # This gets funky: we want to filter out any notifications that should
     # be grouped with other notifications that aren't ready to go out yet. To
@@ -185,9 +189,9 @@ def send_notifications():
     # Person -> Patch -> max(PCN.last_modified)), filtering out any maxima
     # that are with the date_limit.
     qs = PatchChangeNotification.objects \
-            .annotate(m = Max('patch__submitter__patch__patchchangenotification'
+        .annotate(m=Max('patch__submitter__patch__patchchangenotification'
                         '__last_modified')) \
-                .filter(m__lt = date_limit)
+        .filter(m__lt=date_limit)
 
     groups = itertools.groupby(qs.order_by('patch__submitter'),
                                lambda n: n.patch.submitter)
@@ -196,11 +200,11 @@ def send_notifications():
 
     for (recipient, notifications) in groups:
         notifications = list(notifications)
-        projects = set([ n.patch.project.linkname for n in notifications ])
+        projects = set([n.patch.project.linkname for n in notifications])
 
         def delete_notifications():
-            pks = [ n.pk for n in notifications ]
-            PatchChangeNotification.objects.filter(pk__in = pks).delete()
+            pks = [n.pk for n in notifications]
+            PatchChangeNotification.objects.filter(pk__in=pks).delete()
 
         if EmailOptout.is_optout(recipient.email):
             delete_notifications()
@@ -214,15 +218,15 @@ def send_notifications():
         }
 
         subject = render_to_string(
-                        'patchwork/patch-change-notification-subject.text',
-                        context).strip()
+            'patchwork/patch-change-notification-subject.text',
+            context).strip()
         content = render_to_string('patchwork/patch-change-notification.mail',
-                                context)
+                                   context)
 
-        message = EmailMessage(subject = subject, body = content,
-                               from_email = settings.NOTIFICATION_FROM_EMAIL,
-                               to = [recipient.email],
-                               headers = {'Precedence': 'bulk'})
+        message = EmailMessage(subject=subject, body=content,
+                               from_email=settings.NOTIFICATION_FROM_EMAIL,
+                               to=[recipient.email],
+                               headers={'Precedence': 'bulk'})
 
         try:
             message.send()
@@ -234,23 +238,21 @@ def send_notifications():
 
     return errors
 
+
 def do_expiry():
     # expire any pending confirmations
-    q = (Q(date__lt = datetime.datetime.now() - EmailConfirmation.validity) |
-            Q(active = False))
+    q = (Q(date__lt=datetime.datetime.now() - EmailConfirmation.validity) |
+         Q(active=False))
     EmailConfirmation.objects.filter(q).delete()
 
     # expire inactive users with no pending confirmation
     pending_confs = EmailConfirmation.objects.values('user')
     users = User.objects.filter(
-                is_active = False,
-                last_login = F('date_joined')
-            ).exclude(
-                id__in = pending_confs
-            )
+        is_active=False,
+        last_login=F('date_joined')
+    ).exclude(
+        id__in=pending_confs
+    )
 
     # delete users
     users.delete()
-
-
-

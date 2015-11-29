@@ -30,20 +30,20 @@ class MultipleUpdateTest(TestCase):
     def setUp(self):
         defaults.project.save()
         self.user = create_maintainer(defaults.project)
-        self.client.login(username = self.user.username,
-                password = self.user.username)
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
         self.properties_form_id = 'patchform-properties'
         self.url = reverse(
-            'patchwork.views.patch.list', args = [defaults.project.linkname])
+            'patchwork.views.patch.list', args=[defaults.project.linkname])
         self.base_data = {
             'action': 'Update', 'project': str(defaults.project.id),
             'form': 'patchlistform', 'archived': '*', 'delegate': '*',
             'state': '*'}
         self.patches = []
         for name in ['patch one', 'patch two', 'patch three']:
-            patch = Patch(project = defaults.project, msgid = name,
-                            name = name, content = '',
-                            submitter = Person.objects.get(user = self.user))
+            patch = Patch(project=defaults.project, msgid=name,
+                          name=name, content='',
+                          submitter=Person.objects.get(user=self.user))
             patch.save()
             self.patches.append(patch)
 
@@ -57,8 +57,8 @@ class MultipleUpdateTest(TestCase):
         self._selectAllPatches(data)
         response = self.client.post(self.url, data)
         self.assertContains(response, 'No patches to display',
-                            status_code = 200)
-        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+                            status_code=200)
+        for patch in [Patch.objects.get(pk=p.pk) for p in self.patches]:
             self.assertTrue(patch.archived)
 
     def testUnArchivingPatches(self):
@@ -70,8 +70,8 @@ class MultipleUpdateTest(TestCase):
         self._selectAllPatches(data)
         response = self.client.post(self.url, data)
         self.assertContains(response, self.properties_form_id,
-                            status_code = 200)
-        for patch in [Patch.objects.get(pk = p.pk) for p in self.patches]:
+                            status_code=200)
+        for patch in [Patch.objects.get(pk=p.pk) for p in self.patches]:
             self.assertFalse(patch.archived)
 
     def _testStateChange(self, state):
@@ -80,26 +80,26 @@ class MultipleUpdateTest(TestCase):
         self._selectAllPatches(data)
         response = self.client.post(self.url, data)
         self.assertContains(response, self.properties_form_id,
-                            status_code = 200)
+                            status_code=200)
         return response
 
     def testStateChangeValid(self):
         states = [patch.state.pk for patch in self.patches]
-        state = State.objects.exclude(pk__in = states)[0]
+        state = State.objects.exclude(pk__in=states)[0]
         self._testStateChange(state.pk)
         for p in self.patches:
-            self.assertEqual(Patch.objects.get(pk = p.pk).state, state)
+            self.assertEqual(Patch.objects.get(pk=p.pk).state, state)
 
     def testStateChangeInvalid(self):
-        state = max(State.objects.all().values_list('id', flat = True)) + 1
+        state = max(State.objects.all().values_list('id', flat=True)) + 1
         orig_states = [patch.state for patch in self.patches]
         response = self._testStateChange(state)
-        self.assertEqual( \
-                [Patch.objects.get(pk = p.pk).state for p in self.patches],
-                orig_states)
+        self.assertEqual(
+            [Patch.objects.get(pk=p.pk).state for p in self.patches],
+            orig_states)
         self.assertFormError(response, 'patchform', 'state',
-                    'Select a valid choice. That choice is not one ' + \
-                        'of the available choices.')
+                             'Select a valid choice. That choice is not one ' +
+                             'of the available choices.')
 
     def _testDelegateChange(self, delegate_str):
         data = self.base_data.copy()
@@ -114,9 +114,9 @@ class MultipleUpdateTest(TestCase):
         delegate = create_maintainer(defaults.project)
         response = self._testDelegateChange(str(delegate.pk))
         for p in self.patches:
-            self.assertEqual(Patch.objects.get(pk = p.pk).delegate, delegate)
+            self.assertEqual(Patch.objects.get(pk=p.pk).delegate, delegate)
 
     def testDelegateClear(self):
         response = self._testDelegateChange('')
         for p in self.patches:
-            self.assertEqual(Patch.objects.get(pk = p.pk).delegate, None)
+            self.assertEqual(Patch.objects.get(pk=p.pk).delegate, None)

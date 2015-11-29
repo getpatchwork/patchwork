@@ -28,7 +28,8 @@ from patchwork.tests.utils import defaults, error_strings
 
 
 def _confirmation_url(conf):
-    return reverse('patchwork.views.confirm', kwargs = {'key': conf.key})
+    return reverse('patchwork.views.confirm', kwargs={'key': conf.key})
+
 
 class TestUser(object):
 
@@ -43,10 +44,11 @@ class TestUser(object):
 
 
 class UserPersonRequestTest(TestCase):
+
     def setUp(self):
         self.user = TestUser()
-        self.client.login(username = self.user.username,
-                          password = self.user.password)
+        self.client.login(username=self.user.username,
+                          password=self.user.password)
         EmailConfirmation.objects.all().delete()
 
     def testUserPersonRequestForm(self):
@@ -59,18 +61,18 @@ class UserPersonRequestTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
-                'This field is required.')
+                             'This field is required.')
 
     def testUserPersonRequestInvalid(self):
         response = self.client.post('/user/link/', {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
-                                error_strings['email'])
+                             error_strings['email'])
 
     def testUserPersonRequestValid(self):
         response = self.client.post('/user/link/',
-                                {'email': self.user.secondary_email})
+                                    {'email': self.user.secondary_email})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['confirmation'])
 
@@ -93,16 +95,18 @@ class UserPersonRequestTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/user-link-confirm.html')
 
+
 class UserPersonConfirmTest(TestCase):
+
     def setUp(self):
         EmailConfirmation.objects.all().delete()
         Person.objects.all().delete()
         self.user = TestUser()
-        self.client.login(username = self.user.username,
-                          password = self.user.password)
-        self.conf = EmailConfirmation(type = 'userperson',
-                                      email = self.user.secondary_email,
-                                      user = self.user.user)
+        self.client.login(username=self.user.username,
+                          password=self.user.password)
+        self.conf = EmailConfirmation(type='userperson',
+                                      email=self.user.secondary_email,
+                                      user=self.user.user)
         self.conf.save()
 
     def testUserPersonConfirm(self):
@@ -112,14 +116,15 @@ class UserPersonConfirmTest(TestCase):
 
         # check that the Person object has been created and linked
         self.assertEqual(Person.objects.count(), 1)
-        person = Person.objects.get(email = self.user.secondary_email)
+        person = Person.objects.get(email=self.user.secondary_email)
         self.assertEqual(person.email, self.user.secondary_email)
         self.assertEqual(person.user, self.user.user)
 
         # check that the confirmation has been marked as inactive. We
         # need to reload the confirmation to check this.
-        conf = EmailConfirmation.objects.get(pk = self.conf.pk)
+        conf = EmailConfirmation.objects.get(pk=self.conf.pk)
         self.assertEqual(conf.active, False)
+
 
 class UserLoginRedirectTest(TestCase):
 
@@ -128,12 +133,13 @@ class UserLoginRedirectTest(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, settings.LOGIN_URL + '?next=' + url)
 
+
 class UserProfileTest(TestCase):
 
     def setUp(self):
         self.user = TestUser()
-        self.client.login(username = self.user.username,
-                          password = self.user.password)
+        self.client.login(username=self.user.username,
+                          password=self.user.password)
 
     def testUserProfile(self):
         response = self.client.get('/user/')
@@ -147,8 +153,8 @@ class UserProfileTest(TestCase):
         project = defaults.project
         project.save()
 
-        bundle = Bundle(project = project, name = 'test-1',
-                        owner = self.user.user)
+        bundle = Bundle(project=project, name='test-1',
+                        owner=self.user.user)
         bundle.save()
 
         response = self.client.get('/user/')
@@ -187,16 +193,16 @@ class UserPasswordChangeTest(TestCase):
 
     def testPasswordChangeForm(self):
         self.user = TestUser()
-        self.client.login(username = self.user.username,
-                          password = self.user.password)
+        self.client.login(username=self.user.username,
+                          password=self.user.password)
 
         response = self.client.get(self.form_url)
         self.assertContains(response, 'Change my password')
 
     def testPasswordChange(self):
         self.user = TestUser()
-        self.client.login(username = self.user.username,
-                          password = self.user.password)
+        self.client.login(username=self.user.username,
+                          password=self.user.password)
 
         old_password = self.user.password
         new_password = User.objects.make_random_password()
@@ -210,16 +216,18 @@ class UserPasswordChangeTest(TestCase):
         response = self.client.post(self.form_url, data)
         self.assertRedirects(response, self.done_url)
 
-        user = User.objects.get(id = self.user.user.id)
+        user = User.objects.get(id=self.user.user.id)
 
         self.assertFalse(user.check_password(old_password))
         self.assertTrue(user.check_password(new_password))
 
         response = self.client.get(self.done_url)
         self.assertContains(response,
-                "Your password has been changed sucessfully")
+                            "Your password has been changed sucessfully")
+
 
 class UserUnlinkTest(TestCase):
+
     def setUp(self):
         self.form_url = '/user/unlink/{pid}/'
         self.done_url = '/user/'

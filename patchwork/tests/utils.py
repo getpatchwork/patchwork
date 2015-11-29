@@ -31,16 +31,17 @@ from patchwork.models import Project, Person
 
 
 # helper functions for tests
-_test_mail_dir  = os.path.join(os.path.dirname(__file__), 'mail')
+_test_mail_dir = os.path.join(os.path.dirname(__file__), 'mail')
 _test_patch_dir = os.path.join(os.path.dirname(__file__), 'patches')
 
+
 class defaults(object):
-    project = Project(linkname = 'test-project', name = 'Test Project',
-                      listid = 'test.example.com')
+    project = Project(linkname='test-project', name='Test Project',
+                      listid='test.example.com')
 
     patch_author = 'Patch Author <patch-author@example.com>'
-    patch_author_person = Person(name = 'Patch Author',
-        email = 'patch-author@example.com')
+    patch_author_person = Person(name='Patch Author',
+                                 email='patch-author@example.com')
 
     comment_author = 'Comment Author <comment-author@example.com>'
 
@@ -61,6 +62,8 @@ error_strings = {
 }
 
 _user_idx = 1
+
+
 def create_user():
     global _user_idx
     userid = 'test%d' % _user_idx
@@ -70,10 +73,11 @@ def create_user():
     user = User.objects.create_user(userid, email, userid)
     user.save()
 
-    person = Person(email = email, name = userid, user = user)
+    person = Person(email=email, name=userid, user=user)
     person.save()
 
     return user
+
 
 def create_maintainer(project):
     user = create_user()
@@ -81,6 +85,7 @@ def create_maintainer(project):
     profile.maintainer_projects.add(project)
     profile.save()
     return user
+
 
 def find_in_context(context, key):
     if isinstance(context, list):
@@ -93,16 +98,18 @@ def find_in_context(context, key):
             return context[key]
     return None
 
-def read_patch(filename, encoding = None):
+
+def read_patch(filename, encoding=None):
     file_path = os.path.join(_test_patch_dir, filename)
     if encoding is not None:
-        f = codecs.open(file_path, encoding = encoding)
+        f = codecs.open(file_path, encoding=encoding)
     else:
         f = open(file_path)
 
     return f.read()
 
-def read_mail(filename, project = None):
+
+def read_mail(filename, project=None):
     file_path = os.path.join(_test_mail_dir, filename)
     mail = message_from_file(open(file_path))
     if 'Message-Id' not in mail:
@@ -111,8 +118,9 @@ def read_mail(filename, project = None):
         mail['List-Id'] = project.listid
     return mail
 
-def create_email(content, subject = None, sender = None, multipart = False,
-        project = None, content_encoding = None):
+
+def create_email(content, subject=None, sender=None, multipart=False,
+                 project=None, content_encoding=None):
     if subject is None:
         subject = defaults.subject
     if sender is None:
@@ -125,11 +133,11 @@ def create_email(content, subject = None, sender = None, multipart = False,
 
     if multipart:
         msg = MIMEMultipart()
-        body = MIMEText(content, _subtype = 'plain',
-                        _charset = content_encoding)
+        body = MIMEText(content, _subtype='plain',
+                        _charset=content_encoding)
         msg.attach(body)
     else:
-        msg = MIMEText(content, _charset = content_encoding)
+        msg = MIMEText(content, _charset=content_encoding)
 
     msg['Message-Id'] = make_msgid()
     msg['Subject'] = subject

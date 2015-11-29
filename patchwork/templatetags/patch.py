@@ -28,6 +28,7 @@ from patchwork.models import Check
 
 register = template.Library()
 
+
 @register.filter(name='patch_tags')
 def patch_tags(patch):
     counts = []
