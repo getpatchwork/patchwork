@@ -278,8 +278,8 @@ def patch_to_dict(obj):
         'submitter': six.text_type(obj.submitter).encode('utf-8'),
         'submitter_id': obj.submitter_id,
         'delegate': six.text_type(obj.delegate).encode('utf-8'),
-        'delegate_id': max(obj.delegate_id, 0),
-        'commit_ref': max(obj.commit_ref, ''),
+        'delegate_id': obj.delegate_id or 0,
+        'commit_ref': obj.commit_ref or '',
     }
 
 
