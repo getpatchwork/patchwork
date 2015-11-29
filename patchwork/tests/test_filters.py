@@ -35,8 +35,8 @@ class FilterQueryStringTest(TestCase):
         url = '/project/%s/list/?submitter=a%%26b=c' % project.linkname
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
-        self.failIf('submitter=a&amp;b=c' in response.content)
-        self.failIf('submitter=a&b=c' in response.content)
+        self.assertNotContains(response, 'submitter=a&amp;b=c')
+        self.assertNotContains(response, 'submitter=a&b=c')
 
     def testUTF8QSHandling(self):
         """test that non-ascii characters can be handled by the filter

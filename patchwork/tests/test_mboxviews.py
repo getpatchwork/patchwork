@@ -173,7 +173,7 @@ class MboxDateHeaderTest(TestCase):
 
     def testDateHeader(self):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        mail = email.message_from_string(response.content)
+        mail = email.message_from_string(response.content.decode())
         mail_date = dateutil.parser.parse(mail['Date'])
         # patch dates are all in UTC
         patch_date = self.patch.date.replace(tzinfo=dateutil.tz.tzutc(),
@@ -190,7 +190,7 @@ class MboxDateHeaderTest(TestCase):
         self.patch.save()
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        mail = email.message_from_string(response.content)
+        mail = email.message_from_string(response.content.decode())
         mail_date = dateutil.parser.parse(mail['Date'])
         self.assertEqual(mail_date, date)
 

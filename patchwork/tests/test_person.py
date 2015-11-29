@@ -39,14 +39,14 @@ class SubmitterCompletionTest(TestCase):
     def testNameComplete(self):
         response = self.client.get('/submitter/', {'q': 'name'})
         self.assertEquals(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertEquals(len(data), 1)
         self.assertEquals(data[0]['name'], 'Test Name')
 
     def testEmailComplete(self):
         response = self.client.get('/submitter/', {'q': 'test2'})
         self.assertEquals(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertEquals(len(data), 1)
         self.assertEquals(data[0]['email'], 'test2@example.com')
 
@@ -56,5 +56,5 @@ class SubmitterCompletionTest(TestCase):
             person.save()
         response = self.client.get('/submitter/', {'q': 'test', 'l': 5})
         self.assertEquals(response.status_code, 200)
-        data = json.loads(response.content)
+        data = json.loads(response.content.decode())
         self.assertEquals(len(data), 5)

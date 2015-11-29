@@ -230,7 +230,7 @@ def hash_patch(str):
             # other lines are ignored
             continue
 
-        hash.update(line.encode('utf-8') + '\n')
+        hash.update((line + '\n').encode('utf-8'))
 
     return hash
 

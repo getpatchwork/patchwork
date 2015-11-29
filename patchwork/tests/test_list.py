@@ -77,7 +77,7 @@ class PatchOrderTest(TestCase):
 
     def _extract_patch_ids(self, response):
         id_re = re.compile('<tr id="patch_row:(\d+)"')
-        ids = [ int(m.group(1)) for m in id_re.finditer(response.content) ]
+        ids = [ int(m.group(1)) for m in id_re.finditer(response.content.decode()) ]
         return ids
 
     def _test_sequence(self, response, test_fn):

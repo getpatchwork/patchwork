@@ -109,7 +109,7 @@ class BundleViewTest(BundleTestBase):
 
         pos = 0
         for patch in self.patches:
-            next_pos = response.content.find(patch.name)
+            next_pos = response.content.decode().find(patch.name)
             # ensure that this patch is after the previous
             self.failUnless(next_pos > pos)
             pos = next_pos
@@ -126,7 +126,7 @@ class BundleViewTest(BundleTestBase):
         response = self.client.get(bundle_url(self.bundle))
         pos = len(response.content)
         for patch in self.patches:
-            next_pos = response.content.find(patch.name)
+            next_pos = response.content.decode().find(patch.name)
             # ensure that this patch is now *before* the previous
             self.failUnless(next_pos < pos)
             pos = next_pos

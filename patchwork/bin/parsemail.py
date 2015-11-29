@@ -68,7 +68,9 @@ def clean_header(header):
         (frag_str, frag_encoding) = fragment
         if frag_encoding:
             return frag_str.decode(frag_encoding)
-        return frag_str.decode()
+        elif isinstance(frag_str, six.binary_type):  # python 2
+            return frag_str.decode()
+        return frag_str
 
     fragments = list(map(decode, decode_header(header)))
 

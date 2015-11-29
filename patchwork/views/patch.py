@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404
+from django.utils import six
 
 from patchwork.forms import PatchForm, CreateBundleForm
 from patchwork.models import Patch, Project, Bundle
@@ -96,7 +97,11 @@ def content(request, patch_id):
 def mbox(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     response = HttpResponse(content_type="text/plain")
-    response.write(patch_to_mbox(patch).as_string(True))
+    # NOTE(stephenfin) http://stackoverflow.com/a/28584090/613428
+    if six.PY3:
+        response.write(patch_to_mbox(patch).as_bytes(True).decode())
+    else:
+        response.write(patch_to_mbox(patch).as_string(True))
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename().replace(';', '').replace('\n', '')
     return response
