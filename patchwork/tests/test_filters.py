@@ -34,7 +34,7 @@ class FilterQueryStringTest(TestCase):
         defaults.project.save()
         url = '/project/%s/list/?submitter=a%%26b=c' % project.linkname
         response = self.client.get(url)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'submitter=a&amp;b=c')
         self.assertNotContains(response, 'submitter=a&b=c')
 
@@ -45,4 +45,4 @@ class FilterQueryStringTest(TestCase):
         defaults.project.save()
         url = '/project/%s/list/?submitter=%%E2%%98%%83' % project.linkname
         response = self.client.get(url)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)

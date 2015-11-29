@@ -53,13 +53,13 @@ class InlinePatchTest(PatchTest):
         self.assertTrue(self.patch is not None)
 
     def testPatchContent(self):
-        self.assertEquals(self.patch.content, self.orig_patch)
+        self.assertEqual(self.patch.content, self.orig_patch)
 
     def testCommentPresence(self):
         self.assertTrue(self.comment is not None)
 
     def testCommentContent(self):
-        self.assertEquals(self.comment.content, self.test_comment)
+        self.assertEqual(self.comment.content, self.test_comment)
 
 
 class AttachmentPatchTest(InlinePatchTest):
@@ -157,18 +157,18 @@ class SenderEncodingTest(TestCase):
         self.person.delete()
 
     def testName(self):
-        self.assertEquals(self.person.name, self.sender_name)
+        self.assertEqual(self.person.name, self.sender_name)
 
     def testEmail(self):
-        self.assertEquals(self.person.email, self.sender_email)
+        self.assertEqual(self.person.email, self.sender_email)
 
     def testDBQueryName(self):
         db_person = Person.objects.get(name = self.sender_name)
-        self.assertEquals(self.person, db_person)
+        self.assertEqual(self.person, db_person)
 
     def testDBQueryEmail(self):
         db_person = Person.objects.get(email = self.sender_email)
-        self.assertEquals(self.person, db_person)
+        self.assertEqual(self.person, db_person)
 
 
 class SenderUTF8QPEncodingTest(SenderEncodingTest):
@@ -197,7 +197,7 @@ class SubjectEncodingTest(PatchTest):
 
     def testSubjectEncoding(self):
         (patch, comment) = find_content(self.project, self.email)
-        self.assertEquals(patch.name, self.subject)
+        self.assertEqual(patch.name, self.subject)
 
 class SubjectUTF8QPEncodingTest(SubjectEncodingTest):
     subject = u'test s\xfcbject'
@@ -281,8 +281,8 @@ class MultipleProjectPatchTest(TestCase):
         parse_mail(email)
 
     def testParsedProjects(self):
-        self.assertEquals(Patch.objects.filter(project = self.p1).count(), 1)
-        self.assertEquals(Patch.objects.filter(project = self.p2).count(), 1)
+        self.assertEqual(Patch.objects.filter(project = self.p1).count(), 1)
+        self.assertEqual(Patch.objects.filter(project = self.p2).count(), 1)
 
     def tearDown(self):
         self.p1.delete()
@@ -313,7 +313,7 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
             patch = Patch.objects.filter(project = project)[0]
             # we should see two comments now - the original mail with the patch,
             # and the one we parsed in setUp()
-            self.assertEquals(Comment.objects.filter(patch = patch).count(), 2)
+            self.assertEqual(Comment.objects.filter(patch = patch).count(), 2)
 
 class ListIdHeaderTest(TestCase):
     """ Test that we parse List-Id headers from mails correctly """
@@ -325,25 +325,25 @@ class ListIdHeaderTest(TestCase):
     def testNoListId(self):
         email = MIMEText('')
         project = find_project_by_header(email)
-        self.assertEquals(project, None)
+        self.assertEqual(project, None)
 
     def testBlankListId(self):
         email = MIMEText('')
         email['List-Id'] = ''
         project = find_project_by_header(email)
-        self.assertEquals(project, None)
+        self.assertEqual(project, None)
 
     def testWhitespaceListId(self):
         email = MIMEText('')
         email['List-Id'] = ' '
         project = find_project_by_header(email)
-        self.assertEquals(project, None)
+        self.assertEqual(project, None)
 
     def testSubstringListId(self):
         email = MIMEText('')
         email['List-Id'] = 'example.com'
         project = find_project_by_header(email)
-        self.assertEquals(project, None)
+        self.assertEqual(project, None)
 
     def testShortListId(self):
         """ Some mailing lists have List-Id headers in short formats, where it
@@ -351,13 +351,13 @@ class ListIdHeaderTest(TestCase):
         email = MIMEText('')
         email['List-Id'] = self.project.listid
         project = find_project_by_header(email)
-        self.assertEquals(project, self.project)
+        self.assertEqual(project, self.project)
 
     def testLongListId(self):
         email = MIMEText('')
         email['List-Id'] = 'Test text <%s>' % self.project.listid
         project = find_project_by_header(email)
-        self.assertEquals(project, self.project)
+        self.assertEqual(project, self.project)
 
     def tearDown(self):
         self.project.delete()
@@ -479,8 +479,8 @@ class DelegateRequestTest(TestCase):
 
     def _assertDelegate(self, delegate):
         query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].delegate, delegate)
+        self.assertEqual(query.count(), 1)
+        self.assertEqual(query[0].delegate, delegate)
 
     def testDelegate(self):
         email = self.get_email()
@@ -527,8 +527,8 @@ class InitialPatchStateTest(TestCase):
 
     def _assertState(self, state):
         query = Patch.objects.filter(project=self.p1)
-        self.assertEquals(query.count(), 1)
-        self.assertEquals(query[0].state, state)
+        self.assertEqual(query.count(), 1)
+        self.assertEqual(query[0].state, state)
 
     def testNonDefaultStateIsActuallyNotTheDefaultState(self):
         self.assertNotEqual(self.default_state, self.nondefault_state)
@@ -582,49 +582,49 @@ class ParseInitialTagsTest(PatchTest):
         parse_mail(email)
 
     def testTags(self):
-        self.assertEquals(Patch.objects.count(), 1)
+        self.assertEqual(Patch.objects.count(), 1)
         patch = Patch.objects.all()[0]
-        self.assertEquals(patch.patchtag_set.filter(
+        self.assertEqual(patch.patchtag_set.filter(
                             tag__name='Acked-by').count(), 0)
-        self.assertEquals(patch.patchtag_set.get(
+        self.assertEqual(patch.patchtag_set.get(
                             tag__name='Reviewed-by').count, 1)
-        self.assertEquals(patch.patchtag_set.get(
+        self.assertEqual(patch.patchtag_set.get(
                             tag__name='Tested-by').count, 1)
 
 class PrefixTest(TestCase):
 
     def testSplitPrefixes(self):
-        self.assertEquals(split_prefixes('PATCH'), ['PATCH'])
-        self.assertEquals(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
-        self.assertEquals(split_prefixes(''), [])
-        self.assertEquals(split_prefixes('PATCH,'), ['PATCH'])
-        self.assertEquals(split_prefixes('PATCH '), ['PATCH'])
-        self.assertEquals(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
-        self.assertEquals(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
+        self.assertEqual(split_prefixes('PATCH'), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEqual(split_prefixes(''), [])
+        self.assertEqual(split_prefixes('PATCH,'), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH '), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEqual(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
 
 class SubjectTest(TestCase):
 
     def testCleanSubject(self):
-        self.assertEquals(clean_subject('meep'), 'meep')
-        self.assertEquals(clean_subject('Re: meep'), 'meep')
-        self.assertEquals(clean_subject('[PATCH] meep'), 'meep')
-        self.assertEquals(clean_subject('[PATCH] meep \n meep'), 'meep meep')
-        self.assertEquals(clean_subject('[PATCH RFC] meep'), '[RFC] meep')
-        self.assertEquals(clean_subject('[PATCH,RFC] meep'), '[RFC] meep')
-        self.assertEquals(clean_subject('[PATCH,1/2] meep'), '[1/2] meep')
-        self.assertEquals(clean_subject('[PATCH RFC 1/2] meep'),
+        self.assertEqual(clean_subject('meep'), 'meep')
+        self.assertEqual(clean_subject('Re: meep'), 'meep')
+        self.assertEqual(clean_subject('[PATCH] meep'), 'meep')
+        self.assertEqual(clean_subject('[PATCH] meep \n meep'), 'meep meep')
+        self.assertEqual(clean_subject('[PATCH RFC] meep'), '[RFC] meep')
+        self.assertEqual(clean_subject('[PATCH,RFC] meep'), '[RFC] meep')
+        self.assertEqual(clean_subject('[PATCH,1/2] meep'), '[1/2] meep')
+        self.assertEqual(clean_subject('[PATCH RFC 1/2] meep'),
                                             '[RFC,1/2] meep')
-        self.assertEquals(clean_subject('[PATCH] [RFC] meep'),
+        self.assertEqual(clean_subject('[PATCH] [RFC] meep'),
                                             '[RFC] meep')
-        self.assertEquals(clean_subject('[PATCH] [RFC,1/2] meep'),
+        self.assertEqual(clean_subject('[PATCH] [RFC,1/2] meep'),
                                             '[RFC,1/2] meep')
-        self.assertEquals(clean_subject('[PATCH] [RFC] [1/2] meep'),
+        self.assertEqual(clean_subject('[PATCH] [RFC] [1/2] meep'),
                                             '[RFC,1/2] meep')
-        self.assertEquals(clean_subject('[PATCH] rewrite [a-z] regexes'),
+        self.assertEqual(clean_subject('[PATCH] rewrite [a-z] regexes'),
                                             'rewrite [a-z] regexes')
-        self.assertEquals(clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
+        self.assertEqual(clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
                                             '[RFC] rewrite [a-z] regexes')
-        self.assertEquals(clean_subject('[foo] [bar] meep', ['foo']),
+        self.assertEqual(clean_subject('[foo] [bar] meep', ['foo']),
                                             '[bar] meep')
-        self.assertEquals(clean_subject('[FOO] [bar] meep', ['foo']),
+        self.assertEqual(clean_subject('[FOO] [bar] meep', ['foo']),
                                             '[bar] meep')

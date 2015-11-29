@@ -51,19 +51,19 @@ class UserPersonRequestTest(TestCase):
 
     def testUserPersonRequestForm(self):
         response = self.client.get('/user/link/')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
 
     def testUserPersonRequestEmpty(self):
         response = self.client.post('/user/link/', {'email': ''})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
                 'This field is required.')
 
     def testUserPersonRequestInvalid(self):
         response = self.client.post('/user/link/', {'email': 'foo'})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
                                 error_strings['email'])
@@ -71,26 +71,26 @@ class UserPersonRequestTest(TestCase):
     def testUserPersonRequestValid(self):
         response = self.client.post('/user/link/',
                                 {'email': self.user.secondary_email})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['confirmation'])
 
         # check that we have a confirmation saved
-        self.assertEquals(EmailConfirmation.objects.count(), 1)
+        self.assertEqual(EmailConfirmation.objects.count(), 1)
         conf = EmailConfirmation.objects.all()[0]
-        self.assertEquals(conf.user, self.user.user)
-        self.assertEquals(conf.email, self.user.secondary_email)
-        self.assertEquals(conf.type, 'userperson')
+        self.assertEqual(conf.user, self.user.user)
+        self.assertEqual(conf.email, self.user.secondary_email)
+        self.assertEqual(conf.type, 'userperson')
 
         # check that an email has gone out...
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertEquals(msg.subject, 'Patchwork email address confirmation')
-        self.assertTrue(self.user.secondary_email in msg.to)
-        self.assertTrue(_confirmation_url(conf) in msg.body)
+        self.assertEqual(msg.subject, 'Patchwork email address confirmation')
+        self.assertIn(self.user.secondary_email, msg.to)
+        self.assertIn(_confirmation_url(conf), msg.body)
 
         # ...and that the URL is valid
         response = self.client.get(_confirmation_url(conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/user-link-confirm.html')
 
 class UserPersonConfirmTest(TestCase):
@@ -106,20 +106,20 @@ class UserPersonConfirmTest(TestCase):
         self.conf.save()
 
     def testUserPersonConfirm(self):
-        self.assertEquals(Person.objects.count(), 0)
+        self.assertEqual(Person.objects.count(), 0)
         response = self.client.get(_confirmation_url(self.conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         # check that the Person object has been created and linked
-        self.assertEquals(Person.objects.count(), 1)
+        self.assertEqual(Person.objects.count(), 1)
         person = Person.objects.get(email = self.user.secondary_email)
-        self.assertEquals(person.email, self.user.secondary_email)
-        self.assertEquals(person.user, self.user.user)
+        self.assertEqual(person.email, self.user.secondary_email)
+        self.assertEqual(person.user, self.user.user)
 
         # check that the confirmation has been marked as inactive. We
         # need to reload the confirmation to check this.
         conf = EmailConfirmation.objects.get(pk = self.conf.pk)
-        self.assertEquals(conf.active, False)
+        self.assertEqual(conf.active, False)
 
 class UserLoginRedirectTest(TestCase):
 
@@ -164,7 +164,7 @@ class UserProfileTest(TestCase):
         response = self.client.post('/user/', {'patches_per_page': new_ppp})
 
         user_profile = UserProfile.objects.get(user=self.user.user.id)
-        self.assertEquals(user_profile.patches_per_page, new_ppp)
+        self.assertEqual(user_profile.patches_per_page, new_ppp)
 
     def testUserProfileInvalidPost(self):
         user_profile = UserProfile.objects.get(user=self.user.user.id)
@@ -174,7 +174,7 @@ class UserProfileTest(TestCase):
         response = self.client.post('/user/', {'patches_per_page': new_ppp})
 
         user_profile = UserProfile.objects.get(user=self.user.user.id)
-        self.assertEquals(user_profile.patches_per_page, old_ppp)
+        self.assertEqual(user_profile.patches_per_page, old_ppp)
 
 
 class UserPasswordChangeTest(TestCase):
@@ -241,7 +241,7 @@ class UserUnlinkTest(TestCase):
         self.assertRedirects(response, self.done_url)
 
         person = Person.objects.get(email=user.email)
-        self.assertEquals(person.user, user.user)
+        self.assertEqual(person.user, user.user)
 
     def testUnlinkSecondaryEmail(self):
         user = TestUser()
@@ -258,7 +258,7 @@ class UserUnlinkTest(TestCase):
         self.assertRedirects(response, self.done_url)
 
         person = Person.objects.get(email=user.secondary_email)
-        self.assertEquals(person.user, None)
+        self.assertEqual(person.user, None)
 
     def testUnlinkAnotherUser(self):
         user = TestUser()
@@ -278,7 +278,7 @@ class UserUnlinkTest(TestCase):
         self.assertRedirects(response, self.done_url)
 
         person = Person.objects.get(email=other_user.email)
-        self.assertEquals(person.user, None)
+        self.assertEqual(person.user, None)
 
     def testUnlinkNonPost(self):
         user = TestUser()
@@ -295,4 +295,4 @@ class UserUnlinkTest(TestCase):
         self.assertRedirects(response, self.done_url)
 
         person = Person.objects.get(email=user.secondary_email)
-        self.assertEquals(person.user, user.user)
+        self.assertEqual(person.user, user.user)

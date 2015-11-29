@@ -53,7 +53,7 @@ class RegistrationTest(TestCase):
 
     def testRegistrationForm(self):
         response = self.client.get('/register/')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/registration_form.html')
 
     def testBlankFields(self):
@@ -61,14 +61,14 @@ class RegistrationTest(TestCase):
             data = self.default_data.copy()
             del data[field]
             response = self.client.post('/register/', data)
-            self.assertEquals(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
             self.assertFormError(response, 'form', field, self.required_error)
 
     def testInvalidUsername(self):
         data = self.default_data.copy()
         data['username'] = 'invalid user'
         response = self.client.post('/register/', data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'username', self.invalid_error)
 
     def testExistingUsername(self):
@@ -76,7 +76,7 @@ class RegistrationTest(TestCase):
         data = self.default_data.copy()
         data['username'] = user.username
         response = self.client.post('/register/', data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'username',
                 'This username is already taken. Please choose another.')
 
@@ -85,41 +85,41 @@ class RegistrationTest(TestCase):
         data = self.default_data.copy()
         data['email'] = user.email
         response = self.client.post('/register/', data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email',
                 'This email address is already in use ' + \
                 'for the account "%s".\n' % user.username)
 
     def testValidRegistration(self):
         response = self.client.post('/register/', self.default_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'confirmation email has been sent')
 
         # check for presence of an inactive user object
         users = User.objects.filter(username = self.user.username)
-        self.assertEquals(users.count(), 1)
+        self.assertEqual(users.count(), 1)
         user = users[0]
-        self.assertEquals(user.username, self.user.username)
-        self.assertEquals(user.email, self.user.email)
-        self.assertEquals(user.is_active, False)
+        self.assertEqual(user.username, self.user.username)
+        self.assertEqual(user.email, self.user.email)
+        self.assertEqual(user.is_active, False)
 
         # check for confirmation object
         confs = EmailConfirmation.objects.filter(user = user,
                                                  type = 'registration')
-        self.assertEquals(len(confs), 1)
+        self.assertEqual(len(confs), 1)
         conf = confs[0]
-        self.assertEquals(conf.email, self.user.email)
+        self.assertEqual(conf.email, self.user.email)
 
         # check for a sent mail
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertEquals(msg.subject, 'Patchwork account confirmation')
-        self.assertTrue(self.user.email in msg.to)
-        self.assertTrue(_confirmation_url(conf) in msg.body)
+        self.assertEqual(msg.subject, 'Patchwork account confirmation')
+        self.assertIn(self.user.email, msg.to)
+        self.assertIn(_confirmation_url(conf), msg.body)
 
         # ...and that the URL is valid
         response = self.client.get(_confirmation_url(conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
 class RegistrationConfirmationTest(TestCase):
 
@@ -134,7 +134,7 @@ class RegistrationConfirmationTest(TestCase):
     def testRegistrationConfirmation(self):
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'confirmation email has been sent')
 
         self.assertEqual(EmailConfirmation.objects.count(), 1)
@@ -143,7 +143,7 @@ class RegistrationConfirmationTest(TestCase):
         self.assertTrue(conf.active)
 
         response = self.client.get(_confirmation_url(conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/registration-confirm.html')
 
         conf = EmailConfirmation.objects.get(pk = conf.pk)
@@ -157,19 +157,19 @@ class RegistrationConfirmationTest(TestCase):
         # register
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Person.objects.exists())
 
         # confirm
         conf = EmailConfirmation.objects.filter()[0]
         response = self.client.get(_confirmation_url(conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         qs = Person.objects.filter(email = self.user.email)
         self.assertTrue(qs.exists())
         person = Person.objects.get(email = self.user.email)
 
-        self.assertEquals(person.name,
+        self.assertEqual(person.name,
                     self.user.firstname + ' ' + self.user.lastname)
 
     def testRegistrationExistingPersonSetup(self):
@@ -183,16 +183,16 @@ class RegistrationConfirmationTest(TestCase):
         # register
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         # confirm
         conf = EmailConfirmation.objects.filter()[0]
         response = self.client.get(_confirmation_url(conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         person = Person.objects.get(email = self.user.email)
 
-        self.assertEquals(person.name, fullname)
+        self.assertEqual(person.name, fullname)
 
     def testRegistrationExistingPersonUnmodified(self):
         """ Check that an unconfirmed registration can't modify an existing
@@ -206,8 +206,8 @@ class RegistrationConfirmationTest(TestCase):
         data = self.default_data.copy()
         data['first_name'] = 'invalid'
         data['last_name'] = 'invalid'
-        self.assertEquals(data['email'], person.email)
+        self.assertEqual(data['email'], person.email)
         response = self.client.post('/register/', data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
-        self.assertEquals(Person.objects.get(pk = person.pk).name, fullname)
+        self.assertEqual(Person.objects.get(pk = person.pk).name, fullname)

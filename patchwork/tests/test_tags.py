@@ -37,7 +37,7 @@ class ExtractTagsTest(TestCase):
 
     def assertTagsEqual(self, str, acks, reviews, tests):
         counts = extract_tags(str, Tag.objects.all())
-        self.assertEquals((acks, reviews, tests),
+        self.assertEqual((acks, reviews, tests),
                 (counts[Tag.objects.get(name='Acked-by')],
                  counts[Tag.objects.get(name='Reviewed-by')],
                  counts[Tag.objects.get(name='Tested-by')]))

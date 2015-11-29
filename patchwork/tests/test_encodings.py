@@ -51,14 +51,14 @@ class UTF8PatchViewTest(TestCase):
 
     def testMboxView(self):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(self.patch.content in \
                 response.content.decode(self.patch_encoding))
 
     def testRawView(self):
         response = self.client.get('/patch/%d/raw/' % self.patch.id)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content.decode(self.patch_encoding),
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(self.patch_encoding),
                 self.patch.content)
 
     def tearDown(self):

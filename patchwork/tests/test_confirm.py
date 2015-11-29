@@ -52,7 +52,7 @@ class InvalidConfirmationTest(TestCase):
         self.conf.active = False
         self.conf.save()
         response = self.client.get(_confirmation_url(self.conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/confirm-error.html')
         self.assertEqual(response.context['error'], 'inactive')
         self.assertEqual(response.context['conf'], self.conf)
@@ -61,7 +61,7 @@ class InvalidConfirmationTest(TestCase):
         self.conf.date -= self.conf.validity
         self.conf.save()
         response = self.client.get(_confirmation_url(self.conf))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/confirm-error.html')
         self.assertEqual(response.context['error'], 'expired')
         self.assertEqual(response.context['conf'], self.conf)

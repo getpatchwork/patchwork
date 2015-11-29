@@ -38,23 +38,23 @@ class SubmitterCompletionTest(TestCase):
 
     def testNameComplete(self):
         response = self.client.get('/submitter/', {'q': 'name'})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
-        self.assertEquals(len(data), 1)
-        self.assertEquals(data[0]['name'], 'Test Name')
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['name'], 'Test Name')
 
     def testEmailComplete(self):
         response = self.client.get('/submitter/', {'q': 'test2'})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
-        self.assertEquals(len(data), 1)
-        self.assertEquals(data[0]['email'], 'test2@example.com')
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['email'], 'test2@example.com')
 
     def testCompleteLimit(self):
         for i in range(3,10):
             person = Person(email = 'test%d@example.com' % i)
             person.save()
         response = self.client.get('/submitter/', {'q': 'test', 'l': 5})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
-        self.assertEquals(len(data), 5)
+        self.assertEqual(len(data), 5)

@@ -36,4 +36,4 @@ class LoginTestCase(SeleniumTestCase):
         self.enter_text('password', self.user.password)
         self.click('input[value="Login"]')
         dropdown = self.wait_until_visible('a.dropdown-toggle strong')
-        self.assertEquals(dropdown.text, 'testuser')
+        self.assertEqual(dropdown.text, 'testuser')

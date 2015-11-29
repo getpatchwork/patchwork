@@ -42,8 +42,8 @@ class BundleListTest(TestCase):
 
     def testNoBundles(self):
         response = self.client.get('/user/bundles/')
-        self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
                 len(find_in_context(response.context, 'bundles')), 0)
 
     def testSingleBundle(self):
@@ -51,8 +51,8 @@ class BundleListTest(TestCase):
         bundle = Bundle(owner = self.user, project = defaults.project)
         bundle.save()
         response = self.client.get('/user/bundles/')
-        self.failUnlessEqual(response.status_code, 200)
-        self.failUnlessEqual(
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
                 len(find_in_context(response.context, 'bundles')), 1)
 
     def tearDown(self):
@@ -89,17 +89,17 @@ class BundleViewTest(BundleTestBase):
 
     def testEmptyBundle(self):
         response = self.client.get(bundle_url(self.bundle))
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         page = find_in_context(response.context, 'page')
-        self.failUnlessEqual(len(page.object_list), 0)
+        self.assertEqual(len(page.object_list), 0)
 
     def testNonEmptyBundle(self):
         self.bundle.append_patch(self.patches[0])
 
         response = self.client.get(bundle_url(self.bundle))
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         page = find_in_context(response.context, 'page')
-        self.failUnlessEqual(len(page.object_list), 1)
+        self.assertEqual(len(page.object_list), 1)
 
     def testBundleOrder(self):
         for patch in self.patches:
@@ -111,7 +111,7 @@ class BundleViewTest(BundleTestBase):
         for patch in self.patches:
             next_pos = response.content.decode().find(patch.name)
             # ensure that this patch is after the previous
-            self.failUnless(next_pos > pos)
+            self.assertTrue(next_pos > pos)
             pos = next_pos
 
         # reorder and recheck
@@ -128,7 +128,7 @@ class BundleViewTest(BundleTestBase):
         for patch in self.patches:
             next_pos = response.content.decode().find(patch.name)
             # ensure that this patch is now *before* the previous
-            self.failUnless(next_pos < pos)
+            self.assertTrue(next_pos < pos)
             pos = next_pos
 
 class BundleUpdateTest(BundleTestBase):
@@ -144,7 +144,7 @@ class BundleUpdateTest(BundleTestBase):
         form = response.context[formname]
         if not form:
             return
-        self.assertEquals(form.errors, {})
+        self.assertEqual(form.errors, {})
 
     def publicString(self, public):
         if public:
@@ -308,8 +308,8 @@ class BundleCreateFromListTest(BundleTestBase):
             count = 1)
 
         bundle = Bundle.objects.get(name = newbundlename)
-        self.failUnlessEqual(bundle.patches.count(), 1)
-        self.failUnlessEqual(bundle.patches.all()[0], patch)
+        self.assertEqual(bundle.patches.count(), 1)
+        self.assertEqual(bundle.patches.all()[0], patch)
 
     def testCreateNonEmptyBundleEmptyName(self):
         newbundlename = 'testbundle-new'
@@ -331,7 +331,7 @@ class BundleCreateFromListTest(BundleTestBase):
                 status_code = 200)
 
         # test that no new bundles are present
-        self.failUnlessEqual(n_bundles, Bundle.objects.count())
+        self.assertEqual(n_bundles, Bundle.objects.count())
 
     def testCreateDuplicateName(self):
         newbundlename = 'testbundle-dup'
@@ -353,8 +353,8 @@ class BundleCreateFromListTest(BundleTestBase):
             count = 1)
 
         bundle = Bundle.objects.get(name = newbundlename)
-        self.failUnlessEqual(bundle.patches.count(), 1)
-        self.failUnlessEqual(bundle.patches.all()[0], patch)
+        self.assertEqual(bundle.patches.count(), 1)
+        self.assertEqual(bundle.patches.all()[0], patch)
 
         response = self.client.post(
                 '/project/%s/list/' % defaults.project.linkname,
@@ -379,8 +379,8 @@ class BundleCreateFromPatchTest(BundleTestBase):
                 'Bundle %s created' % newbundlename)
 
         bundle = Bundle.objects.get(name = newbundlename)
-        self.failUnlessEqual(bundle.patches.count(), 1)
-        self.failUnlessEqual(bundle.patches.all()[0], patch)
+        self.assertEqual(bundle.patches.count(), 1)
+        self.assertEqual(bundle.patches.all()[0], patch)
 
     def testCreateWithExistingName(self):
         newbundlename = self.bundle.name
@@ -395,7 +395,7 @@ class BundleCreateFromPatchTest(BundleTestBase):
                 'A bundle called %s already exists' % newbundlename)
 
         count = Bundle.objects.count()
-        self.failUnlessEqual(Bundle.objects.count(), 1)
+        self.assertEqual(Bundle.objects.count(), 1)
 
 class BundleAddFromListTest(BundleTestBase):
     def testAddToEmptyBundle(self):
@@ -413,8 +413,8 @@ class BundleAddFromListTest(BundleTestBase):
         self.assertContains(response, 'added to bundle %s' % self.bundle.name,
             count = 1)
 
-        self.failUnlessEqual(self.bundle.patches.count(), 1)
-        self.failUnlessEqual(self.bundle.patches.all()[0], patch)
+        self.assertEqual(self.bundle.patches.count(), 1)
+        self.assertEqual(self.bundle.patches.all()[0], patch)
 
     def testAddToNonEmptyBundle(self):
         self.bundle.append_patch(self.patches[0])
@@ -432,15 +432,15 @@ class BundleAddFromListTest(BundleTestBase):
         self.assertContains(response, 'added to bundle %s' % self.bundle.name,
             count = 1)
 
-        self.failUnlessEqual(self.bundle.patches.count(), 2)
-        self.failUnless(self.patches[0] in self.bundle.patches.all())
-        self.failUnless(self.patches[1] in self.bundle.patches.all())
+        self.assertEqual(self.bundle.patches.count(), 2)
+        self.assertIn(self.patches[0], self.bundle.patches.all())
+        self.assertIn(self.patches[1], self.bundle.patches.all())
 
         # check order
         bps = [ BundlePatch.objects.get(bundle = self.bundle,
                                         patch = self.patches[i]) \
                 for i in [0, 1] ]
-        self.failUnless(bps[0].order < bps[1].order)
+        self.assertTrue(bps[0].order < bps[1].order)
 
     def testAddDuplicate(self):
         self.bundle.append_patch(self.patches[0])
@@ -460,7 +460,7 @@ class BundleAddFromListTest(BundleTestBase):
         self.assertContains(response, 'Patch &#39;%s&#39; already in bundle' \
                             % patch.name, count = 1, status_code = 200)
 
-        self.assertEquals(count, self.bundle.patches.count())
+        self.assertEqual(count, self.bundle.patches.count())
 
     def testAddNewAndDuplicate(self):
         self.bundle.append_patch(self.patches[0])
@@ -483,7 +483,7 @@ class BundleAddFromListTest(BundleTestBase):
         self.assertContains(response, 'Patch &#39;%s&#39; added to bundle' \
                             % self.patches[1].name, count = 1,
                             status_code = 200)
-        self.assertEquals(count + 1, self.bundle.patches.count())
+        self.assertEqual(count + 1, self.bundle.patches.count())
 
 class BundleAddFromPatchTest(BundleTestBase):
     def testAddToEmptyBundle(self):
@@ -497,8 +497,8 @@ class BundleAddFromPatchTest(BundleTestBase):
                 'added to bundle &quot;%s&quot;' % self.bundle.name,
                 count = 1)
 
-        self.failUnlessEqual(self.bundle.patches.count(), 1)
-        self.failUnlessEqual(self.bundle.patches.all()[0], patch)
+        self.assertEqual(self.bundle.patches.count(), 1)
+        self.assertEqual(self.bundle.patches.all()[0], patch)
 
     def testAddToNonEmptyBundle(self):
         self.bundle.append_patch(self.patches[0])
@@ -512,15 +512,15 @@ class BundleAddFromPatchTest(BundleTestBase):
                 'added to bundle &quot;%s&quot;' % self.bundle.name,
                 count = 1)
 
-        self.failUnlessEqual(self.bundle.patches.count(), 2)
-        self.failUnless(self.patches[0] in self.bundle.patches.all())
-        self.failUnless(self.patches[1] in self.bundle.patches.all())
+        self.assertEqual(self.bundle.patches.count(), 2)
+        self.assertIn(self.patches[0], self.bundle.patches.all())
+        self.assertIn(self.patches[1], self.bundle.patches.all())
 
         # check order
         bps = [ BundlePatch.objects.get(bundle = self.bundle,
                                         patch = self.patches[i]) \
                 for i in [0, 1] ]
-        self.failUnless(bps[0].order < bps[1].order)
+        self.assertTrue(bps[0].order < bps[1].order)
 
 class BundleInitialOrderTest(BundleTestBase):
     """When creating bundles from a patch list, ensure that the patches in the
@@ -601,19 +601,19 @@ class BundleReorderTest(BundleTestBase):
 
         response = self.client.post(bundle_url(self.bundle), params)
 
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         bps = BundlePatch.objects.filter(bundle = self.bundle) \
                         .order_by('order')
 
         # check if patch IDs are in the expected order:
         bundle_ids = [ bp.patch.id for bp in bps ]
-        self.failUnlessEqual(neworder_ids, bundle_ids)
+        self.assertEqual(neworder_ids, bundle_ids)
 
         # check if order field is still sequential:
         order_numbers = [ bp.order for bp in bps ]
         expected_order = list(range(1, len(neworder)+1)) # [1 ... len(neworder)]
-        self.failUnlessEqual(order_numbers, expected_order)
+        self.assertEqual(order_numbers, expected_order)
 
     def testBundleReorderAll(self):
         # reorder all patches:

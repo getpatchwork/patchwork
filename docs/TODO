@@ -14,5 +14,3 @@
 * pwclient: add example scripts (eg, git post-commit hook) to online help
 * pwclient: case-insensitive searches for author and project name
 * changing primary email addresses for accounts
-* sed -i -e "s/\(assertEqual\)s/\1/g" $(git grep -l assertEquals)
-  and all in: https://docs.python.org/2/library/unittest.html#deprecated-aliases

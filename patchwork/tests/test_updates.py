@@ -88,13 +88,13 @@ class MultipleUpdateTest(TestCase):
         state = State.objects.exclude(pk__in = states)[0]
         self._testStateChange(state.pk)
         for p in self.patches:
-            self.assertEquals(Patch.objects.get(pk = p.pk).state, state)
+            self.assertEqual(Patch.objects.get(pk = p.pk).state, state)
 
     def testStateChangeInvalid(self):
         state = max(State.objects.all().values_list('id', flat = True)) + 1
         orig_states = [patch.state for patch in self.patches]
         response = self._testStateChange(state)
-        self.assertEquals( \
+        self.assertEqual( \
                 [Patch.objects.get(pk = p.pk).state for p in self.patches],
                 orig_states)
         self.assertFormError(response, 'patchform', 'state',
@@ -114,9 +114,9 @@ class MultipleUpdateTest(TestCase):
         delegate = create_maintainer(defaults.project)
         response = self._testDelegateChange(str(delegate.pk))
         for p in self.patches:
-            self.assertEquals(Patch.objects.get(pk = p.pk).delegate, delegate)
+            self.assertEqual(Patch.objects.get(pk = p.pk).delegate, delegate)
 
     def testDelegateClear(self):
         response = self._testDelegateChange('')
         for p in self.patches:
-            self.assertEquals(Patch.objects.get(pk = p.pk).delegate, None)
+            self.assertEqual(Patch.objects.get(pk = p.pk).delegate, None)
