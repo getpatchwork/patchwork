@@ -408,7 +408,12 @@ def main():
     filter_parser.add_argument(
         '-n', metavar='MAX#',
         type=int,
-        help='''Restrict number of results'''
+        help='''Return first n results'''
+    )
+    filter_parser.add_argument(
+        '-N', metavar='MAX#',
+        type=int,
+        help='''Return last N results'''
     )
     filter_parser.add_argument(
         '-m', metavar='MESSAGEID',
@@ -555,6 +560,12 @@ def main():
             filt.add("max_count", args.get('n'))
         except:
             action_parser.error("Invalid maximum count '%s'" % args.get('n'))
+
+    if args.get('N') is not None:
+        try:
+            filt.add("max_count", 0 - args.get('N'))
+        except:
+            action_parser.error("Invalid maximum count '%s'" % args.get('N'))
 
     do_signoff = args.get('signoff')
 

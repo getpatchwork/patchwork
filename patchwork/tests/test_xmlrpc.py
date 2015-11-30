@@ -76,3 +76,9 @@ class XMLRPCTest(LiveServerTestCase):
         patches = self.rpc.patch_list({'max_count': 2})
         self.assertEqual(len(patches), 2)
         self.assertEqual(patches[0]['id'], patch_objs[0].id)
+
+    def testListNegativeMaxCount(self):
+        patch_objs = self._createPatches(5)
+        patches = self.rpc.patch_list({'max_count': -1})
+        self.assertEqual(len(patches), 1)
+        self.assertEqual(patches[0]['id'], patch_objs[-1].id)
