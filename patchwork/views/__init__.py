@@ -27,11 +27,14 @@ from email.parser import HeaderParser
 import email.utils
 import re
 
-from .base import *  # noqa
-from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
-from patchwork.paginator import Paginator
+from django.http import Http404
+from django.shortcuts import render_to_response, get_object_or_404
+
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Comment, Patch
+from patchwork.models import Comment, Patch, EmailConfirmation
+from patchwork.paginator import Paginator
+from patchwork.requestcontext import PatchworkRequestContext
+from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
 
 
 def generic_list(request, project, view,
@@ -222,3 +225,31 @@ def patch_to_mbox(patch):
         mail['Date'] = email.utils.formatdate(utc_timestamp)
 
     return mail
+
+
+def confirm(request, key):
+    import patchwork.views.user
+    import patchwork.views.mail
+
+    views = {
+        'userperson': patchwork.views.user.link_confirm,
+        'registration': patchwork.views.user.register_confirm,
+        'optout': patchwork.views.mail.optout_confirm,
+        'optin': patchwork.views.mail.optin_confirm,
+    }
+
+    conf = get_object_or_404(EmailConfirmation, key=key)
+    if conf.type not in views:
+        raise Http404
+
+    if conf.active and conf.is_valid():
+        return views[conf.type](request, conf)
+
+    context = PatchworkRequestContext(request)
+    context['conf'] = conf
+    if not conf.active:
+        context['error'] = 'inactive'
+    elif not conf.is_valid():
+        context['error'] = 'expired'
+
+    return render_to_response('patchwork/confirm-error.html', context)

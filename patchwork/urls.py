@@ -29,7 +29,7 @@ urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
 
-    (r'^$', 'patchwork.views.projects'),
+    (r'^$', 'patchwork.views.project.list'),
     (r'^project/(?P<project_id>[^/]+)/list/$', 'patchwork.views.patch.list'),
     (r'^project/(?P<project_id>[^/]+)/$', 'patchwork.views.project.project'),
 
@@ -85,7 +85,7 @@ urlpatterns = patterns(
     (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
 
     # submitter autocomplete
-    (r'^submitter/$', 'patchwork.views.submitter_complete'),
+    (r'^submitter/$', 'patchwork.views.api.submitters'),
 
     # email setup
     (r'^mail/$', 'patchwork.views.mail.settings'),
@@ -93,16 +93,16 @@ urlpatterns = patterns(
     (r'^mail/optin/$', 'patchwork.views.mail.optin'),
 
     # help!
-    (r'^help/(?P<path>.*)$', 'patchwork.views.help'),
+    (r'^help/(?P<path>.*)$', 'patchwork.views.help.help'),
 )
 
 if settings.ENABLE_XMLRPC:
     urlpatterns += patterns(
         '',
         (r'xmlrpc/$', 'patchwork.views.xmlrpc.xmlrpc'),
-        (r'^pwclient/$', 'patchwork.views.pwclient'),
+        (r'^pwclient/$', 'patchwork.views.pwclient.pwclient'),
         (r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
-         'patchwork.views.pwclientrc'),
+         'patchwork.views.pwclient.pwclientrc'),
     )
 
 # redirect from old urls

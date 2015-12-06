@@ -20,10 +20,26 @@
 from __future__ import absolute_import
 
 from django.contrib.auth.models import User
+from django.core import urlresolvers
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 
 from patchwork.models import Patch, Project
 from patchwork.requestcontext import PatchworkRequestContext
+
+
+def list(request):
+    context = PatchworkRequestContext(request)
+    projects = Project.objects.all()
+
+    if projects.count() == 1:
+        return HttpResponseRedirect(
+            urlresolvers.reverse('patchwork.views.patch.list',
+                                 kwargs={'project_id': projects[0].linkname}))
+
+    context['projects'] = projects
+
+    return render_to_response('patchwork/projects.html', context)
 
 
 def project(request, project_id):

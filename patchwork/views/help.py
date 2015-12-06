@@ -19,28 +19,25 @@
 
 from __future__ import absolute_import
 
-from django.core.urlresolvers import reverse
-from django import template
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+from django.conf import settings
+from django.http import Http404
+from django.shortcuts import render_to_response
 
-from patchwork.filters import SubmitterFilter
-
-
-register = template.Library()
+from patchwork.requestcontext import PatchworkRequestContext
 
 
-@register.filter
-def personify(person, project):
+help_pages = {
+    '': 'index.html',
+    'about/': 'about.html',
+}
 
-    if person.name:
-        linktext = escape(person.name)
-    else:
-        linktext = escape(person.email)
+if settings.ENABLE_XMLRPC:
+    help_pages['pwclient/'] = 'pwclient.html'
 
-    url = reverse('patchwork.views.patch.list',
-                  kwargs={'project_id': project.linkname})
-    str = '<a href="%s?%s=%s">%s</a>' % (
-        url, SubmitterFilter.param, escape(person.id), linktext)
 
-    return mark_safe(str)
+def help(request, path):
+    context = PatchworkRequestContext(request)
+    if path in help_pages:
+        return render_to_response(
+            'patchwork/help/' + help_pages[path], context)
+    raise Http404

@@ -11,13 +11,13 @@ and applying patches.</p>
 
 <p>To use pwclient, you will need:</p>
 <ul>
- <li>The <a href="{% url 'patchwork.views.pwclient' %}">pwclient</a>
+ <li>The <a href="{% url 'patchwork.views.pwclient.pwclient' %}">pwclient</a>
   program (11kB, python script)</li>
  <li>(optional) a <code>.pwclientrc</code> file in your home directory.</li>
 </ul>
 
 <p>You can create your own <code>.pwclientrc</code> file. Each
-<a href="{% url 'patchwork.views.projects' %}">patchwork project</a>
+<a href="{% url 'patchwork.views.project.list' %}">patchwork project</a>
 provides a sample linked from the 'project info' page.</p>
 
 {% endblock %}

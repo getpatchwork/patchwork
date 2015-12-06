@@ -34,7 +34,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand"><a
-         href="{% url 'patchwork.views.projects' %}">Patchwork</a>
+         href="{% url 'patchwork.views.project.list' %}">Patchwork</a>
        {% block heading %}{% endblock %}</span>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -72,7 +72,7 @@
 {% if project %}
   <div id="breadcrumb">
    <div id="breadcrumb-left">
-     <a href="{% url 'patchwork.views.projects' %}">All projects</a>
+     <a href="{% url 'patchwork.views.project.list' %}">All projects</a>
      &#8594;
      {% block breadcrumb %}
       <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
@@ -96,7 +96,7 @@
   <div id="footer">
    <a href="http://jk.ozlabs.org/projects/patchwork/">patchwork</a>
    patch tracking system | <a
-   href="{% url 'patchwork.views.help' path="about/" %}">about patchwork</a>
+   href="{% url 'patchwork.views.help.help' path="about/" %}">about patchwork</a>
   </div>
  </body>
 </html>

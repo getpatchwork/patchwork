@@ -30,7 +30,7 @@ except ImportError:
     from xmlrpc.server import XMLRPCDocGenerator
 import sys
 
-from django.core import urlresolvers
+from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate
 from django.http import (
     HttpResponse, HttpResponseRedirect, HttpResponseServerError)
@@ -136,8 +136,8 @@ dispatcher = PatchworkXMLRPCDispatcher()
 @csrf_exempt
 def xmlrpc(request):
     if request.method not in ['POST', 'GET']:
-        return HttpResponseRedirect(urlresolvers.reverse(
-            'patchwork.views.help', kwargs={'path': 'pwclient/'}))
+        return HttpResponseRedirect(reverse('patchwork.views.help.help',
+                                            kwargs={'path': 'pwclient/'}))
 
     response = HttpResponse()
 

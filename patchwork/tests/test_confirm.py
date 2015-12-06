@@ -25,7 +25,8 @@ from patchwork.models import EmailConfirmation, Person
 
 
 def _confirmation_url(conf):
-    return reverse('patchwork.views.confirm', kwargs={'key': conf.key})
+    return reverse('patchwork.views.confirm',
+                   kwargs={'key': conf.key})
 
 
 class TestUser(object):

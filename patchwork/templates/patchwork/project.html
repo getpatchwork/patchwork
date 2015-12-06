@@ -49,9 +49,9 @@
 </table>
 
 {% if settings.ENABLE_XMLRPC %}
-<p>Sample <a href="{% url 'patchwork.views.help' "pwclient/" %}">patchwork
+<p>Sample <a href="{% url 'patchwork.views.help.help' "pwclient/" %}">patchwork
 client</a> configuration for this project: <a
-href="{% url 'patchwork.views.pwclientrc' project.linkname %}"
+href="{% url 'patchwork.views.pwclient.pwclientrc' project.linkname %}"
 >.pwclientrc</a>.</p>
 {% endif %}
   

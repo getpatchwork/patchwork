@@ -188,7 +188,8 @@ class OptinRequestTest(TestCase):
         self.assertContains(response, self.email)
 
         # check email
-        url = reverse('patchwork.views.confirm', kwargs={'key': conf.key})
+        url = reverse('patchwork.views.confirm',
+                      kwargs={'key': conf.key})
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [self.email])
