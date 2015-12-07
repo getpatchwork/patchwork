@@ -29,8 +29,7 @@ from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.models import Patch, Bundle, BundlePatch, Project
 from patchwork.requestcontext import PatchworkRequestContext
-from patchwork.utils import get_patch_ids
-from patchwork.views import generic_list, patch_to_mbox
+from patchwork.views import generic_list, patch_to_mbox, get_patch_ids
 
 
 @login_required

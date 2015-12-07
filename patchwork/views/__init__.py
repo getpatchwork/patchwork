@@ -31,10 +31,154 @@ from django.http import Http404
 from django.shortcuts import render_to_response, get_object_or_404
 
 from patchwork.forms import MultiplePatchForm
-from patchwork.models import Comment, Patch, EmailConfirmation
+from patchwork.models import (Bundle, BundlePatch, Comment, Patch,
+                              EmailConfirmation)
 from patchwork.paginator import Paginator
 from patchwork.requestcontext import PatchworkRequestContext
-from patchwork.utils import Order, get_patch_ids, bundle_actions, set_bundle
+
+
+bundle_actions = ['create', 'add', 'remove']
+
+
+def get_patch_ids(d, prefix='patch_id'):
+    ids = []
+
+    for (k, v) in d.items():
+        a = k.split(':')
+        if len(a) != 2:
+            continue
+        if a[0] != prefix:
+            continue
+        if not v:
+            continue
+        ids.append(a[1])
+
+    return ids
+
+
+class Order(object):
+    order_map = {
+        'date': 'date',
+        'name': 'name',
+        'state': 'state__ordering',
+        'submitter': 'submitter__name',
+        'delegate': 'delegate__username',
+    }
+    default_order = ('date', True)
+
+    def __init__(self, str=None, editable=False):
+        self.reversed = False
+        self.editable = editable
+        (self.order, self.reversed) = self.default_order
+
+        if self.editable:
+            return
+
+        if str is None or str == '':
+            return
+
+        reversed = False
+        if str[0] == '-':
+            str = str[1:]
+            reversed = True
+
+        if str not in self.order_map:
+            return
+
+        self.order = str
+        self.reversed = reversed
+
+    def __str__(self):
+        str = self.order
+        if self.reversed:
+            str = '-' + str
+        return str
+
+    def name(self):
+        return self.order
+
+    def reversed_name(self):
+        if self.reversed:
+            return self.order
+        else:
+            return '-' + self.order
+
+    def updown(self):
+        if self.reversed:
+            return 'up'
+        return 'down'
+
+    def apply(self, qs):
+        q = self.order_map[self.order]
+        if self.reversed:
+            q = '-' + q
+
+        orders = [q]
+
+        # if we're using a non-default order, add the default as a secondary
+        # ordering. We reverse the default if the primary is reversed.
+        (default_name, default_reverse) = self.default_order
+        if self.order != default_name:
+            q = self.order_map[default_name]
+            if self.reversed ^ default_reverse:
+                q = '-' + q
+            orders.append(q)
+
+        return qs.order_by(*orders)
+
+
+def set_bundle(user, project, action, data, patches, context):
+    # set up the bundle
+    bundle = None
+    if action == 'create':
+        bundle_name = data['bundle_name'].strip()
+        if '/' in bundle_name:
+            return ['Bundle names can\'t contain slashes']
+
+        if not bundle_name:
+            return ['No bundle name was specified']
+
+        if Bundle.objects.filter(owner=user, name=bundle_name).count() > 0:
+            return ['You already have a bundle called "%s"' % bundle_name]
+
+        bundle = Bundle(owner=user, project=project,
+                        name=bundle_name)
+        bundle.save()
+        context.add_message("Bundle %s created" % bundle.name)
+
+    elif action == 'add':
+        bundle = get_object_or_404(Bundle, id=data['bundle_id'])
+
+    elif action == 'remove':
+        bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
+
+    if not bundle:
+        return ['no such bundle']
+
+    for patch in patches:
+        if action == 'create' or action == 'add':
+            bundlepatch_count = BundlePatch.objects.filter(bundle=bundle,
+                                                           patch=patch).count()
+            if bundlepatch_count == 0:
+                bundle.append_patch(patch)
+                context.add_message("Patch '%s' added to bundle %s" %
+                                    (patch.name, bundle.name))
+            else:
+                context.add_message("Patch '%s' already in bundle %s" %
+                                    (patch.name, bundle.name))
+
+        elif action == 'remove':
+            try:
+                bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
+                bp.delete()
+                context.add_message("Patch '%s' removed from bundle %s\n" %
+                                    (patch.name, bundle.name))
+            except Exception:
+                pass
+
+    bundle.save()
+
+    return []
 
 
 def generic_list(request, project, view,
