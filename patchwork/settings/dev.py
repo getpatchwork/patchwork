@@ -28,7 +28,10 @@ DEBUG = True
 
 # Templates
 
-TEMPLATE_DEBUG = True
+if django.VERSION < (1, 8):
+    # In Django 1.8+, this is only necessary if the value differs from
+    # the value for 'DEBUG'
+    TEMPLATE_DEBUG = True
 
 # Database
 

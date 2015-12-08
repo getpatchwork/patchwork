@@ -61,9 +61,32 @@ ROOT_URLCONF = 'patchwork.urls'
 
 # Templates
 
-TEMPLATE_DIRS = (
+_TEMPLATE_DIRS = [
     os.path.join(ROOT_DIR, 'templates'),
-)
+]
+
+if django.VERSION >= (1, 8):
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': _TEMPLATE_DIRS,
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.static',
+                    'django.template.context_processors.tz',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
+        },
+    ]
+else:
+    TEMPLATE_DIRS = _TEMPLATE_DIRS
+
 
 # Email
 
