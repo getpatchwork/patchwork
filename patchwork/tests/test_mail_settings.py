@@ -30,7 +30,7 @@ from patchwork.tests.utils import create_user, error_strings
 class MailSettingsTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('patchwork.views.mail.settings')
+        self.url = reverse('mail-settings')
 
     def testMailSettingsGET(self):
         response = self.client.get(self.url)
@@ -64,7 +64,7 @@ class MailSettingsTest(TestCase):
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
         self.assertEqual(response.context['is_optout'], False)
         self.assertContains(response, '<strong>may</strong>')
-        optout_url = reverse('patchwork.views.mail.optout')
+        optout_url = reverse('mail-optout')
         self.assertContains(response, ('action="%s"' % optout_url))
 
     def testMailSettingsPOSTOptedOut(self):
@@ -75,19 +75,19 @@ class MailSettingsTest(TestCase):
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
         self.assertEqual(response.context['is_optout'], True)
         self.assertContains(response, '<strong>may not</strong>')
-        optin_url = reverse('patchwork.views.mail.optin')
+        optin_url = reverse('mail-optin')
         self.assertContains(response, ('action="%s"' % optin_url))
 
 
 class OptoutRequestTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('patchwork.views.mail.optout')
+        self.url = reverse('mail-optout')
 
     def testOptOutRequestGET(self):
         response = self.client.get(self.url)
         self.assertRedirects(
-            response, reverse('patchwork.views.mail.settings'))
+            response, reverse('mail-settings'))
 
     def testOptoutRequestValidPOST(self):
         email = u'foo@example.com'
@@ -103,7 +103,7 @@ class OptoutRequestTest(TestCase):
         self.assertContains(response, email)
 
         # check email
-        url = reverse('patchwork.views.confirm', kwargs={'key': conf.key})
+        url = reverse('confirm', kwargs={'key': conf.key})
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [email])
@@ -131,14 +131,13 @@ class OptoutRequestTest(TestCase):
 class OptoutTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('patchwork.views.mail.optout')
+        self.url = reverse('mail-optout')
         self.email = u'foo@example.com'
         self.conf = EmailConfirmation(type='optout', email=self.email)
         self.conf.save()
 
     def testOptoutValidHash(self):
-        url = reverse('patchwork.views.confirm',
-                      kwargs={'key': self.conf.key})
+        url = reverse('confirm', kwargs={'key': self.conf.key})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -166,14 +165,13 @@ class OptoutPreexistingTest(OptoutTest):
 class OptinRequestTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('patchwork.views.mail.optin')
+        self.url = reverse('mail-optin')
         self.email = u'foo@example.com'
         EmailOptout(email=self.email).save()
 
     def testOptInRequestGET(self):
         response = self.client.get(self.url)
-        self.assertRedirects(
-            response, reverse('patchwork.views.mail.settings'))
+        self.assertRedirects(response, reverse('mail-settings'))
 
     def testOptInRequestValidPOST(self):
         response = self.client.post(self.url, {'email': self.email})
@@ -188,8 +186,7 @@ class OptinRequestTest(TestCase):
         self.assertContains(response, self.email)
 
         # check email
-        url = reverse('patchwork.views.confirm',
-                      kwargs={'key': conf.key})
+        url = reverse('confirm', kwargs={'key': conf.key})
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [self.email])
@@ -224,8 +221,7 @@ class OptinTest(TestCase):
         self.conf.save()
 
     def testOptinValidHash(self):
-        url = reverse('patchwork.views.confirm',
-                      kwargs={'key': self.conf.key})
+        url = reverse('confirm', kwargs={'key': self.conf.key})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -245,7 +241,7 @@ class OptinWithoutOptoutTest(TestCase):
     """Test an opt-in with no existing opt-out"""
 
     def setUp(self):
-        self.url = reverse('patchwork.views.mail.optin')
+        self.url = reverse('mail-optin')
 
     def testOptInWithoutOptout(self):
         email = u'foo@example.com'
@@ -263,9 +259,9 @@ class UserProfileOptoutFormTest(TestCase):
        page, for logged-in users"""
 
     def setUp(self):
-        self.url = reverse('patchwork.views.user.profile')
-        self.optout_url = reverse('patchwork.views.mail.optout')
-        self.optin_url = reverse('patchwork.views.mail.optin')
+        self.url = reverse('user-profile')
+        self.optout_url = reverse('mail-optout')
+        self.optin_url = reverse('mail-optin')
         self.form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
                                  '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
                                  '</form>')

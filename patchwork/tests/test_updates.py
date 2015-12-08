@@ -33,8 +33,7 @@ class MultipleUpdateTest(TestCase):
         self.client.login(username=self.user.username,
                           password=self.user.username)
         self.properties_form_id = 'patchform-properties'
-        self.url = reverse(
-            'patchwork.views.patch.list', args=[defaults.project.linkname])
+        self.url = reverse('patch-list', args=[defaults.project.linkname])
         self.base_data = {
             'action': 'Update', 'project': str(defaults.project.id),
             'form': 'patchlistform', 'archived': '*', 'delegate': '*',

@@ -34,21 +34,21 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand"><a
-         href="{% url 'patchwork.views.project.list' %}">Patchwork</a>
+         href="{% url 'project-list' %}">Patchwork</a>
        {% block heading %}{% endblock %}</span>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse">
      <ul class="nav navbar-nav navbar-right">
 {% if project %}
-     <li><a href="{% url 'patchwork.views.project.project' project_id=project.linkname %}"
+     <li><a href="{% url 'project-detail' project_id=project.linkname %}"
       >Project Info</a></li>
     <li><p class="navbar-text">|</p></li>
 {% endif %}
 {% if user.is_authenticated %}
-     <li><a href="{% url 'patchwork.views.user.todo_lists' %}">Todo
+     <li><a href="{% url 'user-todos' %}">Todo
       <span class="badge">{{ user.profile.n_todo_patches }}</span></a>
      </li>
-     <li><a href="{% url 'patchwork.views.bundle.bundles' %}">Bundles</a></li>
+     <li><a href="{% url 'bundle-list' %}">Bundles</a></li>
 {% if user.is_staff %}
      <li><a href="{% url 'admin:index' %}">Admin</a></li>
 {% endif %}
@@ -57,14 +57,14 @@
         ><strong>{{ user.username }}</strong>&nbsp;<span
         class="caret" /></a>
        <ul class="dropdown-menu" role="menu">
-         <li><a href="{% url 'patchwork.views.user.profile' %}">View profile</a></li>
+         <li><a href="{% url 'user-profile' %}">View profile</a></li>
          <li><a href="{% url 'auth_logout' %}">Logout</a></li>
        </ul>
      </li>
 {% else %}
      <li><a href="{% url 'auth_login' %}">Login</a></li>
-     <li><a href="{% url 'patchwork.views.user.register' %}">Register</a></li>
-     <li><a href="{% url 'patchwork.views.mail.settings' %}">Mail settings</a></li>
+     <li><a href="{% url 'user-register' %}">Register</a></li>
+     <li><a href="{% url 'mail-settings' %}">Mail settings</a></li>
 {% endif %}
     </div>
    </div>
@@ -72,10 +72,10 @@
 {% if project %}
   <div id="breadcrumb">
    <div id="breadcrumb-left">
-     <a href="{% url 'patchwork.views.project.list' %}">All projects</a>
+     <a href="{% url 'project-list' %}">All projects</a>
      &#8594;
      {% block breadcrumb %}
-      <a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
+      <a href="{% url 'patch-list' project_id=project.linkname %}"
        >{{ project.linkname }} patches</a>
      {% endblock %}
    </div>
@@ -96,7 +96,7 @@
   <div id="footer">
    <a href="http://jk.ozlabs.org/projects/patchwork/">patchwork</a>
    patch tracking system | <a
-   href="{% url 'patchwork.views.help.help' path="about/" %}">about patchwork</a>
+   href="{% url 'help' path="about/" %}">about patchwork</a>
   </div>
  </body>
 </html>

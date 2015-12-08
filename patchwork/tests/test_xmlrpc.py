@@ -35,15 +35,13 @@ class XMLRPCTest(LiveServerTestCase):
     fixtures = ['default_states']
 
     def setUp(self):
-        self.url = (self.live_server_url +
-                    reverse('patchwork.views.xmlrpc.xmlrpc'))
+        self.url = (self.live_server_url + reverse('xmlrpc'))
         self.rpc = xmlrpc_client.Server(self.url)
 
     def testGetRedirect(self):
         response = self.client.patch(self.url)
         self.assertRedirects(response,
-                             reverse('patchwork.views.help.help',
-                                     kwargs={'path': 'pwclient/'}))
+                             reverse('help', kwargs={'path': 'pwclient/'}))
 
     def testList(self):
         defaults.project.save()

@@ -7,6 +7,6 @@ This email is to confirm that you own the email address:
 So that you can add it to your patchwork profile. You can confirm this
 email address by visiting the url:
 
- http://{{site.domain}}{% url 'patchwork.views.confirm' key=confirmation.key %}
+ http://{{site.domain}}{% url 'confirm' key=confirmation.key %}
 
 Happy patchworking.

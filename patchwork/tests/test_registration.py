@@ -28,8 +28,7 @@ from patchwork.tests.utils import create_user
 
 
 def _confirmation_url(conf):
-    return reverse('patchwork.views.confirm',
-                   kwargs={'key': conf.key})
+    return reverse('confirm', kwargs={'key': conf.key})
 
 
 class TestUser(object):

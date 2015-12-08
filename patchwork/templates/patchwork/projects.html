@@ -10,7 +10,7 @@
  {% for p in projects %}
  <div class="project">
   <h2 class="project-title">
-   <a href="{% url 'patchwork.views.patch.list' project_id=p.linkname %}"
+   <a href="{% url 'patch-list' project_id=p.linkname %}"
     >{{p.linkname}}</a>
   </h2>
   <div class="project-name">{{p.name}}</div>

@@ -37,8 +37,7 @@ class EmptyPatchListTest(TestCase):
            patches present"""
         project = defaults.project
         defaults.project.save()
-        url = reverse('patchwork.views.patch.list',
-                      kwargs={'project_id': project.linkname})
+        url = reverse('patch-list', kwargs={'project_id': project.linkname})
         response = self.client.get(url)
         self.assertContains(response, 'No patches to display')
         self.assertNotContains(response, 'tbody')
@@ -96,7 +95,7 @@ class PatchOrderTest(TestCase):
         [test_fn(p1, p2) for (p1, p2) in pairs]
 
     def testDateOrder(self):
-        url = reverse('patchwork.views.patch.list',
+        url = reverse('patch-list',
                       kwargs={'project_id': defaults.project.linkname})
         response = self.client.get(url + '?order=date')
 
@@ -105,7 +104,7 @@ class PatchOrderTest(TestCase):
         self._test_sequence(response, test_fn)
 
     def testDateReverseOrder(self):
-        url = reverse('patchwork.views.patch.list',
+        url = reverse('patch-list',
                       kwargs={'project_id': defaults.project.linkname})
         response = self.client.get(url + '?order=-date')
 
@@ -114,7 +113,7 @@ class PatchOrderTest(TestCase):
         self._test_sequence(response, test_fn)
 
     def testSubmitterOrder(self):
-        url = reverse('patchwork.views.patch.list',
+        url = reverse('patch-list',
                       kwargs={'project_id': defaults.project.linkname})
         response = self.client.get(url + '?order=submitter')
 
@@ -124,7 +123,7 @@ class PatchOrderTest(TestCase):
         self._test_sequence(response, test_fn)
 
     def testSubmitterReverseOrder(self):
-        url = reverse('patchwork.views.patch.list',
+        url = reverse('patch-list',
                       kwargs={'project_id': defaults.project.linkname})
         response = self.client.get(url + '?order=-submitter')
 

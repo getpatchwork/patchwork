@@ -21,7 +21,7 @@ you.</p>
     <ul class="errorlist"><li>{{error}}</li></ul>
    {% endif %}
 
-   <form action="{% url 'patchwork.views.user.link' %}" method="post">
+   <form action="{% url 'user-link' %}" method="post">
     {% csrf_token %}
     {{linkform.email.errors}}
     Link an email address: {{ linkform.email }}

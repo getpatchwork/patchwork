@@ -7,7 +7,7 @@
 
 {% block title %}{{patch.name}}{% endblock %}
 {% block breadcrumb %}
-<a href="{% url 'patchwork.views.patch.list' project_id=project.linkname %}"
+<a href="{% url 'patch-list' project_id=project.linkname %}"
  >{{ project.linkname }} patches</a>
  &#8594;
  {{ patch.name }}
@@ -216,11 +216,11 @@ function toggle_headers(link_id, headers_id)
  <a href="javascript:toggle_headers('hide-patch', 'patch')" id="hide-patch">hide</a></span>
 {% if patch.content %}
  <span>|</span>
- <a href="{% url 'patchwork.views.patch.content' patch_id=patch.id %}"
+ <a href="{% url 'patch-raw' patch_id=patch.id %}"
    >download patch</a>
 {% endif %}
  <span>|</span>
- <a href="{% url 'patchwork.views.patch.mbox' patch_id=patch.id %}"
+ <a href="{% url 'patch-mbox' patch_id=patch.id %}"
    >download mbox</a>
 </h2>
 <div id="patch" class="patch">

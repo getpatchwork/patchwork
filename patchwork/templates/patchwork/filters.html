@@ -70,7 +70,7 @@ $(document).ready(function() {
                 return callback();
 
             req = $.ajax({
-                url: '{% url 'patchwork.views.api.submitters' %}?q=' +
+                url: '{% url 'api-submitters' %}?q=' +
                       encodeURIComponent(query) + '&l=10',
                 error: function() {
                     callback();

@@ -184,7 +184,7 @@ def unlink(request, person_id):
             person.user = None
             person.save()
 
-    url = django.core.urlresolvers.reverse('patchwork.views.user.profile')
+    url = django.core.urlresolvers.reverse('user-profile')
     return HttpResponseRedirect(url)
 
 

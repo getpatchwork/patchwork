@@ -28,8 +28,7 @@ from patchwork.tests.utils import defaults, error_strings
 
 
 def _confirmation_url(conf):
-    return reverse('patchwork.views.confirm',
-                   kwargs={'key': conf.key})
+    return reverse('confirm', kwargs={'key': conf.key})
 
 
 class TestUser(object):
@@ -188,9 +187,8 @@ class UserPasswordChangeTest(TestCase):
     user = None
 
     def setUp(self):
-        self.form_url = reverse('django.contrib.auth.views.password_change')
-        self.done_url = reverse(
-            'django.contrib.auth.views.password_change_done')
+        self.form_url = reverse('password_change')
+        self.done_url = reverse('password_change_done')
 
     def testPasswordChangeForm(self):
         self.user = TestUser()

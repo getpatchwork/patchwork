@@ -96,14 +96,13 @@ def setbundle(request):
     if bundle:
         return HttpResponseRedirect(
             django.core.urlresolvers.reverse(
-                'patchwork.views.bundle.bundle',
+                'bundle-detail',
                 kwargs={'bundle_id': bundle.id}
             )
         )
     else:
         return HttpResponseRedirect(
-            django.core.urlresolvers.reverse(
-                'patchwork.views.bundle.list')
+            django.core.urlresolvers.reverse('bundle-list')
         )
 
 
@@ -147,8 +146,7 @@ def bundle(request, username, bundlename):
             if action == 'delete':
                 bundle.delete()
                 return HttpResponseRedirect(
-                    django.core.urlresolvers.reverse(
-                        'patchwork.views.user.profile')
+                    django.core.urlresolvers.reverse('user-profile')
                 )
             elif action == 'update':
                 form = BundleForm(request.POST, instance=bundle)
@@ -183,7 +181,7 @@ def bundle(request, username, bundlename):
         form = None
 
     context = generic_list(request, bundle.project,
-                           'patchwork.views.bundle.bundle',
+                           'bundle-detail',
                            view_args={'username': bundle.owner.username,
                                       'bundlename': bundle.name},
                            filter_settings=filter_settings,
@@ -224,7 +222,7 @@ def bundle_redir(request, bundle_id):
 def mbox_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(django.core.urlresolvers.reverse(
-                                'patchwork.views.bundle.mbox', kwargs={
+                                'bundle-mbox', kwargs={
                                     'username': request.user.username,
                                     'bundlename': bundle.name,
                                 }))

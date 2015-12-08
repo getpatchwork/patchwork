@@ -13,18 +13,18 @@
   <td>Patchwork <strong>may not</strong> send automated notifications to
    this address.</td>
   <td>
-   <form method="post" action="{% url 'patchwork.views.mail.optin' %}">
+   <form method="post" action="{% url 'mail-optin' %}">
     {% csrf_token %}
     <input type="hidden" name="email" value="{{email}}"/>
     <input type="submit" value="Opt-in"/>
    </form>
   </td>
-   
+
 {% else %}
   <td>Patchwork <strong>may</strong> send automated notifications to
    this address.</td>
   <td>
-   <form method="post" action="{% url 'patchwork.views.mail.optout' %}">
+   <form method="post" action="{% url 'mail-optout' %}">
     {% csrf_token %}
     <input type="hidden" name="email" value="{{email}}"/>
     <input type="submit" value="Opt-out"/>

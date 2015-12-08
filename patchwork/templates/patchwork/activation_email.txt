@@ -3,7 +3,7 @@ Hi,
 This email is to confirm your account on the patchwork patch-tracking
 system. You can activate your account by visiting the url:
 
- http://{{site.domain}}{% url 'patchwork.views.confirm' key=confirmation.key %}
+ http://{{site.domain}}{% url 'confirm' key=confirmation.key %}
 
 If you didn't request a user account on patchwork, then you can ignore
 this mail.
