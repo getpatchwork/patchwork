@@ -29,24 +29,35 @@ urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
 
-    (r'^$', 'patchwork.views.project.list'),
-    (r'^project/(?P<project_id>[^/]+)/list/$', 'patchwork.views.patch.list'),
-    (r'^project/(?P<project_id>[^/]+)/$', 'patchwork.views.project.project'),
+    url(r'^$', 'patchwork.views.project.list', name='project-list'),
+    url(r'^project/(?P<project_id>[^/]+)/list/$', 'patchwork.views.patch.list',
+        name='patch-list'),
+    url(r'^project/(?P<project_id>[^/]+)/$', 'patchwork.views.project.project',
+        name='project-detail'),
 
     # patch views
-    (r'^patch/(?P<patch_id>\d+)/$', 'patchwork.views.patch.patch'),
-    (r'^patch/(?P<patch_id>\d+)/raw/$', 'patchwork.views.patch.content'),
-    (r'^patch/(?P<patch_id>\d+)/mbox/$', 'patchwork.views.patch.mbox'),
+    url(r'^patch/(?P<patch_id>\d+)/$', 'patchwork.views.patch.patch',
+        name='patch-detail'),
+    url(r'^patch/(?P<patch_id>\d+)/raw/$', 'patchwork.views.patch.content',
+        name='patch-raw'),
+    url(r'^patch/(?P<patch_id>\d+)/mbox/$', 'patchwork.views.patch.mbox',
+        name='patch-mbox'),
 
     # logged-in user stuff
-    (r'^user/$', 'patchwork.views.user.profile'),
-    (r'^user/todo/$', 'patchwork.views.user.todo_lists'),
-    (r'^user/todo/(?P<project_id>[^/]+)/$', 'patchwork.views.user.todo_list'),
+    url(r'^user/$', 'patchwork.views.user.profile', name='user-profile'),
+    url(r'^user/todo/$', 'patchwork.views.user.todo_lists',
+        name='user-todos'),
+    url(r'^user/todo/(?P<project_id>[^/]+)/$',
+        'patchwork.views.user.todo_list',
+        name='user-todo'),
 
-    (r'^user/bundles/$', 'patchwork.views.bundle.bundles'),
+    url(r'^user/bundles/$', 'patchwork.views.bundle.bundles',
+        name='bundle-list'),
 
-    (r'^user/link/$', 'patchwork.views.user.link'),
-    (r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink'),
+    url(r'^user/link/$', 'patchwork.views.user.link',
+        name='user-link'),
+    url(r'^user/unlink/(?P<person_id>[^/]+)/$', 'patchwork.views.user.unlink',
+        name='user-unlink'),
 
     # password change
     url(r'^user/password-change/$', auth_views.password_change,
@@ -74,43 +85,51 @@ urlpatterns = patterns(
         name='auth_logout'),
 
     # registration
-    (r'^register/', 'patchwork.views.user.register'),
+    url(r'^register/', 'patchwork.views.user.register', name='user-register'),
 
     # public view for bundles
-    (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
-     'patchwork.views.bundle.bundle'),
-    (r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/mbox/$',
-     'patchwork.views.bundle.mbox'),
+    url(r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
+        'patchwork.views.bundle.bundle',
+        name='bundle-detail'),
+    url(r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/mbox/$',
+        'patchwork.views.bundle.mbox',
+        name='bundle-mbox'),
 
-    (r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm'),
+    url(r'^confirm/(?P<key>[0-9a-f]+)/$', 'patchwork.views.confirm',
+        name='confirm'),
 
     # submitter autocomplete
-    (r'^submitter/$', 'patchwork.views.api.submitters'),
+    url(r'^submitter/$', 'patchwork.views.api.submitters',
+        name='api-submitters'),
 
     # email setup
-    (r'^mail/$', 'patchwork.views.mail.settings'),
-    (r'^mail/optout/$', 'patchwork.views.mail.optout'),
-    (r'^mail/optin/$', 'patchwork.views.mail.optin'),
+    url(r'^mail/$', 'patchwork.views.mail.settings', name='mail-settings'),
+    url(r'^mail/optout/$', 'patchwork.views.mail.optout', name='mail-optout'),
+    url(r'^mail/optin/$', 'patchwork.views.mail.optin', name='mail-optin'),
 
     # help!
-    (r'^help/(?P<path>.*)$', 'patchwork.views.help.help'),
+    url(r'^help/(?P<path>.*)$', 'patchwork.views.help.help', name='help'),
 )
 
 if settings.ENABLE_XMLRPC:
     urlpatterns += patterns(
         '',
-        (r'xmlrpc/$', 'patchwork.views.xmlrpc.xmlrpc'),
-        (r'^pwclient/$', 'patchwork.views.pwclient.pwclient'),
-        (r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
-         'patchwork.views.pwclient.pwclientrc'),
+        url(r'xmlrpc/$', 'patchwork.views.xmlrpc.xmlrpc', name='xmlrpc'),
+        url(r'^pwclient/$', 'patchwork.views.pwclient.pwclient',
+            name='pwclient'),
+        url(r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
+            'patchwork.views.pwclient.pwclientrc',
+            name='pwclientrc'),
     )
 
 # redirect from old urls
 if settings.COMPAT_REDIR:
     urlpatterns += patterns(
         '',
-        (r'^user/bundle/(?P<bundle_id>[^/]+)/$',
-         'patchwork.views.bundle.bundle_redir'),
-        (r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
-         'patchwork.views.bundle.mbox_redir'),
+        url(r'^user/bundle/(?P<bundle_id>[^/]+)/$',
+            'patchwork.views.bundle.bundle_redir',
+            name='bundle-redir'),
+        url(r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
+            'patchwork.views.bundle.mbox_redir',
+            name='bundle-mbox-redir'),
     )
