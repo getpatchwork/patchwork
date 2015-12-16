@@ -127,6 +127,10 @@ def find_author(mail):
         # for example@example.com (Firstname Lastname) style addresses
         (re.compile(r'"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
 
+        # for example at example.com (Firstname Lastname) style addresses
+        (re.compile(r'(.*?)\sat\s(.*?)\s*\(([^\)]+)\)'),
+         (lambda g: (g[2], '@'.join(g[0:2])))),
+
         # everything else
         (re.compile(r'(.*)'), (lambda g: (None, g[0]))),
     ]
