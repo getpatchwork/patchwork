@@ -42,6 +42,8 @@ urlpatterns = [
     url(r'^$', project_views.list, name='project-list'),
     url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.list,
         name='patch-list'),
+    url(r'^project/(?P<project_id>[^/]+)/bundles/$', bundle_views.bundles,
+        name='bundle-list'),
     url(r'^project/(?P<project_id>[^/]+)/$', project_views.project,
         name='project-detail'),
 
@@ -53,15 +55,15 @@ urlpatterns = [
     url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.mbox,
         name='patch-mbox'),
 
+
     # logged-in user stuff
     url(r'^user/$', user_views.profile, name='user-profile'),
     url(r'^user/todo/$', user_views.todo_lists,
         name='user-todos'),
     url(r'^user/todo/(?P<project_id>[^/]+)/$', user_views.todo_list,
         name='user-todo'),
-
     url(r'^user/bundles/$', bundle_views.bundles,
-        name='bundle-list'),
+        name='user-bundles'),
 
     url(r'^user/link/$', user_views.link,
         name='user-link'),
