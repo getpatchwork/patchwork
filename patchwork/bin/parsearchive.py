@@ -31,6 +31,8 @@ import django
 
 from patchwork.bin import parsemail
 
+LOGGER = logging.getLogger(__name__)
+
 VERBOSITY_LEVELS = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -42,8 +44,14 @@ VERBOSITY_LEVELS = {
 
 def parse_mbox(path, list_id):
     mbox = mailbox.mbox(path)
+    duplicates = 0
     for msg in mbox:
-        parsemail.parse_mail(msg, list_id)
+        try:
+            parsemail.parse_mail(msg, list_id)
+        except django.db.utils.IntegrityError:
+            duplicates += 1
+    LOGGER.info('Processed %d messages, %d duplicates',
+                len(mbox), duplicates)
 
 
 def main():
