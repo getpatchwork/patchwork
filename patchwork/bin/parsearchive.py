@@ -29,7 +29,7 @@ import mailbox
 
 import django
 
-from . import parsemail
+from patchwork.bin import parsemail
 
 VERBOSITY_LEVELS = {
     'debug': logging.DEBUG,
