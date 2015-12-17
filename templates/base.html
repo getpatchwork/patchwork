@@ -38,17 +38,41 @@
        {% block heading %}{% endblock %}</span>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse">
-     <ul class="nav navbar-nav navbar-right">
 {% if project %}
-     <li><a href="{% url 'project-detail' project_id=project.linkname %}"
-      >Project Info</a></li>
-    <li><p class="navbar-text">|</p></li>
+      <ul class="nav navbar-nav">
+        <li class="{% block patch_active %}{% endblock %}">
+          <a href="{% url 'patch-list' project_id=project.linkname %}">
+            <span class="glyphicon glyphicon-file"></span>
+            Patches
+          </a>
+        </li>
+        <li class="{% block bundle_active %}{% endblock %}">
+          <a href="{% url 'bundle-list' project_id=project.linkname %}">
+            <span class="glyphicon glyphicon-gift"></span>
+            Bundles
+          </a>
+        </li>
+        <li class="{% block info_active %}{% endblock %}">
+          <a href="{% url 'project-detail' project_id=project.linkname %}">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            About this project
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'project-list' %}">
+            <span class="glyphicon glyphicon-home"></span>
+            All projects
+          </a>
+        </li>
+     </ul>
 {% endif %}
+     <ul class="nav navbar-nav navbar-right">
 {% if user.is_authenticated %}
-     <li><a href="{% url 'user-todos' %}">Todo
-      <span class="badge">{{ user.profile.n_todo_patches }}</span></a>
+     <li>
+      <a href="{% url 'user-todos' %}">
+       Todo
+       <span class="badge">{{ user.profile.n_todo_patches }}</span></a>
      </li>
-     <li><a href="{% url 'bundle-list' %}">Bundles</a></li>
 {% if user.is_staff %}
      <li><a href="{% url 'admin:index' %}">Admin</a></li>
 {% endif %}
@@ -66,22 +90,10 @@
      <li><a href="{% url 'user-register' %}">Register</a></li>
      <li><a href="{% url 'mail-settings' %}">Mail settings</a></li>
 {% endif %}
+     </ul>
     </div>
    </div>
   </nav>
-{% if project %}
-  <div id="breadcrumb">
-   <div id="breadcrumb-left">
-     <a href="{% url 'project-list' %}">All projects</a>
-     &#8594;
-     {% block breadcrumb %}
-      <a href="{% url 'patch-list' project_id=project.linkname %}"
-       >{{ project.linkname }} patches</a>
-     {% endblock %}
-   </div>
-   <div style="clear: both"></div>
-  </div>
-{% endif %}
 {% if messages %}
   <div id="messages">
   {% for message in messages %}

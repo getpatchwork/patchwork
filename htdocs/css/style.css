@@ -30,22 +30,6 @@ pre {
 	color: #999;
 }
 
-#breadcrumb {
-	float: left
-	width: 100%;
-	border-bottom: 0.1em solid #ddd;
-	padding: 0.2em 1em;
-	color: #a0a0a0;
-}
-
-#breadcrumb-left {
-	float: left;
-}
-
-#breadcrum-right {
-	float: right;
-}
-
 #content {
 	padding: 1em;
 }
