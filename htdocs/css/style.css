@@ -129,21 +129,18 @@ input#reorder-change {
 /* list pagination */
 .paginator {
 	text-align: right;
-	margin: 10px 0;
 	clear: both;
-	margin-top: 20px;
+        margin: 8px 0 20px;
 }
 
 .paginator .prev-na,
 .paginator .next-na {
-	padding:.3em;
 	font-weight: normal;
 	color: #a0a0a0;
 }
 
 .paginator .prev a, .paginator .prev a:visited,
 .paginator .next a, .paginator .next a:visited {
-	padding: .3em;
 	font-weight: normal;
 }
 
@@ -151,13 +148,13 @@ input#reorder-change {
 .paginator .next, .paginator .next-na { margin-left:.5em; }
 
 .paginator .page a, .paginator .page a:visited, .paginator .curr {
-	padding: .25em;
 	font-weight: normal;
-	margin: 0em .25em;
+        padding: 6px 12px;
 }
 .paginator .curr {
-	background-color: #2E2E70;
-	color: #fff;
+	background-color: #eee;
+        border-radius: 4px;
+	color: #999;
 	font-weight:normal;
 }
 

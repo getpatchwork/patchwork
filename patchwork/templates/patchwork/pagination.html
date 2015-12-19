@@ -5,9 +5,9 @@
 {% if page.has_previous %}
  <span class="prev">
   <a href="{% listurl page=page.previous_page_number %}"
-     title="Previous Page">&laquo; Previous</a></span>
+     title="Previous Page">&laquo;</a></span>
 {% else %}
- <span class="prev-na">&laquo; Previous</span>
+ <span class="prev-na">&laquo;</span>
 {% endif %}
  
 {% if page.paginator.trailing_set %}
@@ -36,10 +36,10 @@
 {% if page.has_next %}
  <span class="next">
   <a href="{% listurl page=page.next_page_number %}"
-   title="Next Page">Next &raquo;</a>
+   title="Next Page">&raquo;</a>
   </span>
 {% else %}
- <span class="next-na">Next &raquo;</span>
+ <span class="next-na">&raquo;</span>
 {% endif %}
 </div> 
 {% endifnotequal %}
