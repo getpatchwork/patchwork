@@ -6,22 +6,31 @@
 {% block body %}
 
 {% if projects %}
- <div class="project-set">
- {% for p in projects %}
- <div class="project">
-  <h2 class="project-title">
-   <a href="{% url 'patch-list' project_id=p.linkname %}"
-    >{{p.linkname}}</a>
-  </h2>
-  <div class="project-name">{{p.name}}</div>
+<div class="row" style="margin-top:20px;">
+{% for p in projects %}
+ <div class="col-sm-6 col-md-4">
+   <div class="thumbnail">
+     <div class="caption">
+      <h3>{{p.name}}</h3>
+      <p class="core-info">
+       <span>
+        <a href="{% url 'patch-list' project_id=p.linkname %}">
+         View patches
+        </a>
+       </span>
+      </p>
 {% if p.web_url %}
-  <div class="project-url"><a href="{{p.web_url}}">website</a></div>
-{% endif %}
-  </div>
- {% endfor %}
- </div>
+      <p><a href="{{p.web_url}}">{{p.web_url}}</a></p>
 {% else %}
- <p>Patchwork doesn't have any projects to display!</p>
+      <p><a href="{{p.webscm_url}}">{{p.webscm_url}}</a></p>
+{% endif %}
+     </div>
+   </div>
+ </div>
+{% endfor %}
+</div>
+{% else %}
+<p>Patchwork doesn't have any projects to display!</p>
 {% endif %}
 
 {% endblock %}

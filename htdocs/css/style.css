@@ -158,26 +158,8 @@ input#reorder-change {
 	font-weight:normal;
 }
 
-/* project list view */
-.project-set {
-}
-
-.project-set .project {
-	display: inline-block;
-	vertical-align: top;
-	background: #fcfcfc;
-	border: thin solid #f0f0f0;
-	box-shadow: 5px 5px 5px #c0c0c0;
-	margin: 2em 0.2em;
-	padding: 1em;
-	width: 20em;
-	min-height: 5em;
-}
-
-.project h2.project-title {
-	font-weight: bold;
-	font-size: 110%;
-	margin: 0.2em 0;
+.thumbnail {
+	min-height: 150px;
 }
 
 /* patch view */
