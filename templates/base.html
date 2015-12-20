@@ -1,6 +1,5 @@
 {% load staticfiles %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -24,7 +23,7 @@
 {% block headers %}{% endblock %}
  </head>
  <body>
-  <nav class="navbar navbar-inverse navbar-patchwork" role="navigation">
+  <nav class="navbar navbar-inverse navbar-patchwork">
    <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
@@ -71,7 +70,7 @@
      <li class="dropdown">
        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
          <span class="badge">{{ user.profile.n_todo_patches }}</span>
-         <strong>{{ user.username }}</strong>&nbsp;<span class="caret" />
+         <strong>{{ user.username }}</strong>&nbsp;<span class="caret"></span>
        </a>
        <ul class="dropdown-menu" role="menu">
          <li>

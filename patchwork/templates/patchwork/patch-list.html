@@ -35,7 +35,7 @@
 </div>
 {% endif %}
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 $(document).ready(function() {
     $('#patchlist').stickyTableHeaders();
 });
@@ -170,7 +170,7 @@ $(document).ready(function() {
 
 {% include "patchwork/pagination.html" %}
 
-<div class="patchforms" id="patchforms" name="patchforms">
+<div class="patchforms" id="patchforms">
 
 {% if patchform %}
  <div class="patchform patchform-properties">
@@ -184,14 +184,14 @@ $(document).ready(function() {
       </td>
      </tr>
      <tr>
-      <th>Delegate to:</td>
+      <th>Delegate to:</th>
       <td>
        {{ patchform.delegate }}
        {{ patchform.delegate.errors }}
       </td>
      </tr>
      <tr>
-      <th>Archive:</td>
+      <th>Archive:</th>
       <td>
        {{ patchform.archived }}
        {{ patchform.archived.errors }}
@@ -223,7 +223,7 @@ $(document).ready(function() {
     <tr>
      <td>Add to bundle:</td>
      <td>
-       <select name="bundle_id"/>
+       <select name="bundle_id">
         {% for bundle in bundles %}
          <option value="{{bundle.id}}">{{bundle.name}}</option>
         {% endfor %}
@@ -256,6 +256,4 @@ $(document).ready(function() {
  </tr>
 {% endif %}
 
- </table>
 </form>
-

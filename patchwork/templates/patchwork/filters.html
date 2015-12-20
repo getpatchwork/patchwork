@@ -1,6 +1,6 @@
 {% load static %}
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 var filterform_displayed = false;
 function filter_click()
 {
@@ -135,7 +135,7 @@ $(document).ready(function() {
     {% if not filter.forced %}
      <a class="filter-action"
         href="{{ filter.url_without_me }}">&nbsp;&nbsp;<span
-        class="glyphicon glyphicon-minus-sign" /></a>
+        class="glyphicon glyphicon-minus-sign"></span></a>
     {% endif %}
    {% if not forloop.last %}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{% endif %}
   {% endfor %}
@@ -146,7 +146,7 @@ $(document).ready(function() {
  {% endif %}
  </div>
  <div id="filterform" style="padding-top: 1em; display: none">
-  <form class="form-horizontal" role="form" method="get">
+  <form class="form-horizontal" method="get">
    {% for filter in filters.available_filters %}
    <div class="form-group">
     <label class="col-sm-2 control-label">{{ filter.name }}</label>

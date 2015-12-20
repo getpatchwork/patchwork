@@ -309,10 +309,10 @@ class ArchiveFilter(Filter):
             label = self.description_map[b]
             selected = ''
             if self.archive_state == b:
-                selected = 'checked="true"'
+                selected = 'checked'
             s += ('<label class="checkbox-inline">'
-                  ' <input type="radio" name="%(param)s" ' +
-                  '%(selected)s value="%(value)s">%(label)s' +
+                  ' <input type="radio" name="%(param)s" '
+                  '%(selected)s value="%(value)s">%(label)s'
                   '</label>') % \
                 {'label': label,
                  'param': self.param,
