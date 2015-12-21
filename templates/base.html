@@ -38,6 +38,7 @@
       </span>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse">
+{% block navbarmenu %}
 {% if project %}
       <ul class="nav navbar-nav">
         <li class="{% block patch_active %}{% endblock %}">
@@ -66,6 +67,7 @@
         </li>
      </ul>
 {% endif %}
+{% endblock %}
      <ul class="nav navbar-nav navbar-right">
 {% if user.is_authenticated %}
      <li class="dropdown">
