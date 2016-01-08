@@ -229,6 +229,13 @@ environment:
 Should you wish to re-enter this environment, simply source the `activate`
 script again.
 
+## Django Debug Toolbar
+
+patchwork installs and enables the 'Django Debug Toolbar' by default. However,
+by default this is only displayed if you are developing on localhost. If
+developing on a different machine, you should configure an SSH tunnel such
+that, for example, `localhost:8000` points to `[DEV_MACHINE_IP]:8000`.
+
 ## Environment Variables
 
 The following environment variables are available to configure settings when

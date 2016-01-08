@@ -18,6 +18,13 @@ from .base import *  # noqa
 # https://docs.djangoproject.com/en/1.6/ref/settings/#core-settings
 #
 
+# Models
+
+if django.VERSION > (1, 6):
+    INSTALLED_APPS += [
+        'debug_toolbar'
+    ]
+
 # Security
 
 SECRET_KEY = '00000000000000000000000000000000000000000000000000'
