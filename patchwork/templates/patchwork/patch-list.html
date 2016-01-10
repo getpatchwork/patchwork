@@ -1,6 +1,7 @@
 {% load person %}
 {% load listurl %}
 {% load patch %}
+{% load project %}
 {% load static %}
 
 {% load cycle from future %}
@@ -30,8 +31,9 @@
 
 {% if page.paginator.long_page and user.is_authenticated %}
 <div class="floaty">
- <a title="jump to form" href="#patchforms"><span
-  style="font-size: 120%">&#9662;</span></a>
+ <a title="jump to form" href="#patchforms">
+  <span style="font-size: 120%">&#9662;</span>
+ </a>
 </div>
 {% endif %}
 
@@ -55,11 +57,12 @@ $(document).ready(function() {
 
    <th>
     {% ifequal order.name "name" %}
-     <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><span
-	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
-      ></span></a> <a class="colactive"
-      href="{% listurl order=order.reversed_name %}">Patch</a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+     </a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      Patch
+     </a>
     {% else %}
      {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
@@ -70,9 +73,7 @@ $(document).ready(function() {
    </th>
 
    <th>
-    <span
-     title="{% for tag in project.tags %}{{tag.name}}{% if not forloop.last %} / {% endif %}{% endfor %}"
-     >{% for tag in project.tags %}{{tag.abbrev}}{% if not forloop.last %}/{% endif %}{% endfor %}</span>
+    {% project_tags %}
    </th>
 
    <th>
@@ -81,11 +82,12 @@ $(document).ready(function() {
 
    <th>
     {% ifequal order.name "date" %}
-     <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><span
-	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
-      ></span></a> <a class="colactive"
-      href="{% listurl order=order.reversed_name %}">Date</a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+     </a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      Date
+     </a>
     {% else %}
      {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="date" %}">Date</a>
@@ -97,14 +99,17 @@ $(document).ready(function() {
 
    <th>
     {% ifequal order.name "submitter" %}
-     <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><span
-	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
-      ></span></a> <a class="colactive"
-      href="{% listurl order=order.reversed_name %}">Submitter</a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+     </a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      Submitter
+     </a>
     {% else %}
      {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="submitter" %}">Submitter</a>
+     <a class="colinactive" href="{% listurl order="submitter" %}">
+      Submitter
+     </a>
      {% else %}
      <span class="colinactive">Submitter</span>
      {% endif %}
@@ -113,11 +118,12 @@ $(document).ready(function() {
 
    <th>
     {% ifequal order.name "delegate" %}
-     <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><span
-	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
-      ></span></a> <a class="colactive"
-      href="{% listurl order=order.reversed_name %}">Delegate</a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+     </a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      Delegate
+     </a>
     {% else %}
      {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
@@ -129,11 +135,12 @@ $(document).ready(function() {
 
    <th>
     {% ifequal order.name "state" %}
-     <a class="colactive"
-      href="{% listurl order=order.reversed_name %}"><span
-	      class="glyphicon glyphicon-chevron-{{ order.updown }}"
-      ></span></a> <a class="colactive"
-      href="{% listurl order=order.reversed_name %}">State</a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+     </a>
+     <a class="colactive" href="{% listurl order=order.reversed_name %}">
+      State
+     </a>
     {% else %}
      {% if not order.editable %}
      <a class="colinactive" href="{% listurl order="state" %}">State</a>
@@ -146,17 +153,19 @@ $(document).ready(function() {
   </tr>
  </thead>
 
-{% if page.paginator.count %}
  <tbody>
  {% for patch in page.object_list %}
   <tr id="patch_row:{{patch.id}}">
-    {% if user.is_authenticated %}
-    <td>
+   {% if user.is_authenticated %}
+   <td>
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
-    </td>
-    {% endif %}
-   <td><a href="{% url 'patch-detail' patch_id=patch.id %}"
-     >{{ patch.name|default:"[no subject]"|truncatechars:100 }}</a></td>
+   </td>
+   {% endif %}
+   <td>
+    <a href="{% url 'patchwork.views.patch.patch' patch_id=patch.id %}">
+     {{ patch.name|default:"[no subject]"|truncatechars:100 }}
+    </a>
+   </td>
    <td class="text-nowrap">{{ patch|patch_tags }}</td>
    <td class="text-nowrap">{{ patch|patch_checks }}</td>
    <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
@@ -164,10 +173,15 @@ $(document).ready(function() {
    <td>{{ patch.delegate.username }}</td>
    <td>{{ patch.state }}</td>
   </tr>
+ {% empty %}
+  <tr>
+   <td colspan="8">No patches to display</td>
+  </tr>
  {% endfor %}
  </tbody>
 </table>
 
+{% if page.paginator.count %}
 {% include "patchwork/pagination.html" %}
 
 <div class="patchforms" id="patchforms">
@@ -245,15 +259,10 @@ $(document).ready(function() {
  </div>
 {% endif %}
 
-
  <div style="clear: both;">
  </div>
 </div>
 
-{% else %}
- <tr>
-  <td colspan="6">No patches to display</td>
- </tr>
 {% endif %}
 
 </form>
