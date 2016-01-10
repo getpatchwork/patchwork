@@ -37,11 +37,11 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
-if django.VERSION < (1, 7):
-    MIDDLEWARE_CLASSES.append('django.middleware.doc.XViewMiddleware')
-else:
+if django.VERSION >= (1, 7):
     MIDDLEWARE_CLASSES.append(
         'django.contrib.admindocs.middleware.XViewMiddleware')
+else:
+    MIDDLEWARE_CLASSES.append('django.middleware.doc.XViewMiddleware')
 
 # Globalization
 

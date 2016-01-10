@@ -49,12 +49,12 @@ DATABASES = {
 if os.getenv('PW_TEST_DB_TYPE', None) == 'postgre':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
-if django.VERSION < (1, 7):
-    DATABASES['default']['TEST_CHARSET'] = 'utf8'
-else:
+if django.VERSION >= (1, 7):
     DATABASES['default']['TEST'] = {
         'CHARSET': 'utf8',
     }
+else:
+    DATABASES['default']['TEST_CHARSET'] = 'utf8'
 
 # Email
 
