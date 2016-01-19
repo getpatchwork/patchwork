@@ -269,8 +269,7 @@ def patch_get_filenames(str):
         filename = '/'.join(filename.split('/')[1:])
         filenames[filename] = True
 
-    filenames = filenames.keys()
-    filenames.sort()
+    filenames = sorted(filenames.keys())
 
     return filenames
 
