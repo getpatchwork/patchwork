@@ -580,7 +580,7 @@ class Check(models.Model):
         return "<Check id='%d' context='%s' state='%s'" % (
             self.id, self.context, self.get_state_display())
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s (%s)' % (self.context, self.get_state_display())
 
 
