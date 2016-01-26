@@ -148,8 +148,8 @@ def link(request):
                           [form.cleaned_data['email']])
             except Exception:
                 context['confirmation'] = None
-                context['error'] = 'An error occurred during confirmation. ' + \
-                                   'Please try again later'
+                context['error'] = ('An error occurred during confirmation. '
+                                    'Please try again later')
     else:
         form = UserPersonLinkForm()
     context['linkform'] = form

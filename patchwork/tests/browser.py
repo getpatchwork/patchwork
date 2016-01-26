@@ -21,11 +21,10 @@ import errno
 import os
 import time
 
-import django
-if django.VERSION < (1, 7):
-    from django.test import LiveServerTestCase as StaticLiveServerTestCase
-else:
+try:
     from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+except:  # Django < 1.7
+    from django.test import LiveServerTestCase as StaticLiveServerTestCase
 from selenium.common.exceptions import (
     NoSuchElementException, StaleElementReferenceException,
     TimeoutException)
@@ -139,22 +138,24 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         return self.selenium.switch_to.active_element
 
     def wait_until_present(self, name):
-        is_present = lambda driver: driver.find_element_by_name(name)
+        def is_present(driver):
+            return driver.find_element_by_name(name)
         msg = "An element named '%s' should be on the page" % name
         element = Wait(self.selenium).until(is_present, msg)
         self.screenshot()
         return element
 
     def wait_until_visible(self, selector):
-        is_visible = lambda driver: self.find(selector).is_displayed()
+        def is_visible(driver):
+            return self.find(selector).is_displayed()
         msg = "The element matching '%s' should be visible" % selector
         Wait(self.selenium).until(is_visible, msg)
         self.screenshot()
         return self.find(selector)
 
     def wait_until_focused(self, selector):
-        is_focused = lambda driver: (
-            self.find(selector) == self.focused_element())
+        def is_focused(driver):
+            return self.find(selector) == self.focused_element()
         msg = "The element matching '%s' should be focused" % selector
         Wait(self.selenium).until(is_focused, msg)
         self.screenshot()
