@@ -295,6 +295,24 @@ def find_submission_for_comment(project, refs):
             comment = Comment.objects.get(submission__project=project,
                                           msgid=ref)
             return comment.submission
+        except Comment.MultipleObjectsReturned:
+            # NOTE(stephenfin): This is a artifact of prior lack of support
+            # for cover letters in Patchwork. Previously all replies to
+            # patches were saved as comments. However, it's possible that
+            # someone could have created a new series as a reply to one of the
+            # comments on the original patch series. For example,
+            # '2015-November/002096.html' from the Patchwork archives. In this
+            # case, reparsing the archives will result in creation of a cover
+            # letter with the same message ID as the existing comment. Follow
+            # up comments will then apply to both this cover letter and the
+            # linked patch from the comment previously created. We choose to
+            # apply the comment to the cover letter. Note that this only
+            # happens when running 'parsearchive' or similar, so it should not
+            # affect every day use in any way.
+            comments = Comment.objects.filter(submission__project=project,
+                                              msgid=ref)
+            # The latter item will be the cover letter
+            return comments.reverse()[0].submission
         except Comment.DoesNotExist:
             pass
 
@@ -496,22 +514,35 @@ def parse_mail(mail, list_id=None):
         LOGGER.debug('Patch saved')
 
         return patch
-    elif refs == [] and x == 0:  # cover letters
-        if save_required:
-            author.save()
+    elif x == 0:  # (potential) cover letters
+        # if refs are empty, it's implicitly a cover letter. If not,
+        # however, we need to see if a match already exists and, if
+        # not, assume that it is indeed a new cover letter
+        is_cover_letter = False
+        if not refs == []:
+            try:
+                CoverLetter.objects.all().get(name=name)
+            except CoverLetter.DoesNotExist:  # no match => new cover
+                is_cover_letter = True
+        else:
+            is_cover_letter = True
 
-        cover_letter = CoverLetter(
-            msgid=msgid,
-            project=project,
-            name=name,
-            date=date,
-            headers=headers,
-            submitter=author,
-            content=message)
-        cover_letter.save()
-        LOGGER.debug('Cover letter saved')
+        if is_cover_letter:
+            if save_required:
+                author.save()
 
-        return cover_letter
+            cover_letter = CoverLetter(
+                msgid=msgid,
+                project=project,
+                name=name,
+                date=date,
+                headers=headers,
+                submitter=author,
+                content=message)
+            cover_letter.save()
+            LOGGER.debug('Cover letter saved')
+
+            return cover_letter
 
     # comments
 
@@ -525,7 +556,7 @@ def parse_mail(mail, list_id=None):
         author.save()
 
     comment = Comment(
-        submission=patch,
+        submission=submission,
         msgid=msgid,
         date=date,
         headers=headers,
