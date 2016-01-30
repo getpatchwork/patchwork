@@ -111,7 +111,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, related_name='profile')
     primary_project = models.ForeignKey(Project, null=True, blank=True)
     maintainer_projects = models.ManyToManyField(
-        Project, related_name='maintainer_project')
+        Project, related_name='maintainer_project', blank=True)
     send_email = models.BooleanField(
         default=False,
         help_text='Selecting this option allows patchwork to send email on'
