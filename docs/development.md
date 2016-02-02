@@ -90,35 +90,3 @@ The following environmental variables are available to configure settings:
   <dt>PW_TEST_DB_TYPE = 'mysql'</dt>
   <dd>Type of database to use. Options: 'mysql', 'postgresql'</dd>
 </dl>
-
-## Running Tests
-
-patchwork includes a [tox] script to automate testing. Before running this, you
-should probably install tox:
-
-    $ pip install tox
-
-You can show available
-targets like so:
-
-    $ tox --list
-
-You'll see that this includes a number of targets to run unit tests against the
-different versions of Django supported, along with some other targets related
-to code coverage and code quality. To run these, use the `-e` parameter:
-
-    $ tox -e py27-django18
-
-In the case of the unit tests targets, you can also run specific tests by
-passing the fully qualified test name as an additional argument to this
-command:
-
-    $ tox -e py27-django18 patchwork.tests.SubjectCleanUpTest
-
-Because patchwork supports multiple versions of Django, it's very important
-that you test against all supported versions. When run without argument, tox
-will do this:
-
-    $ tox
-
-[tox]: https://tox.readthedocs.org/en/latest/
