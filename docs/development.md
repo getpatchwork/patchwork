@@ -248,7 +248,7 @@ using the provided `dev` settings file.
 </dl>
 
 [doc-contributing]: ../CONTRIBUTING.md
-[doc-deployment]: installation.md
+[doc-deployment]: development.md
 [doc-testing]: testing.md
 [ref-django-db]: https://docs.djangoproject.com/en/1.8/ref/databases/
 [ref-mman-bulk]: http://blog.behnel.de/posts/indexp118.html

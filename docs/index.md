@@ -64,5 +64,5 @@ All questions and contributions should be sent to the
 
 [ref-gpl]: http://www.gnu.org/licenses/gpl-2.0.html
 [ref-pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
-[doc-deployment]: installation.md
+[doc-deployment]: deployment.md
 [doc-development]: development.md

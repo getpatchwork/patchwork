@@ -1,150 +1,207 @@
-# Deploying Patchwork
+# Deployment
 
-Patchwork uses the Django framework - there is some background on deploying
-Django applications here:
+This document describes the necessary steps to configure patchwork in a
+production environment. This requires a significantly "harder" deployment than
+the one used for development. If you are interested in developing patchwork,
+please refer to [the development guide][doc-development] instead.
 
-    http://www.djangobook.com/en/2.0/chapter12/
+This document describes a two-node installation of patchwork, consisting of
+a database sever and an application server. It should be possible to combine
+these machines for smaller patchwork instances. It should also be possible to
+configure high availability deployment through use of additional database and
+application machines, though this is out of the scope of this document.
 
-You'll need the following (applications used for patchwork development are
-in brackets):
+## Deployment Guides, Provisioning Tools and Platform-as-a-Service
 
- * A Python interpreter
- * [Django] >= 1.6. The latest version is recommended
- * A webserver and suitable WSGI plugin. Options include [Apache] with the
-   [mod_python] plugin, or [Gunicorn] with [nginx] as the proxy server
- * A database server (PostgreSQL, MySQL)
- * Relevant Python modules for the database server (see the various
-   [requirements.txt] files)
+Before continuing, it's worth noting that patchwork is a Django application.
+With the exception of the handling of incoming mail (described below), it
+can be deployed like any other Django application. This means there are tens,
+if not hundreds, of existing articles and blogs detailing how to deploy an
+application like this. As such, if any of the below information is unclear
+then we'd suggest you go search for "Django deployment guide" or similar,
+deploy your application, and submit [a patch for this guide][doc-contributing]
+to clear up that confusion for others.
 
-[Django]: https://www.djangoproject.com/
-[Apache]: http://httpd.apache.org/
-[mod_python]: http://modpython.org/
-[Gunicorn]: http://gunicorn.org/
-[nginx]: http://nginx.org/
-[requirements.txt]: ./requirements-prod.txt
+You'll also find that the same search reveals a significant number of existing
+deployment tools aimed at Django. These tools, be they written in Ansible,
+Puppet, Chef or something else entirely, can be used to avoid much of the
+manual configuration described below. If possible, embrace these tools to make
+your life easier.
 
-## Database Configuration
+Finally, many Platform-as-a-Service (PaaS) providers and tools support
+deployment of Django applications with minimal effort. Should you wish to
+avoid much of the manual configuration, we suggest you investigate the many
+options available to find one that best suits your requirements. The only issue
+here will likely be the handling of incoming mail - something which many of
+these providers don't support. We address this in the appropriate section
+below.
 
-Django's ORM support multiple database backends, though the majority of testing
-has been carried out with PostgreSQL and MySQL.
+## Requirements
 
-We need to create a database for the system, add accounts for two system users:
-the web user (the user that your web server runs as) and the mail user (the
-user that your mail server runs as). On Ubuntu these are `www-data` and
-`nobody`, respectively.
+For the purpose of this guide, we will assume the following machines:
 
-As an alternative, you can use password-based login and a single database
-account. This is described further down.
+| server role | IP address |
+|-------------|------------|
+| database    | 10.1.1.1   |
+| application | 10.1.1.2   |
 
-**NOTE:** For the following commands, a `$` prefix signifies that the command
-should be entered at your shell prompt, and a `>` prefix signifies the
-command-line client for your SQL server (`psql` or `mysql`).
+We will use the database server to, ostensibly enough, host the database for
+the patchwork instance. The application server, on the other hand, will host
+the patchwork instance along with the required reverse proxy and WSGI HTTP
+servers.
+
+We expect a Ubuntu 15.04 installation on each of these hosts: commands,
+package names and/or package versions will likely change if using a
+different distro or release. In addition, usage of different package versions
+to the ones suggested may require slightly different configuration.
+
+Before beginning, you should update these systems:
+
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
+
+We also need to configure some environment variables to ease deployment. These
+should be exported on all systems:
+
+<dl>
+  <dt>PW_HOST_DB=10.1.1.1</dt>
+  <dd>IP of the database host</dd>
+  <dt>PW_HOST_APP=10.1.1.2</dt>
+  <dd>IP of the application host</dd>
+  <dt>PW_DB_NAME=patchwork</dt>
+  <dd>Name of the database</dd>
+  <dt>PW_DB_USER=www-data</dt>
+  <dd>Username that the patchwork app will access the database with</dd>
+</dl>
+
+## Database
+
+These steps should be run on the database server.
+
+**NOTE:** If you already have a database server on site, you can skip much of
+this section.
+
+### Install Requirements
+
+We're going to rely on PostgreSQL. You can adjust the below steps if using a
+different RDBMS. Install the required packages.
+
+    $ sudo apt-get install -y postgresql postgresql-contrib
+
+### Configure Database
+
+PostgreSQL created a user account called `postgres`; you will need to run
+commands as this user. Use this account to create the database that patchwork
+will use, using the credentials we configured earlier.
+
+    $ sudo -u postgres createdb $PW_DB_NAME
+    $ sudo -u postgres createuser $PW_DB_USER
+
+We will also need to apply permissions to the tables in this database but
+seeing as the tables haven't actually been created yet this will have to be
+done later.
+
+**TODO** `pg_hba.conf` configuration
+
+## Patchwork
+
+These steps should be run on the application server.
 
 ### Install Packages
 
-If you don't already have MySQL installed, you'll need to do so now. For
-example, to install MySQL on RHEL:
+The first requirement is patchwork itself. It can be downloaded like so:
 
-    $ sudo yum install mysql-server
+    $ wget https://github.com/getpatchwork/patchwork/archive/v1.1.0.tar.gz
 
-### Create Required Databases and Users
+We will install this under `/opt`, though this is only a suggestion:
 
-#### PostgreSQL (ident-based)
+    $ tar -xvzf v1.0.0.tar.gz
+    $ sudo mv v1.0.0 /opt/patchwork
 
-PostgreSQL support [ident-based authentication], which uses the standard UNIX
-authentication method as a backend. This means no database-specific passwords
-need to be set/used. Assuming you are using this form of authentication, you
-just need to create the relevant UNIX users and database:
+**NOTE:** Per the [Django documentation][ref-django-files], source code should
+not be placed in your web server's document root as this risks the possibility
+that people may be able to view your code over the Web. This is a security
+risk.
 
-    $ createdb patchwork
-    $ createuser www-data
-    $ createuser nobody
+Next we require Python. If not already installed, then you should do so now.
+patchwork supports both Python 2.7 and Python 3.3+, though we would suggest
+using the latter to ease future upgrades:
 
-[ident-based authentication]: http://www.postgresql.org/docs/8.4/static/auth-methods.html#AUTH-IDENT
+    $ sudo apt-get install python3  # or 'python' if using Python 2.7
 
-#### PostgreSQL (password-based)
+We require a number of Python packages. These can be installed using `pip`:
 
-If you are not using the ident-based authentication, you will need to create
-both a new database and a new database user:
+    $ sudo pip install -r /opt/patchwork/requirements-prod.txt
 
-    $ createuser -PE patchwork
-    $ createdb -O patchwork patchwork
+If you're not using `pip`, you will need to identify and install the
+corresponding distro package for each of these requirements. For example:
 
-#### MySQL
+    $ sudo apt-get install python3-django
 
-    $ mysql
-    > CREATE DATABASE patchwork CHARACTER SET utf8;
-    > CREATE USER 'www-data'@'localhost' IDENTIFIED BY '<password>';
-    > CREATE USER 'nobody'@'localhost' IDENTIFIED BY '<password>';
+**NOTE:** The [pkgs.org][ref-pkgs] website provides a great reference for
+identifying the name of these dependencies.
 
-### Configure Settings
+### Configure patchwork
 
-Once that is done, you need to tell Django about the new database settings,
-by defining your own `production.py` settings file (see below). For PostgreSQL:
+You will also need to configure a [settings][ref-django-settings] file for
+Django. A sample settings file is provided that defines default settings for
+patchwork. You'll need to configure settings for your own setup and save this
+as `production.py`.
+
+    $ cp patchwork/settings/production.example.py \
+        patchwork/settings/production.py
+
+Alternatively, you can override the `DJANGO_SETTINGS_MODULE` environment
+variable and provide a completely custom settings file.
+
+**NOTE:** You should not include shell variables in settings but rather
+hardcoded values. These settings files are evaluated in Python - not a shell.
+
+### Databases
+
+You can configure the `DATABASES` setting using the variables we set earlier.
 
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'HOST': 'localhost',
+            'HOST': '$PW_HOST_DB',  # don't use sh variables but actual values
             'PORT': '',
-            'USER': 'patchwork',
-            'PASSWORD': 'my_secret_password',
-            'NAME': 'patchwork',
-            'TEST_CHARSET': 'utf8',
+            'NAME': '$PW_DB_NAME',
+            'USER': '$PW_DB_USER',
+            'PASSWORD': '$PW_DB_PASS',
+            'TEST': {
+                'CHARSET': 'utf8',
+            },
         },
     }
 
-If you're using MySQL, only the `ENGINE` changes:
+**NOTE:** `TEST/CHARSET` is used when creating tables for the test suite.
+Without it, tests checking for the correct handling of non-ASCII characters
+fail. It is not necessary if you don't plan to run tests, however.
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            ...
-        },
-    }
+#### Static Files
 
-**NOTE:** `TEST_CHARSET` (`TEST/CHARSET` in Django >= 1.7) is used when
-creating tables for the test suite. Without it, tests checking for the correct
-handling of non-ASCII characters fail.
+While we have not yet configured our proxy server, we do need to configure
+the location that these files will be stored in. We will install these under
+`/var/www/patchwork`, though this is only a suggestion and can be changed.
 
-## Django Setup
+    $ mkdir /var/www/patchwork
 
-### Configure Directories
+You can configure this by setting the `STATIC_ROOT` variable.
 
-Set up some initial directories in the patchwork base directory:
+    STATIC_ROOT = '/var/www/patchwork'
 
-    mkdir -p lib/packages lib/python
+#### Other Options
 
-`lib/packages` is for stuff we'll download, `lib/python` is to add to our
-Python path. We'll symlink Python modules into `lib/python`.
+Finally, the following settings need to be configured. The purpose of these
+variables is described in the [Django documentation][ref-django-settings]:
 
-At the time of release, patchwork depends on Django version 1.6 or later.
-Where possible, try to use the latest stable version (currently 1.8). Your
-distro probably provides this. If not, install it manually:
-
-    cd lib/packages
-    git clone https://github.com/django/django.git -b stable/1.8.x
-    cd ../python
-    ln -s ../packages/django/django ./django
-
-### Configure Settings
-
-You will also need to configure a [settings][ref-django-settings] file for
-Django. A sample settings file is provided, which defines default settings for
-patchwork. You'll need to configure settings for your own setup and save this
-as `production.py` (or override the `DJANGO_SETTINGS_MODULE` environment
-variable).
-
-    cp patchwork/settings/production{.example,}.py
-
-At the very minimum, the following settings need to be configured:
-
-    SECRET_KEY
-    ADMINS
-    TIME_ZONE
-    LANGUAGE_CODE
-    DEFAULT_FROM_EMAIL
-    NOTIFICATION_FROM_EMAIL
+* `SECRET_KEY`
+* `ADMINS`
+* `TIME_ZONE`
+* `LANGUAGE_CODE`
+* `DEFAULT_FROM_EMAIL`
+* `NOTIFICATION_FROM_EMAIL`
 
 You can generate the `SECRET_KEY` with the following python code:
 
@@ -152,112 +209,193 @@ You can generate the `SECRET_KEY` with the following python code:
     chars = string.letters + string.digits + string.punctuation
     print repr("".join([random.choice(chars) for i in range(0,50)]))
 
-If you wish to enable the XML-RPC interface, add the following to the file:
+If you wish to enable the XML-RPC interface, you should add the following to
+the file:
 
     ENABLE_XMLRPC = True
 
-### Configure Database Tables
+### Final Steps
 
-Then, get patchwork to create its tables in your configured database. For
-Django 1.6 and below:
+Once done, we should be able to check that all requirements are met using the
+the `check` command of the `manage.py` executable:
 
-    PYTHONPATH=../lib/python ./manage.py syncdb
+    $ /opt/patchwork/manage.py check
 
-For Django 1.7+:
+We should also take this opportunity to both configure the database and static
+files:
 
-    PYTHONPATH=../lib/python ./manage.py migrate
+    $ /opt/patchwork/manage.py migrate
+    $ /opt/patchwork/manage.py loaddata \
+        /opt/patchwork/patchwork/fixtures/default_tags.xml
+    $ /opt/patchwork/manage.py loaddata \
+        /opt/patchwork/patchwork/fixtures/default_states.xml
+    $ /opt/patchwork/manage.py collectstatic
 
-Add privileges for your mail and web users. This is only needed if you use the
-ident-based approach. If you use password-based database authentication, you
-can skip this step.
+**NOTE:** The above `default_tags` and `default_states` are just that:
+defaults. You can modify these to fit your own requirements.
 
-For Postgresql:
+Finally, it may be helpful to start the development server quickly to ensure
+you can see *something*:
 
-    psql -f lib/sql/grant-all.postgres.sql patchwork
+    $ /opt/patchwork/manage.py runserver 0.0.0.0:8080
 
-For MySQL:
+Browse this instance at `http://[your_server_ip]:8000`. If everything is
+working, kill the development server using `Ctrl`+`C`.
 
-    mysql patchwork < lib/sql/grant-all.mysql.sql
+## Reverse Proxy and WSGI HTTP Servers
 
-### Other Tasks
+These steps should be run on the application server.
 
-You will need to collect the static content into one location from which
-it can be served (by Apache or nginx, for example):
+### Install Packages
 
-    PYTHONPATH=lib/python ./manage.py collectstatic
+We will use nginx and uWSGI to deploy patchwork, acting as reverse proxy server
+and WSGI HTTP server respectively. Other options are available, such as
+Apache+mod_wsgi or nginx+Gunicorn. While we don't document these, sample
+configuration files for the former case are provided in `lib/apache2/`.
 
-You'll also need to load the initial tags and states into the patchwork
-database:
+    $ sudo apt-get install nginx-full uwsgi uwsgi-plugin-python
 
-    PYTHONPATH=lib/python ./manage.py loaddata default_tags default_states
+### Configure nginx and uWSGI
 
-[ref-django-settings]: https://docs.djangoproject.com/en/1.8/topics/settings/
+Configuration files for nginx and uWSGI are provided in the `lib` subdirectory
+of the patchwork source code. These can be modified as necessary, but for now
+we will simply copy them.
 
-## Apache Setup
+First, let's load the provided configuration for nginx:
 
-Example apache configuration files are in `lib/apache2/`.
+    $ sudo cp /opt/patchwork/lib/nginx/patchwork.conf \
+        /etc/nginx/sites-available/
 
-### wsgi
+If you wish to modify this configuration, now is the time to do so. Once done,
+validate and enable your configuration:
 
-django has built-in support for WSGI, which supersedes the fastcgi handler. It is thus the preferred method to run patchwork.
+    $ sudo nginx -t
+    $ sudo ln -s /etc/nginx/sites-available/patchwork.conf \
+        /etc/nginx/sites-enabled/patchwork.conf
 
-The necessary configuration for Apache2 may be found in:
+Now use the provided configuration for uWSGI:
 
-    lib/apache2/patchwork.wsgi.conf.
+    $ sudo mkdir -p /etc/uwsgi/sites
+    $ sudo cp /opt/patchwork/lib/uwsgi/patchwork.ini \
+        /etc/uwsgi/sites/patchwork.ini
 
-You will need to install/enable mod_wsgi for this to work:
+**NOTE** We created the `/etc/uwsgi` directory above because we're going to run
+uWSGI in ["emperor mode][ref-uwsgi-emperor]". This has benefits for multi-app
+deployments.
 
-    a2enmod wsgi
-    apache2ctl restart
+### Create systemd Unit File
 
-## Configure patchwork
+As things stand, uWSGI will need to be started manually every time the system
+boots, in addition to any time it may fail. We can automate this process using
+systemd. To this end a [systemd unit file][ref-uwsgi-systemd] should be created
+to start uWSGI at boot:
 
-Now, you should be able to administer patchwork, by visiting the URL:
+    $ sudo cat << EOF > /etc/systemd/system/uwsgi.service
+    [Unit]
+    Description=uWSGI Emperor service
 
-    http://your-host/admin/
+    [Service]
+    ExecStartPre=/usr/bin/bash -c 'mkdir -p /run/uwsgi; chown user:nginx /run/uwsgi'
+    ExecStart=/usr/bin/uwsgi --emperor /etc/uwsgi/sites
+    Restart=always
+    KillSignal=SIGQUIT
+    Type=notify
+    NotifyAccess=all
 
-You'll probably want to do the following:
+    [Install]
+    WantedBy=multi-user.target
+    EOF
 
-* Set up your projects
-* Configure your website address (in the Sites section of the admin)
+**NOTE:** On older version of Ubuntu you may need to tweak these steps to use
+[upstart][ref-uwsgi-upstart] instead.
 
-## Subscribe a Local Address to the Mailing List
+### Final Steps
 
-You will need an email address for patchwork to receive email on - for example
-- `patchwork@your-host`, and this address will need to be subscribed to the
-list. Depending on the mailing list, you will probably need to confirm the
-subscription - temporarily direct the alias to yourself to do this.
+Start the uWSGI service we created above:
 
-## Setup your MTA to Deliver Mail to the Parsemail Script
+    $ sudo systemctl uwsgi start
+    $ sudo systemctl uwsgi status
 
-Your MTA will need to deliver mail to the parsemail script in the
-email/directory. (Note, do not use the `parsemail.py` script directly).
-Something like this in /etc/aliases is suitable for postfix:
+Next up, restart the nginx service:
 
-    patchwork: "|/srv/patchwork/patchwork/bin/parsemail.sh"
+    $ sudo systemctl nginx restart
+    $ sudo systemctl nginx status
 
-You may need to customise the `parsemail.sh` script if you haven't installed
-patchwork in `/srv/patchwork`.
-
-Test that you can deliver a patch to this script:
-
-    sudo -u nobody /srv/patchwork/patchwork/bin/parsemail.sh < mail
-
-## Set up the patchwork cron script
-
-Patchwork uses a cron script to clean up expired registrations, and send
+patchwork uses a cron script to clean up expired registrations and send
 notifications of patch changes (for projects with this enabled). Something like
-this in your crontab should work:
+this in your crontab should work.
 
     # m h  dom mon dow   command
     */10 * * * * cd patchwork; ./manage.py cron
 
-The frequency should be the same as the `NOTIFICATION_DELAY_MINUTES` setting,
-which defaults to 10 minutes.
+**NOTE**: The frequency should be the same as the `NOTIFICATION_DELAY_MINUTES`
+setting, which defaults to 10 minutes.
+
+Finally, browse to the instance using your browser of choice.
+
+You may wish to take this opportunity to setup your projects and configure your
+website address (in the Sites section of the admin console, found at `/admin`).
+
+## Incoming Email
+
+patchwork is designed to parse incoming mails which means you need an address
+to receive email at. This is a problem that has been solved for many webapps,
+thus there are many ways to go about this. Some of these ways are discussed
+below.
+
+### Postfix
+
+The most flexible option is to configure our own mail transfer agent (MTA) and
+Postfix is as good a choice as any. While we don't cover setting up Postfix
+here (it's complicated and there are many guides already available), patchwork
+does include a script to take received mails and create the relevant entries
+in patchwork for you. To use this, you should configure your system to forward
+all emails to a given localpart (the bit before the `@`) to this script. Using
+the `patchwork` localpart (e.g. `patchwork@example.com`) you can do this like
+so:
+
+    $ sudo cat << EOF > /etc/aliases
+    patchwork: "|/opt/patchwork/patchwork/bin/parsemail.sh"
+    EOF
+
+You should ensure the appropriate user is created in PostgreSQL and that
+it has (minimal) access to the database. Patchwork provides scripts for the
+latter and they can be loaded as seen below:
+
+    $ sudo -u postgres createuser nobody
+    $ sudo -u postgre psql -f \
+        /opt/patchwork/lib/sql/grant-all.postgres.sql patchwork
+
+**NOTE:** This assumes your Postfix process is running as the `nobody` user.
+If this is not correct (use of `postfix` user is also common), you should
+change both the username in the `createuser` command above and substitute the
+username in the the `grant-all-postgres.sql` script with the appropriate
+alternative.
+
+### IMAP/POP3
+
+One could also use an email account provided by a run-of-the-mill email
+provider and retrieve mail using IMAP or POP3. This may be suitable for
+low-volume mailing lists but be warned: this will introduce a significant lag
+between when a patch is submitted to a mailing list and when it appears in
+patchwork.
+
+### Use a Email-as-a-Service Provider
+
+Setting up an email server can be a difficult task and, in the case of
+deployment on PaaS provider, may not even be an option. In this case, there
+are a variety of web services available that offer "Email-as-as-Service".
+These services typically convert received emails into HTTP POST requests to
+your endpoint of choice, allowing you to sidestep configuration issues. We
+don't cover this here, but a simple wrapper script coupled with one of these
+services can be more than to get email into patchwork.
+
+You can also create such as service yourself using a PaaS provider that
+supports incoming mail and writing a little web app.
 
 ## (Optional) Configure your VCS to Automatically Update Patches
 
-The tools directory of the patchwork distribution contains a file named
+The `tools` directory of the patchwork distribution contains a file named
 `post-receive.hook` which is a sample git hook that can be used to
 automatically update patches to the `Accepted` state when corresponding
 commits are pushed via git.
@@ -272,17 +410,11 @@ If you are using a system other than git, you can likely write a similar hook
 using `pwclient` to update patch state. If you do write one, please contribute
 it.
 
-Some errors:
-
-* `ERROR: permission denied for relation patchwork_...`
-  The user that patchwork is running as (i.e. the user of the web-server)
-  doesn't have access to the patchwork tables in the database. Check that your
-  web server user exists in the database, and that it has permissions to the
-  tables.
-
-* pwclient fails for actions that require authentication, but a username
-and password is given int ~/.pwclient rc. Server reports "No authentication
-credentials given".
-  If you're using the FastCGI interface to apache, you'll need the
-  `-pass-header Authorization` option to the FastCGIExternalServer
-  configuration directive.
+[doc-contributing]: contributing.md
+[doc-development]: development.md
+[ref-django-files]: https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
+[ref-django-settings]: https://docs.djangoproject.com/en/1.8/ref/settings/
+[ref-pkgs]: http://pkgs.org/
+[ref-uwsgi-emperor]: https://uwsgi-docs.readthedocs.org/en/latest/Emperor.html
+[ref-uwsgi-systemd]: https://uwsgi-docs.readthedocs.org/en/latest/Systemd.html
+[ref-uwsgi-upstart]: https://uwsgi-docs.readthedocs.org/en/latest/Upstart.html
