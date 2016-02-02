@@ -9,3 +9,4 @@ pages:
  - Installation: 'installation.md'
  - Development: 'development.md'
  - Contributing: 'contributing.md'
+ - Release Process: 'releasing.md'
