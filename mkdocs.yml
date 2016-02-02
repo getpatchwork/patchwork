@@ -7,6 +7,7 @@ repo_url: git://github.com/getpatchwork/patchwork
 pages:
  - Home: 'index.md'
  - Installation: 'installation.md'
+ - Upgrading: 'upgrading.md'
  - Development: 'development.md'
  - Contributing: 'contributing.md'
  - Release Process: 'releasing.md'
