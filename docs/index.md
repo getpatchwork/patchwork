@@ -22,7 +22,7 @@ The latest version of Patchwork is available with git. To download:
 
     $ git clone git://github.com/getpatchwork/patchwork
 
-Patchwork is distributed under the [GNU General Public License].
+Patchwork is distributed under the [GNU General Public License][ref-gpl].
 
 # Design
 
@@ -53,14 +53,16 @@ command-line client for patchwork, or directly to the XML RPC interface.
 
 # Getting Started
 
-You should check out the [installation] and [development] guides for
-information on how to get to work with patchwork.
+You should check out the [deployment][doc-deployment] and
+[development][doc-development] guides for information on how to configure
+patchwork for production and development environments, respectively.
 
 # Support
 
-All questions and contributions should be sent to the [patchwork mailing list].
+All questions and contributions should be sent to the
+[patchwork mailing list][ref-pw-ml].
 
-[GNU General Public License]: http://www.gnu.org/licenses/gpl-2.0.html
-[installation]: installation.md
-[development]: development.md
-[patchwork mailing list]: https://ozlabs.org/mailman/listinfo/patchwork
+[ref-gpl]: http://www.gnu.org/licenses/gpl-2.0.html
+[ref-pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
+[doc-deployment]: installation.md
+[doc-development]: development.md

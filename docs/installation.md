@@ -129,14 +129,13 @@ distro probably provides this. If not, install it manually:
 
 ### Configure Settings
 
-You will also need to configure a [settings] file for Django. A
-[sample settings file] is provided, which defines default settings for
+You will also need to configure a [settings][ref-django-settings] file for
+Django. A sample settings file is provided, which defines default settings for
 patchwork. You'll need to configure settings for your own setup and save this
 as `production.py` (or override the `DJANGO_SETTINGS_MODULE` environment
 variable).
 
-    cp patchwork/settings/production.example.py \
-      patchwork/settings/production.py
+    cp patchwork/settings/production{.example,}.py
 
 At the very minimum, the following settings need to be configured:
 
@@ -192,8 +191,7 @@ database:
 
     PYTHONPATH=lib/python ./manage.py loaddata default_tags default_states
 
-[sample_settings_file]: ../patchwork/settings/production.example.py
-[settings]: https://docs.djangoproject.com/en/1.8/topics/settings/
+[ref-django-settings]: https://docs.djangoproject.com/en/1.8/topics/settings/
 
 ## Apache Setup
 
