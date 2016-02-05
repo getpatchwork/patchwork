@@ -330,6 +330,7 @@ class ArchiveFilter(Filter):
 
 class DelegateFilter(Filter):
     param = 'delegate'
+    AnyDelegate = 1
 
     def __init__(self, filters):
         super(DelegateFilter, self).__init__(filters)
