@@ -17,6 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from email.utils import make_msgid
 import unittest
 
 from django.conf import settings
@@ -43,15 +44,35 @@ class XMLRPCTest(LiveServerTestCase):
         self.assertRedirects(response,
                              reverse('help', kwargs={'path': 'pwclient/'}))
 
-    def testList(self):
+    def _createPatches(self, count=1):
         defaults.project.save()
         defaults.patch_author_person.save()
-        patch = Patch(project=defaults.project,
-                      submitter=defaults.patch_author_person,
-                      msgid=defaults.patch_name,
-                      content=defaults.patch)
-        patch.save()
 
+        patches = []
+
+        for _ in range(0, count):
+            patch = Patch(project=defaults.project,
+                          submitter=defaults.patch_author_person,
+                          msgid=make_msgid(),
+                          content=defaults.patch)
+            patch.save()
+            patches.append(patch)
+
+        return patches
+
+    def testListSingle(self):
+        patch_objs = self._createPatches()
         patches = self.rpc.patch_list()
         self.assertEqual(len(patches), 1)
-        self.assertEqual(patches[0]['id'], patch.id)
+        self.assertEqual(patches[0]['id'], patch_objs[0].id)
+
+    def testListMultiple(self):
+        self._createPatches(5)
+        patches = self.rpc.patch_list()
+        self.assertEqual(len(patches), 5)
+
+    def testListMaxCount(self):
+        patch_objs = self._createPatches(5)
+        patches = self.rpc.patch_list({'max_count': 2})
+        self.assertEqual(len(patches), 2)
+        self.assertEqual(patches[0]['id'], patch_objs[0].id)
