@@ -40,7 +40,7 @@ class PatchNotificationModelTest(TestCase):
         self.submitter = defaults.patch_author_person
         self.submitter.save()
         self.patch = Patch(project=self.project, msgid='testpatch',
-                           name='testpatch', content='',
+                           name='testpatch', diff='',
                            submitter=self.submitter)
 
     def tearDown(self):
@@ -133,7 +133,7 @@ class PatchNotificationEmailTest(TestCase):
         self.submitter = defaults.patch_author_person
         self.submitter.save()
         self.patch = Patch(project=self.project, msgid='testpatch',
-                           name='testpatch', content='',
+                           name='testpatch', diff='',
                            submitter=self.submitter)
         self.patch.save()
 
@@ -205,7 +205,7 @@ class PatchNotificationEmailTest(TestCase):
     def testNotificationMerge(self):
         patches = [self.patch,
                    Patch(project=self.project, msgid='testpatch-2',
-                         name='testpatch 2', content='',
+                         name='testpatch 2', diff='',
                          submitter=self.submitter)]
 
         for patch in patches:
@@ -228,7 +228,7 @@ class PatchNotificationEmailTest(TestCase):
            are held"""
         patches = [self.patch,
                    Patch(project=self.project, msgid='testpatch-2',
-                         name='testpatch 2', content='',
+                         name='testpatch 2', diff='',
                          submitter=self.submitter)]
 
         for patch in patches:

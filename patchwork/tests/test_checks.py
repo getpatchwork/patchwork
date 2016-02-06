@@ -36,7 +36,7 @@ class PatchChecksTest(TransactionTestCase):
         self.patch = Patch(project=project,
                            msgid='x', name=defaults.patch_name,
                            submitter=defaults.patch_author_person,
-                           content='')
+                           diff='')
         self.patch.save()
         self.user = create_user()
 

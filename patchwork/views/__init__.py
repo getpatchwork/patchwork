@@ -255,9 +255,9 @@ def generic_list(request, project, view,
     if not editable_order:
         patches = order.apply(patches)
 
-    # we don't need the content or headers for a list; they're text fields
-    # that can potentially contain a lot of data
-    patches = patches.defer('content', 'headers')
+    # we don't need the content, diff or headers for a list; they're text
+    # fields that can potentially contain a lot of data
+    patches = patches.defer('content', 'diff', 'headers')
 
     # but we will need to follow the state and submitter relations for
     # rendering the list template
@@ -316,16 +316,10 @@ class PatchMbox(MIMENonMultipart):
 
 def patch_to_mbox(patch):
     postscript_re = re.compile('\n-{2,3} ?\n')
-
-    comment = None
-    try:
-        comment = Comment.objects.get(patch=patch, msgid=patch.msgid)
-    except Exception:
-        pass
-
     body = ''
-    if comment:
-        body = comment.content.strip() + "\n"
+
+    if patch.content:
+        body = patch.content.strip() + "\n"
 
     parts = postscript_re.split(body, 1)
     if len(parts) == 2:
@@ -335,15 +329,17 @@ def patch_to_mbox(patch):
     else:
         postscript = ''
 
-    for comment in Comment.objects.filter(patch=patch) \
-            .exclude(msgid=patch.msgid):
+    # TODO(stephenfin): Make this use the tags infrastructure
+    body += patch.patch_responses()
+
+    for comment in Comment.objects.filter(patch=patch):
         body += comment.patch_responses()
 
     if postscript:
         body += '---\n' + postscript + '\n'
 
-    if patch.content:
-        body += '\n' + patch.content
+    if patch.diff:
+        body += '\n' + patch.diff
 
     delta = patch.date - datetime.datetime.utcfromtimestamp(0)
     utc_timestamp = delta.seconds + delta.days * 24 * 3600

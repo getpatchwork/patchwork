@@ -30,7 +30,6 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.six.moves import filter
@@ -278,6 +277,7 @@ class Patch(models.Model):
     submitter = models.ForeignKey(Person)
     name = models.CharField(max_length=255)
     content = models.TextField(null=True, blank=True)
+    diff = models.TextField(null=True, blank=True)
 
     # patch metadata
 
@@ -294,23 +294,17 @@ class Patch(models.Model):
 
     objects = PatchManager()
 
-    def commit_message(self):
-        """Retrieve the commit message."""
-        return Comment.objects.filter(patch=self, msgid=self.msgid)
+    response_re = re.compile(
+        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
+        re.M | re.I)
 
-    def answers(self):
-        """Retrieve replies.
+    # TODO(stephenfin) Drag this out into a mixin
+    def patch_responses(self):
+        if not self.content:
+            return ''
 
-        This includes all repliess but not the commit message)
-        """
-        return Comment.objects.filter(Q(patch=self) & ~Q(msgid=self.msgid))
-
-    def comments(self):
-        """Retrieves all comments of this patch.
-
-        This includes the commit message and all other replies.
-        """
-        return Comment.objects.filter(patch=self)
+        return ''.join([match.group(0) + '\n' for match in
+                        self.response_re.finditer(self.content)])
 
     def _set_tag(self, tag, count):
         if count == 0:
@@ -324,7 +318,11 @@ class Patch(models.Model):
     def refresh_tag_counts(self):
         tags = self.project.tags
         counter = Counter()
-        for comment in self.comment_set.all():
+
+        if self.content:
+            counter += extract_tags(self.content, tags)
+
+        for comment in self.comments.all():
             counter = counter + extract_tags(comment.content, tags)
 
         for tag in tags:
@@ -334,10 +332,12 @@ class Patch(models.Model):
         if not hasattr(self, 'state') or not self.state:
             self.state = get_default_initial_patch_state()
 
-        if self.hash is None and self.content is not None:
-            self.hash = hash_patch(self.content).hexdigest()
+        if self.hash is None and self.diff is not None:
+            self.hash = hash_patch(self.diff).hexdigest()
 
         super(Patch, self).save()
+
+        self.refresh_tag_counts()
 
     def is_editable(self, user):
         if not user.is_authenticated():
@@ -439,7 +439,8 @@ class Patch(models.Model):
 class Comment(models.Model):
     # parent
 
-    patch = models.ForeignKey(Patch)
+    patch = models.ForeignKey(Patch, related_name='comments',
+                              related_query_name='comment')
 
     # email metadata
 

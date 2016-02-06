@@ -91,7 +91,7 @@ def patch(request, patch_id):
 def content(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     response = HttpResponse(content_type="text/x-patch")
-    response.write(patch.content)
+    response.write(patch.diff)
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename().replace(';', '').replace('\n', '')
     return response

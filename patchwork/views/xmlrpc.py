@@ -716,7 +716,7 @@ def patch_get_diff(patch_id):
     """
     try:
         patch = Patch.objects.filter(id=patch_id)[0]
-        return patch.content
+        return patch.diff
     except Patch.DoesNotExist:
         return ''
 

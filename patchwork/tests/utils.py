@@ -98,7 +98,7 @@ def create_patches(count=1):
                       submitter=defaults.patch_author_person,
                       msgid=make_msgid(),
                       name='testpatch%d' % (i + 1),
-                      content=defaults.patch)
+                      diff=defaults.patch)
         patch.save()
         patches.append(patch)
 

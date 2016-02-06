@@ -41,26 +41,19 @@ class PatchTest(TestCase):
 
 class InlinePatchTest(PatchTest):
     patch_filename = '0001-add-line.patch'
-    test_comment = 'Test for attached patch'
+    test_content = 'Test for attached patch'
     expected_filenames = ['meep.text']
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment + '\n' + self.orig_patch)
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
-
-    def testPatchPresence(self):
-        self.assertTrue(self.patch is not None)
+        email = create_email(self.test_content + '\n' + self.orig_patch)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
     def testPatchContent(self):
-        self.assertEqual(self.patch.content, self.orig_patch)
-
-    def testCommentPresence(self):
-        self.assertTrue(self.comment is not None)
+        self.assertEqual(self.patch.diff, self.orig_patch)
 
     def testCommentContent(self):
-        self.assertEqual(self.comment.content, self.test_comment)
+        self.assertEqual(self.patch.content, self.test_content)
 
     def testFilenames(self):
         self.assertEqual(self.filenames, self.expected_filenames)
@@ -73,11 +66,10 @@ class AttachmentPatchTest(InlinePatchTest):
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment, multipart=True)
+        email = create_email(self.test_content, multipart=True)
         attachment = MIMEText(self.orig_patch, _subtype=self.content_subtype)
         email.attach(attachment)
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
 
 class AttachmentXDiffPatchTest(AttachmentPatchTest):
@@ -90,10 +82,9 @@ class UTF8InlinePatchTest(InlinePatchTest):
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename, self.patch_encoding)
-        email = create_email(self.test_comment + '\n' + self.orig_patch,
+        email = create_email(self.test_content + '\n' + self.orig_patch,
                              content_encoding=self.patch_encoding)
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
 
 class NoCharsetInlinePatchTest(InlinePatchTest):
@@ -103,43 +94,40 @@ class NoCharsetInlinePatchTest(InlinePatchTest):
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment + '\n' + self.orig_patch)
+        email = create_email(self.test_content + '\n' + self.orig_patch)
         del email['Content-Type']
         del email['Content-Transfer-Encoding']
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
 
 class SignatureCommentTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
-    test_comment = 'Test comment\nmore comment'
+    test_content = 'Test comment\nmore comment'
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
         email = create_email(
-            self.test_comment + '\n' +
+            self.test_content + '\n' +
             '-- \nsig\n' + self.orig_patch)
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
 
 class ListFooterTest(InlinePatchTest):
     patch_filename = '0001-add-line.patch'
-    test_comment = 'Test comment\nmore comment'
+    test_content = 'Test comment\nmore comment'
 
     def setUp(self):
         self.orig_patch = read_patch(self.patch_filename)
         email = create_email(
-            self.test_comment + '\n' +
+            self.test_content + '\n' +
             '_______________________________________________\n' +
             'Linuxppc-dev mailing list\n' +
             self.orig_patch)
-        self.patch, self.comment, self.filenames = find_content(
-            self.project, email)
+        self.patch, _, self.filenames = find_content(self.project, email)
 
 
 class DiffWordInCommentTest(InlinePatchTest):
-    test_comment = 'Lines can start with words beginning in "diff"\n' + \
+    test_content = 'Lines can start with words beginning in "diff"\n' + \
                    'difficult\nDifferent'
 
 
@@ -147,14 +135,14 @@ class UpdateCommentTest(InlinePatchTest):
 
     """ Test for '---\nUpdate: v2' style comments to patches. """
     patch_filename = '0001-add-line.patch'
-    test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
+    test_content = 'Test comment\nmore comment\n---\nUpdate: test update'
 
 
 class UpdateSigCommentTest(SignatureCommentTest):
 
     """ Test for '---\nUpdate: v2' style comments to patches, with a sig """
     patch_filename = '0001-add-line.patch'
-    test_comment = 'Test comment\nmore comment\n---\nUpdate: test update'
+    test_content = 'Test comment\nmore comment\n---\nUpdate: test update'
 
 
 class SenderEncodingTest(TestCase):
@@ -217,7 +205,7 @@ class SubjectEncodingTest(PatchTest):
         self.email = message_from_string(mail)
 
     def testSubjectEncoding(self):
-        patch, comment, _ = find_content(self.project, self.email)
+        patch, _, _ = find_content(self.project, self.email)
         self.assertEqual(patch.name, self.subject)
 
 
@@ -280,7 +268,7 @@ class MultipleProjectPatchTest(TestCase):
         handled correctly """
 
     fixtures = ['default_states']
-    test_comment = 'Test Comment'
+    test_content = 'Test Comment'
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
 
@@ -294,7 +282,7 @@ class MultipleProjectPatchTest(TestCase):
         self.p2.save()
 
         patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment + '\n' + patch)
+        email = create_email(self.test_content + '\n' + patch)
         del email['Message-Id']
         email['Message-Id'] = self.msgid
 
@@ -338,9 +326,8 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
     def testParsedComment(self):
         for project in [self.p1, self.p2]:
             patch = Patch.objects.filter(project=project)[0]
-            # we should see two comments now - the original mail with the
-            # patch, and the one we parsed in setUp()
-            self.assertEqual(Comment.objects.filter(patch=patch).count(), 2)
+            # we should see the reply comment only
+            self.assertEqual(Comment.objects.filter(patch=patch).count(), 1)
 
 
 class ListIdHeaderTest(TestCase):
@@ -407,8 +394,8 @@ class GitPullTest(MBoxPatchTest):
         patch, comment, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertTrue(patch.pull_url is not None)
-        self.assertTrue(patch.content is None)
-        self.assertTrue(comment is not None)
+        self.assertTrue(patch.diff is None)
+        self.assertTrue(patch.content is not None)
 
 
 class GitPullWrappedTest(GitPullTest):
@@ -419,16 +406,16 @@ class GitPullWithDiffTest(MBoxPatchTest):
     mail_file = '0003-git-pull-request-with-diff.mbox'
 
     def testGitPullWithDiff(self):
-        patch, comment, _ = find_content(self.project, self.mail)
+        patch, _, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
         self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/'
                          'linux-2.6-tip.git x86-fixes-for-linus',
                          patch.pull_url)
         self.assertTrue(
-            patch.content.startswith(
+            patch.diff.startswith(
                 'diff --git a/arch/x86/include/asm/smp.h'),
-            patch.content)
-        self.assertTrue(comment is not None)
+            patch.diff)
+        self.assertTrue(patch.content is not None)
 
 
 class GitPullGitSSHUrlTest(GitPullTest):
@@ -447,23 +434,22 @@ class GitRenameOnlyTest(MBoxPatchTest):
     mail_file = '0008-git-rename.mbox'
 
     def testGitRename(self):
-        patch, comment, _ = find_content(self.project, self.mail)
+        patch, _, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
-        self.assertTrue(comment is not None)
-        self.assertEqual(patch.content.count("\nrename from "), 2)
-        self.assertEqual(patch.content.count("\nrename to "), 2)
+        self.assertEqual(patch.diff.count("\nrename from "), 2)
+        self.assertEqual(patch.diff.count("\nrename to "), 2)
 
 
 class GitRenameWithDiffTest(MBoxPatchTest):
     mail_file = '0009-git-rename-with-diff.mbox'
 
     def testGitRename(self):
-        patch, comment, _ = find_content(self.project, self.mail)
+        patch, _, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
-        self.assertTrue(comment is not None)
-        self.assertEqual(patch.content.count("\nrename from "), 2)
-        self.assertEqual(patch.content.count("\nrename to "), 2)
-        self.assertEqual(patch.content.count('\n-a\n+b'), 1)
+        self.assertTrue(patch.content is not None)
+        self.assertEqual(patch.diff.count("\nrename from "), 2)
+        self.assertEqual(patch.diff.count("\nrename to "), 2)
+        self.assertEqual(patch.diff.count('\n-a\n+b'), 1)
 
 
 class CVSFormatPatchTest(MBoxPatchTest):
@@ -472,8 +458,8 @@ class CVSFormatPatchTest(MBoxPatchTest):
     def testPatch(self):
         patch, comment, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
-        self.assertTrue(comment is not None)
-        self.assertTrue(patch.content.startswith('Index'))
+        self.assertTrue(comment is None)
+        self.assertTrue(patch.diff.startswith('Index'))
 
 
 class CharsetFallbackPatchTest(MBoxPatchTest):
@@ -485,8 +471,9 @@ class CharsetFallbackPatchTest(MBoxPatchTest):
 
     def testPatch(self):
         patch, comment, _ = find_content(self.project, self.mail)
-        self.assertTrue(patch is not None)
-        self.assertTrue(comment is not None)
+        self.assertTrue(comment is None)
+        self.assertTrue(patch.content is not None)
+        self.assertTrue(patch.diff is not None)
 
 
 class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
@@ -495,17 +482,17 @@ class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
     def testPatch(self):
         patch, comment, _ = find_content(self.project, self.mail)
         self.assertTrue(patch is not None)
-        self.assertTrue(comment is not None)
-        self.assertTrue(patch.content.startswith(
+        self.assertTrue(comment is None)
+        self.assertTrue(patch.diff.startswith(
             'diff --git a/tools/testing/selftests/powerpc/Makefile'))
         # Confirm the trailing no newline marker doesn't end up in the comment
         self.assertFalse(
-            comment.content.rstrip().endswith('\ No newline at end of file'))
+            patch.content.rstrip().endswith('\ No newline at end of file'))
         # Confirm it's instead at the bottom of the patch
         self.assertTrue(
-            patch.content.rstrip().endswith('\ No newline at end of file'))
+            patch.diff.rstrip().endswith('\ No newline at end of file'))
         # Confirm we got both markers
-        self.assertEqual(2, patch.content.count('\ No newline at end of file'))
+        self.assertEqual(2, patch.diff.count('\ No newline at end of file'))
 
 
 class DelegateRequestTest(TestCase):
@@ -619,7 +606,7 @@ class InitialPatchStateTest(TestCase):
 
 class ParseInitialTagsTest(PatchTest):
     patch_filename = '0001-add-line.patch'
-    test_comment = ('test comment\n\n' +
+    test_content = ('test comment\n\n' +
                     'Tested-by: Test User <test@example.com>\n' +
                     'Reviewed-by: Test User <test@example.com>\n')
     fixtures = ['default_tags', 'default_states']
@@ -629,7 +616,7 @@ class ParseInitialTagsTest(PatchTest):
         project.listid = 'test.example.com'
         project.save()
         self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_comment + '\n' + self.orig_patch,
+        email = create_email(self.test_content + '\n' + self.orig_patch,
                              project=project)
         email['Message-Id'] = '<1@example.com>'
         parse_mail(email)

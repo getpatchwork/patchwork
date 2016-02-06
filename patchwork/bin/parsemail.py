@@ -257,23 +257,17 @@ def find_content(project, mail):
 
     if pullurl or patchbuf:
         name = clean_subject(mail.get('Subject'), [project.linkname])
-        patch = Patch(name=name, pull_url=pullurl, content=patchbuf,
-                      date=mail_date(mail), headers=mail_headers(mail))
+        patch = Patch(name=name, pull_url=pullurl, diff=patchbuf,
+                      content=clean_content(commentbuf), date=mail_date(mail),
+                      headers=mail_headers(mail))
 
-    if commentbuf:
-        # If this is a new patch, we defer setting comment.patch until
-        # patch has been saved by the caller
-        if patch:
-            comment = Comment(date=mail_date(mail),
-                              content=clean_content(commentbuf),
-                              headers=mail_headers(mail))
-        else:
-            cpatch = find_patch_for_comment(project, mail)
-            if not cpatch:
-                return (None, None, None)
-            comment = Comment(patch=cpatch, date=mail_date(mail),
-                              content=clean_content(commentbuf),
-                              headers=mail_headers(mail))
+    if commentbuf and not patch:
+        cpatch = find_patch_for_comment(project, mail)
+        if not cpatch:
+            return (None, None, None)
+        comment = Comment(patch=cpatch, date=mail_date(mail),
+                          content=clean_content(commentbuf),
+                          headers=mail_headers(mail))
 
     return (patch, comment, filenames)
 

@@ -43,14 +43,12 @@ class MboxPatchResponseTest(TestCase):
 
         self.patch = Patch(project=defaults.project,
                            msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
+                           submitter=self.person, diff='',
+                           content='comment 1 text\nAcked-by: 1\n')
         self.patch.save()
-        comment = Comment(patch=self.patch, msgid='p1',
-                          submitter=self.person,
-                          content='comment 1 text\nAcked-by: 1\n')
-        comment.save()
 
-        comment = Comment(patch=self.patch, msgid='p2',
+        comment = Comment(patch=self.patch,
+                          msgid='p2',
                           submitter=self.person,
                           content='comment 2 text\nAcked-by: 2\n')
         comment.save()
@@ -73,16 +71,15 @@ class MboxPatchSplitResponseTest(TestCase):
         self.person = defaults.patch_author_person
         self.person.save()
 
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
+        self.patch = Patch(
+            project=defaults.project,
+            msgid='p1', name='testpatch',
+            submitter=self.person, diff='',
+            content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
         self.patch.save()
-        comment = Comment(patch=self.patch, msgid='p1',
-                          submitter=self.person,
-                          content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
-        comment.save()
 
-        comment = Comment(patch=self.patch, msgid='p2',
+        comment = Comment(patch=self.patch,
+                          msgid='p2',
                           submitter=self.person,
                           content='comment 2 text\nAcked-by: 2\n')
         comment.save()
@@ -240,17 +237,13 @@ class MboxCommentPostcriptUnchangedTest(TestCase):
         self.person = defaults.patch_author_person
         self.person.save()
 
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
-        self.patch.save()
-
         self.txt = 'some comment\n---\n some/file | 1 +\n'
 
-        comment = Comment(patch=self.patch, msgid='p1',
-                          submitter=self.person,
-                          content=self.txt)
-        comment.save()
+        self.patch = Patch(project=defaults.project,
+                           msgid='p1', name='testpatch',
+                           submitter=self.person, diff='',
+                           content=self.txt)
+        self.patch.save()
 
     def testCommentUnchanged(self):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)

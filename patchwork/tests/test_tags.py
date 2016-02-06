@@ -129,7 +129,7 @@ class PatchTagsTest(TransactionTestCase):
         self.patch = Patch(project=project,
                            msgid='x', name=defaults.patch_name,
                            submitter=defaults.patch_author_person,
-                           content='')
+                           diff='')
         self.patch.save()
         self.tagger = 'Test Tagger <tagger@example.com>'
 

@@ -37,7 +37,7 @@ class UTF8PatchViewTest(TestCase):
         self.patch = Patch(project=defaults.project,
                            msgid='x', name=defaults.patch_name,
                            submitter=defaults.patch_author_person,
-                           content=self.patch_content)
+                           diff=self.patch_content)
         self.patch.save()
         self.client = Client()
 
@@ -48,14 +48,14 @@ class UTF8PatchViewTest(TestCase):
     def testMboxView(self):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.patch.content in
+        self.assertTrue(self.patch.diff in
                         response.content.decode(self.patch_encoding))
 
     def testRawView(self):
         response = self.client.get('/patch/%d/raw/' % self.patch.id)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode(self.patch_encoding),
-                         self.patch.content)
+                         self.patch.diff)
 
     def tearDown(self):
         self.patch.delete()
@@ -79,7 +79,7 @@ class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
         self.patch = Patch(project=defaults.project,
                            msgid='x', name=defaults.patch_name,
                            submitter=self.patch_author,
-                           content=self.patch_content)
+                           diff=self.patch_content)
         self.patch.save()
         self.client = Client()
 

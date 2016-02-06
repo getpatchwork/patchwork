@@ -87,7 +87,7 @@ class TestRegistrationExpiry(TestCase):
         patch = Patch(project=defaults.project,
                       msgid='test@example.com', name='test patch',
                       submitter=defaults.patch_author_person,
-                      content=defaults.patch)
+                      diff=defaults.patch)
         patch.save()
 
         # ... then starts registration...

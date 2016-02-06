@@ -59,23 +59,23 @@ _span = '<span class="%s">%s</span>'
 
 @register.filter
 def patchsyntax(patch):
-    content = escape(patch.content).replace('\r\n', '\n')
+    diff = escape(patch.diff).replace('\r\n', '\n')
 
     for (r, cls) in _patch_span_res:
-        content = r.sub(lambda x: _span % (cls, x.group(0)), content)
+        diff = r.sub(lambda x: _span % (cls, x.group(0)), diff)
 
-    content = _patch_chunk_re.sub(
+    diff = _patch_chunk_re.sub(
         lambda x:
         _span % ('p_chunk', x.group(1)) + ' ' +
         _span % ('p_context', x.group(2)),
-        content)
+        diff)
 
-    return mark_safe(content)
+    return mark_safe(diff)
 
 
 @register.filter
-def commentsyntax(comment):
-    content = escape(comment.content)
+def commentsyntax(patch):
+    content = escape(patch.content)
 
     for (r, cls) in _comment_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)

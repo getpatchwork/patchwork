@@ -77,7 +77,7 @@ class PatchOrderTest(TestCase):
             person = Person(name=name, email=email)
             person.save()
             patch = Patch(project=defaults.project, msgid=patch_name,
-                          submitter=person, content='', date=date)
+                          submitter=person, diff='', date=date)
             patch.save()
 
     def _extract_patch_ids(self, response):

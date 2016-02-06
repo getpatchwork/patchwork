@@ -191,28 +191,24 @@ function toggle_headers(link_id, headers_id)
 </table>
 {% endif %}
 
-{% for item in patch.commit_message %}
 <h2>Commit Message</h2>
 <div class="comment">
 <div class="meta">
- <span>{{ item.submitter|personify:project }}</span>
- <span class="pull-right">{{ item.date }}</span>
+ <span>{{ patch.submitter|personify:project }}</span>
+ <span class="pull-right">{{ patch.date }}</span>
 </div>
 <pre class="content">
-{{ item|commentsyntax }}
+{{ patch|commentsyntax }}
 </pre>
 </div>
-{% endfor %}
 
-{% if patch.content %}
+{% if patch.diff %}
 <h2>
  Patch
  <a href="javascript:toggle_headers('hide-patch', 'patch')" id="hide-patch">hide</a></span>
-{% if patch.content %}
  <span>|</span>
  <a href="{% url 'patch-raw' patch_id=patch.id %}"
    >download patch</a>
-{% endif %}
  <span>|</span>
  <a href="{% url 'patch-mbox' patch_id=patch.id %}"
    >download mbox</a>
@@ -224,7 +220,7 @@ function toggle_headers(link_id, headers_id)
 </div>
 {% endif %}
 
-{% for item in patch.answers %}
+{% for item in patch.comments.all %}
 {% if forloop.first %}
 <h2>Comments</h2>
 {% endif %}
