@@ -9,6 +9,8 @@ Design based on:
 
 from __future__ import absolute_import
 
+import os
+
 from .base import *  # noqa
 
 #
@@ -25,19 +27,25 @@ from .base import *  # noqa
 #      chars = string.letters + string.digits + string.punctuation
 #      print repr("".join([random.choice(chars) for i in range(0,50)]))
 
-# SECRET_KEY = '00000000000000000000000000000000000000000000000000'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # Email
 #
 # Replace this with your own details
 
-ADMINS = (
-    #    ('Jeremy Kerr', 'jk@ozlabs.org'),
-)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.getenv('EMAIL_PORT', 25)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = True
 
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
+
+ADMINS = (
+    ('Jeremy Kerr', 'jk@ozlabs.org'),
+)
 
 # Database
 #
@@ -48,7 +56,11 @@ NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'patchwork',
+        'NAME': os.environ.get('DATABASE_NAME', ''),
+        'USER': os.environ.get('DATABASE_USER', ''),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+        'HOST': os.environ.get('DATABASE_HOST', ''),
+        'PORT': os.environ.get('DATABASE_PORT', ''),
     },
 }
 
@@ -57,4 +69,4 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.7/ref/settings/#static-files
 #
 
-STATIC_ROOT = '/srv/patchwork/htdocs/static'
+STATIC_ROOT = os.environ.get('STATIC_ROOT', '/srv/patchwork/htdocs/static')
