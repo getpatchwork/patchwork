@@ -11,6 +11,20 @@ The latest version of Patchwork is available with git. To download:
 
     $ git clone git://github.com/getpatchwork/patchwork.git
 
+## Vagrant-Based Installation
+
+patchwork provides a Vagrantfile that can be used to quickly configure
+patchwork in a delopment environment. Like any Vagrant VM, you can start this
+using the `vagrant up` command:
+
+    $ cd patchwork  # the path to the repo you cloned above
+    $ vagrant up
+
+Once stacked, follow the on-screen instructions. For more information on
+Vagrant itself, please refer to the [Vagrant documentation](ref-vagrant).
+
+Alternatively, manual installation steps are provided below.
+
 ## Install Required Packages
 
 There are a number of different requirements for developing patchwork:
@@ -248,4 +262,5 @@ using the provided `dev` settings file.
 [ref-py34-pip]: http://legacy.python.org/dev/peps/pep-0453/
 [ref-sqlite-utf8]: https://www.sqlite.org/faq.html#q18
 [ref-tox]: https://tox.readthedocs.org/en/latest/
+[ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
 [ref-venv]: https://virtualenv.readthedocs.org/en/latest/
