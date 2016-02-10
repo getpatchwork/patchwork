@@ -137,21 +137,14 @@ To begin, export your database credentials as follows:
 
 Now, create the database. If this is your first time configuring the database,
 you must create a `patchwork` user (or similar) along with the database
-instance itself. You can do this like so:
+instance itself. The commands below will do this, dropping existing databases
+if necessary:
 
     (.venv)$ mysql -u$db_user -p$db_pass << EOF
+    DROP DATABASE IF EXISTS patchwork;
     CREATE DATABASE patchwork CHARACTER SET utf8;
-    CREATE USER 'patchwork'@'localhost' IDENTIFIED BY 'password';
-    GRANT ALL PRIVILEGES ON patchwork.* TO 'patchwork'@'localhost';
-    EOF
-
-If you're resetting your database instead, then you must drop the existing
-database and recreate it. You can do this like so:
-
-    (.venv)$ mysql -u$db_user -p$db_pass << EOF
-    DROP DATABASE patchwork;
-    CREATE DATABASE patchwork CHARACTER SET utf8;
-    GRANT ALL PRIVILEGES ON patchwork.* TO 'patchwork'@'localhost';
+    GRANT ALL PRIVILEGES ON patchwork.* TO 'patchwork'@'localhost'
+        IDENTIFIED BY 'password';
     EOF
 
 **NOTE:** The `patchwork` username and `password` password are the defaults
