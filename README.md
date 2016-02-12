@@ -2,6 +2,7 @@
 
 [![Requirements Status][badge-req-img]][badge-req-ref]
 [![Docs Status][badge-doc-img]][badge-doc-ref]
+[![Stories in Ready][badge-waffle-img]][badge-waffle-ref]
 
 patchwork is a patch tracking system for community-based projects. It is
 intended to make the patch management process easier for both the project's
@@ -28,3 +29,5 @@ For further information, please refer to the [docs][docs].
 [badge-doc-img]: https://readthedocs.org/projects/patchwork/badge/?version=latest
 [badge-req-ref]: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
 [badge-req-img]: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
+[badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
+[badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
