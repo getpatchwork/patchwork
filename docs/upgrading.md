@@ -40,23 +40,42 @@ versions of a package or may be missing a package altogether (though we try to
 avoid this). Such changes are usually listed in the `UPGRADING` document, but
 you can also diff the `requirements.txt` files in each release for comparison.
 
-## Ensure Your Database is Ready
+## Collect Static Files
+
+New versions of patchwork generally contain changes to the additional files
+like images, CSS and JavaScript. To do this, run the `collectstatic`
+management commands:
+
+    $ ./manage.py collectstatic
+
+## Upgrade Your Database
 
 Migrations of the database can be tricky. Prior to [`v1.0.0`][gh-v1], database
 migrations were provided by way of manual, SQL migration scripts. After this
 release, patchwork moved to support [Django migrations][ref-django-migrate].
 If you are upgrading from `v1.0.0` or later, it is likely that you can rely
-entirely on the later to bring your database up-to-date. However, there are a
-number of scenarios in which you may need to fall back to the provided SQL
-migrations or provide your own:
+entirely on the later to bring your database up-to-date. This can be done like
+so:
+
+    $ ./manage.py migrate
+
+However, there are a number of scenarios in which you may need to fall back to
+the provided SQL migrations or provide your own:
 
 * You are using Django < 1.6
 
   patchwork supports Django 1.6. However, Django Migrations was added in 1.7
   and is [not available for previous versions][ref-south2]. As such, you must
-  continue to use manual migrations or upgrade your version of Django.
+  continue to use manual migrations or upgrade your version of Django. For
+  many of the migrations, this can be done automatically:
 
-* You are using Django > 1.6, but upgrading from patchwork < 1.0
+      $ ./manage.py sqlmigrate patchwork 0003_add_check_model
+
+  However, this only works for schema migrations. For data migrations,
+  however, this will fail. In this cases, these migrations will need to be
+  handwritten.
+
+* You are using Django > 1.6, but upgrading from patchwork < 1.0.0
 
   patchwork only started providing migrations in `v1.0.0`. SQL migrations are
   provided for versions prior to this and must be applied to get the database
@@ -94,7 +113,7 @@ a consistent state (remember: **backup**!). Once this is done, you can resume
 using the upstream-provided migrations, ensuring any Django migrations that you
 may have skipped are not applied again:
 
-    ./manage.py migrate 000x-abc --fake  # when 000x-abc is last "skippable"
+    $ ./manage.py migrate 000x-abc --fake  # when 000x-abc is last "skippable"
 
 It's worth adding that with the databases now back in sync it should be
 possible to return to using upstream code rather than maintaining a fork.

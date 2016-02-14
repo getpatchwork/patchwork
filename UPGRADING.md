@@ -1,5 +1,10 @@
 # Patchwork Upgrade Guide
 
+## 1.0.0 to 1.1.0
+
+Version 1.1.0 adds a number of new features, but many of these will require
+little to no changes.
+
 ## 0.9.0 to 1.0.0
 
 Version 1.0.0 changes a few admin-visible components of patchwork so
@@ -15,7 +20,11 @@ and re-run the grants script. For example, on postgres:
 
 We highly suggest you move to Django Migrations as support for Django 1.6
 (and subsequently manual SQL migrations) will be dropped in an upcoming
-release.
+release. You can do this using the migrate command:
+
+    ./manage.py migrate --fake-initial
+
+**NOTE**: The `--fake-initial` parameter is only required on Django >= 1.8.
 
 ### Update to the new settings infrastructure
 

@@ -11,11 +11,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Python 3 support
 - Web UI overhaul
+- Check feature, which can be used to report the status of tests
+- Automatic delegation of patches based on file path
 - Selenium-based UI tests
 - Auto-delegation of patches based on filenames/paths
 - Automated documentation for the XML-RPC API. This can be found at the
   '/xmlrpc' in most patchwork deployments
+- Vagrant support for developers
 - Assorted cleanup tasks and bug fixes
+
+### Changed
+
+- Patches can now be delegated to any patchwork user
+- Significant changes to the documentation
 
 ## [1.0.0] - 2015-10-26
 
