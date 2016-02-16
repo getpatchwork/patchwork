@@ -59,7 +59,7 @@ _span = '<span class="%s">%s</span>'
 
 @register.filter
 def patchsyntax(patch):
-    content = escape(patch.content)
+    content = escape(patch.content).replace('\r\n', '\n')
 
     for (r, cls) in _patch_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)
