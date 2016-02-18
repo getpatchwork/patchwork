@@ -27,7 +27,7 @@ Contributor to
 <div class="box">
  <h2>Todo</h2>
 {% if user.profile.n_todo_patches %}
- <p>Your <a href="{% url 'user-todo' %}">todo
+ <p>Your <a href="{% url 'user-todos' %}">todo
   list</a> contains {{ user.profile.n_todo_patches }}
   patch{{ user.profile.n_todo_patches|pluralize:"es" }}.</p>
 {% else %}

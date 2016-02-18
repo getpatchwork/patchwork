@@ -216,7 +216,7 @@ def todo_list(request, project_id):
                         {'delegate': request.user})]
 
     context = generic_list(request, project,
-                           'patchwork.views.user.todo_list',
+                           'user-todo',
                            view_args={'project_id': project.linkname},
                            filter_settings=filter_settings,
                            patches=patches)
