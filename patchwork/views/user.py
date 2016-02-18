@@ -24,7 +24,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.mail import send_mail
-import django.core.urlresolvers
+from django.core import urlresolvers
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.loader import render_to_string
@@ -184,7 +184,7 @@ def unlink(request, person_id):
             person.user = None
             person.save()
 
-    url = django.core.urlresolvers.reverse('user-profile')
+    url = urlresolvers.reverse('user-profile')
     return HttpResponseRedirect(url)
 
 
@@ -200,7 +200,10 @@ def todo_lists(request):
         todo_lists.append({'project': project, 'n_patches': patches.count()})
 
     if len(todo_lists) == 1:
-        return todo_list(request, todo_lists[0]['project'].linkname)
+        return HttpResponseRedirect(
+            urlresolvers.reverse(
+                'user-todo',
+                kwargs={'project_id': todo_lists[0]['project'].linkname}))
 
     context = PatchworkRequestContext(request)
     context['todo_lists'] = todo_lists
