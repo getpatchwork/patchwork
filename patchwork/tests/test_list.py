@@ -40,7 +40,6 @@ class EmptyPatchListTest(TestCase):
         url = reverse('patch-list', kwargs={'project_id': project.linkname})
         response = self.client.get(url)
         self.assertContains(response, 'No patches to display')
-        self.assertNotContains(response, 'tbody')
 
 
 class PatchOrderTest(TestCase):
