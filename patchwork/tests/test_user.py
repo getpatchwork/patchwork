@@ -23,7 +23,8 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
+from patchwork.models import (EmailConfirmation, Person, Bundle, UserProfile,
+                              Patch)
 from patchwork.tests.utils import defaults, error_strings
 
 
@@ -136,10 +137,29 @@ class UserLoginRedirectTest(TestCase):
 
 class UserProfileTest(TestCase):
 
+    fixtures = ['default_states']
+
     def setUp(self):
         self.user = TestUser()
         self.client.login(username=self.user.username,
                           password=self.user.password)
+
+    # FIXME(stephenfin) Remove duplication from this and test_xmlrpc
+    def _createPatches(self, count=1):
+        defaults.project.save()
+        defaults.patch_author_person.save()
+
+        patches = []
+
+        for _ in range(0, count):
+            patch = Patch(project=defaults.project,
+                          submitter=defaults.patch_author_person,
+                          msgid=make_msgid(),
+                          content=defaults.patch)
+            patch.save()
+            patches.append(patch)
+
+        return patches
 
     def testUserProfile(self):
         response = self.client.get('/user/')
@@ -161,6 +181,17 @@ class UserProfileTest(TestCase):
 
         self.assertContains(response, 'You have the following bundle')
         self.assertContains(response, bundle.get_absolute_url())
+
+    def testUserProfileTodos(self):
+        patches = self._createPatches(5)
+        for patch in patches:
+            patch.delegate = self.user.user
+            patch.save()
+
+        response = self.client.get('/user/')
+
+        self.assertContains(response, 'contains 5')
+        self.assertContains(response, reverse('user-todos'))
 
     def testUserProfileValidPost(self):
         user_profile = UserProfile.objects.get(user=self.user.user.id)

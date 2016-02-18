@@ -390,6 +390,15 @@ class DelegateFilter(Filter):
             return self.delegate.id
         return self.delegate_match
 
+    def set_status(self, *args, **kwargs):
+        if 'delegate' in kwargs:
+            self.applied = self.forced = True
+            self.delegate = kwargs['delegate']
+        if self.AnyDelegate in args:
+            self.applied = False
+            self.forced = True
+
+
 filterclasses = [SubmitterFilter,
                  StateFilter,
                  SearchFilter,
