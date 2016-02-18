@@ -23,9 +23,9 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import (EmailConfirmation, Person, Bundle, UserProfile,
-                              Patch)
+from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
 from patchwork.tests.utils import defaults, error_strings
+from patchwork.tests import utils
 
 
 def _confirmation_url(conf):
@@ -144,23 +144,6 @@ class UserProfileTest(TestCase):
         self.client.login(username=self.user.username,
                           password=self.user.password)
 
-    # FIXME(stephenfin) Remove duplication from this and test_xmlrpc
-    def _createPatches(self, count=1):
-        defaults.project.save()
-        defaults.patch_author_person.save()
-
-        patches = []
-
-        for _ in range(0, count):
-            patch = Patch(project=defaults.project,
-                          submitter=defaults.patch_author_person,
-                          msgid=make_msgid(),
-                          content=defaults.patch)
-            patch.save()
-            patches.append(patch)
-
-        return patches
-
     def testUserProfile(self):
         response = self.client.get('/user/')
         self.assertContains(response, 'User Profile: %s' % self.user.username)
@@ -183,7 +166,7 @@ class UserProfileTest(TestCase):
         self.assertContains(response, bundle.get_absolute_url())
 
     def testUserProfileTodos(self):
-        patches = self._createPatches(5)
+        patches = utils.create_patches(5)
         for patch in patches:
             patch.delegate = self.user.user
             patch.save()

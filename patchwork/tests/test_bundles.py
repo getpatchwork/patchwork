@@ -25,10 +25,11 @@ import unittest
 from django.conf import settings
 from django.test import TestCase
 from django.utils.http import urlencode
-
-from patchwork.models import Patch, Bundle, BundlePatch, Person
-from patchwork.tests.utils import defaults, create_user, find_in_context
 from django.utils.six.moves import range, zip
+
+from patchwork.models import Bundle, BundlePatch
+from patchwork.tests.utils import (defaults, create_user, find_in_context,
+                                   create_patches)
 
 
 def bundle_url(bundle):
@@ -65,7 +66,6 @@ class BundleTestBase(TestCase):
     fixtures = ['default_states']
 
     def setUp(self, patch_count=3):
-        patch_names = ['testpatch%d' % (i) for i in range(1, patch_count + 1)]
         self.user = create_user()
         self.client.login(username=self.user.username,
                           password=self.user.username)
@@ -73,15 +73,7 @@ class BundleTestBase(TestCase):
         self.bundle = Bundle(owner=self.user, project=defaults.project,
                              name='testbundle')
         self.bundle.save()
-        self.patches = []
-
-        for patch_name in patch_names:
-            patch = Patch(project=defaults.project,
-                          msgid=patch_name, name=patch_name,
-                          submitter=Person.objects.get(user=self.user),
-                          content='')
-            patch.save()
-            self.patches.append(patch)
+        self.patches = create_patches(patch_count)
 
     def tearDown(self):
         for patch in self.patches:

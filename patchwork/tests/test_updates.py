@@ -20,8 +20,8 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import Patch, Person, State
-from patchwork.tests.utils import defaults, create_maintainer
+from patchwork.models import Patch, State
+from patchwork.tests.utils import defaults, create_maintainer, create_patches
 
 
 class MultipleUpdateTest(TestCase):
@@ -38,13 +38,7 @@ class MultipleUpdateTest(TestCase):
             'action': 'Update', 'project': str(defaults.project.id),
             'form': 'patchlistform', 'archived': '*', 'delegate': '*',
             'state': '*'}
-        self.patches = []
-        for name in ['patch one', 'patch two', 'patch three']:
-            patch = Patch(project=defaults.project, msgid=name,
-                          name=name, content='',
-                          submitter=Person.objects.get(user=self.user))
-            patch.save()
-            self.patches.append(patch)
+        self.patches = create_patches(3)
 
     def _selectAllPatches(self, data):
         for patch in self.patches:

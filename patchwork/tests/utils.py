@@ -26,7 +26,7 @@ import os
 
 from django.contrib.auth.models import User
 
-from patchwork.models import Project, Person
+from patchwork.models import Project, Person, Patch
 
 
 # helper functions for tests
@@ -84,6 +84,25 @@ def create_maintainer(project):
     profile.maintainer_projects.add(project)
     profile.save()
     return user
+
+
+def create_patches(count=1):
+    """Create 'count' unique patches."""
+    defaults.project.save()
+    defaults.patch_author_person.save()
+
+    patches = []
+
+    for i in range(0, count):
+        patch = Patch(project=defaults.project,
+                      submitter=defaults.patch_author_person,
+                      msgid=make_msgid(),
+                      name='testpatch%d' % (i + 1),
+                      content=defaults.patch)
+        patch.save()
+        patches.append(patch)
+
+    return patches
 
 
 def find_in_context(context, key):

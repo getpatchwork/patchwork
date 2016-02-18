@@ -17,7 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from email.utils import make_msgid
 import unittest
 
 from django.conf import settings
@@ -25,8 +24,7 @@ from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
 from django.utils.six.moves import xmlrpc_client
 
-from patchwork.models import Patch
-from patchwork.tests.utils import defaults
+from patchwork.tests import utils
 
 
 @unittest.skipUnless(settings.ENABLE_XMLRPC,
@@ -44,41 +42,25 @@ class XMLRPCTest(LiveServerTestCase):
         self.assertRedirects(response,
                              reverse('help', kwargs={'path': 'pwclient/'}))
 
-    def _createPatches(self, count=1):
-        defaults.project.save()
-        defaults.patch_author_person.save()
-
-        patches = []
-
-        for _ in range(0, count):
-            patch = Patch(project=defaults.project,
-                          submitter=defaults.patch_author_person,
-                          msgid=make_msgid(),
-                          content=defaults.patch)
-            patch.save()
-            patches.append(patch)
-
-        return patches
-
     def testListSingle(self):
-        patch_objs = self._createPatches()
+        patch_objs = utils.create_patches()
         patches = self.rpc.patch_list()
         self.assertEqual(len(patches), 1)
         self.assertEqual(patches[0]['id'], patch_objs[0].id)
 
     def testListMultiple(self):
-        self._createPatches(5)
+        utils.create_patches(5)
         patches = self.rpc.patch_list()
         self.assertEqual(len(patches), 5)
 
     def testListMaxCount(self):
-        patch_objs = self._createPatches(5)
+        patch_objs = utils.create_patches(5)
         patches = self.rpc.patch_list({'max_count': 2})
         self.assertEqual(len(patches), 2)
         self.assertEqual(patches[0]['id'], patch_objs[0].id)
 
     def testListNegativeMaxCount(self):
-        patch_objs = self._createPatches(5)
+        patch_objs = utils.create_patches(5)
         patches = self.rpc.patch_list({'max_count': -1})
         self.assertEqual(len(patches), 1)
         self.assertEqual(patches[0]['id'], patch_objs[-1].id)
