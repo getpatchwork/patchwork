@@ -32,6 +32,12 @@ of community projects.
        $ cd patchwork
        $ vagrant up
 
+# Talks and Presentations
+
+* [**A New Patchwork**][pdf-fosdem] - FOSDEM 2016
+* [**Patchwork: reducing your patch workload**][pdf-plumbers] - Linux Plumbers
+  Conference 2011
+
 # Additional Information
 
 For further information, please refer to the [docs][docs].
@@ -48,5 +54,7 @@ For bug reports, patch submissions or other questions, please use the
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
 [docs]: https://patchwork.readthedocs.org/en/latest/
+[pdf-fosdem]: https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
+[pdf-plumbers]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
 [ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
