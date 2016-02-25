@@ -242,6 +242,13 @@ def action_checks(rpc):
         print("%d (for '%s')" % (check['id'], check['patch']))
 
 
+def action_check_create(rpc, patch_id, context, state, url, description):
+    try:
+        rpc.check_create(patch_id, context, state, url, description)
+    except xmlrpclib.Fault as f:
+        sys.stderr.write("Error creating check: %s\n" % f.faultString)
+
+
 def action_states(rpc):
     states = rpc.state_list("", 0)
     print("%-5s %s" % ("ID", "Name"))
@@ -366,7 +373,7 @@ def patch_id_from_hash(rpc, project, hash):
         sys.exit(1)
     return patch_id
 
-auth_actions = ['update']
+auth_actions = ['check_create', 'update']
 
 
 def main():
@@ -473,6 +480,18 @@ def main():
         help='''Show list of patch checks'''
     )
     checks_parser.set_defaults(subcmd='checks')
+    check_create_parser = subparsers.add_parser(
+        'check-create', parents=[hash_parser], conflict_handler='resolve',
+        help='Add a check to a patch')
+    check_create_parser.set_defaults(subcmd='check_create')
+    check_create_parser.add_argument(
+        '-c', metavar='CONTEXT')
+    check_create_parser.add_argument(
+        '-s', choices=('pending', 'success', 'warning', 'fail'))
+    check_create_parser.add_argument(
+        '-u', metavar='TARGET_URL', default="")
+    check_create_parser.add_argument(
+        '-d', metavar='DESCRIPTION', default="")
     states_parser = subparsers.add_parser(
         'states',
         help='''Show list of potential patch states'''
@@ -689,7 +708,7 @@ def main():
     elif action.startswith('project'):
         action_projects(rpc)
 
-    elif action.startswith('check'):
+    elif action.startswith('checks'):
         action_checks(rpc)
 
     elif action.startswith('state'):
@@ -746,6 +765,11 @@ def main():
             action_update_patch(rpc, patch_id, state=state_str,
                                 archived=archived_str, commit=commit_str
                                 )
+
+    elif action == 'check_create':
+        for patch_id in non_empty(h, patch_ids):
+            action_check_create(
+                rpc, patch_id, args['c'], args['s'], args['u'], args['d'])
 
     else:
         sys.stderr.write("Unknown action '%s'\n" % action)

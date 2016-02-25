@@ -959,6 +959,37 @@ def check_get(check_id):
         return {}
 
 
+@xmlrpc_method(login_required=True)
+def check_create(user, patch_id, context, state, target_url="",
+                 description=""):
+    """Add a Check to a patch.
+
+    **NOTE:** Authentication is required for this method.
+
+    Args:
+        patch_id (id): The ID of the patch to create the check against.
+        context: Type of test or system that generated this check.
+        state: "pending", "success", "warning", or "fail"
+        target_url: Link to artifact(s) relating to this check.
+        description: A brief description of the check.
+
+    Returns:
+        True, if successful else raise exception.
+    """
+    patch = Patch.objects.get(id=patch_id)
+    if not patch.is_editable(user):
+        raise Exception('No permissions to edit this patch')
+    for state_val, state_str in Check.STATE_CHOICES:
+        if state == state_str:
+            state = state_val
+            break
+    else:
+        raise Exception("Invalid check state: %s" % state)
+    Check.objects.create(patch=patch, context=context, state=state, user=user,
+                         target_url=target_url, description=description)
+    return True
+
+
 @xmlrpc_method()
 def patch_check_get(patch_id):
     """Get a patch's combined checks by its ID.
