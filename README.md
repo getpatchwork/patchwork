@@ -4,7 +4,7 @@
 [![Docs Status][badge-doc-img]][badge-doc-ref]
 [![Stories in Ready][badge-waffle-img]][badge-waffle-ref]
 
-patchwork is a patch tracking system for community-based projects. It is
+**patchwork** is a patch tracking system for community-based projects. It is
 intended to make the patch management process easier for both the project's
 contributors and maintainers, leaving time for the more important (and more
 interesting) stuff.
@@ -20,14 +20,33 @@ subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
 of community projects.
 
+# Development Installation
+
+1. Install [**Vagrant**][ref-vagrant]
+2. Clone this repo:
+
+       $ git clone git://github.com/getpatchwork/patchwork.git
+
+3. Run `vagrant up`:
+
+       $ cd patchwork
+       $ vagrant up
+
 # Additional Information
 
 For further information, please refer to the [docs][docs].
 
-[docs]: https://patchwork.readthedocs.org/en/latest/
+# Contact
+
+For bug reports, patch submissions or other questions, please use the
+[patchwork mailing list][pw-ml].
+
 [badge-doc-ref]: https://patchwork.readthedocs.org/en/latest/
 [badge-doc-img]: https://readthedocs.org/projects/patchwork/badge/?version=latest
 [badge-req-ref]: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
 [badge-req-img]: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
+[docs]: https://patchwork.readthedocs.org/en/latest/
+[pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
+[ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
