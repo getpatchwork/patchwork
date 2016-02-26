@@ -238,8 +238,13 @@ def action_projects(rpc):
 
 def action_check_list(rpc):
     checks = rpc.check_list()
+    print("%-5s %-16s %-8s %s" % ("ID", "Context", "State", "Patch"))
+    print("%-5s %-16s %-8s %s" % ("--", "-------", "-----", "-----"))
     for check in checks:
-        print("%d (for '%s')" % (check['id'], check['patch']))
+        print("%-5s %-16s %-8s %s" % (check['id'],
+                                      check['context'],
+                                      check['state'],
+                                      check['patch']))
 
 
 def action_check_create(rpc, patch_id, context, state, url, description):
