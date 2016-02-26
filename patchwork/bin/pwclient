@@ -247,6 +247,15 @@ def action_check_list(rpc):
                                       check['patch']))
 
 
+def action_check_info(rpc, check_id):
+    check = rpc.check_get(check_id)
+    s = "Information for check id %d" % (check_id)
+    print(s)
+    print('-' * len(s))
+    for key, value in sorted(check.items()):
+        print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
+
+
 def action_check_create(rpc, patch_id, context, state, url, description):
     try:
         rpc.check_create(patch_id, context, state, url, description)
@@ -485,6 +494,15 @@ def main():
         help='''List all checks'''
     )
     check_list_parser.set_defaults(subcmd='check_list')
+    check_info_parser = subparsers.add_parser(
+        'check-info',
+        add_help=False,
+        help='''Show information for a given check'''
+    )
+    check_info_parser.set_defaults(subcmd='check_info')
+    check_info_parser.add_argument(
+        'check_id', metavar='ID', action='store', type=int,
+        help='Check ID',)
     check_create_parser = subparsers.add_parser(
         'check-create', parents=[hash_parser], conflict_handler='resolve',
         help='Add a check to a patch')
@@ -771,6 +789,10 @@ def main():
 
     elif action == 'check_list':
         action_check_list(rpc)
+
+    elif action == 'check_info':
+        check_id = args['check_id']
+        action_check_info(rpc, check_id)
 
     elif action == 'check_create':
         for patch_id in non_empty(h, patch_ids):
