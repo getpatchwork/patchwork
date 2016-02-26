@@ -236,7 +236,7 @@ def action_projects(rpc):
                                  project['name']))
 
 
-def action_checks(rpc):
+def action_check_list(rpc):
     checks = rpc.check_list()
     for check in checks:
         print("%d (for '%s')" % (check['id'], check['patch']))
@@ -474,12 +474,12 @@ def main():
         help='''List all projects'''
     )
     projects_parser.set_defaults(subcmd='projects')
-    checks_parser = subparsers.add_parser(
-        'checks',
+    check_list_parser = subparsers.add_parser(
+        'check-list',
         add_help=False,
-        help='''Show list of patch checks'''
+        help='''List all checks'''
     )
-    checks_parser.set_defaults(subcmd='checks')
+    check_list_parser.set_defaults(subcmd='check_list')
     check_create_parser = subparsers.add_parser(
         'check-create', parents=[hash_parser], conflict_handler='resolve',
         help='Add a check to a patch')
@@ -708,8 +708,6 @@ def main():
     elif action.startswith('project'):
         action_projects(rpc)
 
-    elif action.startswith('checks'):
-        action_checks(rpc)
 
     elif action.startswith('state'):
         action_states(rpc)
@@ -765,6 +763,9 @@ def main():
             action_update_patch(rpc, patch_id, state=state_str,
                                 archived=archived_str, commit=commit_str
                                 )
+
+    elif action == 'check_list':
+        action_check_list(rpc)
 
     elif action == 'check_create':
         for patch_id in non_empty(h, patch_ids):
