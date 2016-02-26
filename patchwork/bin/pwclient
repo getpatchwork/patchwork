@@ -237,7 +237,7 @@ def action_projects(rpc):
 
 
 def action_checks(rpc):
-    checks = rpc.check_list("", 0)
+    checks = rpc.check_list()
     for check in checks:
         print("%d (for '%s')" % (check['id'], check['patch']))
 
