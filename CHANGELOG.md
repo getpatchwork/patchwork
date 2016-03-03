@@ -9,6 +9,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- N/A
+
+## [1.1.0] - 2016-03-03
+
+### Added
+
 - Python 3 support
 - Web UI overhaul
 - Check feature, which can be used to report the status of tests
@@ -67,7 +73,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 **NOTE:** 1.0.0 was the first release of patchwork adopting semantic versioning.
 For information on *"0.9.0"* and before, please refer to Git logs.
 
-[Unreleased]: https://github.com/getpatchwork/patchwork/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/getpatchwork/patchwork/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/getpatchwork/patchwork/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/getpatchwork/patchwork/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/getpatchwork/patchwork/compare/c561ebe...v0.9.0
 

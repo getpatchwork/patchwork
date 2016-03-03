@@ -115,8 +115,8 @@ The first requirement is patchwork itself. It can be downloaded like so:
 
 We will install this under `/opt`, though this is only a suggestion:
 
-    $ tar -xvzf v1.0.0.tar.gz
-    $ sudo mv v1.0.0 /opt/patchwork
+    $ tar -xvzf v1.1.0.tar.gz
+    $ sudo mv v1.1.0 /opt/patchwork
 
 **NOTE:** Per the [Django documentation][ref-django-files], source code should
 not be placed in your web server's document root as this risks the possibility
