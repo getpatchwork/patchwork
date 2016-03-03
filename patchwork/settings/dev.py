@@ -46,7 +46,7 @@ DATABASES = {
     },
 }
 
-if os.getenv('PW_TEST_DB_TYPE', None) == 'postgre':
+if os.getenv('PW_TEST_DB_TYPE', None) == 'postgres':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
 if django.VERSION >= (1, 7):

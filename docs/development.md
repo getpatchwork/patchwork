@@ -244,7 +244,7 @@ using the provided `dev` settings file.
   <dt>PW_TEST_DB_PASS = 'password'</dt>
   <dd>Password to access the database with</dd>
   <dt>PW_TEST_DB_TYPE = 'mysql'</dt>
-  <dd>Type of database to use. Options: 'mysql', 'postgresql'</dd>
+  <dd>Type of database to use. Options: 'mysql', 'postgres'</dd>
 </dl>
 
 [doc-contributing]: ../CONTRIBUTING.md
