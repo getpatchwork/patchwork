@@ -26,7 +26,10 @@ import os
 
 from django.contrib.auth.models import User
 
-from patchwork.models import Project, Person, Patch
+from patchwork.models import CoverLetter
+from patchwork.models import Patch
+from patchwork.models import Person
+from patchwork.models import Project
 
 
 # helper functions for tests
@@ -103,6 +106,24 @@ def create_patches(count=1):
         patches.append(patch)
 
     return patches
+
+
+def create_covers(count=1):
+    """Create 'count' unique cover letters."""
+    defaults.project.save()
+    defaults.patch_author_person.save()
+
+    covers = []
+
+    for i in range(0, count):
+        cover = CoverLetter(project=defaults.project,
+                            submitter=defaults.patch_author_person,
+                            msgid=make_msgid(),
+                            name='testcover%d' % (i + 1))
+        cover.save()
+        covers.append(cover)
+
+    return covers
 
 
 def find_in_context(context, key):

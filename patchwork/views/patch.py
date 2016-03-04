@@ -20,19 +20,33 @@
 from __future__ import absolute_import
 
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseForbidden
+from django.core import urlresolvers
+from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils import six
 
 from patchwork.forms import PatchForm, CreateBundleForm
-from patchwork.models import Patch, Project, Bundle
+from patchwork.models import Patch, Project, Bundle, Submission
 from patchwork.views import generic_list, patch_to_mbox
 
 
 def patch(request, patch_id):
-    patch = get_object_or_404(Patch, id=patch_id)
-    editable = patch.is_editable(request.user)
+    # redirect to cover letters where necessary
+    try:
+        patch = get_object_or_404(Patch, id=patch_id)
+    except Http404 as exc:
+        submissions = Submission.objects.filter(id=patch_id)
+        if submissions:
+            return HttpResponseRedirect(
+                urlresolvers.reverse(
+                    'cover-detail',
+                    kwargs={'cover_id': patch_id}))
+        raise exc
 
+    editable = patch.is_editable(request.user)
     context = {
         'project': patch.project
     }
@@ -86,12 +100,12 @@ def patch(request, patch_id):
     if request.user.is_authenticated():
         context['bundles'] = Bundle.objects.filter(owner=request.user)
 
-    context['patch'] = patch
+    context['submission'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
     context['project'] = patch.project
 
-    return render(request, 'patchwork/patch.html', context)
+    return render(request, 'patchwork/submission.html', context)
 
 
 def content(request, patch_id):

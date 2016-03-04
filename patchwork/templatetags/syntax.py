@@ -74,8 +74,8 @@ def patchsyntax(patch):
 
 
 @register.filter
-def commentsyntax(patch):
-    content = escape(patch.content)
+def commentsyntax(submission):
+    content = escape(submission.content)
 
     for (r, cls) in _comment_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)

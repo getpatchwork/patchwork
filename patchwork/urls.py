@@ -25,6 +25,7 @@ from django.contrib.auth import views as auth_views
 from patchwork import views
 from patchwork.views import api as api_views
 from patchwork.views import bundle as bundle_views
+from patchwork.views import cover as cover_views
 from patchwork.views import help as help_views
 from patchwork.views import mail as mail_views
 from patchwork.views import patch as patch_views
@@ -54,6 +55,10 @@ urlpatterns = [
         name='patch-raw'),
     url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.mbox,
         name='patch-mbox'),
+
+    # cover views
+    url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover,
+        name='cover-detail'),
 
 
     # logged-in user stuff
