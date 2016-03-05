@@ -143,7 +143,7 @@ def find_author(mail):
             break
 
     if email is None:
-        raise Exception("Could not parse From: header")
+        raise ValueError("Invalid 'From' header")
 
     email = email.strip()
     if name is not None:
@@ -228,7 +228,6 @@ def parse_series_marker(subject_prefixes):
 def find_content(project, mail):
     patchbuf = None
     commentbuf = ''
-    pullurl = None
 
     for part in mail.walk():
         if part.get_content_maintype() != 'text':
@@ -264,48 +263,22 @@ def find_content(project, mail):
 
             # Could not find a valid decoded payload.  Fail.
             if payload is None:
-                return (None, None, None)
+                return None, None
 
         if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload
-
         elif subtype == 'plain':
             c = payload
 
             if not patchbuf:
-                (patchbuf, c) = parse_patch(payload)
-
-            if not pullurl:
-                pullurl = find_pull_request(payload)
+                patchbuf, c = parse_patch(payload)
 
             if c is not None:
                 commentbuf += c.strip() + '\n'
 
-    patch = None
-    comment = None
-    filenames = None
+    commentbuf = clean_content(commentbuf)
 
-    if patchbuf:
-        filenames = patch_get_filenames(patchbuf)
-
-    if pullurl or patchbuf:
-        name, prefixes = clean_subject(mail.get('Subject'),
-                                       [project.linkname])
-        patch = Patch(name=name, pull_url=pullurl, diff=patchbuf,
-                      content=clean_content(commentbuf), date=mail_date(mail),
-                      headers=mail_headers(mail))
-
-    if commentbuf and not patch:
-        refs = build_references_list(mail)
-        cpatch = find_patch_for_comment(project, refs)
-        if not cpatch:
-            return (None, None, None)
-        comment = Comment(submission=cpatch,
-                          date=mail_date(mail),
-                          content=clean_content(commentbuf),
-                          headers=mail_headers(mail))
-
-    return (patch, comment, filenames)
+    return patchbuf, commentbuf
 
 
 def find_patch_for_comment(project, refs):
@@ -457,21 +430,18 @@ def parse_mail(mail, list_id=None):
     """
     # some basic sanity checks
     if 'From' not in mail:
-        LOGGER.debug("Ignoring patch due to missing 'From'")
-        return 1
+        raise ValueError("Missing 'From' header")
 
     if 'Subject' not in mail:
-        LOGGER.debug("Ignoring patch due to missing 'Subject'")
-        return 1
+        raise ValueError("Missing 'Subject' header")
 
     if 'Message-Id' not in mail:
-        LOGGER.debug("Ignoring patch due to missing 'Message-Id'")
-        return 1
+        raise ValueError("Missing 'Message-Id' header")
 
     hint = mail.get('X-Patchwork-Hint', '').lower()
     if hint == 'ignore':
-        LOGGER.debug("Ignoring patch due to 'ignore' hint")
-        return 0
+        LOGGER.debug("Ignoring email due to 'ignore' hint")
+        return
 
     if list_id:
         project = find_project_by_id(list_id)
@@ -479,45 +449,74 @@ def parse_mail(mail, list_id=None):
         project = find_project_by_header(mail)
 
     if project is None:
-        LOGGER.error('Failed to find a project for patch')
-        return 1
+        LOGGER.error('Failed to find a project for email')
+        return
 
     msgid = mail.get('Message-Id').strip()
+    author, save_required = find_author(mail)
+    name, _ = clean_subject(mail.get('Subject'), [project.linkname])
+    refs = build_references_list(mail)
 
-    (author, save_required) = find_author(mail)
+    # parse content
 
-    (patch, comment, filenames) = find_content(project, mail)
+    diff, message = find_content(project, mail)
 
-    if patch:
-        delegate = get_delegate(mail.get('X-Patchwork-Delegate', '').strip())
-        if not delegate:
-            delegate = auto_delegate(project, filenames)
+    if not (diff or message):
+        return  # nothing to work with
 
+    pull_url = find_pull_request(message)
+
+    # build objects
+
+    if diff or pull_url:  # patches or pull requests
         # we delay the saving until we know we have a patch.
         if save_required:
             author.save()
-            save_required = False
-        patch.submitter = author
-        patch.msgid = msgid
-        patch.project = project
-        patch.state = get_state(mail.get('X-Patchwork-State', '').strip())
-        patch.delegate = get_delegate(
-            mail.get('X-Patchwork-Delegate', '').strip())
+
+        delegate = get_delegate(mail.get('X-Patchwork-Delegate', '').strip())
+        if not delegate and diff:
+            filenames = patch_get_filenames(diff)
+            delegate = auto_delegate(project, filenames)
+
+        patch = Patch(
+            msgid=msgid,
+            project=project,
+            name=name,
+            date=mail_date(mail),
+            headers=mail_headers(mail),
+            submitter=author,
+            content=message,
+            diff=diff,
+            pull_url=pull_url,
+            delegate=delegate,
+            state=get_state(mail.get('X-Patchwork-State', '').strip()))
         patch.save()
         LOGGER.debug('Patch saved')
 
-    if comment:
-        if save_required:
-            author.save()
-        # we defer this assignment until we know that we have a saved patch
-        if patch:
-            comment.patch = patch
-        comment.submitter = author
-        comment.msgid = msgid
-        comment.save()
-        LOGGER.debug('Comment saved')
+        return patch
 
-    return 0
+    # comments
+
+    # we only save comments if we have the parent email
+    patch = find_patch_for_comment(project, refs)
+    if not patch:
+        return
+
+    # ...and we only save the author if we're saving the comment
+    if save_required:
+        author.save()
+
+    comment = Comment(
+        submission=patch,
+        msgid=msgid,
+        date=mail_date(mail),
+        headers=mail_headers(mail),
+        submitter=author,
+        content=message)
+    comment.save()
+    LOGGER.debug('Comment saved')
+
+    return comment
 
 extra_error_message = '''
 == Mail
@@ -575,14 +574,16 @@ def main(args):
 
     mail = message_from_file(args['infile'])
     try:
-        return parse_mail(mail, args['list_id'])
+        result = parse_mail(mail, args['list_id'])
+        if result:
+            return 0
+        return 1
     except:
         if logger:
             logger.exception('Error when parsing incoming email', extra={
                 'mail': mail.as_string(),
             })
         raise
-    return parse_mail(mail, args['list_id'])
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
