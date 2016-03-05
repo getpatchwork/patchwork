@@ -185,14 +185,6 @@ def find_pull_request(content):
     return None
 
 
-def try_decode(payload, charset):
-    try:
-        payload = six.text_type(payload, charset)
-    except UnicodeDecodeError:
-        return None
-    return payload
-
-
 def build_references_list(mail):
     """Construct a list of possible reply message ids."""
     refs = []
@@ -264,10 +256,11 @@ def find_content(project, mail):
                 try_charsets = [charset]
 
             for cset in try_charsets:
-                decoded_payload = try_decode(payload, cset)
-                if decoded_payload is not None:
+                try:
+                    payload = six.text_type(payload, cset)
                     break
-            payload = decoded_payload
+                except UnicodeDecodeError:
+                    payload = None
 
             # Could not find a valid decoded payload.  Fail.
             if payload is None:
