@@ -160,14 +160,14 @@ def find_author(mail):
     return (person, new_person)
 
 
-def mail_date(mail):
+def find_date(mail):
     t = parsedate_tz(mail.get('Date', ''))
     if not t:
         return datetime.datetime.utcnow()
     return datetime.datetime.utcfromtimestamp(mktime_tz(t))
 
 
-def mail_headers(mail):
+def find_headers(mail):
     return reduce(operator.__concat__,
                   ['%s: %s\n' % (k, Header(v, header_name=k,
                                            continuation_ws='\t').encode())
@@ -185,7 +185,7 @@ def find_pull_request(content):
     return None
 
 
-def build_references_list(mail):
+def find_references(mail):
     """Construct a list of possible reply message ids."""
     refs = []
 
@@ -372,8 +372,9 @@ def clean_content(content):
     return content.strip()
 
 
-def get_state(state_name):
+def find_state(mail):
     """Return the state with the given name or the default."""
+    state_name = mail.get('X-Patchwork-State', '').strip()
     if state_name:
         try:
             return State.objects.get(name__iexact=state_name)
@@ -408,8 +409,9 @@ def auto_delegate(project, filenames):
     return patch_delegate
 
 
-def get_delegate(delegate_email):
+def find_delegate(mail):
     """Return the delegate with the given email or None."""
+    delegate_email = mail.get('X-Patchwork-Delegate', '').strip()
     if delegate_email:
         try:
             return User.objects.get(email__iexact=delegate_email)
@@ -452,11 +454,6 @@ def parse_mail(mail, list_id=None):
         LOGGER.error('Failed to find a project for email')
         return
 
-    msgid = mail.get('Message-Id').strip()
-    author, save_required = find_author(mail)
-    name, _ = clean_subject(mail.get('Subject'), [project.linkname])
-    refs = build_references_list(mail)
-
     # parse content
 
     diff, message = find_content(project, mail)
@@ -464,6 +461,12 @@ def parse_mail(mail, list_id=None):
     if not (diff or message):
         return  # nothing to work with
 
+    msgid = mail.get('Message-Id').strip()
+    author, save_required = find_author(mail)
+    name, _ = clean_subject(mail.get('Subject'), [project.linkname])
+    refs = find_references(mail)
+    date = find_date(mail)
+    headers = find_headers(mail)
     pull_url = find_pull_request(message)
 
     # build objects
@@ -473,7 +476,7 @@ def parse_mail(mail, list_id=None):
         if save_required:
             author.save()
 
-        delegate = get_delegate(mail.get('X-Patchwork-Delegate', '').strip())
+        delegate = find_delegate(mail)
         if not delegate and diff:
             filenames = patch_get_filenames(diff)
             delegate = auto_delegate(project, filenames)
@@ -482,14 +485,14 @@ def parse_mail(mail, list_id=None):
             msgid=msgid,
             project=project,
             name=name,
-            date=mail_date(mail),
-            headers=mail_headers(mail),
+            date=date,
+            headers=headers,
             submitter=author,
             content=message,
             diff=diff,
             pull_url=pull_url,
             delegate=delegate,
-            state=get_state(mail.get('X-Patchwork-State', '').strip()))
+            state=find_state(mail))
         patch.save()
         LOGGER.debug('Patch saved')
 
@@ -509,8 +512,8 @@ def parse_mail(mail, list_id=None):
     comment = Comment(
         submission=patch,
         msgid=msgid,
-        date=mail_date(mail),
-        headers=mail_headers(mail),
+        date=date,
+        headers=headers,
         submitter=author,
         content=message)
     comment.save()
