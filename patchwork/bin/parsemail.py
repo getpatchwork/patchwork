@@ -42,7 +42,8 @@ from django.utils import six
 from django.utils.six.moves import map
 
 from patchwork.models import (Patch, Project, Person, Comment, State,
-                              DelegationRule, get_default_initial_patch_state)
+                              DelegationRule, Submission, CoverLetter,
+                              get_default_initial_patch_state)
 from patchwork.parser import parse_patch, patch_get_filenames
 
 LOGGER = logging.getLogger(__name__)
@@ -280,15 +281,13 @@ def find_content(project, mail):
     return patchbuf, commentbuf
 
 
-def find_patch_for_comment(project, refs):
+def find_submission_for_comment(project, refs):
     for ref in refs:
-        patch = None
-
         # first, check for a direct reply
         try:
-            patch = Patch.objects.get(project=project, msgid=ref)
-            return patch
-        except Patch.DoesNotExist:
+            submission = Submission.objects.get(project=project, msgid=ref)
+            return submission
+        except Submission.DoesNotExist:
             pass
 
         # see if we have comments that refer to a patch
@@ -462,7 +461,8 @@ def parse_mail(mail, list_id=None):
 
     msgid = mail.get('Message-Id').strip()
     author, save_required = find_author(mail)
-    name, _ = clean_subject(mail.get('Subject'), [project.linkname])
+    name, prefixes = clean_subject(mail.get('Subject'), [project.linkname])
+    x, n = parse_series_marker(prefixes)
     refs = find_references(mail)
     date = find_date(mail)
     headers = find_headers(mail)
@@ -496,12 +496,28 @@ def parse_mail(mail, list_id=None):
         LOGGER.debug('Patch saved')
 
         return patch
+    elif refs == [] and x == 0:  # cover letters
+        if save_required:
+            author.save()
+
+        cover_letter = CoverLetter(
+            msgid=msgid,
+            project=project,
+            name=name,
+            date=date,
+            headers=headers,
+            submitter=author,
+            content=message)
+        cover_letter.save()
+        LOGGER.debug('Cover letter saved')
+
+        return cover_letter
 
     # comments
 
     # we only save comments if we have the parent email
-    patch = find_patch_for_comment(project, refs)
-    if not patch:
+    submission = find_submission_for_comment(project, refs)
+    if not submission:
         return
 
     # ...and we only save the author if we're saving the comment
