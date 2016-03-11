@@ -552,7 +552,7 @@ def main(args):
 
     args = vars(parser.parse_args())
 
-    logging.basicConfig(level=args['verbosity'])
+    logging.basicConfig(level=VERBOSITY_LEVELS[args['verbosity']])
 
     mail = message_from_file(args['infile'])
     try:
