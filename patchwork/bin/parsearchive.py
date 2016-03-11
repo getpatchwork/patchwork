@@ -73,7 +73,7 @@ def main():
 
     args = vars(parser.parse_args())
 
-    logging.basicConfig(level=args['verbosity'])
+    logging.basicConfig(level=VERBOSITY_LEVELS[args['verbosity']])
 
     parse_mbox(args['inpath'], args['list_id'])
 
