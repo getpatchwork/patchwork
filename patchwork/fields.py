@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import
 
+import hashlib
+
 import django
 from django.db import models
 from django.utils import six
@@ -33,29 +35,16 @@ else:
 
 class HashField(HashFieldBase):
 
-    def __init__(self, algorithm='sha1', *args, **kwargs):
-        self.algorithm = algorithm
-        try:
-            import hashlib
-
-            def _construct(string=''):
-                if isinstance(string, six.text_type):
-                    string = string.encode('utf-8')
-                return hashlib.new(self.algorithm, string)
-            self.construct = _construct
-            self.n_bytes = len(hashlib.new(self.algorithm).hexdigest())
-        except ImportError:
-            modules = {'sha1': 'sha', 'md5': 'md5'}
-
-            if algorithm not in modules:
-                raise NameError("Unknown algorithm '%s'" % algorithm)
-
-            self.construct = __import__(modules[algorithm]).new
-
-        self.n_bytes = len(self.construct().hexdigest())
-
+    def __init__(self, *args, **kwargs):
+        self.n_bytes = len(hashlib.sha1().hexdigest())
         kwargs['max_length'] = self.n_bytes
+
         super(HashField, self).__init__(*args, **kwargs)
+
+    def construct(self, value):
+        if isinstance(value, six.text_type):
+            value = value.encode('utf-8')
+        return hashlib.sha1(value)
 
     def from_db_value(self, value, expression, connection, context):
         return self.to_python(value)
