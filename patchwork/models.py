@@ -25,7 +25,6 @@ import datetime
 import random
 import re
 
-import django
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -34,9 +33,9 @@ from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
-from django.utils import six
 from django.utils.six.moves import filter
 
+from patchwork.fields import HashField
 from patchwork.parser import extract_tags, hash_patch
 
 
@@ -176,45 +175,6 @@ class State(models.Model):
 
     class Meta:
         ordering = ['ordering']
-
-
-if django.VERSION < (1, 8):
-    HashFieldBase = six.with_metaclass(models.SubfieldBase, models.CharField)
-else:
-    HashFieldBase = models.CharField
-
-
-class HashField(HashFieldBase):
-
-    def __init__(self, algorithm='sha1', *args, **kwargs):
-        self.algorithm = algorithm
-        try:
-            import hashlib
-
-            def _construct(string=''):
-                if isinstance(string, six.text_type):
-                    string = string.encode('utf-8')
-                return hashlib.new(self.algorithm, string)
-            self.construct = _construct
-            self.n_bytes = len(hashlib.new(self.algorithm).hexdigest())
-        except ImportError:
-            modules = {'sha1': 'sha', 'md5': 'md5'}
-
-            if algorithm not in modules:
-                raise NameError("Unknown algorithm '%s'" % algorithm)
-
-            self.construct = __import__(modules[algorithm]).new
-
-        self.n_bytes = len(self.construct().hexdigest())
-
-        kwargs['max_length'] = self.n_bytes
-        super(HashField, self).__init__(*args, **kwargs)
-
-    def from_db_value(self, value, expression, connection, context):
-        return self.to_python(value)
-
-    def db_type(self, connection=None):
-        return 'char(%d)' % self.n_bytes
 
 
 @python_2_unicode_compatible
