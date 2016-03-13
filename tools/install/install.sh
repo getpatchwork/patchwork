@@ -45,11 +45,11 @@ echo -e "\n--- Loading initial data ---\n"
 
 sudo -E -u vagrant python3 $PROJECT_HOME/manage.py migrate > /dev/null
 sudo -E -u vagrant python3 $PROJECT_HOME/manage.py loaddata \
-    $PROJECT_HOME/patchwork/fixtures/default_tags.xml > /dev/null
+    default_tags > /dev/null
 sudo -E -u vagrant python3 $PROJECT_HOME/manage.py loaddata \
-    $PROJECT_HOME/patchwork/fixtures/default_states.xml > /dev/null
+    default_states > /dev/null
 sudo -E -u vagrant python3 $PROJECT_HOME/manage.py loaddata \
-    $PROJECT_HOME/patchwork/fixtures/default_projects.xml > /dev/null
+    default_projects > /dev/null
 
 echo -e "\n--- Configuring environment ---\n"
 

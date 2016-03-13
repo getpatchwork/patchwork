@@ -183,9 +183,7 @@ fixtures provide.
 
 These can be loaded using the `loaddata` command:
 
-    (.venv)$ ./manage.py loaddata patchwork/fixtures/default_tags.xml
-    (.venv)$ ./manage.py loaddata patchwork/fixtures/default_states.xml
-    (.venv)$ ./manage.py loaddata patchwork/fixtures/default_projects.xml
+    (.venv)$ ./manage.py loaddata default_tags default_states default_projects
 
 You should also take the opportunity to create a "superuser". You can do this
 using the aptly-named `createsuperuser` command:
