@@ -40,18 +40,28 @@
 <script type="text/javascript">
 $(document).ready(function() {
     $('#patchlist').stickyTableHeaders();
+
+    $('#check-all').change(function(e) {
+        if(this.checked) {
+            $('#patchlist').checkboxes('check');
+        } else {
+            $('#patchlist').checkboxes('uncheck');
+        }
+        e.preventDefault();
+    });
 });
 </script>
 <form method="post">
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
-<table class="table table-hover table-condensed pw-list" id="patchlist">
+<table id="patchlist" class="table table-hover table-condensed pw-list"
+       data-toggle="checkboxes" data-range="true">
  <thead>
   <tr>
    {% if user.is_authenticated %}
    <th>
-    <input type="checkbox" onChange="select_all(this)"/>
+    <input type="checkbox" id="check-all"/>
    </th>
    {% endif %}
 

@@ -80,3 +80,9 @@ function row_to_patch_id(node)
 
     return id_str.substring(i + 1);
 }
+
+function confirm_delete(type, name)
+{
+    return confirm("Are you sure you want to delete the " + type +
+                   " '" + name + "'?");
+}
