@@ -20,31 +20,32 @@
 from __future__ import absolute_import
 
 from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404, render
 
 from patchwork.models import Project
-from patchwork.requestcontext import PatchworkRequestContext
 
 
 def pwclientrc(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
-    context = PatchworkRequestContext(request)
-    context.project = project
+
+    context = {
+        'project': project,
+    }
     if settings.FORCE_HTTPS_LINKS or request.is_secure():
         context['scheme'] = 'https'
     else:
         context['scheme'] = 'http'
-    response = HttpResponse(content_type="text/plain")
+
+    response = render(request, 'patchwork/pwclientrc', context,
+                      content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
-    response.write(render_to_string('patchwork/pwclientrc', context))
+
     return response
 
 
 def pwclient(request):
-    context = PatchworkRequestContext(request)
-    response = HttpResponse(content_type="text/x-python")
+    response = render(request, 'patchwork/pwclientrc',
+                      content_type='text/x-python')
     response['Content-Disposition'] = 'attachment; filename=pwclient'
-    response.write(render_to_string('patchwork/pwclient', context))
+
     return response
