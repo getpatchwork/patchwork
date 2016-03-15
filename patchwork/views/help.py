@@ -21,9 +21,7 @@ from __future__ import absolute_import
 
 from django.conf import settings
 from django.http import Http404
-from django.shortcuts import render_to_response
-
-from patchwork.requestcontext import PatchworkRequestContext
+from django.shortcuts import render
 
 
 help_pages = {
@@ -36,8 +34,7 @@ if settings.ENABLE_XMLRPC:
 
 
 def help(request, path):
-    context = PatchworkRequestContext(request)
     if path in help_pages:
-        return render_to_response(
-            'patchwork/help/' + help_pages[path], context)
+        return render(request,
+                      'patchwork/help/' + help_pages[path])
     raise Http404
