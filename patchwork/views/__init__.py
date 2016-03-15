@@ -263,6 +263,9 @@ def generic_list(request, project, view,
     # rendering the list template
     patches = patches.select_related('state', 'submitter', 'delegate')
 
+    # we also need checks
+    patches = patches.prefetch_related('check_set')
+
     paginator = Paginator(request, patches)
 
     context.update({
