@@ -49,7 +49,7 @@
 {% endif %}
 </table>
 
-{% if settings.ENABLE_XMLRPC %}
+{% if enable_xmlrpc %}
 <p>Sample <a href="{% url 'help' "pwclient/" %}">patchwork
 client</a> configuration for this project: <a
 href="{% url 'pwclientrc' project.linkname %}"
