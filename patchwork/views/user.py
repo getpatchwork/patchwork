@@ -26,7 +26,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core import urlresolvers
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template.loader import render_to_string
 
 from patchwork.filters import DelegateFilter
@@ -34,16 +34,17 @@ from patchwork.forms import (UserProfileForm, UserPersonLinkForm,
                              RegistrationForm)
 from patchwork.models import (Project, Bundle, Person, EmailConfirmation,
                               State, EmailOptout)
-from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list
 
 
 def register(request):
-    context = PatchworkRequestContext(request)
+    context = {}
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
+
             # create inactive user
             user = auth.models.User.objects.create_user(data['username'],
                                                         data['email'],
@@ -59,34 +60,29 @@ def register(request):
             conf.save()
 
             # send email
-            mail_ctx = {'site': Site.objects.get_current(),
-                        'confirmation': conf}
-
-            subject = render_to_string(
-                'patchwork/activation_email_subject.txt',
-                mail_ctx).replace('\n', ' ').strip()
-
-            message = render_to_string('patchwork/activation_email.txt',
-                                       mail_ctx)
+            subject = 'Patchwork account confirmation'
+            message = render_to_string(
+                'patchwork/activation_email.txt',
+                {'site': Site.objects.get_current(), 'confirmation': conf})
 
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                       [conf.email])
 
             # setting 'confirmation' in the template indicates success
             context['confirmation'] = conf
-
     else:
         form = RegistrationForm()
 
-    return render_to_response('patchwork/registration_form.html',
-                              {'form': form},
-                              context_instance=context)
+    context['form'] = form
+
+    return render(request, 'patchwork/registration_form.html', context)
 
 
 def register_confirm(request, conf):
     conf.user.is_active = True
     conf.user.save()
     conf.deactivate()
+
     try:
         person = Person.objects.get(email__iexact=conf.user.email)
     except Person.DoesNotExist:
@@ -95,13 +91,11 @@ def register_confirm(request, conf):
     person.user = conf.user
     person.save()
 
-    return render_to_response('patchwork/registration-confirm.html')
+    return render(request, 'patchwork/registration-confirm.html')
 
 
 @login_required
 def profile(request):
-    context = PatchworkRequestContext(request)
-
     if request.method == 'POST':
         form = UserProfileForm(instance=request.user.profile,
                                data=request.POST)
@@ -110,10 +104,14 @@ def profile(request):
     else:
         form = UserProfileForm(instance=request.user.profile)
 
-    context.project = request.user.profile.primary_project
-    context['bundles'] = Bundle.objects.filter(owner=request.user)
-    context['profileform'] = form
+    # TODO(stephenfin): Add a related_name for User->Bundle
+    context = {
+        'project': request.user.profile.primary_project,
+        'bundles': Bundle.objects.filter(owner=request.user),
+        'profileform': form,
+    }
 
+    # FIXME(stephenfin): This looks unsafe. Investigate.
     optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
         Person._meta.db_table,
         Person._meta.get_field('email').column,
@@ -124,12 +122,12 @@ def profile(request):
     context['linked_emails'] = people
     context['linkform'] = UserPersonLinkForm()
 
-    return render_to_response('patchwork/profile.html', context)
+    return render(request, 'patchwork/profile.html', context)
 
 
 @login_required
 def link(request):
-    context = PatchworkRequestContext(request)
+    context = {}
 
     if request.method == 'POST':
         form = UserPersonLinkForm(request.POST)
@@ -138,12 +136,13 @@ def link(request):
                                      user=request.user,
                                      email=form.cleaned_data['email'])
             conf.save()
+
             context['confirmation'] = conf
 
             try:
                 send_mail('Patchwork email address confirmation',
                           render_to_string('patchwork/user-link.mail',
-                                           context),
+                                           context, request=request),
                           settings.DEFAULT_FROM_EMAIL,
                           [form.cleaned_data['email']])
             except Exception:
@@ -152,15 +151,14 @@ def link(request):
                                     'Please try again later')
     else:
         form = UserPersonLinkForm()
+
     context['linkform'] = form
 
-    return render_to_response('patchwork/user-link.html', context)
+    return render(request, 'patchwork/user-link.html', context)
 
 
 @login_required
 def link_confirm(request, conf):
-    context = PatchworkRequestContext(request)
-
     try:
         person = Person.objects.get(email__iexact=conf.email)
     except Person.DoesNotExist:
@@ -170,9 +168,11 @@ def link_confirm(request, conf):
     person.save()
     conf.deactivate()
 
-    context['person'] = person
+    context = {
+        'person': person,
+    }
 
-    return render_to_response('patchwork/user-link-confirm.html', context)
+    return render(request, 'patchwork/user-link-confirm.html', context)
 
 
 @login_required
@@ -184,8 +184,7 @@ def unlink(request, person_id):
             person.user = None
             person.save()
 
-    url = urlresolvers.reverse('user-profile')
-    return HttpResponseRedirect(url)
+    return HttpResponseRedirect(urlresolvers.reverse('user-profile'))
 
 
 @login_required
@@ -205,10 +204,11 @@ def todo_lists(request):
                 'user-todo',
                 kwargs={'project_id': todo_lists[0]['project'].linkname}))
 
-    context = PatchworkRequestContext(request)
-    context['todo_lists'] = todo_lists
-    context.project = request.user.profile.primary_project
-    return render_to_response('patchwork/todo-lists.html', context)
+    context = {
+        'todo_lists': todo_lists,
+    }
+
+    return render(request, 'patchwork/todo-lists.html', context)
 
 
 @login_required
@@ -218,6 +218,7 @@ def todo_list(request, project_id):
     filter_settings = [(DelegateFilter,
                         {'delegate': request.user})]
 
+    # TODO(stephenfin): Build the context dict here
     context = generic_list(request, project,
                            'user-todo',
                            view_args={'project_id': project.linkname},
