@@ -28,7 +28,7 @@ import email.utils
 import re
 
 from django.http import Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import (Bundle, BundlePatch, Comment, Patch,
@@ -388,11 +388,11 @@ def confirm(request, key):
     if conf.active and conf.is_valid():
         return views[conf.type](request, conf)
 
-    context = PatchworkRequestContext(request)
+    context = {}
     context['conf'] = conf
     if not conf.active:
         context['error'] = 'inactive'
     elif not conf.is_valid():
         context['error'] = 'expired'
 
-    return render_to_response('patchwork/confirm-error.html', context)
+    return render(request, 'patchwork/confirm-error.html', context)
