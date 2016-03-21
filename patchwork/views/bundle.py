@@ -23,19 +23,16 @@ from django.contrib.auth.decorators import login_required
 import django.core.urlresolvers
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.models import Patch, Bundle, BundlePatch, Project
-from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list, patch_to_mbox, get_patch_ids
 
 
 @login_required
 def setbundle(request):
-    context = PatchworkRequestContext(request)
-
     bundle = None
 
     if request.method == 'POST':
@@ -90,9 +87,6 @@ def setbundle(request):
         bundle = get_object_or_404(Bundle, owner=request.user,
                                    id=request.POST['bundle_id'])
 
-    if 'error' in context:
-        pass
-
     if bundle:
         return HttpResponseRedirect(
             django.core.urlresolvers.reverse(
@@ -108,7 +102,7 @@ def setbundle(request):
 
 @login_required
 def bundles(request, project_id=None):
-    context = PatchworkRequestContext(request)
+    project = None
 
     if request.method == 'POST':
         form_name = request.POST.get('form_name', '')
@@ -121,7 +115,6 @@ def bundles(request, project_id=None):
                 bundle.delete()
 
     if project_id is None:
-        project = None
         bundles = Bundle.objects.filter(owner=request.user)
     else:
         project = get_object_or_404(Project, linkname=project_id)
@@ -131,10 +124,12 @@ def bundles(request, project_id=None):
         bundle.delete_form = DeleteBundleForm(auto_id=False,
                                               initial={'bundle_id': bundle.id})
 
-    context['bundles'] = bundles
-    context['project'] = project
+    context = {
+        'bundles': bundles,
+        'project': project,
+    }
 
-    return render_to_response('patchwork/bundles.html', context)
+    return render(request, 'patchwork/bundles.html', context)
 
 
 def bundle(request, username, bundlename):
