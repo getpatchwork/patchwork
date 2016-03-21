@@ -23,7 +23,7 @@ from django.contrib.auth.decorators import login_required
 import django.core.urlresolvers
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
@@ -193,7 +193,7 @@ def bundle(request, username, bundlename):
     context['bundle'] = bundle
     context['bundleform'] = form
 
-    return render_to_response('patchwork/bundle.html', context)
+    return render(request, 'patchwork/bundle.html', context)
 
 
 def mbox(request, username, bundlename):

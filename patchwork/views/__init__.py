@@ -27,14 +27,15 @@ from email.parser import HeaderParser
 import email.utils
 import re
 
+from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 
+from patchwork.filters import Filters
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import (Bundle, BundlePatch, Comment, Patch,
-                              EmailConfirmation)
+                              EmailConfirmation, Project)
 from patchwork.paginator import Paginator
-from patchwork.requestcontext import PatchworkRequestContext
 
 
 bundle_actions = ['create', 'add', 'remove']
@@ -127,9 +128,12 @@ class Order(object):
         return qs.order_by(*orders)
 
 
-def set_bundle(user, project, action, data, patches, context):
+# TODO(stephenfin): Refactor this to break it into multiple, testable functions
+def set_bundle(request, project, action, data, patches, context):
     # set up the bundle
     bundle = None
+    user = request.user
+
     if action == 'create':
         bundle_name = data['bundle_name'].strip()
         if '/' in bundle_name:
@@ -144,11 +148,9 @@ def set_bundle(user, project, action, data, patches, context):
         bundle = Bundle(owner=user, project=project,
                         name=bundle_name)
         bundle.save()
-        context.add_message("Bundle %s created" % bundle.name)
-
+        messages.success(request, "Bundle %s created" % bundle.name)
     elif action == 'add':
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
-
     elif action == 'remove':
         bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
 
@@ -161,18 +163,20 @@ def set_bundle(user, project, action, data, patches, context):
                                                            patch=patch).count()
             if bundlepatch_count == 0:
                 bundle.append_patch(patch)
-                context.add_message("Patch '%s' added to bundle %s" %
-                                    (patch.name, bundle.name))
+                messages.success(request, "Patch '%s' added to bundle %s" %
+                                 (patch.name, bundle.name))
             else:
-                context.add_message("Patch '%s' already in bundle %s" %
-                                    (patch.name, bundle.name))
-
+                messages.warning(request, "Patch '%s' already in bundle %s" %
+                                 (patch.name, bundle.name))
         elif action == 'remove':
             try:
                 bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
                 bp.delete()
-                context.add_message("Patch '%s' removed from bundle %s\n" %
-                                    (patch.name, bundle.name))
+                messages.success(
+                    request,
+                    "Patch '%s' removed from bundle %s\n" % (patch.name,
+                                                             bundle.name))
+            # TODO(stephenfin): Make this less broad
             except Exception:
                 pass
 
@@ -184,18 +188,43 @@ def set_bundle(user, project, action, data, patches, context):
 def generic_list(request, project, view,
                  view_args={}, filter_settings=[], patches=None,
                  editable_order=False):
+    filters = Filters(request)
+    context = {
+        'project': project,
+        'projects': Project.objects.all(),
+        'filters': filters,
+    }
 
-    context = PatchworkRequestContext(request,
-                                      list_view=view,
-                                      list_view_params=view_args)
+    # pagination
 
-    context.project = project
+    params = filters.params()
+    for param in ['order', 'page']:
+        data = {}
+        if request.method == 'GET':
+            data = request.GET
+        elif request.method == 'POST':
+            data = request.POST
+
+        value = data.get(param, None)
+        if value:
+            params.append((param, value))
+
     data = {}
     if request.method == 'GET':
         data = request.GET
     elif request.method == 'POST':
         data = request.POST
     order = Order(data.get('order'), editable=editable_order)
+
+    context.update({
+        'order': order,
+        'list_view': {
+            'view': view,
+            'view_params': view_args,
+            'params': params
+        }})
+
+    # form processing
 
     # Explicitly set data to None because request.POST will be an empty dict
     # when the form is not submitted, but passing a non-None data argument to
@@ -205,8 +234,8 @@ def generic_list(request, project, view,
         data = None
     user = request.user
     properties_form = None
-    if user.is_authenticated():
 
+    if user.is_authenticated():
         # we only pass the post data to the MultiplePatchForm if that was
         # the actual form submitted
         data_tmp = None
@@ -226,10 +255,10 @@ def generic_list(request, project, view,
         ps = Patch.objects.filter(id__in=get_patch_ids(data))
 
         if action in bundle_actions:
-            errors = set_bundle(user, project, action, data, ps, context)
+            errors = set_bundle(request, project, action, data, ps, context)
 
         elif properties_form and action == properties_form.action:
-            errors = process_multiplepatch_form(properties_form, user,
+            errors = process_multiplepatch_form(request, properties_form,
                                                 action, ps, context)
         else:
             errors = []
@@ -239,11 +268,11 @@ def generic_list(request, project, view,
 
     for (filterclass, setting) in filter_settings:
         if isinstance(setting, dict):
-            context.filters.set_status(filterclass, **setting)
+            context['filters'].set_status(filterclass, **setting)
         elif isinstance(setting, list):
-            context.filters.set_status(filterclass, *setting)
+            context['filters'].set_status(filterclass, *setting)
         else:
-            context.filters.set_status(filterclass, setting)
+            context['filters'].set_status(filterclass, setting)
 
     if patches is None:
         patches = Patch.objects.filter(project=project)
@@ -251,7 +280,7 @@ def generic_list(request, project, view,
     # annotate with tag counts
     patches = patches.with_tag_counts(project)
 
-    patches = context.filters.apply(patches)
+    patches = context['filters'].apply(patches)
     if not editable_order:
         patches = order.apply(patches)
 
@@ -278,18 +307,19 @@ def generic_list(request, project, view,
     return context
 
 
-def process_multiplepatch_form(form, user, action, patches, context):
+def process_multiplepatch_form(request, form, action, patches, context):
     errors = []
+
     if not form.is_valid() or action != form.action:
         return ['The submitted form data was invalid']
 
     if len(patches) == 0:
-        context.add_message("No patches selected; nothing updated")
+        messages.warning(request, 'No patches selected; nothing updated')
         return errors
 
     changed_patches = 0
     for patch in patches:
-        if not patch.is_editable(user):
+        if not patch.is_editable(request.user):
             errors.append("You don't have permissions to edit patch '%s'"
                           % patch.name)
             continue
@@ -298,11 +328,11 @@ def process_multiplepatch_form(form, user, action, patches, context):
         form.save(patch)
 
     if changed_patches == 1:
-        context.add_message("1 patch updated")
+        messages.success(request, '1 patch updated')
     elif changed_patches > 1:
-        context.add_message("%d patches updated" % changed_patches)
+        messages.success(request, '%d patches updated' % changed_patches)
     else:
-        context.add_message("No patches updated")
+        messages.warning(request, 'No patches updated')
 
     return errors
 

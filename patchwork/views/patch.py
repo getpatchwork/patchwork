@@ -21,7 +21,7 @@ from __future__ import absolute_import
 
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.utils import six
 
 from patchwork.forms import PatchForm, CreateBundleForm
@@ -120,4 +120,4 @@ def list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
     context = generic_list(request, project, 'patch-list',
                            view_args={'project_id': project.linkname})
-    return render_to_response('patchwork/list.html', context)
+    return render(request, 'patchwork/list.html', context)

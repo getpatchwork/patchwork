@@ -26,9 +26,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core import urlresolvers
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, render_to_response, get_object_or_404
-from django.template.loader import render_to_string
+from django.shortcuts import render, get_object_or_404
 
+from patchwork.compat import render_to_string
 from patchwork.filters import DelegateFilter
 from patchwork.forms import (UserProfileForm, UserPersonLinkForm,
                              RegistrationForm)
@@ -227,4 +227,4 @@ def todo_list(request, project_id):
 
     context['action_required_states'] = \
         State.objects.filter(action_required=True).all()
-    return render_to_response('patchwork/todo-list.html', context)
+    return render(request, 'patchwork/todo-list.html', context)
