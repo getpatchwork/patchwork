@@ -19,21 +19,23 @@
 
 from __future__ import absolute_import
 
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils import six
 
 from patchwork.forms import PatchForm, CreateBundleForm
 from patchwork.models import Patch, Project, Bundle
-from patchwork.requestcontext import PatchworkRequestContext
 from patchwork.views import generic_list, patch_to_mbox
 
 
 def patch(request, patch_id):
-    context = PatchworkRequestContext(request)
     patch = get_object_or_404(Patch, id=patch_id)
-    context.project = patch.project
     editable = patch.is_editable(request.user)
+
+    context = {
+        'project': patch.project
+    }
 
     form = None
     createbundleform = None
@@ -57,18 +59,19 @@ def patch(request, patch_id):
                 bundle.append_patch(patch)
                 bundle.save()
                 createbundleform = CreateBundleForm()
-                context.add_message('Bundle %s created' % bundle.name)
-
+                messages.success(request, 'Bundle %s created' % bundle.name)
         elif action == 'addtobundle':
             bundle = get_object_or_404(
                 Bundle, id=request.POST.get('bundle_id'))
             try:
                 bundle.append_patch(patch)
                 bundle.save()
-                context.add_message('Patch added to bundle "%s"' % bundle.name)
+                messages.success(request,
+                                 'Patch added to bundle "%s"' % bundle.name)
             except Exception as ex:
-                context.add_message("Couldn't add patch '%s' to bundle %s: %s"
-                                    % (patch.name, bundle.name, ex.message))
+                messages.error(request,
+                               "Couldn't add patch '%s' to bundle %s: %s"
+                               % (patch.name, bundle.name, ex.message))
 
         # all other actions require edit privs
         elif not editable:
@@ -78,14 +81,17 @@ def patch(request, patch_id):
             form = PatchForm(data=request.POST, instance=patch)
             if form.is_valid():
                 form.save()
-                context.add_message('Patch updated')
+                messages.success(request, 'Patch updated')
+
+    if request.user.is_authenticated():
+        context['bundles'] = Bundle.objects.filter(owner=request.user)
 
     context['patch'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
     context['project'] = patch.project
 
-    return render_to_response('patchwork/patch.html', context)
+    return render(request, 'patchwork/patch.html', context)
 
 
 def content(request, patch_id):

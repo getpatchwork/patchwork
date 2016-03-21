@@ -101,6 +101,8 @@
 {% if messages %}
   <div id="messages">
   {% for message in messages %}
+  {# TODO(stephenfin): Make use of message.tags when completely #}
+  {# converted to django.contrib.messages #}
    <div class="message">{{ message }}</div>
   {% endfor %}
   </div>
