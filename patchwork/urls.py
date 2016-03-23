@@ -17,6 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import django
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
@@ -121,6 +122,12 @@ urlpatterns = [
     # help!
     url(r'^help/(?P<path>.*)$', help_views.help, name='help'),
 ]
+
+if 'debug_toolbar' in settings.INSTALLED_APPS:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
 
 if settings.ENABLE_XMLRPC:
     urlpatterns += [
