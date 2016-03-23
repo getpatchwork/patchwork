@@ -20,7 +20,7 @@ from .base import *  # noqa
 
 # Models
 
-if django.VERSION > (1, 6):
+if django.VERSION >= (1, 7):
     INSTALLED_APPS += [
         'debug_toolbar'
     ]
