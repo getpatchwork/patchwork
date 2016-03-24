@@ -121,7 +121,6 @@ class PatchTagsTest(TransactionTestCase):
         return comment
 
     def setUp(self):
-        settings.DEBUG = True
         project = Project(linkname='test-project', name='Test Project',
                           use_tags=True)
         project.save()
