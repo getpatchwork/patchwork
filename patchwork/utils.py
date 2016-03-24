@@ -27,8 +27,8 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.db.models import Max, Q, F
-from django.template.loader import render_to_string
 
+from patchwork.compat import render_to_string
 from patchwork.models import (PatchChangeNotification, EmailOptout,
                               EmailConfirmation)
 
@@ -65,7 +65,6 @@ def send_notifications():
 
         context = {
             'site': Site.objects.get_current(),
-            'person': recipient,
             'notifications': notifications,
             'projects': projects,
         }
