@@ -22,7 +22,7 @@ from __future__ import absolute_import
 from django.contrib import admin
 
 from patchwork.models import (Project, Person, UserProfile, State, Submission,
-                              Patch, Comment, Bundle, Tag, Check,
+                              Patch, CoverLetter, Comment, Bundle, Tag, Check,
                               DelegationRule)
 
 
@@ -68,6 +68,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 admin.site.register(Submission, SubmissionAdmin)
+
+
+CoverLetterAdmin = SubmissionAdmin
+admin.site.register(CoverLetter, CoverLetterAdmin)
 
 
 class PatchAdmin(admin.ModelAdmin):

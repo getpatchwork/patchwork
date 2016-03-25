@@ -315,6 +315,10 @@ class Submission(EmailMixin, models.Model):
         unique_together = [('msgid', 'project')]
 
 
+class CoverLetter(Submission):
+    pass
+
+
 @python_2_unicode_compatible
 class Patch(Submission):
     # patch metadata
