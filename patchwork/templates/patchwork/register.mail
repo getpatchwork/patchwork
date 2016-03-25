@@ -1,11 +1,11 @@
 Hi,
 
-This email is to confirm your account on the patchwork patch-tracking
+This email is to confirm your account on the Patchwork patch-tracking
 system. You can activate your account by visiting the url:
 
  http://{{site.domain}}{% url 'registration_activateactivation_key'=request.key %}
 
-If you didn't request a user account on patchwork, then you can ignore
+If you didn't request a user account on Patchwork, then you can ignore
 this mail.
 
 Happy patchworking.

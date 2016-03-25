@@ -7,7 +7,7 @@
 {% block body %}
 <h1>TODO</h1>
 
-<p>A Patchwork Todo-list contains patches that are assigned to you, and
+<p>A Patchwork todo-list contains patches that are assigned to you, and
 are in an "action required" state
 ({% for state in action_required_states %}{% if forloop.last and not forloop.first %} or {% endif %}{{ state }}{% if not forloop.last and not forloop.first %}, {%endif %}{% endfor %}), and are not archived.
 </p>

@@ -1,6 +1,6 @@
 Hello,
 
-The following patch{{notifications|length|pluralize:"es"}} (submitted by you) {{notifications|length|pluralize:"has,have"}} been updated in patchwork:
+The following patch{{notifications|length|pluralize:"es"}} (submitted by you) {{notifications|length|pluralize:"has,have"}} been updated in Patchwork:
 {% for notification in notifications %}
  * {{notification.patch.project.linkname}}: {{notification.patch.name|safe}}
      - http://{{site.domain}}{{notification.patch.get_absolute_url}}
@@ -14,7 +14,7 @@ Happy patchworking.
 
 --
 
-This is an automated mail sent by the patchwork system at
+This is an automated mail sent by the Patchwork system at
 {{site.domain}}. To stop receiving these notifications, edit
 your mail settings at:
   http://{{site.domain}}{% url 'mail-settings' %}

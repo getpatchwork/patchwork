@@ -6,12 +6,12 @@
 {% block body %}
 
 <p><strong>Opt-in complete</strong>. You have sucessfully opted back in to
-automated email from this patchwork system, using the address
+automated email from this Patchwork system, using the address
 <strong>{{email}}</strong>.</p>
 <p>If you later decide that you no longer want to receive automated mail from
-patchwork, just visit <a href="{% url 'mail-settings' %}"
+Patchwork, just visit <a href="{% url 'mail-settings' %}"
 >http://{{site.domain}}{% url 'mail-settings' %}</a>, or
-visit the main patchwork page and navigate from there.</p>
+visit the main Patchwork page and navigate from there.</p>
 {% if user.is_authenticated %}
 <p>Return to your <a href="{% url 'user-profile' %}">user
 profile</a>.</p>
