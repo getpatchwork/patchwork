@@ -19,7 +19,6 @@
 
 import datetime
 
-from django.conf import settings
 from django.test import TestCase, TransactionTestCase
 
 from patchwork.models import Project, Patch, Comment, Tag, PatchTag
