@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to set up patchwork on a Vagrant-powered Ubuntu Trusty host
+# Script to set up Patchwork on a Vagrant-powered Ubuntu Trusty host
 
 echo -e "\n--- Configuring environment ---\n"
 
