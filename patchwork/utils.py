@@ -26,7 +26,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
-from django.db.models import Max, Q, F
+from django.db.models import Count, Q, F
 
 from patchwork.compat import render_to_string
 from patchwork.models import (PatchChangeNotification, EmailOptout,
@@ -37,14 +37,16 @@ def send_notifications():
     date_limit = datetime.datetime.now() - datetime.timedelta(
         minutes=settings.NOTIFICATION_DELAY_MINUTES)
 
-    # This gets funky: we want to filter out any notifications that should
-    # be grouped with other notifications that aren't ready to go out yet. To
-    # do that, we join back onto PatchChangeNotification (PCN -> Patch ->
-    # Person -> Patch -> max(PCN.last_modified)), filtering out any maxima
-    # that are with the date_limit.
-    qs = PatchChangeNotification.objects.annotate(
-        m=Max('patch__submitter__patch__patchchangenotification'
-              '__last_modified')).filter(m__lt=date_limit)
+    # We delay sending notifications to a user if they have other
+    # notifications that are still in the "pending" state. To do this,
+    # we compare the total number of patch change notifications queued
+    # for each user against the number of "ready" notifications.
+    qs = PatchChangeNotification.objects.all()
+    qs2 = PatchChangeNotification.objects\
+        .filter(last_modified__lt=date_limit)\
+        .values('patch__submitter')\
+        .annotate(count=Count('patch__submitter'))
+    qs2 = {elem['patch__submitter']: elem['count'] for elem in qs2}
 
     groups = itertools.groupby(qs.order_by('patch__submitter'),
                                lambda n: n.patch.submitter)
@@ -53,6 +55,10 @@ def send_notifications():
 
     for (recipient, notifications) in groups:
         notifications = list(notifications)
+
+        if recipient.id not in qs2 or qs2[recipient.id] < len(notifications):
+            continue
+
         projects = set([n.patch.project.linkname for n in notifications])
 
         def delete_notifications():
