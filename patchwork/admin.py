@@ -21,8 +21,9 @@ from __future__ import absolute_import
 
 from django.contrib import admin
 
-from patchwork.models import (Project, Person, UserProfile, State, Patch,
-                              Comment, Bundle, Tag, Check, DelegationRule)
+from patchwork.models import (Project, Person, UserProfile, State, Submission,
+                              Patch, Comment, Bundle, Tag, Check,
+                              DelegationRule)
 
 
 class DelegationRuleInline(admin.TabularInline):
@@ -61,6 +62,14 @@ class StateAdmin(admin.ModelAdmin):
 admin.site.register(State, StateAdmin)
 
 
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'submitter', 'project', 'date')
+    list_filter = ('project', )
+    search_fields = ('name', 'submitter__name', 'submitter__email')
+    date_hierarchy = 'date'
+admin.site.register(Submission, SubmissionAdmin)
+
+
 class PatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'state', 'date',
                     'archived', 'is_pull_request')
@@ -78,8 +87,8 @@ admin.site.register(Patch, PatchAdmin)
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('patch', 'submitter', 'date')
-    search_fields = ('patch__name', 'submitter__name', 'submitter__email')
+    list_display = ('submission', 'submitter', 'date')
+    search_fields = ('submission__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 admin.site.register(Comment, CommentAdmin)
 

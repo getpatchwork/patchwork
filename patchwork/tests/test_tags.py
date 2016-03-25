@@ -113,7 +113,8 @@ class PatchTagsTest(TransactionTestCase):
         return '%s-by: %s\n' % (tags[tagtype], self.tagger)
 
     def create_tag_comment(self, patch, tagtype=None):
-        comment = Comment(patch=patch, msgid=str(datetime.datetime.now()),
+        comment = Comment(submission=patch,
+                          msgid=str(datetime.datetime.now()),
                           submitter=defaults.patch_author_person,
                           content=self.create_tag(tagtype))
         comment.save()

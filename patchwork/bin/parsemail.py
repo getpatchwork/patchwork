@@ -265,7 +265,8 @@ def find_content(project, mail):
         cpatch = find_patch_for_comment(project, mail)
         if not cpatch:
             return (None, None, None)
-        comment = Comment(patch=cpatch, date=mail_date(mail),
+        comment = Comment(submission=cpatch,
+                          date=mail_date(mail),
                           content=clean_content(commentbuf),
                           headers=mail_headers(mail))
 
@@ -297,8 +298,9 @@ def find_patch_for_comment(project, mail):
 
         # see if we have comments that refer to a patch
         try:
-            comment = Comment.objects.get(patch__project=project, msgid=ref)
-            return comment.patch
+            comment = Comment.objects.get(submission__project=project,
+                                          msgid=ref)
+            return comment.submission
         except Comment.DoesNotExist:
             pass
 

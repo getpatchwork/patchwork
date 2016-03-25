@@ -327,7 +327,8 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
         for project in [self.p1, self.p2]:
             patch = Patch.objects.filter(project=project)[0]
             # we should see the reply comment only
-            self.assertEqual(Comment.objects.filter(patch=patch).count(), 1)
+            self.assertEqual(
+                Comment.objects.filter(submission=patch).count(), 1)
 
 
 class ListIdHeaderTest(TestCase):

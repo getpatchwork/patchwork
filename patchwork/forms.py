@@ -122,7 +122,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['primary_project', 'patches_per_page']
+        fields = ['primary_project', 'items_per_page']
 
 
 class OptionalDelegateField(DelegateField):

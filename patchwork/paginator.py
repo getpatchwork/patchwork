@@ -24,7 +24,7 @@ from django.core import paginator
 from django.utils.six.moves import range
 
 
-DEFAULT_PATCHES_PER_PAGE = 100
+DEFAULT_ITEMS_PER_PAGE = 100
 LONG_PAGE_THRESHOLD = 30
 LEADING_PAGE_RANGE_DISPLAYED = 4
 TRAILING_PAGE_RANGE_DISPLAYED = 2
@@ -41,19 +41,19 @@ class Paginator(paginator.Paginator):
 
     def __init__(self, request, objects):
 
-        patches_per_page = settings.DEFAULT_PATCHES_PER_PAGE
+        items_per_page = settings.DEFAULT_ITEMS_PER_PAGE
 
         if request.user.is_authenticated():
-            patches_per_page = request.user.profile.patches_per_page
+            items_per_page = request.user.profile.items_per_page
 
         ppp = request.META.get('ppp')
         if ppp:
             try:
-                patches_per_page = int(ppp)
+                items_per_page = int(ppp)
             except ValueError:
                 pass
 
-        super(Paginator, self).__init__(objects, patches_per_page)
+        super(Paginator, self).__init__(objects, items_per_page)
 
         try:
             page_no = int(request.GET.get('page'))

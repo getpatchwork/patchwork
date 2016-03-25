@@ -47,7 +47,7 @@ class MboxPatchResponseTest(TestCase):
                            content='comment 1 text\nAcked-by: 1\n')
         self.patch.save()
 
-        comment = Comment(patch=self.patch,
+        comment = Comment(submission=self.patch,
                           msgid='p2',
                           submitter=self.person,
                           content='comment 2 text\nAcked-by: 2\n')
@@ -78,7 +78,7 @@ class MboxPatchSplitResponseTest(TestCase):
             content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
         self.patch.save()
 
-        comment = Comment(patch=self.patch,
+        comment = Comment(submission=self.patch,
                           msgid='p2',
                           submitter=self.person,
                           content='comment 2 text\nAcked-by: 2\n')

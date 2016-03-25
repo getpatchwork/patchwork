@@ -130,9 +130,9 @@ class UserProfile(models.Model):
         default=False,
         help_text='Selecting this option allows patchwork to send email on'
         ' your behalf')
-    patches_per_page = models.PositiveIntegerField(
+    items_per_page = models.PositiveIntegerField(
         default=100, null=False, blank=False,
-        help_text='Number of patches to display per page')
+        help_text='Number of items to display per page')
 
     def name(self):
         if self.user.first_name or self.user.last_name:
@@ -143,7 +143,7 @@ class UserProfile(models.Model):
 
     def contributor_projects(self):
         submitters = Person.objects.filter(user=self.user)
-        return Project.objects.filter(id__in=Patch.objects.filter(
+        return Project.objects.filter(id__in=Submission.objects.filter(
             submitter__in=submitters).values('project_id').query)
 
     def sync_person(self):
@@ -243,7 +243,8 @@ class PatchQuerySet(models.query.QuerySet):
             select[tag.attr_name] = (
                 "coalesce("
                 "(SELECT count FROM patchwork_patchtag"
-                " WHERE patchwork_patchtag.patch_id=patchwork_patch.id"
+                " WHERE patchwork_patchtag.patch_id="
+                "patchwork_patch.submission_ptr_id"
                 " AND patchwork_patchtag.tag_id=%s), 0)")
             select_params.append(tag.id)
 
@@ -289,14 +290,35 @@ class EmailMixin(models.Model):
 
 
 @python_2_unicode_compatible
-class Patch(EmailMixin, models.Model):
+class Submission(EmailMixin, models.Model):
     # parent
 
     project = models.ForeignKey(Project)
 
-    # patch metadata
+    # submission metadata
 
     name = models.CharField(max_length=255)
+
+    # patchwork metadata
+
+    def refresh_tag_counts(self):
+        pass  # TODO(sfinucan) Once this is only called for patches, remove
+
+    def is_editable(self, user):
+        return False
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['date']
+        unique_together = [('msgid', 'project')]
+
+
+@python_2_unicode_compatible
+class Patch(Submission):
+    # patch metadata
+
     diff = models.TextField(null=True, blank=True)
     commit_ref = models.CharField(max_length=255, null=True, blank=True)
     pull_url = models.CharField(max_length=255, null=True, blank=True)
@@ -315,7 +337,7 @@ class Patch(EmailMixin, models.Model):
         if count == 0:
             self.patchtag_set.filter(tag=tag).delete()
             return
-        (patchtag, _) = PatchTag.objects.get_or_create(patch=self, tag=tag)
+        patchtag, _ = PatchTag.objects.get_or_create(patch=self, tag=tag)
         if patchtag.count != count:
             patchtag.count = count
             patchtag.save()
@@ -437,27 +459,25 @@ class Patch(EmailMixin, models.Model):
 
     class Meta:
         verbose_name_plural = 'Patches'
-        ordering = ['date']
-        unique_together = [('msgid', 'project')]
 
 
 class Comment(EmailMixin, models.Model):
     # parent
 
-    patch = models.ForeignKey(Patch, related_name='comments',
-                              related_query_name='comment')
+    submission = models.ForeignKey(Submission, related_name='comments',
+                                   related_query_name='comment')
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
-        self.patch.refresh_tag_counts()
+        self.submission.refresh_tag_counts()
 
     def delete(self, *args, **kwargs):
         super(Comment, self).delete(*args, **kwargs)
-        self.patch.refresh_tag_counts()
+        self.submission.refresh_tag_counts()
 
     class Meta:
         ordering = ['date']
-        unique_together = [('msgid', 'patch')]
+        unique_together = [('msgid', 'submission')]
 
 
 class Bundle(models.Model):
@@ -484,7 +504,8 @@ class Bundle(models.Model):
             max_order = 0
 
         # see if the patch is already in this bundle
-        if BundlePatch.objects.filter(bundle=self, patch=patch).count():
+        if BundlePatch.objects.filter(bundle=self,
+                                      patch=patch).count():
             raise Exception('patch is already in bundle')
 
         bp = BundlePatch.objects.create(bundle=self, patch=patch,
@@ -643,7 +664,6 @@ def _patch_change_callback(sender, instance, **kwargs):
     if notification is None:
         notification = PatchChangeNotification(patch=instance,
                                                orig_state=orig_patch.state)
-
     elif notification.orig_state == instance.state:
         # If we're back at the original state, there is no need to notify
         notification.delete()
