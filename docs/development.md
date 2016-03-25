@@ -1,7 +1,7 @@
 # Development
 
-This document describes the necessary steps to configure patchwork in a
-development environment. If you are interested in deploying patchwork in a
+This document describes the necessary steps to configure Patchwork in a
+development environment. If you are interested in deploying Patchwork in a
 production environment, please refer to [the deployment guide][doc-deployment]
 instead.
 
@@ -13,8 +13,8 @@ The latest version of Patchwork is available with git. To download:
 
 ## Vagrant-Based Installation
 
-patchwork provides a Vagrantfile that can be used to quickly configure
-patchwork in a delopment environment. Like any Vagrant VM, you can start this
+Patchwork provides a Vagrantfile that can be used to quickly configure
+Patchwork in a delopment environment. Like any Vagrant VM, you can start this
 using the `vagrant up` command:
 
     $ cd patchwork  # the path to the repo you cloned above
@@ -27,7 +27,7 @@ Alternatively, manual installation steps are provided below.
 
 ## Install Required Packages
 
-There are a number of different requirements for developing patchwork:
+There are a number of different requirements for developing Patchwork:
 
 * Python and libraries
 * A supported RDBMS
@@ -44,15 +44,15 @@ on many installations, though they can also be installed manually using the
 It's a good idea to use [virtual environments][ref-venv] to develop Python
 software. Virtual environments are "instances" of your system Python without
 any of the additional Python packages installed. They are useful to develop and
-possibly deploy patchwork against a "well known" set of dependencies, but they
-can also be used to test patchwork against several versions of Django.
+possibly deploy Patchwork against a "well known" set of dependencies, but they
+can also be used to test Patchwork against several versions of Django.
 
 If you do not have `virtualenv` installed then you should install it now. This
 can be installed using the `python-virtualenv` or `python3-virtualenv`
 packages. Alternatively you can install these using `pip`.
 
 It is also helpful to install [`tox`][ref-tox] which is used for running tests
-in patchwork. This can be installed using the `python-tox` or `python3-tox`
+in Patchwork. This can be installed using the `python-tox` or `python3-tox`
 packages, or via `pip`.
 
 ### Database Requirements
@@ -64,16 +64,16 @@ on Debian-based Debian-based distros like Ubuntu and `mysql-devel` or
 `postgresql-devel` on RHEL-based distros.
 
 **NOTE:** While Django provides support for
-[multiple database backends][ref-django-db], patchwork itself is only tested
+[multiple database backends][ref-django-db], Patchwork itself is only tested
 against MySQL/MariaDB and PostgreSQL. Should you wish to use a different
 backend, ensure you validate this first (and perhaps
 [upstream][doc-contributing] any changes you may find necessary).
 
-**NOTE:** You may be tempted to use SQLite to develop patchwork. We'd advise
+**NOTE:** You may be tempted to use SQLite to develop Patchwork. We'd advise
 against doing this. SQLite supports a subset of the functionality of "full"
 RDBMS like MySQL: for example, case-sensitive matching of Unicode
 [is not supported][ref-sqlite-utf8]. You will find some tests provided by
-patchwork fail and some patches you develop may fail in production due to these
+Patchwork fail and some patches you develop may fail in production due to these
 differences.
 
 ### Example Installations
@@ -95,7 +95,7 @@ the above command.
 
 ## Configure Virtual Environment
 
-**NOTE:** If you are interested in simply [testing patchwork][doc-testing],
+**NOTE:** If you are interested in simply [testing Patchwork][doc-testing],
 many of the the below steps are not required. tox will automatically install
 dependencies and use virtual environments when testing.
 
@@ -113,7 +113,7 @@ Now install the packages. Patchwork provides three requirements files.
 
 * `requirements-dev.txt`: Packages required to configure a development
   environment
-* `requirements-prod.txt`: Packages required for deploying patchwork in
+* `requirements-prod.txt`: Packages required for deploying Patchwork in
   production
 * `requirements-test.txt`: Packages required to run tests
 
@@ -123,7 +123,7 @@ We're going to install the first of these, which can be done like so:
     (.venv)$ pip install -r requirements-dev.txt
 
 **NOTE:** Once configured this does not need to be done again *unless* the
-requirements change, e.g. patchwork requires an updated version of Django.
+requirements change, e.g. Patchwork requires an updated version of Django.
 
 ## Initialize the Database
 
@@ -157,7 +157,7 @@ hardcoded and change the value of `DJANGO_SETTINGS_MODULE` as described below.
 ## Load Initial Data
 
 Before continuing, we need to tell Django where it can find our configuration.
-patchwork provides a default development `settings.py` file for this purpose.
+Patchwork provides a default development `settings.py` file for this purpose.
 To use this, export the `DJANGO_SETTINGS_MODULE` environment variable as
 described below:
 
@@ -171,10 +171,10 @@ the `migrate` command of the `manage.py` executable:
 
     (.venv)$ ./manage.py migrate
 
-Next, you should load the initial fixtures into patchwork. These initial
+Next, you should load the initial fixtures into Patchwork. These initial
 fixtures provide.
 
-* `default_tags.xml`: The tags that patchwork will extract from mails.
+* `default_tags.xml`: The tags that Patchwork will extract from mails.
   Examples: `Acked-By`, `Reviewed-By`
 * `default_states.xml`: The states that a patch can be in. Examples:
   `Accepted`, `Rejected`
@@ -204,12 +204,12 @@ tool. You can do this like so:
 Where `mm_user` and `mm_pass` are the username and password you have registered
 with on the Mailman instance found at `mm_host`.
 
-**NOTE:** We provide instructions for downloading archives from the patchwork
+**NOTE:** We provide instructions for downloading archives from the Patchwork
 mailing list, but almost any instance of Mailman will allow downloading of
 archives as seen above; simply change the `pw_url` variable defined. You can
 find more informations about this [here][ref-mman-bulk].
 
-Load these archives into patchwork. Depending on the size of the downloaded
+Load these archives into Patchwork. Depending on the size of the downloaded
 archives this may take some time:
 
     (.venv)$ PYTHONPATH=. ./patchwork/bin/parsearchive.py \
@@ -231,7 +231,7 @@ script again.
 
 ## Django Debug Toolbar
 
-patchwork installs and enables the 'Django Debug Toolbar' by default. However,
+Patchwork installs and enables the 'Django Debug Toolbar' by default. However,
 by default this is only displayed if you are developing on localhost. If
 developing on a different machine, you should configure an SSH tunnel such
 that, for example, `localhost:8000` points to `[DEV_MACHINE_IP]:8000`.

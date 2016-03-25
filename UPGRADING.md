@@ -7,7 +7,7 @@ little to no changes.
 
 ## 0.9.0 to 1.0.0
 
-Version 1.0.0 changes a few admin-visible components of patchwork so
+Version 1.0.0 changes a few admin-visible components of Patchwork so
 upgrading involves a few steps.
 
 ### Database Migrations
@@ -37,7 +37,7 @@ Merge your previous settings (from `apps/local_settings.py`) into this file.
 
 ### Fixup external references to `apps/`
 
-The `apps/` directory is gone; the patchwork module is now in the top-level
+The `apps/` directory is gone; the Patchwork module is now in the top-level
 directory. If you have scripts that run anything from `apps/` (e.g. incoming
 mail parsers that call `parsemail.sh`, and cron scripts), then remove the
 `apps/` directory from those:
@@ -59,7 +59,7 @@ too.
 
 Static content should now be located in the folder indicated by `STATIC_ROOT`.
 This should point somewhere sensible (e.g. the absolute path of `htdocs/static`
-in the patchwork tree).
+in the Patchwork tree).
 
 You'll need to set the `STATIC_ROOT` setting in your settings file.
 
@@ -79,7 +79,7 @@ will be:
 
 ### Use new management console
 
-The patchwork cron script (`bin/patchwork-cron.py`) has been moved to a
+The Patchwork cron script (`bin/patchwork-cron.py`) has been moved to a
 `manage.py` command. Instead of running `patchwork-cron.py`, you should now
 run:
 

@@ -1,10 +1,10 @@
 # Upgrading
 
 **NOTE:** This document provides some general tips and tricks that one can use
-when upgrading an existing, production installation of patchwork. If you are
+when upgrading an existing, production installation of Patchwork. If you are
 interested in the specific changes between each release, please refer to the
 [`UPGRADING` document][gh-upgrading] instead. If this is your first time
-installing patchwork. please refer to the
+installing Patchwork. please refer to the
 [installation guide][doc-installation] instead.
 
 ## Before You Start
@@ -13,14 +13,14 @@ Before doing anything, always **backup your data**. This generally means
 backing up your database, but it might also be a good idea to backup your
 environment in case you encounter issues during the upgrade process.
 
-While patchwork won't explicity prevent it, it's generally wise to avoid
+While Patchwork won't explicity prevent it, it's generally wise to avoid
 upgrades spanning multiple releases in one go. An iterative upgrade approach
 will provide an easier, if slower, upgrade process.
 
 ## Identify Changed Scripts, Requirements, etc.
 
 The `UPGRADING` document provides a comprehensive listing of all
-backwards-incompatible changes that occur between releases of patchwork.
+backwards-incompatible changes that occur between releases of Patchwork.
 Examples of such changes include:
 
 * Moved/removed scripts and files
@@ -32,7 +32,7 @@ may have, such as systemd/upstart scripts, are modified accordingly.
 
 ## Understand What Requirements Have Changed
 
-New versions of patchwork can often require additional or updated version of
+New versions of Patchwork can often require additional or updated version of
 dependencies, e.g. newer versions of Django. It is important that you
 understand these requirements and can fulfil them. This is particularly true
 for users relying on distro-provided packages, who may have to deal with older
@@ -42,7 +42,7 @@ you can also diff the `requirements.txt` files in each release for comparison.
 
 ## Collect Static Files
 
-New versions of patchwork generally contain changes to the additional files
+New versions of Patchwork generally contain changes to the additional files
 like images, CSS and JavaScript. To do this, run the `collectstatic`
 management commands:
 
@@ -52,7 +52,7 @@ management commands:
 
 Migrations of the database can be tricky. Prior to [`v1.0.0`][gh-v1], database
 migrations were provided by way of manual, SQL migration scripts. After this
-release, patchwork moved to support [Django migrations][ref-django-migrate].
+release, Patchwork moved to support [Django migrations][ref-django-migrate].
 If you are upgrading from `v1.0.0` or later, it is likely that you can rely
 entirely on the later to bring your database up-to-date. This can be done like
 so:
@@ -64,7 +64,7 @@ the provided SQL migrations or provide your own:
 
 * You are using Django < 1.6
 
-  patchwork supports Django 1.6. However, Django Migrations was added in 1.7
+  Patchwork supports Django 1.6. However, Django Migrations was added in 1.7
   and is [not available for previous versions][ref-south2]. As such, you must
   continue to use manual migrations or upgrade your version of Django. For
   many of the migrations, this can be done automatically:
@@ -75,13 +75,13 @@ the provided SQL migrations or provide your own:
   however, this will fail. In this cases, these migrations will need to be
   handwritten.
 
-* You are using Django > 1.6, but upgrading from patchwork < 1.0.0
+* You are using Django > 1.6, but upgrading from Patchwork < 1.0.0
 
-  patchwork only started providing migrations in `v1.0.0`. SQL migrations are
+  Patchwork only started providing migrations in `v1.0.0`. SQL migrations are
   provided for versions prior to this and must be applied to get the database
   to the "initial" state that Django migrations expects.
 
-* You have diverged from upstream patchwork
+* You have diverged from upstream Patchwork
 
   If you have applied custom patches that change the database models, the
   database in an "inconsistent state" and the provided migrations will likely
@@ -89,7 +89,7 @@ the provided SQL migrations or provide your own:
 
 Steps to handle the latter two of these are described below.
 
-### Upgrading a pre-v1.0.0 patchwork instance
+### Upgrading a pre-v1.0.0 Patchwork instance
 
 The process for this type of upgrade is quite simple: upgrade using manual
 SQL upgrades until better options become available. As such, you should apply
@@ -97,11 +97,11 @@ all unapplied SQL migrations that are not duplicated by Django migrations.
 Once such duplication occurs, rely on the Django migrations only and continue
 to do so going forward.
 
-### Upgrading a "diverged" patchwork instance
+### Upgrading a "diverged" Patchwork instance
 
 This type of upgrade is a little trickier. There are two options you can take:
 
-1. Bring your patchwork instance back in sync with upstream
+1. Bring your Patchwork instance back in sync with upstream
 2. Provide your own migrations
 
 The former option is particularly suitable if you decide to upstream your
@@ -120,12 +120,12 @@ possible to return to using upstream code rather than maintaining a fork.
 
 The latter option is best chosen if you wish to retain the aforementioned fork.
 How you do this depends on the extensiveness of your changes, but getting the
-latest version of patchwork, deleting the provided migrations, applying any
+latest version of Patchwork, deleting the provided migrations, applying any
 patches you may have and regenerating the migrations seems like the best
 option.
 
 **NOTE**: To prevent the latter case above from occuring, we'd ask that you
-submit any patches you may have to the upstream patchwork so that the wider
+submit any patches you may have to the upstream Patchwork so that the wider
 community can benefit from this new functionality. Please see
 [the contributing document][doc-contributing] for more informtion on this
 process.

@@ -13,16 +13,16 @@ You can find this at the following URL:
 
     http://patchwork.example.com/xmlrpc/
 
-Where `patchwork.example.com` refers to the URL of your patchwork instance.
+Where `patchwork.example.com` refers to the URL of your Patchwork instance.
 
-**NOTE:** Automatic documentation generation for the patchwork API was
+**NOTE:** Automatic documentation generation for the Patchwork API was
 introduced in Patchwork v1.1. Prior versions of Patchwork do not offer this
 functionality.
 
 ## Developing Your Own Client
 
 You need to connect to the server. Some methods require authentication (via
-HTTP Basic Auth) while others do not. Authentication uses your patchwork
+HTTP Basic Auth) while others do not. Authentication uses your Patchwork
 account and the on-server documention will indicate where it is necessary.
 We will only cover the unauthenticated method here for brevity - please
 consult the [`xmlrpclib`] documentation for more detailed examples:

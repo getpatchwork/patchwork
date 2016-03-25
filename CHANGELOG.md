@@ -20,14 +20,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Check feature, which can be used to report the status of tests
 - Automatic delegation of patches based on file path
 - Automated documentation for the XML-RPC API. This can be found at the
-  '/xmlrpc' in most patchwork deployments
+  '/xmlrpc' in most Patchwork deployments
 - Selenium-based UI tests
 - Vagrant support for developers
 - Assorted cleanup tasks and bug fixes
 
 ### Changed
 
-- Patches can now be delegated to any patchwork user
+- Patches can now be delegated to any Patchwork user
 - Significant updates to the documentation
 
 ## [1.0.0] - 2015-10-26
@@ -40,7 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Support for Django Migrations. This will be the chosen method of making
   database changes going forward. See below for more information
 - Support for tox
-- Django management commands, which replace the existing patchwork cron scripts
+- Django management commands, which replace the existing Patchwork cron scripts
 - CHANGELOG.md and UPGRADING.md docs
 
 ### Changed
@@ -48,7 +48,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Static files are now gather and served using the `django.contrib.staticfiles`
   module, per Django best practices
 - Restructured directory per modern Django standards. The `apps` directory no
-  longer exists and patchwork source has instead been moved to the top level
+  longer exists and Patchwork source has instead been moved to the top level
   directory
 - Rewrote documentation to reflect changes in development and deployment best
   practices over the past few years
@@ -70,7 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.9.0] - 2015-03-22
 
-**NOTE:** 1.0.0 was the first release of patchwork adopting semantic versioning.
+**NOTE:** 1.0.0 was the first release of Patchwork adopting semantic versioning.
 For information on *"0.9.0"* and before, please refer to Git logs.
 
 [Unreleased]: https://github.com/getpatchwork/patchwork/compare/v1.1.0...HEAD

@@ -13,12 +13,12 @@ below for more information on usage of this tool.
 
 ## Testing
 
-patchwork includes a [tox][ref-tox] script to automate testing. This requires
+Patchwork includes a [tox][ref-tox] script to automate testing. This requires
 a functional database and some Python requirements like `tox`. Please refer
 to the [development guide][doc-development] for information on how to configure
 these.
 
-Assuming these requirements are met, actually testing patchwork is quite easy
+Assuming these requirements are met, actually testing Patchwork is quite easy
 to do. To start, you can show the default targets like so:
 
     $ tox --list
@@ -36,7 +36,7 @@ command:
 
     $ tox -e py27-django18 patchwork.tests.SubjectCleanUpTest
 
-Because patchwork support multiple versions of Django, it's very important
+Because Patchwork support multiple versions of Django, it's very important
 that you test against all supported versions. When run without argument, tox
 will do this:
 

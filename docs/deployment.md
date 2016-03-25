@@ -1,19 +1,19 @@
 # Deployment
 
-This document describes the necessary steps to configure patchwork in a
+This document describes the necessary steps to configure Patchwork in a
 production environment. This requires a significantly "harder" deployment than
-the one used for development. If you are interested in developing patchwork,
+the one used for development. If you are interested in developing Patchwork,
 please refer to [the development guide][doc-development] instead.
 
-This document describes a two-node installation of patchwork, consisting of
+This document describes a two-node installation of Patchwork, consisting of
 a database sever and an application server. It should be possible to combine
-these machines for smaller patchwork instances. It should also be possible to
+these machines for smaller Patchwork instances. It should also be possible to
 configure high availability deployment through use of additional database and
 application machines, though this is out of the scope of this document.
 
 ## Deployment Guides, Provisioning Tools and Platform-as-a-Service
 
-Before continuing, it's worth noting that patchwork is a Django application.
+Before continuing, it's worth noting that Patchwork is a Django application.
 With the exception of the handling of incoming mail (described below), it
 can be deployed like any other Django application. This means there are tens,
 if not hundreds, of existing articles and blogs detailing how to deploy an
@@ -46,8 +46,8 @@ For the purpose of this guide, we will assume the following machines:
 | application | 10.1.1.2   |
 
 We will use the database server to, ostensibly enough, host the database for
-the patchwork instance. The application server, on the other hand, will host
-the patchwork instance along with the required reverse proxy and WSGI HTTP
+the Patchwork instance. The application server, on the other hand, will host
+the Patchwork instance along with the required reverse proxy and WSGI HTTP
 servers.
 
 We expect a Ubuntu 15.04 installation on each of these hosts: commands,
@@ -71,7 +71,7 @@ should be exported on all systems:
   <dt>PW_DB_NAME=patchwork</dt>
   <dd>Name of the database</dd>
   <dt>PW_DB_USER=www-data</dt>
-  <dd>Username that the patchwork app will access the database with</dd>
+  <dd>Username that the Patchwork app will access the database with</dd>
 </dl>
 
 ## Database
@@ -91,7 +91,7 @@ different RDBMS. Install the required packages.
 ### Configure Database
 
 PostgreSQL created a user account called `postgres`; you will need to run
-commands as this user. Use this account to create the database that patchwork
+commands as this user. Use this account to create the database that Patchwork
 will use, using the credentials we configured earlier.
 
     $ sudo -u postgres createdb $PW_DB_NAME
@@ -109,7 +109,7 @@ These steps should be run on the application server.
 
 ### Install Packages
 
-The first requirement is patchwork itself. It can be downloaded like so:
+The first requirement is Patchwork itself. It can be downloaded like so:
 
     $ wget https://github.com/getpatchwork/patchwork/archive/v1.1.0.tar.gz
 
@@ -124,7 +124,7 @@ that people may be able to view your code over the Web. This is a security
 risk.
 
 Next we require Python. If not already installed, then you should do so now.
-patchwork supports both Python 2.7 and Python 3.3+, though we would suggest
+Patchwork supports both Python 2.7 and Python 3.3+, though we would suggest
 using the latter to ease future upgrades:
 
     $ sudo apt-get install python3  # or 'python' if using Python 2.7
@@ -141,11 +141,11 @@ corresponding distro package for each of these requirements. For example:
 **NOTE:** The [pkgs.org][ref-pkgs] website provides a great reference for
 identifying the name of these dependencies.
 
-### Configure patchwork
+### Configure Patchwork
 
 You will also need to configure a [settings][ref-django-settings] file for
 Django. A sample settings file is provided that defines default settings for
-patchwork. You'll need to configure settings for your own setup and save this
+Patchwork. You'll need to configure settings for your own setup and save this
 as `production.py`.
 
     $ cp patchwork/settings/production.example.py \
@@ -248,7 +248,7 @@ These steps should be run on the application server.
 
 ### Install Packages
 
-We will use nginx and uWSGI to deploy patchwork, acting as reverse proxy server
+We will use nginx and uWSGI to deploy Patchwork, acting as reverse proxy server
 and WSGI HTTP server respectively. Other options are available, such as
 Apache+mod_wsgi or nginx+Gunicorn. While we don't document these, sample
 configuration files for the former case are provided in `lib/apache2/`.
@@ -258,7 +258,7 @@ configuration files for the former case are provided in `lib/apache2/`.
 ### Configure nginx and uWSGI
 
 Configuration files for nginx and uWSGI are provided in the `lib` subdirectory
-of the patchwork source code. These can be modified as necessary, but for now
+of the Patchwork source code. These can be modified as necessary, but for now
 we will simply copy them.
 
 First, let's load the provided configuration for nginx:
@@ -321,7 +321,7 @@ Next up, restart the nginx service:
     $ sudo systemctl nginx restart
     $ sudo systemctl nginx status
 
-patchwork uses a cron script to clean up expired registrations and send
+Patchwork uses a cron script to clean up expired registrations and send
 notifications of patch changes (for projects with this enabled). Something like
 this in your crontab should work.
 
@@ -338,7 +338,7 @@ website address (in the Sites section of the admin console, found at `/admin`).
 
 ## Incoming Email
 
-patchwork is designed to parse incoming mails which means you need an address
+Patchwork is designed to parse incoming mails which means you need an address
 to receive email at. This is a problem that has been solved for many webapps,
 thus there are many ways to go about this. Some of these ways are discussed
 below.
@@ -347,9 +347,9 @@ below.
 
 The most flexible option is to configure our own mail transfer agent (MTA) and
 Postfix is as good a choice as any. While we don't cover setting up Postfix
-here (it's complicated and there are many guides already available), patchwork
+here (it's complicated and there are many guides already available), Patchwork
 does include a script to take received mails and create the relevant entries
-in patchwork for you. To use this, you should configure your system to forward
+in Patchwork for you. To use this, you should configure your system to forward
 all emails to a given localpart (the bit before the `@`) to this script. Using
 the `patchwork` localpart (e.g. `patchwork@example.com`) you can do this like
 so:
@@ -378,7 +378,7 @@ One could also use an email account provided by a run-of-the-mill email
 provider and retrieve mail using IMAP or POP3. This may be suitable for
 low-volume mailing lists but be warned: this will introduce a significant lag
 between when a patch is submitted to a mailing list and when it appears in
-patchwork.
+Patchwork.
 
 ### Use a Email-as-a-Service Provider
 
@@ -388,14 +388,14 @@ are a variety of web services available that offer "Email-as-as-Service".
 These services typically convert received emails into HTTP POST requests to
 your endpoint of choice, allowing you to sidestep configuration issues. We
 don't cover this here, but a simple wrapper script coupled with one of these
-services can be more than to get email into patchwork.
+services can be more than to get email into Patchwork.
 
 You can also create such as service yourself using a PaaS provider that
 supports incoming mail and writing a little web app.
 
 ## (Optional) Configure your VCS to Automatically Update Patches
 
-The `tools` directory of the patchwork distribution contains a file named
+The `tools` directory of the Patchwork distribution contains a file named
 `post-receive.hook` which is a sample git hook that can be used to
 automatically update patches to the `Accepted` state when corresponding
 commits are pushed via git.

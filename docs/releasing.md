@@ -2,7 +2,7 @@
 
 ## Versioning
 
-Since version 1.0, patchwork has implemented a version of
+Since version 1.0, Patchwork has implemented a version of
 [Semantic Versioning][ref-semver]. To summarise, releases take the format
 **MAJOR.MINOR.PATCH** (or just **MAJOR.MINOR**). We increment:
 
@@ -22,7 +22,7 @@ There is no cadence for releases: they are made available as necessary.
 
 Typically all development should occur on `master`. While we will backport
 bugfixes and security updates, we will not backport any new features. This
-is to ensure stability for users of these versions of patchwork.
+is to ensure stability for users of these versions of Patchwork.
 
 ## Release Checklist
 
