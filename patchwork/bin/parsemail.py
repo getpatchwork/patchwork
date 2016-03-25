@@ -117,7 +117,7 @@ def find_project_by_header(mail):
 def find_author(mail):
 
     from_header = clean_header(mail.get('From'))
-    (name, email) = (None, None)
+    name, email = (None, None)
 
     # tuple of (regex, fn)
     #  - where fn returns a (name, email) tuple from the match groups resulting
@@ -150,14 +150,14 @@ def find_author(mail):
     if name is not None:
         name = name.strip()
 
-    save_required = False
     try:
         person = Person.objects.get(email__iexact=email)
+        if name:  # use the latest provided name
+            person.name = name
     except Person.DoesNotExist:
         person = Person(name=name, email=email)
-        save_required = True
 
-    return person, save_required
+    return person
 
 
 def find_date(mail):
@@ -478,7 +478,7 @@ def parse_mail(mail, list_id=None):
         return  # nothing to work with
 
     msgid = mail.get('Message-Id').strip()
-    author, save_required = find_author(mail)
+    author = find_author(mail)
     name, prefixes = clean_subject(mail.get('Subject'), [project.linkname])
     x, n = parse_series_marker(prefixes)
     refs = find_references(mail)
@@ -490,8 +490,7 @@ def parse_mail(mail, list_id=None):
 
     if diff or pull_url:  # patches or pull requests
         # we delay the saving until we know we have a patch.
-        if save_required:
-            author.save()
+        author.save()
 
         delegate = find_delegate(mail)
         if not delegate and diff:
@@ -528,8 +527,7 @@ def parse_mail(mail, list_id=None):
             is_cover_letter = True
 
         if is_cover_letter:
-            if save_required:
-                author.save()
+            author.save()
 
             cover_letter = CoverLetter(
                 msgid=msgid,
@@ -551,9 +549,7 @@ def parse_mail(mail, list_id=None):
     if not submission:
         return
 
-    # ...and we only save the author if we're saving the comment
-    if save_required:
-        author.save()
+    author.save()
 
     comment = Comment(
         submission=submission,

@@ -150,7 +150,7 @@ class SenderEncodingTest(TestCase):
                'Subject: test\n\n' + \
                'test'
         self.email = message_from_string(mail)
-        self.person, _ = find_author(self.email)
+        self.person = find_author(self.email)
         self.person.save()
 
     def tearDown(self):
@@ -213,6 +213,12 @@ class SubjectUTF8QPMultipleEncodingTest(SubjectEncodingTest):
 
 
 class SenderCorrelationTest(TestCase):
+    """Validate correct behavior of the find_author case.
+
+    Relies of checking the internal state of a Django model object.
+
+    http://stackoverflow.com/a/19379636/613428
+    """
     existing_sender = 'Existing Sender <existing@example.com>'
     non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
 
@@ -226,29 +232,29 @@ class SenderCorrelationTest(TestCase):
     def setUp(self):
         self.existing_sender_mail = self.mail(self.existing_sender)
         self.non_existing_sender_mail = self.mail(self.non_existing_sender)
-        self.person, _ = find_author(self.existing_sender_mail)
+        self.person = find_author(self.existing_sender_mail)
         self.person.save()
 
-    def testExisingSender(self):
-        person, save_required = find_author(self.existing_sender_mail)
-        self.assertEqual(save_required, False)
+    def testExistingSender(self):
+        person = find_author(self.existing_sender_mail)
+        self.assertEqual(person._state.adding, False)
         self.assertEqual(person.id, self.person.id)
 
-    def testNonExisingSender(self):
-        person, save_required = find_author(self.non_existing_sender_mail)
-        self.assertEqual(save_required, True)
+    def testNonExistingSender(self):
+        person = find_author(self.non_existing_sender_mail)
+        self.assertEqual(person._state.adding, True)
         self.assertEqual(person.id, None)
 
     def testExistingDifferentFormat(self):
         mail = self.mail('existing@example.com')
-        person, save_required = find_author(mail)
-        self.assertEqual(save_required, False)
+        person = find_author(mail)
+        self.assertEqual(person._state.adding, False)
         self.assertEqual(person.id, self.person.id)
 
     def testExistingDifferentCase(self):
         mail = self.mail(self.existing_sender.upper())
-        person, save_required = find_author(mail)
-        self.assertEqual(save_required, False)
+        person = find_author(mail)
+        self.assertEqual(person._state.adding, False)
         self.assertEqual(person.id, self.person.id)
 
     def tearDown(self):
