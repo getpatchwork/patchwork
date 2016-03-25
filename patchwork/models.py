@@ -523,6 +523,7 @@ class BundlePatch(models.Model):
         ordering = ['order']
 
 
+@python_2_unicode_compatible
 class Check(models.Model):
 
     """Check for a patch.
