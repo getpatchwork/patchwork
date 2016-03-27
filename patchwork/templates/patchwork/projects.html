@@ -30,7 +30,8 @@
         </p>
 {% if p.web_url %}
       <p><a href="{{p.web_url}}">{{p.web_url}}</a></p>
-{% else %}
+{% endif %}
+{% if p.webscm_url %}
       <p><a href="{{p.webscm_url}}">{{p.webscm_url}}</a></p>
 {% endif %}
      </div>
