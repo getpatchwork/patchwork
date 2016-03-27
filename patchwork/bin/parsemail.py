@@ -548,7 +548,7 @@ def main(args):
     group.add_argument('--list-id', help='mailing list ID. If not supplied '
                        'this will be extracted from the mail headers.')
     group.add_argument('--verbosity', choices=list_logging_levels(),
-                       help='debug level', default=logging.INFO)
+                       help='debug level', default='info')
 
     args = vars(parser.parse_args())
 
