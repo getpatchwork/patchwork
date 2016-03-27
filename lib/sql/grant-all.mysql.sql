@@ -25,6 +25,8 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@loca
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_tag TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchtag TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_check TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_delegationrule TO 'www-data'@localhost;
 
 -- allow the mail user (in this case, 'nobody') to add patches
 GRANT INSERT, SELECT ON patchwork_patch TO 'nobody'@localhost;
@@ -34,6 +36,7 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON patchwork_patchtag TO 'nobody'@localhost
 GRANT SELECT ON	patchwork_project TO 'nobody'@localhost;
 GRANT SELECT ON patchwork_state TO 'nobody'@localhost;
 GRANT SELECT ON patchwork_tag TO 'nobody'@localhost;
+GRANT SELECT ON patchwork_delegationrule TO 'nobody'@localhost;
 
 COMMIT;
 
