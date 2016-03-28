@@ -231,7 +231,7 @@ def find_content(project, mail):
 
             # Could not find a valid decoded payload.  Fail.
             if payload is None:
-                return (None, None)
+                return (None, None, None)
 
         if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload
