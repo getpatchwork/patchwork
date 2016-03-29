@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}opt-out{% endblock %}
-{% block heading %}opt-out{% endblock %}
+{% block title %}Opt-out{% endblock %}
+{% block heading %}Opt-out{% endblock %}
 
 {% block body %}
 {% if email_sent %}
@@ -40,7 +40,6 @@ without your consent.</p>
 >&gt;{% if admins|length > 2 and not forloop.last %}, {% endif %}
 {% endfor %}
 {% endif %}
-
 {% endif %}
 
 {% if user.is_authenticated %}

@@ -3,7 +3,6 @@
 {% block title %}Registration{% endblock %}
 {% block heading %}Registration{% endblock %}
 
-
 {% block body %}
 
 {% if confirmation and not error %}
@@ -42,7 +41,7 @@
 {% endif %}
    </td>
   </tr>
-   
+
   <tr>
    <td>{{ form.last_name.label_tag }}</td>
    <td>
@@ -117,5 +116,4 @@
 </table>
 </form>
 {% endif %}
-
 {% endblock %}
