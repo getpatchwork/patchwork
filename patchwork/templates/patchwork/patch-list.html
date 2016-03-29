@@ -55,7 +55,7 @@ $(document).ready(function() {
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
-<table id="patchlist" class="table table-hover table-condensed pw-list"
+<table id="patchlist" class="table table-hover table-extra-condensed table-striped pw-list"
        data-toggle="checkboxes" data-range="true">
  <thead>
   <tr>

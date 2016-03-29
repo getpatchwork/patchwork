@@ -410,6 +410,17 @@ table.horizontal td, table.horizontal th {
 table.vertical {
 	border-collapse: collapse;
 }
+
+/* per suggestions here: https://github.com/twbs/bootstrap/issues/12238 */
+.table-extra-condensed > thead > tr > th,
+.table-extra-condensed > tbody > tr > th,
+.table-extra-condensed > tfoot > tr > th,
+.table-extra-condensed > thead > tr > td,
+.table-extra-condensed > tbody > tr > td,
+.table-extra-condensed > tfoot > tr > td {
+	padding: 2px;
+}
+
 table.vertical th {
 	background: #222;
 	color: #999;
