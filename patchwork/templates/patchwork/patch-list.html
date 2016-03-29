@@ -60,7 +60,7 @@ $(document).ready(function() {
  <thead>
   <tr>
    {% if user.is_authenticated %}
-   <th>
+   <th style="text-align: center;">
     <input type="checkbox" id="check-all"/>
    </th>
    {% endif %}
@@ -167,7 +167,7 @@ $(document).ready(function() {
  {% for patch in page.object_list %}
   <tr id="patch_row:{{patch.id}}">
    {% if user.is_authenticated %}
-   <td>
+   <td style="text-align: center;">
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
    </td>
    {% endif %}
