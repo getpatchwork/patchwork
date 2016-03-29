@@ -1,19 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}Project List{% endblock %}
-{% block navbarmenu %}
-      <ul class="nav navbar-nav">
-        <li class="active">
-          <a href="{% url 'project-list' %}">
-            <span class="glyphicon glyphicon-home"></span>
-            All projects</a>
-        </li>
-     </ul>
-{% endblock %}
 {% block body %}
-
 <div style="margin-top:20px;"></div>
-
 {% if projects %}
 {% for p in projects %}
 {% cycle '<div class="row">' '' '' %}
@@ -46,5 +35,4 @@
 {% else %}
 <p>Patchwork doesn't have any projects to display!</p>
 {% endif %}
-
 {% endblock %}

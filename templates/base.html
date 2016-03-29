@@ -23,7 +23,7 @@
 {% block headers %}{% endblock %}
  </head>
  <body>
-  <nav class="navbar navbar-inverse navbar-patchwork">
+  <nav class="navbar navbar-inverse navbar-static-top">
    <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
@@ -32,9 +32,9 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <span class="navbar-brand">
-        <a href="{% url 'project-list' %}">Patchwork{% if project %} {{project.name}}{% endif %}</a>
-        {% block heading %}{% endblock %}
+      <a class="navbar-brand" href="{% url 'project-list' %}">Patchwork</a>
+      <span class="navbar-subbrand">
+        {% block heading %}{% if project %} {{project.name}}{% endif %}{% endblock %}
       </span>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -59,13 +59,7 @@
             About this project
           </a>
         </li>
-        <li>
-          <a href="{% url 'project-list' %}">
-            <span class="glyphicon glyphicon-home"></span>
-            All projects
-          </a>
-        </li>
-     </ul>
+      </ul>
 {% endif %}
 {% endblock %}
      <ul class="nav navbar-nav navbar-right">

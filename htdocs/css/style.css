@@ -21,16 +21,27 @@ pre {
 	top: 17em;
 }
 
-.navbar-brand>a {
+/* Bootstrap overrides */
+
+.navbar-inverse .navbar-brand > a {
 	color: white;
 }
 
-.navbar-patchwork {
-	border-radius: 0px;
-	margin-bottom: 0px;
+.navbar-inverse .navbar-nav > li > a {
+	color: #999;
 }
 
-.navbar-patchwork .navbar-nav>li>a {
+/* Bootstrap extensions */
+
+.navbar-subbrand {
+	float: left;
+	height: 50px;
+	padding: 15px 15px 15px 0;
+	font-size: 18px;
+	line-height: 20px;
+}
+
+.navbar-subbrand {
 	color: #999;
 }
 
