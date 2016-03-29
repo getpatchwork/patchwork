@@ -202,6 +202,22 @@ function toggle_headers(link_id, headers_id)
 </pre>
 </div>
 
+{% for item in patch.comments.all %}
+{% if forloop.first %}
+<h2>Comments</h2>
+{% endif %}
+
+<div class="comment">
+<div class="meta">
+ <span>{{ item.submitter|personify:project }}</span>
+ <span class="pull-right">{{ item.date }}</span>
+</div>
+<pre class="content">
+{{ item|commentsyntax }}
+</pre>
+</div>
+{% endfor %}
+
 {% if patch.diff %}
 <h2>
  Patch
@@ -219,21 +235,5 @@ function toggle_headers(link_id, headers_id)
 </pre>
 </div>
 {% endif %}
-
-{% for item in patch.comments.all %}
-{% if forloop.first %}
-<h2>Comments</h2>
-{% endif %}
-
-<div class="comment">
-<div class="meta">
- <span>{{ item.submitter|personify:project }}</span>
- <span class="pull-right">{{ item.date }}</span>
-</div>
-<pre class="content">
-{{ item|commentsyntax }}
-</pre>
-</div>
-{% endfor %}
 
 {% endblock %}
