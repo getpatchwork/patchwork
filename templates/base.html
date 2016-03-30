@@ -76,6 +76,12 @@
              <span class="badge">{{ user.profile.n_todo_patches }}</span>
            </a>
          </li>
+         <li>
+           <a href="{% url 'user-bundles' %}">
+             Bundles
+           </a>
+         </li>
+         <li role="separator" class="divider"></li>
 {% if user.is_staff %}
          <li><a href="{% url 'admin:index' %}">Administration</a></li>
 {% endif %}
