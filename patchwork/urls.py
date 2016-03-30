@@ -92,7 +92,7 @@ urlpatterns = [
         {'template_name': 'patchwork/login.html'},
         name='auth_login'),
     url(r'^user/logout/$', auth_views.logout,
-        {'template_name': 'patchwork/logout.html'},
+        {'next_page': '/'},
         name='auth_logout'),
 
     # registration
