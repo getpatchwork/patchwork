@@ -30,6 +30,7 @@ import mailbox
 import django
 
 from patchwork.bin import parsemail
+from patchwork import models
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,15 +44,39 @@ VERBOSITY_LEVELS = {
 
 
 def parse_mbox(path, list_id):
-    mbox = mailbox.mbox(path)
+    results = {
+        models.Patch: 0,
+        models.CoverLetter: 0,
+        models.Comment: 0,
+    }
     duplicates = 0
+    dropped = 0
+
+    mbox = mailbox.mbox(path)
     for msg in mbox:
         try:
-            parsemail.parse_mail(msg, list_id)
+            obj = parsemail.parse_mail(msg, list_id)
+            if obj:
+                results[type(obj)] += 1
+            else:
+                dropped += 1
         except django.db.utils.IntegrityError:
             duplicates += 1
-    LOGGER.info('Processed %d messages, %d duplicates',
-                len(mbox), duplicates)
+    print('Processed %(total)d messages -->\n'
+          '  %(covers)4d cover letters\n'
+          '  %(patches)4d patches\n'
+          '  %(comments)4d comments\n'
+          '  %(duplicates)4d duplicates\n'
+          '  %(dropped)4d dropped\n'
+          'Total: %(new)s new entries' % {
+              'total': len(mbox),
+              'covers': results[models.CoverLetter],
+              'patches': results[models.Patch],
+              'comments': results[models.Comment],
+              'duplicates': duplicates,
+              'dropped': dropped,
+              'new': len(mbox) - duplicates - dropped,
+          })
 
 
 def main():
