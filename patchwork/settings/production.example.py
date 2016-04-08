@@ -75,4 +75,5 @@ DATABASES = {
 STATIC_ROOT = os.environ.get('STATIC_ROOT', '/srv/patchwork/htdocs/static')
 
 if django.VERSION >= (1, 7):
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+    STATICFILES_STORAGE = \
+        'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
