@@ -19,9 +19,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 from collections import Counter
 import hashlib
 import re
@@ -267,40 +264,3 @@ def find_filenames(diff):
     filenames = sorted(filenames.keys())
 
     return filenames
-
-
-def main(args):
-    from optparse import OptionParser
-
-    parser = OptionParser()
-    parser.add_option('-p', '--patch', action='store_true',
-                      dest='print_patch', help='print parsed patch')
-    parser.add_option('-c', '--comment', action='store_true',
-                      dest='print_comment', help='print parsed comment')
-    parser.add_option('-#', '--hash', action='store_true',
-                      dest='print_hash', help='print patch hash')
-    parser.add_option('-f', '--filenames', action='store_true',
-                      dest='print_filenames', help='print file names')
-
-    (options, args) = parser.parse_args()
-
-    # decode from (assumed) UTF-8
-    content = sys.stdin.read().decode('utf-8')
-    patch, comment = parse_patch(content)
-
-    if options.print_hash and patch:
-        print(hash_diff(patch).hexdigest())
-
-    if options.print_patch and patch:
-        print('Patch: ------\n' + patch)
-
-    if options.print_comment and comment:
-        print('Comment: ----\n' + comment)
-
-    if options.print_filenames:
-        filenames = find_filenames(content)
-        print('File names: ----\n' + '\n'.join(filenames))
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
