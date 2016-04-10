@@ -33,7 +33,22 @@ _hunk_re = re.compile('^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile('^(---|\+\+\+) (\S+)')
 
 
-def parse_patch(text):
+def parse_patch(content):
+    """Split a mail's contents into a diff and comment.
+
+    This is a state machine that takes a patch, generally in UNIX mbox
+    format, and splits it into the component comments and diff.
+
+    Args:
+        patch: The patch to be split
+
+    Returns:
+        A tuple containing the diff and comment. Either one or both of
+        these can be empty.
+
+    Raises:
+        Exception: The state machine transitioned to an invalid state.
+    """
     patchbuf = ''
     commentbuf = ''
     buf = ''
@@ -68,7 +83,7 @@ def parse_patch(text):
     lc = (0, 0)
     hunk = 0
 
-    for line in text.split('\n'):
+    for line in content.split('\n'):
         line += '\n'
 
         if state == 0:
@@ -76,14 +91,11 @@ def parse_patch(text):
                     or line.startswith('Index: '):
                 state = 1
                 buf += line
-
             elif line.startswith('--- '):
                 state = 2
                 buf += line
-
             else:
                 commentbuf += line
-
         elif state == 1:
             buf += line
             if line.startswith('--- '):
@@ -91,25 +103,20 @@ def parse_patch(text):
 
             if line.startswith(('rename from ', 'rename to ')):
                 state = 6
-
         elif state == 2:
             if line.startswith('+++ '):
                 state = 3
                 buf += line
-
             elif hunk:
                 state = 1
                 buf += line
-
             else:
                 state = 0
                 commentbuf += buf + line
                 buf = ''
-
         elif state == 3:
             match = _hunk_re.match(line)
             if match:
-
                 def fn(x):
                     if not x:
                         return 1
@@ -120,26 +127,21 @@ def parse_patch(text):
                 state = 4
                 patchbuf += buf + line
                 buf = ''
-
             elif line.startswith('--- '):
                 patchbuf += buf + line
                 buf = ''
                 state = 2
-
             elif hunk and line.startswith('\ No newline at end of file'):
                 # If we had a hunk and now we see this, it's part of the patch,
                 # and we're still expecting another @@ line.
                 patchbuf += line
-
             elif hunk:
                 state = 1
                 buf += line
-
             else:
                 state = 0
                 commentbuf += buf + line
                 buf = ''
-
         elif state == 4 or state == 5:
             if line.startswith('-'):
                 lc[0] -= 1
@@ -159,21 +161,17 @@ def parse_patch(text):
                 hunk += 1
             else:
                 state = 5
-
         elif state == 6:
             if line.startswith(('rename to ', 'rename from ')):
                 patchbuf += buf + line
                 buf = ''
-
             elif line.startswith('--- '):
                 patchbuf += buf + line
                 buf = ''
                 state = 2
-
             else:
                 buf += line
                 state = 1
-
         else:
             raise Exception("Unknown state %d! (line '%s')" % (state, line))
 
@@ -185,19 +183,19 @@ def parse_patch(text):
     if commentbuf == '':
         commentbuf = None
 
-    return (patchbuf, commentbuf)
+    return patchbuf, commentbuf
 
 
-def hash_patch(str):
+def hash_diff(diff):
+    """Generate a hash from a diff."""
     # normalise spaces
-    str = str.replace('\r', '')
-    str = str.strip() + '\n'
+    diff = diff.replace('\r', '')
+    diff = diff.strip() + '\n'
 
     prefixes = ['-', '+', ' ']
     hash = hashlib.sha1()
 
-    for line in str.split('\n'):
-
+    for line in diff.split('\n'):
         if len(line) <= 0:
             continue
 
@@ -213,7 +211,6 @@ def hash_patch(str):
             filename += '/'.join(filename_match.group(2).split('/')[1:])
 
             line = filename_match.group(1) + ' ' + filename
-
         elif hunk_match:
             # remove line numbers, but leave line counts
             def fn(x):
@@ -222,11 +219,9 @@ def hash_patch(str):
                 return int(x)
             line_nos = list(map(fn, hunk_match.groups()))
             line = '@@ -%d +%d @@' % tuple(line_nos)
-
         elif line[0] in prefixes:
             # if we have a +, - or context line, leave as-is
             pass
-
         else:
             # other lines are ignored
             continue
@@ -246,15 +241,15 @@ def extract_tags(content, tags):
     return counts
 
 
-def patch_get_filenames(str):
+def find_filenames(diff):
+    """Find files changes in a given diff."""
     # normalise spaces
-    str = str.replace('\r', '')
-    str = str.strip() + '\n'
+    diff = diff.replace('\r', '')
+    diff = diff.strip() + '\n'
 
     filenames = {}
 
-    for line in str.split('\n'):
-
+    for line in diff.split('\n'):
         if len(line) <= 0:
             continue
 
@@ -291,21 +286,20 @@ def main(args):
 
     # decode from (assumed) UTF-8
     content = sys.stdin.read().decode('utf-8')
-
-    (patch, comment) = parse_patch(content)
+    patch, comment = parse_patch(content)
 
     if options.print_hash and patch:
-        print(hash_patch(patch).hexdigest())
+        print(hash_diff(patch).hexdigest())
 
     if options.print_patch and patch:
-        print("Patch: ------\n" + patch)
+        print('Patch: ------\n' + patch)
 
     if options.print_comment and comment:
-        print("Comment: ----\n" + comment)
+        print('Comment: ----\n' + comment)
 
     if options.print_filenames:
-        filenames = patch_get_filenames(content)
-        print("File names: ----\n" + '\n'.join(filenames))
+        filenames = find_filenames(content)
+        print('File names: ----\n' + '\n'.join(filenames))
 
 if __name__ == '__main__':
     import sys

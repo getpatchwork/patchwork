@@ -35,7 +35,7 @@ from django.utils.functional import cached_property
 from django.utils.six.moves import filter
 
 from patchwork.fields import HashField
-from patchwork.parser import extract_tags, hash_patch
+from patchwork.parser import extract_tags, hash_diff
 
 
 @python_2_unicode_compatible
@@ -364,7 +364,7 @@ class Patch(Submission):
             self.state = get_default_initial_patch_state()
 
         if self.hash is None and self.diff is not None:
-            self.hash = hash_patch(self.diff).hexdigest()
+            self.hash = hash_diff(self.diff).hexdigest()
 
         super(Patch, self).save(**kwargs)
 

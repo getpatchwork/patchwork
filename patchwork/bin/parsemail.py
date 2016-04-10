@@ -44,7 +44,7 @@ from django.utils.six.moves import map
 from patchwork.models import (Patch, Project, Person, Comment, State,
                               DelegationRule, Submission, CoverLetter,
                               get_default_initial_patch_state)
-from patchwork.parser import parse_patch, patch_get_filenames
+from patchwork.parser import parse_patch, find_filenames
 
 LOGGER = logging.getLogger(__name__)
 
@@ -494,7 +494,7 @@ def parse_mail(mail, list_id=None):
 
         delegate = find_delegate(mail)
         if not delegate and diff:
-            filenames = patch_get_filenames(diff)
+            filenames = find_filenames(diff)
             delegate = auto_delegate(project, filenames)
 
         patch = Patch(
