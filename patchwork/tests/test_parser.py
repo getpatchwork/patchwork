@@ -26,18 +26,19 @@ import os
 
 from django.test import TestCase
 
-from patchwork.bin.parsemail import clean_subject
-from patchwork.bin.parsemail import find_author
-from patchwork.bin.parsemail import find_content
-from patchwork.bin.parsemail import find_project_by_header
-from patchwork.bin.parsemail import find_pull_request
-from patchwork.bin.parsemail import parse_mail as _parse_mail
-from patchwork.bin.parsemail import parse_series_marker
-from patchwork.bin.parsemail import split_prefixes
 from patchwork.models import Comment
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
+from patchwork.parser import clean_subject
+from patchwork.parser import find_author
+from patchwork.parser import find_content
+from patchwork.parser import find_project_by_header
+from patchwork.parser import find_pull_request
+from patchwork.parser import parse_mail as _parse_mail
+from patchwork.parser import parse_series_marker
+from patchwork.parser import split_prefixes
+from patchwork.tests.utils import create_email
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user

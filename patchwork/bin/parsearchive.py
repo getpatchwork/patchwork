@@ -29,7 +29,7 @@ import mailbox
 
 import django
 
-from patchwork.bin import parsemail
+from patchwork.parser import parse_mail
 from patchwork import models
 
 LOGGER = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ def parse_mbox(path, list_id):
     mbox = mailbox.mbox(path)
     for msg in mbox:
         try:
-            obj = parsemail.parse_mail(msg, list_id)
+            obj = parse_mail(msg, list_id)
             if obj:
                 results[type(obj)] += 1
             else:
