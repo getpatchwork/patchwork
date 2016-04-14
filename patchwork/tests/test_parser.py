@@ -38,7 +38,6 @@ from patchwork.parser import find_pull_request
 from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_series_marker
 from patchwork.parser import split_prefixes
-from patchwork.tests.utils import create_email
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
