@@ -228,6 +228,11 @@ class SenderEncodingTest(TestCase):
         db_person = Person.objects.get(email=sender_email)
         self.assertEqual(person, db_person)
 
+    def test_empty(self):
+        email = self._create_email('')
+        with self.assertRaises(ValueError):
+            find_author(email)
+
     def test_ascii_encoding(self):
         from_header = 'example user <user@example.com>'
         sender_name = u'example user'

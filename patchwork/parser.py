@@ -107,6 +107,8 @@ def find_author(mail):
     # tuple of (regex, fn)
     #  - where fn returns a (name, email) tuple from the match groups resulting
     #    from re.match().groups()
+    # TODO(stephenfin): Perhaps we should check for "real" email addresses
+    # instead of anything ('.*?')
     from_res = [
         # for "Firstname Lastname" <example@example.com> style addresses
         (re.compile(r'"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
@@ -128,7 +130,7 @@ def find_author(mail):
             (name, email) = fn(match.groups())
             break
 
-    if email is None:
+    if not email:
         raise ValueError("Invalid 'From' header")
 
     email = email.strip()
