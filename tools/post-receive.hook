@@ -23,7 +23,7 @@ trap "do_exit=1" INT
 get_patchwork_hash()
 {
   local hash
-  hash=$(git show $1 | python $PWDIR/parser.py --hash)
+  hash=$(git show -C $1 | python $PWDIR/parser.py --hash)
   echo $hash
   test -n "$hash"
 }
