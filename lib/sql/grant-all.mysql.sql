@@ -1,5 +1,5 @@
 BEGIN;
--- give necessary permissions to the web server. Becuase the admin is all
+-- give necessary permissions to the web server. Because the admin is all
 -- web-based, these need to be quite permissive
 GRANT SELECT, UPDATE, INSERT, DELETE ON django_session TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON django_site TO 'www-data'@localhost;
