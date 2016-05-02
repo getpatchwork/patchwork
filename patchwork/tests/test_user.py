@@ -235,7 +235,7 @@ class UserPasswordChangeTest(TestCase):
 
         response = self.client.get(self.done_url)
         self.assertContains(response,
-                            "Your password has been changed sucessfully")
+                            "Your password has been changed successfully")
 
 
 class UserUnlinkTest(TestCase):

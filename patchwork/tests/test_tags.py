@@ -28,7 +28,7 @@ from patchwork.tests.utils import defaults
 
 class ExtractTagsTest(TestCase):
 
-    email = 'test@exmaple.com'
+    email = 'test@example.com'
     name_email = 'test name <' + email + '>'
     fixtures = ['default_tags', 'default_states']
 
