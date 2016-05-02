@@ -6,7 +6,7 @@
 way.
 
 Changes that fix semantic issues will be generally be happily received, but
-please keep such changes seperate from functional changes.
+please keep such changes separate from functional changes.
 
 `pep8` targets are provided via tox. Refer to the [testing section](#testing)
 below for more information on usage of this tool.
@@ -47,7 +47,7 @@ will do this:
 All patches should be sent to the [mailing list][pw-ml]. When doing so, please
 abide by the [QEMU guidelines][ref-qemu-contrib] on contributing or submitting
 patches. This covers both the initial submission and any follow up to the
-patches. In particulat, please ensure:
+patches. In particular, please ensure:
 
 * [All tests pass](#testing)
 * Documentation has been updated with new requirements, new script names etc.

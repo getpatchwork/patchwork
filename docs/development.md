@@ -14,7 +14,7 @@ The latest version of Patchwork is available with git. To download:
 ## Vagrant-Based Installation
 
 Patchwork provides a Vagrantfile that can be used to quickly configure
-Patchwork in a delopment environment. Like any Vagrant VM, you can start this
+Patchwork in a development environment. Like any Vagrant VM, you can start this
 using the `vagrant up` command:
 
     $ cd patchwork  # the path to the repo you cloned above
@@ -96,7 +96,7 @@ the above command.
 ## Configure Virtual Environment
 
 **NOTE:** If you are interested in simply [testing Patchwork][doc-testing],
-many of the the below steps are not required. tox will automatically install
+many of the below steps are not required. tox will automatically install
 dependencies and use virtual environments when testing.
 
 Once these requirements are installed, you should create and activate a new
@@ -191,7 +191,7 @@ using the aptly-named `createsuperuser` command:
     (.venv)$ ./manage.py createsuperuser
 
 Once this is done, it's beneficial to load some real emails into the system.
-This can be done manually, however it's generally much easier to download an
+This can be done manually, however it's generally much easier to download
 an archive from a Mailman instance and load these using the `parsearchive.py`
 tool. You can do this like so:
 

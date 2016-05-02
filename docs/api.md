@@ -23,7 +23,7 @@ functionality.
 
 You need to connect to the server. Some methods require authentication (via
 HTTP Basic Auth) while others do not. Authentication uses your Patchwork
-account and the on-server documention will indicate where it is necessary.
+account and the on-server documentation will indicate where it is necessary.
 We will only cover the unauthenticated method here for brevity - please
 consult the [`xmlrpclib`] documentation for more detailed examples:
 

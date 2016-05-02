@@ -216,7 +216,7 @@ the file:
 
 ### Final Steps
 
-Once done, we should be able to check that all requirements are met using the
+Once done, we should be able to check that all requirements are met using
 the `check` command of the `manage.py` executable:
 
     $ /opt/patchwork/manage.py check
@@ -369,7 +369,7 @@ latter and they can be loaded as seen below:
 **NOTE:** This assumes your Postfix process is running as the `nobody` user.
 If this is not correct (use of `postfix` user is also common), you should
 change both the username in the `createuser` command above and substitute the
-username in the the `grant-all-postgres.sql` script with the appropriate
+username in the `grant-all-postgres.sql` script with the appropriate
 alternative.
 
 ### IMAP/POP3

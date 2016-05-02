@@ -4,7 +4,7 @@
 when upgrading an existing, production installation of Patchwork. If you are
 interested in the specific changes between each release, please refer to the
 [`UPGRADING` document][gh-upgrading] instead. If this is your first time
-installing Patchwork. please refer to the
+installing Patchwork, please refer to the
 [installation guide][doc-installation] instead.
 
 ## Before You Start
@@ -13,7 +13,7 @@ Before doing anything, always **backup your data**. This generally means
 backing up your database, but it might also be a good idea to backup your
 environment in case you encounter issues during the upgrade process.
 
-While Patchwork won't explicity prevent it, it's generally wise to avoid
+While Patchwork won't explicitly prevent it, it's generally wise to avoid
 upgrades spanning multiple releases in one go. An iterative upgrade approach
 will provide an easier, if slower, upgrade process.
 
@@ -124,10 +124,10 @@ latest version of Patchwork, deleting the provided migrations, applying any
 patches you may have and regenerating the migrations seems like the best
 option.
 
-**NOTE**: To prevent the latter case above from occuring, we'd ask that you
+**NOTE**: To prevent the latter case above from occurring, we'd ask that you
 submit any patches you may have to the upstream Patchwork so that the wider
 community can benefit from this new functionality. Please see
-[the contributing document][doc-contributing] for more informtion on this
+[the contributing document][doc-contributing] for more information on this
 process.
 
 [doc-installation]: installation.md
