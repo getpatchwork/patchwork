@@ -570,7 +570,7 @@ def main():
     if args.get('hash') and len(args.get('id')):
         # mimic mutual exclusive group
         locals()[action + '_parser'].error(
-            "[-h HASH] and [ID [ID ...]] are mutually exlusive")
+            "[-h HASH] and [ID [ID ...]] are mutually exclusive")
 
     # set defaults
     filt = Filter()
