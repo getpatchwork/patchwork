@@ -380,7 +380,7 @@ def clean_subject(subject, drop_prefixes=None):
 def clean_content(content):
     """Remove cruft from the email message.
 
-    Catch ignature (-- ) and list footer (_____) cruft.
+    Catch signature (-- ) and list footer (_____) cruft.
     """
     sig_re = re.compile(r'^(-- |_+)\n.*', re.S | re.M)
     content = sig_re.sub('', content)
