@@ -15,7 +15,7 @@ STATE_MAP="refs/heads/master:Accepted"
 #
 EXCLUDE=""
 
-PWDIR=/srv/patchwork/patchwork
+PWDIR=/opt/patchwork/patchwork
 
 do_exit=0
 trap "do_exit=1" INT
