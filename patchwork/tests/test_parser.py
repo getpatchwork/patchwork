@@ -34,8 +34,8 @@ from patchwork.parser import clean_subject
 from patchwork.parser import find_author
 from patchwork.parser import find_content
 from patchwork.parser import find_project_by_header
-from patchwork.parser import find_pull_request
 from patchwork.parser import parse_mail as _parse_mail
+from patchwork.parser import parse_pull_request
 from patchwork.parser import parse_series_marker
 from patchwork.parser import split_prefixes
 from patchwork.tests.utils import create_project
@@ -432,7 +432,7 @@ class PatchParseTest(PatchTest):
 
     def _test_pull_request_parse(self, mbox_filename):
         diff, message = self._find_content(mbox_filename)
-        pull_url = find_pull_request(message)
+        pull_url = parse_pull_request(message)
         self.assertTrue(diff is None)
         self.assertTrue(message is not None)
         self.assertTrue(pull_url is not None)
@@ -455,7 +455,7 @@ class PatchParseTest(PatchTest):
     def test_git_pull_with_diff(self):
         diff, message = self._find_content(
             '0003-git-pull-request-with-diff.mbox')
-        pull_url = find_pull_request(message)
+        pull_url = parse_pull_request(message)
         self.assertEqual(
             'git://git.kernel.org/pub/scm/linux/kernel/git/tip/'
             'linux-2.6-tip.git x86-fixes-for-linus',

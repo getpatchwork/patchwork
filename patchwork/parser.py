@@ -159,17 +159,6 @@ def find_headers(mail):
                    for (k, v) in list(mail.items())])
 
 
-def find_pull_request(content):
-    git_re = re.compile(r'^The following changes since commit.*' +
-                        r'^are available in the git repository at:\n'
-                        r'^\s*([\S]+://[^\n]+)$',
-                        re.DOTALL | re.MULTILINE)
-    match = git_re.search(content)
-    if match:
-        return match.group(1)
-    return None
-
-
 def find_references(mail):
     """Construct a list of possible reply message ids."""
     refs = []
@@ -527,6 +516,17 @@ def parse_patch(content):
     return patchbuf, commentbuf
 
 
+def parse_pull_request(content):
+    git_re = re.compile(r'^The following changes since commit.*' +
+                        r'^are available in the git repository at:\n'
+                        r'^\s*([\S]+://[^\n]+)$',
+                        re.DOTALL | re.MULTILINE)
+    match = git_re.search(content)
+    if match:
+        return match.group(1)
+    return None
+
+
 def find_state(mail):
     """Return the state with the given name or the default."""
     state_name = mail.get('X-Patchwork-State', '').strip()
@@ -623,7 +623,7 @@ def parse_mail(mail, list_id=None):
     refs = find_references(mail)
     date = find_date(mail)
     headers = find_headers(mail)
-    pull_url = find_pull_request(message)
+    pull_url = parse_pull_request(message)
 
     # build objects
 
