@@ -143,6 +143,15 @@ if settings.ENABLE_XMLRPC:
             name='pwclientrc'),
     ]
 
+if settings.ENABLE_REST_API:
+    if 'rest_framework' not in settings.INSTALLED_APPS:
+        raise RuntimeError(
+            'djangorestframework must be installed to enable the REST API.')
+    import patchwork.views.rest_api
+    urlpatterns += [
+        url(r'^api/1.0/', include(patchwork.views.rest_api.router.urls)),
+    ]
+
 # redirect from old urls
 if settings.COMPAT_REDIR:
     urlpatterns += [

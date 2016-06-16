@@ -28,6 +28,14 @@ INSTALLED_APPS = [
     'patchwork',
 ]
 
+try:
+    # django rest framework isn't a standard package in most distros, so
+    # don't make it compulsory
+    import rest_framework  # NOQA
+    INSTALLED_APPS += ['rest_framework']
+except ImportError:
+    pass
+
 # HTTP
 
 MIDDLEWARE_CLASSES = [
@@ -147,6 +155,9 @@ NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set to True to enable the Patchwork XML-RPC interface
 ENABLE_XMLRPC = False
+
+# Set to True to enable the Patchwork REST API
+ENABLE_REST_API = False
 
 # Set to True to enable redirections or URLs from previous versions
 # of patchwork
