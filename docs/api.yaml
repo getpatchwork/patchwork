@@ -1,0 +1,420 @@
+swagger: '2.0'
+info:
+  title: Patchwork API
+  description: |
+    Patchwork is a web-based patch tracking system designed to facilitate the
+    contribution and management of contributions to an open-source project.
+  version: "1.0"
+host: patchwork.ozlabs.org
+schemes:
+  - https
+basePath: /api/1.0
+produces:
+  - application/json
+paths:
+  /:
+    get:
+      summary: API metadata.
+      description: |
+        The Metadata endpoint returns information about the API itself.
+        The response includes the version of the API.
+      responses:
+        200:
+          description: An API metadata object.
+          schema:
+            $ref: '#/definitions/Metadata'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /projects:
+    get:
+      summary: List available projects.
+      description: |
+        Returns information about all projects available on this patchwork
+        instance. The response includes the display name and other details
+        about each project.
+      parameters:
+        - $ref: '#/parameters/perPageParam'
+        - $ref: '#/parameters/pageParam'
+      tags:
+        - Projects
+      responses:
+        200:
+          description: An array of projects objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /projects/{projectId}:
+    get:
+      summary: Retrieve a project by its ID.
+      description: |
+        Returns information about a single project available on this patchwork
+        instance. The response includes the display name and other details
+        about each project.
+      parameters:
+        - $ref: '#/parameters/projectId'
+      tags:
+        - Projects
+      responses:
+        200:
+          description: A project object.
+          schema:
+            $ref: '#/definitions/Project'
+        404:
+          description: The project does not exist
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /people:
+    get:
+      summary: List available people.
+      description: |
+        Returns information about all people who have submitted patches on this
+        patchwork instance. The response includes the name, email and other
+        details about each person.
+      tags:
+        - People
+      parameters:
+        - $ref: '#/parameters/perPageParam'
+        - $ref: '#/parameters/pageParam'
+      responses:
+        200:
+          description: An array of people objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/People'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /people/{personId}:
+    get:
+      summary: Retrieve a person by its ID.
+      description: |
+        Returns information about a single person who has submitted patches on
+        this patchwork instance. The response includes the name, email and
+        other details about each person.
+      parameters:
+        - $ref: '#/parameters/personId'
+      tags:
+        - People
+      responses:
+        200:
+          description: A person object.
+          schema:
+            $ref: '#/definitions/People'
+        404:
+          description: The project does not exist
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /patches:
+    get:
+      summary: List available patches
+      description: |
+        Returns information about all patches available on this patchwork
+        instance. The response includes the name, diff and other details
+        about each patch.
+      tags:
+        - Patches
+      parameters:
+        - $ref: '#/parameters/perPageParam'
+        - $ref: '#/parameters/pageParam'
+        - $ref: '#/parameters/sinceParam'
+        - $ref: '#/parameters/untilParam'
+        - name: project
+          description: project name by which to filter
+          in: query
+          type: string
+        - name: state
+          description: patch state by which to filter
+          in: query
+          type: string
+        - name: submitter
+          description: username or email of submitter by which to filter
+          in: query
+          type: string
+        - name: delegate
+          description: username or email of delegate by which to filter
+          in: query
+          type: string
+      responses:
+        200:
+          description: An array of patch objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Patch'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /patches/{patchId}:
+    get:
+      summary: Retrieve a patch by its ID.
+      description: |
+        Returns information about a single patch available on this patchwork
+        instance. The response includes the name, diff and other details
+        about each patch.
+      parameters:
+        - $ref: '#/parameters/patchId'
+      tags:
+        - Patches
+      responses:
+        200:
+          description: A patch object.
+          schema:
+            $ref: '#/definitions/PatchDetail'
+        404:
+          description: The patch does not exist
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /patches/{patchId}/checks:
+    get:
+      summary: List check statuses for given patch.
+      description: |
+        Checks store the results of any tests executed (or executing) for a
+        given patch. This is useful, for example, when using a continuous
+        integration (CI) system to test patches.
+      parameters:
+        - $ref: '#/parameters/patchId'
+        - $ref: '#/parameters/perPageParam'
+        - $ref: '#/parameters/pageParam'
+      tags:
+        - Checks
+      responses:
+        200:
+          description: An array of check objects.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Check'
+        404:
+          description: The patch does not exist
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /patches/{patchId}/check:
+    get:
+      summary: Retrieve combined check status for given patch.
+      description: |
+        Checks store the results of any tests executed (or executing) for a
+        given patch. This is useful, for example, when using a continuous
+        integration (CI) system to test patches.
+      parameters:
+        - $ref: '#/parameters/patchId'
+      tags:
+        - Checks
+      responses:
+        200:
+          description: A check object.
+          schema:
+            $ref: '#/definitions/Check'
+        404:
+          description: The patch does not exist
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+parameters:
+  # ID Parameters
+  projectId:
+    name: projectId
+    description: ID of project that needs to be retrieved.
+    in: path
+    type: integer
+    format: int32
+    required: true
+  personId:
+    name: personId
+    description: ID of person that needs to be retrieved.
+    in: path
+    type: integer
+    format: int32
+    required: true
+  patchId:
+    name: patchId
+    description: |
+      ID of patch that needs to be retrieved. This should be one of: a patch
+      ID, a patch hash, a Message-ID.
+    in: path
+    type: string
+    required: true
+  # Generic parameters
+  pageParam:
+    name: page
+    description: page to retrieve
+    in: query
+    type: integer
+    format: int32
+    minimum: 1
+    default: 1
+  perPageParam:
+    name: per_page
+    description: custom page size
+    in: query
+    type: integer
+    format: int32
+    minimum: 0
+    maximum: 100
+    default: 30
+  sinceParam:
+    name: since
+    description: only items modified after this date will be returned
+    in: query
+    type: string
+    format: date
+  untilParam:
+    name: until
+    description: only items modified before this date will be returned
+    in: query
+    type: string
+    format: date
+definitions:
+  Metadata:
+    properties:
+      revision:
+        type: integer
+        description: Revision of the API.
+  Project:
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of project.
+      name:
+        type: string
+        description: Name of project.
+      link_name:
+        type: string
+        description: Link name of project.
+      list_email:
+        type: string
+        description: Mailing list email address for project.
+      list_id:
+        type: string
+        description: Mailing list identifier for project.
+      web_url:
+        type: string
+        description: Upstream website URL for project.
+      scm_url:
+        type: string
+        description: SCM clone URL for project.
+      webscm_url:
+        type: string
+        description: SCM web interface URL for project.
+  Patch:
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of patch.
+      project_url:
+        type: integer
+        description: Project ID of patch.
+      name:
+        type: string
+        description: Name of patch.
+      date:
+        type: string
+        format: date-time
+        description: Submission date of patch.
+      submitter:
+        type: string
+        description: URL for submitter of patch.
+      delegate:
+        type: integer
+        description: URL for delegate assigned to patch.
+      state:
+        type: string
+        description: The state of the patch.
+      mbox_url:
+        type: string
+        description: Link to the raw patch mbox contents.
+      tags:
+        type: array
+        description: Tags associated with patch.
+        items:
+          type: string
+      check:
+        type: string
+        description: The combined check status for the patch.
+        enum:
+          - pending
+          - success
+          - warning
+          - fail
+  PatchDetail:
+    allOf:
+      $ref: '#/definitions/Patch'
+      properties:
+        diff:
+          type: string
+          description: Diff of patch.
+        content:
+          type: string
+          description: Message of patch.
+        headers:
+          type: array
+          description: The headers of the patch.
+          items:
+            type: string
+  People:
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of person.
+      name:
+        type: string
+        description: Name of person.
+      email:
+        type: string
+        description: Email of person.
+      user_url:
+        type: string
+        description: URL for Patchwork user account connected to person.
+  Check:
+    properties:
+      id:
+        type: integer
+        description: Unique identifier of check.
+      user_url:
+        type: string
+        description: URL for creator of check.
+      state:
+        type: string
+        description: The state of the check.
+        enum:
+          - pending
+          - success
+          - warning
+          - fail
+      url:
+        type: string
+        description: The target URL associated with this check.
+      description:
+        type: string
+        description: A brief description of the check.
+      context:
+        type: string
+        description: |
+          A label to discern check from checks of other testing systems.
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
