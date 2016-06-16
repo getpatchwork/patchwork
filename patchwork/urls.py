@@ -147,10 +147,10 @@ if settings.ENABLE_REST_API:
     if 'rest_framework' not in settings.INSTALLED_APPS:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
-    import patchwork.views.rest_api
+    from patchwork.views.rest_api import router, patches_router
     urlpatterns += [
-        url(r'^api/1.0/', include(
-            patchwork.views.rest_api.router.urls, namespace='api_1.0')),
+        url(r'^api/1.0/', include(router.urls, namespace='api_1.0')),
+        url(r'^api/1.0/', include(patches_router.urls, namespace='api_1.0')),
     ]
 
 # redirect from old urls

@@ -20,12 +20,14 @@
 import email.parser
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.serializers import (
-    HyperlinkedModelSerializer, ListSerializer, SerializerMethodField)
+    CurrentUserDefault, HiddenField, HyperlinkedModelSerializer,
+    ListSerializer, ModelSerializer, SerializerMethodField)
 
-from patchwork.models import Patch, Person, Project
+from patchwork.models import Check, Patch, Person, Project
 
 
 class URLSerializer(HyperlinkedModelSerializer):
@@ -90,9 +92,46 @@ class PatchSerializer(URLSerializer):
 
     def to_representation(self, instance):
         data = super(PatchSerializer, self).to_representation(instance)
+        data['checks_url'] = data['url'] + 'checks/'
         headers = data.get('headers')
         if headers is not None:
             data['headers'] = email.parser.Parser().parsestr(headers, True)
         data['tags'] = [{'name': x.tag.name, 'count': x.count}
                         for x in instance.patchtag_set.all()]
         return data
+
+
+class CurrentPatchDefault(object):
+    def set_context(self, serializer_field):
+        self.patch = serializer_field.context['request'].patch
+
+    def __call__(self):
+        return self.patch
+
+
+class ChecksSerializer(ModelSerializer):
+    user = HyperlinkedRelatedField(
+        'user-detail', read_only=True, default=CurrentUserDefault())
+    patch = HiddenField(default=CurrentPatchDefault())
+
+    def run_validation(self, data):
+        for val, label in Check.STATE_CHOICES:
+            if label == data['state']:
+                data['state'] = val
+                break
+        return super(ChecksSerializer, self).run_validation(data)
+
+    def to_representation(self, instance):
+        data = super(ChecksSerializer, self).to_representation(instance)
+        data['state'] = instance.get_state_display()
+        # drf-nested doesn't handle HyperlinkedModelSerializers properly,
+        # so we have to put the url in by hand here.
+        url = self.context['request'].build_absolute_uri(reverse(
+            'api_1.0:patch-detail', args=[instance.patch.id]))
+        data['url'] = url + 'checks/%s/' % instance.id
+        data['users_url'] = data.pop('user')
+        return data
+
+    class Meta:
+        model = Check
+        read_only_fields = ('date', )
