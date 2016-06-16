@@ -17,12 +17,15 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import email.parser
+
 from django.contrib.auth.models import User
 
 from rest_framework.relations import HyperlinkedRelatedField
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import (
+    HyperlinkedModelSerializer, ListSerializer, SerializerMethodField)
 
-from patchwork.models import Person, Project
+from patchwork.models import Patch, Person, Project
 
 
 class URLSerializer(HyperlinkedModelSerializer):
@@ -59,4 +62,37 @@ class ProjectSerializer(HyperlinkedModelSerializer):
         data['link_name'] = data.pop('linkname')
         data['list_email'] = data.pop('listemail')
         data['list_id'] = data.pop('listid')
+        return data
+
+
+class PatchListSerializer(ListSerializer):
+    """Semi hack to make the list of patches more efficient"""
+    def to_representation(self, data):
+        del self.child.fields['content']
+        del self.child.fields['headers']
+        del self.child.fields['diff']
+        return super(PatchListSerializer, self).to_representation(data)
+
+
+class PatchSerializer(URLSerializer):
+    class Meta:
+        model = Patch
+        list_serializer_class = PatchListSerializer
+        read_only_fields = ('project', 'name', 'date', 'submitter', 'diff',
+                            'content', 'hash', 'msgid')
+        # there's no need to expose an entire "tags" endpoint, so we custom
+        # render this field
+        exclude = ('tags',)
+    state = SerializerMethodField()
+
+    def get_state(self, obj):
+        return obj.state.name
+
+    def to_representation(self, instance):
+        data = super(PatchSerializer, self).to_representation(instance)
+        headers = data.get('headers')
+        if headers is not None:
+            data['headers'] = email.parser.Parser().parsestr(headers, True)
+        data['tags'] = [{'name': x.tag.name, 'count': x.count}
+                        for x in instance.patchtag_set.all()]
         return data

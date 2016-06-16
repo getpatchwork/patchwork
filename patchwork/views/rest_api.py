@@ -20,7 +20,7 @@
 from django.conf import settings
 
 from patchwork.rest_serializers import (
-    PersonSerializer, ProjectSerializer, UserSerializer)
+    PatchSerializer, PersonSerializer, ProjectSerializer, UserSerializer)
 
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
@@ -99,7 +99,23 @@ class ProjectViewSet(PatchworkViewSet):
     serializer_class = ProjectSerializer
 
 
+class PatchViewSet(PatchworkViewSet):
+    permission_classes = (PatchworkPermission,)
+    serializer_class = PatchSerializer
+
+    def get_queryset(self):
+        qs = super(PatchViewSet, self).get_queryset(
+        ).prefetch_related(
+            'check_set', 'patchtag_set'
+        ).select_related('state', 'submitter', 'delegate')
+        if 'pk' not in self.kwargs:
+            # we are doing a listing, we don't need these fields
+            qs = qs.defer('content', 'diff', 'headers')
+        return qs
+
+
 router = DefaultRouter()
+router.register('patches', PatchViewSet, 'patch')
 router.register('people', PeopleViewSet, 'person')
 router.register('projects', ProjectViewSet, 'project')
 router.register('users', UserViewSet, 'user')
