@@ -85,6 +85,7 @@ class PatchSerializer(URLSerializer):
         # there's no need to expose an entire "tags" endpoint, so we custom
         # render this field
         exclude = ('tags',)
+    check_names = dict(Check.STATE_CHOICES)
     mbox_url = SerializerMethodField()
     state = SerializerMethodField()
 
@@ -98,6 +99,7 @@ class PatchSerializer(URLSerializer):
     def to_representation(self, instance):
         data = super(PatchSerializer, self).to_representation(instance)
         data['checks_url'] = data['url'] + 'checks/'
+        data['check'] = self.check_names[instance.combined_check_state]
         headers = data.get('headers')
         if headers is not None:
             data['headers'] = email.parser.Parser().parsestr(headers, True)
