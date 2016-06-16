@@ -260,6 +260,7 @@ class TestPatchAPI(APITestCase):
         self.assertIn(TestPersonAPI.api_url(self.patches[0].submitter.id),
                       resp.data['submitter_url'])
         self.assertEqual(self.patches[0].state.name, resp.data['state'])
+        self.assertIn(self.patches[0].get_mbox_url(), resp.data['mbox_url'])
 
     def test_detail_tags(self):
         # defaults.project is remembered between TestCases and .save() is

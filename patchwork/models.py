@@ -458,6 +458,10 @@ class Patch(Submission):
     def get_absolute_url(self):
         return ('patch-detail', (), {'patch_id': self.id})
 
+    @models.permalink
+    def get_mbox_url(self):
+        return ('patch-mbox', (), {'patch_id': self.id})
+
     def __str__(self):
         return self.name
 

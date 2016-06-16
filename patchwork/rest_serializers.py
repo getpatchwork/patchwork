@@ -85,10 +85,15 @@ class PatchSerializer(URLSerializer):
         # there's no need to expose an entire "tags" endpoint, so we custom
         # render this field
         exclude = ('tags',)
+    mbox_url = SerializerMethodField()
     state = SerializerMethodField()
 
     def get_state(self, obj):
         return obj.state.name
+
+    def get_mbox_url(self, patch):
+        request = self.context.get('request', None)
+        return request.build_absolute_uri(patch.get_mbox_url())
 
     def to_representation(self, instance):
         data = super(PatchSerializer, self).to_representation(instance)
