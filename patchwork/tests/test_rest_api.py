@@ -114,3 +114,46 @@ class TestProjectAPI(APITestCase):
         resp = self.client.delete(self.api_url(self.project.id))
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
         self.assertEqual(1, Project.objects.all().count())
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestUserAPI(APITestCase):
+    fixtures = ['default_states']
+
+    @staticmethod
+    def api_url(item=None):
+        if item is None:
+            return reverse('api_1.0:user-list')
+        return reverse('api_1.0:user-detail', args=[item])
+
+    def test_anonymous_list(self):
+        """The API should reject anonymous users."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+    def test_authenticated_list(self):
+        """This API requires authenticated users."""
+        user = create_user()
+        self.client.force_authenticate(user=user)
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertEqual(user.username, resp.data[0]['username'])
+        self.assertNotIn('password', resp.data[0])
+        self.assertNotIn('is_superuser', resp.data[0])
+
+    def test_readonly(self):
+        defaults.project.save()
+        user = create_maintainer(defaults.project)
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.delete(self.api_url(1))
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+        resp = self.client.patch(self.api_url(1), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+        resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)

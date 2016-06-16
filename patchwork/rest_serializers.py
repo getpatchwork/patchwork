@@ -17,9 +17,19 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.contrib.auth.models import User
+
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from patchwork.models import Project
+
+
+class UserSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        exclude = ('date_joined', 'groups', 'is_active', 'is_staff',
+                   'is_superuser', 'last_login', 'password',
+                   'user_permissions')
 
 
 class ProjectSerializer(HyperlinkedModelSerializer):
