@@ -149,7 +149,8 @@ if settings.ENABLE_REST_API:
             'djangorestframework must be installed to enable the REST API.')
     import patchwork.views.rest_api
     urlpatterns += [
-        url(r'^api/1.0/', include(patchwork.views.rest_api.router.urls)),
+        url(r'^api/1.0/', include(
+            patchwork.views.rest_api.router.urls, namespace='api_1.0')),
     ]
 
 # redirect from old urls

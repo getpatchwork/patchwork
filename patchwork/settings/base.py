@@ -158,6 +158,10 @@ ENABLE_XMLRPC = False
 
 # Set to True to enable the Patchwork REST API
 ENABLE_REST_API = False
+REST_RESULTS_PER_PAGE = 30
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+}
 
 # Set to True to enable redirections or URLs from previous versions
 # of patchwork

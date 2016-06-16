@@ -17,6 +17,62 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from rest_framework import routers
+from django.conf import settings
 
-router = routers.DefaultRouter()
+from patchwork.models import Project
+from patchwork.rest_serializers import ProjectSerializer
+
+from rest_framework import permissions
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.routers import DefaultRouter
+from rest_framework.viewsets import ModelViewSet
+
+
+class LinkHeaderPagination(PageNumberPagination):
+    """Provide pagination based on rfc5988 (how github does it)
+       https://tools.ietf.org/html/rfc5988#section-5
+       https://developer.github.com/guides/traversing-with-pagination
+    """
+    page_size = settings.REST_RESULTS_PER_PAGE
+    page_size_query_param = 'per_page'
+
+    def get_paginated_response(self, data):
+        next_url = self.get_next_link()
+        previous_url = self.get_previous_link()
+
+        link = ''
+        if next_url is not None and previous_url is not None:
+            link = '<{next_url}>; rel="next", <{previous_url}>; rel="prev"'
+        elif next_url is not None:
+            link = '<{next_url}>; rel="next"'
+        elif previous_url is not None:
+            link = '<{previous_url}>; rel="prev"'
+        link = link.format(next_url=next_url, previous_url=previous_url)
+        headers = {'Link': link} if link else {}
+        return Response(data, headers=headers)
+
+
+class PatchworkPermission(permissions.BasePermission):
+    """This permission works for Project and Patch model objects"""
+    def has_permission(self, request, view):
+        if request.method in ('POST', 'DELETE'):
+            return False
+        return super(PatchworkPermission, self).has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        # read only for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.is_editable(request.user)
+
+
+class ProjectViewSet(ModelViewSet):
+    permission_classes = (PatchworkPermission, )
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    pagination_class = LinkHeaderPagination
+
+
+router = DefaultRouter()
+router.register('projects', ProjectViewSet, 'project')
