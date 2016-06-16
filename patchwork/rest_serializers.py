@@ -19,9 +19,26 @@
 
 from django.contrib.auth.models import User
 
+from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.serializers import HyperlinkedModelSerializer
 
-from patchwork.models import Project
+from patchwork.models import Person, Project
+
+
+class URLSerializer(HyperlinkedModelSerializer):
+    """Just like parent but puts _url for fields"""
+
+    def to_representation(self, instance):
+        data = super(URLSerializer, self).to_representation(instance)
+        for name, field in self.fields.items():
+            if isinstance(field, HyperlinkedRelatedField) and name != 'url':
+                data[name + '_url'] = data.pop(name)
+        return data
+
+
+class PersonSerializer(URLSerializer):
+    class Meta:
+        model = Person
 
 
 class UserSerializer(HyperlinkedModelSerializer):

@@ -20,7 +20,7 @@
 from django.conf import settings
 
 from patchwork.rest_serializers import (
-    ProjectSerializer, UserSerializer)
+    PersonSerializer, ProjectSerializer, UserSerializer)
 
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
@@ -85,11 +85,21 @@ class UserViewSet(PatchworkViewSet):
     serializer_class = UserSerializer
 
 
+class PeopleViewSet(PatchworkViewSet):
+    permission_classes = (AuthenticatedReadOnly, )
+    serializer_class = PersonSerializer
+
+    def get_queryset(self):
+        qs = super(PeopleViewSet, self).get_queryset()
+        return qs.select_related('user__username')
+
+
 class ProjectViewSet(PatchworkViewSet):
     permission_classes = (PatchworkPermission, )
     serializer_class = ProjectSerializer
 
 
 router = DefaultRouter()
+router.register('people', PeopleViewSet, 'person')
 router.register('projects', ProjectViewSet, 'project')
 router.register('users', UserViewSet, 'user')
