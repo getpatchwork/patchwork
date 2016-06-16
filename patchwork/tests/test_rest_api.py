@@ -60,6 +60,20 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(self.project.name, resp.data['name'])
 
+        # make sure we can look up by linkname
+        resp = self.client.get(self.api_url(resp.data['link_name']))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(defaults.project.name, resp.data['name'])
+
+    def test_get_numeric_linkname(self):
+        """Validate we try to do the right thing for numeric linkname"""
+        project = Project(linkname='12345', name='Test Project',
+                          listid='test.example.com')
+        project.save()
+        resp = self.client.get(self.api_url('12345'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(project.name, resp.data['name'])
+
     def test_anonymous_create(self):
         """Ensure anonymous POST operations are rejected."""
         resp = self.client.post(

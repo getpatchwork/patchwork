@@ -101,6 +101,24 @@ class ProjectViewSet(PatchworkViewSet):
     permission_classes = (PatchworkPermission, )
     serializer_class = ProjectSerializer
 
+    def _handle_linkname(self, pk):
+        '''Make it easy for users to list by project-id or linkname'''
+        qs = self.get_queryset()
+        try:
+            qs.get(id=pk)
+        except (self.serializer_class.Meta.model.DoesNotExist, ValueError):
+            # probably a non-numeric value which means we are going by linkname
+            self.kwargs = {'linkname': pk}  # try and lookup by linkname
+            self.lookup_field = 'linkname'
+
+    def retrieve(self, request, pk=None):
+        self._handle_linkname(pk)
+        return super(ProjectViewSet, self).retrieve(request, pk)
+
+    def partial_update(self, request, pk=None):
+        self._handle_linkname(pk)
+        return super(ProjectViewSet, self).partial_update(request, pk)
+
 
 class PatchViewSet(PatchworkViewSet):
     permission_classes = (PatchworkPermission,)
