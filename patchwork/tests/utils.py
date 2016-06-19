@@ -126,18 +126,6 @@ def create_covers(count=1):
     return covers
 
 
-def find_in_context(context, key):
-    if isinstance(context, list):
-        for c in context:
-            v = find_in_context(c, key)
-            if v is not None:
-                return v
-    else:
-        if key in context:
-            return context[key]
-    return None
-
-
 def read_patch(filename, encoding=None):
     file_path = os.path.join(_test_patch_dir, filename)
     if encoding is not None:

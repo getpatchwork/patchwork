@@ -25,11 +25,14 @@ import unittest
 from django.conf import settings
 from django.test import TestCase
 from django.utils.http import urlencode
-from django.utils.six.moves import range, zip
+from django.utils.six.moves import range
+from django.utils.six.moves import zip
 
-from patchwork.models import Bundle, BundlePatch
-from patchwork.tests.utils import (defaults, create_user, find_in_context,
-                                   create_patches)
+from patchwork.models import Bundle
+from patchwork.models import BundlePatch
+from patchwork.tests.utils import create_patches
+from patchwork.tests.utils import create_user
+from patchwork.tests.utils import defaults
 
 
 def bundle_url(bundle):
@@ -46,8 +49,7 @@ class BundleListTest(TestCase):
     def testNoBundles(self):
         response = self.client.get('/user/bundles/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            len(find_in_context(response.context, 'bundles')), 0)
+        self.assertEqual(len(response.context['bundles']), 0)
 
     def testSingleBundle(self):
         defaults.project.save()
@@ -55,8 +57,7 @@ class BundleListTest(TestCase):
         bundle.save()
         response = self.client.get('/user/bundles/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            len(find_in_context(response.context, 'bundles')), 1)
+        self.assertEqual(len(response.context['bundles']), 1)
 
     def tearDown(self):
         self.user.delete()
@@ -87,7 +88,7 @@ class BundleViewTest(BundleTestBase):
     def testEmptyBundle(self):
         response = self.client.get(bundle_url(self.bundle))
         self.assertEqual(response.status_code, 200)
-        page = find_in_context(response.context, 'page')
+        page = response.context['page']
         self.assertEqual(len(page.object_list), 0)
 
     def testNonEmptyBundle(self):
@@ -95,7 +96,7 @@ class BundleViewTest(BundleTestBase):
 
         response = self.client.get(bundle_url(self.bundle))
         self.assertEqual(response.status_code, 200)
-        page = find_in_context(response.context, 'page')
+        page = response.context['page']
         self.assertEqual(len(page.object_list), 1)
 
     def testBundleOrder(self):
