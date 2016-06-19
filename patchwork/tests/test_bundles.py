@@ -23,6 +23,7 @@ import datetime
 import unittest
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.http import urlencode
 from django.utils.six.moves import range
@@ -30,13 +31,15 @@ from django.utils.six.moves import zip
 
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
+from patchwork.tests.utils import create_bundle
 from patchwork.tests.utils import create_patches
+from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
-from patchwork.tests.utils import defaults
 
 
 def bundle_url(bundle):
-    return '/bundle/%s/%s/' % (bundle.owner.username, bundle.name)
+    return reverse('bundle-detail', kwargs={
+        'username': bundle.owner.username, 'bundlename': bundle.name})
 
 
 class BundleListTest(TestCase):
@@ -46,52 +49,41 @@ class BundleListTest(TestCase):
         self.client.login(username=self.user.username,
                           password=self.user.username)
 
-    def testNoBundles(self):
-        response = self.client.get('/user/bundles/')
+    def test_no_bundles(self):
+        response = self.client.get(reverse('user-bundles'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['bundles']), 0)
 
-    def testSingleBundle(self):
-        defaults.project.save()
-        bundle = Bundle(owner=self.user, project=defaults.project)
+    def test_single_bundle(self):
+        bundle = create_bundle(owner=self.user)
         bundle.save()
-        response = self.client.get('/user/bundles/')
+        response = self.client.get(reverse('user-bundles'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['bundles']), 1)
 
-    def tearDown(self):
-        self.user.delete()
-
 
 class BundleTestBase(TestCase):
+
     fixtures = ['default_states']
 
-    def setUp(self, patch_count=3):
+    def setUp(self, count=3):
         self.user = create_user()
         self.client.login(username=self.user.username,
                           password=self.user.username)
-        defaults.project.save()
-        self.bundle = Bundle(owner=self.user, project=defaults.project,
-                             name='testbundle')
-        self.bundle.save()
-        self.patches = create_patches(patch_count)
-
-    def tearDown(self):
-        for patch in self.patches:
-            patch.delete()
-        self.bundle.delete()
-        self.user.delete()
+        self.bundle = create_bundle(owner=self.user)
+        self.project = create_project()
+        self.patches = create_patches(count, project=self.project)
 
 
 class BundleViewTest(BundleTestBase):
 
-    def testEmptyBundle(self):
+    def test_empty_bundle(self):
         response = self.client.get(bundle_url(self.bundle))
         self.assertEqual(response.status_code, 200)
         page = response.context['page']
         self.assertEqual(len(page.object_list), 0)
 
-    def testNonEmptyBundle(self):
+    def test_non_empty_bundle(self):
         self.bundle.append_patch(self.patches[0])
 
         response = self.client.get(bundle_url(self.bundle))
@@ -99,7 +91,7 @@ class BundleViewTest(BundleTestBase):
         page = response.context['page']
         self.assertEqual(len(page.object_list), 1)
 
-    def testBundleOrder(self):
+    def test_bundle_order(self):
         for patch in self.patches:
             self.bundle.append_patch(patch)
 
@@ -132,29 +124,12 @@ class BundleViewTest(BundleTestBase):
 
 class BundleUpdateTest(BundleTestBase):
 
-    def setUp(self):
-        super(BundleUpdateTest, self).setUp()
-        self.newname = 'newbundlename'
-
-    def checkPatchformErrors(self, response):
-        formname = 'patchform'
-        if formname not in response.context:
-            return
-        form = response.context[formname]
-        if not form:
-            return
-        self.assertEqual(form.errors, {})
-
-    def publicString(self, public):
-        if public:
-            return 'on'
-        return ''
-
-    def testNoAction(self):
+    def test_no_action(self):
+        newname = 'newbundlename'
         data = {
             'form': 'bundle',
-            'name': self.newname,
-            'public': self.publicString(not self.bundle.public)
+            'name': newname,
+            'public': 'on',
         }
         response = self.client.post(bundle_url(self.bundle), data)
         self.assertEqual(response.status_code, 200)
@@ -163,13 +138,13 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.name, self.bundle.name)
         self.assertEqual(bundle.public, self.bundle.public)
 
-    def testUpdateName(self):
+    def test_update_name(self):
         newname = 'newbundlename'
         data = {
             'form': 'bundle',
             'action': 'update',
             'name': newname,
-            'public': self.publicString(self.bundle.public)
+            'public': '',
         }
         response = self.client.post(bundle_url(self.bundle), data)
         bundle = Bundle.objects.get(pk=self.bundle.pk)
@@ -177,12 +152,12 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.name, newname)
         self.assertEqual(bundle.public, self.bundle.public)
 
-    def testUpdatePublic(self):
+    def test_update_public(self):
         data = {
             'form': 'bundle',
             'action': 'update',
             'name': self.bundle.name,
-            'public': self.publicString(not self.bundle.public)
+            'public': 'on',
         }
         response = self.client.post(bundle_url(self.bundle), data)
         self.assertEqual(response.status_code, 200)
@@ -191,15 +166,22 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.public, not self.bundle.public)
 
         # check other forms for errors
-        self.checkPatchformErrors(response)
+        formname = 'patchform'
+        if formname not in response.context:
+            return
+        form = response.context[formname]
+        if not form:
+            return
+        self.assertEqual(form.errors, {})
 
 
 class BundleMaintainerUpdateTest(BundleUpdateTest):
 
     def setUp(self):
         super(BundleMaintainerUpdateTest, self).setUp()
+
         profile = self.user.profile
-        profile.maintainer_projects.add(defaults.project)
+        profile.maintainer_projects.add(self.project)
         profile.save()
 
 
@@ -211,14 +193,14 @@ class BundlePublicViewTest(BundleTestBase):
         self.bundle.append_patch(self.patches[0])
         self.url = bundle_url(self.bundle)
 
-    def testPublicBundle(self):
+    def test_public_bundle(self):
         self.bundle.public = True
         self.bundle.save()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.patches[0].name)
 
-    def testPrivateBundle(self):
+    def test_private_bundle(self):
         self.bundle.public = False
         self.bundle.save()
         response = self.client.get(self.url)
@@ -229,7 +211,9 @@ class BundlePublicViewMboxTest(BundlePublicViewTest):
 
     def setUp(self):
         super(BundlePublicViewMboxTest, self).setUp()
-        self.url = bundle_url(self.bundle) + "mbox/"
+        self.url = reverse('bundle-mbox', kwargs={
+            'username': self.bundle.owner.username,
+            'bundlename': self.bundle.name})
 
 
 class BundlePublicModifyTest(BundleTestBase):
@@ -242,7 +226,7 @@ class BundlePublicModifyTest(BundleTestBase):
         self.bundle.save()
         self.other_user = create_user()
 
-    def testBundleFormPresence(self):
+    def test_bundle_form_presence(self):
         """Check for presence of the modify form on the bundle"""
         self.client.login(username=self.other_user.username,
                           password=self.other_user.username)
@@ -250,7 +234,7 @@ class BundlePublicModifyTest(BundleTestBase):
         self.assertNotContains(response, 'name="form" value="bundle"')
         self.assertNotContains(response, 'Change order')
 
-    def testBundleFormSubmission(self):
+    def test_bundle_form_submission(self):
         oldname = 'oldbundlename'
         newname = 'newbundlename'
         data = {
@@ -282,31 +266,33 @@ class BundlePublicModifyTest(BundleTestBase):
 
 class BundleCreateFromListTest(BundleTestBase):
 
-    def testCreateEmptyBundle(self):
+    def test_create_empty_bundle(self):
         newbundlename = 'testbundle-new'
         params = {'form': 'patchlistform',
                   'bundle_name': newbundlename,
                   'action': 'Create',
-                  'project': defaults.project.id}
+                  'project': self.project.id}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'Bundle %s created' % newbundlename)
 
-    def testCreateNonEmptyBundle(self):
+    def test_create_non_empty_bundle(self):
         newbundlename = 'testbundle-new'
         patch = self.patches[0]
 
         params = {'form': 'patchlistform',
                   'bundle_name': newbundlename,
                   'action': 'Create',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'Bundle %s created' % newbundlename)
@@ -317,7 +303,7 @@ class BundleCreateFromListTest(BundleTestBase):
         self.assertEqual(bundle.patches.count(), 1)
         self.assertEqual(bundle.patches.all()[0], patch)
 
-    def testCreateNonEmptyBundleEmptyName(self):
+    def test_create_non_empty_bundle_empty_name(self):
         patch = self.patches[0]
 
         n_bundles = Bundle.objects.count()
@@ -325,11 +311,12 @@ class BundleCreateFromListTest(BundleTestBase):
         params = {'form': 'patchlistform',
                   'bundle_name': '',
                   'action': 'Create',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'No bundle name was specified',
@@ -338,18 +325,19 @@ class BundleCreateFromListTest(BundleTestBase):
         # test that no new bundles are present
         self.assertEqual(n_bundles, Bundle.objects.count())
 
-    def testCreateDuplicateName(self):
+    def test_create_duplicate_name(self):
         newbundlename = 'testbundle-dup'
         patch = self.patches[0]
 
         params = {'form': 'patchlistform',
                   'bundle_name': newbundlename,
                   'action': 'Create',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         n_bundles = Bundle.objects.count()
@@ -362,7 +350,8 @@ class BundleCreateFromListTest(BundleTestBase):
         self.assertEqual(bundle.patches.all()[0], patch)
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertNotContains(response, 'Bundle %s created' % newbundlename)
@@ -373,14 +362,15 @@ class BundleCreateFromListTest(BundleTestBase):
 
 class BundleCreateFromPatchTest(BundleTestBase):
 
-    def testCreateNonEmptyBundle(self):
+    def test_create_non_empty_bundle(self):
         newbundlename = 'testbundle-new'
         patch = self.patches[0]
 
         params = {'name': newbundlename,
                   'action': 'createbundle'}
 
-        response = self.client.post('/patch/%d/' % patch.id, params)
+        response = self.client.post(
+            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
 
         self.assertContains(response,
                             'Bundle %s created' % newbundlename)
@@ -389,14 +379,15 @@ class BundleCreateFromPatchTest(BundleTestBase):
         self.assertEqual(bundle.patches.count(), 1)
         self.assertEqual(bundle.patches.all()[0], patch)
 
-    def testCreateWithExistingName(self):
+    def test_create_with_existing_name(self):
         newbundlename = self.bundle.name
         patch = self.patches[0]
 
         params = {'name': newbundlename,
                   'action': 'createbundle'}
 
-        response = self.client.post('/patch/%d/' % patch.id, params)
+        response = self.client.post(
+            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
 
         self.assertContains(
             response,
@@ -407,16 +398,17 @@ class BundleCreateFromPatchTest(BundleTestBase):
 
 class BundleAddFromListTest(BundleTestBase):
 
-    def testAddToEmptyBundle(self):
+    def test_add_to_empty_bundle(self):
         patch = self.patches[0]
         params = {'form': 'patchlistform',
                   'action': 'Add',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'bundle_id': self.bundle.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'added to bundle %s' % self.bundle.name,
@@ -425,17 +417,18 @@ class BundleAddFromListTest(BundleTestBase):
         self.assertEqual(self.bundle.patches.count(), 1)
         self.assertEqual(self.bundle.patches.all()[0], patch)
 
-    def testAddToNonEmptyBundle(self):
+    def test_add_to_non_empty_bundle(self):
         self.bundle.append_patch(self.patches[0])
         patch = self.patches[1]
         params = {'form': 'patchlistform',
                   'action': 'Add',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'bundle_id': self.bundle.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'added to bundle %s' % self.bundle.name,
@@ -451,19 +444,20 @@ class BundleAddFromListTest(BundleTestBase):
                for i in [0, 1]]
         self.assertTrue(bps[0].order < bps[1].order)
 
-    def testAddDuplicate(self):
+    def test_add_duplicate(self):
         self.bundle.append_patch(self.patches[0])
         count = self.bundle.patches.count()
         patch = self.patches[0]
 
         params = {'form': 'patchlistform',
                   'action': 'Add',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'bundle_id': self.bundle.id,
                   'patch_id:%d' % patch.id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'Patch &#39;%s&#39; already in bundle'
@@ -471,20 +465,21 @@ class BundleAddFromListTest(BundleTestBase):
 
         self.assertEqual(count, self.bundle.patches.count())
 
-    def testAddNewAndDuplicate(self):
+    def test_add_new_and_duplicate(self):
         self.bundle.append_patch(self.patches[0])
         count = self.bundle.patches.count()
         patch = self.patches[0]
 
         params = {'form': 'patchlistform',
                   'action': 'Add',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   'bundle_id': self.bundle.id,
                   'patch_id:%d' % patch.id: 'checked',
                   'patch_id:%d' % self.patches[1].id: 'checked'}
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             params)
 
         self.assertContains(response, 'Patch &#39;%s&#39; already in bundle'
@@ -497,12 +492,13 @@ class BundleAddFromListTest(BundleTestBase):
 
 class BundleAddFromPatchTest(BundleTestBase):
 
-    def testAddToEmptyBundle(self):
+    def test_add_to_empty_bundle(self):
         patch = self.patches[0]
         params = {'action': 'addtobundle',
                   'bundle_id': self.bundle.id}
 
-        response = self.client.post('/patch/%d/' % patch.id, params)
+        response = self.client.post(
+            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
 
         self.assertContains(
             response,
@@ -512,13 +508,14 @@ class BundleAddFromPatchTest(BundleTestBase):
         self.assertEqual(self.bundle.patches.count(), 1)
         self.assertEqual(self.bundle.patches.all()[0], patch)
 
-    def testAddToNonEmptyBundle(self):
+    def test_add_to_non_empty_bundle(self):
         self.bundle.append_patch(self.patches[0])
         patch = self.patches[1]
         params = {'action': 'addtobundle',
                   'bundle_id': self.bundle.id}
 
-        response = self.client.post('/patch/%d/' % patch.id, params)
+        response = self.client.post(
+            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
 
         self.assertContains(
             response,
@@ -555,21 +552,22 @@ class BundleInitialOrderTest(BundleTestBase):
             patch.save()
             last_patch = patch
 
-    def _testOrder(self, ids, expected_order):
+    def _test_order(self, ids, expected_order):
         newbundlename = 'testbundle-new'
 
         # need to define our querystring explicity to enforce ordering
         params = {'form': 'patchlistform',
                   'bundle_name': newbundlename,
                   'action': 'Create',
-                  'project': defaults.project.id,
+                  'project': self.project.id,
                   }
 
         data = urlencode(params) + \
             ''.join(['&patch_id:%d=checked' % i for i in ids])
 
         response = self.client.post(
-            '/project/%s/list/' % defaults.project.linkname,
+            reverse('patch-list', kwargs={
+                'project_id': self.project.linkname}),
             data=data,
             content_type='application/x-www-form-urlencoded',
         )
@@ -588,14 +586,14 @@ class BundleInitialOrderTest(BundleTestBase):
 
         bundle.delete()
 
-    def testBundleForwardOrder(self):
+    def test_bundle_forward_order(self):
         ids = [p.id for p in self.patches]
-        self._testOrder(ids, self.patches)
+        self._test_order(ids, self.patches)
 
-    def testBundleReverseOrder(self):
+    def test_bundle_reverse_order(self):
         ids = [p.id for p in self.patches]
         ids.reverse()
-        self._testOrder(ids, self.patches)
+        self._test_order(ids, self.patches)
 
 
 class BundleReorderTest(BundleTestBase):
@@ -605,7 +603,7 @@ class BundleReorderTest(BundleTestBase):
         for i in range(5):
             self.bundle.append_patch(self.patches[i])
 
-    def checkReordering(self, neworder, start, end):
+    def check_reordering(self, neworder, start, end):
         neworder_ids = [self.patches[i].id for i in neworder]
 
         firstpatch = BundlePatch.objects.get(bundle=self.bundle,
@@ -620,8 +618,7 @@ class BundleReorderTest(BundleTestBase):
 
         self.assertEqual(response.status_code, 200)
 
-        bps = BundlePatch.objects.filter(bundle=self.bundle) \
-            .order_by('order')
+        bps = BundlePatch.objects.filter(bundle=self.bundle).order_by('order')
 
         # check if patch IDs are in the expected order:
         bundle_ids = [bp.patch.id for bp in bps]
@@ -633,39 +630,40 @@ class BundleReorderTest(BundleTestBase):
         expected_order = list(range(1, len(neworder) + 1))
         self.assertEqual(order_numbers, expected_order)
 
-    def testBundleReorderAll(self):
-        # reorder all patches:
-        self.checkReordering([2, 1, 4, 0, 3], 0, 5)
+    def test_bundle_reorder_all(self):
+        """Reorder all patches."""
+        self.check_reordering([2, 1, 4, 0, 3], 0, 5)
 
-    def testBundleReorderEnd(self):
-        # reorder only the last three patches
-        self.checkReordering([0, 1, 3, 2, 4], 2, 5)
+    def test_bundle_reorder_end(self):
+        """Reorder only the last three patches."""
+        self.check_reordering([0, 1, 3, 2, 4], 2, 5)
 
-    def testBundleReorderBegin(self):
-        # reorder only the first three patches
-        self.checkReordering([2, 0, 1, 3, 4], 0, 3)
+    def test_bundle_reorder_begin(self):
+        """Reorder only the first three patches."""
+        self.check_reordering([2, 0, 1, 3, 4], 0, 3)
 
-    def testBundleReorderMiddle(self):
-        # reorder only 2nd, 3rd, and 4th patches
-        self.checkReordering([0, 2, 3, 1, 4], 1, 4)
+    def test_bundle_reorder_middle(self):
+        """Reorder only 2nd, 3rd, and 4th patches."""
+        self.check_reordering([0, 2, 3, 1, 4], 1, 4)
 
 
+@unittest.skipUnless(settings.COMPAT_REDIR,
+                     'requires compat redirection (use the COMPAT_REDIR '
+                     'setting)')
 class BundleRedirTest(BundleTestBase):
-    # old URL: private bundles used to be under /user/bundle/<id>
+    """Validate redirection of legacy URLs."""
 
     def setUp(self):
         super(BundleRedirTest, self).setUp()
 
-    @unittest.skipIf(not settings.COMPAT_REDIR, "compat redirections disabled")
-    def testBundleRedir(self):
-        url = '/user/bundle/%d/' % self.bundle.id
-        response = self.client.get(url)
+    def test_bundle_redir(self):
+        response = self.client.get(
+            reverse('bundle-redir', kwargs={'bundle_id': self.bundle.id}))
         self.assertRedirects(response, bundle_url(self.bundle))
 
-    @unittest.skipIf(not settings.COMPAT_REDIR, "compat redirections disabled")
-    def testMboxRedir(self):
-        url = '/user/bundle/%d/mbox/' % self.bundle.id
-        response = self.client.get(url)
-        self.assertRedirects(response, '/bundle/%s/%s/mbox/' %
-                             (self.bundle.owner.username,
-                              self.bundle.name))
+    def test_mbox_redir(self):
+        response = self.client.get(reverse(
+            'bundle-mbox-redir', kwargs={'bundle_id': self.bundle.id}))
+        self.assertRedirects(response, reverse('bundle-mbox', kwargs={
+            'username': self.bundle.owner.username,
+            'bundlename': self.bundle.name}))
