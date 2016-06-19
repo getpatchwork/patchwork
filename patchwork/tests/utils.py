@@ -63,29 +63,29 @@ error_strings = {
     'email': 'Enter a valid email address.',
 }
 
-_user_idx = 1
-
 
 def create_user():
-    global _user_idx
-    userid = 'test%d' % _user_idx
-    email = '%s@example.com' % userid
-    _user_idx += 1
+    _user_id = User.objects.count()
 
-    user = User.objects.create_user(userid, email, userid)
+    username = 'test%d' % _user_id
+    email = '%s@example.com' % username
+
+    user = User.objects.create_user(username, email, username)
     user.save()
 
-    person = Person(email=email, name=userid, user=user)
+    person = Person(email=email, name=username, user=user)
     person.save()
 
     return user
 
 
 def create_maintainer(project):
+    """Create a 'User' and set as maintainer for provided project."""
     user = create_user()
     profile = user.profile
     profile.maintainer_projects.add(project)
     profile.save()
+
     return user
 
 
