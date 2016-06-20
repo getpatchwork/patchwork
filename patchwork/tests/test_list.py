@@ -26,23 +26,24 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.six.moves import zip
 
-from patchwork.models import Person, Patch
-from patchwork.tests.utils import defaults
+from patchwork.models import Patch
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_project
 
 
 class EmptyPatchListTest(TestCase):
 
-    def testEmptyPatchList(self):
-        """test that we don't output an empty table when there are no
-           patches present"""
-        project = defaults.project
-        defaults.project.save()
+    def test_empty_patch_list(self):
+        """Validates absence of table with zero patches."""
+        project = create_project()
         url = reverse('patch-list', kwargs={'project_id': project.linkname})
         response = self.client.get(url)
         self.assertContains(response, 'No patches to display')
 
 
 class PatchOrderTest(TestCase):
+
     fixtures = ['default_states']
 
     d = datetime.datetime
@@ -70,20 +71,18 @@ class PatchOrderTest(TestCase):
     ]
 
     def setUp(self):
-        defaults.project.save()
+        self.project = create_project()
 
-        for (name, email, date) in self.patchmeta:
-            patch_name = 'testpatch' + name
-            person = Person(name=name, email=email)
-            person.save()
-            patch = Patch(project=defaults.project, msgid=patch_name,
-                          submitter=person, diff='', date=date)
-            patch.save()
+        for name, email, date in self.patchmeta:
+            person = create_person(name=name, email=email)
+            create_patch(submitter=person, project=self.project,
+                         date=date)
 
     def _extract_patch_ids(self, response):
         id_re = re.compile('<tr id="patch_row:(\d+)"')
         ids = [int(m.group(1))
                for m in id_re.finditer(response.content.decode())]
+
         return ids
 
     def _test_sequence(self, response, test_fn):
@@ -91,42 +90,48 @@ class PatchOrderTest(TestCase):
         self.assertTrue(bool(ids))
         patches = [Patch.objects.get(id=i) for i in ids]
         pairs = list(zip(patches, patches[1:]))
-        [test_fn(p1, p2) for (p1, p2) in pairs]
 
-    def testDateOrder(self):
+        for p1, p2 in pairs:
+            test_fn(p1, p2)
+
+    def test_date_order(self):
         url = reverse('patch-list',
-                      kwargs={'project_id': defaults.project.linkname})
+                      kwargs={'project_id': self.project.linkname})
         response = self.client.get(url + '?order=date')
 
         def test_fn(p1, p2):
             self.assertLessEqual(p1.date, p2.date)
+
         self._test_sequence(response, test_fn)
 
-    def testDateReverseOrder(self):
+    def test_date_reverse_order(self):
         url = reverse('patch-list',
-                      kwargs={'project_id': defaults.project.linkname})
+                      kwargs={'project_id': self.project.linkname})
         response = self.client.get(url + '?order=-date')
 
         def test_fn(p1, p2):
             self.assertGreaterEqual(p1.date, p2.date)
+
         self._test_sequence(response, test_fn)
 
-    def testSubmitterOrder(self):
+    def test_submitter_order(self):
         url = reverse('patch-list',
-                      kwargs={'project_id': defaults.project.linkname})
+                      kwargs={'project_id': self.project.linkname})
         response = self.client.get(url + '?order=submitter')
 
         def test_fn(p1, p2):
             self.assertLessEqual(p1.submitter.name.lower(),
                                  p2.submitter.name.lower())
+
         self._test_sequence(response, test_fn)
 
-    def testSubmitterReverseOrder(self):
+    def test_submitter_reverse_order(self):
         url = reverse('patch-list',
-                      kwargs={'project_id': defaults.project.linkname})
+                      kwargs={'project_id': self.project.linkname})
         response = self.client.get(url + '?order=-submitter')
 
         def test_fn(p1, p2):
             self.assertGreaterEqual(p1.submitter.name.lower(),
                                     p2.submitter.name.lower())
+
         self._test_sequence(response, test_fn)
