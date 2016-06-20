@@ -24,229 +24,160 @@ import dateutil.parser
 import dateutil.tz
 import email
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import Patch, Comment
-from patchwork.tests.utils import defaults, create_user
+from patchwork.tests.utils import create_comment
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_user
 
 
 class MboxPatchResponseTest(TestCase):
+
+    """Test that the mbox view appends the Acked-by from a patch comment."""
+
     fixtures = ['default_states']
 
-    """ Test that the mbox view appends the Acked-by from a patch comment """
-
     def setUp(self):
-        defaults.project.save()
+        project = create_project()
+        self.person = create_person()
+        self.patch = create_patch(
+            project=project,
+            submitter=self.person,
+            content='comment 1 text\nAcked-by: 1\n')
+        self.comment = create_comment(
+            submission=self.patch,
+            submitter=self.person,
+            content='comment 2 text\nAcked-by: 2\n')
 
-        self.person = defaults.patch_author_person
-        self.person.save()
-
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, diff='',
-                           content='comment 1 text\nAcked-by: 1\n')
-        self.patch.save()
-
-        comment = Comment(submission=self.patch,
-                          msgid='p2',
-                          submitter=self.person,
-                          content='comment 2 text\nAcked-by: 2\n')
-        comment.save()
-
-    def testPatchResponse(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response,
-                            'Acked-by: 1\nAcked-by: 2\n')
+    def test_patch_response(self):
+        response = self.client.get(reverse('patch-mbox', args=[self.patch.id]))
+        self.assertContains(response, 'Acked-by: 1\nAcked-by: 2\n')
 
 
 class MboxPatchSplitResponseTest(TestCase):
+
+    """Test that the mbox view appends the Acked-by from a patch comment,
+       and places it before an '---' update line."""
+
     fixtures = ['default_states']
 
-    """ Test that the mbox view appends the Acked-by from a patch comment,
-        and places it before an '---' update line. """
-
     def setUp(self):
-        defaults.project.save()
-
-        self.person = defaults.patch_author_person
-        self.person.save()
-
-        self.patch = Patch(
-            project=defaults.project,
-            msgid='p1', name='testpatch',
-            submitter=self.person, diff='',
+        project = create_project()
+        self.person = create_person()
+        self.patch = create_patch(
+            project=project,
+            submitter=self.person,
+            diff='',
             content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
-        self.patch.save()
+        self.comment = create_comment(
+            submission=self.patch,
+            submitter=self.person,
+            content='comment 2 text\nAcked-by: 2\n')
 
-        comment = Comment(submission=self.patch,
-                          msgid='p2',
-                          submitter=self.person,
-                          content='comment 2 text\nAcked-by: 2\n')
-        comment.save()
-
-    def testPatchResponse(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response,
-                            'Acked-by: 1\nAcked-by: 2\n')
+    def test_patch_response(self):
+        response = self.client.get(reverse('patch-mbox', args=[self.patch.id]))
+        self.assertContains(response, 'Acked-by: 1\nAcked-by: 2\n')
 
 
-class MboxPassThroughHeaderTest(TestCase):
+class MboxHeaderTest(TestCase):
+
+    """Test the passthrough and generation of various headers."""
+
     fixtures = ['default_states']
 
-    """ Test that we see 'Cc' and 'To' headers passed through from original
-        message to mbox view """
+    def test_header_passthrough_cc(self):
+        """Validate passthrough of 'Cc' header."""
+        header = 'Cc: CC Person <cc@example.com>'
+        patch = create_patch(headers=header + '\n')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, header)
 
-    def setUp(self):
-        defaults.project.save()
-        self.person = defaults.patch_author_person
-        self.person.save()
+    def test_header_passthrough_to(self):
+        """Validate passthrough of 'To' header."""
+        header = 'To: To Person <to@example.com>'
+        patch = create_patch(headers=header + '\n')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, header)
 
-        self.cc_header = 'Cc: CC Person <cc@example.com>'
-        self.to_header = 'To: To Person <to@example.com>'
-        self.date_header = 'Date: Fri, 7 Jun 2013 15:42:54 +1000'
+    def test_header_passthrough_date(self):
+        """Validate passthrough of 'Date' header."""
+        header = 'Date: Fri, 7 Jun 2013 15:42:54 +1000'
+        patch = create_patch(headers=header + '\n')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, header)
 
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
+    def test_patchwork_id_header(self):
+        """Validate inclusion of generated 'X-Patchwork-Id' header."""
+        patch = create_patch()
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, 'X-Patchwork-Id: %d' % patch.id)
 
-    def testCCHeader(self):
-        self.patch.headers = self.cc_header + '\n'
-        self.patch.save()
+    def test_patchwork_delegate_header(self):
+        """Validate inclusion of generated 'X-Patchwork-Delegate' header."""
+        user = create_user()
+        patch = create_patch(delegate=user)
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, 'X-Patchwork-Delegate: %s' % user.email)
 
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response, self.cc_header)
+    def test_from_header(self):
+        """Validate non-ascii 'From' header.
 
-    def testToHeader(self):
-        self.patch.headers = self.to_header + '\n'
-        self.patch.save()
-
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response, self.to_header)
-
-    def testDateHeader(self):
-        self.patch.headers = self.date_header + '\n'
-        self.patch.save()
-
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response, self.date_header)
-
-
-class MboxGeneratedHeaderTest(TestCase):
-    fixtures = ['default_states']
-
-    def setUp(self):
-        defaults.project.save()
-        self.person = defaults.patch_author_person
-        self.person.save()
-
-        self.user = create_user()
-
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1',
-                           name='testpatch',
-                           submitter=self.person,
-                           delegate=self.user,
-                           content='')
-        self.patch.save()
-
-    def testPatchworkIdHeader(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response, 'X-Patchwork-Id: %d' % self.patch.id)
-
-    def testPatchworkDelegateHeader(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response,
-                            'X-Patchwork-Delegate: %s' % self.user.email)
-
-
-class MboxBrokenFromHeaderTest(TestCase):
-    fixtures = ['default_states']
-
-    """ Test that a person with characters outside ASCII in his name do
-        produce correct From header. As RFC 2822 state we must retain the
-        <user@domain.tld> format for the mail while the name part may be coded
-        in some ways. """
-
-    def setUp(self):
-        defaults.project.save()
-        self.person = defaults.patch_author_person
-        self.person.name = u'©ool guŷ'
-        self.person.save()
-
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
-
-    def testFromHeader(self):
-        self.patch.save()
-        from_email = '<' + self.person.email + '>'
-
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        Test that a person with characters outside ASCII in his name do
+        produce correct From header. As RFC 2822 state we must retain
+        the <user@domain.tld> format for the mail while the name part
+        may be coded in some ways.
+        """
+        person = create_person(name=u'©ool guŷ')
+        patch = create_patch(submitter=person)
+        from_email = '<' + person.email + '>'
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         self.assertContains(response, from_email)
 
-
-class MboxDateHeaderTest(TestCase):
-    fixtures = ['default_states']
-
-    """ Test that the date provided in the patch mail view is correct """
-
-    def setUp(self):
-        defaults.project.save()
-        self.person = defaults.patch_author_person
-        self.person.save()
-
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, content='')
-        self.patch.save()
-
-    def testDateHeader(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+    def test_date_header(self):
+        patch = create_patch()
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         mail = email.message_from_string(response.content.decode())
         mail_date = dateutil.parser.parse(mail['Date'])
         # patch dates are all in UTC
-        patch_date = self.patch.date.replace(tzinfo=dateutil.tz.tzutc(),
-                                             microsecond=0)
+        patch_date = patch.date.replace(tzinfo=dateutil.tz.tzutc(),
+                                        microsecond=0)
         self.assertEqual(mail_date, patch_date)
 
-    def testSuppliedDateHeader(self):
-        hour_offset = 3
-        tz = dateutil.tz.tzoffset(None, hour_offset * 60 * 60)
+    def test_supplied_date_header(self):
+        patch = create_patch()
+        offset = 3 * 60 * 60  # 3 (hours) * 60 (minutes) * 60 (seconds)
+        tz = dateutil.tz.tzoffset(None, offset)
         date = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         date = date.replace(tzinfo=tz, microsecond=0)
 
-        self.patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")
-        self.patch.save()
+        patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")
+        patch.save()
 
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         mail = email.message_from_string(response.content.decode())
         mail_date = dateutil.parser.parse(mail['Date'])
         self.assertEqual(mail_date, date)
 
 
 class MboxCommentPostcriptUnchangedTest(TestCase):
+
     fixtures = ['default_states']
 
-    """ Test that the mbox view doesn't change the postscript part of a mail.
-        There where always a missing blank right after the postscript
-        delimiter '---' and an additional newline right before. """
+    def test_comment_unchanged(self):
+        """Validate postscript part of mail is unchanged.
 
-    def setUp(self):
-        defaults.project.save()
+        Test that the mbox view doesn't change the postscript part of
+        a mail. There where always a missing blank right after the
+        postscript delimiter '---' and an additional newline right
+        before.
+        """
+        content = 'some comment\n---\n some/file | 1 +\n'
+        patch = create_patch(content=content, diff='')
 
-        self.person = defaults.patch_author_person
-        self.person.save()
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
 
-        self.txt = 'some comment\n---\n some/file | 1 +\n'
-
-        self.patch = Patch(project=defaults.project,
-                           msgid='p1', name='testpatch',
-                           submitter=self.person, diff='',
-                           content=self.txt)
-        self.patch.save()
-
-    def testCommentUnchanged(self):
-        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
-        self.assertContains(response, self.txt)
-        self.txt += "\n"
-        self.assertNotContains(response, self.txt)
+        self.assertContains(response, content)
+        self.assertNotContains(response, content + '\n')
