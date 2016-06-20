@@ -108,8 +108,12 @@ def create_person(**kwargs):
     return person
 
 
-def create_user(**kwargs):
-    """Create a 'User' object."""
+def create_user(link_person=True, **kwargs):
+    """Create a 'User' object.
+
+    Args:
+        link_person (bool): If true, create a linked Person object.
+    """
     num = User.objects.count()
 
     values = {
@@ -122,7 +126,8 @@ def create_user(**kwargs):
                                     values['name'])
     user.save()
 
-    create_person(user=user, **values)
+    if link_person:
+        create_person(user=user, **values)
 
     return user
 

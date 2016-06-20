@@ -22,8 +22,12 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import EmailConfirmation, Person, Bundle, UserProfile
-from patchwork.tests.utils import defaults, error_strings
+from patchwork.models import EmailConfirmation
+from patchwork.models import Person
+from patchwork.models import UserProfile
+from patchwork.tests.utils import create_bundle
+from patchwork.tests.utils import create_user
+from patchwork.tests.utils import error_strings
 from patchwork.tests import utils
 
 
@@ -31,63 +35,65 @@ def _confirmation_url(conf):
     return reverse('confirm', kwargs={'key': conf.key})
 
 
-class TestUser(object):
-
-    def __init__(self, username='testuser', email='test@example.com',
-                 secondary_email='test2@example.com'):
-        self.username = username
-        self.email = email
-        self.secondary_email = secondary_email
-        self.password = User.objects.make_random_password()
-        self.user = User.objects.create_user(
-            self.username, self.email, self.password)
+def _generate_secondary_email(user):
+    return 'secondary_%d@example.com' % user.id
 
 
-class UserPersonRequestTest(TestCase):
+class _UserTestCase(TestCase):
 
     def setUp(self):
-        self.user = TestUser()
-        self.client.login(username=self.user.username,
-                          password=self.user.password)
-        EmailConfirmation.objects.all().delete()
+        self.user = create_user()
+        self.password = User.objects.make_random_password()
+        self.user.set_password(self.password)
+        self.user.save()
 
-    def testUserPersonRequestForm(self):
-        response = self.client.get('/user/link/')
+        self.client.login(username=self.user.username,
+                          password=self.password)
+
+
+class UserPersonRequestTest(_UserTestCase):
+
+    def setUp(self):
+        super(UserPersonRequestTest, self).setUp()
+        self.secondary_email = _generate_secondary_email(self.user)
+
+    def test_user_person_request_form(self):
+        response = self.client.get(reverse('user-link'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
 
-    def testUserPersonRequestEmpty(self):
-        response = self.client.post('/user/link/', {'email': ''})
+    def test_user_person_request_empty(self):
+        response = self.client.post(reverse('user-link'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
                              'This field is required.')
 
-    def testUserPersonRequestInvalid(self):
-        response = self.client.post('/user/link/', {'email': 'foo'})
+    def test_user_person_request_invalid(self):
+        response = self.client.post(reverse('user-link'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
         self.assertFormError(response, 'linkform', 'email',
                              error_strings['email'])
 
-    def testUserPersonRequestValid(self):
-        response = self.client.post('/user/link/',
-                                    {'email': self.user.secondary_email})
+    def test_user_person_request_valid(self):
+        response = self.client.post(reverse('user-link'),
+                                    {'email': self.secondary_email})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['confirmation'])
 
         # check that we have a confirmation saved
         self.assertEqual(EmailConfirmation.objects.count(), 1)
         conf = EmailConfirmation.objects.all()[0]
-        self.assertEqual(conf.user, self.user.user)
-        self.assertEqual(conf.email, self.user.secondary_email)
+        self.assertEqual(conf.user, self.user)
+        self.assertEqual(conf.email, self.secondary_email)
         self.assertEqual(conf.type, 'userperson')
 
         # check that an email has gone out...
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.subject, 'Patchwork email address confirmation')
-        self.assertIn(self.user.secondary_email, msg.to)
+        self.assertIn(self.secondary_email, msg.to)
         self.assertIn(_confirmation_url(conf), msg.body)
 
         # ...and that the URL is valid
@@ -99,26 +105,30 @@ class UserPersonRequestTest(TestCase):
 class UserPersonConfirmTest(TestCase):
 
     def setUp(self):
-        EmailConfirmation.objects.all().delete()
-        Person.objects.all().delete()
-        self.user = TestUser()
+        self.user = create_user(link_person=False)
+        self.password = User.objects.make_random_password()
+        self.user.set_password(self.password)
+        self.user.save()
+
         self.client.login(username=self.user.username,
-                          password=self.user.password)
+                          password=self.password)
+
+        self.secondary_email = _generate_secondary_email(self.user)
         self.conf = EmailConfirmation(type='userperson',
-                                      email=self.user.secondary_email,
-                                      user=self.user.user)
+                                      email=self.secondary_email,
+                                      user=self.user)
         self.conf.save()
 
-    def testUserPersonConfirm(self):
+    def test_user_person_confirm(self):
         self.assertEqual(Person.objects.count(), 0)
         response = self.client.get(_confirmation_url(self.conf))
         self.assertEqual(response.status_code, 200)
 
         # check that the Person object has been created and linked
         self.assertEqual(Person.objects.count(), 1)
-        person = Person.objects.get(email=self.user.secondary_email)
-        self.assertEqual(person.email, self.user.secondary_email)
-        self.assertEqual(person.user, self.user.user)
+        person = Person.objects.get(email=self.secondary_email)
+        self.assertEqual(person.email, self.secondary_email)
+        self.assertEqual(person.user, self.user)
 
         # check that the confirmation has been marked as inactive. We
         # need to reload the confirmation to check this.
@@ -128,95 +138,70 @@ class UserPersonConfirmTest(TestCase):
 
 class UserLoginRedirectTest(TestCase):
 
-    def testUserLoginRedirect(self):
-        url = '/user/'
+    def test_user_login_redirect(self):
+        url = reverse('user-profile')
         response = self.client.get(url)
         self.assertRedirects(response, reverse('auth_login') + '?next=' + url)
 
 
-class UserProfileTest(TestCase):
+class UserProfileTest(_UserTestCase):
 
     fixtures = ['default_states']
 
-    def setUp(self):
-        self.user = TestUser()
-        self.client.login(username=self.user.username,
-                          password=self.user.password)
-
-    def testUserProfile(self):
-        response = self.client.get('/user/')
+    def test_user_profile(self):
+        response = self.client.get(reverse('user-profile'))
         self.assertContains(response, 'Your Profile')
-
-    def testUserProfileNoBundles(self):
-        response = self.client.get('/user/')
         self.assertContains(response, 'You have no bundles')
 
-    def testUserProfileBundles(self):
-        project = defaults.project
-        project.save()
+    def test_user_profile_bundles(self):
+        bundle = create_bundle(owner=self.user)
 
-        bundle = Bundle(project=project, name='test-1',
-                        owner=self.user.user)
-        bundle.save()
+        response = self.client.get(reverse('user-profile'))
 
-        response = self.client.get('/user/')
-
+        self.assertContains(response, 'Your Profile')
         self.assertContains(response, 'You have the following bundle')
         self.assertContains(response, bundle.get_absolute_url())
 
-    def testUserProfileTodos(self):
+    def test_user_profile_todos(self):
         patches = utils.create_patches(5)
         for patch in patches:
-            patch.delegate = self.user.user
+            patch.delegate = self.user
             patch.save()
 
-        response = self.client.get('/user/')
+        response = self.client.get(reverse('user-profile'))
 
         self.assertContains(response, 'contains 5')
         self.assertContains(response, reverse('user-todos'))
 
-    def testUserProfileValidPost(self):
-        user_profile = UserProfile.objects.get(user=self.user.user.id)
+    def test_user_profile_valid_post(self):
+        user_profile = UserProfile.objects.get(user=self.user.id)
         old_ppp = user_profile.items_per_page
         new_ppp = old_ppp + 1
 
-        self.client.post('/user/', {'items_per_page': new_ppp})
+        self.client.post(reverse('user-profile'), {'items_per_page': new_ppp})
 
-        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        user_profile = UserProfile.objects.get(user=self.user.id)
         self.assertEqual(user_profile.items_per_page, new_ppp)
 
-    def testUserProfileInvalidPost(self):
-        user_profile = UserProfile.objects.get(user=self.user.user.id)
+    def test_user_profile_invalid_post(self):
+        user_profile = UserProfile.objects.get(user=self.user.id)
         old_ppp = user_profile.items_per_page
         new_ppp = -1
 
-        self.client.post('/user/', {'items_per_page': new_ppp})
+        self.client.post(reverse('user-profile'), {'items_per_page': new_ppp})
 
-        user_profile = UserProfile.objects.get(user=self.user.user.id)
+        user_profile = UserProfile.objects.get(user=self.user.id)
         self.assertEqual(user_profile.items_per_page, old_ppp)
 
 
-class UserPasswordChangeTest(TestCase):
-    user = None
+class UserPasswordChangeTest(_UserTestCase):
 
-    def setUp(self):
-        self.form_url = reverse('password_change')
-        self.done_url = reverse('password_change_done')
-
-    def testPasswordChangeForm(self):
-        self.user = TestUser()
-        self.client.login(username=self.user.username,
-                          password=self.user.password)
-
-        response = self.client.get(self.form_url)
+    def test_password_change_form(self):
+        response = self.client.get(reverse('password_change'))
         self.assertContains(response, 'Change my password')
 
-    def testPasswordChange(self):
-        self.user = TestUser()
-        self.client.login(username=self.user.username,
-                          password=self.user.password)
-
-        old_password = self.user.password
+    def test_password_change(self):
+        old_password = self.password
         new_password = User.objects.make_random_password()
 
         data = {
@@ -225,94 +210,65 @@ class UserPasswordChangeTest(TestCase):
             'new_password2': new_password,
         }
 
-        response = self.client.post(self.form_url, data)
-        self.assertRedirects(response, self.done_url)
+        response = self.client.post(reverse('password_change'), data)
+        self.assertRedirects(response, reverse('password_change_done'))
 
-        user = User.objects.get(id=self.user.user.id)
+        user = User.objects.get(id=self.user.id)
 
         self.assertFalse(user.check_password(old_password))
         self.assertTrue(user.check_password(new_password))
 
-        response = self.client.get(self.done_url)
+        response = self.client.get(reverse('password_change_done'))
         self.assertContains(response,
                             "Your password has been changed successfully")
 
 
-class UserUnlinkTest(TestCase):
+class UserUnlinkTest(_UserTestCase):
 
-    def setUp(self):
-        self.form_url = '/user/unlink/{pid}/'
-        self.done_url = '/user/'
-        EmailConfirmation.objects.all().delete()
-        Person.objects.all().delete()
-
-    def testUnlinkPrimaryEmail(self):
-        user = TestUser()
-        self.client.login(username=user.username,
-                          password=user.password)
+    def _create_confirmation(self, email):
         conf = EmailConfirmation(type='userperson',
-                                 email=user.email,
-                                 user=user.user)
+                                 email=email,
+                                 user=self.user)
         conf.save()
         self.client.get(_confirmation_url(conf))
 
-        person = Person.objects.get(email=user.email)
-        response = self.client.post(self.form_url.format(pid=str(person.id)))
-        self.assertRedirects(response, self.done_url)
+    def _test_unlink_post(self, email, expect_none=False):
+        self._create_confirmation(email)
 
-        person = Person.objects.get(email=user.email)
-        self.assertEqual(person.user, user.user)
+        person = Person.objects.get(email=email)
+        response = self.client.post(reverse('user-unlink', args=[person.id]))
+        self.assertRedirects(response, reverse('user-profile'))
 
-    def testUnlinkSecondaryEmail(self):
-        user = TestUser()
-        self.client.login(username=user.username,
-                          password=user.password)
-        conf = EmailConfirmation(type='userperson',
-                                 email=user.secondary_email,
-                                 user=user.user)
-        conf.save()
-        self.client.get(_confirmation_url(conf))
+    def test_unlink_primary_email(self):
+        self._test_unlink_post(self.user.email)
 
-        person = Person.objects.get(email=user.secondary_email)
-        response = self.client.post(self.form_url.format(pid=str(person.id)))
-        self.assertRedirects(response, self.done_url)
+        person = Person.objects.get(email=self.user.email)
+        self.assertEqual(person.user, self.user)
 
-        person = Person.objects.get(email=user.secondary_email)
-        self.assertEqual(person.user, None)
+    def test_unlink_secondary_email(self):
+        secondary_email = _generate_secondary_email(self.user)
 
-    def testUnlinkAnotherUser(self):
-        user = TestUser()
-        self.client.login(username=user.username,
-                          password=user.password)
+        self._test_unlink_post(secondary_email)
 
-        other_user = TestUser('testuser_other', 'test_other@example.com',
-                              'test_other2@example.com')
-        conf = EmailConfirmation(type='userperson',
-                                 email=other_user.email,
-                                 user=other_user.user)
-        conf.save()
-        self.client.get(_confirmation_url(conf))
+        person = Person.objects.get(email=secondary_email)
+        self.assertIsNone(person.user)
+
+    def test_unlink_another_user(self):
+        other_user = create_user()
+
+        self._test_unlink_post(other_user.email)
 
         person = Person.objects.get(email=other_user.email)
-        response = self.client.post(self.form_url.format(pid=str(person.id)))
-        self.assertRedirects(response, self.done_url)
+        self.assertIsNone(person.user)
 
-        person = Person.objects.get(email=other_user.email)
-        self.assertEqual(person.user, None)
+    def test_unlink_non_post(self):
+        secondary_email = _generate_secondary_email(self.user)
 
-    def testUnlinkNonPost(self):
-        user = TestUser()
-        self.client.login(username=user.username,
-                          password=user.password)
-        conf = EmailConfirmation(type='userperson',
-                                 email=user.secondary_email,
-                                 user=user.user)
-        conf.save()
-        self.client.get(_confirmation_url(conf))
+        self._create_confirmation(secondary_email)
 
-        person = Person.objects.get(email=user.secondary_email)
-        response = self.client.get(self.form_url.format(pid=str(person.id)))
-        self.assertRedirects(response, self.done_url)
+        person = Person.objects.get(email=secondary_email)
+        response = self.client.get(reverse('user-unlink', args=[person.id]))
+        self.assertRedirects(response, reverse('user-profile'))
 
-        person = Person.objects.get(email=user.secondary_email)
-        self.assertEqual(person.user, user.user)
+        person = Person.objects.get(email=secondary_email)
+        self.assertEqual(person.user, self.user)

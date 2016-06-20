@@ -18,14 +18,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from patchwork.tests.browser import SeleniumTestCase
-from patchwork.tests.test_user import TestUser
+from patchwork.tests.utils import create_user
 
 
 class LoginTestCase(SeleniumTestCase):
 
     def setUp(self):
         super(LoginTestCase, self).setUp()
-        self.user = TestUser()
+        self.user = create_user()
 
     def test_default_focus(self):
         self.get('/user/login/')
