@@ -29,7 +29,7 @@ from patchwork.tests.utils import create_patches
 class CoverLetterViewTest(TestCase):
     fixtures = ['default_states']
 
-    def testRedirect(self):
+    def test_redirect(self):
         patches = create_patches()
         patch_id = patches[0].id
 
@@ -43,7 +43,7 @@ class CoverLetterViewTest(TestCase):
 class PatchViewTest(TestCase):
     fixtures = ['default_states']
 
-    def testRedirect(self):
+    def test_redirect(self):
         covers = create_covers()
         cover_id = covers[0].id
 
