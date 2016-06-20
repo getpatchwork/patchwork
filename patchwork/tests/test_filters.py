@@ -17,30 +17,34 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.tests.utils import defaults
+from patchwork.tests.utils import create_project
 
 
 class FilterQueryStringTest(TestCase):
 
-    def testFilterQSEscaping(self):
-        """test that filter fragments in a query string are properly escaped,
-           and stray ampersands don't get reflected back in the filter
-           links"""
-        project = defaults.project
-        defaults.project.save()
-        url = '/project/%s/list/?submitter=a%%26b=c' % project.linkname
-        response = self.client.get(url)
+    def test_escaping(self):
+        """Validate escaping of filter fragments in a query string.
+
+        Stray ampersands should not get reflected back in the filter
+        links.
+        """
+        project = create_project()
+        url = reverse('patch-list', args=[project.linkname])
+
+        response = self.client.get(url + '?submitter=a%%26b=c')
+
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'submitter=a&amp;b=c')
         self.assertNotContains(response, 'submitter=a&b=c')
 
-    def testUTF8QSHandling(self):
-        """test that non-ascii characters can be handled by the filter
-           code"""
-        project = defaults.project
-        defaults.project.save()
-        url = '/project/%s/list/?submitter=%%E2%%98%%83' % project.linkname
-        response = self.client.get(url)
+    def test_utf8_handling(self):
+        """Validate handling of non-ascii characters."""
+        project = create_project()
+        url = reverse('patch-list', args=[project.linkname])
+
+        response = self.client.get(url + '?submitter=%%E2%%98%%83')
+
         self.assertEqual(response.status_code, 200)
