@@ -22,12 +22,16 @@ import datetime
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from patchwork.models import EmailConfirmation, Person, Patch
-from patchwork.tests.utils import create_user, defaults
+from patchwork.models import EmailConfirmation
+from patchwork.models import Patch
+from patchwork.models import Person
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_user
 from patchwork.utils import do_expiry
 
 
 class TestRegistrationExpiry(TestCase):
+
     fixtures = ['default_states']
 
     def register(self, date):
@@ -43,30 +47,30 @@ class TestRegistrationExpiry(TestCase):
 
         return (user, conf)
 
-    def testOldRegistrationExpiry(self):
+    def test_old_registration_expiry(self):
         date = ((datetime.datetime.now() - EmailConfirmation.validity) -
                 datetime.timedelta(hours=1))
-        (user, conf) = self.register(date)
+        user, conf = self.register(date)
 
         do_expiry()
 
         self.assertFalse(User.objects.filter(pk=user.pk).exists())
-        self.assertFalse(EmailConfirmation.objects.filter(pk=conf.pk)
-                         .exists())
+        self.assertFalse(
+            EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
-    def testRecentRegistrationExpiry(self):
+    def test_recent_registration_expiry(self):
         date = ((datetime.datetime.now() - EmailConfirmation.validity) +
                 datetime.timedelta(hours=1))
-        (user, conf) = self.register(date)
+        user, conf = self.register(date)
 
         do_expiry()
 
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
-        self.assertTrue(EmailConfirmation.objects.filter(pk=conf.pk)
-                        .exists())
+        self.assertTrue(
+            EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
-    def testInactiveRegistrationExpiry(self):
-        (user, conf) = self.register(datetime.datetime.now())
+    def test_inactive_registration_expiry(self):
+        user, conf = self.register(datetime.datetime.now())
 
         # confirm registration
         conf.user.is_active = True
@@ -76,32 +80,21 @@ class TestRegistrationExpiry(TestCase):
         do_expiry()
 
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
-        self.assertFalse(EmailConfirmation.objects.filter(pk=conf.pk)
-                         .exists())
+        self.assertFalse(
+            EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
-    def testPatchSubmitterExpiry(self):
-        defaults.project.save()
-        defaults.patch_author_person.save()
-
+    def test_patch_submitter_expiry(self):
         # someone submits a patch...
-        patch = Patch(project=defaults.project,
-                      msgid='test@example.com', name='test patch',
-                      submitter=defaults.patch_author_person,
-                      diff=defaults.patch)
-        patch.save()
+        patch = create_patch()
+        submitter = patch.submitter
 
         # ... then starts registration...
         date = ((datetime.datetime.now() - EmailConfirmation.validity) -
                 datetime.timedelta(hours=1))
-        userid = 'test-user'
-        user = User.objects.create_user(
-            userid,
-            defaults.patch_author_person.email, userid)
+        user = create_user(link_person=False, email=submitter.email)
         user.is_active = False
         user.date_joined = user.last_login = date
         user.save()
-
-        self.assertEqual(user.email, patch.submitter.email)
 
         conf = EmailConfirmation(type='registration', user=user,
                                  email=user.email)
@@ -115,10 +108,7 @@ class TestRegistrationExpiry(TestCase):
         self.assertFalse(User.objects.filter(email=patch.submitter.email)
                          .exists())
         # but the patch and person should still be present
-        self.assertTrue(Person.objects.filter(
-            pk=defaults.patch_author_person.pk).exists())
+        self.assertTrue(Person.objects.filter(pk=submitter.pk).exists())
         self.assertTrue(Patch.objects.filter(pk=patch.pk).exists())
-
         # and there should be no user associated with the person
-        self.assertEqual(
-            Person.objects.get(pk=defaults.patch_author_person.pk).user, None)
+        self.assertEqual(Person.objects.get(pk=submitter.pk).user, None)
