@@ -22,22 +22,16 @@ from datetime import timedelta
 
 from django.test import TransactionTestCase
 
-from patchwork.models import Patch, Check
-from patchwork.tests.utils import defaults, create_user
+from patchwork.models import Check
+from patchwork.tests.utils import create_patches
+from patchwork.tests.utils import create_user
 
 
 class PatchChecksTest(TransactionTestCase):
     fixtures = ['default_tags', 'default_states']
 
     def setUp(self):
-        project = defaults.project
-        defaults.project.save()
-        defaults.patch_author_person.save()
-        self.patch = Patch(project=project,
-                           msgid='x', name=defaults.patch_name,
-                           submitter=defaults.patch_author_person,
-                           diff='')
-        self.patch.save()
+        self.patch = create_patches()[0]
         self.user = create_user()
 
     def create_check(self, **kwargs):
@@ -88,9 +82,6 @@ class PatchChecksTest(TransactionTestCase):
         for state, _ in Check.STATE_CHOICES:
             if state not in state_counts:
                 self.assertEqual(counts[state], 0)
-
-    def tearDown(self):
-        self.patch.delete()
 
     def test_checks__no_checks(self):
         self.assertChecksEqual(self.patch, [])
