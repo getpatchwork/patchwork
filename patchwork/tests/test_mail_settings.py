@@ -23,75 +23,69 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from patchwork.models import EmailOptout, EmailConfirmation, Person
-from patchwork.tests.utils import create_user, error_strings
+from patchwork.models import EmailOptout
+from patchwork.models import EmailConfirmation
+from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_user
+from patchwork.tests.utils import error_strings
 
 
 class MailSettingsTest(TestCase):
 
-    def setUp(self):
-        self.url = reverse('mail-settings')
-
-    def testMailSettingsGET(self):
-        response = self.client.get(self.url)
+    def test_get(self):
+        response = self.client.get(reverse('mail-settings'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['form'])
 
-    def testMailSettingsPOST(self):
+    def test_post(self):
         email = u'foo@example.com'
-        response = self.client.post(self.url, {'email': email})
+        response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
         self.assertEqual(response.context['email'], email)
 
-    def testMailSettingsPOSTEmpty(self):
-        response = self.client.post(self.url, {'email': ''})
+    def test_post_empty(self):
+        response = self.client.post(reverse('mail-settings'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-form.html')
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
 
-    def testMailSettingsPOSTInvalid(self):
-        response = self.client.post(self.url, {'email': 'foo'})
+    def test_post_invalid(self):
+        response = self.client.post(reverse('mail-settings'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-form.html')
         self.assertFormError(response, 'form', 'email', error_strings['email'])
 
-    def testMailSettingsPOSTOptedIn(self):
+    def test_post_optin(self):
         email = u'foo@example.com'
-        response = self.client.post(self.url, {'email': email})
+        response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
         self.assertEqual(response.context['is_optout'], False)
         self.assertContains(response, '<strong>may</strong>')
-        optout_url = reverse('mail-optout')
-        self.assertContains(response, ('action="%s"' % optout_url))
+        self.assertContains(response, 'action="%s"' % reverse('mail-optout'))
 
-    def testMailSettingsPOSTOptedOut(self):
+    def test_post_optout(self):
         email = u'foo@example.com'
         EmailOptout(email=email).save()
-        response = self.client.post(self.url, {'email': email})
+        response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
         self.assertEqual(response.context['is_optout'], True)
         self.assertContains(response, '<strong>may not</strong>')
-        optin_url = reverse('mail-optin')
-        self.assertContains(response, ('action="%s"' % optin_url))
+        self.assertContains(response, 'action="%s"' % reverse('mail-optin'))
 
 
 class OptoutRequestTest(TestCase):
 
-    def setUp(self):
-        self.url = reverse('mail-optout')
+    def test_get(self):
+        response = self.client.get(reverse('mail-optout'))
+        self.assertRedirects(response, reverse('mail-settings'))
 
-    def testOptOutRequestGET(self):
-        response = self.client.get(self.url)
-        self.assertRedirects(
-            response, reverse('mail-settings'))
-
-    def testOptoutRequestValidPOST(self):
+    def test_post(self):
         email = u'foo@example.com'
-        response = self.client.post(self.url, {'email': email})
+        response = self.client.post(reverse('mail-optout'), {'email': email})
 
         # check for a confirmation object
         self.assertEqual(EmailConfirmation.objects.count(), 1)
@@ -103,15 +97,14 @@ class OptoutRequestTest(TestCase):
         self.assertContains(response, email)
 
         # check email
-        url = reverse('confirm', kwargs={'key': conf.key})
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [email])
         self.assertEqual(msg.subject, 'Patchwork opt-out confirmation')
-        self.assertIn(url, msg.body)
+        self.assertIn(reverse('confirm', kwargs={'key': conf.key}), msg.body)
 
-    def testOptoutRequestInvalidPOSTEmpty(self):
-        response = self.client.post(self.url, {'email': ''})
+    def test_post_empty(self):
+        response = self.client.post(reverse('mail-optout'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
@@ -119,8 +112,8 @@ class OptoutRequestTest(TestCase):
         self.assertNotIn('email_sent', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
-    def testOptoutRequestInvalidPOSTNonEmail(self):
-        response = self.client.post(self.url, {'email': 'foo'})
+    def test_post_non_email(self):
+        response = self.client.post(reverse('mail-optout'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
@@ -131,12 +124,11 @@ class OptoutRequestTest(TestCase):
 class OptoutTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('mail-optout')
         self.email = u'foo@example.com'
         self.conf = EmailConfirmation(type='optout', email=self.email)
         self.conf.save()
 
-    def testOptoutValidHash(self):
+    def test_valid_hash(self):
         url = reverse('confirm', kwargs={'key': self.conf.key})
         response = self.client.get(url)
 
@@ -163,18 +155,18 @@ class OptoutPreexistingTest(OptoutTest):
 
 
 class OptinRequestTest(TestCase):
+    email = u'foo@example.com'
 
     def setUp(self):
-        self.url = reverse('mail-optin')
-        self.email = u'foo@example.com'
         EmailOptout(email=self.email).save()
 
-    def testOptInRequestGET(self):
-        response = self.client.get(self.url)
+    def test_get(self):
+        response = self.client.get(reverse('mail-optin'))
         self.assertRedirects(response, reverse('mail-settings'))
 
-    def testOptInRequestValidPOST(self):
-        response = self.client.post(self.url, {'email': self.email})
+    def test_post(self):
+        response = self.client.post(reverse('mail-optin'),
+                                    {'email': self.email})
 
         # check for a confirmation object
         self.assertEqual(EmailConfirmation.objects.count(), 1)
@@ -186,15 +178,14 @@ class OptinRequestTest(TestCase):
         self.assertContains(response, self.email)
 
         # check email
-        url = reverse('confirm', kwargs={'key': conf.key})
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [self.email])
         self.assertEqual(msg.subject, 'Patchwork opt-in confirmation')
-        self.assertIn(url, msg.body)
+        self.assertIn(reverse('confirm', kwargs={'key': conf.key}), msg.body)
 
-    def testOptoutRequestInvalidPOSTEmpty(self):
-        response = self.client.post(self.url, {'email': ''})
+    def test_post_empty(self):
+        response = self.client.post(reverse('mail-optin'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
@@ -202,8 +193,8 @@ class OptinRequestTest(TestCase):
         self.assertNotIn('email_sent', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
-    def testOptoutRequestInvalidPOSTNonEmail(self):
-        response = self.client.post(self.url, {'email': 'foo'})
+    def test_post_non_email(self):
+        response = self.client.post(reverse('mail-optin'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
@@ -220,9 +211,9 @@ class OptinTest(TestCase):
         self.conf = EmailConfirmation(type='optin', email=self.email)
         self.conf.save()
 
-    def testOptinValidHash(self):
-        url = reverse('confirm', kwargs={'key': self.conf.key})
-        response = self.client.get(url)
+    def test_valid_hash(self):
+        response = self.client.get(
+            reverse('confirm', kwargs={'key': self.conf.key}))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/optin.html')
@@ -238,14 +229,11 @@ class OptinTest(TestCase):
 
 class OptinWithoutOptoutTest(TestCase):
 
-    """Test an opt-in with no existing opt-out"""
+    """Test an opt-in with no existing opt-out."""
 
-    def setUp(self):
-        self.url = reverse('mail-optin')
-
-    def testOptInWithoutOptout(self):
+    def test_opt_in_without_optout(self):
         email = u'foo@example.com'
-        response = self.client.post(self.url, {'email': email})
+        response = self.client.post(reverse('mail-optin'), {'email': email})
 
         # check for an error message
         self.assertEqual(response.status_code, 200)
@@ -255,19 +243,17 @@ class OptinWithoutOptoutTest(TestCase):
 
 class UserProfileOptoutFormTest(TestCase):
 
-    """Test that the correct optin/optout forms appear on the user profile
-       page, for logged-in users"""
+    """Validate presence of correct optin/optout forms."""
+
+    form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
+                        '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
+                        '</form>')
 
     def setUp(self):
-        self.url = reverse('user-profile')
-        self.optout_url = reverse('mail-optout')
-        self.optin_url = reverse('mail-optin')
-        self.form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
-                                 '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
-                                 '</form>')
         self.secondary_email = 'test2@example.com'
 
         self.user = create_user()
+
         self.client.login(username=self.user.username,
                           password=self.user.username)
 
@@ -275,33 +261,30 @@ class UserProfileOptoutFormTest(TestCase):
         return re.compile(self.form_re_template % {'url': url, 'email': email},
                           re.DOTALL)
 
-    def testMainEmailOptoutForm(self):
-        form_re = self._form_re(self.optout_url, self.user.email)
-        response = self.client.get(self.url)
+    def test_primary_email_optout_form(self):
+        form_re = self._form_re(reverse('mail-optout'), self.user.email)
+        response = self.client.get(reverse('user-profile'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(form_re.search(response.content.decode()) is not None)
+        self.assertIsNotNone(form_re.search(response.content.decode()))
 
-    def testMainEmailOptinForm(self):
+    def test_primary_email_optin_form(self):
         EmailOptout(email=self.user.email).save()
-        form_re = self._form_re(self.optin_url, self.user.email)
-        response = self.client.get(self.url)
+        form_re = self._form_re(reverse('mail-optin'), self.user.email)
+        response = self.client.get(reverse('user-profile'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(form_re.search(response.content.decode()) is not None)
+        self.assertIsNotNone(form_re.search(response.content.decode()))
 
-    def testSecondaryEmailOptoutForm(self):
-        p = Person(email=self.secondary_email, user=self.user)
-        p.save()
-        form_re = self._form_re(self.optout_url, p.email)
-        response = self.client.get(self.url)
+    def test_secondary_email_optout_form(self):
+        person = create_person(email=self.secondary_email, user=self.user)
+        form_re = self._form_re(reverse('mail-optout'), person.email)
+        response = self.client.get(reverse('user-profile'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(form_re.search(response.content.decode()) is not None)
+        self.assertIsNotNone(form_re.search(response.content.decode()))
 
-    def testSecondaryEmailOptinForm(self):
-        p = Person(email=self.secondary_email, user=self.user)
-        p.save()
-        EmailOptout(email=p.email).save()
-
-        form_re = self._form_re(self.optin_url, p.email)
-        response = self.client.get(self.url)
+    def test_secondary_email_optin_form(self):
+        person = create_person(email=self.secondary_email, user=self.user)
+        EmailOptout(email=person.email).save()
+        form_re = self._form_re(reverse('mail-optin'), person.email)
+        response = self.client.get(reverse('user-profile'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(form_re.search(response.content.decode()) is not None)
+        self.assertIsNotNone(form_re.search(response.content.decode()))
