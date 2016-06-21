@@ -17,9 +17,12 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from email import message_from_file
 from email import message_from_string
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid
+import os
 
 from django.test import TestCase
 
@@ -36,49 +39,88 @@ from patchwork.models import get_default_initial_patch_state
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
-from patchwork.tests.utils import create_email
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import read_patch
-from patchwork.tests.utils import read_mail
 from patchwork.tests.utils import SAMPLE_DIFF
+
+
+TEST_MAIL_DIR = os.path.join(os.path.dirname(__file__), 'mail')
+
+
+def read_mail(filename, project=None):
+    """Read a mail from a file."""
+    file_path = os.path.join(TEST_MAIL_DIR, filename)
+    mail = message_from_file(open(file_path))
+    if 'Message-Id' not in mail:
+        mail['Message-Id'] = make_msgid()
+    if project is not None:
+        mail['List-Id'] = project.listid
+    return mail
+
+
+def _create_email(msg, msgid=None, sender=None, listid=None):
+    msg['Message-Id'] = msgid or make_msgid()
+    msg['Subject'] = 'Test subject'
+    msg['From'] = sender or 'Test Author <test-author@example.com>'
+    msg['List-Id'] = listid or 'test.example.com'
+
+    return msg
+
+
+def create_email(content, msgid=None, sender=None, listid=None):
+    msg = MIMEText(content, _charset='us-ascii')
+
+    return _create_email(msg, msgid, sender, listid)
 
 
 class PatchTest(TestCase):
 
     fixtures = ['default_states']
-    project = create_project()
+
+    def setUp(self):
+        self.project = create_project()
+
+    def _find_content(self, mbox_filename):
+        mail = read_mail(mbox_filename, project=self.project)
+        diff, message = find_content(self.project, mail)
+
+        return diff, message
 
 
 class InlinePatchTest(PatchTest):
 
-    patch_filename = '0001-add-line.patch'
-    test_content = 'Test for attached patch'
+    orig_content = 'Test for attached patch'
+    orig_diff = read_patch('0001-add-line.patch')
 
     def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_content + '\n' + self.orig_patch)
-        self.diff, self.message = find_content(self.project, email)
+        email = create_email(self.orig_content + '\n' + self.orig_diff)
+
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
 
     def test_patch_content(self):
-        self.assertEqual(self.diff, self.orig_patch)
+        self.assertEqual(self.diff, self.orig_diff)
 
     def test_patch_diff(self):
-        self.assertEqual(self.message, self.test_content)
+        self.assertEqual(self.content, self.orig_content)
 
 
 class AttachmentPatchTest(InlinePatchTest):
 
-    patch_filename = '0001-add-line.patch'
-    test_comment = 'Test for attached patch'
+    orig_content = 'Test for attached patch'
     content_subtype = 'x-patch'
 
     def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_content, multipart=True)
-        attachment = MIMEText(self.orig_patch, _subtype=self.content_subtype)
-        email.attach(attachment)
-        self.diff, self.message = find_content(self.project, email)
+        msg = MIMEMultipart()
+        body = MIMEText(self.orig_content, _subtype='plain')
+        attachment = MIMEText(self.orig_diff, _subtype=self.content_subtype)
+        msg.attach(body)
+        msg.attach(attachment)
+        email = _create_email(msg)
+
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
 
 
 class AttachmentXDiffPatchTest(AttachmentPatchTest):
@@ -88,75 +130,73 @@ class AttachmentXDiffPatchTest(AttachmentPatchTest):
 
 class UTF8InlinePatchTest(InlinePatchTest):
 
-    patch_filename = '0002-utf-8.patch'
-    patch_encoding = 'utf-8'
+    orig_diff = read_patch('0002-utf-8.patch', 'utf-8')
 
     def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename, self.patch_encoding)
-        email = create_email(self.test_content + '\n' + self.orig_patch,
-                             content_encoding=self.patch_encoding)
-        self.diff, self.message = find_content(self.project, email)
+        msg = MIMEText(self.orig_content + '\n' + self.orig_diff,
+                       _charset='utf-8')
+        email = _create_email(msg)
+
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
 
 
 class NoCharsetInlinePatchTest(InlinePatchTest):
     """Test mails with no content-type or content-encoding header."""
 
-    patch_filename = '0001-add-line.patch'
-
     def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_content + '\n' + self.orig_patch)
+        email = create_email(self.orig_content + '\n' + self.orig_diff)
         del email['Content-Type']
         del email['Content-Transfer-Encoding']
-        self.diff, self.message = find_content(self.project, email)
+
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
 
 
 class SignatureCommentTest(InlinePatchTest):
 
-    patch_filename = '0001-add-line.patch'
-    test_content = 'Test comment\nmore comment'
+    orig_content = 'Test comment\nmore comment'
 
     def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(
-            self.test_content + '\n' +
-            '-- \nsig\n' + self.orig_patch)
-        self.diff, self.message = find_content(self.project, email)
+        email = create_email(self.orig_content + '\n-- \nsig\n' +
+                             self.orig_diff)
 
-
-class ListFooterTest(InlinePatchTest):
-
-    patch_filename = '0001-add-line.patch'
-    test_content = 'Test comment\nmore comment'
-
-    def setUp(self):
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(
-            self.test_content + '\n' +
-            '_______________________________________________\n' +
-            'Linuxppc-dev mailing list\n' +
-            self.orig_patch)
-        self.diff, self.message = find_content(self.project, email)
-
-
-class DiffWordInCommentTest(InlinePatchTest):
-
-    test_content = 'Lines can start with words beginning in "diff"\n' + \
-                   'difficult\nDifferent'
-
-
-class UpdateCommentTest(InlinePatchTest):
-    """Test for '---\nUpdate: v2' style comments to patches."""
-
-    patch_filename = '0001-add-line.patch'
-    test_content = 'Test comment\nmore comment\n---\nUpdate: test update'
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
 
 
 class UpdateSigCommentTest(SignatureCommentTest):
     """Test for '---\nUpdate: v2' style comments to patches, with a sig."""
 
     patch_filename = '0001-add-line.patch'
-    test_content = 'Test comment\nmore comment\n---\nUpdate: test update'
+    orig_content = 'Test comment\nmore comment\n---\nUpdate: test update'
+
+
+class ListFooterTest(InlinePatchTest):
+
+    orig_content = 'Test comment\nmore comment'
+
+    def setUp(self):
+        email = create_email('\n'.join([
+            self.orig_content,
+            '_______________________________________________',
+            'Linuxppc-dev mailing list',
+            self.orig_diff]))
+
+        self.project = create_project()
+        self.diff, self.content = find_content(self.project, email)
+
+
+class DiffWordInCommentTest(InlinePatchTest):
+
+    orig_content = 'Lines can start with words beginning in "diff"\n' + \
+                   'difficult\nDifferent'
+
+
+class UpdateCommentTest(InlinePatchTest):
+    """Test for '---\nUpdate: v2' style comments to patches."""
+
+    orig_content = 'Test comment\nmore comment\n---\nUpdate: test update'
 
 
 class SenderEncodingTest(TestCase):
@@ -206,34 +246,36 @@ class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
     from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
 
 
-class SubjectEncodingTest(PatchTest):
+class SubjectEncodingTest(TestCase):
+    """Validate correct handling of encoded subjects."""
 
-    sender = 'example user <user@example.com>'
-    subject = 'test subject'
-    subject_header = 'test subject'
-
-    def setUp(self):
+    @staticmethod
+    def _create_email(subject):
         mail = 'Message-Id: %s\n' % make_msgid() + \
-               'From: %s\n' % self.sender + \
-               'Subject: %s\n\n' % self.subject_header + \
+               'From: example user <user@example.com>\n' + \
+               'Subject: %s\n\n' % subject + \
                'test\n\n' + SAMPLE_DIFF
-        self.email = message_from_string(mail)
+        return message_from_string(mail)
 
-    def test_subject_encoding(self):
-        name, _ = clean_subject(self.email.get('Subject'))
-        self.assertEqual(name, self.subject)
+    def _test_encoding(self, subject_header, parsed_subject):
+        email = self._create_email(subject_header)
+        name, _ = clean_subject(email.get('Subject'))
+        self.assertEqual(name, parsed_subject)
 
+    def test_subject_ascii_encoding(self):
+        subject_header = 'test subject'
+        subject = 'test subject'
+        self._test_encoding(subject_header, subject)
 
-class SubjectUTF8QPEncodingTest(SubjectEncodingTest):
+    def test_subject_utf8qp_encoding(self):
+        subject_header = '=?utf-8?q?test=20s=c3=bcbject?='
+        subject = u'test s\xfcbject'
+        self._test_encoding(subject_header, subject)
 
-    subject = u'test s\xfcbject'
-    subject_header = '=?utf-8?q?test=20s=c3=bcbject?='
-
-
-class SubjectUTF8QPMultipleEncodingTest(SubjectEncodingTest):
-
-    subject = u'test s\xfcbject'
-    subject_header = 'test =?utf-8?q?s=c3=bcbject?='
+    def test_subject_utf8qp_multiple_encoding(self):
+        subject = u'test s\xfcbject'
+        subject_header = 'test =?utf-8?q?s=c3=bcbject?='
+        self._test_encoding(subject_header, subject)
 
 
 class SenderCorrelationTest(TestCase):
@@ -247,7 +289,8 @@ class SenderCorrelationTest(TestCase):
     existing_sender = 'Existing Sender <existing@example.com>'
     non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
 
-    def mail(self, sender):
+    @staticmethod
+    def mail(sender):
         mail = 'Message-Id: %s\n' % make_msgid() + \
                'From: %s\n' % sender + \
                'Subject: Tests\n\n'\
@@ -288,7 +331,7 @@ class MultipleProjectPatchTest(TestCase):
        handled correctly."""
 
     fixtures = ['default_states']
-    test_content = 'Test Comment'
+    orig_content = 'Test Comment'
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
 
@@ -297,16 +340,14 @@ class MultipleProjectPatchTest(TestCase):
         self.p2 = create_project()
 
         patch = read_patch(self.patch_filename)
-        email = create_email(self.test_content + '\n' + patch)
-        del email['Message-Id']
-        email['Message-Id'] = self.msgid
-
-        del email['List-ID']
-        email['List-ID'] = '<' + self.p1.listid + '>'
+        email = create_email(
+            content=''.join([self.orig_content, '\n', patch]),
+            msgid=self.msgid,
+            listid='<%s>' % self.p1.listid)
         parse_mail(email)
 
         del email['List-ID']
-        email['List-ID'] = '<' + self.p2.listid + '>'
+        email['List-ID'] = '<%s>' % self.p2.listid
         parse_mail(email)
 
     def test_parsed_projects(self):
@@ -325,11 +366,10 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
         super(MultipleProjectPatchCommentTest, self).setUp()
 
         for project in [self.p1, self.p2]:
-            email = MIMEText(self.comment_content)
-            email['From'] = 'Patch Author <patch-author@example.com>'
-            email['Subject'] = 'Test Subject'
-            email['Message-Id'] = self.comment_msgid
-            email['List-ID'] = '<' + project.listid + '>'
+            email = create_email(
+                content=self.comment_content,
+                msgid=self.comment_msgid,
+                listid='<%s>' % project.listid)
             email['In-Reply-To'] = self.msgid
             parse_mail(email)
 
@@ -385,111 +425,75 @@ class ListIdHeaderTest(TestCase):
         self.assertEqual(project, self.project)
 
 
-class MBoxPatchTest(PatchTest):
+class PatchParseTest(PatchTest):
+    """Test parsing of different patch formats."""
 
-    def setUp(self):
-        self.mail = read_mail(self.mail_file, project=self.project)
-
-
-class GitPullTest(MBoxPatchTest):
-
-    mail_file = '0001-git-pull-request.mbox'
-
-    def test_git_pull_request(self):
-        diff, message = find_content(self.project, self.mail)
+    def _test_pull_request_parse(self, mbox_filename):
+        diff, message = self._find_content(mbox_filename)
         pull_url = find_pull_request(message)
         self.assertTrue(diff is None)
         self.assertTrue(message is not None)
         self.assertTrue(pull_url is not None)
 
+    def test_git_pull_request(self):
+        self._test_pull_request_parse('0001-git-pull-request.mbox')
 
-class GitPullWrappedTest(GitPullTest):
+    def test_git_pull_wrapped_request(self):
+        self._test_pull_request_parse('0002-git-pull-request-wrapped.mbox')
 
-    mail_file = '0002-git-pull-request-wrapped.mbox'
+    def test_git_pull_git_ssh_url(self):
+        self._test_pull_request_parse('0004-git-pull-request-git+ssh.mbox')
 
+    def test_git_pull_ssh_url(self):
+        self._test_pull_request_parse('0005-git-pull-request-ssh.mbox')
 
-class GitPullWithDiffTest(MBoxPatchTest):
-
-    mail_file = '0003-git-pull-request-with-diff.mbox'
+    def test_git_pull_http_url(self):
+        self._test_pull_request_parse('0006-git-pull-request-http.mbox')
 
     def test_git_pull_with_diff(self):
-        diff, message = find_content(self.project, self.mail)
+        diff, message = self._find_content(
+            '0003-git-pull-request-with-diff.mbox')
         pull_url = find_pull_request(message)
-        self.assertEqual('git://git.kernel.org/pub/scm/linux/kernel/git/tip/'
-                         'linux-2.6-tip.git x86-fixes-for-linus',
-                         pull_url)
+        self.assertEqual(
+            'git://git.kernel.org/pub/scm/linux/kernel/git/tip/'
+            'linux-2.6-tip.git x86-fixes-for-linus',
+            pull_url)
         self.assertTrue(
-            diff.startswith(
-                'diff --git a/arch/x86/include/asm/smp.h'),
+            diff.startswith('diff --git a/arch/x86/include/asm/smp.h'),
             diff)
 
-
-class GitPullGitSSHUrlTest(GitPullTest):
-
-    mail_file = '0004-git-pull-request-git+ssh.mbox'
-
-
-class GitPullSSHUrlTest(GitPullTest):
-
-    mail_file = '0005-git-pull-request-ssh.mbox'
-
-
-class GitPullHTTPUrlTest(GitPullTest):
-
-    mail_file = '0006-git-pull-request-http.mbox'
-
-
-class GitRenameOnlyTest(MBoxPatchTest):
-
-    mail_file = '0008-git-rename.mbox'
-
     def test_git_rename(self):
-        diff, _ = find_content(self.project, self.mail)
+        diff, _ = self._find_content('0008-git-rename.mbox')
         self.assertTrue(diff is not None)
         self.assertEqual(diff.count("\nrename from "), 2)
         self.assertEqual(diff.count("\nrename to "), 2)
 
-
-class GitRenameWithDiffTest(MBoxPatchTest):
-
-    mail_file = '0009-git-rename-with-diff.mbox'
-
-    def test_git_rename(self):
-        diff, message = find_content(self.project, self.mail)
+    def test_git_rename_with_diff(self):
+        diff, message = self._find_content(
+            '0009-git-rename-with-diff.mbox')
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
         self.assertEqual(diff.count("\nrename from "), 2)
         self.assertEqual(diff.count("\nrename to "), 2)
         self.assertEqual(diff.count('\n-a\n+b'), 1)
 
-
-class CVSFormatPatchTest(MBoxPatchTest):
-
-    mail_file = '0007-cvs-format-diff.mbox'
-
-    def test_patch(self):
-        diff, message = find_content(self.project, self.mail)
+    def test_cvs_format(self):
+        diff, message = self._find_content('0007-cvs-format-diff.mbox')
         self.assertTrue(diff.startswith('Index'))
 
+    def test_invalid_charset(self):
+        """Validate behavior with an invalid charset name.
 
-class CharsetFallbackPatchTest(MBoxPatchTest):
-    """Test mail with and invalid charset name, and check that we can parse
-       with one of the fallback encodings."""
-
-    mail_file = '0010-invalid-charset.mbox'
-
-    def test_patch(self):
-        diff, message = find_content(self.project, self.mail)
+        Ensure that we can parse with one of the fallback encodings.
+        """
+        diff, message = self._find_content('0010-invalid-charset.mbox')
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
 
-
-class NoNewlineAtEndOfFilePatchTest(MBoxPatchTest):
-
-    mail_file = '0011-no-newline-at-end-of-file.mbox'
-
-    def test_patch(self):
-        diff, message = find_content(self.project, self.mail)
+    def test_no_newline(self):
+        """Validate behavior when trailing newline is absent."""
+        diff, message = self._find_content(
+            '0011-no-newline-at-end-of-file.mbox')
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
         self.assertTrue(diff.startswith(
@@ -561,10 +565,8 @@ class InitialPatchStateTest(TestCase):
         self.nondefault_state = State.objects.get(name="Accepted")
 
     def _get_email(self):
-        email = create_email(self.patch)
-        del email['List-ID']
-        email['List-ID'] = '<' + self.project.listid + '>'
-        email['Message-Id'] = self.msgid
+        email = create_email(
+            self.patch, msgid=self.msgid, listid='<%s>' % self.project.listid)
         return email
 
     def assertState(self, state):
@@ -607,16 +609,15 @@ class ParseInitialTagsTest(PatchTest):
 
     fixtures = ['default_tags', 'default_states']
     patch_filename = '0001-add-line.patch'
-    test_content = ('test comment\n\n' +
+    orig_content = ('test comment\n\n' +
                     'Tested-by: Test User <test@example.com>\n' +
                     'Reviewed-by: Test User <test@example.com>\n')
 
     def setUp(self):
         project = create_project(listid='test.example.com')
-        self.orig_patch = read_patch(self.patch_filename)
-        email = create_email(self.test_content + '\n' + self.orig_patch,
-                             project=project)
-        email['Message-Id'] = '<1@example.com>'
+        self.orig_diff = read_patch(self.patch_filename)
+        email = create_email(self.orig_content + '\n' + self.orig_diff,
+                             listid=project.listid)
         parse_mail(email)
 
     def test_tags(self):

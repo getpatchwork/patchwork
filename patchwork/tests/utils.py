@@ -18,9 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import codecs
-from email import message_from_file
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from email.utils import make_msgid
 import os
 
@@ -33,18 +30,24 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
 
-
-# helper functions for tests
-_test_mail_dir = os.path.join(os.path.dirname(__file__), 'mail')
-_test_patch_dir = os.path.join(os.path.dirname(__file__), 'patches')
-
 SAMPLE_DIFF = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
 +++ a	2011-01-01 00:00:00.000000000 +0800
 @@ -0,0 +1 @@
 +a
 """
-
 SAMPLE_CONTENT = 'Hello, world.'
+TEST_PATCH_DIR = os.path.join(os.path.dirname(__file__), 'patches')
+
+
+def read_patch(filename, encoding=None):
+    """Read a diff from a file."""
+    file_path = os.path.join(TEST_PATCH_DIR, filename)
+    if encoding is not None:
+        f = codecs.open(file_path, encoding=encoding)
+    else:
+        f = open(file_path)
+
+    return f.read()
 
 
 class defaults(object):
@@ -270,51 +273,3 @@ def create_covers(count=1, **kwargs):
         kwargs (dict): Overrides for various cover letter fields
     """
     return _create_submissions(create_cover, count, **kwargs)
-
-
-def read_patch(filename, encoding=None):
-    file_path = os.path.join(_test_patch_dir, filename)
-    if encoding is not None:
-        f = codecs.open(file_path, encoding=encoding)
-    else:
-        f = open(file_path)
-
-    return f.read()
-
-
-def read_mail(filename, project=None):
-    file_path = os.path.join(_test_mail_dir, filename)
-    mail = message_from_file(open(file_path))
-    if 'Message-Id' not in mail:
-        mail['Message-Id'] = make_msgid()
-    if project is not None:
-        mail['List-Id'] = project.listid
-    return mail
-
-
-def create_email(content, subject=None, sender=None, multipart=False,
-                 project=None, content_encoding=None):
-    if subject is None:
-        subject = defaults.subject
-    if sender is None:
-        sender = defaults.sender
-    if project is None:
-        project = defaults.project
-        project.save()
-    if content_encoding is None:
-        content_encoding = 'us-ascii'
-
-    if multipart:
-        msg = MIMEMultipart()
-        body = MIMEText(content, _subtype='plain',
-                        _charset=content_encoding)
-        msg.attach(body)
-    else:
-        msg = MIMEText(content, _charset=content_encoding)
-
-    msg['Message-Id'] = make_msgid()
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['List-Id'] = project.listid
-
-    return msg
