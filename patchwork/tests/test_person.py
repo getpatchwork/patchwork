@@ -20,40 +20,40 @@
 from __future__ import absolute_import
 
 import json
-from django.test import TestCase
-from django.utils.six.moves import map, range
 
-from patchwork.models import Person
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.utils.six.moves import range
+
+from patchwork.tests.utils import create_person
 
 
 class SubmitterCompletionTest(TestCase):
 
-    def setUp(self):
-        self.people = [
-            Person(name="Test Name", email="test1@example.com"),
-            Person(email="test2@example.com"),
-        ]
-        list(map(lambda p: p.save(), self.people))
+    """Validate the 'submitter' autocomplete endpoint."""
 
-    def testNameComplete(self):
-        response = self.client.get('/submitter/', {'q': 'name'})
+    def test_name_complete(self):
+        people = [create_person(name='Test name'), create_person(name=None)]
+        response = self.client.get(reverse('api-submitters'), {'q': 'name'})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]['name'], 'Test Name')
+        self.assertEqual(data[0]['name'], people[0].name)
 
-    def testEmailComplete(self):
-        response = self.client.get('/submitter/', {'q': 'test2'})
+    def test_email_complete(self):
+        people = [create_person(email='test1@example.com'),
+                  create_person(email='test2@example.com')]
+        response = self.client.get(reverse('api-submitters'), {'q': 'test2'})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]['email'], 'test2@example.com')
+        self.assertEqual(data[0]['email'], people[1].email)
 
-    def testCompleteLimit(self):
-        for i in range(3, 10):
-            person = Person(email='test%d@example.com' % i)
-            person.save()
-        response = self.client.get('/submitter/', {'q': 'test', 'l': 5})
+    def test_param_limit(self):
+        for i in range(10):
+            create_person()
+        response = self.client.get(reverse('api-submitters'),
+                                   {'q': 'test', 'l': 5})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
         self.assertEqual(len(data), 5)
