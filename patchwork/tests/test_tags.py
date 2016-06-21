@@ -17,20 +17,22 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import datetime
+from django.test import TestCase
+from django.test import TransactionTestCase
 
-from django.test import TestCase, TransactionTestCase
-
-from patchwork.models import Project, Patch, Comment, Tag, PatchTag
+from patchwork.models import Patch
+from patchwork.models import PatchTag
+from patchwork.models import Tag
 from patchwork.parser import extract_tags
-from patchwork.tests.utils import defaults
+from patchwork.tests.utils import create_comment
+from patchwork.tests.utils import create_patch
 
 
 class ExtractTagsTest(TestCase):
 
+    fixtures = ['default_tags', 'default_states']
     email = 'test@example.com'
     name_email = 'test name <' + email + '>'
-    fixtures = ['default_tags', 'default_states']
 
     def assertTagsEqual(self, str, acks, reviews, tests):
         counts = extract_tags(str, Tag.objects.all())
@@ -39,51 +41,57 @@ class ExtractTagsTest(TestCase):
                           counts[Tag.objects.get(name='Reviewed-by')],
                           counts[Tag.objects.get(name='Tested-by')]))
 
-    def testEmpty(self):
-        self.assertTagsEqual("", 0, 0, 0)
+    def test_empty(self):
+        self.assertTagsEqual('', 0, 0, 0)
 
-    def testNoTag(self):
-        self.assertTagsEqual("foo", 0, 0, 0)
+    def test_no_tag(self):
+        self.assertTagsEqual('foo', 0, 0, 0)
 
-    def testAck(self):
-        self.assertTagsEqual("Acked-by: %s" % self.name_email, 1, 0, 0)
+    def test_ack(self):
+        self.assertTagsEqual('Acked-by: %s' % self.name_email, 1, 0, 0)
 
-    def testAckEmailOnly(self):
-        self.assertTagsEqual("Acked-by: %s" % self.email, 1, 0, 0)
+    def test_ack_email_only(self):
+        self.assertTagsEqual('Acked-by: %s' % self.email, 1, 0, 0)
 
-    def testReviewed(self):
-        self.assertTagsEqual("Reviewed-by: %s" % self.name_email, 0, 1, 0)
+    def test_reviewed(self):
+        self.assertTagsEqual('Reviewed-by: %s' % self.name_email, 0, 1, 0)
 
-    def testTested(self):
-        self.assertTagsEqual("Tested-by: %s" % self.name_email, 0, 0, 1)
+    def test_tested(self):
+        self.assertTagsEqual('Tested-by: %s' % self.name_email, 0, 0, 1)
 
-    def testAckAfterNewline(self):
-        self.assertTagsEqual("\nAcked-by: %s" % self.name_email, 1, 0, 0)
+    def test_ack_after_newline(self):
+        self.assertTagsEqual('\nAcked-by: %s' % self.name_email, 1, 0, 0)
 
-    def testMultipleAcks(self):
-        str = "Acked-by: %s\nAcked-by: %s\n" % ((self.name_email,) * 2)
+    def test_multiple_acks(self):
+        str = 'Acked-by: %s\nAcked-by: %s\n' % ((self.name_email,) * 2)
         self.assertTagsEqual(str, 2, 0, 0)
 
-    def testMultipleTypes(self):
-        str = "Acked-by: %s\nAcked-by: %s\nReviewed-by: %s\n" % (
+    def test_multiple_types(self):
+        str = 'Acked-by: %s\nAcked-by: %s\nReviewed-by: %s\n' % (
             (self.name_email,) * 3)
         self.assertTagsEqual(str, 2, 1, 0)
 
-    def testLower(self):
-        self.assertTagsEqual("acked-by: %s" % self.name_email, 1, 0, 0)
+    def test_lower(self):
+        self.assertTagsEqual('acked-by: %s' % self.name_email, 1, 0, 0)
 
-    def testUpper(self):
-        self.assertTagsEqual("ACKED-BY: %s" % self.name_email, 1, 0, 0)
+    def test_upper(self):
+        self.assertTagsEqual('ACKED-BY: %s' % self.name_email, 1, 0, 0)
 
-    def testAckInReply(self):
-        self.assertTagsEqual("> Acked-by: %s\n" % self.name_email, 0, 0, 0)
+    def test_ack_in_reply(self):
+        self.assertTagsEqual('> Acked-by: %s\n' % self.name_email, 0, 0, 0)
 
 
 class PatchTagsTest(TransactionTestCase):
+
+    fixtures = ['default_tags', 'default_states']
     ACK = 1
     REVIEW = 2
     TEST = 3
-    fixtures = ['default_tags', 'default_states']
+
+    def setUp(self):
+        self.patch = create_patch()
+        self.patch.project.use_tags = True
+        self.patch.project.save()
 
     def assertTagsEqual(self, patch, acks, reviews, tests):
         patch = Patch.objects.get(pk=patch.pk)
@@ -110,60 +118,44 @@ class PatchTagsTest(TransactionTestCase):
         }
         if tagtype not in tags:
             return ''
-        return '%s-by: %s\n' % (tags[tagtype], self.tagger)
+
+        return '%s-by: Test Tagger <tagger@example.com>\n' % tags[tagtype]
 
     def create_tag_comment(self, patch, tagtype=None):
-        comment = Comment(submission=patch,
-                          msgid=str(datetime.datetime.now()),
-                          submitter=defaults.patch_author_person,
-                          content=self.create_tag(tagtype))
-        comment.save()
+        comment = create_comment(
+            submission=patch,
+            content=self.create_tag(tagtype))
         return comment
 
-    def setUp(self):
-        project = Project(linkname='test-project', name='Test Project',
-                          use_tags=True)
-        project.save()
-        defaults.patch_author_person.save()
-        self.patch = Patch(project=project,
-                           msgid='x', name=defaults.patch_name,
-                           submitter=defaults.patch_author_person,
-                           diff='')
-        self.patch.save()
-        self.tagger = 'Test Tagger <tagger@example.com>'
-
-    def tearDown(self):
-        self.patch.delete()
-
-    def testNoComments(self):
+    def test_no_comments(self):
         self.assertTagsEqual(self.patch, 0, 0, 0)
 
-    def testNoTagComment(self):
+    def test_no_tag_comment(self):
         self.create_tag_comment(self.patch, None)
         self.assertTagsEqual(self.patch, 0, 0, 0)
 
-    def testSingleComment(self):
+    def test_single_comment(self):
         self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 1, 0, 0)
 
-    def testMultipleComments(self):
+    def test_multiple_comments(self):
         self.create_tag_comment(self.patch, self.ACK)
         self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 2, 0, 0)
 
-    def testMultipleCommentTypes(self):
+    def test_multiple_comment_types(self):
         self.create_tag_comment(self.patch, self.ACK)
         self.create_tag_comment(self.patch, self.REVIEW)
         self.create_tag_comment(self.patch, self.TEST)
         self.assertTagsEqual(self.patch, 1, 1, 1)
 
-    def testCommentAdd(self):
+    def test_comment_add(self):
         self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 1, 0, 0)
         self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 2, 0, 0)
 
-    def testCommentUpdate(self):
+    def test_comment_update(self):
         comment = self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 1, 0, 0)
 
@@ -171,19 +163,19 @@ class PatchTagsTest(TransactionTestCase):
         comment.save()
         self.assertTagsEqual(self.patch, 2, 0, 0)
 
-    def testCommentDelete(self):
+    def test_comment_delete(self):
         comment = self.create_tag_comment(self.patch, self.ACK)
         self.assertTagsEqual(self.patch, 1, 0, 0)
         comment.delete()
         self.assertTagsEqual(self.patch, 0, 0, 0)
 
-    def testSingleCommentMultipleTags(self):
+    def test_single_comment_multiple_tags(self):
         comment = self.create_tag_comment(self.patch, self.ACK)
         comment.content += self.create_tag(self.REVIEW)
         comment.save()
         self.assertTagsEqual(self.patch, 1, 1, 0)
 
-    def testMultipleCommentsMultipleTags(self):
+    def test_multiple_comments_multiple_tags(self):
         c1 = self.create_tag_comment(self.patch, self.ACK)
         c1.content += self.create_tag(self.REVIEW)
         c1.save()
@@ -193,7 +185,6 @@ class PatchTagsTest(TransactionTestCase):
 class PatchTagManagerTest(PatchTagsTest):
 
     def assertTagsEqual(self, patch, acks, reviews, tests):
-
         tagattrs = {}
         for tag in Tag.objects.all():
             tagattrs[tag.name] = tag.attr_name
