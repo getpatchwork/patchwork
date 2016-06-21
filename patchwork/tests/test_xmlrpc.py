@@ -24,43 +24,44 @@ from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
 from django.utils.six.moves import xmlrpc_client
 
-from patchwork.tests import utils
+from patchwork.tests.utils import create_patches
 
 
 @unittest.skipUnless(settings.ENABLE_XMLRPC,
                      'requires xmlrpc interface (use the ENABLE_XMLRPC '
                      'setting)')
 class XMLRPCTest(LiveServerTestCase):
+
     fixtures = ['default_states']
 
     def setUp(self):
-        self.url = (self.live_server_url + reverse('xmlrpc'))
+        self.url = self.live_server_url + reverse('xmlrpc')
         self.rpc = xmlrpc_client.Server(self.url)
 
-    def testGetRedirect(self):
+    def test_get_redirect(self):
         response = self.client.patch(self.url)
-        self.assertRedirects(response,
-                             reverse('help', kwargs={'path': 'pwclient/'}))
+        self.assertRedirects(
+            response, reverse('help', kwargs={'path': 'pwclient/'}))
 
-    def testListSingle(self):
-        patch_objs = utils.create_patches()
+    def test_list_single(self):
+        patch_objs = create_patches()
         patches = self.rpc.patch_list()
         self.assertEqual(len(patches), 1)
         self.assertEqual(patches[0]['id'], patch_objs[0].id)
 
-    def testListMultiple(self):
-        utils.create_patches(5)
+    def test_list_multiple(self):
+        create_patches(5)
         patches = self.rpc.patch_list()
         self.assertEqual(len(patches), 5)
 
-    def testListMaxCount(self):
-        patch_objs = utils.create_patches(5)
+    def test_list_max_count(self):
+        patch_objs = create_patches(5)
         patches = self.rpc.patch_list({'max_count': 2})
         self.assertEqual(len(patches), 2)
         self.assertEqual(patches[0]['id'], patch_objs[0].id)
 
-    def testListNegativeMaxCount(self):
-        patch_objs = utils.create_patches(5)
+    def test_list_negative_max_count(self):
+        patch_objs = create_patches(5)
         patches = self.rpc.patch_list({'max_count': -1})
         self.assertEqual(len(patches), 1)
         self.assertEqual(patches[0]['id'], patch_objs[-1].id)
