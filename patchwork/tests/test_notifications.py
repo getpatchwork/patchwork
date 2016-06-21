@@ -23,126 +23,108 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 
-from patchwork.models import Patch, State, PatchChangeNotification, EmailOptout
-from patchwork.tests.utils import defaults
+from patchwork.models import EmailOptout
+from patchwork.models import PatchChangeNotification
+from patchwork.models import State
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patches
+from patchwork.tests.utils import create_project
 from patchwork.utils import send_notifications
 
 
 class PatchNotificationModelTest(TestCase):
+
+    """Tests for the creation and update of the PatchChangeNotifications."""
+
     fixtures = ['default_states']
 
-    """Tests for the creation & update of the PatchChangeNotification model"""
-
     def setUp(self):
-        self.project = defaults.project
-        self.project.send_notifications = True
-        self.project.save()
-        self.submitter = defaults.patch_author_person
-        self.submitter.save()
-        self.patch = Patch(project=self.project, msgid='testpatch',
-                           name='testpatch', diff='',
-                           submitter=self.submitter)
+        self.project = create_project(send_notifications=True)
 
-    def tearDown(self):
-        self.patch.delete()
-        self.submitter.delete()
-        self.project.delete()
-
-    def testPatchCreation(self):
-        """Ensure we don't get a notification on create"""
-        self.patch.save()
+    def test_patch_creation(self):
+        """Ensure we don't get a notification on create."""
+        create_patch(project=self.project)
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
-    def testPatchUninterestingChange(self):
+    def test_patch_uninteresting_change(self):
         """Ensure we don't get a notification for "uninteresting" changes"""
-        self.patch.save()
-        self.patch.archived = True
-        self.patch.save()
+        patch = create_patch(project=self.project)
+
+        patch.archived = True
+        patch.save()
+
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
-    def testPatchChange(self):
+    def test_patch_change(self):
         """Ensure we get a notification for interesting patch changes"""
-        self.patch.save()
-        oldstate = self.patch.state
+        patch = create_patch(project=self.project)
+        oldstate = patch.state
         state = State.objects.exclude(pk=oldstate.pk)[0]
 
-        self.patch.state = state
-        self.patch.save()
+        patch.state = state
+        patch.save()
+
         self.assertEqual(PatchChangeNotification.objects.count(), 1)
         notification = PatchChangeNotification.objects.all()[0]
-        self.assertEqual(notification.patch, self.patch)
+        self.assertEqual(notification.patch, patch)
         self.assertEqual(notification.orig_state, oldstate)
 
-    def testNotificationCancelled(self):
+    def test_notification_cancelled(self):
         """Ensure we cancel notifications that are no longer valid"""
-        self.patch.save()
-        oldstate = self.patch.state
+        patch = create_patch(project=self.project)
+        oldstate = patch.state
         state = State.objects.exclude(pk=oldstate.pk)[0]
 
-        self.patch.state = state
-        self.patch.save()
+        patch.state = state
+        patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 1)
 
-        self.patch.state = oldstate
-        self.patch.save()
+        patch.state = oldstate
+        patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
-    def testNotificationUpdated(self):
+    def test_notification_updated(self):
         """Ensure we update notifications when the patch has a second change,
            but keep the original patch details"""
-        self.patch.save()
-        oldstate = self.patch.state
+        patch = create_patch(project=self.project)
+        oldstate = patch.state
         newstates = State.objects.exclude(pk=oldstate.pk)[:2]
 
-        self.patch.state = newstates[0]
-        self.patch.save()
+        patch.state = newstates[0]
+        patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 1)
         notification = PatchChangeNotification.objects.all()[0]
         self.assertEqual(notification.orig_state, oldstate)
+
         orig_timestamp = notification.last_modified
 
-        self.patch.state = newstates[1]
-        self.patch.save()
+        patch.state = newstates[1]
+        patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 1)
         notification = PatchChangeNotification.objects.all()[0]
         self.assertEqual(notification.orig_state, oldstate)
         self.assertTrue(notification.last_modified >= orig_timestamp)
 
-    def testProjectNotificationsDisabled(self):
+    def test_notifications_disabled(self):
         """Ensure we don't see notifications created when a project is
            configured not to send them"""
-        self.project.send_notifications = False
-        self.project.save()
-
-        self.patch.save()
-        oldstate = self.patch.state
+        patch = create_patch()  # don't use self.project
+        oldstate = patch.state
         state = State.objects.exclude(pk=oldstate.pk)[0]
 
-        self.patch.state = state
-        self.patch.save()
+        patch.state = state
+        patch.save()
         self.assertEqual(PatchChangeNotification.objects.count(), 0)
 
 
 class PatchNotificationEmailTest(TestCase):
+
     fixtures = ['default_states']
 
     def setUp(self):
-        self.project = defaults.project
-        self.project.send_notifications = True
-        self.project.save()
-        self.submitter = defaults.patch_author_person
-        self.submitter.save()
-        self.patch = Patch(project=self.project, msgid='testpatch',
-                           name='testpatch', diff='',
-                           submitter=self.submitter)
-        self.patch.save()
+        self.project = create_project(send_notifications=True)
 
-    def tearDown(self):
-        self.patch.delete()
-        self.submitter.delete()
-        self.project.delete()
-
-    def _expireNotifications(self, **kwargs):
+    def _expire_notifications(self, **kwargs):
         timestamp = datetime.datetime.now() - \
             datetime.timedelta(minutes=settings.NOTIFICATION_DELAY_MINUTES + 1)
 
@@ -152,92 +134,86 @@ class PatchNotificationEmailTest(TestCase):
 
         qs.update(last_modified=timestamp)
 
-    def testNoNotifications(self):
+    def test_no_notifications(self):
         self.assertEqual(send_notifications(), [])
 
-    def testNoReadyNotifications(self):
-        """ We shouldn't see immediate notifications"""
-        PatchChangeNotification(patch=self.patch,
-                                orig_state=self.patch.state).save()
+    def test_no_ready_notifications(self):
+        """We shouldn't see immediate notifications."""
+        patch = create_patch(project=self.project)
+        PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 0)
 
-    def testNotifications(self):
-        PatchChangeNotification(patch=self.patch,
-                                orig_state=self.patch.state).save()
-        self._expireNotifications()
+    def test_notifications(self):
+        patch = create_patch(project=self.project)
+        PatchChangeNotification(patch=patch, orig_state=patch.state).save()
+
+        self._expire_notifications()
 
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertEqual(msg.to, [self.submitter.email])
-        self.assertIn(self.patch.get_absolute_url(), msg.body)
+        self.assertEqual(msg.to, [patch.submitter.email])
+        self.assertIn(patch.get_absolute_url(), msg.body)
 
-    def testNotificationEscaping(self):
-        self.patch.name = 'Patch name with " character'
-        self.patch.save()
-        PatchChangeNotification(patch=self.patch,
-                                orig_state=self.patch.state).save()
-        self._expireNotifications()
+    def test_notification_escaping(self):
+        patch = create_patch(name='Patch name with " character',
+                             project=self.project)
+        PatchChangeNotification(patch=patch, orig_state=patch.state).save()
+
+        self._expire_notifications()
 
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertEqual(msg.to, [self.submitter.email])
+        self.assertEqual(msg.to, [patch.submitter.email])
         self.assertNotIn('&quot;', msg.body)
 
-    def testNotificationOptout(self):
-        """ensure opt-out addresses don't get notifications"""
-        PatchChangeNotification(patch=self.patch,
-                                orig_state=self.patch.state).save()
-        self._expireNotifications()
+    def test_notification_optout(self):
+        """Ensure opt-out addresses don't get notifications."""
+        patch = create_patch(project=self.project)
+        PatchChangeNotification(patch=patch,
+                                orig_state=patch.state).save()
 
-        EmailOptout(email=self.submitter.email).save()
+        self._expire_notifications()
+
+        EmailOptout(email=patch.submitter.email).save()
 
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 0)
 
-    def testNotificationMerge(self):
-        patches = [self.patch,
-                   Patch(project=self.project, msgid='testpatch-2',
-                         name='testpatch 2', diff='',
-                         submitter=self.submitter)]
-
+    def test_notification_merge(self):
+        """Ensure only one summary email is delivered to each user."""
+        patches = create_patches(2, project=self.project)
         for patch in patches:
-            patch.save()
-            PatchChangeNotification(patch=patch,
-                                    orig_state=patch.state).save()
+            PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
         self.assertEqual(PatchChangeNotification.objects.count(), len(patches))
-        self._expireNotifications()
+        self._expire_notifications()
+
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertIn(patches[0].get_absolute_url(), msg.body)
-        self.assertIn(patches[1].get_absolute_url(), msg.body)
+        for patch in patches:
+            self.assertIn(patch.get_absolute_url(), msg.body)
 
-    def testUnexpiredNotificationMerge(self):
+    def test_unexpired_notification_merge(self):
         """Test that when there are multiple pending notifications, with
            at least one within the notification delay, that other notifications
            are held"""
-        patches = [self.patch,
-                   Patch(project=self.project, msgid='testpatch-2',
-                         name='testpatch 2', diff='',
-                         submitter=self.submitter)]
-
+        patches = create_patches(2, project=self.project)
         for patch in patches:
             patch.save()
-            PatchChangeNotification(patch=patch,
-                                    orig_state=patch.state).save()
+            PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
         self.assertEqual(PatchChangeNotification.objects.count(), len(patches))
-        self._expireNotifications()
+        self._expire_notifications()
 
         # update one notification, to bring it out of the notification delay
         patches[0].state = State.objects.exclude(pk=patches[0].state.pk)[0]
@@ -249,11 +225,11 @@ class PatchNotificationEmailTest(TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
         # expire the updated notification
-        self._expireNotifications()
+        self._expire_notifications()
 
         errors = send_notifications()
         self.assertEqual(errors, [])
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
-        self.assertIn(patches[0].get_absolute_url(), msg.body)
-        self.assertIn(patches[1].get_absolute_url(), msg.body)
+        for patch in patches:
+            self.assertIn(patch.get_absolute_url(), msg.body)
