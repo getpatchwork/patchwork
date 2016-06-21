@@ -17,6 +17,8 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.core.urlresolvers import reverse
+
 from patchwork.tests.browser import SeleniumTestCase
 from patchwork.tests.utils import create_user
 
@@ -28,11 +30,11 @@ class LoginTestCase(SeleniumTestCase):
         self.user = create_user()
 
     def test_default_focus(self):
-        self.get('/user/login/')
+        self.get(reverse('auth_login'))
         self.wait_until_focused('#id_username')
 
     def test_login(self):
-        self.get('/user/login/')
+        self.get(reverse('auth_login'))
         self.enter_text('username', self.user.username)
         self.enter_text('password', self.user.password)
         self.click('input[value="Login"]')
