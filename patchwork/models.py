@@ -429,15 +429,19 @@ class Patch(Submission):
 
         for check in self.check_set.all():
             ctx = check.context
+            user = check.user
 
-            if ctx in unique:
+            if user in unique and ctx in unique[user]:
                 # recheck condition - ignore the older result
-                if unique[ctx].date > check.date:
+                if unique[user][ctx].date > check.date:
                     duplicates.append(check.id)
                     continue
-                duplicates.append(unique[ctx].id)
+                duplicates.append(unique[user][ctx].id)
 
-            unique[ctx] = check
+            if user not in unique:
+                unique[user] = {}
+
+            unique[user][ctx] = check
 
         # filter out the "duplicates" or older, now-invalid results
         return self.check_set.all().exclude(id__in=duplicates)

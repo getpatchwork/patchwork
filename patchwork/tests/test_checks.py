@@ -108,10 +108,15 @@ class PatchChecksTest(TransactionTestCase):
         self.create_check(date=(dt.now() - timedelta(days=1)))
         check = self.create_check()
         # this isn't a realistic scenario (dates shouldn't be set by user so
-        #   they will always increment), but it's useful to verify the removal
-        #   of older duplicates by the function
+        # they will always increment), but it's useful to verify the removal
+        # of older duplicates by the function
         self.create_check(date=(dt.now() - timedelta(days=2)))
         self.assertChecksEqual(self.patch, [check])
+
+    def test_checks__nultiple_users(self):
+        check_a = self.create_check()
+        check_b = self.create_check(user=create_user())
+        self.assertChecksEqual(self.patch, [check_a, check_b])
 
     def test_check_count__no_checks(self):
         self.assertCheckCountEqual(self.patch, 0)
@@ -123,6 +128,11 @@ class PatchChecksTest(TransactionTestCase):
     def test_check_count__multiple_checks(self):
         self.create_check(date=(dt.now() - timedelta(days=1)))
         self.create_check(context='new/test1')
+        self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
+
+    def test_check_count__multiple_users(self):
+        self.create_check()
+        self.create_check(user=create_user())
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
 
     def test_check_count__duplicate_check_same_state(self):
