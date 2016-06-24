@@ -171,7 +171,7 @@ function toggle_headers(link_id, headers_id)
 </tr>
 {% for check in submission.checks %}
 <tr>
-  <td>{{ check.context }}</td>
+  <td>{{ check.user }}/{{ check.context }}</td>
   <td>
     <span title="Updated {{ check.date|naturaltime }}"
         class="state {{ check.get_state_display }}">
