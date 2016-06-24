@@ -353,10 +353,8 @@ def check_to_dict(obj):
 
 def patch_check_to_dict(obj):
     """Return a combined patch check."""
-    state_names = dict(Check.STATE_CHOICES)
-
     return {
-        'state': state_names[obj.combined_check_state],
+        'state': obj.combined_check_state,
         'total': len(obj.checks),
         'checks': [check_to_dict(check) for check in obj.checks]
     }

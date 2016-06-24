@@ -399,17 +399,18 @@ class Patch(Submission):
           * success, if latest checks for all contexts reports as
               success
         """
+        state_names = dict(Check.STATE_CHOICES)
         states = [check.state for check in self.checks]
 
         if not states:
-            return Check.STATE_PENDING
+            return state_names[Check.STATE_PENDING]
 
         for state in [Check.STATE_FAIL, Check.STATE_WARNING,
                       Check.STATE_PENDING]:  # order sensitive
             if state in states:
-                return state
+                return state_names[state]
 
-        return Check.STATE_SUCCESS
+        return state_names[Check.STATE_SUCCESS]
 
     @property
     def checks(self):

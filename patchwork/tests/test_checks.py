@@ -60,7 +60,9 @@ class PatchChecksTest(TransactionTestCase):
         return check
 
     def assertCheckEqual(self, patch, check_state):
-        self.assertEqual(self.patch.combined_check_state, check_state)
+        state_names = dict(Check.STATE_CHOICES)
+        self.assertEqual(self.patch.combined_check_state,
+                         state_names[check_state])
 
     def assertChecksEqual(self, patch, checks=None):
         if not checks:
