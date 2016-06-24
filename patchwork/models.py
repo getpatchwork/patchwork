@@ -581,12 +581,12 @@ class Check(models.Model):
         help_text='The state of the check.')
     target_url = models.URLField(
         blank=True, null=True,
-        help_text='The target URL to associate with this check. This should'
-        ' be specific to the patch.')
+        help_text='The target URL to associate with this check. This should '
+        'be specific to the patch.')
     description = models.TextField(
         blank=True, null=True, help_text='A brief description of the check.')
-    context = models.CharField(
-        max_length=255, default='default', blank=True, null=True,
+    context = models.SlugField(
+        max_length=255, default='default',
         help_text='A label to discern check from checks of other testing '
         'systems.')
 
