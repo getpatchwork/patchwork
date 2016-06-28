@@ -34,10 +34,6 @@ from patchwork.tests.utils import (
 class TestProjectAPI(APITestCase):
     fixtures = ['default_states']
 
-    def setUp(self):
-        self.project = defaults.project
-        self.project.save()
-
     @staticmethod
     def api_url(item=None):
         if item is None:
@@ -46,19 +42,25 @@ class TestProjectAPI(APITestCase):
 
     def test_list_simple(self):
         """Validate we can list the default test project."""
+        project = defaults.project
+        project.save()
+
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         proj = resp.data[0]
-        self.assertEqual(self.project.linkname, proj['link_name'])
-        self.assertEqual(self.project.name, proj['name'])
-        self.assertEqual(self.project.listid, proj['list_id'])
+        self.assertEqual(project.linkname, proj['link_name'])
+        self.assertEqual(project.name, proj['name'])
+        self.assertEqual(project.listid, proj['list_id'])
 
     def test_detail(self):
         """Validate we can get a specific project."""
-        resp = self.client.get(self.api_url(self.project.id))
+        project = defaults.project
+        project.save()
+
+        resp = self.client.get(self.api_url(project.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(self.project.name, resp.data['name'])
+        self.assertEqual(project.name, resp.data['name'])
 
         # make sure we can look up by linkname
         resp = self.client.get(self.api_url(resp.data['link_name']))
@@ -70,12 +72,16 @@ class TestProjectAPI(APITestCase):
         project = Project(linkname='12345', name='Test Project',
                           listid='test.example.com')
         project.save()
+
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(project.name, resp.data['name'])
 
     def test_anonymous_create(self):
         """Ensure anonymous POST operations are rejected."""
+        project = defaults.project
+        project.save()
+
         resp = self.client.post(
             self.api_url(),
             {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
@@ -83,18 +89,27 @@ class TestProjectAPI(APITestCase):
 
     def test_anonymous_update(self):
         """Ensure anonymous "PATCH" operations are rejected."""
-        resp = self.client.patch(self.api_url(self.project.id),
+        project = defaults.project
+        project.save()
+
+        resp = self.client.patch(self.api_url(project.id),
                                  {'linkname': 'foo'})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_anonymous_delete(self):
         """Ensure anonymous "DELETE" operations are rejected."""
-        resp = self.client.delete(self.api_url(self.project.id))
+        project = defaults.project
+        project.save()
+
+        resp = self.client.delete(self.api_url(project.id))
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create(self):
         """Ensure creations are rejected."""
-        user = create_maintainer(self.project)
+        project = defaults.project
+        project.save()
+
+        user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
@@ -105,28 +120,34 @@ class TestProjectAPI(APITestCase):
 
     def test_update(self):
         """Ensure updates can be performed maintainers."""
+        project = defaults.project
+        project.save()
+
         # A maintainer can update
-        user = create_maintainer(self.project)
+        user = create_maintainer(project)
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(self.project.id),
+        resp = self.client.patch(self.api_url(project.id),
                                  {'linkname': 'TEST'})
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
 
         # A normal user can't
         user = create_user()
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(self.project.id),
+        resp = self.client.patch(self.api_url(project.id),
                                  {'linkname': 'TEST'})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_delete(self):
         """Ensure deletions are rejected."""
         # Even an admin can't remove a project
-        user = create_maintainer(self.project)
+        project = defaults.project
+        project.save()
+
+        user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
-        resp = self.client.delete(self.api_url(self.project.id))
+        resp = self.client.delete(self.api_url(project.id))
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
         self.assertEqual(1, Project.objects.all().count())
 
