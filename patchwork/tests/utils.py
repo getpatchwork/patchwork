@@ -52,28 +52,6 @@ def read_patch(filename, encoding=None):
     return f.read()
 
 
-class defaults(object):
-    project = Project(linkname='test-project', name='Test Project',
-                      listid='test.example.com')
-
-    patch_author = 'Patch Author <patch-author@example.com>'
-    patch_author_person = Person(name='Patch Author',
-                                 email='patch-author@example.com')
-
-    comment_author = 'Comment Author <comment-author@example.com>'
-
-    sender = 'Test Author <test-author@example.com>'
-
-    subject = 'Test Subject'
-
-    patch_name = 'Test Patch'
-
-    patch = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
-+++ a	2011-01-01 00:00:00.000000000 +0800
-@@ -0,0 +1 @@
-+a
-"""
-
 error_strings = {
     'email': 'Enter a valid email address.',
 }
@@ -252,12 +230,9 @@ def _create_submissions(create_func, count=1, **kwargs):
         count (int): Number of patches to create
         kwargs (dict): Overrides for various patch fields
     """
-    defaults.project.save()
-    defaults.patch_author_person.save()
-
     values = {
-        'project': defaults.project,
-        'submitter': defaults.patch_author_person,
+        'project': create_project(),
+        'submitter': create_person(),
     }
     values.update(kwargs)
 
