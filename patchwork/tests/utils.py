@@ -152,8 +152,8 @@ def create_bundle(**kwargs):
     num = Bundle.objects.count()
 
     values = {
-        'owner': create_user(),
-        'project': create_project(),
+        'owner': create_user() if 'owner' not in kwargs else None,
+        'project': create_project() if 'project' not in kwargs else None,
         'name': 'test_bundle_%d' % num,
     }
     values.update(kwargs)
@@ -169,11 +169,11 @@ def create_patch(**kwargs):
     num = Patch.objects.count()
 
     values = {
-        'submitter': create_person(),
+        'submitter': create_person() if 'submitter' not in kwargs else None,
         'delegate': None,
-        'project': create_project(),
+        'project': create_project() if 'project' not in kwargs else None,
         'msgid': make_msgid(),
-        'state': create_state(),
+        'state': create_state() if 'state' not in kwargs else None,
         'name': 'testpatch%d' % num,
         'headers': '',
         'content': '',
@@ -192,8 +192,8 @@ def create_cover(**kwargs):
     num = CoverLetter.objects.count()
 
     values = {
-        'submitter': create_person(),
-        'project': create_project(),
+        'submitter': create_person() if 'person' not in kwargs else None,
+        'project': create_project() if 'project' not in kwargs else None,
         'msgid': make_msgid(),
         'name': 'testpatch%d' % num,
         'headers': '',
@@ -210,8 +210,8 @@ def create_cover(**kwargs):
 def create_comment(**kwargs):
     """Create 'Comment' object."""
     values = {
-        'submitter': create_person(),
-        'submission': create_patch(),
+        'submitter': create_person() if 'submitter' not in kwargs else None,
+        'submission': create_patch() if 'submission' not in kwargs else None,
         'msgid': make_msgid(),
         'content': SAMPLE_CONTENT,
     }
@@ -226,8 +226,8 @@ def create_comment(**kwargs):
 def create_check(**kwargs):
     """Create 'Check' object."""
     values = {
-        'patch': create_patch(),
-        'user': create_user(),
+        'patch': create_patch() if 'patch' not in kwargs else None,
+        'user': create_user() if 'user' not in kwargs else None,
         'date': dt.now(),
         'state': Check.STATE_SUCCESS,
         'target_url': 'http://example.com/',
@@ -250,8 +250,8 @@ def _create_submissions(create_func, count=1, **kwargs):
         kwargs (dict): Overrides for various patch fields
     """
     values = {
-        'project': create_project(),
-        'submitter': create_person(),
+        'project': create_project() if 'project' not in kwargs else None,
+        'submitter': create_person() if 'submitter' not in kwargs else None,
     }
     values.update(kwargs)
 
@@ -275,7 +275,9 @@ def create_patches(count=1, **kwargs):
         count (int): Number of patches to create
         kwargs (dict): Overrides for various patch fields
     """
-    values = {'state': create_state()}
+    values = {
+        'state': create_state() if 'state' not in kwargs else None
+    }
     values.update(kwargs)
 
     return _create_submissions(create_patch, count, **values)
