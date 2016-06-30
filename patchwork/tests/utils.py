@@ -18,12 +18,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import codecs
+from datetime import datetime as dt
 from email.utils import make_msgid
 import os
 
 from django.contrib.auth.models import User
 
 from patchwork.models import Bundle
+from patchwork.models import Check
 from patchwork.models import Comment
 from patchwork.models import CoverLetter
 from patchwork.models import Patch
@@ -135,8 +137,11 @@ def create_user(link_person=True, **kwargs):
     return user
 
 
-def create_maintainer(project, **kwargs):
+def create_maintainer(project=None, **kwargs):
     """Create a 'User' and set as maintainer for provided project."""
+    if not project:
+        project = create_project()
+
     user = create_user(**kwargs)
 
     profile = user.profile
@@ -219,6 +224,25 @@ def create_comment(**kwargs):
     comment.save()
 
     return comment
+
+
+def create_check(**kwargs):
+    """Create 'Check' object."""
+    values = {
+        'patch': create_patch(),
+        'user': create_user(),
+        'date': dt.now(),
+        'state': Check.STATE_SUCCESS,
+        'target_url': 'http://example.com/',
+        'description': '',
+        'context': 'jenkins-ci',
+    }
+    values.update(**kwargs)
+
+    check = Check(**values)
+    check.save()
+
+    return check
 
 
 def _create_submissions(create_func, count=1, **kwargs):

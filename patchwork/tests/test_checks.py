@@ -23,6 +23,7 @@ from datetime import timedelta
 from django.test import TransactionTestCase
 
 from patchwork.models import Check
+from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_user
 
@@ -34,24 +35,14 @@ class PatchChecksTest(TransactionTestCase):
         self.patch = create_patches()[0]
         self.user = create_user()
 
-    def create_check(self, **kwargs):
-        check_values = {
+    def _create_check(self, **kwargs):
+        values = {
             'patch': self.patch,
             'user': self.user,
-            'date': dt.now(),
-            'state': Check.STATE_SUCCESS,
-            'target_url': 'http://example.com/',
-            'description': '',
-            'context': 'intel/jenkins-ci',
         }
+        values.update(**kwargs)
 
-        for key in check_values:
-            if key in kwargs:
-                check_values[key] = kwargs[key]
-
-        check = Check(**check_values)
-        check.save()
-        return check
+        return create_check(**values)
 
     def assertCheckEqual(self, patch, check_state):
         state_names = dict(Check.STATE_CHOICES)
@@ -87,77 +78,77 @@ class PatchChecksTest(TransactionTestCase):
         self.assertChecksEqual(self.patch, [])
 
     def test_checks__single_check(self):
-        check = self.create_check()
+        check = self._create_check()
         self.assertChecksEqual(self.patch, [check])
 
     def test_checks__multiple_checks(self):
-        check_a = self.create_check()
-        check_b = self.create_check(context='new-context/test1')
+        check_a = self._create_check()
+        check_b = self._create_check(context='new-context/test1')
         self.assertChecksEqual(self.patch, [check_a, check_b])
 
     def test_checks__duplicate_checks(self):
-        self.create_check(date=(dt.now() - timedelta(days=1)))
-        check = self.create_check()
+        self._create_check(date=(dt.now() - timedelta(days=1)))
+        check = self._create_check()
         # this isn't a realistic scenario (dates shouldn't be set by user so
         # they will always increment), but it's useful to verify the removal
         # of older duplicates by the function
-        self.create_check(date=(dt.now() - timedelta(days=2)))
+        self._create_check(date=(dt.now() - timedelta(days=2)))
         self.assertChecksEqual(self.patch, [check])
 
     def test_checks__nultiple_users(self):
-        check_a = self.create_check()
-        check_b = self.create_check(user=create_user())
+        check_a = self._create_check()
+        check_b = self._create_check(user=create_user())
         self.assertChecksEqual(self.patch, [check_a, check_b])
 
     def test_check_count__no_checks(self):
         self.assertCheckCountEqual(self.patch, 0)
 
     def test_check_count__single_check(self):
-        self.create_check()
+        self._create_check()
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
     def test_check_count__multiple_checks(self):
-        self.create_check(date=(dt.now() - timedelta(days=1)))
-        self.create_check(context='new/test1')
+        self._create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(context='new/test1')
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
 
     def test_check_count__multiple_users(self):
-        self.create_check()
-        self.create_check(user=create_user())
+        self._create_check()
+        self._create_check(user=create_user())
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
 
     def test_check_count__duplicate_check_same_state(self):
-        self.create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.now() - timedelta(days=1)))
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
-        self.create_check()
+        self._create_check()
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 1})
 
     def test_check_count__duplicate_check_new_state(self):
-        self.create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.now() - timedelta(days=1)))
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
-        self.create_check(state=Check.STATE_FAIL)
+        self._create_check(state=Check.STATE_FAIL)
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_FAIL: 1})
 
     def test_check__no_checks(self):
         self.assertCheckEqual(self.patch, Check.STATE_PENDING)
 
     def test_check__single_check(self):
-        self.create_check()
+        self._create_check()
         self.assertCheckEqual(self.patch, Check.STATE_SUCCESS)
 
     def test_check__failure_check(self):
-        self.create_check()
-        self.create_check(context='new/test1', state=Check.STATE_FAIL)
+        self._create_check()
+        self._create_check(context='new/test1', state=Check.STATE_FAIL)
         self.assertCheckEqual(self.patch, Check.STATE_FAIL)
 
     def test_check__warning_check(self):
-        self.create_check()
-        self.create_check(context='new/test1', state=Check.STATE_WARNING)
+        self._create_check()
+        self._create_check(context='new/test1', state=Check.STATE_WARNING)
         self.assertCheckEqual(self.patch, Check.STATE_WARNING)
 
     def test_check__success_check(self):
-        self.create_check()
-        self.create_check(context='new/test1')
+        self._create_check()
+        self._create_check(context='new/test1')
         self.assertCheckEqual(self.patch, Check.STATE_SUCCESS)
