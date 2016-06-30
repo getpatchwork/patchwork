@@ -17,17 +17,23 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from email.utils import make_msgid
 import unittest
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from patchwork.models import Check, Patch, Project
-from patchwork.tests.utils import (
-    defaults, create_maintainer, create_user, create_patches, make_msgid)
+from patchwork.models import Check
+from patchwork.models import Patch
+from patchwork.models import Project
+from patchwork.tests.utils import create_check
+from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_user
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -42,8 +48,7 @@ class TestProjectAPI(APITestCase):
 
     def test_list_simple(self):
         """Validate we can list the default test project."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -55,8 +60,7 @@ class TestProjectAPI(APITestCase):
 
     def test_detail(self):
         """Validate we can get a specific project."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         resp = self.client.get(self.api_url(project.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -65,13 +69,11 @@ class TestProjectAPI(APITestCase):
         # make sure we can look up by linkname
         resp = self.client.get(self.api_url(resp.data['link_name']))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(defaults.project.name, resp.data['name'])
+        self.assertEqual(project.name, resp.data['name'])
 
     def test_get_numeric_linkname(self):
         """Validate we try to do the right thing for numeric linkname"""
-        project = Project(linkname='12345', name='Test Project',
-                          listid='test.example.com')
-        project.save()
+        project = create_project(linkname='12345')
 
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -79,9 +81,6 @@ class TestProjectAPI(APITestCase):
 
     def test_anonymous_create(self):
         """Ensure anonymous POST operations are rejected."""
-        project = defaults.project
-        project.save()
-
         resp = self.client.post(
             self.api_url(),
             {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
@@ -89,8 +88,7 @@ class TestProjectAPI(APITestCase):
 
     def test_anonymous_update(self):
         """Ensure anonymous "PATCH" operations are rejected."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         resp = self.client.patch(self.api_url(project.id),
                                  {'linkname': 'foo'})
@@ -98,16 +96,14 @@ class TestProjectAPI(APITestCase):
 
     def test_anonymous_delete(self):
         """Ensure anonymous "DELETE" operations are rejected."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         resp = self.client.delete(self.api_url(project.id))
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create(self):
         """Ensure creations are rejected."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         user = create_maintainer(project)
         user.is_superuser = True
@@ -120,8 +116,7 @@ class TestProjectAPI(APITestCase):
 
     def test_update(self):
         """Ensure updates can be performed maintainers."""
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         # A maintainer can update
         user = create_maintainer(project)
@@ -140,8 +135,7 @@ class TestProjectAPI(APITestCase):
     def test_delete(self):
         """Ensure deletions are rejected."""
         # Even an admin can't remove a project
-        project = defaults.project
-        project.save()
+        project = create_project()
 
         user = create_maintainer(project)
         user.is_superuser = True
@@ -171,6 +165,7 @@ class TestPersonAPI(APITestCase):
         """This API requires authenticated users."""
         user = create_user()
         self.client.force_authenticate(user=user)
+
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -179,19 +174,19 @@ class TestPersonAPI(APITestCase):
         self.assertIn('users/%d/' % user.id, resp.data[0]['user_url'])
 
     def test_unlinked_user(self):
-        defaults.patch_author_person.save()
+        person = create_person()
         user = create_user()
         self.client.force_authenticate(user=user)
+
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data))
-        self.assertEqual(defaults.patch_author_person.name,
+        self.assertEqual(person.name,
                          resp.data[0]['name'])
         self.assertIsNone(resp.data[0]['user_url'])
 
     def test_readonly(self):
-        defaults.project.save()
-        user = create_maintainer(defaults.project)
+        user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
@@ -226,6 +221,7 @@ class TestUserAPI(APITestCase):
         """This API requires authenticated users."""
         user = create_user()
         self.client.force_authenticate(user=user)
+
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -234,8 +230,7 @@ class TestUserAPI(APITestCase):
         self.assertNotIn('is_superuser', resp.data[0])
 
     def test_readonly(self):
-        defaults.project.save()
-        user = create_maintainer(defaults.project)
+        user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
@@ -254,9 +249,6 @@ class TestUserAPI(APITestCase):
 class TestPatchAPI(APITestCase):
     fixtures = ['default_states', 'default_tags']
 
-    def setUp(self):
-        self.patches = create_patches()
-
     @staticmethod
     def api_url(item=None):
         if item is None:
@@ -267,12 +259,17 @@ class TestPatchAPI(APITestCase):
         """Validate we can list a patch."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+        patch_obj = create_patch()
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        patch = resp.data[0]
-        self.assertEqual(self.patches[0].name, patch['name'])
-        self.assertNotIn('content', patch)
-        self.assertNotIn('headers', patch)
-        self.assertNotIn('diff', patch)
+        patch_rsp = resp.data[0]
+        self.assertEqual(patch_obj.name, patch_rsp['name'])
+        self.assertNotIn('content', patch_rsp)
+        self.assertNotIn('headers', patch_rsp)
+        self.assertNotIn('diff', patch_rsp)
 
         # test while authenticated
         user = create_user()
@@ -280,33 +277,29 @@ class TestPatchAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        patch = resp.data[0]
-        self.assertEqual(self.patches[0].name, patch['name'])
+        patch_rsp = resp.data[0]
+        self.assertEqual(patch_obj.name, patch_rsp['name'])
 
     def test_detail(self):
         """Validate we can get a specific project."""
-        resp = self.client.get(self.api_url(self.patches[0].id))
+        patch = create_patch()
+
+        resp = self.client.get(self.api_url(patch.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(self.patches[0].name, resp.data['name'])
-        self.assertIn(TestProjectAPI.api_url(self.patches[0].project.id),
+        self.assertEqual(patch.name, resp.data['name'])
+        self.assertIn(TestProjectAPI.api_url(patch.project.id),
                       resp.data['project_url'])
-        self.assertEqual(self.patches[0].msgid, resp.data['msgid'])
-        self.assertEqual(self.patches[0].diff, resp.data['diff'])
-        self.assertIn(TestPersonAPI.api_url(self.patches[0].submitter.id),
+        self.assertEqual(patch.msgid, resp.data['msgid'])
+        self.assertEqual(patch.diff, resp.data['diff'])
+        self.assertIn(TestPersonAPI.api_url(patch.submitter.id),
                       resp.data['submitter_url'])
-        self.assertEqual(self.patches[0].state.name, resp.data['state'])
-        self.assertIn(self.patches[0].get_mbox_url(), resp.data['mbox_url'])
+        self.assertEqual(patch.state.name, resp.data['state'])
+        self.assertIn(patch.get_mbox_url(), resp.data['mbox_url'])
 
     def test_detail_tags(self):
-        # defaults.project is remembered between TestCases and .save() is
-        # called which just updates the object. This leaves the potential for
-        # the @cached_property project.tags to be invalid, so we have to
-        # invalidate this cached value before doing tag operations:
-        del defaults.project.tags
-
-        self.patches[0].content = 'Reviewed-by: Test User <test@example.com>\n'
-        self.patches[0].save()
-        resp = self.client.get(self.api_url(self.patches[0].id))
+        patch = create_patch(
+            content='Reviewed-by: Test User <test@example.com>\n')
+        resp = self.client.get(self.api_url(patch.id))
         tags = resp.data['tags']
         self.assertEqual(1, len(tags))
         self.assertEqual(1, tags[0]['count'])
@@ -315,8 +308,8 @@ class TestPatchAPI(APITestCase):
     def test_anonymous_create(self):
         """Ensure anonymous "POST" operations are rejected."""
         patch = {
-            'project': defaults.project.id,
-            'submitter': defaults.patch_author_person.id,
+            'project': create_project().id,
+            'submitter': create_person().id,
             'msgid': make_msgid(),
             'name': 'test-create-patch',
             'diff': 'patch diff',
@@ -327,7 +320,9 @@ class TestPatchAPI(APITestCase):
 
     def test_anonymous_update(self):
         """Ensure anonymous "PATCH" operations are rejected."""
-        patch_url = self.api_url(self.patches[0].id)
+        patch = create_patch()
+        patch_url = self.api_url(patch.id)
+
         resp = self.client.get(patch_url)
         patch = resp.data
         patch['msgid'] = 'foo'
@@ -338,53 +333,62 @@ class TestPatchAPI(APITestCase):
 
     def test_anonymous_delete(self):
         """Ensure anonymous "DELETE" operations are rejected."""
-        patch_url = self.api_url(self.patches[0].id)
-        resp = self.client.get(patch_url)
+        patch = create_patch()
+        patch_url = self.api_url(patch.id)
 
         resp = self.client.delete(patch_url)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create(self):
         """Ensure creations are rejected."""
+        submitter = create_person()
+        project = create_project()
+        user = create_maintainer(project)
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
         patch = {
-            'project': defaults.project.id,
-            'submitter': defaults.patch_author_person.id,
+            'project': project.id,
+            'submitter': submitter.id,
             'msgid': make_msgid(),
             'name': 'test-create-patch',
             'diff': 'patch diff',
         }
 
-        user = create_maintainer(defaults.project)
-        user.is_superuser = True
-        user.save()
-        self.client.force_authenticate(user=user)
-
         resp = self.client.post(self.api_url(), patch)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_update(self):
-        """Ensure updates can be performed maintainers."""
+        """Ensure updates can be performed by maintainers."""
         # A maintainer can update
-        user = create_maintainer(defaults.project)
+        project = create_project()
+        patch = create_patch(project=project)
+        user = create_maintainer(project)
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(self.patches[0].id),
+
+        resp = self.client.patch(self.api_url(patch.id),
                                  {'state': 2})
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
 
         # A normal user can't
         user = create_user()
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(self.patches[0].id),
+
+        resp = self.client.patch(self.api_url(patch.id),
                                  {'state': 2})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_delete(self):
-        """Ensure deletions are rejected."""
-        user = create_maintainer(defaults.project)
+        """Ensure deletions are always rejected."""
+        project = create_project()
+        patch = create_patch(project=project)
+        user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
-        resp = self.client.delete(self.api_url(self.patches[0].id))
+
+        resp = self.client.delete(self.api_url(patch.id))
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
         self.assertEqual(1, Patch.objects.all().count())
 
@@ -395,16 +399,18 @@ class TestCheckAPI(APITestCase):
 
     def setUp(self):
         super(TestCheckAPI, self).setUp()
-        self.patch = create_patches()[0]
+        project = create_project()
+        self.user = create_maintainer(project)
+        self.patch = create_patch(project=project)
         self.urlbase = reverse('api_1.0:patch-detail', args=[self.patch.id])
         self.urlbase += 'checks/'
-        defaults.project.save()
-        self.user = create_maintainer(defaults.project)
 
-    def create_check(self):
-        return Check.objects.create(patch=self.patch, user=self.user,
-                                    state=Check.STATE_WARNING, target_url='t',
-                                    description='d', context='c')
+    def _create_check(self):
+        values = {
+            'patch': self.patch,
+            'user': self.user,
+        }
+        return create_check(**values)
 
     def test_list_simple(self):
         """Validate we can list checks on a patch."""
@@ -412,37 +418,38 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        c = self.create_check()
+        check_obj = self._create_check()
+
         resp = self.client.get(self.urlbase)
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        check = resp.data[0]
-        self.assertEqual(c.get_state_display(), check['state'])
-        self.assertEqual(c.target_url, check['target_url'])
-        self.assertEqual(c.context, check['context'])
-        self.assertEqual(c.description, check['description'])
+        check_rsp = resp.data[0]
+        self.assertEqual(check_obj.get_state_display(), check_rsp['state'])
+        self.assertEqual(check_obj.target_url, check_rsp['target_url'])
+        self.assertEqual(check_obj.context, check_rsp['context'])
+        self.assertEqual(check_obj.description, check_rsp['description'])
 
     def test_detail(self):
         """Validate we can get a specific check."""
-        c = self.create_check()
-        resp = self.client.get(self.urlbase + str(c.id) + '/')
+        check = self._create_check()
+        resp = self.client.get(self.urlbase + str(check.id) + '/')
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(c.target_url, resp.data['target_url'])
+        self.assertEqual(check.target_url, resp.data['target_url'])
 
     def test_update_delete(self):
         """Ensure updates and deletes aren't allowed"""
-        c = self.create_check()
-
+        check = self._create_check()
         self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(user=self.user)
 
         # update
         resp = self.client.patch(
-            self.urlbase + str(c.id) + '/', {'target_url': 'fail'})
+            self.urlbase + str(check.id) + '/', {'target_url': 'fail'})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
         # delete
-        resp = self.client.delete(self.urlbase + str(c.id) + '/')
+        resp = self.client.delete(self.urlbase + str(check.id) + '/')
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create(self):
@@ -465,7 +472,7 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create_invalid(self):
-        """Ensure we handle invalid check states"""
+        """Ensure we handle invalid check states."""
         check = {
             'state': 'this-is-not-a-valid-state',
             'target_url': 'http://t.co',
