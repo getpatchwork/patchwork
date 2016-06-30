@@ -26,8 +26,6 @@ from patchwork.tests.utils import read_patch
 
 class UTF8PatchViewTest(TestCase):
 
-    fixtures = ['default_states']
-
     def setUp(self):
         patch_content = read_patch('0002-utf-8.patch', encoding='utf-8')
         self.patch = create_patch(diff=patch_content)
@@ -49,8 +47,6 @@ class UTF8PatchViewTest(TestCase):
 
 
 class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
-
-    fixtures = ['default_states']
 
     def setUp(self):
         author = create_person(name=u'P\xe4tch Author')

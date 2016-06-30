@@ -30,7 +30,7 @@ from patchwork.tests.utils import create_patch
 
 class ExtractTagsTest(TestCase):
 
-    fixtures = ['default_tags', 'default_states']
+    fixtures = ['default_tags']
     email = 'test@example.com'
     name_email = 'test name <' + email + '>'
 
@@ -83,7 +83,7 @@ class ExtractTagsTest(TestCase):
 
 class PatchTagsTest(TransactionTestCase):
 
-    fixtures = ['default_tags', 'default_states']
+    fixtures = ['default_tags']
     ACK = 1
     REVIEW = 2
     TEST = 3

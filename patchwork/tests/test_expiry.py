@@ -32,8 +32,6 @@ from patchwork.utils import do_expiry
 
 class TestRegistrationExpiry(TestCase):
 
-    fixtures = ['default_states']
-
     def register(self, date):
         user = create_user()
         user.is_active = False

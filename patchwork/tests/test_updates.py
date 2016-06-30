@@ -24,12 +24,12 @@ from patchwork.models import Patch
 from patchwork.models import State
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_maintainer
 
 
 class MultipleUpdateTest(TestCase):
 
-    fixtures = ['default_states']
     properties_form_id = 'patchform-properties'
 
     def setUp(self):
@@ -95,8 +95,7 @@ class MultipleUpdateTest(TestCase):
         return response
 
     def test_state_change_valid(self):
-        states = [patch.state.pk for patch in self.patches]
-        state = State.objects.exclude(pk__in=states)[0]
+        state = create_state()
 
         self._test_state_change(state.pk)
 

@@ -25,18 +25,16 @@ from django.test import TestCase
 
 from patchwork.models import EmailOptout
 from patchwork.models import PatchChangeNotification
-from patchwork.models import State
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_state
 from patchwork.utils import send_notifications
 
 
 class PatchNotificationModelTest(TestCase):
 
     """Tests for the creation and update of the PatchChangeNotifications."""
-
-    fixtures = ['default_states']
 
     def setUp(self):
         self.project = create_project(send_notifications=True)
@@ -59,7 +57,7 @@ class PatchNotificationModelTest(TestCase):
         """Ensure we get a notification for interesting patch changes"""
         patch = create_patch(project=self.project)
         oldstate = patch.state
-        state = State.objects.exclude(pk=oldstate.pk)[0]
+        state = create_state()
 
         patch.state = state
         patch.save()
@@ -73,7 +71,7 @@ class PatchNotificationModelTest(TestCase):
         """Ensure we cancel notifications that are no longer valid"""
         patch = create_patch(project=self.project)
         oldstate = patch.state
-        state = State.objects.exclude(pk=oldstate.pk)[0]
+        state = create_state()
 
         patch.state = state
         patch.save()
@@ -88,7 +86,7 @@ class PatchNotificationModelTest(TestCase):
            but keep the original patch details"""
         patch = create_patch(project=self.project)
         oldstate = patch.state
-        newstates = State.objects.exclude(pk=oldstate.pk)[:2]
+        newstates = [create_state(), create_state()]
 
         patch.state = newstates[0]
         patch.save()
@@ -109,8 +107,7 @@ class PatchNotificationModelTest(TestCase):
         """Ensure we don't see notifications created when a project is
            configured not to send them"""
         patch = create_patch()  # don't use self.project
-        oldstate = patch.state
-        state = State.objects.exclude(pk=oldstate.pk)[0]
+        state = create_state()
 
         patch.state = state
         patch.save()
@@ -118,8 +115,6 @@ class PatchNotificationModelTest(TestCase):
 
 
 class PatchNotificationEmailTest(TestCase):
-
-    fixtures = ['default_states']
 
     def setUp(self):
         self.project = create_project(send_notifications=True)
@@ -212,11 +207,14 @@ class PatchNotificationEmailTest(TestCase):
             patch.save()
             PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
+        state = create_state()
+
         self.assertEqual(PatchChangeNotification.objects.count(), len(patches))
         self._expire_notifications()
 
         # update one notification, to bring it out of the notification delay
-        patches[0].state = State.objects.exclude(pk=patches[0].state.pk)[0]
+
+        patches[0].state = state
         patches[0].save()
 
         # the updated notification should prevent the other from being sent

@@ -31,15 +31,15 @@ from patchwork.bin.parsemail import find_author
 from patchwork.bin.parsemail import find_content
 from patchwork.bin.parsemail import find_project_by_header
 from patchwork.bin.parsemail import find_pull_request
-from patchwork.bin.parsemail import parse_mail
+from patchwork.bin.parsemail import parse_mail as _parse_mail
 from patchwork.bin.parsemail import parse_series_marker
 from patchwork.bin.parsemail import split_prefixes
 from patchwork.models import Comment
-from patchwork.models import get_default_initial_patch_state
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import read_patch
 from patchwork.tests.utils import SAMPLE_DIFF
@@ -74,9 +74,12 @@ def create_email(content, msgid=None, sender=None, listid=None):
     return _create_email(msg, msgid, sender, listid)
 
 
-class PatchTest(TestCase):
+def parse_mail(*args, **kwargs):
+    create_state()
+    return _parse_mail(*args, **kwargs)
 
-    fixtures = ['default_states']
+
+class PatchTest(TestCase):
 
     def setUp(self):
         self.project = create_project()
@@ -330,7 +333,6 @@ class MultipleProjectPatchTest(TestCase):
     """Test that patches sent to multiple patchwork projects are
        handled correctly."""
 
-    fixtures = ['default_states']
     orig_content = 'Test Comment'
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
@@ -510,7 +512,6 @@ class PatchParseTest(PatchTest):
 
 class DelegateRequestTest(TestCase):
 
-    fixtures = ['default_states']
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_delegate_email = "nobody"
@@ -552,17 +553,17 @@ class DelegateRequestTest(TestCase):
 
 class InitialPatchStateTest(TestCase):
 
-    fixtures = ['default_states']
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_state_name = "Nonexistent Test State"
 
     def setUp(self):
+        self.default_state = create_state()
+        self.nondefault_state = create_state()
+
         self.patch = read_patch(self.patch_filename)
         self.user = create_user()
         self.project = create_project()
-        self.default_state = get_default_initial_patch_state()
-        self.nondefault_state = State.objects.get(name="Accepted")
 
     def _get_email(self):
         email = create_email(
@@ -607,7 +608,7 @@ class InitialPatchStateTest(TestCase):
 
 class ParseInitialTagsTest(PatchTest):
 
-    fixtures = ['default_tags', 'default_states']
+    fixtures = ['default_tags']
     patch_filename = '0001-add-line.patch'
     orig_content = ('test comment\n\n' +
                     'Tested-by: Test User <test@example.com>\n' +

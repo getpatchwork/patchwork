@@ -31,6 +31,7 @@ from patchwork.models import CoverLetter
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
+from patchwork.models import State
 
 SAMPLE_DIFF = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
 +++ a	2011-01-01 00:00:00.000000000 +0800
@@ -129,6 +130,23 @@ def create_maintainer(project=None, **kwargs):
     return user
 
 
+def create_state(**kwargs):
+    """Create 'State' object."""
+    num = State.objects.count()
+
+    values = {
+        'name': 'state_%d' % num,
+        'ordering': num,
+        'action_required': True,
+    }
+    values.update(kwargs)
+
+    state = State(**values)
+    state.save()
+
+    return state
+
+
 def create_bundle(**kwargs):
     """Create 'Bundle' object."""
     num = Bundle.objects.count()
@@ -155,6 +173,7 @@ def create_patch(**kwargs):
         'delegate': None,
         'project': create_project(),
         'msgid': make_msgid(),
+        'state': create_state(),
         'name': 'testpatch%d' % num,
         'headers': '',
         'content': '',
@@ -256,7 +275,10 @@ def create_patches(count=1, **kwargs):
         count (int): Number of patches to create
         kwargs (dict): Overrides for various patch fields
     """
-    return _create_submissions(create_patch, count, **kwargs)
+    values = {'state': create_state()}
+    values.update(kwargs)
+
+    return _create_submissions(create_patch, count, **values)
 
 
 def create_covers(count=1, **kwargs):

@@ -32,8 +32,6 @@ from patchwork.tests.utils import create_patches
                      'setting)')
 class XMLRPCTest(LiveServerTestCase):
 
-    fixtures = ['default_states']
-
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
         self.rpc = xmlrpc_client.Server(self.url)

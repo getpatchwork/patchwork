@@ -44,8 +44,6 @@ class EmptyPatchListTest(TestCase):
 
 class PatchOrderTest(TestCase):
 
-    fixtures = ['default_states']
-
     d = datetime.datetime
     patchmeta = [
         ('AlCMyjOsx', 'AlxMyjOsx@nRbqkQV.wBw',

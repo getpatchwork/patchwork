@@ -146,8 +146,6 @@ class UserLoginRedirectTest(TestCase):
 
 class UserProfileTest(_UserTestCase):
 
-    fixtures = ['default_states']
-
     def test_user_profile(self):
         response = self.client.get(reverse('user-profile'))
         self.assertContains(response, 'Your Profile')

@@ -38,8 +38,6 @@ class MboxPatchResponseTest(TestCase):
 
     """Test that the mbox view appends the Acked-by from a patch comment."""
 
-    fixtures = ['default_states']
-
     def setUp(self):
         project = create_project()
         self.person = create_person()
@@ -62,8 +60,6 @@ class MboxPatchSplitResponseTest(TestCase):
     """Test that the mbox view appends the Acked-by from a patch comment,
        and places it before an '---' update line."""
 
-    fixtures = ['default_states']
-
     def setUp(self):
         project = create_project()
         self.person = create_person()
@@ -85,8 +81,6 @@ class MboxPatchSplitResponseTest(TestCase):
 class MboxHeaderTest(TestCase):
 
     """Test the passthrough and generation of various headers."""
-
-    fixtures = ['default_states']
 
     def test_header_passthrough_cc(self):
         """Validate passthrough of 'Cc' header."""
@@ -163,8 +157,6 @@ class MboxHeaderTest(TestCase):
 
 
 class MboxCommentPostcriptUnchangedTest(TestCase):
-
-    fixtures = ['default_states']
 
     def test_comment_unchanged(self):
         """Validate postscript part of mail is unchanged.

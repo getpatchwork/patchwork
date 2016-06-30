@@ -38,7 +38,6 @@ from patchwork.tests.utils import create_user
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestProjectAPI(APITestCase):
-    fixtures = ['default_states']
 
     @staticmethod
     def api_url(item=None):
@@ -148,7 +147,6 @@ class TestProjectAPI(APITestCase):
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestPersonAPI(APITestCase):
-    fixtures = ['default_states']
 
     @staticmethod
     def api_url(item=None):
@@ -204,7 +202,6 @@ class TestPersonAPI(APITestCase):
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestUserAPI(APITestCase):
-    fixtures = ['default_states']
 
     @staticmethod
     def api_url(item=None):
@@ -247,7 +244,7 @@ class TestUserAPI(APITestCase):
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestPatchAPI(APITestCase):
-    fixtures = ['default_states', 'default_tags']
+    fixtures = ['default_tags']
 
     @staticmethod
     def api_url(item=None):
@@ -395,7 +392,7 @@ class TestPatchAPI(APITestCase):
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestCheckAPI(APITestCase):
-    fixtures = ['default_states', 'default_tags']
+    fixtures = ['default_tags']
 
     def setUp(self):
         super(TestCheckAPI, self).setUp()

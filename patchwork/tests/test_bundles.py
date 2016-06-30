@@ -64,8 +64,6 @@ class BundleListTest(TestCase):
 
 class BundleTestBase(TestCase):
 
-    fixtures = ['default_states']
-
     def setUp(self, count=3):
         self.user = create_user()
         self.client.login(username=self.user.username,

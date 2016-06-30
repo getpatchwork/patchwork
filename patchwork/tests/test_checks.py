@@ -29,7 +29,6 @@ from patchwork.tests.utils import create_user
 
 
 class PatchChecksTest(TransactionTestCase):
-    fixtures = ['default_tags', 'default_states']
 
     def setUp(self):
         self.patch = create_patches()[0]
