@@ -22,6 +22,7 @@ from __future__ import absolute_import
 
 from collections import Counter, OrderedDict
 import datetime
+import hashlib
 import random
 import re
 
@@ -35,7 +36,6 @@ from django.utils.functional import cached_property
 from django.utils.six.moves import filter
 
 from patchwork.fields import HashField
-from patchwork.parser import extract_tags, hash_diff
 
 
 @python_2_unicode_compatible
@@ -337,6 +337,64 @@ class Patch(Submission):
 
     objects = PatchManager()
 
+    @staticmethod
+    def extract_tags(content, tags):
+        counts = Counter()
+
+        for tag in tags:
+            regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
+            counts[tag] = len(regex.findall(content))
+
+        return counts
+
+    @staticmethod
+    def hash_diff(diff):
+        """Generate a hash from a diff."""
+        hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
+        filename_re = re.compile(r'^(---|\+\+\+) (\S+)')
+
+        # normalise spaces
+        diff = diff.replace('\r', '')
+        diff = diff.strip() + '\n'
+
+        prefixes = ['-', '+', ' ']
+        hash = hashlib.sha1()
+
+        for line in diff.split('\n'):
+            if len(line) <= 0:
+                continue
+
+            hunk_match = hunk_re.match(line)
+            filename_match = filename_re.match(line)
+
+            if filename_match:
+                # normalise -p1 top-directories
+                if filename_match.group(1) == '---':
+                    filename = 'a/'
+                else:
+                    filename = 'b/'
+                filename += '/'.join(filename_match.group(2).split('/')[1:])
+
+                line = filename_match.group(1) + ' ' + filename
+            elif hunk_match:
+                # remove line numbers, but leave line counts
+                def fn(x):
+                    if not x:
+                        return 1
+                    return int(x)
+                line_nos = list(map(fn, hunk_match.groups()))
+                line = '@@ -%d +%d @@' % tuple(line_nos)
+            elif line[0] in prefixes:
+                # if we have a +, - or context line, leave as-is
+                pass
+            else:
+                # other lines are ignored
+                continue
+
+            hash.update((line + '\n').encode('utf-8'))
+
+        return hash
+
     def _set_tag(self, tag, count):
         if count == 0:
             self.patchtag_set.filter(tag=tag).delete()
@@ -351,10 +409,10 @@ class Patch(Submission):
         counter = Counter()
 
         if self.content:
-            counter += extract_tags(self.content, tags)
+            counter += self.extract_tags(self.content, tags)
 
         for comment in self.comments.all():
-            counter = counter + extract_tags(comment.content, tags)
+            counter = counter + self.extract_tags(comment.content, tags)
 
         for tag in tags:
             self._set_tag(tag, counter[tag])
@@ -364,7 +422,7 @@ class Patch(Submission):
             self.state = get_default_initial_patch_state()
 
         if self.hash is None and self.diff is not None:
-            self.hash = hash_diff(self.diff).hexdigest()
+            self.hash = self.hash_diff(self.diff).hexdigest()
 
         super(Patch, self).save(**kwargs)
 

@@ -23,7 +23,6 @@ from django.test import TransactionTestCase
 from patchwork.models import Patch
 from patchwork.models import PatchTag
 from patchwork.models import Tag
-from patchwork.parser import extract_tags
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_patch
 
@@ -35,7 +34,7 @@ class ExtractTagsTest(TestCase):
     name_email = 'test name <' + email + '>'
 
     def assertTagsEqual(self, str, acks, reviews, tests):
-        counts = extract_tags(str, Tag.objects.all())
+        counts = Patch.extract_tags(str, Tag.objects.all())
         self.assertEqual((acks, reviews, tests),
                          (counts[Tag.objects.get(name='Acked-by')],
                           counts[Tag.objects.get(name='Reviewed-by')],

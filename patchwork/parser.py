@@ -19,8 +19,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from collections import Counter
-import hashlib
 import re
 
 from django.utils.six.moves import map
@@ -181,61 +179,6 @@ def parse_patch(content):
         commentbuf = None
 
     return patchbuf, commentbuf
-
-
-def hash_diff(diff):
-    """Generate a hash from a diff."""
-    # normalise spaces
-    diff = diff.replace('\r', '')
-    diff = diff.strip() + '\n'
-
-    prefixes = ['-', '+', ' ']
-    hash = hashlib.sha1()
-
-    for line in diff.split('\n'):
-        if len(line) <= 0:
-            continue
-
-        hunk_match = _hunk_re.match(line)
-        filename_match = _filename_re.match(line)
-
-        if filename_match:
-            # normalise -p1 top-directories
-            if filename_match.group(1) == '---':
-                filename = 'a/'
-            else:
-                filename = 'b/'
-            filename += '/'.join(filename_match.group(2).split('/')[1:])
-
-            line = filename_match.group(1) + ' ' + filename
-        elif hunk_match:
-            # remove line numbers, but leave line counts
-            def fn(x):
-                if not x:
-                    return 1
-                return int(x)
-            line_nos = list(map(fn, hunk_match.groups()))
-            line = '@@ -%d +%d @@' % tuple(line_nos)
-        elif line[0] in prefixes:
-            # if we have a +, - or context line, leave as-is
-            pass
-        else:
-            # other lines are ignored
-            continue
-
-        hash.update((line + '\n').encode('utf-8'))
-
-    return hash
-
-
-def extract_tags(content, tags):
-    counts = Counter()
-
-    for tag in tags:
-        regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
-        counts[tag] = len(regex.findall(content))
-
-    return counts
 
 
 def find_filenames(diff):
