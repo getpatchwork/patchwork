@@ -203,50 +203,119 @@ class UpdateCommentTest(InlinePatchTest):
 
 
 class SenderEncodingTest(TestCase):
+    """Validate correct handling of encoded recipients."""
 
-    sender_name = u'example user'
-    sender_email = 'user@example.com'
-    from_header = 'example user <user@example.com>'
-
-    def setUp(self):
+    @staticmethod
+    def _create_email(from_header):
         mail = 'Message-Id: %s\n' % make_msgid() + \
-               'From: %s\n' % self.from_header + \
+               'From: %s\n' % from_header + \
                'Subject: test\n\n' + \
                'test'
-        self.email = message_from_string(mail)
-        self.person = find_author(self.email)
-        self.person.save()
+        return message_from_string(mail)
 
-    def test_name(self):
-        self.assertEqual(self.person.name, self.sender_name)
+    def _test_encoding(self, from_header, sender_name, sender_email):
+        email = self._create_email(from_header)
+        person = find_author(email)
+        person.save()
 
-    def test_email(self):
-        self.assertEqual(self.person.email, self.sender_email)
+        # ensure it was parsed correctly
+        self.assertEqual(person.name, sender_name)
+        self.assertEqual(person.email, sender_email)
 
-    def test_db_query_name(self):
-        db_person = Person.objects.get(name=self.sender_name)
-        self.assertEqual(self.person, db_person)
+        # ...and that it's queryable from DB
+        db_person = Person.objects.get(name=sender_name)
+        self.assertEqual(person, db_person)
+        db_person = Person.objects.get(email=sender_email)
+        self.assertEqual(person, db_person)
 
-    def test_db_query_email(self):
-        db_person = Person.objects.get(email=self.sender_email)
-        self.assertEqual(self.person, db_person)
+    def test_ascii_encoding(self):
+        from_header = 'example user <user@example.com>'
+        sender_name = u'example user'
+        sender_email = 'user@example.com'
+        self._test_encoding(from_header, sender_name, sender_email)
+
+    def test_utf8qp_encoding(self):
+        from_header = '=?utf-8?q?=C3=A9xample=20user?= <user@example.com>'
+        sender_name = u'\xe9xample user'
+        sender_email = 'user@example.com'
+        self._test_encoding(from_header, sender_name, sender_email)
+
+    def test_utf8qp_split_encoding(self):
+        from_header = '=?utf-8?q?=C3=A9xample?= user <user@example.com>'
+        sender_name = u'\xe9xample user'
+        sender_email = 'user@example.com'
+        self._test_encoding(from_header, sender_name, sender_email)
+
+    def test_utf8b64_encoding(self):
+        from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
+        sender_name = u'\xe9xample user'
+        sender_email = 'user@example.com'
+        self._test_encoding(from_header, sender_name, sender_email)
 
 
-class SenderUTF8QPEncodingTest(SenderEncodingTest):
+class SenderCorrelationTest(TestCase):
+    """Validate correct behavior of the find_author case.
 
-    sender_name = u'\xe9xample user'
-    from_header = '=?utf-8?q?=C3=A9xample=20user?= <user@example.com>'
+    Relies of checking the internal state of a Django model object.
 
+    http://stackoverflow.com/a/19379636/613428
+    """
 
-class SenderUTF8QPSplitEncodingTest(SenderEncodingTest):
+    @staticmethod
+    def _create_email(from_header):
+        mail = 'Message-Id: %s\n' % make_msgid() + \
+               'From: %s\n' % from_header + \
+               'Subject: Tests\n\n'\
+               'test\n'
+        return message_from_string(mail)
 
-    sender_name = u'\xe9xample user'
-    from_header = '=?utf-8?q?=C3=A9xample?= user <user@example.com>'
+    def test_non_existing_sender(self):
+        sender = 'Non-existing Sender <nonexisting@example.com>'
+        mail = self._create_email(sender)
 
+        # don't create the person - attempt to find immediately
+        person = find_author(mail)
+        self.assertEqual(person._state.adding, True)
+        self.assertEqual(person.id, None)
 
-class SenderUTF8B64EncodingTest(SenderUTF8QPEncodingTest):
+    def test_existing_sender(self):
+        sender = 'Existing Sender <existing@example.com>'
+        mail = self._create_email(sender)
 
-    from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
+        # create the person first
+        person_a = find_author(mail)
+        person_a.save()
+
+        # then attempt to parse email with the same 'From' line
+        person_b = find_author(mail)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+    def test_existing_different_format(self):
+        sender = 'Existing Sender <existing@example.com>'
+        mail = self._create_email(sender)
+
+        # create the person first
+        person_a = find_author(mail)
+        person_a.save()
+
+        # then attempt to parse email with a new 'From' line
+        mail = self._create_email('existing@example.com')
+        person_b = find_author(mail)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+    def test_existing_different_case(self):
+        sender = 'Existing Sender <existing@example.com>'
+        mail = self._create_email(sender)
+
+        person_a = find_author(mail)
+        person_a.save()
+
+        mail = self._create_email(sender.upper())
+        person_b = find_author(mail)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
 
 
 class SubjectEncodingTest(TestCase):
@@ -276,57 +345,9 @@ class SubjectEncodingTest(TestCase):
         self._test_encoding(subject_header, subject)
 
     def test_subject_utf8qp_multiple_encoding(self):
-        subject = u'test s\xfcbject'
         subject_header = 'test =?utf-8?q?s=c3=bcbject?='
+        subject = u'test s\xfcbject'
         self._test_encoding(subject_header, subject)
-
-
-class SenderCorrelationTest(TestCase):
-    """Validate correct behavior of the find_author case.
-
-    Relies of checking the internal state of a Django model object.
-
-    http://stackoverflow.com/a/19379636/613428
-    """
-
-    existing_sender = 'Existing Sender <existing@example.com>'
-    non_existing_sender = 'Non-existing Sender <nonexisting@example.com>'
-
-    @staticmethod
-    def mail(sender):
-        mail = 'Message-Id: %s\n' % make_msgid() + \
-               'From: %s\n' % sender + \
-               'Subject: Tests\n\n'\
-               'test\n'
-        return message_from_string(mail)
-
-    def setUp(self):
-        self.existing_sender_mail = self.mail(self.existing_sender)
-        self.non_existing_sender_mail = self.mail(self.non_existing_sender)
-        self.person = find_author(self.existing_sender_mail)
-        self.person.save()
-
-    def test_existing_sender(self):
-        person = find_author(self.existing_sender_mail)
-        self.assertEqual(person._state.adding, False)
-        self.assertEqual(person.id, self.person.id)
-
-    def test_non_existing_sender(self):
-        person = find_author(self.non_existing_sender_mail)
-        self.assertEqual(person._state.adding, True)
-        self.assertEqual(person.id, None)
-
-    def test_existing_different_format(self):
-        mail = self.mail('existing@example.com')
-        person = find_author(mail)
-        self.assertEqual(person._state.adding, False)
-        self.assertEqual(person.id, self.person.id)
-
-    def test_existing_different_case(self):
-        mail = self.mail(self.existing_sender.upper())
-        person = find_author(mail)
-        self.assertEqual(person._state.adding, False)
-        self.assertEqual(person.id, self.person.id)
 
 
 class MultipleProjectPatchTest(TestCase):
