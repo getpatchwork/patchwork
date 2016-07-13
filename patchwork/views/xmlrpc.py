@@ -406,8 +406,8 @@ def project_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(project_to_dict, projects[:max_count]))
         elif max_count < 0:
-            return list(map(project_to_dict,
-                            projects[len(projects) + max_count:]))
+            query = projects.reverse()[:-max_count]
+            return list(map(project_to_dict, reversed(query)))
         else:
             return list(map(project_to_dict, projects))
     except Project.DoesNotExist:
@@ -461,7 +461,8 @@ def person_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(person_to_dict, people[:max_count]))
         elif max_count < 0:
-            return list(map(person_to_dict, people[len(people) + max_count:]))
+            query = people.reverse()[:-max_count]
+            return list(map(person_to_dict, reversed(query)))
         else:
             return list(map(person_to_dict, people))
     except Person.DoesNotExist:
@@ -606,8 +607,8 @@ def patch_list(filt=None):
         if max_count > 0:
             return list(map(patch_to_dict, patches[:max_count]))
         elif max_count < 0:
-            return list(map(patch_to_dict,
-                            patches[len(patches) + max_count:]))
+            query = patches.reverse()[:-max_count]
+            return list(map(patch_to_dict, reversed(query)))
         else:
             return list(map(patch_to_dict, patches))
     except Patch.DoesNotExist:
@@ -802,7 +803,8 @@ def state_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(state_to_dict, states[:max_count]))
         elif max_count < 0:
-            return list(map(state_to_dict, states[len(states) + max_count:]))
+            query = states.reverse()[:-max_count]
+            return list(map(state_to_dict, reversed(query)))
         else:
             return list(map(state_to_dict, states))
     except State.DoesNotExist:
