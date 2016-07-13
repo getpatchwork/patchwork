@@ -51,6 +51,15 @@ else:
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #
+# Auth settings
+# https://docs.djangoproject.com/en/1.8/ref/settings/#auth
+#
+
+# Use a faster, though less secure, password hasher for faster tests
+# https://docs.djangoproject.com/es/1.9/topics/testing/overview/#password-hashing
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
+#
 # Third-party application settings
 #
 
