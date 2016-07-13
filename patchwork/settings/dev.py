@@ -15,25 +15,17 @@ from .base import *  # noqa
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.6/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/1.8/ref/settings/#core-settings
 #
-
-# Security
 
 SECRET_KEY = '00000000000000000000000000000000000000000000000000'
 
-# Debugging
-
 DEBUG = True
-
-# Templates
 
 if django.VERSION < (1, 8):
     # In Django 1.8+, this is only necessary if the value differs from
     # the value for 'DEBUG'
     TEMPLATE_DEBUG = True
-
-# Database
 
 DATABASES = {
     'default': {
@@ -55,8 +47,6 @@ if django.VERSION >= (1, 7):
     }
 else:
     DATABASES['default']['TEST_CHARSET'] = 'utf8'
-
-# Email
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

@@ -11,10 +11,8 @@ ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.6/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/1.8/ref/settings/#core-settings
 #
-
-# Models
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -27,16 +25,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'patchwork',
 ]
-
-try:
-    # django rest framework isn't a standard package in most distros, so
-    # don't make it compulsory
-    import rest_framework  # NOQA
-    INSTALLED_APPS += ['rest_framework']
-except ImportError:
-    pass
-
-# HTTP
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
@@ -52,23 +40,15 @@ if django.VERSION >= (1, 7):
 else:
     MIDDLEWARE_CLASSES.append('django.middleware.doc.XViewMiddleware')
 
-# Globalization
-
 TIME_ZONE = 'Australia/Canberra'
 
 LANGUAGE_CODE = 'en-au'
 
 USE_I18N = True
 
-# Testing
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# URLs
-
 ROOT_URLCONF = 'patchwork.urls'
-
-# Templates
 
 _TEMPLATE_DIRS = [
     os.path.join(ROOT_DIR, 'templates'),
@@ -108,23 +88,23 @@ else:
     ]
 
 
-# Email
-
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
+
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/1.6/ref/settings/#auth
+# https://docs.djangoproject.com/en/1.8/ref/settings/#auth
 #
 
 LOGIN_URL = 'auth_login'
+
 LOGIN_REDIRECT_URL = 'user-profile'
 
 
 #
 # Sites settings
-# https://docs.djangoproject.com/en/1.6/ref/settings/#sites
+# https://docs.djangoproject.com/en/1.8/ref/settings/#sites
 #
 
 SITE_ID = 1
@@ -132,7 +112,7 @@ SITE_ID = 1
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/1.6/ref/settings/#static-files
+# https://docs.djangoproject.com/en/1.8/ref/settings/#static-files
 #
 
 STATIC_URL = '/static/'
@@ -141,6 +121,30 @@ STATICFILES_DIRS = [
     os.path.join(ROOT_DIR, 'htdocs'),
 ]
 
+#
+# Third-party application settings
+#
+
+try:
+    # django rest framework isn't a standard package in most distros, so
+    # don't make it compulsory
+    import rest_framework  # NOQA
+
+    INSTALLED_APPS += [
+        'rest_framework'
+    ]
+except ImportError:
+    pass
+
+#
+# Third-party application settings
+#
+
+# rest_framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+}
 
 #
 # Patchwork settings
@@ -151,6 +155,7 @@ DEFAULT_ITEMS_PER_PAGE = 100
 CONFIRMATION_VALIDITY_DAYS = 7
 
 NOTIFICATION_DELAY_MINUTES = 10
+
 NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set to True to enable the Patchwork XML-RPC interface
@@ -158,10 +163,8 @@ ENABLE_XMLRPC = False
 
 # Set to True to enable the Patchwork REST API
 ENABLE_REST_API = False
+
 REST_RESULTS_PER_PAGE = 30
-REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
-}
 
 # Set to True to enable redirections or URLs from previous versions
 # of patchwork
