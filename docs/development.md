@@ -5,9 +5,7 @@ development environment. If you are interested in deploying Patchwork in a
 production environment, please refer to [the deployment guide][doc-deployment]
 instead.
 
-## Download Patchwork
-
-The latest version of Patchwork is available with git. To download:
+To begin, you should clone Patchwork:
 
     $ git clone git://github.com/getpatchwork/patchwork.git
 
@@ -23,18 +21,20 @@ using the `vagrant up` command:
 Once stacked, follow the on-screen instructions. For more information on
 Vagrant itself, please refer to the [Vagrant documentation](ref-vagrant).
 
-Alternatively, manual installation steps are provided below.
+## Manual Installation
 
-## Install Required Packages
+Manual installation can be used where Vagrant is not possible, or not desired.
+
+### Install Required Packages
 
 There are a number of different requirements for developing Patchwork:
 
 * Python and libraries
-* A supported RDBMS
+* A supported database (RDBMS)
 
 These are detailed below.
 
-### Python Requirements
+#### Python Requirements
 
 To develop Python-based software you first need Python. Patchwork supports
 both Python 2.7 and Python 3.3+. One of these will be installed by default
@@ -55,7 +55,7 @@ It is also helpful to install [`tox`][ref-tox] which is used for running tests
 in Patchwork. This can be installed using the `python-tox` or `python3-tox`
 packages, or via `pip`.
 
-### Database Requirements
+#### Database Requirements
 
 If not already installed, you may need to install an RDBMS. You can use either
 MariaDB/MySQL or PostgreSQL for this purpose. You should also install the
@@ -76,7 +76,7 @@ RDBMS like MySQL: for example, case-sensitive matching of Unicode
 Patchwork fail and some patches you develop may fail in production due to these
 differences.
 
-### Example Installations
+#### Example Installation
 
 An example for installing all these packages and the MySQL RDBMS on Ubuntu
 15.04 is given below:
@@ -93,7 +93,7 @@ packages using `pip`:
 If you wish to use Python 3 then simply replace 'python' with 'python3' in
 the above command.
 
-## Configure Virtual Environment
+### Configure Virtual Environment
 
 **NOTE:** If you are interested in simply [testing Patchwork][doc-testing],
 many of the below steps are not required. tox will automatically install
@@ -125,7 +125,7 @@ We're going to install the first of these, which can be done like so:
 **NOTE:** Once configured this does not need to be done again *unless* the
 requirements change, e.g. Patchwork requires an updated version of Django.
 
-## Initialize the Database
+### Initialize the Database
 
 One installed, the database must be configured. We will assume you have root
 access to the database for these steps.
@@ -154,7 +154,7 @@ in the [Environment Variables](#environment-variables) section below.
 Alternatively, you can create your own settings file with these variables
 hardcoded and change the value of `DJANGO_SETTINGS_MODULE` as described below.
 
-## Load Initial Data
+### Load Initial Data
 
 Before continuing, we need to tell Django where it can find our configuration.
 Patchwork provides a default development `settings.py` file for this purpose.
