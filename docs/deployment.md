@@ -313,13 +313,13 @@ to start uWSGI at boot:
 
 Start the uWSGI service we created above:
 
-    $ sudo systemctl uwsgi start
-    $ sudo systemctl uwsgi status
+    $ sudo systemctl start uwsgi
+    $ sudo systemctl status uwsgi
 
 Next up, restart the nginx service:
 
-    $ sudo systemctl nginx restart
-    $ sudo systemctl nginx status
+    $ sudo systemctl restart nginx
+    $ sudo systemctl status nginx
 
 Patchwork uses a cron script to clean up expired registrations and send
 notifications of patch changes (for projects with this enabled). Something like
