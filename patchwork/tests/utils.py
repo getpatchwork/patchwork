@@ -69,10 +69,7 @@ def create_project(**kwargs):
     }
     values.update(kwargs)
 
-    project = Project(**values)
-    project.save()
-
-    return project
+    return Project.objects.create(**values)
 
 
 def create_person(**kwargs):
@@ -86,10 +83,7 @@ def create_person(**kwargs):
     }
     values.update(kwargs)
 
-    person = Person(**values)
-    person.save()
-
-    return person
+    return Person.objects.create(**values)
 
 
 def create_user(link_person=True, **kwargs):
@@ -108,7 +102,6 @@ def create_user(link_person=True, **kwargs):
 
     user = User.objects.create_user(values['name'], values['email'],
                                     values['name'])
-    user.save()
 
     if link_person:
         create_person(user=user, **values)
@@ -141,10 +134,7 @@ def create_state(**kwargs):
     }
     values.update(kwargs)
 
-    state = State(**values)
-    state.save()
-
-    return state
+    return State.objects.create(**values)
 
 
 def create_bundle(**kwargs):
@@ -158,10 +148,7 @@ def create_bundle(**kwargs):
     }
     values.update(kwargs)
 
-    bundle = Bundle(**values)
-    bundle.save()
-
-    return bundle
+    return Bundle.objects.create(**values)
 
 
 def create_patch(**kwargs):
@@ -181,10 +168,7 @@ def create_patch(**kwargs):
     }
     values.update(kwargs)
 
-    patch = Patch(**values)
-    patch.save()
-
-    return patch
+    return Patch.objects.create(**values)
 
 
 def create_cover(**kwargs):
@@ -201,10 +185,7 @@ def create_cover(**kwargs):
     }
     values.update(kwargs)
 
-    cover = CoverLetter(**values)
-    cover.save()
-
-    return cover
+    return CoverLetter.objects.create(**values)
 
 
 def create_comment(**kwargs):
@@ -217,10 +198,7 @@ def create_comment(**kwargs):
     }
     values.update(kwargs)
 
-    comment = Comment(**values)
-    comment.save()
-
-    return comment
+    return Comment.objects.create(**values)
 
 
 def create_check(**kwargs):
@@ -236,10 +214,7 @@ def create_check(**kwargs):
     }
     values.update(**kwargs)
 
-    check = Check(**values)
-    check.save()
-
-    return check
+    return Check.objects.create(**values)
 
 
 def _create_submissions(create_func, count=1, **kwargs):
