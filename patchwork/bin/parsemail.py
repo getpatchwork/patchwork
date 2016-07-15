@@ -523,6 +523,9 @@ def parse_mail(mail, list_id=None):
                 CoverLetter.objects.all().get(name=name)
             except CoverLetter.DoesNotExist:  # no match => new cover
                 is_cover_letter = True
+            except CoverLetter.MultipleObjectsReturned:
+                # if multiple cover letters are found, just ignore
+                pass
         else:
             is_cover_letter = True
 
