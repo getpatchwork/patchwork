@@ -1,0 +1,23 @@
+# the version of docker-compose shipped in ubuntu 16.04 is
+# 1.5.2, which doesn't support version 2 syntax. Yay!
+# also, v1 doesn't support explicit build args, so if you're not
+# uid 1000, you will either need to manually hack the Dockerfile
+# or upgrade to v2 and use the build-arg to override it.
+
+db:
+  build: docker/db
+  volumes:
+   - ./docker/db/data:/var/lib/mysql
+web:
+  build: .
+  dockerfile: ./docker/Dockerfile
+  command: python3 manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/home/patchwork/patchwork/
+  ports:
+    - "8000:8000"
+  links:
+    - db
+  environment:
+    - PW_TEST_DB_HOST=db
+    - PW_TEST_DB_PORT=3306
