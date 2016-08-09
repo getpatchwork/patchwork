@@ -77,7 +77,10 @@ if django.VERSION >= (1, 7):
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ] + MIDDLEWARE_CLASSES
 
-    INTERNAL_IPS = ['127.0.0.1', '::1']
+    INTERNAL_IPS = [
+        '127.0.0.1', '::1',
+        '172.17.0.1'
+    ]
 
 
 #
