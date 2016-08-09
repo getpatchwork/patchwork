@@ -60,6 +60,8 @@ of community projects.
 
           $ docker-compose run --rm web --test
 
+  * Tox tests can be run with `--quick-tox` and `--tox`.
+
   * To reset the database before beginning, add `--reset` to the command line after `web` and before any other arguments.
 
   * If you want to run non-headless tests, you'll need something like this ugly hack:

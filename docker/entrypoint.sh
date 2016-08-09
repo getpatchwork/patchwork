@@ -81,6 +81,13 @@ elif [ "$1" == "--quick-test" ]; then
     python3 manage.py test
 elif [ "$1" == "--test" ]; then
     xvfb-run --server-args='-screen 0, 1024x768x16' python3 manage.py test
+elif [ "$1" == "--quick-tox" ]; then
+    shift
+    export PW_SKIP_BROWSER_TESTS=yes
+    tox $@
+elif [ "$1" == "--tox" ]; then
+    shift
+    xvfb-run --server-args='-screen 0, 1024x768x16' tox $@
 else # run whatever CMD is set to
     $@
 fi
