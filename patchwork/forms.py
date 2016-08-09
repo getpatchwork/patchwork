@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 from django.contrib.auth.models import User
 from django import forms
+from django.db.utils import ProgrammingError
 
 from patchwork.models import Patch, State, Bundle, UserProfile
 
@@ -165,8 +166,14 @@ class OptionalModelChoiceField(forms.ModelChoiceField):
             __init__(initial=self.no_change_choice[0], *args, **kwargs)
 
     def _get_choices(self):
-        choices = list(
-            super(OptionalModelChoiceField, self)._get_choices())
+        # _get_choices queries the database, which can fail if the db
+        # hasn't been initialised yet. catch that and give an empty
+        # set of choices for now.
+        try:
+            choices = list(
+                super(OptionalModelChoiceField, self)._get_choices())
+        except ProgrammingError:
+            choices = []
         choices.append(self.no_change_choice)
         return choices
 
