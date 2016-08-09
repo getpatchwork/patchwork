@@ -22,8 +22,6 @@ import unittest
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
 
 from patchwork.models import Check
 from patchwork.models import Patch
@@ -35,6 +33,13 @@ from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
 
+if settings.ENABLE_REST_API:
+    from rest_framework import status
+    from rest_framework.test import APITestCase
+else:
+    # stub out APITestCase
+    from django.test import TestCase
+    APITestCase = TestCase
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestProjectAPI(APITestCase):
