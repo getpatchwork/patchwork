@@ -36,7 +36,7 @@ class LoginTestCase(SeleniumTestCase):
     def test_login(self):
         self.get(reverse('auth_login'))
         self.enter_text('username', self.user.username)
-        self.enter_text('password', self.user.password)
+        self.enter_text('password', self.user.username)
         self.click('input[value="Login"]')
         dropdown = self.wait_until_visible('a.dropdown-toggle strong')
-        self.assertEqual(dropdown.text, 'testuser')
+        self.assertEqual(dropdown.text, self.user.username)
