@@ -8,6 +8,8 @@
 .*
 *.pyc
 *.patch
+*~
+\#*\#
 
 #
 # Top-level generic files
