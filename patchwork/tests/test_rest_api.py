@@ -41,6 +41,7 @@ else:
     from django.test import TestCase
     APITestCase = TestCase
 
+
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestProjectAPI(APITestCase):
 
