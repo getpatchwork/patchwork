@@ -65,7 +65,7 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 # django-debug-toolbar
 
-if django.VERSION >= (1, 7):
+if django.VERSION >= (1, 8):
     INSTALLED_APPS += [
         'debug_toolbar'
     ]
