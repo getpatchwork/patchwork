@@ -25,9 +25,9 @@ from django.test import TestCase
 from patchwork.models import EmailConfirmation
 from patchwork.models import Patch
 from patchwork.models import Person
+from patchwork.notifications import expire_notifications
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_user
-from patchwork.utils import do_expiry
 
 
 class TestRegistrationExpiry(TestCase):
@@ -50,7 +50,7 @@ class TestRegistrationExpiry(TestCase):
                 datetime.timedelta(hours=1))
         user, conf = self.register(date)
 
-        do_expiry()
+        expire_notifications()
 
         self.assertFalse(User.objects.filter(pk=user.pk).exists())
         self.assertFalse(
@@ -61,7 +61,7 @@ class TestRegistrationExpiry(TestCase):
                 datetime.timedelta(hours=1))
         user, conf = self.register(date)
 
-        do_expiry()
+        expire_notifications()
 
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
         self.assertTrue(
@@ -75,7 +75,7 @@ class TestRegistrationExpiry(TestCase):
         conf.user.save()
         conf.deactivate()
 
-        do_expiry()
+        expire_notifications()
 
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
         self.assertFalse(
@@ -100,7 +100,7 @@ class TestRegistrationExpiry(TestCase):
         conf.save()
 
         # ... which expires
-        do_expiry()
+        expire_notifications()
 
         # we should see no matching user
         self.assertFalse(User.objects.filter(email=patch.submitter.email)

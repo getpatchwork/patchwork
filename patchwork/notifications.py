@@ -17,8 +17,6 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-
 import datetime
 import itertools
 
@@ -29,8 +27,9 @@ from django.core.mail import EmailMessage
 from django.db.models import Count, Q, F
 
 from patchwork.compat import render_to_string
-from patchwork.models import (PatchChangeNotification, EmailOptout,
-                              EmailConfirmation)
+from patchwork.models import EmailConfirmation
+from patchwork.models import EmailOptout
+from patchwork.models import PatchChangeNotification
 
 
 def send_notifications():
@@ -97,13 +96,17 @@ def send_notifications():
     return errors
 
 
-def do_expiry():
-    # expire any pending confirmations
+def expire_notifications():
+    """Expire any pending confirmations.
+
+    Users whose registration confirmation has expired are removed.
+    """
+    # expire any invalid confirmations
     q = (Q(date__lt=datetime.datetime.now() - EmailConfirmation.validity) |
          Q(active=False))
     EmailConfirmation.objects.filter(q).delete()
 
-    # expire inactive users with no pending confirmation
+    # remove inactive users with no pending confirmation
     pending_confs = EmailConfirmation.objects.values('user')
     users = User.objects.filter(is_active=False,
                                 last_login=F('date_joined')).exclude(

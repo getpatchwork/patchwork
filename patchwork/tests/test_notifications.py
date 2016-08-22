@@ -25,11 +25,11 @@ from django.test import TestCase
 
 from patchwork.models import EmailOptout
 from patchwork.models import PatchChangeNotification
+from patchwork.notifications import send_notifications
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
-from patchwork.utils import send_notifications
 
 
 class PatchNotificationModelTest(TestCase):

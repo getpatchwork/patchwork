@@ -19,7 +19,8 @@
 
 from django.core.management.base import BaseCommand
 
-from patchwork.utils import send_notifications, do_expiry
+from patchwork.notifications import expire_notifications
+from patchwork.notifications import send_notifications
 
 
 class Command(BaseCommand):
@@ -32,4 +33,4 @@ class Command(BaseCommand):
             self.stderr.write("Failed sending to %s: %s" %
                               (recipient.email, error))
 
-        do_expiry()
+        expire_notifications()
