@@ -12,10 +12,14 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
 # System
+# python3.4-minimal libpython3.4-stdlib libpython3.4-minimal \
+# findutils is for python3.4... :/
+COPY tools/docker/trusty.list /etc/apt/sources.list.d/trusty.list
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends --allow-downgrades \
     python-dev python-pip python-setuptools python-wheel \
-    python3-dev python3-pip python3-setuptools python3-wheel \
+    python3.5-dev python3-pip python3-setuptools python3-wheel \
+    python3.4-dev findutils=4.4.2-7 \
     libmysqlclient-dev mysql-client curl unzip xvfb chromium-chromedriver \
     chromium-browser build-essential && \
     ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/
