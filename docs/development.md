@@ -65,6 +65,22 @@ the Docker container, and so should be picked up by the Django auto-reloader.
 For more information on Docker itself, please refer to the [Docker][ref-docker]
 and [docker-compose][ref-compose] documentation.
 
+**NOTE:** If using SELinux, you will need to create a custom SELinux rule to
+allow the Docker process to access your working directory. Run:
+
+    $ chcon -RT svirt_sandbox_file_t $PATCHWORK_DIR
+
+where `$PATCHWORK_DIR` is the absolute patch to the `patchwork` folder created
+when you cloned the repo. For more information, see `man docker run`.
+
+**NOTE:** If you see an error like the below:
+
+    ERROR: Couldn't connect to the Docker daemon at
+    http+docker://localunixsocket - is it running?
+
+ensure you have correctly installed Docker, added your user to the `docker`
+group, and started the daemon, per the [Docker documentation][ref-docker].
+
 ## Vagrant-Based Installation
 
 Patchwork provides a Vagrant-based environment as an alternative to Docker.

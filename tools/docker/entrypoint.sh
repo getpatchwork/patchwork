@@ -30,6 +30,8 @@ EOF
 if [ ! -f ~patchwork/patchwork/tools/docker/entrypoint.sh ]; then
     echo "The patchwork directory doesn't seem to be mounted!"
     echo "Are you using docker-compose?"
+    echo "If so, you may need to create an SELinux rule. Refer to the"
+    echo "development installation documentation for more information."
     echo "If not, you need -v PATH_TO_PATCHWORK:/home/patchwork/patchwork"
     exit 1
 fi
