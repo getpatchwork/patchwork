@@ -20,55 +20,29 @@ subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
 of community projects.
 
-# Development Installation using Vagrant
+# Development Installation
 
-1. Install [**Vagrant**][ref-vagrant]
-2. Clone this repo:
+[Docker][ref-docker] is the recommended installation methods for a Patchwork
+development environment. To install Patchwork:
 
-        $ git clone git://github.com/getpatchwork/patchwork.git
+1. Install [**Docker**][ref-docker] and [**docker-compose**][ref-compose].
+2. Clone the Patchwork repo:
 
-3. Run `vagrant up`:
+        $ git clone https://github.com/getpatchwork/patchwork.git
 
-        $ cd patchwork
-        $ vagrant up
-
-# Development Installation using Docker
-
-1. Install Docker and docker-compose.
-2. Clone this repo, as with vagrant.
 3. Build the images. This will download over 200MB from the internet:
 
         $ docker-compose build
 
-4. Run as follows:
+4. Run `docker-compose up`:
 
-  * Regular server:
+        $ docker-compose up
 
-          $ docker-compose up
+The Patchwork instance will now be deployed at `http://localhost:8000/`.
 
-    This will be visible on http://localhost:8000/.
-
-  * Shell:
-
-          $ docker-compose run --rm web --shell
-
-  * Quick test (not including selenium UI interaction tests):
-
-          $ docker-compose run --rm web --quick-test
-
-  * Full tests, including selenium, run headlessly:
-
-          $ docker-compose run --rm web --test
-
-  * Tox tests can be run with `--quick-tox` and `--tox`.
-
-  * To reset the database before beginning, add `--reset` to the command line after `web` and before any other arguments.
-
-  * If you want to run non-headless tests, you'll need something like this ugly hack:
-
-          $ docker run -it --rm -v (pwd):/home/patchwork/patchwork/ --link patchwork_db_1:db -p 8000:8000 -v /tmp/.X11-unix:/tmp/.X11-unix -e PW_TEST_DB_HOST=db -e DISPLAY patchwork_web bash
-
-With both vagrant and docker, any edits to the project files made locally are immediately visible to the VM/container, and so should be picked up by the Django auto-reloader.
+For more information, including helpful command line options and alternative
+installation methods, refer to the [development installation
+guide][docs-development].
 
 # Talks and Presentations
 
@@ -92,7 +66,9 @@ For bug reports, patch submissions or other questions, please use the
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
 [docs]: https://patchwork.readthedocs.org/en/latest/
+[docs-development]: https://patchwork.readthedocs.org/en/latest/development/
 [pdf-fosdem]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
 [pdf-plumbers]: https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
-[ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
+[ref-compose]: https://docs.docker.com/compose/install/
+[ref-docker]: https://docs.docker.com/engine/installation/linux/

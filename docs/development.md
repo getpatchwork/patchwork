@@ -9,21 +9,81 @@ To begin, you should clone Patchwork:
 
     $ git clone git://github.com/getpatchwork/patchwork.git
 
+## Docker-Based Installation
+
+Patchwork provides a Docker-based environment for quick configuration of a
+development environment. This is the preferred installation method. To
+configure Patchwork using Docker:
+
+1. Install [**Docker**][ref-docker] and [**docker-compose**][ref-compose].
+2. Build the images. This will download over 200MB from the internet:
+
+        $ docker-compose build
+
+3. Run `docker-compose up`:
+
+        $ docker-compose up
+
+    This will be visible at http://localhost:8000/.
+
+To run a shell within this environment, run:
+
+    $ docker-compose run --rm web --shell
+
+To run unit tests, excluding Selenium UI interaction tests, using only the
+package versions installed during container initialization, run:
+
+    $ docker-compose run --rm web --quick-test
+
+To run the same against all supported versions of Django (via tox), run:
+
+    $ docker-compose run --rm web --quick-tox
+
+To run all tests, including Selenium UI interaction tests, using only the
+package versions installed container initialization, run:
+
+    $ docker-compose run --rm web --test
+
+To run the same against all supported versions of Django (via tox), run:
+
+    $ docker-compose run --rm web --tox
+
+To run all tests, including Selenium UI interaction tests in non-headless mode,
+run:
+
+    $ docker run -it --rm -v (pwd):/home/patchwork/patchwork/ \
+        --link patchwork_db_1:db -p 8000:8000 \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
+        -e PW_TEST_DB_HOST=db -e DISPLAY patchwork_web bash
+
+To reset the database before any of these commands, add `--reset` to the
+command line after `web` and before any other arguments.
+
+Any local edits to the project files made locally are immediately visible to
+the Docker container, and so should be picked up by the Django auto-reloader.
+
+For more information on Docker itself, please refer to the [Docker][ref-docker]
+and [docker-compose][ref-compose] documentation.
+
 ## Vagrant-Based Installation
 
-Patchwork provides a Vagrantfile that can be used to quickly configure
-Patchwork in a development environment. Like any Vagrant VM, you can start this
-using the `vagrant up` command:
+Patchwork provides a Vagrant-based environment as an alternative to Docker.
+Like Docker, Vagrant can be used to quickly configure Patchwork in a
+development environment. To configure Patchwork using Vagrant:
 
-    $ cd patchwork  # the path to the repo you cloned above
-    $ vagrant up
+1. Install [**Vagrant**][ref-vagrant]
+2. Run `vagrant up` from the project directory:
+
+        $ cd patchwork
+        $ vagrant up
 
 Once stacked, follow the on-screen instructions. For more information on
-Vagrant itself, please refer to the [Vagrant documentation](ref-vagrant).
+Vagrant itself, please refer to the [Vagrant documentation][ref-vagrant].
 
 ## Manual Installation
 
-Manual installation can be used where Vagrant is not possible, or not desired.
+Manual installation can be used where use of Docker or Vagrant is not possible or
+desired.
 
 ### Install Required Packages
 
@@ -260,5 +320,7 @@ using the provided `dev` settings file.
 [ref-py34-pip]: http://legacy.python.org/dev/peps/pep-0453/
 [ref-sqlite-utf8]: https://www.sqlite.org/faq.html#q18
 [ref-tox]: https://tox.readthedocs.org/en/latest/
+[ref-compose]: https://docs.docker.com/compose/install/
+[ref-docker]: https://docs.docker.com/engine/installation/linux/
 [ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
 [ref-venv]: https://virtualenv.readthedocs.org/en/latest/
