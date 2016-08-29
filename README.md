@@ -59,14 +59,14 @@ For further information, please refer to the [docs][docs].
 For bug reports, patch submissions or other questions, please use the
 [Patchwork mailing list][pw-ml].
 
-[badge-doc-ref]: https://patchwork.readthedocs.org/en/latest/
-[badge-doc-img]: https://readthedocs.org/projects/patchwork/badge/?version=latest
+[badge-doc-ref]: https://patchwork.readthedocs.io/en/latest/
+[badge-doc-img]: https://readthedocs.io/projects/patchwork/badge/?version=latest
 [badge-req-ref]: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
 [badge-req-img]: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
-[docs]: https://patchwork.readthedocs.org/en/latest/
-[docs-development]: https://patchwork.readthedocs.org/en/latest/development/
+[docs]: https://patchwork.readthedocs.io/en/latest/
+[docs-development]: https://patchwork.readthedocs.io/en/latest/development/
 [pdf-fosdem]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
 [pdf-plumbers]: https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork

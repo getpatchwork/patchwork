@@ -56,4 +56,4 @@ patches. In particular, please ensure:
 [doc-development]: development.md
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
 [ref-qemu-contrib]: http://wiki.qemu.org/Contribute/SubmitAPatch
-[ref-tox]: https://tox.readthedocs.org/en/latest/
+[ref-tox]: https://tox.readthedocs.io/en/latest/

@@ -429,6 +429,6 @@ it.
 [ref-django-files]: https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
 [ref-django-settings]: https://docs.djangoproject.com/en/1.8/ref/settings/
 [ref-pkgs]: http://pkgs.org/
-[ref-uwsgi-emperor]: https://uwsgi-docs.readthedocs.org/en/latest/Emperor.html
-[ref-uwsgi-systemd]: https://uwsgi-docs.readthedocs.org/en/latest/Systemd.html
-[ref-uwsgi-upstart]: https://uwsgi-docs.readthedocs.org/en/latest/Upstart.html
+[ref-uwsgi-emperor]: https://uwsgi-docs.readthedocs.io/en/latest/Emperor.html
+[ref-uwsgi-systemd]: https://uwsgi-docs.readthedocs.io/en/latest/Systemd.html
+[ref-uwsgi-upstart]: https://uwsgi-docs.readthedocs.io/en/latest/Upstart.html

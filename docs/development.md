@@ -335,8 +335,8 @@ using the provided `dev` settings file.
 [ref-mman-bulk]: http://blog.behnel.de/posts/indexp118.html
 [ref-py34-pip]: http://legacy.python.org/dev/peps/pep-0453/
 [ref-sqlite-utf8]: https://www.sqlite.org/faq.html#q18
-[ref-tox]: https://tox.readthedocs.org/en/latest/
+[ref-tox]: https://tox.readthedocs.io/en/latest/
 [ref-compose]: https://docs.docker.com/compose/install/
 [ref-docker]: https://docs.docker.com/engine/installation/linux/
 [ref-vagrant]: https://www.vagrantup.com/docs/getting-started/
-[ref-venv]: https://virtualenv.readthedocs.org/en/latest/
+[ref-venv]: https://virtualenv.readthedocs.io/en/latest/
