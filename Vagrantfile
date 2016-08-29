@@ -22,5 +22,5 @@ Vagrant.configure(2) do |config|
   #   vb.memory = "1024"
   # end
 
-  config.vm.provision :shell, :path => "tools/install/install.sh"
+  config.vm.provision :shell, :path => "tools/vagrant/install.sh"
 end

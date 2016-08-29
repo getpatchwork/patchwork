@@ -27,7 +27,7 @@ EOF
 
 # check if patchwork is mounted. Checking if we exist is a
 # very good start!
-if [ ! -f ~patchwork/patchwork/docker/entrypoint.sh ]; then
+if [ ! -f ~patchwork/patchwork/tools/docker/entrypoint.sh ]; then
     echo "The patchwork directory doesn't seem to be mounted!"
     echo "Are you using docker-compose?"
     echo "If not, you need -v PATH_TO_PATCHWORK:/home/patchwork/patchwork"

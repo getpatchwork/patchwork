@@ -5,12 +5,12 @@
 # or upgrade to v2 and use the build-arg to override it.
 
 db:
-  build: docker/db
+  build: tools/docker/db
   volumes:
-   - ./docker/db/data:/var/lib/mysql
+   - ./tools/docker/db/data:/var/lib/mysql
 web:
   build: .
-  dockerfile: ./docker/Dockerfile
+  dockerfile: ./tools/docker/Dockerfile
   command: python3 manage.py runserver 0.0.0.0:8000
   volumes:
     - .:/home/patchwork/patchwork/

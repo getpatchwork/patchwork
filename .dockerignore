@@ -1,3 +1,3 @@
 .vagrant
-docker/db
+tools/docker/db
 
