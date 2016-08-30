@@ -336,6 +336,20 @@ Finally, browse to the instance using your browser of choice.
 You may wish to take this opportunity to setup your projects and configure your
 website address (in the Sites section of the admin console, found at `/admin`).
 
+## Django administrative console
+
+In order to access the administrative console at `/admin`, you need at least
+one user account to be registered and configured as a super user or staff
+account to access the Django administrative console.  This can be achieved by
+doing the following:
+
+    $ /opt/patchwork/manage.py createsuperuser
+
+Once the administrative console is accessible, you would want to configure your
+different sites and their corresponding domain names, which is required for the
+different emails sent by patchwork (registration, password recovery) as well as
+the sample `pwclientrc` files provided by your project's page.
+
 ## Incoming Email
 
 Patchwork is designed to parse incoming mails which means you need an address
