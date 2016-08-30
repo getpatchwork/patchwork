@@ -616,7 +616,7 @@ def main():
     config.read([CONFIG_FILE])
 
     if not config.has_section('options') and os.path.exists(CONFIG_FILE):
-        sys.stderr.write('~/.pwclientrc is in the old format. Migrating it...')
+        sys.stderr.write('%s is in the old format. Migrating it...' % CONFIG_FILE)
 
         old_project = config.get('base', 'project')
 
@@ -642,7 +642,7 @@ def main():
 
         sys.stderr.write(' Done.\n')
         sys.stderr.write(
-            'Your old ~/.pwclientrc was saved to %s\n' % old_config_file)
+            'Your old %s was saved to %s\n' % (CONFIG_FILE, old_config_file))
         sys.stderr.write(
             'and was converted to the new format. You may want to\n')
         sys.stderr.write('inspect it before continuing.\n')
@@ -653,15 +653,15 @@ def main():
             project_str = config.get('options', 'default')
         except:
             action_parser.error(
-                "No default project configured in ~/.pwclientrc")
+                "No default project configured in %s\n" % CONFIG_FILE)
 
     if not config.has_section(project_str):
         sys.stderr.write(
-            'No section for project %s in ~/.pwclientrc\n' % project_str)
+            'No section for project %s in %s\n' % (CONFIG_FILE, project_str))
         sys.exit(1)
     if not config.has_option(project_str, 'url'):
         sys.stderr.write(
-            'No URL for project %s in ~/.pwclientrc\n' % project_str)
+            'No URL for project %s in %s\n' % (CONFIG_FILE, project_str))
         sys.exit(1)
     if not do_signoff and config.has_option('options', 'signoff'):
         do_signoff = config.getboolean('options', 'signoff')
