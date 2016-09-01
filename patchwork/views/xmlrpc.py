@@ -406,8 +406,8 @@ def project_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(project_to_dict, projects[:max_count]))
         elif max_count < 0:
-            query = projects.reverse()[:-max_count]
-            return list(map(project_to_dict, reversed(query)))
+            min_count = projects.count() + max_count
+            return list(map(project_to_dict, projects[min_count:]))
         else:
             return list(map(project_to_dict, projects))
     except Project.DoesNotExist:
@@ -461,8 +461,8 @@ def person_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(person_to_dict, people[:max_count]))
         elif max_count < 0:
-            query = people.reverse()[:-max_count]
-            return list(map(person_to_dict, reversed(query)))
+            min_count = people.count() + max_count
+            return list(map(person_to_dict, people[min_count:]))
         else:
             return list(map(person_to_dict, people))
     except Person.DoesNotExist:
@@ -607,8 +607,8 @@ def patch_list(filt=None):
         if max_count > 0:
             return list(map(patch_to_dict, patches[:max_count]))
         elif max_count < 0:
-            query = patches.reverse()[:-max_count]
-            return list(map(patch_to_dict, reversed(query)))
+            min_count = patches.count() + max_count
+            return list(map(patch_to_dict, patches[min_count:]))
         else:
             return list(map(patch_to_dict, patches))
     except Patch.DoesNotExist:
@@ -803,8 +803,8 @@ def state_list(search_str=None, max_count=0):
         if max_count > 0:
             return list(map(state_to_dict, states[:max_count]))
         elif max_count < 0:
-            query = states.reverse()[:-max_count]
-            return list(map(state_to_dict, reversed(query)))
+            min_count = states.count() + max_count
+            return list(map(state_to_dict, states[min_count:]))
         else:
             return list(map(state_to_dict, states))
     except State.DoesNotExist:
