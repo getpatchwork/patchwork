@@ -21,9 +21,9 @@
 
 PATCHWORK_BINDIR=`dirname $0`
 
-if [ $# -ne 1 ]
+if [ $# -lt 1 ]
 then
-	echo "usage: $0 <dir>" >&2
+	echo "usage: $0 <dir> [options]" >&2
 	exit 1
 fi
 
@@ -37,9 +37,11 @@ then
 	exit 1
 fi
 
+shift
+
 ls -1rt "$mail_dir" |
 while read line;
 do
 	echo $line
-	$PATCHWORK_BINDIR/parsemail.sh < "$mail_dir/$line"
+	$PATCHWORK_BINDIR/parsemail.sh $@ < "$mail_dir/$line"
 done
