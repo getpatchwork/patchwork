@@ -582,18 +582,22 @@ def patch_list(filt=None):
                 # Invalid lookup type given
                 return []
 
-        if parts[0] == 'project_id':
-            dfilter['project'] = Project.objects.filter(id=filt[key])[0]
-        elif parts[0] == 'submitter_id':
-            dfilter['submitter'] = Person.objects.filter(id=filt[key])[0]
-        elif parts[0] == 'delegate_id':
-            dfilter['delegate'] = Person.objects.filter(id=filt[key])[0]
-        elif parts[0] == 'state_id':
-            dfilter['state'] = State.objects.filter(id=filt[key])[0]
-        elif parts[0] == 'max_count':
-            max_count = filt[key]
-        else:
-            dfilter[key] = filt[key]
+        try:
+            if parts[0] == 'project_id':
+                dfilter['project'] = Project.objects.get(id=filt[key])
+            elif parts[0] == 'submitter_id':
+                dfilter['submitter'] = Person.objects.get(id=filt[key])
+            elif parts[0] == 'delegate_id':
+                dfilter['delegate'] = Person.objects.get(id=filt[key])
+            elif parts[0] == 'state_id':
+                dfilter['state'] = State.objects.get(id=filt[key])
+            elif parts[0] == 'max_count':
+                max_count = filt[key]
+            else:
+                dfilter[key] = filt[key]
+        except (Project.DoesNotExist, Person.DoesNotExist, State.DoesNotExist):
+            # Invalid Project, Person or State given
+            return []
 
     patches = Patch.objects.filter(**dfilter)
 
