@@ -747,30 +747,26 @@ def patch_set(user, patch_id, params):
             patch
         Patch.DoesNotExist: The patch did not exist.
     """
-    try:
-        ok_params = ['state', 'commit_ref', 'archived']
+    ok_params = ['state', 'commit_ref', 'archived']
 
-        patch = Patch.objects.get(id=patch_id)
+    patch = Patch.objects.get(id=patch_id)
 
-        if not patch.is_editable(user):
-            raise Exception('No permissions to edit this patch')
+    if not patch.is_editable(user):
+        raise Exception('No permissions to edit this patch')
 
-        for (k, v) in params.items():
-            if k not in ok_params:
-                continue
+    for (k, v) in params.items():
+        if k not in ok_params:
+            continue
 
-            if k == 'state':
-                patch.state = State.objects.get(id=v)
+        if k == 'state':
+            patch.state = State.objects.get(id=v)
 
-            else:
-                setattr(patch, k, v)
+        else:
+            setattr(patch, k, v)
 
-        patch.save()
+    patch.save()
 
-        return True
-
-    except Patch.DoesNotExist:
-        raise
+    return True
 
 
 @xmlrpc_method()
