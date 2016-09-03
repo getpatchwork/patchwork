@@ -397,21 +397,18 @@ def project_list(search_str=None, max_count=0):
         A serialized list of projects matching filter, if any. A list
         of all projects if no filter given.
     """
-    try:
-        if search_str:
-            projects = Project.objects.filter(linkname__icontains=search_str)
-        else:
-            projects = Project.objects.all()
+    if search_str:
+        projects = Project.objects.filter(linkname__icontains=search_str)
+    else:
+        projects = Project.objects.all()
 
-        if max_count > 0:
-            return list(map(project_to_dict, projects[:max_count]))
-        elif max_count < 0:
-            min_count = projects.count() + max_count
-            return list(map(project_to_dict, projects[min_count:]))
-        else:
-            return list(map(project_to_dict, projects))
-    except Project.DoesNotExist:
-        return []
+    if max_count > 0:
+        return list(map(project_to_dict, projects[:max_count]))
+    elif max_count < 0:
+        min_count = projects.count() + max_count
+        return list(map(project_to_dict, projects[min_count:]))
+    else:
+        return list(map(project_to_dict, projects))
 
 
 @xmlrpc_method()
@@ -451,22 +448,19 @@ def person_list(search_str=None, max_count=0):
         A serialized list of persons matching filter, if any. A list
         of all persons if no filter given.
     """
-    try:
-        if search_str:
-            people = (Person.objects.filter(name__icontains=search_str) |
-                      Person.objects.filter(email__icontains=search_str))
-        else:
-            people = Person.objects.all()
+    if search_str:
+        people = (Person.objects.filter(name__icontains=search_str) |
+                  Person.objects.filter(email__icontains=search_str))
+    else:
+        people = Person.objects.all()
 
-        if max_count > 0:
-            return list(map(person_to_dict, people[:max_count]))
-        elif max_count < 0:
-            min_count = people.count() + max_count
-            return list(map(person_to_dict, people[min_count:]))
-        else:
-            return list(map(person_to_dict, people))
-    except Person.DoesNotExist:
-        return []
+    if max_count > 0:
+        return list(map(person_to_dict, people[:max_count]))
+    elif max_count < 0:
+        min_count = people.count() + max_count
+        return list(map(person_to_dict, people[min_count:]))
+    else:
+        return list(map(person_to_dict, people))
 
 
 @xmlrpc_method()
@@ -557,62 +551,59 @@ def patch_list(filt=None):
     if filt is None:
         filt = {}
 
-    try:
-        # We allow access to many of the fields.  But, some fields are
-        # filtered by raw object so we must lookup by ID instead over
-        # XML-RPC.
-        ok_fields = [
-            'id',
-            'name',
-            'project_id',
-            'submitter_id',
-            'delegate_id',
-            'archived',
-            'state_id',
-            'date',
-            'commit_ref',
-            'hash',
-            'msgid',
-            'max_count',
-        ]
+    # We allow access to many of the fields.  But, some fields are
+    # filtered by raw object so we must lookup by ID instead over
+    # XML-RPC.
+    ok_fields = [
+        'id',
+        'name',
+        'project_id',
+        'submitter_id',
+        'delegate_id',
+        'archived',
+        'state_id',
+        'date',
+        'commit_ref',
+        'hash',
+        'msgid',
+        'max_count',
+    ]
 
-        dfilter = {}
-        max_count = 0
+    dfilter = {}
+    max_count = 0
 
-        for key in filt:
-            parts = key.split('__')
-            if parts[0] not in ok_fields:
-                # Invalid field given
+    for key in filt:
+        parts = key.split('__')
+        if parts[0] not in ok_fields:
+            # Invalid field given
+            return []
+        if len(parts) > 1:
+            if LOOKUP_TYPES.count(parts[1]) == 0:
+                # Invalid lookup type given
                 return []
-            if len(parts) > 1:
-                if LOOKUP_TYPES.count(parts[1]) == 0:
-                    # Invalid lookup type given
-                    return []
 
-            if parts[0] == 'project_id':
-                dfilter['project'] = Project.objects.filter(id=filt[key])[0]
-            elif parts[0] == 'submitter_id':
-                dfilter['submitter'] = Person.objects.filter(id=filt[key])[0]
-            elif parts[0] == 'delegate_id':
-                dfilter['delegate'] = Person.objects.filter(id=filt[key])[0]
-            elif parts[0] == 'state_id':
-                dfilter['state'] = State.objects.filter(id=filt[key])[0]
-            elif parts[0] == 'max_count':
-                max_count = filt[key]
-            else:
-                dfilter[key] = filt[key]
-
-        patches = Patch.objects.filter(**dfilter)
-
-        if max_count > 0:
-            return list(map(patch_to_dict, patches[:max_count]))
-        elif max_count < 0:
-            min_count = patches.count() + max_count
-            return list(map(patch_to_dict, patches[min_count:]))
+        if parts[0] == 'project_id':
+            dfilter['project'] = Project.objects.filter(id=filt[key])[0]
+        elif parts[0] == 'submitter_id':
+            dfilter['submitter'] = Person.objects.filter(id=filt[key])[0]
+        elif parts[0] == 'delegate_id':
+            dfilter['delegate'] = Person.objects.filter(id=filt[key])[0]
+        elif parts[0] == 'state_id':
+            dfilter['state'] = State.objects.filter(id=filt[key])[0]
+        elif parts[0] == 'max_count':
+            max_count = filt[key]
         else:
-            return list(map(patch_to_dict, patches))
-    except Patch.DoesNotExist:
-        return []
+            dfilter[key] = filt[key]
+
+    patches = Patch.objects.filter(**dfilter)
+
+    if max_count > 0:
+        return list(map(patch_to_dict, patches[:max_count]))
+    elif max_count < 0:
+        min_count = patches.count() + max_count
+        return list(map(patch_to_dict, patches[min_count:]))
+    else:
+        return list(map(patch_to_dict, patches))
 
 
 @xmlrpc_method()
@@ -794,21 +785,18 @@ def state_list(search_str=None, max_count=0):
         A serialized list of states matching filter, if any. A list
         of all states if no filter given.
     """
-    try:
-        if search_str:
-            states = State.objects.filter(name__icontains=search_str)
-        else:
-            states = State.objects.all()
+    if search_str:
+        states = State.objects.filter(name__icontains=search_str)
+    else:
+        states = State.objects.all()
 
-        if max_count > 0:
-            return list(map(state_to_dict, states[:max_count]))
-        elif max_count < 0:
-            min_count = states.count() + max_count
-            return list(map(state_to_dict, states[min_count:]))
-        else:
-            return list(map(state_to_dict, states))
-    except State.DoesNotExist:
-        return []
+    if max_count > 0:
+        return list(map(state_to_dict, states[:max_count]))
+    elif max_count < 0:
+        min_count = states.count() + max_count
+        return list(map(state_to_dict, states[min_count:]))
+    else:
+        return list(map(state_to_dict, states))
 
 
 @xmlrpc_method()
@@ -892,54 +880,51 @@ def check_list(filt=None):
     if filt is None:
         filt = {}
 
-    try:
-        # We allow access to many of the fields. But, some fields are
-        # filtered by raw object so we must lookup by ID instead over
-        # XML-RPC.
-        ok_fields = [
-            'id',
-            'user',
-            'project_id',
-            'patch_id',
-            'max_count',
-        ]
+    # We allow access to many of the fields. But, some fields are
+    # filtered by raw object so we must lookup by ID instead over
+    # XML-RPC.
+    ok_fields = [
+        'id',
+        'user',
+        'project_id',
+        'patch_id',
+        'max_count',
+    ]
 
-        dfilter = {}
-        max_count = 0
+    dfilter = {}
+    max_count = 0
 
-        for key in filt:
-            parts = key.split('__')
-            if parts[0] not in ok_fields:
-                # Invalid field given
+    for key in filt:
+        parts = key.split('__')
+        if parts[0] not in ok_fields:
+            # Invalid field given
+            return []
+        if len(parts) > 1:
+            if LOOKUP_TYPES.count(parts[1]) == 0:
+                # Invalid lookup type given
                 return []
-            if len(parts) > 1:
-                if LOOKUP_TYPES.count(parts[1]) == 0:
-                    # Invalid lookup type given
-                    return []
 
-            if parts[0] == 'user_id':
-                dfilter['user'] = Person.objects.filter(id=filt[key])[0]
-            if parts[0] == 'project_id':
-                dfilter['patch__project'] = Project.objects.filter(
-                    id=filt[key])[0]
-            elif parts[0] == 'patch_id':
-                dfilter['patch'] = Patch.objects.filter(id=filt[key])[0]
-            elif parts[0] == 'max_count':
-                max_count = filt[key]
-            else:
-                dfilter[key] = filt[key]
-
-        checks = Check.objects.filter(**dfilter)
-
-        if max_count > 0:
-            return list(map(check_to_dict, checks[:max_count]))
-        elif max_count < 0:
-            min_count = checks.count() + max_count
-            return list(map(check_to_dict, checks[min_count:]))
+        if parts[0] == 'user_id':
+            dfilter['user'] = Person.objects.filter(id=filt[key])[0]
+        if parts[0] == 'project_id':
+            dfilter['patch__project'] = Project.objects.filter(
+                id=filt[key])[0]
+        elif parts[0] == 'patch_id':
+            dfilter['patch'] = Patch.objects.filter(id=filt[key])[0]
+        elif parts[0] == 'max_count':
+            max_count = filt[key]
         else:
-            return list(map(check_to_dict, checks))
-    except Check.DoesNotExist:
-        return []
+            dfilter[key] = filt[key]
+
+    checks = Check.objects.filter(**dfilter)
+
+    if max_count > 0:
+        return list(map(check_to_dict, checks[:max_count]))
+    elif max_count < 0:
+        min_count = checks.count() + max_count
+        return list(map(check_to_dict, checks[min_count:]))
+    else:
+        return list(map(check_to_dict, checks))
 
 
 @xmlrpc_method()
