@@ -933,6 +933,9 @@ def check_list(filt=None):
 
         if max_count > 0:
             return list(map(check_to_dict, checks[:max_count]))
+        elif max_count < 0:
+            min_count = checks.count() + max_count
+            return list(map(check_to_dict, checks[min_count:]))
         else:
             return list(map(check_to_dict, checks))
     except Check.DoesNotExist:
