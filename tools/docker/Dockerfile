@@ -30,9 +30,12 @@ RUN useradd --uid=$UID --create-home patchwork
 # Python requirements.
 # If you update requirements, you should rebuild the container.
 # entrypoint.sh will prompt you to do this.
+# we install both Python 2 and Python 3 versions so you can use either
 COPY requirements-*.txt /tmp/
-RUN pip3  install virtualenv tox && \
-    pip3  install -r /tmp/requirements-dev.txt
+RUN pip3 install virtualenv tox && \
+    pip3 install -r /tmp/requirements-dev.txt
+RUN pip2 install virtualenv tox && \
+    pip2 install -r /tmp/requirements-dev.txt
 # we deliberately leave the requirements files in tmp so we can
 # ping the user in entrypoint.sh if the change them!
 
