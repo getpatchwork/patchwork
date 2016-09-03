@@ -87,7 +87,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
         header = header[len('Basic '):].strip()
 
         try:
-            decoded = base64.decodestring(header)
+            decoded = base64.b64decode(header.encode('ascii')).decode('ascii')
             username, password = decoded.split(':', 1)
         except:
             raise Exception('Invalid authentication credentials')
