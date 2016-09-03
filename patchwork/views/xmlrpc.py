@@ -428,7 +428,7 @@ def project_get(project_id):
         dict.
     """
     try:
-        project = Project.objects.filter(id=project_id)[0]
+        project = Project.objects.get(id=project_id)
         return project_to_dict(project)
     except Project.DoesNotExist:
         return {}
@@ -483,7 +483,7 @@ def person_get(person_id):
         dict.
     """
     try:
-        person = Person.objects.filter(id=person_id)[0]
+        person = Person.objects.get(id=person_id)
         return person_to_dict(person)
     except Person.DoesNotExist:
         return {}
@@ -629,7 +629,7 @@ def patch_get(patch_id):
         dict.
     """
     try:
-        patch = Patch.objects.filter(id=patch_id)[0]
+        patch = Patch.objects.get(id=patch_id)
         return patch_to_dict(patch)
     except Patch.DoesNotExist:
         return {}
@@ -649,7 +649,7 @@ def patch_get_by_hash(hash):
         dict.
     """
     try:
-        patch = Patch.objects.filter(hash=hash)[0]
+        patch = Patch.objects.get(hash=hash)
         return patch_to_dict(patch)
     except Patch.DoesNotExist:
         return {}
@@ -671,8 +671,8 @@ def patch_get_by_project_hash(project, hash):
         if any, else an empty dict.
     """
     try:
-        patch = Patch.objects.filter(project__linkname=project,
-                                     hash=hash)[0]
+        patch = Patch.objects.get(project__linkname=project,
+                                  hash=hash)
         return patch_to_dict(patch)
     except Patch.DoesNotExist:
         return {}
@@ -693,7 +693,7 @@ def patch_get_mbox(patch_id):
         else an empty string.
     """
     try:
-        patch = Patch.objects.filter(id=patch_id)[0]
+        patch = Patch.objects.get(id=patch_id)
         return patch_to_mbox(patch).as_string(True)
     except Patch.DoesNotExist:
         return ''
@@ -714,7 +714,7 @@ def patch_get_diff(patch_id):
         else an empty string.
     """
     try:
-        patch = Patch.objects.filter(id=patch_id)[0]
+        patch = Patch.objects.get(id=patch_id)
         return patch.diff
     except Patch.DoesNotExist:
         return ''
@@ -825,7 +825,7 @@ def state_get(state_id):
         dict.
     """
     try:
-        state = State.objects.filter(id=state_id)[0]
+        state = State.objects.get(id=state_id)
         return state_to_dict(state)
     except State.DoesNotExist:
         return {}
@@ -953,7 +953,7 @@ def check_get(check_id):
         dict.
     """
     try:
-        check = Check.objects.filter(id=check_id)[0]
+        check = Check.objects.get(id=check_id)
         return check_to_dict(check)
     except Check.DoesNotExist:
         return {}
@@ -1005,7 +1005,7 @@ def patch_check_get(patch_id):
         else an empty dict.
     """
     try:
-        patch = Patch.objects.filter(id=patch_id)[0]
+        patch = Patch.objects.get(id=patch_id)
         return patch_check_to_dict(patch)
     except Patch.DoesNotExist:
         return {}
