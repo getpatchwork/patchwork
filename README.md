@@ -1,6 +1,7 @@
 # Patchwork
 
 [![Requirements Status][badge-req-img]][badge-req-ref]
+[![Code Health][badge-landscape-img]][badge-landscape-ref]
 [![Docs Status][badge-doc-img]][badge-doc-ref]
 [![Stories in Ready][badge-waffle-img]][badge-waffle-ref]
 
@@ -9,7 +10,7 @@ intended to make the patch management process easier for both the project's
 contributors and maintainers, leaving time for the more important (and more
 interesting) stuff.
 
-Patches that have been sent to a mailing list are 'caught' by the system, and
+Patches that have been sent to a mailing list are "caught" by the system, and
 appear on a web page. Any comments posted that reference the patch are appended
 to the patch page too. The project's maintainer can then scan through the list
 of patches, marking each with a certain state, such as Accepted, Rejected or
@@ -60,7 +61,9 @@ For bug reports, patch submissions or other questions, please use the
 [Patchwork mailing list][pw-ml].
 
 [badge-doc-ref]: https://patchwork.readthedocs.io/en/latest/
-[badge-doc-img]: https://readthedocs.io/projects/patchwork/badge/?version=latest
+[badge-doc-img]: https://readthedocs.org/projects/patchwork/badge/?version=latest
+[badge-landscape-ref]: https://landscape.io/github/getpatchwork/patchwork/master
+[badge-landscape-img]: https://landscape.io/github/getpatchwork/patchwork/master/landscape.svg?style=flat
 [badge-req-ref]: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
 [badge-req-img]: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
