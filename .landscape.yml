@@ -1,0 +1,14 @@
+doc-warnings: false
+test-warnings: false
+strictness: veryhigh
+max-line-length: 80
+autodetect: true
+requirements:
+  - requirements-dev.txt
+ignore-paths:
+  - docs
+  - patchwork/migrations
+  - lib
+python-targets:
+  - 2
+  - 3
