@@ -185,9 +185,12 @@ def set_bundle(request, project, action, data, patches, context):
     return []
 
 
-def generic_list(request, project, view,
-                 view_args={}, filter_settings=[], patches=None,
-                 editable_order=False):
+def generic_list(request, project, view, view_args=None, filter_settings=None,
+                 patches=None, editable_order=False):
+
+    if not filter_settings:
+        filter_settings = []
+
     filters = Filters(request)
     context = {
         'project': project,
@@ -220,7 +223,7 @@ def generic_list(request, project, view,
         'order': order,
         'list_view': {
             'view': view,
-            'view_params': view_args,
+            'view_params': view_args or {},
             'params': params
         }})
 
