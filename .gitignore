@@ -1,32 +1,22 @@
-#
-# NOTE! Don't add files that are generated in specific
-# subdirectories here. Add them in the ".gitignore" file
-# in that subdirectory instead.
-#
-# Normal rules
-#
-.*
-*.pyc
-*.patch
-*~
-\#*\#
-
-#
-# Top-level generic files
-#
-tags
-TAGS
-!.gitignore
-
-# configuration files
-patchwork/settings/production.py
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
 # stgit generated dirs
 patches-*
 
-# quilt's files
+# CTag
+tags
+TAGS
+
+# quilt files
 /patches
 /series
+
+# patch files
+*.patch
+*.diff
 
 # cscope files
 cscope.*
@@ -34,6 +24,21 @@ cscope.*
 *.orig
 *.rej
 
-# test artifacts
+*~
+\#*\#
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+
+# Django stuff:
+*.log
+
+# Selenium test artifacts
 /selenium.log
 /selenium_screenshots
+
+# Patchwork configuration files
+patchwork/settings/production.py
