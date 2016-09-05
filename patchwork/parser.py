@@ -353,6 +353,13 @@ def clean_subject(subject, drop_prefixes=None):
     return (subject, prefixes)
 
 
+def subject_check(subject):
+    """Determine if a mail is a reply."""
+    comment_re = re.compile(r'^(re)[:\s]\s*', re.I)
+
+    return comment_re.match(subject)
+
+
 def clean_content(content):
     """Remove cruft from the email message.
 
@@ -619,7 +626,9 @@ def parse_mail(mail, list_id=None):
 
     msgid = mail.get('Message-Id').strip()
     author = find_author(mail)
-    name, prefixes = clean_subject(mail.get('Subject'), [project.linkname])
+    subject = mail.get('Subject')
+    name, prefixes = clean_subject(subject, [project.linkname])
+    is_comment = subject_check(subject)
     x, n = parse_series_marker(prefixes)
     refs = find_references(mail)
     date = find_date(mail)
@@ -628,7 +637,7 @@ def parse_mail(mail, list_id=None):
 
     # build objects
 
-    if diff or pull_url:  # patches or pull requests
+    if not is_comment and (diff or pull_url):  # patches or pull requests
         # we delay the saving until we know we have a patch.
         author.save()
 
@@ -658,17 +667,18 @@ def parse_mail(mail, list_id=None):
         # however, we need to see if a match already exists and, if
         # not, assume that it is indeed a new cover letter
         is_cover_letter = False
-        if not refs == []:
-            try:
-                CoverLetter.objects.all().get(name=name)
-            except CoverLetter.DoesNotExist:
-                # if no match, this is a new cover letter
+        if not is_comment:
+            if not refs == []:
+                try:
+                    CoverLetter.objects.all().get(name=name)
+                except CoverLetter.DoesNotExist:
+                    # if no match, this is a new cover letter
+                    is_cover_letter = True
+                except CoverLetter.MultipleObjectsReturned:
+                    # if multiple cover letters are found, just ignore
+                    pass
+            else:
                 is_cover_letter = True
-            except CoverLetter.MultipleObjectsReturned:
-                # if multiple cover letters are found, just ignore
-                pass
-        else:
-            is_cover_letter = True
 
         if is_cover_letter:
             author.save()
@@ -692,6 +702,9 @@ def parse_mail(mail, list_id=None):
     submission = find_submission_for_comment(project, refs)
     if not submission:
         return
+
+    if is_comment and diff:
+        message += diff
 
     author.save()
 

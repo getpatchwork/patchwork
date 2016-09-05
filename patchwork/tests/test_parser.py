@@ -38,6 +38,7 @@ from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_pull_request
 from patchwork.parser import parse_series_marker
 from patchwork.parser import split_prefixes
+from patchwork.parser import subject_check
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
@@ -706,3 +707,11 @@ class SubjectTest(TestCase):
                          ('[bar] meep', ['bar']))
         self.assertEqual(clean_subject('[FOO] [bar] meep', ['foo']),
                          ('[bar] meep', ['bar']))
+
+    def test_subject_check(self):
+        self.assertIsNotNone(subject_check('RE: meep'))
+        self.assertIsNotNone(subject_check('Re: meep'))
+        self.assertIsNotNone(subject_check('re: meep'))
+        self.assertIsNotNone(subject_check('RE meep'))
+        self.assertIsNotNone(subject_check('Re meep'))
+        self.assertIsNotNone(subject_check('re meep'))
