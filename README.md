@@ -1,6 +1,7 @@
 # Patchwork
 
 [![Requirements Status][badge-req-img]][badge-req-ref]
+[![Build Status][badge-travis-img]][badge-travis-ref]
 [![Code Health][badge-landscape-img]][badge-landscape-ref]
 [![Docs Status][badge-doc-img]][badge-doc-ref]
 [![Stories in Ready][badge-waffle-img]][badge-waffle-ref]
@@ -66,6 +67,8 @@ For bug reports, patch submissions or other questions, please use the
 [badge-landscape-img]: https://landscape.io/github/getpatchwork/patchwork/master/landscape.svg?style=flat
 [badge-req-ref]: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
 [badge-req-img]: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
+[badge-travis-ref]: https://travis-ci.org/getpatchwork/patchwork
+[badge-travis-img]: https://travis-ci.org/getpatchwork/patchwork.svg?branch=master
 [badge-waffle-ref]: https://waffle.io/getpatchwork/patchwork
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
 [docs]: https://patchwork.readthedocs.io/en/latest/
