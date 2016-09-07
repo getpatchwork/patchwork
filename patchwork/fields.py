@@ -46,7 +46,7 @@ class HashField(HashFieldBase):
             value = value.encode('utf-8')
         return hashlib.sha1(value)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, *args, **kwargs):
         return self.to_python(value)
 
     def db_type(self, connection=None):
