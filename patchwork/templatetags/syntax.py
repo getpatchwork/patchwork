@@ -35,23 +35,23 @@ def _compile(t):
     return (re.compile(r, re.M | re.I), str)
 
 _patch_span_res = list(map(_compile, [
-    ('^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
-    ('^\+.*$', 'p_add'),
-    ('^-.*$', 'p_del'),
-    ('^!.*$', 'p_mod'),
+    (r'^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
+    (r'^\+.*$', 'p_add'),
+    (r'^-.*$', 'p_del'),
+    (r'^!.*$', 'p_mod'),
 ]))
 
 _patch_chunk_re = \
-    re.compile('^(@@ \-\d+(?:,\d+)? \+\d+(?:,\d+)? @@)(.*)$', re.M | re.I)
+    re.compile(r'^(@@ \-\d+(?:,\d+)? \+\d+(?:,\d+)? @@)(.*)$', re.M | re.I)
 
 _comment_span_res = list(map(_compile, [
-    ('^\s*Signed-off-by: .*$', 'signed-off-by'),
-    ('^\s*Acked-by: .*$', 'acked-by'),
-    ('^\s*Nacked-by: .*$', 'nacked-by'),
-    ('^\s*Tested-by: .*$', 'tested-by'),
-    ('^\s*Reviewed-by: .*$', 'reviewed-by'),
-    ('^\s*From: .*$', 'from'),
-    ('^\s*&gt;.*$', 'quote'),
+    (r'^\s*Signed-off-by: .*$', 'signed-off-by'),
+    (r'^\s*Acked-by: .*$', 'acked-by'),
+    (r'^\s*Nacked-by: .*$', 'nacked-by'),
+    (r'^\s*Tested-by: .*$', 'tested-by'),
+    (r'^\s*Reviewed-by: .*$', 'reviewed-by'),
+    (r'^\s*From: .*$', 'from'),
+    (r'^\s*&gt;.*$', 'quote'),
 ]))
 
 _span = '<span class="%s">%s</span>'

@@ -463,7 +463,7 @@ def parse_patch(content):
                 patchbuf += buf + line
                 buf = ''
                 state = 2
-            elif hunk and line.startswith('\ No newline at end of file'):
+            elif hunk and line.startswith(r'\ No newline at end of file'):
                 # If we had a hunk and now we see this, it's part of the patch,
                 # and we're still expecting another @@ line.
                 patchbuf += line
@@ -479,7 +479,7 @@ def parse_patch(content):
                 lc[0] -= 1
             elif line.startswith('+'):
                 lc[1] -= 1
-            elif line.startswith('\ No newline at end of file'):
+            elif line.startswith(r'\ No newline at end of file'):
                 # Special case: Not included as part of the hunk's line count
                 pass
             else:
