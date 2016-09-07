@@ -268,8 +268,8 @@ using the aptly-named `createsuperuser` command:
 
 Once this is done, it's beneficial to load some real emails into the system.
 This can be done manually, however it's generally much easier to download
-an archive from a Mailman instance and load these using the `parsearchive.py`
-tool. You can do this like so:
+an archive from a Mailman instance and load these using the `parsearchive`
+command. You can do this like so:
 
     (.venv)$ mm_user=myusername
     (.venv)$ mm_pass=mypassword
@@ -288,8 +288,8 @@ find more informations about this [here][ref-mman-bulk].
 Load these archives into Patchwork. Depending on the size of the downloaded
 archives this may take some time:
 
-    (.venv)$ PYTHONPATH=. ./patchwork/bin/parsearchive.py \
-      --list-id=patchwork.ozlabs.org patchwork.mbox
+    (.venv)$ ./manage.py parsearchive --list-id=patchwork.ozlabs.org \
+      patchwork.mbox
 
 Finally, run the server and browse to the IP address of your board using your
 browser of choice:
