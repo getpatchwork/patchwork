@@ -41,7 +41,7 @@ class XMLRPCGenericTest(XMLRPCTest):
 
     def test_pw_rpc_version(self):
         # If you update the RPC version, update the tests!
-        self.assertEqual(self.rpc.pw_rpc_version(), [1, 2, 0])
+        self.assertEqual(self.rpc.pw_rpc_version(), [1, 3, 0])
 
     def test_get_redirect(self):
         response = self.client.patch(self.url)

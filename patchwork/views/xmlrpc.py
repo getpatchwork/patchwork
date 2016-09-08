@@ -389,10 +389,17 @@ def pw_rpc_version():
     recommended that one first test the API version for compatibility
     before making method calls.
 
+    History:
+
+        1.0.0: Patchwork 1.0 release
+        1.1.0: ???
+        1.2.0: ???
+        1.3.0: Add support for negative indexing of Checks
+
     Returns:
         Version of the API.
     """
-    return (1, 2, 0)
+    return (1, 3, 0)
 
 
 @xmlrpc_method()
