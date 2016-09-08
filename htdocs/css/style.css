@@ -430,6 +430,7 @@ table.vertical {
 .table-extra-condensed > tbody > tr > td,
 .table-extra-condensed > tfoot > tr > td {
 	padding: 2px;
+	vertical-align: middle;
 }
 
 table.vertical th {
