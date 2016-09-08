@@ -32,14 +32,19 @@ import sys
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate
-from django.http import (
-    HttpResponse, HttpResponseRedirect, HttpResponseServerError)
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import six
-from django.utils.six.moves import map, xmlrpc_client
+from django.utils.six.moves import xmlrpc_client
 from django.utils.six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
 
-from patchwork.models import Patch, Project, Person, State, Check
+from patchwork.models import Check
+from patchwork.models import Patch
+from patchwork.models import Person
+from patchwork.models import Project
+from patchwork.models import State
 from patchwork.views import patch_to_mbox
 
 
@@ -364,6 +369,16 @@ def patch_check_to_dict(obj):
 # Public XML-RPC methods
 #######################################################################
 
+def _get_objects(serializer, objects, max_count):
+    if max_count > 0:
+        return [serializer(x) for x in objects[:max_count]]
+    elif max_count < 0:
+        min_count = objects.count() + max_count
+        return [serializer(x) for x in objects[min_count:]]
+    else:
+        return [serializer(x) for x in objects]
+
+
 @xmlrpc_method()
 def pw_rpc_version():
     """Return Patchwork XML-RPC interface version.
@@ -402,13 +417,7 @@ def project_list(search_str=None, max_count=0):
     else:
         projects = Project.objects.all()
 
-    if max_count > 0:
-        return list(map(project_to_dict, projects[:max_count]))
-    elif max_count < 0:
-        min_count = projects.count() + max_count
-        return list(map(project_to_dict, projects[min_count:]))
-    else:
-        return list(map(project_to_dict, projects))
+    return _get_objects(project_to_dict, projects, max_count)
 
 
 @xmlrpc_method()
@@ -454,13 +463,7 @@ def person_list(search_str=None, max_count=0):
     else:
         people = Person.objects.all()
 
-    if max_count > 0:
-        return list(map(person_to_dict, people[:max_count]))
-    elif max_count < 0:
-        min_count = people.count() + max_count
-        return list(map(person_to_dict, people[min_count:]))
-    else:
-        return list(map(person_to_dict, people))
+    return _get_objects(person_to_dict, people, max_count)
 
 
 @xmlrpc_method()
@@ -601,13 +604,7 @@ def patch_list(filt=None):
 
     patches = Patch.objects.filter(**dfilter)
 
-    if max_count > 0:
-        return list(map(patch_to_dict, patches[:max_count]))
-    elif max_count < 0:
-        min_count = patches.count() + max_count
-        return list(map(patch_to_dict, patches[min_count:]))
-    else:
-        return list(map(patch_to_dict, patches))
+    return _get_objects(patch_to_dict, patches, max_count)
 
 
 @xmlrpc_method()
@@ -790,13 +787,7 @@ def state_list(search_str=None, max_count=0):
     else:
         states = State.objects.all()
 
-    if max_count > 0:
-        return list(map(state_to_dict, states[:max_count]))
-    elif max_count < 0:
-        min_count = states.count() + max_count
-        return list(map(state_to_dict, states[min_count:]))
-    else:
-        return list(map(state_to_dict, states))
+    return _get_objects(state_to_dict, states, max_count)
 
 
 @xmlrpc_method()
@@ -918,13 +909,7 @@ def check_list(filt=None):
 
     checks = Check.objects.filter(**dfilter)
 
-    if max_count > 0:
-        return list(map(check_to_dict, checks[:max_count]))
-    elif max_count < 0:
-        min_count = checks.count() + max_count
-        return list(map(check_to_dict, checks[min_count:]))
-    else:
-        return list(map(check_to_dict, checks))
+    return _get_objects(check_to_dict, checks, max_count)
 
 
 @xmlrpc_method()
