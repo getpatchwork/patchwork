@@ -294,17 +294,10 @@ def action_get(rpc, patch_id):
         fname = "%s.%d" % (base_fname, i)
         i += 1
 
-    try:
-        f = open(fname, "w")
-    except:
-        sys.stderr.write("Unable to open %s for writing\n" % fname)
-        sys.exit(1)
-
-    try:
+    with open(fname, 'w') as f:
         f.write(unicode(s).encode("utf-8"))
-        f.close()
         print('Saved patch to %s' % fname)
-    except:
+    except IOError:
         sys.stderr.write("Failed to write to %s\n" % fname)
         sys.exit(1)
 

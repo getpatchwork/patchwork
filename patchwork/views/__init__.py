@@ -174,13 +174,13 @@ def set_bundle(request, project, action, data, patches, context):
             try:
                 bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
                 bp.delete()
+            except BundlePatch.DoesNotExist:
+                pass
+            else:
                 messages.success(
                     request,
                     "Patch '%s' removed from bundle %s\n" % (patch.name,
                                                              bundle.name))
-            # TODO(stephenfin): Make this less broad
-            except Exception:
-                pass
 
     bundle.save()
 

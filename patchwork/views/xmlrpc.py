@@ -94,7 +94,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
         try:
             decoded = base64.b64decode(header.encode('ascii')).decode('ascii')
             username, password = decoded.split(':', 1)
-        except:
+        except ValueError:
             raise Exception('Invalid authentication credentials')
 
         return authenticate(username=username, password=password)
@@ -124,7 +124,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
             response = self.dumps(response, methodresponse=1)
         except six.moves.xmlrpc_client.Fault as fault:
             response = self.dumps(fault)
-        except:
+        except Exception:  # noqa
             # report exception back to server
             response = self.dumps(
                 six.moves.xmlrpc_client.Fault(
@@ -149,7 +149,7 @@ def xmlrpc(request):
     if request.method == 'POST':
         try:
             ret = dispatcher._marshaled_dispatch(request)
-        except Exception:
+        except Exception:  # noqa
             return HttpResponseServerError()
     else:
         ret = dispatcher.generate_html_documentation()

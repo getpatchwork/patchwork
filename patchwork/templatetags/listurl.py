@@ -63,9 +63,9 @@ class ListURLNode(template.defaulttags.URLNode):
 
         params = []
         try:
-            qs_var = template.Variable('list_view.params')
-            params = dict(qs_var.resolve(context))
-        except Exception:
+            qs_var = template.Variable('list_view.params').resolve(context)
+            params = dict(qs_var)
+        except (TypeError, template.VariableDoesNotExist):
             pass
 
         for (k, v) in self.params.items():

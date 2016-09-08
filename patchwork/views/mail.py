@@ -17,7 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
+import smtplib
 
 from django.conf import settings as conf_settings
 from django.core.mail import send_mail
@@ -114,7 +114,7 @@ def _optinout(request, action, description):
         send_mail('Patchwork %s confirmation' % description, mail,
                   conf_settings.DEFAULT_FROM_EMAIL, [email])
         context['email_sent'] = True
-    except Exception:
+    except smtplib.SMTPException:
         context['error'] = ('An error occurred during confirmation . '
                             'Please try again later.')
         context['admins'] = conf_settings.ADMINS

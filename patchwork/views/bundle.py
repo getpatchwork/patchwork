@@ -48,10 +48,7 @@ def setbundle(request):
             patch_id = request.POST.get('patch_id', None)
             if patch_id:
                 patch = get_object_or_404(Patch, id=patch_id)
-                try:
-                    bundle.append_patch(patch)
-                except Exception:
-                    pass
+                bundle.append_patch(patch)
             bundle.save()
         elif action == 'add':
             bundle = get_object_or_404(Bundle,
@@ -66,11 +63,8 @@ def setbundle(request):
                 patch_ids = get_patch_ids(request.POST)
 
             for patch_id in patch_ids:
-                try:
-                    patch = Patch.objects.get(id=patch_id)
-                    bundle.append_patch(patch)
-                except:
-                    pass
+                patch = Patch.objects.get(id=patch_id)
+                bundle.append_patch(patch)
 
             bundle.save()
         elif action == 'delete':
@@ -78,11 +72,10 @@ def setbundle(request):
                 bundle = Bundle.objects.get(owner=request.user,
                                             id=request.POST['id'])
                 bundle.delete()
-            except Exception:
+            except Bundle.DoesNotExist:
                 pass
 
             bundle = None
-
     else:
         bundle = get_object_or_404(Bundle, owner=request.user,
                                    id=request.POST['bundle_id'])

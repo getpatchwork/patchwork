@@ -55,9 +55,9 @@ class Paginator(paginator.Paginator):
         super(Paginator, self).__init__(objects, items_per_page)
 
         try:
-            page_no = int(request.GET.get('page'))
+            page_no = int(request.GET.get('page', 1))
             self.current_page = self.page(int(page_no))
-        except Exception:
+        except ValueError:
             page_no = 1
             self.current_page = self.page(page_no)
 

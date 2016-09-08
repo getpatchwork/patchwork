@@ -590,11 +590,13 @@ class Bundle(models.Model):
         # see if the patch is already in this bundle
         if BundlePatch.objects.filter(bundle=self,
                                       patch=patch).count():
-            raise Exception('patch is already in bundle')
+            return
 
         bp = BundlePatch.objects.create(bundle=self, patch=patch,
                                         order=max_order + 1)
         bp.save()
+
+        return bp
 
     def public_url(self):
         if not self.public:

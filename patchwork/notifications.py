@@ -19,6 +19,7 @@
 
 import datetime
 import itertools
+import smtplib
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -87,7 +88,7 @@ def send_notifications():
 
         try:
             message.send()
-        except Exception as ex:
+        except smtplib.SMTPException as ex:
             errors.append((recipient, ex))
             continue
 

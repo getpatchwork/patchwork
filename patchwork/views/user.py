@@ -17,7 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
+import smtplib
 
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -145,7 +145,7 @@ def link(request):
                                            context, request=request),
                           settings.DEFAULT_FROM_EMAIL,
                           [form.cleaned_data['email']])
-            except Exception:
+            except smtplib.SMTPException:
                 context['confirmation'] = None
                 context['error'] = ('An error occurred during confirmation. '
                                     'Please try again later')

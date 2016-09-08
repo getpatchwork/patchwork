@@ -77,15 +77,15 @@ def patch(request, patch_id):
         elif action == 'addtobundle':
             bundle = get_object_or_404(
                 Bundle, id=request.POST.get('bundle_id'))
-            try:
-                bundle.append_patch(patch)
-                bundle.save()
+            if bundle.append_patch(patch):
                 messages.success(request,
-                                 'Patch added to bundle "%s"' % bundle.name)
-            except Exception as ex:
+                                 'Patch "%s" added to bundle "%s"' % (
+                                     patch.name, bundle.name))
+            else:
                 messages.error(request,
-                               "Couldn't add patch '%s' to bundle %s: %s"
-                               % (patch.name, bundle.name, ex.message))
+                               'Failed to add patch "%s" to bundle "%s": '
+                               'patch is already in bundle' % (
+                                   patch.name, bundle.name))
 
         # all other actions require edit privs
         elif not editable:
