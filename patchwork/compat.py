@@ -30,9 +30,10 @@ import django
 # https://docs.djangoproject.com/en/dev/releases/1.8/
 
 if django.VERSION >= (1, 8):
-    from django.template.loader import render_to_string
+    from django.template.loader import render_to_string  # noqa
 else:
-    from django.template import loader, RequestContext
+    from django.template import loader  # noqa
+    from django.template import RequestContext  # noqa
 
     def render_to_string(template_name, context=None, request=None):
         context_instance = RequestContext(request) if request else None
