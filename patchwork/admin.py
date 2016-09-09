@@ -68,10 +68,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 admin.site.register(Submission, SubmissionAdmin)
-
-
-CoverLetterAdmin = SubmissionAdmin
-admin.site.register(CoverLetter, CoverLetterAdmin)
+admin.site.register(CoverLetter, SubmissionAdmin)
 
 
 class PatchAdmin(admin.ModelAdmin):

@@ -30,10 +30,15 @@ from django.shortcuts import render, get_object_or_404
 
 from patchwork.compat import render_to_string
 from patchwork.filters import DelegateFilter
-from patchwork.forms import (UserProfileForm, UserPersonLinkForm,
-                             RegistrationForm)
-from patchwork.models import (Project, Bundle, Person, EmailConfirmation,
-                              State, EmailOptout)
+from patchwork.forms import EmailForm
+from patchwork.forms import RegistrationForm
+from patchwork.forms import UserProfileForm
+from patchwork.models import Bundle
+from patchwork.models import EmailConfirmation
+from patchwork.models import EmailOptout
+from patchwork.models import Person
+from patchwork.models import Project
+from patchwork.models import State
 from patchwork.views import generic_list
 
 
@@ -120,7 +125,7 @@ def profile(request):
     people = Person.objects.filter(user=request.user) \
         .extra(select={'is_optout': optout_query})
     context['linked_emails'] = people
-    context['linkform'] = UserPersonLinkForm()
+    context['linkform'] = EmailForm()
 
     return render(request, 'patchwork/profile.html', context)
 
@@ -130,7 +135,7 @@ def link(request):
     context = {}
 
     if request.method == 'POST':
-        form = UserPersonLinkForm(request.POST)
+        form = EmailForm(request.POST)
         if form.is_valid():
             conf = EmailConfirmation(type='userperson',
                                      user=request.user,
@@ -150,7 +155,7 @@ def link(request):
                 context['error'] = ('An error occurred during confirmation. '
                                     'Please try again later')
     else:
-        form = UserPersonLinkForm()
+        form = EmailForm()
 
     context['linkform'] = form
 

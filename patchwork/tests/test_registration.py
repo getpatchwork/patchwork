@@ -34,6 +34,7 @@ def _confirmation_url(conf):
 class TestUser(object):
     firstname = 'Test'
     lastname = 'User'
+    fullname = ' '.join([firstname, lastname])
     username = 'testuser'
     email = 'test@example.com'
     password = 'foobar'
@@ -52,12 +53,12 @@ class RegistrationTest(TestCase):
         self.required_error = 'This field is required.'
         self.invalid_error = 'Enter a valid value.'
 
-    def testRegistrationForm(self):
+    def test_registration_form(self):
         response = self.client.get('/register/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/registration_form.html')
 
-    def testBlankFields(self):
+    def test_blank_fields(self):
         for field in ['username', 'email', 'password']:
             data = self.default_data.copy()
             del data[field]
@@ -65,14 +66,14 @@ class RegistrationTest(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertFormError(response, 'form', field, self.required_error)
 
-    def testInvalidUsername(self):
+    def test_invalid_username(self):
         data = self.default_data.copy()
         data['username'] = 'invalid user'
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'username', self.invalid_error)
 
-    def testExistingUsername(self):
+    def test_existing_username(self):
         user = create_user()
         data = self.default_data.copy()
         data['username'] = user.username
@@ -82,7 +83,7 @@ class RegistrationTest(TestCase):
                              'This username is already taken. Please choose '
                              'another.')
 
-    def testExistingEmail(self):
+    def test_existing_email(self):
         user = create_user()
         data = self.default_data.copy()
         data['email'] = user.email
@@ -92,7 +93,7 @@ class RegistrationTest(TestCase):
                              'This email address is already in use '
                              'for the account "%s".\n' % user.username)
 
-    def testValidRegistration(self):
+    def test_valid_registration(self):
         response = self.client.post('/register/', self.default_data)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'confirmation email has been sent')
@@ -128,13 +129,15 @@ class RegistrationConfirmationTest(TestCase):
 
     def setUp(self):
         self.user = TestUser()
-        self.default_data = {'username': self.user.username,
-                             'first_name': self.user.firstname,
-                             'last_name': self.user.lastname,
-                             'email': self.user.email,
-                             'password': self.user.password}
+        self.default_data = {
+            'username': self.user.username,
+            'first_name': self.user.firstname,
+            'last_name': self.user.lastname,
+            'email': self.user.email,
+            'password': self.user.password
+        }
 
-    def testRegistrationConfirmation(self):
+    def test_valid(self):
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
         self.assertEqual(response.status_code, 200)
@@ -154,10 +157,9 @@ class RegistrationConfirmationTest(TestCase):
         self.assertTrue(conf.user.is_active)
         self.assertFalse(conf.active)
 
-    def testRegistrationNewPersonSetup(self):
-        """ Check that the person object created after registration has the
-            correct details """
-
+    def test_new_person_setup(self):
+        """Check that the person object created after registration has the
+           correct details."""
         # register
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
@@ -173,15 +175,12 @@ class RegistrationConfirmationTest(TestCase):
         self.assertTrue(qs.exists())
         person = Person.objects.get(email=self.user.email)
 
-        self.assertEqual(person.name,
-                         self.user.firstname + ' ' + self.user.lastname)
+        self.assertEqual(person.name, self.user.fullname)
 
-    def testRegistrationExistingPersonSetup(self):
+    def test_existing_person_setup(self):
         """ Check that the person object created after registration has the
             correct details """
-
-        fullname = self.user.firstname + ' ' + self.user.lastname
-        person = Person(name=fullname, email=self.user.email)
+        person = Person(name=self.user.fullname, email=self.user.email)
         person.save()
 
         # register
@@ -196,14 +195,12 @@ class RegistrationConfirmationTest(TestCase):
 
         person = Person.objects.get(email=self.user.email)
 
-        self.assertEqual(person.name, fullname)
+        self.assertEqual(person.name, self.user.fullname)
 
-    def testRegistrationExistingPersonUnmodified(self):
-        """ Check that an unconfirmed registration can't modify an existing
-            Person object"""
-
-        fullname = self.user.firstname + ' ' + self.user.lastname
-        person = Person(name=fullname, email=self.user.email)
+    def test_existing_person_unmodified(self):
+        """Check that an unconfirmed registration can't modify an existing
+           Person object."""
+        person = Person(name=self.user.fullname, email=self.user.email)
         person.save()
 
         # register
@@ -214,4 +211,5 @@ class RegistrationConfirmationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(Person.objects.get(pk=person.pk).name, fullname)
+        self.assertEqual(Person.objects.get(pk=person.pk).name,
+                         self.user.fullname)

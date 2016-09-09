@@ -28,7 +28,8 @@ from django.utils import six
 
 
 if django.VERSION < (1, 8):
-    HashFieldBase = six.with_metaclass(models.SubfieldBase, models.CharField)
+    HashFieldBase = six.with_metaclass(models.SubfieldBase,
+                                       models.CharField)  # noqa
 else:
     HashFieldBase = models.CharField
 

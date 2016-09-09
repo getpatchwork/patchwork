@@ -39,7 +39,7 @@ if settings.ENABLE_REST_API:
 else:
     # stub out APITestCase
     from django.test import TestCase
-    APITestCase = TestCase
+    APITestCase = TestCase  # noqa
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')

@@ -26,8 +26,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from patchwork.compat import render_to_string
-from patchwork.forms import OptinoutRequestForm, EmailForm
-from patchwork.models import EmailOptout, EmailConfirmation
+from patchwork.forms import EmailForm
+from patchwork.models import EmailConfirmation
+from patchwork.models import EmailOptout
 
 
 def settings(request):
@@ -88,7 +89,7 @@ def _optinout(request, action, description):
     if request.method != 'POST':
         return HttpResponseRedirect(reverse(settings))
 
-    form = OptinoutRequestForm(data=request.POST)
+    form = EmailForm(data=request.POST)
     if not form.is_valid():
         context['error'] = ('There was an error in the %s form. Please '
                             'review the form and re-submit.' % description)
