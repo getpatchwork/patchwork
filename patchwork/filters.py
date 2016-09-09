@@ -73,7 +73,6 @@ class Filter(object):
         if self.forced:
             return mark_safe('<input type="hidden" value="%s">%s' % (
                 self.param, self.condition()))
-            return self.condition()
         return self._form()
 
     def kwargs(self):
