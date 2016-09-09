@@ -587,10 +587,9 @@ def patch_list(filt=None):
         if parts[0] not in ok_fields:
             # Invalid field given
             return []
-        if len(parts) > 1:
-            if LOOKUP_TYPES.count(parts[1]) == 0:
-                # Invalid lookup type given
-                return []
+        if len(parts) > 1 and LOOKUP_TYPES.count(parts[1]) == 0:
+            # Invalid lookup type given
+            return []
 
         try:
             if parts[0] == 'project_id':

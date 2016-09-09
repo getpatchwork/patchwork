@@ -440,9 +440,8 @@ class Filters:
             if k not in params:
                 params[k] = v
 
-        if remove is not None:
-            if remove.param in list(params.keys()):
-                del params[remove.param]
+        if remove and remove.param in list(params.keys()):
+            del params[remove.param]
 
         def sanitise(s):
             if not isinstance(s, six.string_types):

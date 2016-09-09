@@ -184,10 +184,9 @@ def link_confirm(request, conf):
 def unlink(request, person_id):
     person = get_object_or_404(Person, id=person_id)
 
-    if request.method == 'POST':
-        if person.email != request.user.email:
-            person.user = None
-            person.save()
+    if request.method == 'POST' and person.email != request.user.email:
+        person.user = None
+        person.save()
 
     return HttpResponseRedirect(urlresolvers.reverse('user-profile'))
 
