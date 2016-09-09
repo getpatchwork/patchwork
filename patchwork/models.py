@@ -415,7 +415,7 @@ class Patch(Submission):
         for tag in tags:
             self._set_tag(tag, counter[tag])
 
-    def save(self, **kwargs):
+    def save(self, *args, **kwargs):
         if not hasattr(self, 'state') or not self.state:
             self.state = get_default_initial_patch_state()
 
@@ -696,7 +696,7 @@ class EmailConfirmation(models.Model):
     def is_valid(self):
         return self.date + self.validity > datetime.datetime.now()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         limit = 1 << 32
         if not self.key:
             key = '%s%s%d' % (self.user, self.email, random.randint(0, limit))
