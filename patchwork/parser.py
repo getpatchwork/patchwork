@@ -473,7 +473,7 @@ def parse_patch(content):
                 state = 0
                 commentbuf += buf + line
                 buf = ''
-        elif state == 4 or state == 5:
+        elif state in [4, 5]:
             if line.startswith('-'):
                 lc[0] -= 1
             elif line.startswith('+'):

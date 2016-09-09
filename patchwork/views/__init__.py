@@ -160,7 +160,7 @@ def set_bundle(request, project, action, data, patches, context):
         return ['no such bundle']
 
     for patch in patches:
-        if action == 'create' or action == 'add':
+        if action in ['create', 'add']:
             bundlepatch_count = BundlePatch.objects.filter(bundle=bundle,
                                                            patch=patch).count()
             if bundlepatch_count == 0:

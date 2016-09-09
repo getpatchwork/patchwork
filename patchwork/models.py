@@ -430,7 +430,7 @@ class Patch(Submission):
         if not user.is_authenticated():
             return False
 
-        if self.submitter.user == user or self.delegate == user:
+        if user in [self.submitter.user, self.delegate]:
             return True
 
         return self.project.is_editable(user)
