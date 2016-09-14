@@ -7,9 +7,44 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+This release added support for a REST API, cover letter parsing, and the latest
+versions of both Django and Python.
+
 ### Added
 
-- N/A
+- REST API support (Django >= 1.8 only)
+- Cover letter support
+- Django debug toolbar support for developers
+- Django 1.9 and 1.10 support
+- Python 3.5 support
+- Docker support for developers
+- Sample deployment documentation
+
+### Changed
+
+- The `parsemail.py` and `parsearchive.py` scripts have been replaced by the
+  `parsemail` and `parsearchive` management commands
+- Significant rework of tests
+- A user's name will now be updated on each email received from them
+
+### Fixed
+
+- Numerous typos and other issues in both documentation and code
+- Various UI and performance improvements
+- Checks are now displayed with their associated owner, thus preventing
+  spoofing
+- `user at domain`-style email address, commonly found in Mailman archives, are
+  now handled correctly
+- Unicode characters transmitted over the XML-RPC API are now handled correctly
+  under Python 3
+
+### Removed
+
+- `parser.py` can no longer be exected as a script
+
+### Deprecated
+
+- Django 1.7 support will be removed in a future release
 
 ## [1.1.1] - 2016-03-29
 
