@@ -11,6 +11,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - N/A
 
+## [1.1.1] - 2016-03-29
+
+This release fixed a number of issues with the [1.1.0] release.
+
+## Fixed
+
+- Numerous issues in the `parsemail.py`, `parsearchive.py` and `parsemail.sh`
+  scripts
+- Permissions of database tables as set by `grant-all` SQL scripts
+- Misc. UI and performance improvements
+
 ## [1.1.0] - 2016-03-03
 
 This release overhauled the web UI and added support for automatic delegation
