@@ -502,7 +502,17 @@ class Patch(Submission):
             unique[user][ctx] = check
 
         # filter out the "duplicates" or older, now-invalid results
-        return self.check_set.all().exclude(id__in=duplicates)
+
+        # Why don't we use filter or exclude here? Surprisingly, it's
+        # an optimisation in the common case. Where we're looking at
+        # checks in anything that uses a generic_list() in the view,
+        # we do a prefetch_related('check_set'). But, if we then do a
+        # .filter or a .exclude, that throws out the existing, cached
+        # information, and does another query. (See the Django docs on
+        # prefetch_related.) So, do it 'by hand' in Python. We can
+        # also be confident that this won't be worse, seeing as we've
+        # just iterated over self.check_set.all() *anyway*.
+        return [c for c in self.check_set.all() if c.id not in duplicates]
 
     @property
     def check_count(self):
