@@ -21,7 +21,6 @@ from __future__ import absolute_import
 
 from django.conf import settings
 from django.core import paginator
-from django.utils.six.moves import range
 
 
 DEFAULT_ITEMS_PER_PAGE = 100

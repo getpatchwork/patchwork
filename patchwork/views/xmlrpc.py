@@ -635,7 +635,7 @@ def patch_get(patch_id):
 
 
 @xmlrpc_method()
-def patch_get_by_hash(hash):
+def patch_get_by_hash(hash):  # noqa
     """Get a patch by its hash.
 
     Retrieve a patch matching a given patch hash, if any exists.

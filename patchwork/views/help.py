@@ -33,7 +33,7 @@ if settings.ENABLE_XMLRPC:
     help_pages['pwclient/'] = 'pwclient.html'
 
 
-def help(request, path):
+def detail(request, path):
     if path in help_pages:
         return render(request,
                       'patchwork/help/' + help_pages[path])

@@ -40,7 +40,7 @@ def personify(person, project):
 
     url = reverse('patch-list',
                   kwargs={'project_id': project.linkname})
-    str = '<a href="%s?%s=%s">%s</a>' % (
+    out = '<a href="%s?%s=%s">%s</a>' % (
         url, SubmitterFilter.param, escape(person.id), linktext)
 
-    return mark_safe(str)
+    return mark_safe(out)

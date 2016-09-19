@@ -31,7 +31,6 @@ import re
 
 from django.contrib.auth.models import User
 from django.utils import six
-from django.utils.six.moves import map
 
 from patchwork.models import (Patch, Project, Person, Comment, State,
                               DelegationRule, Submission, CoverLetter,
@@ -45,9 +44,9 @@ list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 LOGGER = logging.getLogger(__name__)
 
 
-def normalise_space(str):
+def normalise_space(value):
     whitespace_re = re.compile(r'\s+')
-    return whitespace_re.sub(' ', str).strip()
+    return whitespace_re.sub(' ', value).strip()
 
 
 def clean_header(header):
@@ -60,7 +59,7 @@ def clean_header(header):
             return frag_str.decode()
         return frag_str
 
-    fragments = list(map(decode, decode_header(header)))
+    fragments = [decode(x) for x in decode_header(header)]
 
     return normalise_space(u' '.join(fragments))
 
@@ -454,7 +453,7 @@ def parse_patch(content):
                         return 1
                     return int(x)
 
-                lc = list(map(fn, match.groups()))
+                lc = [fn(x) for x in match.groups()]
 
                 state = 4
                 patchbuf += buf + line

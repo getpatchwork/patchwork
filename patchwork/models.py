@@ -33,7 +33,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
-from django.utils.six.moves import filter
 
 from patchwork.fields import HashField
 
@@ -136,9 +135,8 @@ class UserProfile(models.Model):
 
     def name(self):
         if self.user.first_name or self.user.last_name:
-            names = list(filter(
-                bool, [self.user.first_name, self.user.last_name]))
-            return ' '.join(names)
+            names = [self.user.first_name, self.user.last_name]
+            return ' '.join([x for x in names if x])
         return self.user.username
 
     def contributor_projects(self):
@@ -697,10 +695,10 @@ class EmailConfirmation(models.Model):
         return self.date + self.validity > datetime.datetime.now()
 
     def save(self):
-        max = 1 << 32
-        if self.key == '':
-            str = '%s%s%d' % (self.user, self.email, random.randint(0, max))
-            self.key = self._meta.get_field('key').construct(str).hexdigest()
+        limit = 1 << 32
+        if not self.key:
+            key = '%s%s%d' % (self.user, self.email, random.randint(0, limit))
+            self.key = self._meta.get_field('key').construct(key).hexdigest()
         super(EmailConfirmation, self).save()
 
 

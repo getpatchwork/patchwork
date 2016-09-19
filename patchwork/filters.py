@@ -55,10 +55,13 @@ class Filter(object):
            that user's delegated patches"""
         pass
 
-    def parse(self, dict):
-        if self.param not in dict:
+    def _set_key(self, key):
+        raise NotImplementedError
+
+    def parse(self, values):
+        if self.param not in values:
             return
-        self._set_key(dict[self.param])
+        self._set_key(values[self.param])
 
     def url_without_me(self):
         return self.filters.querystring_without_filter(self)
@@ -89,34 +92,29 @@ class SubmitterFilter(Filter):
         self.person = None
         self.person_match = None
 
-    def _set_key(self, str):
+    def _set_key(self, key):
         self.person = None
         self.person_match = None
         submitter_id = None
 
-        str = str.strip()
-        if str == '':
+        key = key.strip()
+        if not key:
             return
 
         try:
-            submitter_id = int(str)
+            submitter_id = int(key)
         except ValueError:
             pass
-        except:
-            return
 
         if submitter_id:
-            self.person = Person.objects.get(id=int(str))
+            self.person = Person.objects.get(id=submitter_id)
             self.applied = True
             return
 
-        people = Person.objects.filter(name__icontains=str)
-
-        if not people:
-            return
-
-        self.person_match = str
-        self.applied = True
+        people = Person.objects.filter(name__icontains=key)
+        if people:
+            self.person_match = key
+            self.applied = True
 
     def kwargs(self):
         if self.person:
@@ -158,16 +156,16 @@ class StateFilter(Filter):
         self.state = None
         self.applied = True
 
-    def _set_key(self, str):
+    def _set_key(self, key):
         self.state = None
 
-        if str == self.any_key:
+        if key == self.any_key:
             self.applied = False
             return
 
         try:
-            self.state = State.objects.get(id=int(str))
-        except:
+            self.state = State.objects.get(id=int(key))
+        except (ValueError, State.DoesNotExist):
             return
 
         self.applied = True
@@ -193,17 +191,17 @@ class StateFilter(Filter):
         return None
 
     def _form(self):
-        str = '<select name="%s" class="form-control">' % self.param
+        out = '<select name="%s" class="form-control">' % self.param
 
         selected = ''
         if not self.applied:
             selected = 'selected'
-        str += '<option %s value="%s">any</option>' % (selected, self.any_key)
+        out += '<option %s value="%s">any</option>' % (selected, self.any_key)
 
         selected = ''
         if self.applied and self.state is None:
             selected = 'selected'
-        str += '<option %s value="">%s</option>' % (
+        out += '<option %s value="">%s</option>' % (
             selected, self.action_req_str)
 
         for state in State.objects.all():
@@ -211,10 +209,10 @@ class StateFilter(Filter):
             if self.state and self.state == state:
                 selected = ' selected="true"'
 
-            str += '<option value="%d" %s>%s</option>' % (
+            out += '<option value="%d" %s>%s</option>' % (
                 state.id, selected, state.name)
-        str += '</select>'
-        return mark_safe(str)
+        out += '</select>'
+        return mark_safe(out)
 
     def form_function(self):
         return 'function(form) { return form.x.value }'
@@ -235,11 +233,12 @@ class SearchFilter(Filter):
         self.param = 'q'
         self.search = None
 
-    def _set_key(self, str):
-        str = str.strip()
-        if str == '':
+    def _set_key(self, key):
+        key = key.strip()
+        if not key:
             return
-        self.search = str
+
+        self.search = key
         self.applied = True
 
     def kwargs(self):
@@ -281,11 +280,11 @@ class ArchiveFilter(Filter):
             None: 'Both'
         }
 
-    def _set_key(self, str):
+    def _set_key(self, key):
         self.archive_state = False
         self.applied = True
         for (k, v) in self.param_map.items():
-            if str == v:
+            if key == v:
                 self.archive_state = k
         if self.archive_state is None:
             self.applied = False
@@ -351,8 +350,6 @@ class DelegateFilter(Filter):
             delegate_id = int(key)
         except ValueError:
             pass
-        except:
-            return
 
         if delegate_id:
             self.delegate = User.objects.get(id=int(key))
@@ -410,11 +407,11 @@ class Filters:
 
     def __init__(self, request):
         self._filters = [c(self) for c in filterclasses]
-        self.dict = request.GET
+        self.values = request.GET
         self.project = None
 
         for f in self._filters:
-            f.parse(self.dict)
+            f.parse(self.values)
 
     def set_project(self, project):
         self.project = project
@@ -439,7 +436,7 @@ class Filters:
     def querystring(self, remove=None):
         params = dict(self.params())
 
-        for (k, v) in self.dict.items():
+        for (k, v) in self.values.items():
             if k not in params:
                 params[k] = v
 

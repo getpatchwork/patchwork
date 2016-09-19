@@ -47,18 +47,18 @@ class ListURLNode(template.defaulttags.URLNode):
         view_name = template.Variable('list_view.view').resolve(context)
         kwargs = template.Variable('list_view.view_params').resolve(context)
 
-        str = None
+        path = None
         try:
-            str = reverse(view_name, args=[], kwargs=kwargs)
+            path = reverse(view_name, args=[], kwargs=kwargs)
         except NoReverseMatch:
             try:
                 project_name = settings.SETTINGS_MODULE.split('.')[0]
-                str = reverse(project_name + '.' + view_name,
-                              args=[], kwargs=kwargs)
+                path = reverse(project_name + '.' + view_name,
+                               args=[], kwargs=kwargs)
             except NoReverseMatch:
                 raise
 
-        if str is None:
+        if path is None:
             return ''
 
         params = []
@@ -72,9 +72,9 @@ class ListURLNode(template.defaulttags.URLNode):
             params[smart_str(k, 'ascii')] = v.resolve(context)
 
         if not params:
-            return str
+            return path
 
-        return str + '?' + '&'.join(
+        return path + '?' + '&'.join(
             ['%s=%s' % (k, escape(v)) for (k, v) in list(params.items())])
 
 

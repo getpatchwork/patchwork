@@ -65,9 +65,9 @@ def setbundle(request):
             else:
                 patch_ids = get_patch_ids(request.POST)
 
-            for id in patch_ids:
+            for patch_id in patch_ids:
                 try:
-                    patch = Patch.objects.get(id=id)
+                    patch = Patch.objects.get(id=patch_id)
                     bundle.append_patch(patch)
                 except:
                     pass

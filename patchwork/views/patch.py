@@ -108,6 +108,13 @@ def patch(request, patch_id):
     return render(request, 'patchwork/submission.html', context)
 
 
+def patches(request, project_id):
+    project = get_object_or_404(Project, linkname=project_id)
+    context = generic_list(request, project, 'patch-list',
+                           view_args={'project_id': project.linkname})
+    return render(request, 'patchwork/list.html', context)
+
+
 def content(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
     response = HttpResponse(content_type="text/x-patch")
@@ -128,10 +135,3 @@ def mbox(request, patch_id):
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename().replace(';', '').replace('\n', '')
     return response
-
-
-def list(request, project_id):
-    project = get_object_or_404(Project, linkname=project_id)
-    context = generic_list(request, project, 'patch-list',
-                           view_args={'project_id': project.linkname})
-    return render(request, 'patchwork/list.html', context)

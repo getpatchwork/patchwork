@@ -28,7 +28,7 @@ from django.shortcuts import get_object_or_404, render
 from patchwork.models import Project
 
 
-def list(request):
+def projects(request):
     projects = Project.objects.all()
 
     if projects.count() == 1:
@@ -42,7 +42,6 @@ def list(request):
     return render(request, 'patchwork/projects.html', context)
 
 
-# TODO(stephenfin): Consistently rename these as list and detail
 def project(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
 

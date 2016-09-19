@@ -40,8 +40,8 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^$', project_views.list, name='project-list'),
-    url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.list,
+    url(r'^$', project_views.projects, name='project-list'),
+    url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.patches,
         name='patch-list'),
     url(r'^project/(?P<project_id>[^/]+)/bundles/$', bundle_views.bundles,
         name='bundle-list'),
@@ -59,7 +59,6 @@ urlpatterns = [
     # cover views
     url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover,
         name='cover-detail'),
-
 
     # logged-in user stuff
     url(r'^user/$', user_views.profile, name='user-profile'),
@@ -124,7 +123,7 @@ urlpatterns = [
     url(r'^mail/optin/$', mail_views.optin, name='mail-optin'),
 
     # help!
-    url(r'^help/(?P<path>.*)$', help_views.help, name='help'),
+    url(r'^help/(?P<path>.*)$', help_views.detail, name='help'),
 ]
 
 if 'debug_toolbar' in settings.INSTALLED_APPS:
