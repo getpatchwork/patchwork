@@ -21,9 +21,12 @@ TAGS
 # cscope files
 cscope.*
 
+# misc files
+
 *.orig
 *.rej
 
+*.swp
 *~
 \#*\#
 
@@ -33,8 +36,11 @@ htmlcov/
 .coverage
 .coverage.*
 
-# Django stuff:
+# Django stuff
 *.log
+
+# Vagrant stuff
+/.vagrant
 
 # Selenium test artifacts
 /selenium.log
