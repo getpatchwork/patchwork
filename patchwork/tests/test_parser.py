@@ -554,7 +554,7 @@ class DelegateRequestTest(TestCase):
         email['Message-Id'] = self.msgid
         return email
 
-    def assertDelegate(self, delegate):
+    def assertDelegate(self, delegate):  # noqa
         query = Patch.objects.filter(project=self.project)
         self.assertEqual(query.count(), 1)
         self.assertEqual(query[0].delegate, delegate)
@@ -596,7 +596,7 @@ class InitialPatchStateTest(TestCase):
             self.patch, msgid=self.msgid, listid='<%s>' % self.project.listid)
         return email
 
-    def assertState(self, state):
+    def assertState(self, state):  # noqa
         query = Patch.objects.filter(project=self.project)
         self.assertEqual(query.count(), 1)
         self.assertEqual(query[0].state, state)

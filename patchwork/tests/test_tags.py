@@ -33,7 +33,7 @@ class ExtractTagsTest(TestCase):
     email = 'test@example.com'
     name_email = 'test name <' + email + '>'
 
-    def assertTagsEqual(self, str, acks, reviews, tests):
+    def assertTagsEqual(self, str, acks, reviews, tests):  # noqa
         counts = Patch.extract_tags(str, Tag.objects.all())
         self.assertEqual((acks, reviews, tests),
                          (counts[Tag.objects.get(name='Acked-by')],
@@ -92,7 +92,7 @@ class PatchTagsTest(TransactionTestCase):
         self.patch.project.use_tags = True
         self.patch.project.save()
 
-    def assertTagsEqual(self, patch, acks, reviews, tests):
+    def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
         patch = Patch.objects.get(pk=patch.pk)
 
         def count(name):
@@ -183,7 +183,7 @@ class PatchTagsTest(TransactionTestCase):
 
 class PatchTagManagerTest(PatchTagsTest):
 
-    def assertTagsEqual(self, patch, acks, reviews, tests):
+    def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
         tagattrs = {}
         for tag in Tag.objects.all():
             tagattrs[tag.name] = tag.attr_name
