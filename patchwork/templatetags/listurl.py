@@ -81,7 +81,7 @@ class ListURLNode(template.defaulttags.URLNode):
 @register.tag
 def listurl(parser, token):
     bits = token.contents.split(' ', 1)
-    if len(bits) < 1:
+    if not bits:
         raise template.TemplateSyntaxError(
             "'%s' takes at least one argument (path to a view)" % bits[0])
     kwargs = {}
