@@ -22,12 +22,12 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
-from patchwork import views
 from patchwork.views import api as api_views
 from patchwork.views import bundle as bundle_views
 from patchwork.views import cover as cover_views
 from patchwork.views import help as help_views
 from patchwork.views import mail as mail_views
+from patchwork.views import notification as notification_views
 from patchwork.views import patch as patch_views
 from patchwork.views import project as project_views
 from patchwork.views import pwclient as pwclient_views
@@ -111,7 +111,7 @@ urlpatterns = [
         bundle_views.mbox,
         name='bundle-mbox'),
 
-    url(r'^confirm/(?P<key>[0-9a-f]+)/$', views.confirm,
+    url(r'^confirm/(?P<key>[0-9a-f]+)/$', notification_views.confirm,
         name='confirm'),
 
     # submitter autocomplete
