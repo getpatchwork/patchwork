@@ -21,12 +21,10 @@
 
 import codecs
 import datetime
-from email.header import Header, decode_header
+from email.header import decode_header, make_header
 from email.utils import parsedate_tz, mktime_tz
 from fnmatch import fnmatch
-from functools import reduce
 import logging
-import operator
 import re
 
 from django.contrib.auth.models import User
@@ -49,19 +47,84 @@ def normalise_space(value):
     return whitespace_re.sub(' ', value).strip()
 
 
+def sanitise_header(header_contents, header_name=None):
+    """Clean and individual mail header.
+
+    Given a header with header_contents, optionally labelled
+    header_name, decode it with decode_header, sanitise it to make
+    sure it decodes correctly and contains no invalid characters,
+    then encode the result with make_header()
+    """
+
+    # We have some Py2/Py3 issues here.
+    #
+    # Firstly, the email parser (before we get here)
+    # Python 3: headers with weird chars are email.header.Header
+    #           class, others as str
+    # Python 2: every header is an str
+    #
+    # Secondly, the behaviour of decode_header:
+    # Python 3: weird headers are labelled as unknown-8bit
+    # Python 2: weird headers are not labelled differently
+    #
+    # Lastly, aking matters worse, in Python2, unknown-8bit doesn't
+    # seem to be supported as an input to make_header, so not only do
+    # we have to detect dodgy headers, we have to fix them ourselves.
+    #
+    # We solve this by catching any Unicode errors, and then manually
+    # handling any interesting headers.
+
+    value = decode_header(header_contents)
+    try:
+        header = make_header(value,
+                             header_name=header_name,
+                             continuation_ws='\t')
+    except UnicodeDecodeError:
+        # At least one of the parts cannot be encoded as ascii.
+        # Find out which one and fix it somehow.
+        #
+        # We get here under Py2 when there's non-7-bit chars in header,
+        # or under Py2 or Py3 where decoding with the coding hint fails.
+
+        new_value = []
+
+        for (part, coding) in value:
+            # We have random bytes that aren't properly coded.
+            # If we had a coding hint, it failed to help.
+            if six.PY3:
+                # python3 - force coding to unknown-8bit
+                new_value += [(part, 'unknown-8bit')]
+            else:
+                # python2 - no support in make_header for unknown-8bit
+                # We should do unknown-8bit coding ourselves.
+                # For now, we're just going to replace any dubious
+                # chars with ?.
+                #
+                # TODO: replace it with a proper QP unknown-8bit codec.
+                new_value += [(part.decode('ascii', errors='replace')
+                               .encode('ascii', errors='replace'),
+                               None)]
+
+        header = make_header(new_value,
+                             header_name=header_name,
+                             continuation_ws='\t')
+
+    return header
+
+
 def clean_header(header):
     """Decode (possibly non-ascii) headers."""
-    def decode(fragment):
-        (frag_str, frag_encoding) = fragment
-        if frag_encoding:
-            return frag_str.decode(frag_encoding)
-        elif isinstance(frag_str, six.binary_type):  # python 2
-            return frag_str.decode()
-        return frag_str
 
-    fragments = [decode(x) for x in decode_header(header)]
+    sane_header = sanitise_header(header)
 
-    return normalise_space(u' '.join(fragments))
+    # on Py2, we want to do unicode(), on Py3, str().
+    # That gets us the decoded, un-wrapped header.
+    if six.PY2:
+        header_str = unicode(sane_header)
+    else:
+        header_str = str(sane_header)
+
+    return normalise_space(header_str)
 
 
 def find_project_by_id(list_id):
@@ -154,10 +217,13 @@ def find_date(mail):
 
 
 def find_headers(mail):
-    return reduce(operator.__concat__,
-                  ['%s: %s\n' % (k, Header(v, header_name=k,
-                                           continuation_ws='\t').encode())
-                   for (k, v) in list(mail.items())])
+    headers = [(key, sanitise_header(value, header_name=key))
+               for key, value in mail.items()]
+
+    strings = [('%s: %s' % (key, header.encode()))
+               for (key, header) in headers]
+
+    return '\n'.join(strings)
 
 
 def find_references(mail):
