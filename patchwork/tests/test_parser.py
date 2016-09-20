@@ -17,7 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from email import message_from_file
+import email
 from email import message_from_string
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -25,6 +25,7 @@ from email.utils import make_msgid
 import os
 
 from django.test import TestCase
+from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
@@ -52,7 +53,12 @@ TEST_MAIL_DIR = os.path.join(os.path.dirname(__file__), 'mail')
 def read_mail(filename, project=None):
     """Read a mail from a file."""
     file_path = os.path.join(TEST_MAIL_DIR, filename)
-    mail = message_from_file(open(file_path))
+    if six.PY3:
+        with open(file_path, 'rb') as f:
+            mail = email.message_from_binary_file(f)
+    else:
+        with open(file_path) as f:
+            mail = email.message_from_file(f)
     if 'Message-Id' not in mail:
         mail['Message-Id'] = make_msgid()
     if project is not None:
@@ -535,6 +541,37 @@ class PatchParseTest(PatchTest):
             '\ No newline at end of file'))
         # Confirm we got both markers
         self.assertEqual(2, diff.count('\ No newline at end of file'))
+
+
+class MailParsingTest(TestCase):
+
+    def setUp(self):
+        self.project = create_project()
+
+    def test_invalid_header_char(self):
+        """Validate behaviour when an invalid character is in a header."""
+        mail = read_mail('0012-invalid-header-char.mbox', self.project)
+        parse_mail(mail, list_id=self.project.listid)
+        self.assertEqual(Patch.objects.all().count(), 1)
+
+    def test_utf8_mail(self):
+        """Validate behaviour when a UTF-8 char is in a message."""
+        mail = read_mail('0013-with-utf8-body.mbox')
+        parse_mail(mail, list_id=self.project.listid)
+        self.assertEqual(Patch.objects.all().count(), 1)
+
+    def test_utf8_unencoded_headers(self):
+        """Validate behaviour when unencoded UTF-8 is in headers,
+        including subject and from."""
+        mail = read_mail('0014-with-unencoded-utf8-headers.mbox')
+        parse_mail(mail, list_id=self.project.listid)
+        self.assertEqual(Patch.objects.all().count(), 1)
+
+    def test_invalid_utf8_headers(self):
+        """Validate behaviour when invalid encoded UTF-8 is in headers."""
+        mail = read_mail('0015-with-invalid-utf8-headers.mbox')
+        parse_mail(mail, list_id=self.project.listid)
+        self.assertEqual(Patch.objects.all().count(), 1)
 
 
 class DelegateRequestTest(TestCase):

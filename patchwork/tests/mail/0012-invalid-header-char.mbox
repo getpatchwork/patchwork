@@ -1,0 +1,72 @@
+From ferruh.yigit@intel.com  Thu Sep 15 14:06:56 2016
+Return-Path: <ferruh.yigit@intel.com>
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+ by dpdk.org (Postfix) with ESMTP id E9946530F
+ for <dev@dpdk.org>; Thu, 15 Sep 2016 14:06:55 +0200 (CEST)
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga101.fm.intel.com with ESMTP; 15 Sep 2016 05:06:54 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.30,339,1470726000"; d="scan'208";a="1040330672"
+Received: from irvmail001.ir.intel.com ([163.33.26.43])
+ by fmsmga001.fm.intel.com with ESMTP; 15 Sep 2016 05:06:54 -0700
+Received: from sivswdev02.ir.intel.com (sivswdev02.ir.intel.com
+ [10.237.217.46])
+ by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id
+ u8FC6rSL030312; Thu, 15 Sep 2016 13:06:53 +0100
+Received: from sivswdev02.ir.intel.com (localhost [127.0.0.1])
+ by sivswdev02.ir.intel.com with ESMTP id u8FC6rwP015039;
+ Thu, 15 Sep 2016 13:06:53 +0100
+Received: (from fyigit@localhost)
+	by sivswdev02.ir.intel.com with œ id u8FC6rZs015035;
+	Thu, 15 Sep 2016 13:06:53 +0100
+X-Authentication-Warning: sivswdev02.ir.intel.com: fyigit set sender to
+ ferruh.yigit@intel.com using -f
+From: Ferruh Yigit <ferruh.yigit@intel.com>
+To: dev@dpdk.org
+Cc: Ferruh Yigit <ferruh.yigit@itnel.com>
+Date: Thu, 15 Sep 2016 13:06:44 +0100
+Message-Id: <1473941204-14587-1-git-send-email-ferruh.yigit@intel.com>
+X-Mailer: git-send-email 1.7.0.7
+Subject: [dpdk-dev] [PATCH] kni: fix compilation error when debug enabled
+X-BeenThere: dev@dpdk.org
+X-Mailman-Version: 2.1.15
+Precedence: list
+List-Id: patches and discussions about DPDK <dev.dpdk.org>
+List-Unsubscribe: <http://dpdk.org/ml/options/dev>,
+ <mailto:dev-request@dpdk.org?subject=unsubscribe>
+List-Archive: <http://dpdk.org/ml/archives/dev/>
+List-Post: <mailto:dev@dpdk.org>
+List-Help: <mailto:dev-request@dpdk.org?subject=help>
+List-Subscribe: <http://dpdk.org/ml/listinfo/dev>,
+ <mailto:dev-request@dpdk.org?subject=subscribe>
+X-List-Received-Date: Thu, 15 Sep 2016 12:06:56 -0000
+
+Fix build error with Linux kernel >= v4.7
+
+Fix compile error because of Linux API change, 'trans_start' field
+removed from 'struct net_device'.
+
+Linux: 9b36627acecd ("net: remove dev->trans_start")
+
+Signed-off-by: Ferruh Yigit <ferruh.yigit@intel.com>
+---
+ lib/librte_eal/linuxapp/kni/kni_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/librte_eal/linuxapp/kni/kni_net.c b/lib/librte_eal/linuxapp/kni/kni_net.c
+index fc82193..371bbfa 100644
+--- a/lib/librte_eal/linuxapp/kni/kni_net.c
++++ b/lib/librte_eal/linuxapp/kni/kni_net.c
+@@ -508,7 +508,7 @@ kni_net_tx_timeout (struct net_device *dev)
+ 	struct kni_dev *kni = netdev_priv(dev);
+ 
+ 	KNI_DBG("Transmit timeout at %ld, latency %ld\n", jiffies,
+-			jiffies - dev->trans_start);
++			jiffies - dev_trans_start(dev));
+ 
+ 	kni->stats.tx_errors++;
+ 	netif_wake_queue(dev);
+-- 
+2.7.4
+
+

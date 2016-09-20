@@ -1,0 +1,46 @@
+From patchwork Wed Jun  1 20:00:54 2016
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: MAINTAINERS: Update entry for BCM5301X ARM
+From: =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+X-Patchwork-Id: 9148093
+Message-Id: <1464811283-10381-1-git-send-email-zajec5@gmail.com>
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: bcm-kernel-feedback-list@broadcom.com,
+ =?UTF-8?q?Rafa=FF=FF=20Mi=FF=FFecki?= <zajec5@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Guenter Roeck <linux@roeck-us.net>, Jiri Slaby <jslaby@suse.cz>,
+ linux-kernel@vger.kernel.org (open list)
+Date: Wed,  1 Jun 2016 22:00:54 +0200
+
+Add myself as I contribute to it. Include Broadcom's feedback ML as
+suggested by Florian. Finally modify file rule to match
+bcm5301x-nand-cs0-bch8.dtsi.
+
+Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
+---
+ MAINTAINERS | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7304d2e..a5352d8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2511,10 +2511,12 @@ F:	arch/mips/include/asm/mach-bcm47xx/*
+ 
+ BROADCOM BCM5301X ARM ARCHITECTURE
+ M:	Hauke Mehrtens <hauke@hauke-m.de>
++M:	Rafał Miłecki <zajec5@gmail.com>
+ L:	linux-arm-kernel@lists.infradead.org
++L:	bcm-kernel-feedback-list@broadcom.com
+ S:	Maintained
+ F:	arch/arm/mach-bcm/bcm_5301x.c
+-F:	arch/arm/boot/dts/bcm5301x.dtsi
++F:	arch/arm/boot/dts/bcm5301x*.dtsi
+ F:	arch/arm/boot/dts/bcm470*
+ 
+ BROADCOM BCM63XX ARM ARCHITECTURE
