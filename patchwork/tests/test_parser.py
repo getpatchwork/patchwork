@@ -40,14 +40,12 @@ from patchwork.parser import parse_pull_request
 from patchwork.parser import parse_series_marker
 from patchwork.parser import split_prefixes
 from patchwork.parser import subject_check
+from patchwork.tests import TEST_MAIL_DIR
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import read_patch
 from patchwork.tests.utils import SAMPLE_DIFF
-
-
-TEST_MAIL_DIR = os.path.join(os.path.dirname(__file__), 'mail')
 
 
 def read_mail(filename, project=None):

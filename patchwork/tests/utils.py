@@ -32,6 +32,7 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import State
+from patchwork.tests import TEST_PATCH_DIR
 
 SAMPLE_DIFF = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
 +++ a	2011-01-01 00:00:00.000000000 +0800
@@ -39,7 +40,6 @@ SAMPLE_DIFF = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
 +a
 """
 SAMPLE_CONTENT = 'Hello, world.'
-TEST_PATCH_DIR = os.path.join(os.path.dirname(__file__), 'patches')
 
 
 def read_patch(filename, encoding=None):
