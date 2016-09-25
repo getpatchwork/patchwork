@@ -297,9 +297,6 @@ def action_get(rpc, patch_id):
     with open(fname, 'w') as f:
         f.write(unicode(s).encode("utf-8"))
         print('Saved patch to %s' % fname)
-    except IOError:
-        sys.stderr.write("Failed to write to %s\n" % fname)
-        sys.exit(1)
 
 
 def action_apply(rpc, patch_id, apply_cmd=None):
