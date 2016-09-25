@@ -15,6 +15,7 @@ versions of both Django and Python.
 - REST API support (Django >= 1.8 only)
 - Cover letter support
 - Series support
+- Comment permalinks
 - Django debug toolbar support for developers
 - Django 1.9 and 1.10 support
 - Python 3.5 support

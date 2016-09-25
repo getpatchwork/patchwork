@@ -24,6 +24,7 @@ from django.contrib.auth import views as auth_views
 
 from patchwork.views import api as api_views
 from patchwork.views import bundle as bundle_views
+from patchwork.views import comment as comment_views
 from patchwork.views import cover as cover_views
 from patchwork.views import help as help_views
 from patchwork.views import mail as mail_views
@@ -59,6 +60,10 @@ urlpatterns = [
     # cover views
     url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover,
         name='cover-detail'),
+
+    # comment urls
+    url(r'^comment/(?P<comment_id>\d+)/$', comment_views.comment,
+        name='comment-redirect'),
 
     # logged-in user stuff
     url(r'^user/$', user_views.profile, name='user-profile'),

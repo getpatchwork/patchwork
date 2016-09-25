@@ -265,10 +265,12 @@ function toggle_div(link_id, headers_id)
 <h2>Comments</h2>
 {% endif %}
 
+<a name="{{ item.id }}"></a>
 <div class="comment">
 <div class="meta">
  <span>{{ item.submitter|personify:project }}</span>
- <span class="pull-right">{{ item.date }}</span>
+ <span class="pull-right">{{ item.date }} | <a href="{% url 'comment-redirect' comment_id=item.id %}"
+   >#{{ forloop.counter }}</a></span>
 </div>
 <pre class="content">
 {{ item|commentsyntax }}

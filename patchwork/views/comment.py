@@ -1,5 +1,5 @@
 # Patchwork - automated patch tracking system
-# Copyright (C) 2016 Intel Corporation
+# Copyright (C) 2016 Stephen Finucane <stephen@that.guru>
 #
 # This file is part of the Patchwork package.
 #
@@ -20,29 +20,22 @@
 from __future__ import absolute_import
 
 from django.core import urlresolvers
-from django.http import Http404
-from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django import http
+from django import shortcuts
 
-from patchwork.models import CoverLetter, Submission
+from patchwork import models
 
 
-def cover(request, cover_id):
-    # redirect to patches where necessary
-    try:
-        cover = get_object_or_404(CoverLetter, id=cover_id)
-    except Http404 as exc:
-        submissions = Submission.objects.filter(id=cover_id)
-        if submissions:
-            return HttpResponseRedirect(
-                urlresolvers.reverse(
-                    'patch-detail',
-                    kwargs={'patch_id': cover_id}))
-        raise exc
+def comment(request, comment_id):
+    submission = shortcuts.get_object_or_404(models.Comment,
+                                             id=comment_id).submission
+    if hasattr(submission, 'patch'):
+        url = 'patch-detail'
+        key = 'patch_id'
+    else:
+        url = 'cover-detail'
+        key = 'cover_id'
 
-    context = {
-        'submission': cover,
-        'project': cover.project,
-    }
-
-    return render_to_response('patchwork/submission.html', context)
+    return http.HttpResponseRedirect('%s#%s' % (
+        urlresolvers.reverse(url, kwargs={key: submission.id}),
+        comment_id))
