@@ -423,7 +423,7 @@ def subject_check(subject):
     """Determine if a mail is a reply."""
     comment_re = re.compile(r'^(re)[:\s]\s*', re.I)
 
-    return comment_re.match(subject)
+    return comment_re.match(clean_header(subject))
 
 
 def clean_content(content):
