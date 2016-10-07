@@ -543,35 +543,33 @@ class PatchParseTest(PatchTest):
         self.assertEqual(2, diff.count('\ No newline at end of file'))
 
 
-class MailParsingTest(TestCase):
+class EncodingParseTest(TestCase):
+    """Test parsing of patches with different encoding issues."""
 
     def setUp(self):
         self.project = create_project()
 
-    def test_invalid_header_char(self):
-        """Validate behaviour when an invalid character is in a header."""
-        mail = read_mail('0012-invalid-header-char.mbox', self.project)
+    def _test_encoded_patch_parse(self, mbox_filename):
+        mail = read_mail(mbox_filename, self.project)
         parse_mail(mail, list_id=self.project.listid)
         self.assertEqual(Patch.objects.all().count(), 1)
 
+    def test_invalid_header_char(self):
+        """Validate behaviour when an invalid character is in a header."""
+        self._test_encoded_patch_parse('0012-invalid-header-char.mbox')
+
     def test_utf8_mail(self):
         """Validate behaviour when a UTF-8 char is in a message."""
-        mail = read_mail('0013-with-utf8-body.mbox')
-        parse_mail(mail, list_id=self.project.listid)
-        self.assertEqual(Patch.objects.all().count(), 1)
+        self._test_encoded_patch_parse('0013-with-utf8-body.mbox')
 
     def test_utf8_unencoded_headers(self):
         """Validate behaviour when unencoded UTF-8 is in headers,
         including subject and from."""
-        mail = read_mail('0014-with-unencoded-utf8-headers.mbox')
-        parse_mail(mail, list_id=self.project.listid)
-        self.assertEqual(Patch.objects.all().count(), 1)
+        self._test_encoded_patch_parse('0014-with-unencoded-utf8-headers.mbox')
 
     def test_invalid_utf8_headers(self):
         """Validate behaviour when invalid encoded UTF-8 is in headers."""
-        mail = read_mail('0015-with-invalid-utf8-headers.mbox')
-        parse_mail(mail, list_id=self.project.listid)
-        self.assertEqual(Patch.objects.all().count(), 1)
+        self._test_encoded_patch_parse('0015-with-invalid-utf8-headers.mbox')
 
 
 class DelegateRequestTest(TestCase):
