@@ -61,6 +61,7 @@ class Command(BaseCommand):
         }
         duplicates = 0
         dropped = 0
+        errors = 0
 
         # TODO(stephenfin): Support passing via stdin
         path = args and args[0] or options['infile']
@@ -81,6 +82,10 @@ class Command(BaseCommand):
                     dropped += 1
             except django.db.utils.IntegrityError:
                 duplicates += 1
+            except (ValueError, Exception):
+                # TODO(stephenfin): Perhaps we should store the broken patch
+                # somewhere for future reference?
+                errors += 1
 
             if (i % 10) == 0:
                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
@@ -93,6 +98,7 @@ class Command(BaseCommand):
             '  %(comments)4d comments\n'
             '  %(duplicates)4d duplicates\n'
             '  %(dropped)4d dropped\n'
+            '  %(errors)4d errors\n'
             'Total: %(new)s new entries' % {
                 'total': count,
                 'covers': results[models.CoverLetter],
@@ -100,5 +106,6 @@ class Command(BaseCommand):
                 'comments': results[models.Comment],
                 'duplicates': duplicates,
                 'dropped': dropped,
-                'new': count - duplicates - dropped,
+                'errors': errors,
+                'new': count - duplicates - dropped - errors,
             })
