@@ -23,8 +23,8 @@ PATCHWORK_BINDIR=`dirname $0`
 
 if [ $# -lt 1 ]
 then
-	echo "usage: $0 <dir> [options]" >&2
-	exit 1
+    echo "usage: $0 <dir> [options]" >&2
+    exit 1
 fi
 
 mail_dir="$1"
@@ -33,8 +33,8 @@ echo "dir: $mail_dir"
 
 if [ ! -d "$mail_dir" ]
 then
-	echo "$mail_dir should be a directory"? >&2
-	exit 1
+    echo "$mail_dir should be a directory"? >&2
+    exit 1
 fi
 
 shift
@@ -42,6 +42,6 @@ shift
 ls -1rt "$mail_dir" |
 while read line;
 do
-	echo $line
-	$PATCHWORK_BINDIR/parsemail.sh $@ < "$mail_dir/$line"
+    echo $line
+    $PATCHWORK_BINDIR/parsemail.sh $@ < "$mail_dir/$line"
 done
