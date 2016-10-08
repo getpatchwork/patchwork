@@ -49,6 +49,8 @@ guide][docs-development].
 # Talks and Presentations
 
 * [**A New Patchwork**][pdf-fosdem] - FOSDEM 2016
+* [**Patches carved into stone tablets][pdf-stone-tools] - Kernel Recipes
+  Conference 2016
 * [**Patchwork: reducing your patch workload**][pdf-plumbers] - Linux Plumbers
   Conference 2011
 
@@ -75,6 +77,7 @@ For bug reports, patch submissions or other questions, please use the
 [docs-development]: https://patchwork.readthedocs.io/en/latest/development/
 [pdf-fosdem]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
 [pdf-plumbers]: https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
+[pdf-stone-tools]: https://github.com/gregkh/presentation-stone-tools/blob/34a3963/stone-tools.pdf
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
 [ref-compose]: https://docs.docker.com/compose/install/
 [ref-docker]: https://docs.docker.com/engine/installation/linux/
