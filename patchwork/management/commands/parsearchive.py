@@ -82,7 +82,7 @@ class Command(BaseCommand):
                     dropped += 1
             except django.db.utils.IntegrityError:
                 duplicates += 1
-            except (ValueError, Exception):
+            except ValueError:
                 # TODO(stephenfin): Perhaps we should store the broken patch
                 # somewhere for future reference?
                 errors += 1
