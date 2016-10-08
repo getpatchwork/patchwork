@@ -1,0 +1,292 @@
+From stephenfinucane@gmail.com Sun Sep 11 23:22:13 2016
+Return-Path: <stephenfinucane@gmail.com>
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH 0/2] A sample series
+Date: Sun, 11 Sep 2016 23:22:02 +0100
+Message-ID: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 395
+Lines: 18
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+This is a sample cover letter. It doesn't really contribute to the
+conversation, but I added it anway.
+
+Stephen Finucane (2):
+  test: Add some lorem ipsum
+  test: Convert to Markdown
+
+ test.md  | 8 ++++++++
+ test.txt | 1 -
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+ create mode 100644 test.md
+ delete mode 100644 test.txt
+
+-- 
+2.7.4
+
+
+From stephenfinucane@gmail.com Sun Sep 11 23:22:13 2016
+Return-Path: <stephenfinucane@gmail.com>
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH 1/2] test: Add some lorem ipsum
+Date: Sun, 11 Sep 2016 23:22:03 +0100
+Message-ID: <1473632524-8585-2-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+References: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 670
+Lines: 22
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+---
+ test.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/test.txt b/test.txt
+index f75ba05..a6c61c0 100644
+--- a/test.txt
++++ b/test.txt
+@@ -1 +1,8 @@
+ Hello, world.
++
++Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
++augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
++Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
++id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
++eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
++tellus commodo bibendum ut vel dolor.
+-- 
+2.7.4
+
+
+From stephenfinucane@gmail.com Sun Sep 11 23:22:16 2016
+Return-Path: <stephenfinucane@gmail.com>
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH 2/2] test: Convert to Markdown
+Date: Sun, 11 Sep 2016 23:22:04 +0100
+Message-ID: <1473632524-8585-3-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+References: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 1345
+Lines: 40
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+---
+ test.md  | 8 ++++++++
+ test.txt | 8 --------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+ create mode 100644 test.md
+ delete mode 100644 test.txt
+
+diff --git a/test.md b/test.md
+new file mode 100644
+index 0000000..e5ff90e
+--- /dev/null
++++ b/test.md
+@@ -0,0 +1,8 @@
++# Hello, world
++
++Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
++augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
++Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
++id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
++eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
++tellus commodo bibendum ut vel dolor.
+diff --git a/test.txt b/test.txt
+deleted file mode 100644
+index a6c61c0..0000000
+--- a/test.txt
++++ /dev/null
+@@ -1,8 +0,0 @@
+-Hello, world.
+-
+-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
+-augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
+-Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
+-id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
+-eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
+-tellus commodo bibendum ut vel dolor.
+-- 
+2.7.4
+
+
+From stephenfinucane@gmail.com Sun Sep 11 23:31:05 2016
+Return-Path: <stephenfinucane@gmail.com>
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH v2 0/2] A sample series
+Date: Sun, 11 Sep 2016 23:30:53 +0100
+Message-ID: <1473633055-10316-1-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+References: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 407
+Lines: 18
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+This is a sample cover letter. It doesn't really contribute to the
+conversation, but I added it anway.
+
+Stephen Finucane (2):
+  test: Add some lorem ipsum
+  test: Convert to Markdown
+
+ test.md  | 17 +++++++++++++++++
+ test.txt |  1 -
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+ create mode 100644 test.md
+ delete mode 100644 test.txt
+
+-- 
+2.7.4
+
+
+From stephenfinucane@gmail.com Sun Sep 11 23:31:04 2016
+Return-Path: <stephenfinucane@gmail.com>
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH v2 1/2] test: Add some lorem ipsum
+Date: Sun, 11 Sep 2016 23:30:54 +0100
+Message-ID: <1473633055-10316-2-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1473633055-10316-1-git-send-email-stephenfinucane@gmail.com>
+References: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+ <1473633055-10316-1-git-send-email-stephenfinucane@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 1363
+Lines: 35
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+This is a better commit message.
+---
+v2:
+- Add some additional content
+---
+ test.txt | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/test.txt b/test.txt
+index f75ba05..4478ac2 100644
+--- a/test.txt
++++ b/test.txt
+@@ -1 +1,17 @@
+ Hello, world.
++
++Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
++augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
++Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
++id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
++eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
++tellus commodo bibendum ut vel dolor.
++
++Curabitur scelerisque tempus efficitur. Maecenas aliquet elementum quam, ac
++pharetra nisi gravida a. Nam vitae malesuada leo. Nam accumsan facilisis metus
++sed vulputate. Ut libero odio, tempor ac posuere vel, malesuada quis ex. Donec
++interdum ipsum et nibh molestie auctor eget in neque. Sed nec hendrerit enim.
++Etiam scelerisque non magna eu molestie. Maecenas dui quam, tempor quis ipsum
++eu, dapibus congue dui. Integer tincidunt accumsan tortor sed maximus. Praesent
++eu magna accumsan, consequat turpis quis, fringilla ante. Vestibulum nec
++maximus nulla. Donec vehicula nisl at pharetra eleifend.
+-- 
+2.7.4
+
+
+From stephenfinucane@gmail.com Sun Sep 11 23:31:07 2016
+Return-Path: <stephenfinucane@gmail.com>
+Received: from MARS.lan (host39-81.statics.netsource.ie. [212.17.39.81])
+        by smtp.gmail.com with ESMTPSA id e5sm14784082wma.13.2016.09.11.15.31.01
+        for <stephenfinucane@hotmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 11 Sep 2016 15:31:01 -0700 (PDT)
+From: Stephen Finucane <stephenfinucane@gmail.com>
+To: stephenfinucane@hotmail.com
+Subject: [PATCH v2 2/2] test: Convert to Markdown
+Date: Sun, 11 Sep 2016 23:30:55 +0100
+Message-ID: <1473633055-10316-3-git-send-email-stephenfinucane@gmail.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1473633055-10316-1-git-send-email-stephenfinucane@gmail.com>
+References: <1473632524-8585-1-git-send-email-stephenfinucane@gmail.com>
+ <1473633055-10316-1-git-send-email-stephenfinucane@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Length: 2589
+Lines: 58
+
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+
+---
+ test.md  | 17 +++++++++++++++++
+ test.txt | 17 -----------------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+ create mode 100644 test.md
+ delete mode 100644 test.txt
+
+diff --git a/test.md b/test.md
+new file mode 100644
+index 0000000..201bfe7
+--- /dev/null
++++ b/test.md
+@@ -0,0 +1,17 @@
++# Hello, world
++
++Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
++augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
++Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
++id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
++eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
++tellus commodo bibendum ut vel dolor.
++
++Curabitur scelerisque tempus efficitur. Maecenas aliquet elementum quam, ac
++pharetra nisi gravida a. Nam vitae malesuada leo. Nam accumsan facilisis metus
++sed vulputate. Ut libero odio, tempor ac posuere vel, malesuada quis ex. Donec
++interdum ipsum et nibh molestie auctor eget in neque. Sed nec hendrerit enim.
++Etiam scelerisque non magna eu molestie. Maecenas dui quam, tempor quis ipsum
++eu, dapibus congue dui. Integer tincidunt accumsan tortor sed maximus. Praesent
++eu magna accumsan, consequat turpis quis, fringilla ante. Vestibulum nec
++maximus nulla. Donec vehicula nisl at pharetra eleifend.
+diff --git a/test.txt b/test.txt
+deleted file mode 100644
+index 4478ac2..0000000
+--- a/test.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-Hello, world.
+-
+-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eget eleifend
+-augue. Nullam at metus venenatis, laoreet neque nec, convallis mauris.
+-Pellentesque aliquam at nisi et laoreet. Duis non nisl venenatis, rhoncus risus
+-id, elementum felis. In hac habitasse platea dictumst. Nam sit amet maximus
+-eros. Nam quis ligula ut tortor egestas bibendum. Nunc sed purus sit amet
+-tellus commodo bibendum ut vel dolor.
+-
+-Curabitur scelerisque tempus efficitur. Maecenas aliquet elementum quam, ac
+-pharetra nisi gravida a. Nam vitae malesuada leo. Nam accumsan facilisis metus
+-sed vulputate. Ut libero odio, tempor ac posuere vel, malesuada quis ex. Donec
+-interdum ipsum et nibh molestie auctor eget in neque. Sed nec hendrerit enim.
+-Etiam scelerisque non magna eu molestie. Maecenas dui quam, tempor quis ipsum
+-eu, dapibus congue dui. Integer tincidunt accumsan tortor sed maximus. Praesent
+-eu magna accumsan, consequat turpis quis, fringilla ante. Vestibulum nec
+-maximus nulla. Donec vehicula nisl at pharetra eleifend.
+-- 
+2.7.4
+
+
