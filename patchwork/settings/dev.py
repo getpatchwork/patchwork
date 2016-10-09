@@ -89,5 +89,5 @@ if django.VERSION >= (1, 8):
 
 ENABLE_XMLRPC = True
 
-if django.VERSION >= (1, 7):
+if django.VERSION >= (1, 8):
     ENABLE_REST_API = True
