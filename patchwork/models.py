@@ -119,7 +119,6 @@ class UserProfile(models.Model):
 
     # projects
 
-    primary_project = models.ForeignKey(Project, null=True, blank=True)
     maintainer_projects = models.ManyToManyField(
         Project, related_name='maintainer_project', blank=True)
 

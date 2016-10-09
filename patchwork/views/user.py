@@ -111,7 +111,6 @@ def profile(request):
 
     # TODO(stephenfin): Add a related_name for User->Bundle
     context = {
-        'project': request.user.profile.primary_project,
         'bundles': Bundle.objects.filter(owner=request.user),
         'profileform': form,
     }
