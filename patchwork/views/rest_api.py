@@ -94,7 +94,7 @@ class PeopleViewSet(PatchworkViewSet):
 
     def get_queryset(self):
         qs = super(PeopleViewSet, self).get_queryset()
-        return qs.select_related('user__username')
+        return qs.prefetch_related('user')
 
 
 class ProjectViewSet(PatchworkViewSet):
