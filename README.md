@@ -49,7 +49,7 @@ guide][docs-development].
 # Talks and Presentations
 
 * [**A New Patchwork**][pdf-fosdem] - FOSDEM 2016
-* [**Patches carved into stone tablets][pdf-stone-tools] - Kernel Recipes
+* [**Patches carved into stone tablets**][pdf-stone-tools] - Kernel Recipes
   Conference 2016
 * [**Patchwork: reducing your patch workload**][pdf-plumbers] - Linux Plumbers
   Conference 2011
