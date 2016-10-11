@@ -2,7 +2,7 @@
 * Person link should go to -> (person,project) patch list view
 * https for logins
 * Patch flags
-* Help: XML RPC interface, bundling, Hint headers
+* Help: bundling
 * Allow manual update of commit ref
 * store rejected mails
 * In-message From: header

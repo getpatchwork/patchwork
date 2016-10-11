@@ -17,3 +17,4 @@ pages:
  - Usage Guide:
    - REST API: 'usage/rest.md'
    - XML-RPC API: 'usage/xmlrpc.md'
+   - Hint Headers: 'usage/headers.md'
