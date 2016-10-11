@@ -1,8 +1,9 @@
 # The XML-RPC API
 
 **NOTE:** This guide covers usage information for the Patchwork XML-RPC API.
-For information on developing custom applications or clients for this API,
-refer to the [developers documentation][doc-development].
+For information on using the REST API, refer to the [REST API
+documentation][doc-rest]. For information on developing custom applications or
+clients for this API, refer to the [developers documentation][doc-development].
 
 Patchwork provides an XML-RPC API. This API can be used to be used to retrieve
 and modify information about patches, projects and more.
@@ -35,3 +36,4 @@ Once downloaded, to view information about all the operations supported by
     $ pwclient --help
 
 [doc-development]: ../development/xmlrpc.md
+[doc-rest]: rest.md

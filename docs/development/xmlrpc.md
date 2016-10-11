@@ -1,8 +1,9 @@
 # The XML-RPC API
 
 **NOTE:** This guide covers development information for the Patchwork XML-RPC
-API. For general usage of the API, refer to the [usage
-documentation][doc-usage].
+API. For information on using the REST API, refer to the [REST API
+documentation][doc-rest]. For information on general usage of the XML-RPC API,
+refer to the [user documentation][doc-usage].
 
 Patchwork provides an XML-RPC API. This API can be used to be used to retrieve
 and modify information about patches, projects and more.
@@ -48,5 +49,6 @@ functions (or procedures, in RPC terminology). In the above example, we used
 the `pw_rpc_version` method, however, it should be possible to use all the
 methods listed in the [server documentation](#patchwork-api-documentation).
 
+[doc-rest]: ../usage/rest.md
 [doc-usage]: ../usage/xmlrpc.md
 [ref-xmlrpclib]: https://docs.python.org/2/library/xmlrpclib.html
