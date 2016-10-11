@@ -7,10 +7,10 @@ repo_url: git://github.com/getpatchwork/patchwork
 pages:
  - Home: 'index.md'
  - Development Guide:
-   - Installation: 'development.md'
-   - Contributing: 'contributing.md'
-   - Release Process: 'releasing.md'
+   - Installation: 'development/installation.md'
+   - Contributing: 'development/contributing.md'
+   - Release Process: 'development/releasing.md'
+   - XML-RPC API: 'development/xmlrpc.md'
  - Deployment Guide:
-   - Installation: 'deployment.md'
-   - Upgrading: 'upgrading.md'
-   - API: 'api.md'
+   - Installation: 'deployment/installation.md'
+   - Upgrading: 'deployment/upgrading.md'
