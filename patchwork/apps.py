@@ -17,10 +17,13 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from patchwork.version import get_latest_version
+from django.apps import AppConfig
 
-VERSION = (2, 0, 0, 'alpha', 0)
 
-__version__ = get_latest_version(VERSION)
+class PatchworkAppConfig(AppConfig):
 
-default_app_config = 'patchwork.apps.PatchworkAppConfig'
+    name = 'patchwork'
+    verbose_name = 'Patchwork'
+
+    def ready(self):
+        import patchwork.signals  # noqa

@@ -25,6 +25,7 @@ import datetime
 import random
 import re
 
+import django
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -846,40 +847,6 @@ class PatchChangeNotification(models.Model):
     orig_state = models.ForeignKey(State)
 
 
-def _patch_change_callback(sender, instance, **kwargs):
-    # we only want notification of modified patches
-    if instance.pk is None:
-        return
-
-    if instance.project is None or not instance.project.send_notifications:
-        return
-
-    try:
-        orig_patch = Patch.objects.get(pk=instance.pk)
-    except Patch.DoesNotExist:
-        return
-
-    # If there's no interesting changes, abort without creating the
-    # notification
-    if orig_patch.state == instance.state:
-        return
-
-    notification = None
-    try:
-        notification = PatchChangeNotification.objects.get(patch=instance)
-    except PatchChangeNotification.DoesNotExist:
-        pass
-
-    if notification is None:
-        notification = PatchChangeNotification(patch=instance,
-                                               orig_state=orig_patch.state)
-    elif notification.orig_state == instance.state:
-        # If we're back at the original state, there is no need to notify
-        notification.delete()
-        return
-
-    notification.last_modified = datetime.datetime.now()
-    notification.save()
-
-
-models.signals.pre_save.connect(_patch_change_callback, sender=Patch)
+if django.VERSION < (1, 7):
+    # We don't have support for AppConfig in Django 1.6.x
+    import patchwork.signals  # noqa
