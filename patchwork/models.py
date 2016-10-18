@@ -20,14 +20,15 @@
 
 from __future__ import absolute_import
 
-from collections import Counter, OrderedDict
+from collections import Counter
+from collections import OrderedDict
 import datetime
 import random
 import re
 
 import django
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -798,6 +799,97 @@ class Check(models.Model):
 
     def __str__(self):
         return '%s (%s)' % (self.context, self.get_state_display())
+
+
+class Event(models.Model):
+    """An event raised against a patch.
+
+    Events are created whenever certain attributes of a patch are
+    changed.
+
+    This model makes extensive use of nullification of fields. This is more
+    performant than a solution using concrete subclasses while still providing
+    the integrity promises that foreign keys provide. Generic foreign keys
+    are another solution, but using these will result in a lot of massaging
+    should we wish to add support for an 'expand' paramter in the REST API in
+    the future. Refer to https://code.djangoproject.com/ticket/24272 for more
+    information.
+    """
+    CATEGORY_COVER_CREATED = 'cover-created'
+    CATEGORY_PATCH_CREATED = 'patch-created'
+    CATEGORY_PATCH_COMPLETED = 'patch-completed'
+    CATEGORY_PATCH_STATE_CHANGED = 'patch-state-changed'
+    CATEGORY_PATCH_DELEGATED = 'patch-delegated'
+    CATEGORY_CHECK_CREATED = 'check-created'
+    CATEGORY_SERIES_CREATED = 'series-created'
+    CATEGORY_SERIES_COMPLETED = 'series-completed'
+    CATEGORY_CHOICES = (
+        (CATEGORY_COVER_CREATED, 'Cover Letter Created'),
+        (CATEGORY_PATCH_CREATED, 'Patch Created'),
+        (CATEGORY_PATCH_COMPLETED, 'Patch Completed'),
+        (CATEGORY_PATCH_STATE_CHANGED, 'Patch State Changed'),
+        (CATEGORY_PATCH_DELEGATED, 'Patch Delegate Changed'),
+        (CATEGORY_CHECK_CREATED, 'Check Created'),
+        (CATEGORY_SERIES_CREATED, 'Series Created'),
+        (CATEGORY_SERIES_COMPLETED, 'Series Completed'),
+    )
+
+    # parents
+
+    project = models.ForeignKey(
+        Project, related_name='+', db_index=True,
+        help_text='The project that the events belongs to.')
+
+    # event metadata
+
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        db_index=True,
+        help_text='The category of the event.')
+    date = models.DateTimeField(
+        default=datetime.datetime.now,
+        help_text='The time this event was created.')
+
+    # event object
+
+    # only one of the below should be used, depending on which category was
+    # used
+
+    patch = models.ForeignKey(
+        Patch, related_name='+', null=True, blank=True,
+        help_text='The patch that this event was created for.')
+    series = models.ForeignKey(
+        Series, related_name='+', null=True, blank=True,
+        help_text='The series that this event was created for.')
+    cover = models.ForeignKey(
+        CoverLetter, related_name='+', null=True, blank=True,
+        help_text='The cover letter that this event was created for.')
+
+    # fields for 'patch-state-changed' events
+
+    previous_state = models.ForeignKey(
+        State, related_name='+', null=True, blank=True)
+    current_state = models.ForeignKey(
+        State, related_name='+', null=True, blank=True)
+
+    # fields for 'patch-delegate-changed' events
+
+    previous_delegate = models.ForeignKey(
+        User, related_name='+', null=True, blank=True)
+    current_delegate = models.ForeignKey(
+        User, related_name='+', null=True, blank=True)
+
+    # fields or 'patch-check-created' events
+
+    created_check = models.ForeignKey(
+        Check, related_name='+', null=True, blank=True)
+
+    # TODO(stephenfin): Validate that the correct fields are being set by way
+    # of a 'clean' method
+
+    class Meta:
+        ordering = ['-date']
 
 
 class EmailConfirmation(models.Model):
