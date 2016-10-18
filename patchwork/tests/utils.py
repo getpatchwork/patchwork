@@ -33,6 +33,7 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
+from patchwork.models import SeriesPatch
 from patchwork.models import SeriesReference
 from patchwork.models import State
 from patchwork.tests import TEST_PATCH_DIR
@@ -231,6 +232,20 @@ def create_series(**kwargs):
     values.update(**kwargs)
 
     return Series.objects.create(**values)
+
+
+def create_series_patch(**kwargs):
+    """Create 'SeriesPatch' object."""
+    num = 1 if 'series' not in kwargs else kwargs['series'].patches.count() + 1
+
+    values = {
+        'series': create_series() if 'series' not in kwargs else None,
+        'number': num,
+        'patch': create_patch() if 'patch' not in kwargs else None,
+    }
+    values.update(**kwargs)
+
+    return SeriesPatch.objects.create(**values)
 
 
 def create_series_reference(**kwargs):

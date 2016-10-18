@@ -888,6 +888,9 @@ class Event(models.Model):
     # TODO(stephenfin): Validate that the correct fields are being set by way
     # of a 'clean' method
 
+    def __repr__(self):
+        return "<Event id='%d' category='%s'" % (self.id, self.category)
+
     class Meta:
         ordering = ['-date']
 
