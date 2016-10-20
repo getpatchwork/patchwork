@@ -26,6 +26,7 @@ from django.template import Library
 
 register = Library()
 
+
 # cycle
 #
 # The cycle template tag enables auto-escaping by default in 1.8, with
