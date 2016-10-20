@@ -577,25 +577,19 @@ class Bundle(models.Model):
         return self.patches.order_by('bundlepatch__order')
 
     def append_patch(self, patch):
-        # todo: use the aggregate queries in django 1.1
-        orders = BundlePatch.objects.filter(bundle=self).order_by('-order') \
-            .values('order')
+        orders = BundlePatch.objects.filter(bundle=self).aggregate(
+            models.Max('order'))
 
-        if len(orders) > 0:
-            max_order = orders[0]['order']
+        if orders and orders['order__max']:
+            max_order = orders['order__max']
         else:
             max_order = 0
 
-        # see if the patch is already in this bundle
-        if BundlePatch.objects.filter(bundle=self,
-                                      patch=patch).count():
+        if BundlePatch.objects.filter(bundle=self, patch=patch).exists():
             return
 
-        bp = BundlePatch.objects.create(bundle=self, patch=patch,
-                                        order=max_order + 1)
-        bp.save()
-
-        return bp
+        return BundlePatch.objects.create(bundle=self, patch=patch,
+                                          order=max_order + 1)
 
     def public_url(self):
         if not self.public:
