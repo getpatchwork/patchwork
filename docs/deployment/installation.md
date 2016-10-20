@@ -357,16 +357,77 @@ to receive email at. This is a problem that has been solved for many webapps,
 thus there are many ways to go about this. Some of these ways are discussed
 below.
 
-### Postfix
+### IMAP/POP3
 
-The most flexible option is to configure our own mail transfer agent (MTA) and
-Postfix is as good a choice as any. While we don't cover setting up Postfix
-here (it's complicated and there are many guides already available), Patchwork
-does include a script to take received mails and create the relevant entries
-in Patchwork for you. To use this, you should configure your system to forward
-all emails to a given localpart (the bit before the `@`) to this script. Using
-the `patchwork` localpart (e.g. `patchwork@example.com`) you can do this like
-so:
+The easiest option for getting mail into Patchwork is to use an existing email
+address in combination with a mail retriever like [getmail][ref-getmail], which
+will download mails from your inbox and pass them to Patchwork for processing.
+getmail is easy to set up and configure: to begin, you need to install it:
+
+    $ sudo apt-get install getmail4
+
+Once installed, you should configure it, sustituting your own configuration
+details where required below:
+
+    $ sudo cat << EOF > /etc/getmail/user@example.com/getmailrc
+    [retriever]
+    type = SimpleIMAPSSLRetriever
+    server = imap.example.com
+    port = 993
+    username = XXX
+    password = XXX
+    mailboxes = ALL
+
+    [destination]
+    # we configure Patchwork as a "mail delivery agent", in that it will
+    # handle our mails
+    type = MDA_external
+    path = /opt/patchwork/patchwork/bin/parsemail.sh
+
+    [options]
+    # retrieve only new emails
+    read_all = false
+    # do not add a Delivered-To: header field
+    delivered_to = false
+    # do not add a Received: header field
+    received = false
+    EOF
+
+Validate that this works as expected by starting `getmail`:
+
+    $ getmail --getmaildir=/etc/getmail/user@example.com --idle INBOX
+
+If everything works as expected, you can create a systemd script to ensure this
+starts on boot:
+
+    $ sudo cat << EOF > /etc/systemd/system/getmail.service
+    [Unit]
+    Description=Getmail for user@example.com
+
+    [Service]
+    User=pathwork
+    ExecStart=/usr/bin/getmail --getmaildir=/etc/getmail/user@example.com --idle INBOX
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+
+And start the service:
+
+    $ sudo systemctl start getmail
+    $ sudo systemctl status getmail
+
+### Mail Transfer Agent (MTA)
+
+The most flexible option is to configure our own mail transfer agent (MTA) or
+"email server". There are many options, of which [Postfix][ref-postfix] is one.
+While we don't cover setting up Postfix here (it's complicated and there are
+many guides already available), Patchwork does include a script to take
+received mails and create the relevant entries in Patchwork for you. To use
+this, you should configure your system to forward all emails to a given
+localpart (the bit before the `@`) to this script. Using the `patchwork`
+localpart (e.g. `patchwork@example.com`) you can do this like so:
 
     $ sudo cat << EOF > /etc/aliases
     patchwork: "|/opt/patchwork/patchwork/bin/parsemail.sh"
@@ -385,14 +446,6 @@ If this is not correct (use of `postfix` user is also common), you should
 change both the username in the `createuser` command above and substitute the
 username in the `grant-all-postgres.sql` script with the appropriate
 alternative.
-
-### IMAP/POP3
-
-One could also use an email account provided by a run-of-the-mill email
-provider and retrieve mail using IMAP or POP3. This may be suitable for
-low-volume mailing lists but be warned: this will introduce a significant lag
-between when a patch is submitted to a mailing list and when it appears in
-Patchwork.
 
 ### Use a Email-as-a-Service Provider
 
@@ -428,7 +481,9 @@ it.
 [doc-development]: development.md
 [ref-django-files]: https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
 [ref-django-settings]: https://docs.djangoproject.com/en/1.8/ref/settings/
+[ref-getmail]: http://pyropus.ca/software/getmail/
 [ref-pkgs]: http://pkgs.org/
+[ref-postfix]: http://www.postfix.org/
 [ref-uwsgi-emperor]: https://uwsgi-docs.readthedocs.io/en/latest/Emperor.html
 [ref-uwsgi-systemd]: https://uwsgi-docs.readthedocs.io/en/latest/Systemd.html
 [ref-uwsgi-upstart]: https://uwsgi-docs.readthedocs.io/en/latest/Upstart.html
