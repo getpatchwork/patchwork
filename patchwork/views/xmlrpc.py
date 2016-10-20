@@ -311,7 +311,7 @@ def bundle_to_dict(obj):
     return {
         'id': obj.id,
         'name': obj.name,
-        'n_patches': obj.n_patches(),
+        'n_patches': obj.patches.count(),
         'public_url': obj.public_url(),
     }
 

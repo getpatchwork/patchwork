@@ -570,9 +570,6 @@ class Bundle(models.Model):
     patches = models.ManyToManyField(Patch, through='BundlePatch')
     public = models.BooleanField(default=False)
 
-    def n_patches(self):
-        return self.patches.all().count()
-
     def ordered_patches(self):
         return self.patches.order_by('bundlepatch__order')
 

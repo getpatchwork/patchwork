@@ -27,7 +27,7 @@
     <a href="{{ bundle.public_url }}">{{ bundle.public_url }}</a>
    {% endif %}
   </td>
-  <td style="text-align: right">{{ bundle.n_patches }}</td>
+  <td style="text-align: right">{{ bundle.patches.count }}</td>
   <td style="text-align: center;"><a
    href="{% url 'bundle-mbox' username=bundle.owner.username bundlename=bundle.name %}"
    ><img src="{% static "images/16-em-down.png" %}" width="16" height="16" alt="download"
