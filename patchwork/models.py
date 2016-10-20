@@ -296,7 +296,8 @@ class Submission(EmailMixin, models.Model):
     # patchwork metadata
 
     def refresh_tag_counts(self):
-        pass  # TODO(sfinucan) Once this is only called for patches, remove
+        # This is subclassed on 'Patch' to do something useful
+        pass
 
     def is_editable(self, user):
         return False
