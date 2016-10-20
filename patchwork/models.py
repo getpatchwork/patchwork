@@ -143,9 +143,6 @@ class UserProfile(models.Model):
         return Project.objects.filter(id__in=Submission.objects.filter(
             submitter__in=submitters).values('project_id').query)
 
-    def sync_person(self):
-        pass
-
     def n_todo_patches(self):
         return self.todo_patches().count()
 
