@@ -25,6 +25,7 @@ from django.core import urlresolvers
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 
+from patchwork.models import Patch
 from patchwork.models import Project
 
 
@@ -44,13 +45,14 @@ def projects(request):
 
 def project(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
+    patches = Patch.objects.filter(project=project)
 
     context = {
         'project': project,
         'maintainers': User.objects.filter(
             profile__maintainer_projects=project),
-        'n_patches': project.patch_set.filter(archived=False).count(),
-        'n_archived_patches': project.patch_set.filter(archived=True).count(),
+        'n_patches': patches.filter(archived=False).count(),
+        'n_archived_patches': patches.filter(archived=True).count(),
         'enable_xmlrpc': settings.ENABLE_XMLRPC,
     }
     return render(request, 'patchwork/project.html', context)
