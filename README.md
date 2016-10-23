@@ -3,6 +3,7 @@
 [![Requirements Status][badge-req-img]][badge-req-ref]
 [![Build Status][badge-travis-img]][badge-travis-ref]
 [![Code Health][badge-landscape-img]][badge-landscape-ref]
+[![Codecov][badge-codecov-img]][badge-codecov-ref]
 [![Docs Status][badge-doc-img]][badge-doc-ref]
 [![Stories in Ready][badge-waffle-img]][badge-waffle-ref]
 
@@ -63,6 +64,8 @@ For further information, please refer to the [docs][docs].
 For bug reports, patch submissions or other questions, please use the
 [Patchwork mailing list][pw-ml].
 
+[badge-codecov-ref]: https://codecov.io/gh/getpatchwork/patchwork
+[badge-codecov-img]: https://codecov.io/gh/getpatchwork/patchwork/branch/master/graph/badge.svg
 [badge-doc-ref]: https://patchwork.readthedocs.io/en/latest/
 [badge-doc-img]: https://readthedocs.org/projects/patchwork/badge/?version=latest
 [badge-landscape-ref]: https://landscape.io/github/getpatchwork/patchwork/master

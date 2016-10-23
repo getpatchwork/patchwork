@@ -19,6 +19,11 @@ before_script:
 
 install:
   - pip install tox-travis
+  - pip install codecov
 
 script:
   - tox
+  - tox -e coverage
+
+after_success:
+  - codecov
