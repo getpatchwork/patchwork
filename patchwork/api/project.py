@@ -17,6 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from rest_framework.serializers import CharField
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from patchwork.api.base import PatchworkPermission
@@ -25,17 +26,14 @@ from patchwork.models import Project
 
 
 class ProjectSerializer(HyperlinkedModelSerializer):
-    def to_representation(self, instance):
-        data = super(ProjectSerializer, self).to_representation(instance)
-        data['link_name'] = data.pop('linkname')
-        data['list_email'] = data.pop('listemail')
-        data['list_id'] = data.pop('listid')
-        return data
+    link_name = CharField(max_length=255, source='linkname')
+    list_id = CharField(max_length=255, source='listid')
+    list_email = CharField(max_length=200, source='listemail')
 
     class Meta:
         model = Project
-        fields = ('url', 'name', 'linkname', 'listid', 'listemail', 'web_url',
-                  'scm_url', 'webscm_url')
+        fields = ('url', 'name', 'link_name', 'list_id', 'list_email',
+                  'web_url', 'scm_url', 'webscm_url')
 
 
 class ProjectViewSet(PatchworkViewSet):
