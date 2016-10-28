@@ -226,8 +226,8 @@ def get_default_initial_patch_state():
 
 class PatchQuerySet(models.query.QuerySet):
 
-    def with_tag_counts(self, project):
-        if not project.use_tags:
+    def with_tag_counts(self, project=None):
+        if project and not project.use_tags:
             return self
 
         # We need the project's use_tags field loaded for Project.tags().
@@ -237,7 +237,14 @@ class PatchQuerySet(models.query.QuerySet):
         qs = self.prefetch_related('project')
         select = OrderedDict()
         select_params = []
-        for tag in project.tags:
+
+        # All projects have the same tags, so we're good to go here
+        if project:
+            tags = project.tags
+        else:
+            tags = Tag.objects.all()
+
+        for tag in tags:
             select[tag.attr_name] = (
                 "coalesce("
                 "(SELECT count FROM patchwork_patchtag"

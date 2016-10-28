@@ -304,9 +304,8 @@ class TestPatchAPI(APITestCase):
             content='Reviewed-by: Test User <test@example.com>\n')
         resp = self.client.get(self.api_url(patch.id))
         tags = resp.data['tags']
-        self.assertEqual(1, len(tags))
-        self.assertEqual(1, tags[0]['count'])
-        self.assertEqual('Reviewed-by', tags[0]['name'])
+        self.assertEqual(3, len(tags))
+        self.assertEqual(1, tags['Reviewed-by'])
 
     def test_anonymous_create(self):
         """Ensure anonymous "POST" operations are rejected."""

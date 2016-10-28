@@ -52,9 +52,11 @@ class PatchSerializer(HyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_mbox_url())
 
     def get_tags(self, instance):
-        # TODO(stephenfin): I don't think this is correct - too many queries
-        return [{'name': x.tag.name, 'count': x.count}
-                for x in instance.patchtag_set.all()]
+        if instance.project.tags:
+            return {x.name: getattr(instance, x.attr_name)
+                    for x in instance.project.tags}
+        else:
+            return None
 
     def get_headers(self, instance):
         if instance.headers:
@@ -85,10 +87,9 @@ class PatchViewSet(PatchworkViewSet):
     serializer_class = PatchSerializer
 
     def get_queryset(self):
-        qs = super(PatchViewSet, self).get_queryset(
-        ).prefetch_related(
-            'check_set', 'patchtag_set'
-        ).select_related('state', 'submitter', 'delegate')
+        qs = super(PatchViewSet, self).get_queryset().with_tag_counts()\
+            .prefetch_related('check_set')\
+            .select_related('state', 'submitter', 'delegate')
         if 'pk' not in self.kwargs:
             # we are doing a listing, we don't need these fields
             qs = qs.defer('content', 'diff', 'headers')
