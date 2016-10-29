@@ -35,13 +35,16 @@ from patchwork.parser import clean_subject
 from patchwork.parser import find_author
 from patchwork.parser import find_content
 from patchwork.parser import find_project_by_header
+from patchwork.parser import find_series
 from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_pull_request
 from patchwork.parser import parse_series_marker
+from patchwork.parser import parse_version
 from patchwork.parser import split_prefixes
 from patchwork.parser import subject_check
 from patchwork.tests import TEST_MAIL_DIR
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_series_reference
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import read_patch
@@ -326,6 +329,72 @@ class SenderCorrelationTest(TestCase):
         person_b = find_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
+
+
+class SeriesCorrelationTest(TestCase):
+    """Validate correct behavior of find_series."""
+
+    @staticmethod
+    def _create_email(msgid, references=None):
+        """Create a sample mail.
+
+        Arguments:
+            msgid (str): The message's msgid
+            references (list): A list of preceding messages' msgids,
+                oldest first
+        """
+        mail = 'Message-Id: %s\n' % msgid + \
+               'From: example user <user@example.com>\n' + \
+               'Subject: Tests\n'
+
+        if references:
+            mail += 'In-Reply-To: %s\n' % references[-1]
+            mail += 'References: %s\n' % '\n\t'.join(references)
+
+        mail += 'test\n\n' + SAMPLE_DIFF
+        return message_from_string(mail)
+
+    def test_new_series(self):
+        msgid = make_msgid()
+        email = self._create_email(msgid)
+
+        self.assertIsNone(find_series(email))
+
+    def test_first_reply(self):
+        msgid_a = make_msgid()
+        msgid_b = make_msgid()
+        email = self._create_email(msgid_b, [msgid_a])
+
+        # assume msgid_a was already handled
+        ref = create_series_reference(msgid=msgid_a)
+
+        series = find_series(email)
+        self.assertEqual(series, ref.series)
+
+    def test_nested_series(self):
+        """Handle a series sent in-reply-to an existing series."""
+        # create an old series with a "cover letter"
+        msgids = [make_msgid()]
+        ref_v1 = create_series_reference(msgid=msgids[0])
+
+        # ...and three patches
+        for i in range(3):
+            msgids.append(make_msgid())
+            create_series_reference(msgid=msgids[-1],
+                                    series=ref_v1.series)
+
+        # now create a new series with "cover letter"
+        msgids.append(make_msgid())
+        ref_v2 = create_series_reference(msgid=msgids[-1])
+
+        # ...and the "first patch" of this new series
+        msgid = make_msgid()
+        email = self._create_email(msgid, msgids)
+        series = find_series(email)
+
+        # this should link to the second series - not the first
+        self.assertEqual(len(msgids), 4 + 1)  # old series + new cover
+        self.assertEqual(series, ref_v2.series)
 
 
 class SubjectEncodingTest(TestCase):
@@ -692,24 +761,6 @@ class ParseInitialTagsTest(PatchTest):
             tag__name='Tested-by').count, 1)
 
 
-class PrefixTest(TestCase):
-
-    def test_split_prefixes(self):
-        self.assertEqual(split_prefixes('PATCH'), ['PATCH'])
-        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
-        self.assertEqual(split_prefixes(''), [])
-        self.assertEqual(split_prefixes('PATCH,'), ['PATCH'])
-        self.assertEqual(split_prefixes('PATCH '), ['PATCH'])
-        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
-        self.assertEqual(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
-
-    def test_series_markers(self):
-        self.assertEqual(parse_series_marker([]), (None, None))
-        self.assertEqual(parse_series_marker(['bar']), (None, None))
-        self.assertEqual(parse_series_marker(['bar', '1/2']), (1, 2))
-        self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
-
-
 class SubjectTest(TestCase):
 
     def test_clean_subject(self):
@@ -748,3 +799,28 @@ class SubjectTest(TestCase):
         self.assertIsNotNone(subject_check('RE meep'))
         self.assertIsNotNone(subject_check('Re meep'))
         self.assertIsNotNone(subject_check('re meep'))
+
+    def test_split_prefixes(self):
+        self.assertEqual(split_prefixes('PATCH'), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEqual(split_prefixes(''), [])
+        self.assertEqual(split_prefixes('PATCH,'), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH '), ['PATCH'])
+        self.assertEqual(split_prefixes('PATCH,RFC'), ['PATCH', 'RFC'])
+        self.assertEqual(split_prefixes('PATCH 1/2'), ['PATCH', '1/2'])
+
+    def test_series_markers(self):
+        self.assertEqual(parse_series_marker([]), (None, None))
+        self.assertEqual(parse_series_marker(['bar']), (None, None))
+        self.assertEqual(parse_series_marker(['bar', '1/2']), (1, 2))
+        self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
+
+    def test_version(self):
+        self.assertEqual(parse_version('', []), 1)
+        self.assertEqual(parse_version('Hello, world', []), 1)
+        self.assertEqual(parse_version('Hello, world', ['version']), 1)
+        self.assertEqual(parse_version('Hello, world', ['v2']), 2)
+        self.assertEqual(parse_version('Hello, world', ['V6']), 6)
+        self.assertEqual(parse_version('Hello, world', ['v10']), 10)
+        self.assertEqual(parse_version('Hello, world (v2)', []), 2)
+        self.assertEqual(parse_version('Hello, world (V6)', []), 6)

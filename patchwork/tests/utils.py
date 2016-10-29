@@ -31,6 +31,8 @@ from patchwork.models import CoverLetter
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
+from patchwork.models import Series
+from patchwork.models import SeriesReference
 from patchwork.models import State
 from patchwork.tests import TEST_PATCH_DIR
 
@@ -215,6 +217,29 @@ def create_check(**kwargs):
     values.update(**kwargs)
 
     return Check.objects.create(**values)
+
+
+def create_series(**kwargs):
+    """Create 'Series' object."""
+    values = {
+        'date': dt.now(),
+        'submitter': create_person() if 'submitter' not in kwargs else None,
+        'total': 1,
+    }
+    values.update(**kwargs)
+
+    return Series.objects.create(**values)
+
+
+def create_series_reference(**kwargs):
+    """Create 'SeriesReference' object."""
+    values = {
+        'series': create_series() if 'series' not in kwargs else None,
+        'msgid': make_msgid(),
+    }
+    values.update(**kwargs)
+
+    return SeriesReference.objects.create(**values)
 
 
 def _create_submissions(create_func, count=1, **kwargs):

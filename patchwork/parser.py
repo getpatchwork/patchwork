@@ -21,8 +21,10 @@
 
 import codecs
 import datetime
-from email.header import decode_header, make_header
-from email.utils import parsedate_tz, mktime_tz
+from email.header import decode_header
+from email.header import make_header
+from email.utils import mktime_tz
+from email.utils import parsedate_tz
 from fnmatch import fnmatch
 import logging
 import re
@@ -30,9 +32,17 @@ import re
 from django.contrib.auth.models import User
 from django.utils import six
 
-from patchwork.models import (Patch, Project, Person, Comment, State,
-                              DelegationRule, Submission, CoverLetter,
-                              get_default_initial_patch_state)
+from patchwork.models import Comment
+from patchwork.models import CoverLetter
+from patchwork.models import DelegationRule
+from patchwork.models import get_default_initial_patch_state
+from patchwork.models import Patch
+from patchwork.models import Person
+from patchwork.models import Project
+from patchwork.models import Series
+from patchwork.models import SeriesReference
+from patchwork.models import State
+from patchwork.models import Submission
 
 
 _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
@@ -162,6 +172,42 @@ def find_project_by_header(mail):
     return project
 
 
+def find_series(mail):
+    """Find a patch's series.
+
+    Traverse RFC822 headers, starting with most recent first, to find
+    ancestors and the related series. Headers are traversed in reverse
+    to handle series sent in reply to previous series, like so:
+
+        [PATCH 0/3] A cover letter
+          [PATCH 1/3] The first patch
+          ...
+          [PATCH v2 0/3] A cover letter
+            [PATCH v2 1/3] The first patch
+            ...
+
+    This means we evaluate headers like so:
+
+    - first, check for a Series that directly matches this message's
+      Message-ID
+    - then, check for a series that matches the In-Reply-To
+    - then, check for a series that matches the References, from most
+      recent (the patch's closest ancestor) to least recent
+
+    Args:
+        mail (email.message.Message): The mail to extract series from
+
+    Returns:
+        The matching ``Series`` instance, if any
+    """
+    for ref in [mail.get('Message-Id')] + find_references(mail):
+        # try parsing by RFC5322 fields first
+        try:
+            return SeriesReference.objects.get(msgid=ref).series
+        except SeriesReference.DoesNotExist:
+            pass
+
+
 def find_author(mail):
     from_header = clean_header(mail.get('From'))
     name, email = (None, None)
@@ -243,6 +289,13 @@ def find_references(mail):
     return refs
 
 
+def _find_matching_prefix(subject_prefixes, regex):
+    for prefix in subject_prefixes:
+        m = regex.match(prefix)
+        if m:
+            return m
+
+
 def parse_series_marker(subject_prefixes):
     """Extract series markers from subject.
 
@@ -258,12 +311,34 @@ def parse_series_marker(subject_prefixes):
     """
 
     regex = re.compile('^([0-9]+)/([0-9]+)$')
-    for prefix in subject_prefixes:
-        m = regex.match(prefix)
-        if not m:
-            continue
+    m = _find_matching_prefix(subject_prefixes, regex)
+    if m:
         return (int(m.group(1)), int(m.group(2)))
+
     return (None, None)
+
+
+def parse_version(subject, subject_prefixes):
+    """Extract patch version.
+
+    Args:
+        subject: Main body of subject line
+        subject_prefixes: List of subject prefixes to extract version
+          from
+
+    Returns:
+        version if found, else 1
+    """
+    regex = re.compile('^[vV](\d+)$')
+    m = _find_matching_prefix(subject_prefixes, regex)
+    if m:
+        return int(m.group(1))
+
+    m = re.search(r'\([vV](\d+)\)', subject)
+    if m:
+        return int(m.group(1))
+
+    return 1
 
 
 def find_content(project, mail):
@@ -696,6 +771,7 @@ def parse_mail(mail, list_id=None):
     name, prefixes = clean_subject(subject, [project.linkname])
     is_comment = subject_check(subject)
     x, n = parse_series_marker(prefixes)
+    version = parse_version(name, prefixes)
     refs = find_references(mail)
     date = find_date(mail)
     headers = find_headers(mail)
@@ -712,6 +788,23 @@ def parse_mail(mail, list_id=None):
             filenames = find_filenames(diff)
             delegate = auto_delegate(project, filenames)
 
+        series = find_series(mail)
+        if not series and n:  # the series markers indicates a series
+            series = Series(date=date,
+                            submitter=author,
+                            version=version,
+                            total=n)
+            series.save()
+
+            # NOTE(stephenfin) We must save references for series. We
+            # do this to handle the case where a later patch is
+            # received first. Without storing references, it would not
+            # be possible to identify the relationship between patches
+            # as the earlier patch does not reference the later one.
+            for ref in refs + [msgid]:
+                # we don't want duplicates
+                SeriesReference.objects.get_or_create(series=series, msgid=ref)
+
         patch = Patch(
             msgid=msgid,
             project=project,
@@ -726,6 +819,9 @@ def parse_mail(mail, list_id=None):
             state=find_state(mail))
         patch.save()
         logger.debug('Patch saved')
+
+        if series:
+            series.add_patch(patch, x)
 
         return patch
     elif x == 0:  # (potential) cover letters
@@ -749,6 +845,28 @@ def parse_mail(mail, list_id=None):
         if is_cover_letter:
             author.save()
 
+            # we don't use 'find_series' here as a cover letter will
+            # always be the first item in a thread, thus the references
+            # could only point to a different series or unrelated
+            # message
+            try:
+                series = SeriesReference.objects.get(msgid=msgid).series
+            except SeriesReference.DoesNotExist:
+                series = None
+
+            if not series:
+                series = Series(date=date,
+                                submitter=author,
+                                version=version,
+                                total=n)
+                series.save()
+
+                # we don't save the in-reply-to or references fields
+                # for a cover letter, as they can't refer to the same
+                # series
+                SeriesReference.objects.get_or_create(series=series,
+                                                      msgid=msgid)
+
             cover_letter = CoverLetter(
                 msgid=msgid,
                 project=project,
@@ -759,6 +877,8 @@ def parse_mail(mail, list_id=None):
                 content=message)
             cover_letter.save()
             logger.debug('Cover letter saved')
+
+            series.add_cover_letter(cover_letter)
 
             return cover_letter
 
