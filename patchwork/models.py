@@ -314,12 +314,31 @@ class Submission(EmailMixin, models.Model):
         unique_together = [('msgid', 'project')]
 
 
-class CoverLetter(Submission):
+class SeriesMixin(object):
+
+    @property
+    def latest_series(self):
+        """Get the latest series this is a member of.
+
+        Return the last series that (ordered by date) that this
+        submission is a member of.
+
+        .. warning::
+          Be judicious in your use of this. For example, do not use it
+          in list templates as doing so will result in a new query for
+          each item in the list.
+        """
+        # NOTE(stephenfin): We don't use 'latest()' here, as this can raise an
+        # exception if no series exist
+        return self.series.order_by('-date').first()
+
+
+class CoverLetter(SeriesMixin, Submission):
     pass
 
 
 @python_2_unicode_compatible
-class Patch(Submission):
+class Patch(SeriesMixin, Submission):
     # patch metadata
 
     diff = models.TextField(null=True, blank=True)
@@ -564,6 +583,143 @@ class Comment(EmailMixin, models.Model):
     class Meta:
         ordering = ['date']
         unique_together = [('msgid', 'submission')]
+
+
+@python_2_unicode_compatible
+class Series(models.Model):
+    """An collection of patches."""
+
+    # content
+    cover_letter = models.ForeignKey(CoverLetter,
+                                     related_name='series',
+                                     null=True, blank=True)
+    patches = models.ManyToManyField(Patch, through='SeriesPatch',
+                                     related_name='series')
+
+    # metadata
+    name = models.CharField(max_length=255, blank=True, null=True,
+                            help_text='An optional name to associate with '
+                            'the series, e.g. "John\'s PCI series".')
+    date = models.DateTimeField()
+    submitter = models.ForeignKey(Person)
+    version = models.IntegerField(default=1,
+                                  help_text='Version of series as indicated '
+                                  'by the subject prefix(es)')
+    total = models.IntegerField(help_text='Number of patches in series as '
+                                'indicated by the subject prefix(es)')
+
+    @property
+    def received_total(self):
+        return self.patches.count()
+
+    @property
+    def received_all(self):
+        return self.total == self.received_total
+
+    def add_cover_letter(self, cover):
+        """Add a cover letter to the series.
+
+        Helper method so we can use the same pattern to add both
+        patches and cover letters.
+        """
+
+        def _format_name(obj):
+            return obj.name.split(']')[-1]
+
+        if self.cover_letter:
+            # TODO(stephenfin): We may wish to raise an exception here in the
+            # future
+            return
+
+        self.cover_letter = cover
+
+        # we allow "upgrading of series names. Names from different
+        # sources are prioritized:
+        #
+        # 1. user-provided names
+        # 2. cover letter-based names
+        # 3. first patch-based (i.e. 01/nn) names
+        #
+        # Names are never "downgraded" - a cover letter received after
+        # the first patch will result in the name being upgraded to a
+        # cover letter-based name, but receiving the first patch after
+        # the cover letter will not change the name of the series.
+        #
+        # If none of the above are available, the name will be null.
+
+        if not self.name:
+            self.name = _format_name(cover)
+        else:
+            try:
+                name = SeriesPatch.objects.get(series=self,
+                                               number=1).patch.name
+            except SeriesPatch.DoesNotExist:
+                name = None
+
+            if self.name == name:
+                self.name = _format_name(cover)
+
+        self.save()
+
+    def add_patch(self, patch, number):
+        """Add a patch to the series."""
+        # see if the patch is already in this series
+        if SeriesPatch.objects.filter(series=self, patch=patch).count():
+            # TODO(stephenfin): We may wish to raise an exception here in the
+            # future
+            return
+
+        # both user defined names and cover letter-based names take precedence
+        if not self.name and number == 1:
+            self.name = patch.name  # keep the prefixes for patch-based names
+            self.save()
+
+        return SeriesPatch.objects.create(series=self,
+                                          patch=patch,
+                                          number=number)
+
+    def __str__(self):
+        return self.name if self.name else 'Untitled series #%d' % self.id
+
+    class Meta:
+        ordering = ('date',)
+
+
+@python_2_unicode_compatible
+class SeriesPatch(models.Model):
+    """A patch in a series.
+
+    Patches can belong to many series. This allows for things like
+    auto-completion of partial series.
+    """
+    patch = models.ForeignKey(Patch)
+    series = models.ForeignKey(Series)
+    number = models.PositiveSmallIntegerField(
+        help_text='The number assigned to this patch in the series')
+
+    def __str__(self):
+        return self.patch.name
+
+    class Meta:
+        unique_together = [('series', 'patch'), ('series', 'number')]
+        ordering = ['number']
+
+
+@python_2_unicode_compatible
+class SeriesReference(models.Model):
+    """A reference found in a series.
+
+    Message IDs should be created for all patches in a series,
+    including those of patches that have not yet been received. This is
+    required to handle the case whereby one or more patches are
+    received before the cover letter.
+    """
+    series = models.ForeignKey(Series, related_name='references',
+                               related_query_name='reference')
+    msgid = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.msgid
 
 
 class Bundle(models.Model):

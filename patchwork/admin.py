@@ -21,9 +21,20 @@ from __future__ import absolute_import
 
 from django.contrib import admin
 
-from patchwork.models import (Project, Person, UserProfile, State, Submission,
-                              Patch, CoverLetter, Comment, Bundle, Tag, Check,
-                              DelegationRule)
+from patchwork.models import Bundle
+from patchwork.models import Check
+from patchwork.models import Comment
+from patchwork.models import CoverLetter
+from patchwork.models import DelegationRule
+from patchwork.models import Patch
+from patchwork.models import Person
+from patchwork.models import Project
+from patchwork.models import Series
+from patchwork.models import SeriesReference
+from patchwork.models import State
+from patchwork.models import Submission
+from patchwork.models import Tag
+from patchwork.models import UserProfile
 
 
 class DelegationRuleInline(admin.TabularInline):
@@ -92,6 +103,43 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('submission__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 admin.site.register(Comment, CommentAdmin)
+
+
+class PatchInline(admin.StackedInline):
+    model = Series.patches.through
+    extra = 0
+
+
+class SeriesAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'submitter', 'version', 'total',
+                    'received_total', 'received_all')
+    readonly_fields = ('received_total', 'received_all')
+    search_fields = ('submitter_name', 'submitter_email')
+    exclude = ('patches', )
+    inlines = (PatchInline, )
+
+    def received_all(self, series):
+        return series.received_all
+    received_all.boolean = True
+admin.site.register(Series, SeriesAdmin)
+
+
+class SeriesInline(admin.StackedInline):
+    model = Series
+    readonly_fields = ('date', 'submitter', 'version', 'total',
+                       'received_total', 'received_all')
+    ordering = ('-date', )
+    show_change_link = True
+    extra = 0
+
+    def received_all(self, series):
+        return series.received_all
+    received_all.boolean = True
+
+
+class SeriesReferenceAdmin(admin.ModelAdmin):
+    model = SeriesReference
+admin.site.register(SeriesReference, SeriesReferenceAdmin)
 
 
 class CheckAdmin(admin.ModelAdmin):
