@@ -9,7 +9,7 @@
 
 {% block body %}
 <script type="text/javascript">
-function toggle_headers(link_id, headers_id)
+function toggle_div(link_id, headers_id)
 {
     var link = document.getElementById(link_id)
     var headers = document.getElementById(headers_id)
@@ -55,13 +55,71 @@ function toggle_headers(link_id, headers_id)
  <tr>
   <th>Headers</th>
   <td><a id="togglepatchheaders"
-   href="javascript:toggle_headers('togglepatchheaders', 'patchheaders')"
+   href="javascript:toggle_div('togglepatchheaders', 'patchheaders')"
    >show</a>
    <div id="patchheaders" class="patchheaders" style="display:none;">
     <pre>{{submission.headers}}</pre>
    </div>
   </td>
  </tr>
+{% if submission.latest_series %}
+ <tr>
+  <th>Series</th>
+  <td>
+   <div class="patchrelations">
+    <ul>
+     {% for series in submission.series.all %}
+     <li>
+      {% if series == submission.latest_series %}
+       {{ series }}
+      {% else %}
+       <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ series.id }}">
+       {{ series }}
+       </a>
+      {% endif %}
+     </li>
+    {% endfor %}
+    </ul>
+   </div>
+  </td>
+ </tr>
+ <tr>
+  <th>Related</th>
+  <td>
+   <a id="togglepatchrelations"
+      href="javascript:toggle_div('togglepatchrelations', 'patchrelations')"
+   >show</a>
+   <div id="patchrelations" class="patchrelations" style="display:none;">
+    <ul>
+    {% with submission.latest_series.cover_letter as cover %}
+     <li>
+     {% if cover %}
+      {% if cover == submission %}
+       {{ cover.name|default:"[no subject]"|truncatechars:100 }}
+      {% else %}
+      <a href="{% url 'cover-detail' cover_id=cover.id %}">
+       {{ cover.name|default:"[no subject]"|truncatechars:100 }}
+      </a>
+      {% endif %}
+     {% endif %}
+     </li>
+    {% endwith %}
+    {% for sibling in submission.latest_series.patches.all %}
+     <li>
+      {% if sibling == submission %}
+       {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+      {% else %}
+      <a href="{% url 'patch-detail' patch_id=sibling.id %}">
+       {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+      </a>
+      {% endif %}
+     </li>
+    {% endfor %}
+    </ul>
+   </div>
+  </td>
+ </tr>
+{% endif %}
 </table>
 
 <div class="patchforms">
@@ -221,7 +279,7 @@ function toggle_headers(link_id, headers_id)
 {% if submission.diff %}
 <h2>
  Patch
- <a href="javascript:toggle_headers('hide-patch', 'patch')" id="hide-patch">hide</a></span>
+ <a href="javascript:toggle_div('hide-patch', 'patch')" id="hide-patch">hide</a></span>
  <span>|</span>
  <a href="{% url 'patch-raw' patch_id=submission.id %}"
    >download patch</a>
