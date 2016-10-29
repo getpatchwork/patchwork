@@ -273,7 +273,7 @@ def patch_to_dict(obj):
     return {
         'id': obj.id,
         'date': six.text_type(obj.date).encode('utf-8'),
-        'filename': obj.filename(),
+        'filename': obj.filename,
         'msgid': obj.msgid,
         'name': obj.name,
         'project': six.text_type(obj.project).encode('utf-8'),

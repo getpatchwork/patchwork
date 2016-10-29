@@ -368,10 +368,10 @@ def patch_to_mbox(patch):
         postscript = ''
 
     # TODO(stephenfin): Make this use the tags infrastructure
-    body += patch.patch_responses()
+    body += patch.patch_responses
 
     for comment in Comment.objects.filter(submission=patch):
-        body += comment.patch_responses()
+        body += comment.patch_responses
 
     if postscript:
         body += '---\n' + postscript + '\n'

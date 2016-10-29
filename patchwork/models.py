@@ -47,7 +47,7 @@ class Person(models.Model):
                              on_delete=models.SET_NULL)
 
     def link_to_user(self, user):
-        self.name = user.profile.name()
+        self.name = user.profile.name
         self.user = user
 
     def __str__(self):
@@ -132,17 +132,20 @@ class UserProfile(models.Model):
         default=100, null=False, blank=False,
         help_text='Number of items to display per page')
 
+    @property
     def name(self):
         if self.user.first_name or self.user.last_name:
             names = [self.user.first_name, self.user.last_name]
             return ' '.join([x for x in names if x])
         return self.user.username
 
+    @property
     def contributor_projects(self):
         submitters = Person.objects.filter(user=self.user)
         return Project.objects.filter(id__in=Submission.objects.filter(
             submitter__in=submitters).values('project_id').query)
 
+    @property
     def n_todo_patches(self):
         return self.todo_patches().count()
 
@@ -159,7 +162,7 @@ class UserProfile(models.Model):
         return qs
 
     def __str__(self):
-        return self.name()
+        return self.name
 
 
 def _user_saved_callback(sender, created, instance, **kwargs):
@@ -272,6 +275,7 @@ class EmailMixin(models.Model):
         r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
         re.M | re.I)
 
+    @property
     def patch_responses(self):
         if not self.content:
             return ''
@@ -432,6 +436,7 @@ class Patch(Submission):
 
         return self.project.is_editable(user)
 
+    @property
     def filename(self):
         fname_re = re.compile(r'[^-_A-Za-z0-9\.]+')
         str = fname_re.sub('-', self.name)

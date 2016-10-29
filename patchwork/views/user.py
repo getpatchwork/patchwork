@@ -92,7 +92,7 @@ def register_confirm(request, conf):
         person = Person.objects.get(email__iexact=conf.user.email)
     except Person.DoesNotExist:
         person = Person(email=conf.user.email,
-                        name=conf.user.profile.name())
+                        name=conf.user.profile.name)
     person.user = conf.user
     person.save()
 
