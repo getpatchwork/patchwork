@@ -25,7 +25,9 @@ from django.utils.safestring import mark_safe
 from django.utils import six
 from django.utils.six.moves.urllib.parse import quote
 
-from patchwork.models import Person, State
+from patchwork.models import Person
+from patchwork.models import Series
+from patchwork.models import State
 
 
 class Filter(object):
@@ -80,6 +82,48 @@ class Filter(object):
 
     def __str__(self):
         return '%s: %s' % (self.name, self.kwargs())
+
+
+class SeriesFilter(Filter):
+    param = 'series'
+    name = 'Series'
+
+    def __init__(self, filters):
+        super(SeriesFilter, self).__init__(filters)
+        self.series = None
+
+    def _set_key(self, key):
+        self.series = None
+
+        key = key.strip()
+        if not key:
+            return
+
+        try:
+            self.series = Series.objects.get(id=int(key))
+        except (ValueError, Series.DoesNotExist):
+            return
+
+        self.applied = True
+
+    def kwargs(self):
+        if self.series:
+            return {'series': self.series}
+        return {}
+
+    def condition(self):
+        if self.series:
+            return self.series.name
+        return ''
+
+    def _form(self):
+        return mark_safe(('<input type="text" name="series" ' +
+                          'id="series_input" class="form-control">'))
+
+    def key(self):
+        if self.series:
+            return self.series.id
+        return
 
 
 class SubmitterFilter(Filter):
@@ -391,7 +435,8 @@ class DelegateFilter(Filter):
             self.forced = True
 
 
-filterclasses = [SubmitterFilter,
+filterclasses = [SeriesFilter,
+                 SubmitterFilter,
                  StateFilter,
                  SearchFilter,
                  ArchiveFilter,
