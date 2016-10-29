@@ -94,26 +94,25 @@ class SubmitterFilter(Filter):
     def _set_key(self, key):
         self.person = None
         self.person_match = None
-        submitter_id = None
 
         key = key.strip()
         if not key:
             return
 
         try:
-            submitter_id = int(key)
-        except ValueError:
+            self.person = Person.objects.get(id=int(key))
+        except (ValueError, Person.DoesNotExist):
             pass
-
-        if submitter_id:
-            self.person = Person.objects.get(id=submitter_id)
+        else:
             self.applied = True
             return
 
         people = Person.objects.filter(name__icontains=key)
-        if people:
-            self.person_match = key
-            self.applied = True
+        if not people:
+            return
+
+        self.person_match = key
+        self.applied = True
 
     def kwargs(self):
         if self.person:
@@ -122,9 +121,9 @@ class SubmitterFilter(Filter):
                 return {'submitter__in':
                         Person.objects.filter(user=user).values('pk').query}
             return {'submitter': self.person}
-
-        if self.person_match:
+        elif self.person_match:
             return {'submitter__name__icontains': self.person_match}
+
         return {}
 
     def condition(self):
@@ -339,19 +338,16 @@ class DelegateFilter(Filter):
     def _set_key(self, key):
         self.delegate = None
         self.delegate_match = None
-        delegate_id = None
 
         key = key.strip()
         if not key:
             return
 
         try:
-            delegate_id = int(key)
-        except ValueError:
-            pass
-
-        if delegate_id:
             self.delegate = User.objects.get(id=int(key))
+        except (ValueError, User.DoesNotExist):
+            pass
+        else:
             self.applied = True
             return
 
