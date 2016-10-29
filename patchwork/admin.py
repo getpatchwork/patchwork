@@ -20,6 +20,8 @@
 from __future__ import absolute_import
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -35,6 +37,18 @@ from patchwork.models import State
 from patchwork.models import Submission
 from patchwork.models import Tag
 from patchwork.models import UserProfile
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'user profile'
+
+
+class UserAdmin(BaseUserAdmin):
+    inlines = (UserProfileInline, )
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 
 
 class DelegationRuleInline(admin.TabularInline):
@@ -61,11 +75,6 @@ class PersonAdmin(admin.ModelAdmin):
     has_account.admin_order_field = 'user'
     has_account.short_description = 'Account'
 admin.site.register(Person, PersonAdmin)
-
-
-class UserProfileAdmin(admin.ModelAdmin):
-    search_fields = ('user__username', 'user__first_name', 'user__last_name')
-admin.site.register(UserProfile, UserProfileAdmin)
 
 
 class StateAdmin(admin.ModelAdmin):
