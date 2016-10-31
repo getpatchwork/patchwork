@@ -30,16 +30,15 @@
   <td style="text-align: right">{{ bundle.patches.count }}</td>
   <td style="text-align: center;"><a
    href="{% url 'bundle-mbox' username=bundle.owner.username bundlename=bundle.name %}"
-   ><img src="{% static "images/16-em-down.png" %}" width="16" height="16" alt="download"
-   title="download"/></a></td>
+   ><span class="glyphicon glyphicon-download-alt"></span></a></td>
   <td style="text-align: center;">
    <form method="post"
     onsubmit="return confirm_delete('bundle', '{{bundle.name|escapejs}}');">
     {% csrf_token %}
     {{ bundle.delete_form.as_p }}
-    <input type="image"
-     src="{% static "images/16-em-cross.png" %}" width="16" height="16" alt="delete"
-     title="delete" border="0" style="border: none;"/>
+    <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
+     <span class="glyphicon glyphicon-remove"></span>
+    </button>
    </form>
   </td>
 
