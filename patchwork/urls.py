@@ -151,7 +151,25 @@ if settings.ENABLE_REST_API:
     if 'rest_framework' not in settings.INSTALLED_APPS:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
-    from patchwork.views.rest_api import router, patches_router
+
+    from rest_framework.routers import DefaultRouter
+    from rest_framework_nested.routers import NestedSimpleRouter
+
+    from patchwork.api.check import CheckViewSet
+    from patchwork.api.patch import PatchViewSet
+    from patchwork.api.person import PeopleViewSet
+    from patchwork.api.project import ProjectViewSet
+    from patchwork.api.user import UserViewSet
+
+    router = DefaultRouter()
+    router.register('patches', PatchViewSet, 'patch')
+    router.register('people', PeopleViewSet, 'person')
+    router.register('projects', ProjectViewSet, 'project')
+    router.register('users', UserViewSet, 'user')
+
+    patches_router = NestedSimpleRouter(router, r'patches', lookup='patch')
+    patches_router.register(r'checks', CheckViewSet, base_name='patch-checks')
+
     urlpatterns += [
         url(r'^api/1.0/', include(router.urls, namespace='api_1.0')),
         url(r'^api/1.0/', include(patches_router.urls, namespace='api_1.0')),
