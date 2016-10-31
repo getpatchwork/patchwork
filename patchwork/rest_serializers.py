@@ -44,6 +44,7 @@ class URLSerializer(HyperlinkedModelSerializer):
 class PersonSerializer(URLSerializer):
     class Meta:
         model = Person
+        fields = ('email', 'name', 'user',)
 
 
 class UserSerializer(HyperlinkedModelSerializer):
@@ -141,4 +142,6 @@ class ChecksSerializer(ModelSerializer):
 
     class Meta:
         model = Check
-        read_only_fields = ('date', )
+        fields = ('patch', 'user', 'date', 'state', 'target_url',
+                  'description', 'context',)
+        read_only_fields = ('date',)
