@@ -29,7 +29,7 @@ from patchwork.models import Patch
 from patchwork.models import Project
 
 
-def projects(request):
+def project_list(request):
     projects = Project.objects.all()
 
     if projects.count() == 1:
@@ -43,7 +43,7 @@ def projects(request):
     return render(request, 'patchwork/projects.html', context)
 
 
-def project(request, project_id):
+def project_detail(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
     patches = Patch.objects.filter(project=project)
 

@@ -28,8 +28,8 @@ from django.shortcuts import render, get_object_or_404
 
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
-from patchwork.models import Patch, Bundle, BundlePatch, Project
-from patchwork.views import generic_list, patch_to_mbox, get_patch_ids
+from patchwork.models import Bundle, BundlePatch, Project
+from patchwork.views import generic_list, patch_to_mbox
 
 if settings.ENABLE_REST_API:
     from rest_framework.authentication import BasicAuthentication  # noqa
@@ -39,69 +39,7 @@ else:
 
 
 @login_required
-def setbundle(request):
-    bundle = None
-
-    if request.method == 'POST':
-        action = request.POST.get('action', None)
-        if action is None:
-            pass
-        elif action == 'create':
-            project = get_object_or_404(Project,
-                                        id=request.POST.get('project'))
-            bundle = Bundle(owner=request.user, project=project,
-                            name=request.POST['name'])
-            bundle.save()
-            patch_id = request.POST.get('patch_id', None)
-            if patch_id:
-                patch = get_object_or_404(Patch, id=patch_id)
-                bundle.append_patch(patch)
-            bundle.save()
-        elif action == 'add':
-            bundle = get_object_or_404(Bundle,
-                                       owner=request.user,
-                                       id=request.POST['id'])
-            bundle.save()
-
-            patch_id = request.get('patch_id', None)
-            if patch_id:
-                patch_ids = patch_id
-            else:
-                patch_ids = get_patch_ids(request.POST)
-
-            for patch_id in patch_ids:
-                patch = Patch.objects.get(id=patch_id)
-                bundle.append_patch(patch)
-
-            bundle.save()
-        elif action == 'delete':
-            try:
-                bundle = Bundle.objects.get(owner=request.user,
-                                            id=request.POST['id'])
-                bundle.delete()
-            except Bundle.DoesNotExist:
-                pass
-
-            bundle = None
-    else:
-        bundle = get_object_or_404(Bundle, owner=request.user,
-                                   id=request.POST['bundle_id'])
-
-    if bundle:
-        return HttpResponseRedirect(
-            django.core.urlresolvers.reverse(
-                'bundle-detail',
-                kwargs={'bundle_id': bundle.id}
-            )
-        )
-    else:
-        return HttpResponseRedirect(
-            django.core.urlresolvers.reverse('user-bundles')
-        )
-
-
-@login_required
-def bundles(request, project_id=None):
+def bundle_list(request, project_id=None):
     project = None
 
     if request.method == 'POST':
@@ -132,7 +70,7 @@ def bundles(request, project_id=None):
     return render(request, 'patchwork/bundles.html', context)
 
 
-def bundle(request, username, bundlename):
+def bundle_detail(request, username, bundlename):
     bundle = get_object_or_404(Bundle, owner__username=username,
                                name=bundlename)
     filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
@@ -196,7 +134,7 @@ def bundle(request, username, bundlename):
     return render(request, 'patchwork/bundle.html', context)
 
 
-def mbox(request, username, bundlename):
+def bundle_mbox(request, username, bundlename):
     bundle = get_object_or_404(Bundle, owner__username=username,
                                name=bundlename)
 
@@ -216,13 +154,13 @@ def mbox(request, username, bundlename):
 
 
 @login_required
-def bundle_redir(request, bundle_id):
+def bundle_detail_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(bundle.get_absolute_url())
 
 
 @login_required
-def mbox_redir(request, bundle_id):
+def bundle_mbox_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(django.core.urlresolvers.reverse(
                                 'bundle-mbox', kwargs={

@@ -41,24 +41,24 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^$', project_views.projects, name='project-list'),
-    url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.patches,
+    url(r'^$', project_views.project_list, name='project-list'),
+    url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.patch_list,
         name='patch-list'),
-    url(r'^project/(?P<project_id>[^/]+)/bundles/$', bundle_views.bundles,
+    url(r'^project/(?P<project_id>[^/]+)/bundles/$', bundle_views.bundle_list,
         name='bundle-list'),
-    url(r'^project/(?P<project_id>[^/]+)/$', project_views.project,
+    url(r'^project/(?P<project_id>[^/]+)/$', project_views.project_detail,
         name='project-detail'),
 
     # patch views
-    url(r'^patch/(?P<patch_id>\d+)/$', patch_views.patch,
+    url(r'^patch/(?P<patch_id>\d+)/$', patch_views.patch_detail,
         name='patch-detail'),
-    url(r'^patch/(?P<patch_id>\d+)/raw/$', patch_views.content,
+    url(r'^patch/(?P<patch_id>\d+)/raw/$', patch_views.patch_raw,
         name='patch-raw'),
-    url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.mbox,
+    url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.patch_mbox,
         name='patch-mbox'),
 
     # cover views
-    url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover,
+    url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover_detail,
         name='cover-detail'),
 
     # comment urls
@@ -71,7 +71,7 @@ urlpatterns = [
         name='user-todos'),
     url(r'^user/todo/(?P<project_id>[^/]+)/$', user_views.todo_list,
         name='user-todo'),
-    url(r'^user/bundles/$', bundle_views.bundles,
+    url(r'^user/bundles/$', bundle_views.bundle_list,
         name='user-bundles'),
 
     url(r'^user/link/$', user_views.link,
@@ -109,10 +109,10 @@ urlpatterns = [
 
     # public view for bundles
     url(r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/$',
-        bundle_views.bundle,
+        bundle_views.bundle_detail,
         name='bundle-detail'),
     url(r'^bundle/(?P<username>[^/]*)/(?P<bundlename>[^/]*)/mbox/$',
-        bundle_views.mbox,
+        bundle_views.bundle_mbox,
         name='bundle-mbox'),
 
     url(r'^confirm/(?P<key>[0-9a-f]+)/$', notification_views.confirm,
@@ -235,9 +235,9 @@ if settings.ENABLE_REST_API:
 if settings.COMPAT_REDIR:
     urlpatterns += [
         url(r'^user/bundle/(?P<bundle_id>[^/]+)/$',
-            bundle_views.bundle_redir,
+            bundle_views.bundle_detail_redir,
             name='bundle-redir'),
         url(r'^user/bundle/(?P<bundle_id>[^/]+)/mbox/$',
-            bundle_views.mbox_redir,
+            bundle_views.bundle_mbox_redir,
             name='bundle-mbox-redir'),
     ]
