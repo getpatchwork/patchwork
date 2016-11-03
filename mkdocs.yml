@@ -15,6 +15,7 @@ pages:
    - Installation: 'deployment/installation.md'
    - Upgrading: 'deployment/upgrading.md'
  - Usage Guide:
+   - Overview: 'usage/overview.md'
    - REST API: 'usage/rest.md'
    - XML-RPC API: 'usage/xmlrpc.md'
    - Hint Headers: 'usage/headers.md'

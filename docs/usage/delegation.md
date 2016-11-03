@@ -1,12 +1,4 @@
-# Delegates
-
-Patchwork has the concept of patch delegation. Delegates are akin to reviewers,
-in that they are Patchwork users who are responsible for both reviewing a patch
-and setting its eventual state in Patchwork. Delegation works particularly well
-for larger projects where various subsystems, each with their own
-maintainer(s), can be identified.
-
-## Autodelegation
+# Autodelegation
 
 Autodelegation allows patches to be automatically delegated to a user based on
 the files modified by the patch. To do this, a number of rules can be
