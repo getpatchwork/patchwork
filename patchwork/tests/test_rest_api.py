@@ -27,11 +27,13 @@ from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.tests.utils import create_check
+from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
+from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
@@ -411,6 +413,145 @@ class TestPatchAPI(APITestCase):
         user.save()
         self.client.force_authenticate(user=user)
         resp = self.client.delete(self.api_url(patch.id))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestCoverLetterAPI(APITestCase):
+    fixtures = ['default_tags']
+
+    @staticmethod
+    def api_url(item=None):
+        if item is None:
+            return reverse('api-cover-list')
+        return reverse('api-cover-detail', args=[item])
+
+    def assertSerialized(self, cover_obj, cover_json):
+        self.assertEqual(cover_obj.id, cover_json['id'])
+        self.assertEqual(cover_obj.name, cover_json['name'])
+        self.assertIn(TestPersonAPI.api_url(cover_obj.submitter.id),
+                      cover_json['submitter'])
+
+    def test_list(self):
+        """Validate we can list cover letters."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+        cover_obj = create_cover()
+
+        # anonymous user
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(cover_obj, resp.data[0])
+
+        # authenticated user
+        user = create_user()
+        self.client.force_authenticate(user=user)
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(cover_obj, resp.data[0])
+
+    def test_detail(self):
+        """Validate we can get a specific cover letter."""
+        cover_obj = create_cover()
+
+        resp = self.client.get(self.api_url(cover_obj.id))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(cover_obj, resp.data)
+
+    def test_create_update_delete(self):
+        user = create_maintainer()
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.post(self.api_url(), {'name': 'test cover'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.patch(self.api_url(), {'name': 'test cover'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.delete(self.api_url())
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestSeriesAPI(APITestCase):
+    fixtures = ['default_tags']
+
+    def api_url(self, item=None):
+        if item is None:
+            return reverse('api-series-list')
+        return reverse('api-series-detail', args=[item])
+
+    def assertSerialized(self, series_obj, series_json):
+        self.assertEqual(series_obj.id, series_json['id'])
+        self.assertEqual(series_obj.name, series_json['name'])
+        self.assertIn(TestPersonAPI.api_url(series_obj.submitter.id),
+                      series_json['submitter'])
+        self.assertEqual(series_obj.patches.count(),
+                         len(series_json['patches']))
+        if series_obj.cover_letter:
+            self.assertIn(
+                TestCoverLetterAPI.api_url(series_obj.cover_letter.id),
+                series_json['cover_letter'])
+
+    def test_list(self):
+        """Validate we can list series."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+        series = create_series()
+
+        # anonymous user
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(series, resp.data[0])
+
+        # authenticated user
+        user = create_user()
+        self.client.force_authenticate(user=user)
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(series, resp.data[0])
+
+    def test_detail(self):
+        """Validate we can get a specific series."""
+        series = create_series()
+
+        resp = self.client.get(self.api_url(series.id))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(series, resp.data)
+
+        patch = create_patch()
+        series.add_patch(patch, 1)
+        resp = self.client.get(self.api_url(series.id))
+        self.assertSerialized(series, resp.data)
+
+        cover_letter = create_cover()
+        series.add_cover_letter(cover_letter)
+        resp = self.client.get(self.api_url(series.id))
+        self.assertSerialized(series, resp.data)
+
+    def test_create_update_delete(self):
+        user = create_maintainer()
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.post(self.api_url(), {'name': 'test series'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.patch(self.api_url(), {'name': 'test series'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.delete(self.api_url())
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 

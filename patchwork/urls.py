@@ -154,9 +154,11 @@ if settings.ENABLE_REST_API:
 
     from patchwork.api import check as api_check_views
     from patchwork.api import index as api_index_views
+    from patchwork.api import cover as api_cover_views
     from patchwork.api import patch as api_patch_views
     from patchwork.api import person as api_person_views
     from patchwork.api import project as api_project_views
+    from patchwork.api import series as api_series_views
     from patchwork.api import user as api_user_views
 
     api_patterns = [
@@ -175,6 +177,12 @@ if settings.ENABLE_REST_API:
         url(r'^people/(?P<pk>[^/]+)/$',
             api_person_views.PersonDetail.as_view(),
             name='api-person-detail'),
+        url(r'^covers/$',
+            api_cover_views.CoverLetterList.as_view(),
+            name='api-cover-list'),
+        url(r'^covers/(?P<pk>[^/]+)/$',
+            api_cover_views.CoverLetterDetail.as_view(),
+            name='api-cover-detail'),
         url(r'^patches/$',
             api_patch_views.PatchList.as_view(),
             name='api-patch-list'),
@@ -187,6 +195,12 @@ if settings.ENABLE_REST_API:
         url(r'^patches/(?P<patch_id>[^/]+)/checks/(?P<check_id>[^/]+)/$',
             api_check_views.CheckDetail.as_view(),
             name='api-check-detail'),
+        url(r'^series/$',
+            api_series_views.SeriesList.as_view(),
+            name='api-series-list'),
+        url(r'^series/(?P<pk>[^/]+)/$',
+            api_series_views.SeriesDetail.as_view(),
+            name='api-series-detail'),
         url(r'^projects/$',
             api_project_views.ProjectList.as_view(),
             name='api-project-list'),
