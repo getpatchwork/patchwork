@@ -292,18 +292,20 @@ using the aptly-named `createsuperuser` command:
 
     (.venv)$ ./manage.py createsuperuser
 
+## Import Mailing List Archives
+
 Once this is done, it's beneficial to load some real emails into the system.
 This can be done manually, however it's generally much easier to download
 an archive from a Mailman instance and load these using the `parsearchive`
 command. You can do this like so:
 
-    (.venv)$ mm_user=myusername
-    (.venv)$ mm_pass=mypassword
+    (.venv)$ mm_user=<myusername>
+    (.venv)$ mm_pass=<mypassword>
     (.venv)$ mm_host=https://lists.ozlabs.org
     (.venv)$ mm_url=$mm_host/private/patchwork.mbox/patchwork.mbox
     (.venv)$ curl -F username=$mm_user -F password=$mm_pass -k -O $mm_url
 
-Where `mm_user` and `mm_pass` are the username and password you have registered
+where `mm_user` and `mm_pass` are the username and password you have registered
 with on the Mailman instance found at `mm_host`.
 
 **NOTE:** We provide instructions for downloading archives from the Patchwork
