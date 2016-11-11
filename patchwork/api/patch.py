@@ -29,6 +29,7 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.base import STATE_CHOICES
+from patchwork.api.filters import PatchFilter
 from patchwork.models import Patch
 from patchwork.models import State
 
@@ -117,6 +118,7 @@ class PatchList(ListAPIView):
 
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchListSerializer
+    filter_class = PatchFilter
 
     def get_queryset(self):
         return Patch.objects.all().with_tag_counts()\

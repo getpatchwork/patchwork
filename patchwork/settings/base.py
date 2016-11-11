@@ -133,7 +133,8 @@ try:
     import rest_framework  # NOQA
 
     INSTALLED_APPS += [
-        'rest_framework'
+        'rest_framework',
+        'django_filters',
     ]
 except ImportError:
     pass
@@ -143,6 +144,9 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS':
         'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 #

@@ -22,6 +22,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from patchwork.api.base import PatchworkPermission
+from patchwork.api.filters import SeriesFilter
 from patchwork.models import Series
 
 
@@ -56,7 +57,7 @@ class SeriesMixin(object):
 class SeriesList(SeriesMixin, ListAPIView):
     """List series."""
 
-    pass
+    filter_class = SeriesFilter
 
 
 class SeriesDetail(SeriesMixin, RetrieveAPIView):

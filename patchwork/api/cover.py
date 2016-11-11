@@ -26,6 +26,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import HyperlinkedRelatedField
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.filters import CoverLetterFilter
 from patchwork.models import CoverLetter
 
 
@@ -66,6 +67,7 @@ class CoverLetterList(ListAPIView):
     """List cover letters."""
 
     serializer_class = CoverLetterListSerializer
+    filter_class = CoverLetterFilter
 
     def get_queryset(self):
         qs = CoverLetter.objects.all().prefetch_related('series')\

@@ -27,6 +27,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import HyperlinkedIdentityField
 
 from patchwork.api.base import MultipleFieldLookupMixin
+from patchwork.api.filters import CheckFilter
 from patchwork.models import Check
 from patchwork.models import Patch
 
@@ -89,6 +90,7 @@ class CheckMixin(object):
 
     queryset = Check.objects.prefetch_related('patch', 'user')
     serializer_class = CheckSerializer
+    filter_class = CheckFilter
 
 
 class CheckListCreate(CheckMixin, ListCreateAPIView):
