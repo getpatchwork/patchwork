@@ -56,7 +56,7 @@ class UserMixin(object):
 class UserList(UserMixin, ListAPIView):
     """List users."""
 
-    pass
+    search_fields = ('username', 'first_name', 'last_name', 'email')
 
 
 class UserDetail(UserMixin, RetrieveUpdateAPIView):

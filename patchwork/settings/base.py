@@ -146,7 +146,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
     ),
+    'SEARCH_PARAM': 'q',
 }
 
 #

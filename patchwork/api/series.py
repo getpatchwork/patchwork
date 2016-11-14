@@ -58,6 +58,7 @@ class SeriesList(SeriesMixin, ListAPIView):
     """List series."""
 
     filter_class = SeriesFilter
+    search_fields = ('name',)
 
 
 class SeriesDetail(SeriesMixin, RetrieveAPIView):

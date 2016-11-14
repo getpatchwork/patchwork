@@ -46,7 +46,7 @@ class PersonMixin(object):
 class PersonList(PersonMixin, ListAPIView):
     """List users."""
 
-    pass
+    search_fields = ('name', 'email')
 
 
 class PersonDetail(PersonMixin, RetrieveAPIView):

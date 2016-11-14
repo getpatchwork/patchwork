@@ -74,7 +74,8 @@ class ProjectMixin(object):
 class ProjectList(ProjectMixin, ListAPIView):
     """List projects."""
 
-    pass
+    search_fields = ('link_name', 'list_id', 'list_email', 'web_url',
+                     'scm_url', 'webscm_url')
 
 
 class ProjectDetail(ProjectMixin, RetrieveUpdateAPIView):

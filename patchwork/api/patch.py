@@ -119,6 +119,7 @@ class PatchList(ListAPIView):
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchListSerializer
     filter_class = PatchFilter
+    search_fields = ('name',)
 
     def get_queryset(self):
         return Patch.objects.all().with_tag_counts()\
