@@ -52,7 +52,7 @@ class TestProjectAPI(APITestCase):
             return reverse('api-project-list')
         return reverse('api-project-detail', args=[item])
 
-    def test_list_simple(self):
+    def test_list(self):
         """Validate we can list the default test project."""
         project = create_project()
 
@@ -85,64 +85,53 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(project.name, resp.data['name'])
 
-    def test_anonymous_create(self):
-        """Ensure anonymous POST operations are rejected."""
-        resp = self.client.post(
-            self.api_url(),
-            {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-    def test_anonymous_update(self):
-        """Ensure anonymous "PATCH" operations are rejected."""
-        project = create_project()
-
-        resp = self.client.patch(self.api_url(project.id),
-                                 {'linkname': 'foo'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
-
-    def test_anonymous_delete(self):
-        """Ensure anonymous "DELETE" operations are rejected."""
-        project = create_project()
-
-        resp = self.client.delete(self.api_url(project.id))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
     def test_create(self):
         """Ensure creations are rejected."""
         project = create_project()
+        data = {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'}
 
+        # an anonymous user
+        resp = self.client.post(self.api_url(), data)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        # a superuser
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
-        resp = self.client.post(
-            self.api_url(),
-            {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
+        resp = self.client.post(self.api_url(), data)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_update(self):
-        """Ensure updates can be performed maintainers."""
+        """Ensure updates can be performed by maintainers."""
         project = create_project()
+        data = {'linkname': 'TEST'}
 
-        # A maintainer can update
-        user = create_maintainer(project)
-        self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(project.id),
-                                 {'linkname': 'TEST'})
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        # an anonymous user
+        resp = self.client.patch(self.api_url(project.id), data)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-        # A normal user can't
+        # a normal user
         user = create_user()
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(project.id),
-                                 {'linkname': 'TEST'})
+        resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+        # a maintainer
+        user = create_maintainer(project)
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(self.api_url(project.id), data)
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
 
     def test_delete(self):
         """Ensure deletions are rejected."""
-        # Even an admin can't remove a project
         project = create_project()
 
+        # an anonymous user
+        resp = self.client.delete(self.api_url(project.id))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        # a super user
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
@@ -161,13 +150,13 @@ class TestPersonAPI(APITestCase):
             return reverse('api-person-list')
         return reverse('api-person-detail', args=[item])
 
-    def test_anonymous_list(self):
-        """The API should reject anonymous users."""
+    def test_list(self):
+        """This API requires authenticated users."""
+        # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-    def test_authenticated_list(self):
-        """This API requires authenticated users."""
+        # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
 
@@ -186,24 +175,22 @@ class TestPersonAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data))
-        self.assertEqual(person.name,
-                         resp.data[0]['name'])
+        self.assertEqual(person.name, resp.data[0]['name'])
         self.assertIsNone(resp.data[0]['user'])
 
-    def test_readonly(self):
+    def test_create_update_delete(self):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
 
-        resp = self.client.delete(self.api_url(user.id))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-        resp = self.client.patch(self.api_url(user.id),
-                                 {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
         resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.patch(self.api_url(user.id), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.delete(self.api_url(user.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
@@ -216,13 +203,13 @@ class TestUserAPI(APITestCase):
             return reverse('api-user-list')
         return reverse('api-user-detail', args=[item])
 
-    def test_anonymous_list(self):
-        """The API should reject anonymous users."""
+    def test_list(self):
+        """This API requires authenticated users."""
+        # anonymous users
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-    def test_authenticated_list(self):
-        """This API requires authenticated users."""
+        # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
 
@@ -234,6 +221,7 @@ class TestUserAPI(APITestCase):
         self.assertNotIn('is_superuser', resp.data[0])
 
     def test_update(self):
+        """Ensure updates are allowed."""
         user = create_maintainer()
         user.is_superuser = True
         user.save()
@@ -243,15 +231,16 @@ class TestUserAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
 
     def test_create_delete(self):
+        """Ensure creations and deletions and not allowed."""
         user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
 
-        resp = self.client.delete(self.api_url(user.id))
+        resp = self.client.post(self.api_url(user.id), {'email': 'foo@f.com'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-        resp = self.client.post(self.api_url(user.id), {'email': 'foo@f.com'})
+        resp = self.client.delete(self.api_url(user.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
@@ -265,7 +254,7 @@ class TestPatchAPI(APITestCase):
             return reverse('api-patch-list')
         return reverse('api-patch-detail', args=[item])
 
-    def test_list_simple(self):
+    def test_list(self):
         """Validate we can list a patch."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -316,95 +305,68 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(3, len(tags))
         self.assertEqual(1, tags['Reviewed-by'])
 
-    def test_anonymous_create(self):
-        """Ensure anonymous "POST" operations are rejected."""
+    def test_create(self):
+        """Ensure creations are rejected."""
+        project = create_project()
         patch = {
-            'project': create_project().id,
+            'project': project,
             'submitter': create_person().id,
             'msgid': make_msgid(),
             'name': 'test-create-patch',
             'diff': 'patch diff',
         }
 
+        # anonymous user
         resp = self.client.post(self.api_url(), patch)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-    def test_anonymous_update(self):
-        """Ensure anonymous "PATCH" operations are rejected."""
-        patch = create_patch()
-        patch_url = self.api_url(patch.id)
-
-        resp = self.client.get(patch_url)
-        patch = resp.data
-        patch['msgid'] = 'foo'
-        patch['name'] = 'this should fail'
-
-        resp = self.client.patch(patch_url, {'name': 'foo'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
-
-    def test_anonymous_delete(self):
-        """Ensure anonymous "DELETE" operations are rejected."""
-        patch = create_patch()
-        patch_url = self.api_url(patch.id)
-
-        resp = self.client.delete(patch_url)
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-    def test_create(self):
-        """Ensure creations are rejected."""
-        submitter = create_person()
-        project = create_project()
+        # superuser
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
-
-        patch = {
-            'project': project.id,
-            'submitter': submitter.id,
-            'msgid': make_msgid(),
-            'name': 'test-create-patch',
-            'diff': 'patch diff',
-        }
-
         resp = self.client.post(self.api_url(), patch)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_update(self):
         """Ensure updates can be performed by maintainers."""
-        # A maintainer can update
         project = create_project()
         patch = create_patch(project=project)
         state = create_state()
-        user = create_maintainer(project)
-        self.client.force_authenticate(user=user)
 
-        self.assertNotEqual(Patch.objects.get(id=patch.id).state, state)
-        resp = self.client.patch(self.api_url(patch.id),
-                                 {'state': state.name})
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(Patch.objects.get(id=patch.id).state, state)
+        # anonymous user
+        resp = self.client.patch(self.api_url(patch.id), {'state': state.name})
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-        # A normal user can't
+        # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
-
-        resp = self.client.patch(self.api_url(patch.id),
-                                 {'state': state.name})
+        resp = self.client.patch(self.api_url(patch.id), {'state': state.name})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+        # maintainer
+        user = create_maintainer(project)
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(self.api_url(patch.id), {'state': state.name})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(Patch.objects.get(id=patch.id).state, state)
 
     def test_delete(self):
         """Ensure deletions are always rejected."""
         project = create_project()
         patch = create_patch(project=project)
+
+        # anonymous user
+        resp = self.client.delete(self.api_url(patch.id))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        # superuser
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
-
         resp = self.client.delete(self.api_url(patch.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-        self.assertEqual(1, Patch.objects.all().count())
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -430,7 +392,7 @@ class TestCheckAPI(APITestCase):
         }
         return create_check(**values)
 
-    def test_list_simple(self):
+    def test_list(self):
         """Validate we can list checks on a patch."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -453,22 +415,6 @@ class TestCheckAPI(APITestCase):
         resp = self.client.get(self.api_url(check))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(check.target_url, resp.data['target_url'])
-
-    def test_update_delete(self):
-        """Ensure updates and deletes aren't allowed"""
-        check = self._create_check()
-        self.user.is_superuser = True
-        self.user.save()
-        self.client.force_authenticate(user=self.user)
-
-        # update
-        resp = self.client.patch(self.api_url(check),
-                                 {'target_url': 'fail'})
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-        # delete
-        resp = self.client.delete(self.api_url(check))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_create(self):
         """Ensure creations can be performed by user of patch."""
@@ -502,3 +448,16 @@ class TestCheckAPI(APITestCase):
         resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())
+
+    def test_update_delete(self):
+        """Ensure updates and deletes aren't allowed"""
+        check = self._create_check()
+        self.user.is_superuser = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+
+        resp = self.client.patch(self.api_url(check), {'target_url': 'fail'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.delete(self.api_url(check))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

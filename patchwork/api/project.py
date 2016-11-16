@@ -36,7 +36,7 @@ class ProjectSerializer(HyperlinkedModelSerializer):
         model = Project
         fields = ('url', 'name', 'link_name', 'list_id', 'list_email',
                   'web_url', 'scm_url', 'webscm_url')
-        read_only_fields = ('name', 'maintainers')
+        read_only_fields = ('name',)
         extra_kwargs = {
             'url': {'view_name': 'api-project-detail'},
         }
