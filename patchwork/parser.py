@@ -820,7 +820,10 @@ def parse_mail(mail, list_id=None):
         patch.save()
         logger.debug('Patch saved')
 
-        if series:
+        # add to a series if we have found one, and we have a numbered
+        # patch. Don't add unnumbered patches (for example diffs sent
+        # in reply, or just messages with random refs/in-reply-tos)
+        if series and x:
             series.add_patch(patch, x)
 
         return patch

@@ -288,6 +288,26 @@ class RevisedSeriesTest(_BaseTestCase):
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
 
+    def test_unnumbered(self):
+        """Series with a reply with a diff but no number.
+
+        The random message with the diff should not belong to the
+        series, as it lacks a n/N label. We expect 1 series and the
+        random message to be orphaned.
+
+        Input:
+
+          - [PATCH 0/2] A sample series
+            - [PATCH 1/2] test: Add some lorem ipsum
+            - This is an orphaned patch!
+        """
+        covers, patches, _ = self._parse_mbox(
+            'bugs-unnumbered.mbox', [1, 2, 0])
+
+        self.assertEqual(len([p for p in patches if p.latest_series]), 1)
+        self.assertEqual(len([p for p in patches if not p.latest_series]), 1)
+        self.assertSerialized(covers, [1])
+
 
 class SeriesNameTestCase(TestCase):
 
