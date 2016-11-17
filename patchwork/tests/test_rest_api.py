@@ -233,19 +233,25 @@ class TestUserAPI(APITestCase):
         self.assertNotIn('password', resp.data[0])
         self.assertNotIn('is_superuser', resp.data[0])
 
-    def test_readonly(self):
+    def test_update(self):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
 
-        resp = self.client.delete(self.api_url(1))
+        resp = self.client.patch(self.api_url(user.id), {'first_name': 'Tan'})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+
+    def test_create_delete(self):
+        user = create_maintainer()
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.delete(self.api_url(user.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-        resp = self.client.patch(self.api_url(1), {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-        resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
+        resp = self.client.post(self.api_url(user.id), {'email': 'foo@f.com'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
