@@ -41,6 +41,7 @@ from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import SeriesReference
+from patchwork.models import SeriesPatch
 from patchwork.models import State
 from patchwork.models import Submission
 
@@ -789,7 +790,16 @@ def parse_mail(mail, list_id=None):
             delegate = auto_delegate(project, filenames)
 
         series = find_series(mail)
-        if not series and n:  # the series markers indicates a series
+        # We will create a new series if:
+        # - we have a patch number (x of n), and
+        # - either:
+        #    * there is no series, or
+        #    * the version doesn't match
+        #    * we have a patch with this number already
+        if n and ((not series) or
+                  (series.version != version) or
+                  (SeriesPatch.objects.filter(series=series, number=x).count()
+                   )):
             series = Series(date=date,
                             submitter=author,
                             version=version,
@@ -803,7 +813,15 @@ def parse_mail(mail, list_id=None):
             # as the earlier patch does not reference the later one.
             for ref in refs + [msgid]:
                 # we don't want duplicates
-                SeriesReference.objects.get_or_create(series=series, msgid=ref)
+                try:
+                    # we could have a ref to a previous series. (For
+                    # example, a series sent in reply to another
+                    # series.) That should not create a series ref
+                    # for this series, so check for the msg-id only,
+                    # not the msg-id/series pair.
+                    SeriesReference.objects.get(msgid=ref)
+                except SeriesReference.DoesNotExist:
+                    SeriesReference.objects.create(series=series, msgid=ref)
 
         patch = Patch(
             msgid=msgid,

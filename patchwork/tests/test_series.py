@@ -308,6 +308,49 @@ class RevisedSeriesTest(_BaseTestCase):
         self.assertEqual(len([p for p in patches if not p.latest_series]), 1)
         self.assertSerialized(covers, [1])
 
+    def test_reply_nocover_noversion(self):
+        """Series with a revision sent without a version label or cover
+        letter, in reply to earlier version of the same series.
+
+        Parse a series with two patches, followed by a second revision
+        of the same. The second revision is not labeled with a series
+        version marker.
+
+        This is really, really annoying and people shouldn't do it.
+
+        Input:
+
+            - [PATCH 1/2] test: Add some lorem ipsum
+              - [PATCH 2/2] test: Convert to Markdown
+                - [PATCH 1/2] test: Add some lorem ipsum
+                  - [PATCH 2/2] test: Convert to Markdown
+
+        """
+        covers, patches, _ = self._parse_mbox(
+            'bugs-nocover-noversion.mbox', [0, 4, 0])
+
+        self.assertSerialized(patches, [2, 2])
+
+    def test_reply_nocover(self):
+        """Series with a revision sent in-reply-to a patch, no cover letters.
+
+        Parse a series with two patches, followed by a second revision
+        of the same. The second revision is correctly labeled but is
+        sent in reply to the second patch of the first revision.
+
+        Input:
+
+          - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
+              - [PATCH v2 1/2] test: Add some lorem ipsum
+                - [PATCH v2 2/2] test: Convert to Markdown
+
+        """
+        covers, patches, _ = self._parse_mbox(
+            'bugs-nocover.mbox', [0, 4, 0])
+
+        self.assertSerialized(patches, [2, 2])
+
 
 class SeriesNameTestCase(TestCase):
 
