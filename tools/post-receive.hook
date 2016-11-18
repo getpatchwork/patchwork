@@ -1,9 +1,24 @@
 #!/bin/bash
+# Patchwork - automated patch tracking system
+# Copyright (C) 2010 martin f. krafft <madduck@madduck.net>
 #
+# This file is part of the Patchwork package.
+#
+# Patchwork is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# Patchwork is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Patchwork; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 # Git post-receive hook to update Patchwork patches after Git pushes
-#
-# Copyright © 2010 martin f. krafft <madduck@madduck.net>
-# Released under the GNU General Public License v2 or later.
 set -eu
 
 #TODO: the state map should really live in the repo's git-config
@@ -20,60 +35,66 @@ PWDIR=/opt/patchwork/patchwork
 do_exit=0
 trap "do_exit=1" INT
 
-get_patchwork_hash()
-{
-  local hash
-  hash=$(git show -C $1 | python $PWDIR/parser.py --hash)
-  echo $hash
-  test -n "$hash"
+get_patchwork_hash() {
+    local hash
+    hash=$(git show -C $1 | python $PWDIR/parser.py --hash)
+    echo $hash
+    test -n "$hash"
 }
 
-get_patch_id()
-{
-  local id
-  id=$($PWDIR/bin/pwclient info -h $1 2>/dev/null \
-    | sed -rne 's,- id[[:space:]]*: ,,p')
-  echo $id
-  test -n "$id"
+get_patch_id() {
+    local id
+    id=$($PWDIR/bin/pwclient info -h $1 2>/dev/null \
+         | sed -rne 's,- id[[:space:]]*: ,,p')
+    echo $id
+    test -n "$id"
 }
 
-set_patch_state()
-{
-  $PWDIR/bin/pwclient update -s $2 -c $3 $1 2>&1
+set_patch_state() {
+    $PWDIR/bin/pwclient update -s $2 -c $3 $1 2>&1
 }
 
-update_patches()
-{
-  local cnt; cnt=0
-  for rev in $(git rev-parse --not ${EXCLUDE} |
-               git rev-list --stdin --no-merges --reverse ${1}..${2}); do
-    if [ "$do_exit" = 1 ]; then
-      echo "I: exiting..." >&2
-      break
-    fi
-    hash=$(get_patchwork_hash $rev) \
-      || { echo "E: failed to hash rev $rev." >&2; continue; }
-    id=$(get_patch_id $hash) \
-      || { echo "E: failed to find patch for rev $rev." >&2; continue; }
-    reason="$(set_patch_state $id $3 $rev)" \
-      || { echo "E: failed to update patch #$id${reason:+: $reason}." >&2; continue; }
-    echo "I: patch #$id updated using rev $rev." >&2
-    cnt=$(($cnt + 1))
-  done
-  echo "I: $cnt patch(es) updated to state $3." >&2
+update_patches() {
+    local cnt; cnt=0
+    for rev in $(git rev-parse --not ${EXCLUDE} |
+                 git rev-list --stdin --no-merges --reverse ${1}..${2}); do
+        if [ "$do_exit" = 1 ]; then
+            echo "I: exiting..." >&2
+            break
+        fi
+        hash=$(get_patchwork_hash $rev)
+        if [ -z "$hash" ]; then
+            echo "E: failed to hash rev $rev." >&2
+            continue
+        fi
+        id=$(get_patch_id $hash)
+        if [ -z "$id" ]; then
+            echo "E: failed to find patch for rev $rev." >&2
+            continue
+        fi
+        reason="$(set_patch_state $id $3 $rev)"
+        if [ -n "$reason" ]; then
+            echo "E: failed to update patch #$id${reason:+: $reason}." >&2
+            continue
+        fi
+        echo "I: patch #$id updated using rev $rev." >&2
+        cnt=$(($cnt + 1))
+    done
+
+    echo "I: $cnt patch(es) updated to state $3." >&2
 }
 
 while read oldrev newrev refname; do
-  found=0
-  for i in $STATE_MAP; do
-    key="${i%:*}"
-    if [ "$key" = "$refname" ]; then
-      update_patches $oldrev $newrev ${i#*:}
-      found=1
-      break
+    found=0
+    for i in $STATE_MAP; do
+        key="${i%:*}"
+        if [ "$key" = "$refname" ]; then
+            update_patches $oldrev $newrev ${i#*:}
+            found=1
+            break
+        fi
+    done
+    if [ $found -eq 0 ]; then
+        echo "E: STATE_MAP has no mapping for branch $refname" >&2
     fi
-  done
-  if [ $found -eq 0 ]; then
-    echo "E: STATE_MAP has no mapping for branch $refname" >&2
-  fi
 done
