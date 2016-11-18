@@ -62,7 +62,7 @@ def read_mail(filename, project=None):
             mail = email.message_from_file(f)
     if 'Message-Id' not in mail:
         mail['Message-Id'] = make_msgid()
-    if project is not None:
+    if project:
         mail['List-Id'] = project.listid
     return mail
 
@@ -89,12 +89,9 @@ def parse_mail(*args, **kwargs):
 
 class PatchTest(TestCase):
 
-    def setUp(self):
-        self.project = create_project()
-
     def _find_content(self, mbox_filename):
-        mail = read_mail(mbox_filename, project=self.project)
-        diff, message = find_content(self.project, mail)
+        mail = read_mail(mbox_filename)
+        diff, message = find_content(mail)
 
         return diff, message
 
@@ -106,9 +103,7 @@ class InlinePatchTest(PatchTest):
 
     def setUp(self):
         email = create_email(self.orig_content + '\n' + self.orig_diff)
-
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
     def test_patch_content(self):
         self.assertEqual(self.diff, self.orig_diff)
@@ -130,8 +125,7 @@ class AttachmentPatchTest(InlinePatchTest):
         msg.attach(attachment)
         email = _create_email(msg)
 
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
 
 class AttachmentXDiffPatchTest(AttachmentPatchTest):
@@ -148,8 +142,7 @@ class UTF8InlinePatchTest(InlinePatchTest):
                        _charset='utf-8')
         email = _create_email(msg)
 
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
 
 class NoCharsetInlinePatchTest(InlinePatchTest):
@@ -160,8 +153,7 @@ class NoCharsetInlinePatchTest(InlinePatchTest):
         del email['Content-Type']
         del email['Content-Transfer-Encoding']
 
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
 
 class SignatureCommentTest(InlinePatchTest):
@@ -172,8 +164,7 @@ class SignatureCommentTest(InlinePatchTest):
         email = create_email(self.orig_content + '\n-- \nsig\n' +
                              self.orig_diff)
 
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
 
 class UpdateSigCommentTest(SignatureCommentTest):
@@ -194,8 +185,7 @@ class ListFooterTest(InlinePatchTest):
             'Linuxppc-dev mailing list',
             self.orig_diff]))
 
-        self.project = create_project()
-        self.diff, self.content = find_content(self.project, email)
+        self.diff, self.content = find_content(email)
 
 
 class DiffWordInCommentTest(InlinePatchTest):
@@ -571,8 +561,7 @@ class PatchParseTest(PatchTest):
         self.assertEqual(diff.count("\nrename to "), 2)
 
     def test_git_rename_with_diff(self):
-        diff, message = self._find_content(
-            '0009-git-rename-with-diff.mbox')
+        diff, message = self._find_content('0009-git-rename-with-diff.mbox')
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
         self.assertEqual(diff.count("\nrename from "), 2)

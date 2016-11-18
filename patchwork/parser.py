@@ -342,7 +342,7 @@ def parse_version(subject, subject_prefixes):
     return 1
 
 
-def find_content(project, mail):
+def find_content(mail):
     """Extract a comment and potential diff from a mail."""
     patchbuf = None
     commentbuf = ''
@@ -761,7 +761,7 @@ def parse_mail(mail, list_id=None):
 
     # parse content
 
-    diff, message = find_content(project, mail)
+    diff, message = find_content(mail)
 
     if not (diff or message):
         return  # nothing to work with
