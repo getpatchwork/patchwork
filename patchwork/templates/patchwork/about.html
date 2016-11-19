@@ -4,11 +4,54 @@
 {% block heading %}About Patchwork{% endblock %}
 
 {% block body %}
-<h1>About Patchwork</h1>
+<div class="container">
+  <h1>About Patchwork</h1>
 
-<p>Patchwork is free software, and is available from the
-<a href="http://jk.ozlabs.org/projects/patchwork/">Patchwork website</a>.</p>
+  <p>Patchwork is free software, and is available from the <a
+     href="http://jk.ozlabs.org/projects/patchwork/">Patchwork website</a>.
+     Documentation is available on <a
+     href="http://patchwork.readthedocs.io/">Read the Docs</a>.</p>
 
-<p>Patchwork is built on the <a href="http://djangoproject.com/">Django</a>
-web framework.</p>
+  <p>Patchwork is built on the <a href="https://djangoproject.com/">Django</a>
+  web framework using <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Version</h3>
+    </div>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <p>2.0.0-pre</p>
+      </li>
+    </ul>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">API Status</h3>
+    </div>
+    <ul class="list-group">
+      <li class="list-group-item">
+        REST
+        <span class="glyphicon glyphicon-question-sign" title="The REST
+          API"></span>
+        {% if enabled_apis.rest %}
+        <span class="label label-success pull-right">enabled</span>
+        {% else %}
+        <span class="label label-warning pull-right">disabled</span>
+        {% endif %}
+      </li>
+      <li class="list-group-item">
+        XML-RPC
+        <span class="glyphicon glyphicon-question-sign" title="The XML-RPC
+          API"></span>
+        {% if enabled_apis.xmlrpc %}
+        <span class="label label-success pull-right">enabled</span>
+        {% else %}
+        <span class="label label-warning pull-right">disabled</span>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+</div>
 {% endblock %}

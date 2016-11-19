@@ -18,13 +18,21 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import render
 
 
 def about(request):
-    return render(request, 'patchwork/about.html')
+    context = {
+        'enabled_apis': {
+            'rest': settings.ENABLE_REST_API,
+            'xmlrpc': settings.ENABLE_XMLRPC,
+        },
+    }
+
+    return render(request, 'patchwork/about.html', context)
 
 
 def redirect(request):
