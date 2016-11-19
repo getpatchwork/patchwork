@@ -70,6 +70,7 @@ if django.VERSION >= (1, 8):
                     'django.template.context_processors.tz',
                     'django.contrib.messages.context_processors.messages',
                     'patchwork.context_processors.site',
+                    'patchwork.context_processors.version',
                 ],
             },
         },
@@ -85,6 +86,7 @@ else:
         'django.core.context_processors.tz',
         'django.contrib.messages.context_processors.messages',
         'patchwork.context_processors.site',
+        'patchwork.context_processors.version',
     ]
 
 

@@ -19,6 +19,12 @@
 
 from django.contrib.sites.models import Site
 
+import patchwork
+
 
 def site(request):
     return {'site': Site.objects.get_current()}
+
+
+def version(request):
+    return {'version': patchwork.__version__}
