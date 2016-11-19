@@ -82,26 +82,30 @@ class MboxHeaderTest(TestCase):
 
     """Test the passthrough and generation of various headers."""
 
-    def test_header_passthrough_cc(self):
-        """Validate passthrough of 'Cc' header."""
-        header = 'Cc: CC Person <cc@example.com>'
+    def _test_header_passthrough(self, header):
         patch = create_patch(headers=header + '\n')
         response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         self.assertContains(response, header)
+
+    def test_header_passthrough_cc(self):
+        """Validate passthrough of 'Cc' header."""
+        header = 'Cc: CC Person <cc@example.com>'
+        self._test_header_passthrough(header)
 
     def test_header_passthrough_to(self):
         """Validate passthrough of 'To' header."""
         header = 'To: To Person <to@example.com>'
-        patch = create_patch(headers=header + '\n')
-        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
-        self.assertContains(response, header)
+        self._test_header_passthrough(header)
 
     def test_header_passthrough_date(self):
         """Validate passthrough of 'Date' header."""
         header = 'Date: Fri, 7 Jun 2013 15:42:54 +1000'
-        patch = create_patch(headers=header + '\n')
-        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
-        self.assertContains(response, header)
+        self._test_header_passthrough(header)
+
+    def test_header_passthrough_from(self):
+        """Validate passthrough of 'From' header."""
+        header = 'From: John Doe <john@doe.com>'
+        self._test_header_passthrough(header)
 
     def test_patchwork_id_header(self):
         """Validate inclusion of generated 'X-Patchwork-Id' header."""
@@ -115,6 +119,18 @@ class MboxHeaderTest(TestCase):
         patch = create_patch(delegate=user)
         response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         self.assertContains(response, 'X-Patchwork-Delegate: %s' % user.email)
+
+    def test_patchwork_from_header(self):
+        """Validate inclusion of generated 'X-Patchwork-From' header."""
+        email = 'jon@doe.com'
+        from_header = 'From: Jon Doe <%s>\n' % email
+
+        person = create_person(name='Jonathon Doe', email=email)
+        patch = create_patch(submitter=person, headers=from_header)
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, from_header)
+        self.assertContains(response, 'X-Patchwork-Submitter: %s <%s>' % (
+            person.name, email))
 
     def test_from_header(self):
         """Validate non-ascii 'From' header.
