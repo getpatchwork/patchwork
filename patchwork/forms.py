@@ -65,7 +65,7 @@ class LoginForm(forms.Form):
 
 class BundleForm(forms.ModelForm):
     name = forms.RegexField(
-        regex=r'^[^/]+$', max_length=50, label=u'Name',
+        regex=r'^[^/]+$', min_length=1, max_length=50, label=u'Name',
         error_messages={'invalid': 'Bundle names can\'t contain slashes'})
 
     class Meta:
