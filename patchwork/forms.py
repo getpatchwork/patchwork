@@ -163,40 +163,19 @@ class OptionalModelChoiceField(forms.ModelChoiceField):
         return super(OptionalModelChoiceField, self).clean(value)
 
 
-class MultipleBooleanField(forms.ChoiceField):
-    no_change_choice = ('*', 'no change')
-
-    def __init__(self, *args, **kwargs):
-        super(MultipleBooleanField, self).__init__(*args, **kwargs)
-        self.choices = [self.no_change_choice] + \
-            [(True, 'Archived'), (False, 'Unarchived')]
+class OptionalBooleanField(forms.TypedChoiceField):
 
     def is_no_change(self, value):
-        return value == self.no_change_choice[0]
-
-    # TODO: Check whether it'd be worth to use a TypedChoiceField here; I
-    # think that'd allow us to get rid of the custom valid_value() and
-    # to_python() methods.
-    def valid_value(self, value):
-        if value in [v1 for (v1, v2) in self.choices]:
-            return True
-        return False
-
-    def to_python(self, value):
-        if value is None or self.is_no_change(value):
-            return self.no_change_choice[0]
-        elif value == 'True':
-            return True
-        elif value == 'False':
-            return False
-        else:
-            raise ValueError('Unknown value: %s' % value)
+        return value == self.empty_value
 
 
 class MultiplePatchForm(forms.Form):
     action = 'update'
     state = OptionalModelChoiceField(queryset=State.objects.all())
-    archived = MultipleBooleanField()
+    archived = OptionalBooleanField(
+        choices=[('*', 'no change'), (True, 'Archived'),
+                 (False, 'Unarchived')],
+        coerce=bool, empty_value='*')
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
