@@ -45,13 +45,6 @@ class Paginator(paginator.Paginator):
         if request.user.is_authenticated():
             items_per_page = request.user.profile.items_per_page
 
-        ppp = request.META.get('ppp')
-        if ppp:
-            try:
-                items_per_page = int(ppp)
-            except ValueError:
-                pass
-
         super(Paginator, self).__init__(objects, items_per_page)
 
         try:

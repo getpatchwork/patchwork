@@ -9,14 +9,14 @@
 {% else %}
  <span class="prev-na">&laquo;</span>
 {% endif %}
- 
+
 {% if page.paginator.trailing_set %}
  {% for p in page.paginator.trailing_set %}
  <span class="page"><a href="{% listurl page=p %}" >{{ p }}</a></span>
  {% endfor %}
         ...
 {% endif %}
- 
+
 {% for p in page.paginator.adjacent_set %}
   {% ifequal p page.number %}
     <span class="curr" title="Current Page">{{ p }}</span>
@@ -25,14 +25,14 @@
      title="Page {{ p }}">{{ p }}</a></span>
   {% endifequal %}
 {% endfor %}
- 
+
 {% if page.paginator.leading_set %}
         …
  {% for p in page.paginator.leading_set %}
     <span class="page"><a href="{% listurl page=p %}">{{ p }}</a></span>
  {% endfor %}
 {% endif %}
- 
+
 {% if page.has_next %}
  <span class="next">
   <a href="{% listurl page=page.next_page_number %}"
@@ -41,5 +41,5 @@
 {% else %}
  <span class="next-na">&raquo;</span>
 {% endif %}
-</div> 
+</div>
 {% endifnotequal %}
