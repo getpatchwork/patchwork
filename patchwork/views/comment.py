@@ -29,7 +29,7 @@ from patchwork import models
 def comment(request, comment_id):
     submission = shortcuts.get_object_or_404(models.Comment,
                                              id=comment_id).submission
-    if hasattr(submission, 'patch'):
+    if models.Patch.objects.filter(id=submission.id).exists():
         url = 'patch-detail'
         key = 'patch_id'
     else:
