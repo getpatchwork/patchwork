@@ -137,12 +137,9 @@ class OptionalDelegateField(DelegateField):
     no_change_choice = ('*', 'no change')
     to_field_name = None
 
-    def __init__(self, no_change_choice=None, *args, **kwargs):
-        self.filter = None
-        if (no_change_choice):
-            self.no_change_choice = no_change_choice
-        super(OptionalDelegateField, self). \
-            __init__(initial=self.no_change_choice[0], *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(OptionalDelegateField, self).__init__(
+            initial=self.no_change_choice[0], *args, **kwargs)
 
     def _get_choices(self):
         choices = list(
@@ -165,12 +162,9 @@ class OptionalModelChoiceField(forms.ModelChoiceField):
     no_change_choice = ('*', 'no change')
     to_field_name = None
 
-    def __init__(self, no_change_choice=None, *args, **kwargs):
-        self.filter = None
-        if (no_change_choice):
-            self.no_change_choice = no_change_choice
-        super(OptionalModelChoiceField, self). \
-            __init__(initial=self.no_change_choice[0], *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(OptionalModelChoiceField, self).__init__(
+            initial=self.no_change_choice[0], *args, **kwargs)
 
     def _get_choices(self):
         # _get_choices queries the database, which can fail if the db
