@@ -17,14 +17,15 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-
 from django.contrib.auth.models import User
 from django import forms
 from django.db.models import Q
 from django.db.utils import ProgrammingError
 
-from patchwork.models import Patch, State, Bundle, UserProfile
+from patchwork.models import Bundle
+from patchwork.models import Patch
+from patchwork.models import State
+from patchwork.models import UserProfile
 
 
 class RegistrationForm(forms.Form):
@@ -63,6 +64,10 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
+class EmailForm(forms.Form):
+    email = forms.EmailField(max_length=200)
+
+
 class BundleForm(forms.ModelForm):
     name = forms.RegexField(
         regex=r'^[^/]+$', min_length=1, max_length=50, label=u'Name',
@@ -98,6 +103,13 @@ class DeleteBundleForm(forms.Form):
     bundle_id = forms.IntegerField(widget=forms.HiddenInput)
 
 
+class UserProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = UserProfile
+        fields = ['items_per_page']
+
+
 def _get_delegate_qs(project, instance=None):
     if instance and not project:
         project = instance.project
@@ -123,13 +135,6 @@ class PatchForm(forms.ModelForm):
     class Meta:
         model = Patch
         fields = ['state', 'archived', 'delegate']
-
-
-class UserProfileForm(forms.ModelForm):
-
-    class Meta:
-        model = UserProfile
-        fields = ['items_per_page']
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
@@ -205,7 +210,3 @@ class MultiplePatchForm(forms.Form):
         if commit:
             instance.save()
         return instance
-
-
-class EmailForm(forms.Form):
-    email = forms.EmailField(max_length=200)
