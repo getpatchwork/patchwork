@@ -1,5 +1,5 @@
 # Patchwork - automated patch tracking system
-# Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
+# Copyright (C) 2016 Stephen Finucane <stephen@that.guru>
 #
 # This file is part of the Patchwork package.
 #
@@ -17,24 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-
-from django.conf import settings
-from django.http import Http404
-from django.shortcuts import render
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 
-help_pages = {
-    '': 'index.html',
-    'about/': 'about.html',
-}
+class AboutViewTest(TestCase):
 
-if settings.ENABLE_XMLRPC:
-    help_pages['pwclient/'] = 'pwclient.html'
+    def test_redirects(self):
+        for view in ['help', 'help-about', 'help-pwclient']:
+            requested_url = reverse(view)
+            redirect_url = reverse('about')
 
-
-def detail(request, path):
-    if path in help_pages:
-        return render(request,
-                      'patchwork/help/' + help_pages[path])
-    raise Http404
+            response = self.client.get(requested_url)
+            self.assertRedirects(response, redirect_url, 301)

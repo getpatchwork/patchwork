@@ -142,8 +142,7 @@ dispatcher = PatchworkXMLRPCDispatcher()
 @csrf_exempt
 def xmlrpc(request):
     if request.method not in ['POST', 'GET']:
-        return HttpResponseRedirect(reverse('help',
-                                            kwargs={'path': 'pwclient/'}))
+        return HttpResponseRedirect(reverse('project-list'))
 
     response = HttpResponse()
 

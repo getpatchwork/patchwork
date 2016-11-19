@@ -45,8 +45,7 @@ class XMLRPCGenericTest(XMLRPCTest):
 
     def test_get_redirect(self):
         response = self.client.patch(self.url)
-        self.assertRedirects(
-            response, reverse('help', kwargs={'path': 'pwclient/'}))
+        self.assertRedirects(response, reverse('project-list'))
 
     def test_invalid_method(self):
         with self.assertRaises(xmlrpc_client.Fault):
