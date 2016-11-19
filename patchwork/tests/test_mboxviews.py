@@ -107,6 +107,11 @@ class MboxHeaderTest(TestCase):
         header = 'From: John Doe <john@doe.com>'
         self._test_header_passthrough(header)
 
+    def test_header_passthrough_listid(self):
+        """Validate passthrough of 'List-ID' header."""
+        header = 'List-Id: Patchwork development <patchwork.lists.ozlabs.org>'
+        self._test_header_passthrough(header)
+
     def test_patchwork_id_header(self):
         """Validate inclusion of generated 'X-Patchwork-Id' header."""
         patch = create_patch()

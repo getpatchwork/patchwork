@@ -391,7 +391,7 @@ def patch_to_mbox(patch):
     mail['Message-Id'] = patch.msgid
     mail.set_unixfrom('From patchwork ' + patch.date.ctime())
 
-    copied_headers = ['To', 'Cc', 'Date', 'From']
+    copied_headers = ['To', 'Cc', 'Date', 'From', 'List-Id']
     orig_headers = HeaderParser().parsestr(str(patch.headers))
     for header in copied_headers:
         if header in orig_headers:
