@@ -107,6 +107,7 @@ class MboxPassThroughHeaderTest(TestCase):
         self.cc_header = 'Cc: CC Person <cc@example.com>'
         self.to_header = 'To: To Person <to@example.com>'
         self.date_header = 'Date: Fri, 7 Jun 2013 15:42:54 +1000'
+        self.from_header = 'From: John Doe <john@doe.com>'
 
         self.patch = Patch(project=defaults.project,
                            msgid='p1', name='testpatch',
@@ -132,6 +133,13 @@ class MboxPassThroughHeaderTest(TestCase):
 
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response, self.date_header)
+
+    def testFromHeader(self):
+        self.patch.headers = self.from_header = '\n'
+        self.patch.save()
+
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, self.from_header)
 
 
 class MboxGeneratedHeaderTest(TestCase):
@@ -160,6 +168,10 @@ class MboxGeneratedHeaderTest(TestCase):
         response = self.client.get('/patch/%d/mbox/' % self.patch.id)
         self.assertContains(response,
                             'X-Patchwork-Delegate: %s' % self.user.email)
+
+    def testPatchworkFromHeader(self):
+        response = self.client.get('/patch/%d/mbox/' % self.patch.id)
+        self.assertContains(response, 'X-Patchwork-Submitter:')
 
 
 class MboxBrokenFromHeaderTest(TestCase):

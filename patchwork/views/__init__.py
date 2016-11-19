@@ -353,7 +353,7 @@ def patch_to_mbox(patch):
 
     mail = PatchMbox(body)
     mail['Subject'] = patch.name
-    mail['From'] = email.utils.formataddr((
+    mail['X-Patchwork-Submitter'] = email.utils.formataddr((
         str(Header(patch.submitter.name, mail.patch_charset)),
         patch.submitter.email))
     mail['X-Patchwork-Id'] = str(patch.id)
@@ -362,7 +362,7 @@ def patch_to_mbox(patch):
     mail['Message-Id'] = patch.msgid
     mail.set_unixfrom('From patchwork ' + patch.date.ctime())
 
-    copied_headers = ['To', 'Cc', 'Date']
+    copied_headers = ['To', 'Cc', 'Date', 'From']
     orig_headers = HeaderParser().parsestr(str(patch.headers))
     for header in copied_headers:
         if header in orig_headers:
