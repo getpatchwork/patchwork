@@ -98,28 +98,27 @@ class DeleteBundleForm(forms.Form):
     bundle_id = forms.IntegerField(widget=forms.HiddenInput)
 
 
-class DelegateField(forms.ModelChoiceField):
+def _get_delegate_qs(project, instance=None):
+    if instance and not project:
+        project = instance.project
 
-    def __init__(self, project, instance=None, *args, **kwargs):
-        q = Q(profile__in=UserProfile.objects
-              .filter(maintainer_projects=project)
-              .values('pk').query)
-        if instance and instance.delegate:
-            q = q | Q(username=instance.delegate)
-        queryset = User.objects.complex_filter(q)
-        super(DelegateField, self).__init__(queryset, *args, **kwargs)
+    if not project:
+        raise ValueError('Expected a project')
+
+    q = Q(profile__in=UserProfile.objects
+          .filter(maintainer_projects=project)
+          .values('pk').query)
+    if instance and instance.delegate:
+        q = q | Q(username=instance.delegate)
+    return User.objects.complex_filter(q)
 
 
 class PatchForm(forms.ModelForm):
 
     def __init__(self, instance=None, project=None, *args, **kwargs):
-        if (not project) and instance:
-            project = instance.project
-        if not project:
-            raise Exception("meep")
         super(PatchForm, self).__init__(instance=instance, *args, **kwargs)
-        self.fields['delegate'] = DelegateField(project, instance,
-                                                required=False)
+        self.fields['delegate'] = forms.ModelChoiceField(
+            queryset=_get_delegate_qs(project, instance), required=False)
 
     class Meta:
         model = Patch
@@ -131,31 +130,6 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['items_per_page']
-
-
-class OptionalDelegateField(DelegateField):
-    no_change_choice = ('*', 'no change')
-    to_field_name = None
-
-    def __init__(self, *args, **kwargs):
-        super(OptionalDelegateField, self).__init__(
-            initial=self.no_change_choice[0], *args, **kwargs)
-
-    def _get_choices(self):
-        choices = list(
-            super(OptionalDelegateField, self)._get_choices())
-        choices.append(self.no_change_choice)
-        return choices
-
-    choices = property(_get_choices, forms.ChoiceField._set_choices)
-
-    def is_no_change(self, value):
-        return value == self.no_change_choice[0]
-
-    def clean(self, value):
-        if value == self.no_change_choice[0]:
-            return value
-        return super(OptionalDelegateField, self).clean(value)
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
@@ -226,8 +200,8 @@ class MultiplePatchForm(forms.Form):
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
-        self.fields['delegate'] = OptionalDelegateField(project=project,
-                                                        required=False)
+        self.fields['delegate'] = OptionalModelChoiceField(
+            queryset=_get_delegate_qs(project=project), required=False)
 
     def save(self, instance, commit=True):
         opts = instance.__class__._meta
