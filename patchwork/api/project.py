@@ -25,16 +25,16 @@ from patchwork.models import Project
 
 
 class ProjectSerializer(HyperlinkedModelSerializer):
-    class Meta:
-        model = Project
-        exclude = ('send_notifications', 'use_tags')
-
     def to_representation(self, instance):
         data = super(ProjectSerializer, self).to_representation(instance)
         data['link_name'] = data.pop('linkname')
         data['list_email'] = data.pop('listemail')
         data['list_id'] = data.pop('listid')
         return data
+
+    class Meta:
+        model = Project
+        exclude = ('send_notifications', 'use_tags')
 
 
 class ProjectViewSet(PatchworkViewSet):
