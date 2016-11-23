@@ -20,24 +20,44 @@
 import email.parser
 
 from django.core.urlresolvers import reverse
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.serializers import ChoiceField
+from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
+from patchwork.api.base import STATE_CHOICES
 from patchwork.models import Patch
+from patchwork.models import State
+
+
+class StateField(ChoiceField):
+    """Avoid the need for a state endpoint."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs['choices'] = STATE_CHOICES
+        super(StateField, self).__init__(*args, **kwargs)
+
+    def to_internal_value(self, data):
+        data = ' '.join(data.split('-'))
+        try:
+            return State.objects.get(name__iexact=data)
+        except State.DoesNotExist:
+            raise ValidationError('Invalid state. Expected one of: %s ' %
+                                  ', '.join(STATE_CHOICES))
+
+    def to_representation(self, obj):
+        return '-'.join(obj.name.lower().split())
 
 
 class PatchListSerializer(HyperlinkedModelSerializer):
     mbox = SerializerMethodField()
-    state = SerializerMethodField()
+    state = StateField()
     tags = SerializerMethodField()
     check = SerializerMethodField()
     checks = SerializerMethodField()
-
-    def get_state(self, instance):
-        return instance.state.name
 
     def get_mbox(self, instance):
         request = self.context.get('request')
