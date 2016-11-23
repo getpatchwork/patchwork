@@ -27,9 +27,7 @@ from patchwork.api.base import PatchworkViewSet
 class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
-        exclude = ('date_joined', 'groups', 'is_active', 'is_staff',
-                   'is_superuser', 'last_login', 'password',
-                   'user_permissions')
+        fields = ('url', 'username', 'first_name', 'last_name', 'email')
 
 
 class UserViewSet(PatchworkViewSet):

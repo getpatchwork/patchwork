@@ -63,7 +63,7 @@ class CheckSerializer(ModelSerializer):
     class Meta:
         model = Check
         fields = ('patch', 'user', 'date', 'state', 'target_url',
-                  'description', 'context',)
+                  'context', 'description')
         read_only_fields = ('date',)
 
 

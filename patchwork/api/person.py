@@ -27,7 +27,7 @@ from patchwork.models import Person
 class PersonSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Person
-        fields = ('email', 'name', 'user')
+        fields = ('url', 'name', 'email', 'user')
 
 
 class PeopleViewSet(PatchworkViewSet):

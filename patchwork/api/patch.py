@@ -72,11 +72,12 @@ class PatchSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Patch
         list_serializer_class = PatchListSerializer
+        fields = ('url', 'project', 'msgid', 'date', 'name', 'commit_ref',
+                  'pull_url', 'state', 'archived', 'hash', 'submitter',
+                  'delegate', 'mbox', 'check', 'checks', 'tags', 'headers',
+                  'content', 'diff')
         read_only_fields = ('project', 'name', 'date', 'submitter', 'diff',
                             'content', 'hash', 'msgid')
-        # there's no need to expose an entire "tags" endpoint, so we custom
-        # render this field
-        exclude = ('tags',)
 
 
 class PatchViewSet(PatchworkViewSet):

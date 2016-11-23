@@ -34,7 +34,8 @@ class ProjectSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Project
-        exclude = ('send_notifications', 'use_tags')
+        fields = ('url', 'name', 'linkname', 'listid', 'listemail', 'web_url',
+                  'scm_url', 'webscm_url')
 
 
 class ProjectViewSet(PatchworkViewSet):
