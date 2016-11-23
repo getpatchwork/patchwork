@@ -52,6 +52,11 @@ class TestProjectAPI(APITestCase):
             return reverse('api-project-list')
         return reverse('api-project-detail', args=[item])
 
+    def assertSerialized(self, project_obj, project_json):
+        self.assertEqual(project_obj.name, project_json['name'])
+        self.assertEqual(project_obj.linkname, project_json['link_name'])
+        self.assertEqual(project_obj.listid, project_json['list_id'])
+
     def test_list(self):
         """Validate we can list the default test project."""
         project = create_project()
@@ -59,10 +64,7 @@ class TestProjectAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        proj = resp.data[0]
-        self.assertEqual(project.linkname, proj['link_name'])
-        self.assertEqual(project.name, proj['name'])
-        self.assertEqual(project.listid, proj['list_id'])
+        self.assertSerialized(project, resp.data[0])
 
     def test_detail(self):
         """Validate we can get a specific project."""
@@ -75,7 +77,7 @@ class TestProjectAPI(APITestCase):
         # make sure we can look up by linkname
         resp = self.client.get(self.api_url(resp.data['link_name']))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(project.name, resp.data['name'])
+        self.assertSerialized(project, resp.data)
 
     def test_get_numeric_linkname(self):
         """Validate we try to do the right thing for numeric linkname"""
@@ -83,7 +85,7 @@ class TestProjectAPI(APITestCase):
 
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(project.name, resp.data['name'])
+        self.assertSerialized(project, resp.data)
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -150,35 +152,59 @@ class TestPersonAPI(APITestCase):
             return reverse('api-person-list')
         return reverse('api-person-detail', args=[item])
 
+    def assertSerialized(self, person_obj, person_json, has_user=False):
+        if not has_user:
+            self.assertEqual(person_obj.name, person_json['name'])
+            self.assertEqual(person_obj.email, person_json['email'])
+        else:
+            self.assertEqual(person_obj.user.username, person_json['name'])
+            self.assertEqual(person_obj.user.email, person_json['email'])
+            self.assertIn(TestUserAPI.api_url(person_obj.user.id),
+                          person_json['user'])
+
     def test_list(self):
         """This API requires authenticated users."""
+        person = create_person()
+
         # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
         # authenticated user
-        user = create_user()
+        user = create_user(link_person=False)
         self.client.force_authenticate(user=user)
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertEqual(user.username, resp.data[0]['name'])
-        self.assertEqual(user.email, resp.data[0]['email'])
-        self.assertIn('users/%d/' % user.id, resp.data[0]['user'])
+        self.assertSerialized(person, resp.data[0])
 
-    def test_unlinked_user(self):
+    def test_detail(self):
         person = create_person()
-        user = create_user()
+
+        # anonymous user
+        resp = self.client.get(self.api_url(person.id))
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+        # authenticated, unlinked user
+        user = create_user(link_person=False)
         self.client.force_authenticate(user=user)
 
-        resp = self.client.get(self.api_url())
+        resp = self.client.get(self.api_url(person.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(2, len(resp.data))
-        self.assertEqual(person.name, resp.data[0]['name'])
-        self.assertIsNone(resp.data[0]['user'])
+        self.assertSerialized(person, resp.data, has_user=False)
+
+        # authenticated, linked user
+        user = create_user(link_person=True)
+        person = user.person_set.all().first()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.get(self.api_url(person.id))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(person, resp.data, has_user=True)
 
     def test_create_update_delete(self):
+        """Ensure creates, updates and deletes aren't allowed"""
         user = create_maintainer()
         user.is_superuser = True
         user.save()
@@ -203,6 +229,11 @@ class TestUserAPI(APITestCase):
             return reverse('api-user-list')
         return reverse('api-user-detail', args=[item])
 
+    def assertSerialized(self, user_obj, user_json):
+        self.assertEqual(user_obj.username, user_json['username'])
+        self.assertNotIn('password', user_json)
+        self.assertNotIn('is_superuser', user_json)
+
     def test_list(self):
         """This API requires authenticated users."""
         # anonymous users
@@ -216,9 +247,7 @@ class TestUserAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertEqual(user.username, resp.data[0]['username'])
-        self.assertNotIn('password', resp.data[0])
-        self.assertNotIn('is_superuser', resp.data[0])
+        self.assertSerialized(user, resp.data[0])
 
     def test_update(self):
         """Ensure updates are allowed."""
@@ -229,6 +258,7 @@ class TestUserAPI(APITestCase):
 
         resp = self.client.patch(self.api_url(user.id), {'first_name': 'Tan'})
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(user, resp.data)
 
     def test_create_delete(self):
         """Ensure creations and deletions and not allowed."""
@@ -254,6 +284,16 @@ class TestPatchAPI(APITestCase):
             return reverse('api-patch-list')
         return reverse('api-patch-detail', args=[item])
 
+    def assertSerialized(self, patch_obj, patch_json):
+        self.assertEqual(patch_obj.name, patch_json['name'])
+        self.assertEqual(patch_obj.msgid, patch_json['msgid'])
+        self.assertEqual(patch_obj.state.name, patch_json['state'])
+        self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
+        self.assertIn(TestPersonAPI.api_url(patch_obj.submitter.id),
+                      patch_json['submitter'])
+        self.assertIn(TestProjectAPI.api_url(patch_obj.project.id),
+                      patch_json['project'])
+
     def test_list(self):
         """Validate we can list a patch."""
         resp = self.client.get(self.api_url())
@@ -267,9 +307,9 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         patch_rsp = resp.data[0]
-        self.assertEqual(patch_obj.name, patch_rsp['name'])
-        self.assertNotIn('content', patch_rsp)
+        self.assertSerialized(patch_obj, patch_rsp)
         self.assertNotIn('headers', patch_rsp)
+        self.assertNotIn('content', patch_rsp)
         self.assertNotIn('diff', patch_rsp)
 
         # authenticated user
@@ -279,31 +319,21 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         patch_rsp = resp.data[0]
-        self.assertEqual(patch_obj.name, patch_rsp['name'])
+        self.assertSerialized(patch_obj, patch_rsp)
 
     def test_detail(self):
         """Validate we can get a specific patch."""
-        patch = create_patch()
+        patch = create_patch(
+            content='Reviewed-by: Test User <test@example.com>\n')
 
         resp = self.client.get(self.api_url(patch.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(patch.name, resp.data['name'])
-        self.assertIn(TestProjectAPI.api_url(patch.project.id),
-                      resp.data['project'])
-        self.assertEqual(patch.msgid, resp.data['msgid'])
+        self.assertSerialized(patch, resp.data)
+        self.assertEqual(patch.headers, resp.data['headers'] or '')
+        self.assertEqual(patch.content, resp.data['content'])
         self.assertEqual(patch.diff, resp.data['diff'])
-        self.assertIn(TestPersonAPI.api_url(patch.submitter.id),
-                      resp.data['submitter'])
-        self.assertEqual(patch.state.name, resp.data['state'])
-        self.assertIn(patch.get_mbox_url(), resp.data['mbox'])
-
-    def test_detail_tags(self):
-        patch = create_patch(
-            content='Reviewed-by: Test User <test@example.com>\n')
-        resp = self.client.get(self.api_url(patch.id))
-        tags = resp.data['tags']
-        self.assertEqual(3, len(tags))
-        self.assertEqual(1, tags['Reviewed-by'])
+        self.assertEqual(3, len(resp.data['tags']))
+        self.assertEqual(1, resp.data['tags']['Reviewed-by'])
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -392,6 +422,12 @@ class TestCheckAPI(APITestCase):
         }
         return create_check(**values)
 
+    def assertSerialized(self, check_obj, check_json):
+        self.assertEqual(check_obj.get_state_display(), check_json['state'])
+        self.assertEqual(check_obj.target_url, check_json['target_url'])
+        self.assertEqual(check_obj.context, check_json['context'])
+        self.assertEqual(check_obj.description, check_json['description'])
+
     def test_list(self):
         """Validate we can list checks on a patch."""
         resp = self.client.get(self.api_url())
@@ -403,18 +439,14 @@ class TestCheckAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        check_rsp = resp.data[0]
-        self.assertEqual(check_obj.get_state_display(), check_rsp['state'])
-        self.assertEqual(check_obj.target_url, check_rsp['target_url'])
-        self.assertEqual(check_obj.context, check_rsp['context'])
-        self.assertEqual(check_obj.description, check_rsp['description'])
+        self.assertSerialized(check_obj, resp.data[0])
 
     def test_detail(self):
         """Validate we can get a specific check."""
         check = self._create_check()
         resp = self.client.get(self.api_url(check))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(check.target_url, resp.data['target_url'])
+        self.assertSerialized(check, resp.data)
 
     def test_create(self):
         """Ensure creations can be performed by user of patch."""
@@ -429,6 +461,7 @@ class TestCheckAPI(APITestCase):
         resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
         self.assertEqual(1, Check.objects.all().count())
+        self.assertSerialized(Check.objects.first(), resp.data)
 
         user = create_user()
         self.client.force_authenticate(user=user)
