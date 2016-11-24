@@ -79,9 +79,9 @@ class PatchListSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Patch
-        fields = ('url', 'project', 'msgid', 'date', 'name', 'commit_ref',
-                  'pull_url', 'state', 'archived', 'hash', 'submitter',
-                  'delegate', 'mbox', 'check', 'checks', 'tags')
+        fields = ('id', 'url', 'project', 'msgid', 'date', 'name',
+                  'commit_ref', 'pull_url', 'state', 'archived', 'hash',
+                  'submitter', 'delegate', 'mbox', 'check', 'checks', 'tags')
         read_only_fields = ('project', 'msgid', 'date', 'name', 'hash',
                             'submitter', 'mbox', 'mbox', 'series', 'check',
                             'checks', 'tags')

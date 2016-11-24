@@ -37,7 +37,7 @@ class UserSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'first_name', 'last_name', 'email')
+        fields = ('id', 'url', 'username', 'first_name', 'last_name', 'email')
         # we don't allow updating of emails via the API, as we need to
         # validate that the User actually owns said email first
         read_only_fields = ('username', 'email')

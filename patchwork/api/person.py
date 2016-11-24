@@ -28,7 +28,7 @@ from patchwork.models import Person
 class PersonSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Person
-        fields = ('url', 'name', 'email', 'user')
+        fields = ('id', 'url', 'name', 'email', 'user')
         read_only_fields = fields
         extra_kwargs = {
             'url': {'view_name': 'api-person-detail'},

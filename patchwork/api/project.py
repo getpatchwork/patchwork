@@ -34,7 +34,7 @@ class ProjectSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Project
-        fields = ('url', 'name', 'link_name', 'list_id', 'list_email',
+        fields = ('id', 'url', 'name', 'link_name', 'list_id', 'list_email',
                   'web_url', 'scm_url', 'webscm_url')
         read_only_fields = ('name',)
         extra_kwargs = {

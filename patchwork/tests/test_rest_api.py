@@ -53,6 +53,7 @@ class TestProjectAPI(APITestCase):
         return reverse('api-project-detail', args=[item])
 
     def assertSerialized(self, project_obj, project_json):
+        self.assertEqual(project_obj.id, project_json['id'])
         self.assertEqual(project_obj.name, project_json['name'])
         self.assertEqual(project_obj.linkname, project_json['link_name'])
         self.assertEqual(project_obj.listid, project_json['list_id'])
@@ -153,6 +154,7 @@ class TestPersonAPI(APITestCase):
         return reverse('api-person-detail', args=[item])
 
     def assertSerialized(self, person_obj, person_json, has_user=False):
+        self.assertEqual(person_obj.id, person_json['id'])
         if not has_user:
             self.assertEqual(person_obj.name, person_json['name'])
             self.assertEqual(person_obj.email, person_json['email'])
@@ -230,6 +232,7 @@ class TestUserAPI(APITestCase):
         return reverse('api-user-detail', args=[item])
 
     def assertSerialized(self, user_obj, user_json):
+        self.assertEqual(user_obj.id, user_json['id'])
         self.assertEqual(user_obj.username, user_json['username'])
         self.assertNotIn('password', user_json)
         self.assertNotIn('is_superuser', user_json)
@@ -285,6 +288,7 @@ class TestPatchAPI(APITestCase):
         return reverse('api-patch-detail', args=[item])
 
     def assertSerialized(self, patch_obj, patch_json):
+        self.assertEqual(patch_obj.id, patch_json['id'])
         self.assertEqual(patch_obj.name, patch_json['name'])
         self.assertEqual(patch_obj.msgid, patch_json['msgid'])
         self.assertEqual(patch_obj.state.name, patch_json['state'])
@@ -423,6 +427,7 @@ class TestCheckAPI(APITestCase):
         return create_check(**values)
 
     def assertSerialized(self, check_obj, check_json):
+        self.assertEqual(check_obj.id, check_json['id'])
         self.assertEqual(check_obj.get_state_display(), check_json['state'])
         self.assertEqual(check_obj.target_url, check_json['target_url'])
         self.assertEqual(check_obj.context, check_json['context'])
