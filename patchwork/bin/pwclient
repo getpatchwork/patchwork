@@ -377,6 +377,7 @@ def patch_id_from_hash(rpc, project, hash):
         sys.exit(1)
     return patch_id
 
+
 auth_actions = ['check_create', 'update']
 
 
@@ -606,7 +607,8 @@ def main():
     config.read([CONFIG_FILE])
 
     if not config.has_section('options') and os.path.exists(CONFIG_FILE):
-        sys.stderr.write('%s is in the old format. Migrating it...' % CONFIG_FILE)
+        sys.stderr.write('%s is in the old format. Migrating it...' %
+                         CONFIG_FILE)
 
         old_project = config.get('base', 'project')
 
@@ -792,6 +794,7 @@ def main():
         sys.stderr.write("Unknown action '%s'\n" % action)
         action_parser.print_help()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

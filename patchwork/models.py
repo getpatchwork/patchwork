@@ -172,6 +172,7 @@ def _user_saved_callback(sender, created, instance, **kwargs):
         profile = UserProfile(user=instance)
     profile.save()
 
+
 models.signals.post_save.connect(_user_saved_callback, sender=User)
 
 
@@ -906,5 +907,6 @@ def _patch_change_callback(sender, instance, **kwargs):
 
     notification.last_modified = datetime.datetime.now()
     notification.save()
+
 
 models.signals.pre_save.connect(_patch_change_callback, sender=Patch)

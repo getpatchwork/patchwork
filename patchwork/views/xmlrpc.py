@@ -133,6 +133,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
 
         return response
 
+
 dispatcher = PatchworkXMLRPCDispatcher()
 
 # XMLRPC view function

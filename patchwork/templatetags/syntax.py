@@ -33,6 +33,7 @@ def _compile(value):
     regex, cls = value
     return re.compile(regex, re.M | re.I), cls
 
+
 _patch_span_res = [_compile(x) for x in [
     (r'^(Index:?|diff|\-\-\-|\+\+\+|\*\*\*) .*$', 'p_header'),
     (r'^\+.*$', 'p_add'),
