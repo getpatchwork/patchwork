@@ -152,28 +152,53 @@ if settings.ENABLE_REST_API:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
 
-    from rest_framework.routers import DefaultRouter
-    from rest_framework_nested.routers import NestedSimpleRouter
+    from patchwork.api import check as api_check_views
+    from patchwork.api import index as api_index_views
+    from patchwork.api import patch as api_patch_views
+    from patchwork.api import person as api_person_views
+    from patchwork.api import project as api_project_views
+    from patchwork.api import user as api_user_views
 
-    from patchwork.api.check import CheckViewSet
-    from patchwork.api.patch import PatchViewSet
-    from patchwork.api.person import PeopleViewSet
-    from patchwork.api.project import ProjectViewSet
-    from patchwork.api.user import UserViewSet
-
-    router = DefaultRouter()
-    router.register('patches', PatchViewSet, 'patch')
-    router.register('people', PeopleViewSet, 'person')
-    router.register('projects', ProjectViewSet, 'project')
-    router.register('users', UserViewSet, 'user')
-
-    patches_router = NestedSimpleRouter(router, r'patches', lookup='patch')
-    patches_router.register(r'checks', CheckViewSet, base_name='patch-checks')
+    api_patterns = [
+        url(r'^$',
+            api_index_views.IndexView.as_view(),
+            name='api-index'),
+        url(r'^users/$',
+            api_user_views.UserList.as_view(),
+            name='api-user-list'),
+        url(r'^users/(?P<pk>[^/]+)/$',
+            api_user_views.UserDetail.as_view(),
+            name='api-user-detail'),
+        url(r'^people/$',
+            api_person_views.PersonList.as_view(),
+            name='api-person-list'),
+        url(r'^people/(?P<pk>[^/]+)/$',
+            api_person_views.PersonDetail.as_view(),
+            name='api-person-detail'),
+        url(r'^patches/$',
+            api_patch_views.PatchList.as_view(),
+            name='api-patch-list'),
+        url(r'^patches/(?P<pk>[^/]+)/$',
+            api_patch_views.PatchDetail.as_view(),
+            name='api-patch-detail'),
+        url(r'^patches/(?P<patch_id>[^/]+)/checks/$',
+            api_check_views.CheckListCreate.as_view(),
+            name='api-check-list'),
+        url(r'^patches/(?P<patch_id>[^/]+)/checks/(?P<check_id>[^/]+)/$',
+            api_check_views.CheckDetail.as_view(),
+            name='api-check-detail'),
+        url(r'^projects/$',
+            api_project_views.ProjectList.as_view(),
+            name='api-project-list'),
+        url(r'^projects/(?P<pk>[^/]+)/$',
+            api_project_views.ProjectDetail.as_view(),
+            name='api-project-detail'),
+    ]
 
     urlpatterns += [
-        url(r'^api/1.0/', include(router.urls, namespace='api_1.0')),
-        url(r'^api/1.0/', include(patches_router.urls, namespace='api_1.0')),
+        url(r'^api/1.0/', include(api_patterns)),
     ]
+
 
 # redirect from old urls
 if settings.COMPAT_REDIR:

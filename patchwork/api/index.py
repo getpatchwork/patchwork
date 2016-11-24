@@ -17,37 +17,20 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.contrib.auth.models import User
-from rest_framework.generics import ListAPIView
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.serializers import HyperlinkedModelSerializer
+from django.core.urlresolvers import reverse
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class IndexView(APIView):
 
-    class Meta:
-        model = User
-        fields = ('url', 'username', 'first_name', 'last_name', 'email')
-        extra_kwargs = {
-            'url': {'view_name': 'api-user-detail'},
-        }
-
-
-class UserMixin(object):
-
-    queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
-
-
-class UserList(UserMixin, ListAPIView):
-    """List users."""
-
-    pass
-
-
-class UserDetail(UserMixin, RetrieveAPIView):
-    """Show a user."""
-
-    pass
+    def get(self, request, format=None):
+        return Response({
+            'projects': request.build_absolute_uri(
+                reverse('api-project-list')),
+            'users': request.build_absolute_uri(reverse('api-user-list')),
+            'people': request.build_absolute_uri(reverse('api-person-list')),
+            'patches': request.build_absolute_uri(reverse('api-patch-list')),
+            'covers': request.build_absolute_uri(reverse('api-cover-list')),
+            'series': request.build_absolute_uri(reverse('api-series-list')),
+        })

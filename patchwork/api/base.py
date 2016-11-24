@@ -18,10 +18,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 
 class LinkHeaderPagination(PageNumberPagination):
@@ -53,11 +53,6 @@ class LinkHeaderPagination(PageNumberPagination):
 
 class PatchworkPermission(permissions.BasePermission):
     """This permission works for Project and Patch model objects"""
-    def has_permission(self, request, view):
-        if request.method in ('POST', 'DELETE'):
-            return False
-        return super(PatchworkPermission, self).has_permission(request, view)
-
     def has_object_permission(self, request, view, obj):
         # read only for everyone
         if request.method in permissions.SAFE_METHODS:
@@ -65,14 +60,15 @@ class PatchworkPermission(permissions.BasePermission):
         return obj.is_editable(request.user)
 
 
-class AuthenticatedReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        authenticated = request.user.is_authenticated()
-        return authenticated and request.method in permissions.SAFE_METHODS
+class MultipleFieldLookupMixin(object):
+    """Enable multiple lookups fields."""
 
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        filter_kwargs = {}
+        for field_name, field in zip(
+                self.lookup_fields, self.lookup_url_kwargs):
+            if self.kwargs[field]:
+                filter_kwargs[field_name] = self.kwargs[field]
 
-class PatchworkViewSet(ModelViewSet):
-    pagination_class = LinkHeaderPagination
-
-    def get_queryset(self):
-        return self.serializer_class.Meta.model.objects.all()
+        return get_object_or_404(queryset, **filter_kwargs)

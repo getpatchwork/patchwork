@@ -18,9 +18,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.generics import ListAPIView
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 
-from patchwork.api.base import AuthenticatedReadOnly
-from patchwork.api.base import PatchworkViewSet
 from patchwork.models import Person
 
 
@@ -28,12 +29,27 @@ class PersonSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Person
         fields = ('url', 'name', 'email', 'user')
+        read_only_fields = fields
+        extra_kwargs = {
+            'url': {'view_name': 'api-person-detail'},
+            'user': {'view_name': 'api-user-detail'},
+        }
 
 
-class PeopleViewSet(PatchworkViewSet):
-    permission_classes = (AuthenticatedReadOnly,)
+class PersonMixin(object):
+
+    queryset = Person.objects.prefetch_related('user')
+    permission_classes = (IsAuthenticated,)
     serializer_class = PersonSerializer
 
-    def get_queryset(self):
-        qs = super(PeopleViewSet, self).get_queryset()
-        return qs.prefetch_related('user')
+
+class PersonList(PersonMixin, ListAPIView):
+    """List users."""
+
+    pass
+
+
+class PersonDetail(PersonMixin, RetrieveAPIView):
+    """Show a user."""
+
+    pass

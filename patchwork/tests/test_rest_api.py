@@ -48,8 +48,8 @@ class TestProjectAPI(APITestCase):
     @staticmethod
     def api_url(item=None):
         if item is None:
-            return reverse('api_1.0:project-list')
-        return reverse('api_1.0:project-detail', args=[item])
+            return reverse('api-project-list')
+        return reverse('api-project-detail', args=[item])
 
     def test_list_simple(self):
         """Validate we can list the default test project."""
@@ -89,7 +89,7 @@ class TestProjectAPI(APITestCase):
         resp = self.client.post(
             self.api_url(),
             {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_anonymous_update(self):
         """Ensure anonymous "PATCH" operations are rejected."""
@@ -104,7 +104,7 @@ class TestProjectAPI(APITestCase):
         project = create_project()
 
         resp = self.client.delete(self.api_url(project.id))
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -117,7 +117,7 @@ class TestProjectAPI(APITestCase):
         resp = self.client.post(
             self.api_url(),
             {'linkname': 'l', 'name': 'n', 'listid': 'l', 'listemail': 'e'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_update(self):
         """Ensure updates can be performed maintainers."""
@@ -147,7 +147,7 @@ class TestProjectAPI(APITestCase):
         user.save()
         self.client.force_authenticate(user=user)
         resp = self.client.delete(self.api_url(project.id))
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
         self.assertEqual(1, Project.objects.all().count())
 
 
@@ -157,8 +157,8 @@ class TestPersonAPI(APITestCase):
     @staticmethod
     def api_url(item=None):
         if item is None:
-            return reverse('api_1.0:person-list')
-        return reverse('api_1.0:person-detail', args=[item])
+            return reverse('api-person-list')
+        return reverse('api-person-detail', args=[item])
 
     def test_anonymous_list(self):
         """The API should reject anonymous users."""
@@ -196,14 +196,14 @@ class TestPersonAPI(APITestCase):
         self.client.force_authenticate(user=user)
 
         resp = self.client.delete(self.api_url(user.id))
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.patch(self.api_url(user.id),
                                  {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -212,8 +212,8 @@ class TestUserAPI(APITestCase):
     @staticmethod
     def api_url(item=None):
         if item is None:
-            return reverse('api_1.0:user-list')
-        return reverse('api_1.0:user-detail', args=[item])
+            return reverse('api-user-list')
+        return reverse('api-user-detail', args=[item])
 
     def test_anonymous_list(self):
         """The API should reject anonymous users."""
@@ -239,13 +239,13 @@ class TestUserAPI(APITestCase):
         self.client.force_authenticate(user=user)
 
         resp = self.client.delete(self.api_url(1))
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.patch(self.api_url(1), {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -255,8 +255,8 @@ class TestPatchAPI(APITestCase):
     @staticmethod
     def api_url(item=None):
         if item is None:
-            return reverse('api_1.0:patch-list')
-        return reverse('api_1.0:patch-detail', args=[item])
+            return reverse('api-patch-list')
+        return reverse('api-patch-detail', args=[item])
 
     def test_list_simple(self):
         """Validate we can list a patch."""
@@ -265,6 +265,8 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(0, len(resp.data))
 
         patch_obj = create_patch()
+
+        # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -274,7 +276,7 @@ class TestPatchAPI(APITestCase):
         self.assertNotIn('headers', patch_rsp)
         self.assertNotIn('diff', patch_rsp)
 
-        # test while authenticated
+        # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url())
@@ -284,7 +286,7 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.name, patch_rsp['name'])
 
     def test_detail(self):
-        """Validate we can get a specific project."""
+        """Validate we can get a specific patch."""
         patch = create_patch()
 
         resp = self.client.get(self.api_url(patch.id))
@@ -318,7 +320,7 @@ class TestPatchAPI(APITestCase):
         }
 
         resp = self.client.post(self.api_url(), patch)
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_anonymous_update(self):
         """Ensure anonymous "PATCH" operations are rejected."""
@@ -339,7 +341,7 @@ class TestPatchAPI(APITestCase):
         patch_url = self.api_url(patch.id)
 
         resp = self.client.delete(patch_url)
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -359,7 +361,7 @@ class TestPatchAPI(APITestCase):
         }
 
         resp = self.client.post(self.api_url(), patch)
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_update(self):
         """Ensure updates can be performed by maintainers."""
@@ -391,7 +393,7 @@ class TestPatchAPI(APITestCase):
         self.client.force_authenticate(user=user)
 
         resp = self.client.delete(self.api_url(patch.id))
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
         self.assertEqual(1, Patch.objects.all().count())
 
 
@@ -399,13 +401,17 @@ class TestPatchAPI(APITestCase):
 class TestCheckAPI(APITestCase):
     fixtures = ['default_tags']
 
+    def api_url(self, item=None):
+        if item is None:
+            return reverse('api-check-list', args=[self.patch.id])
+        return reverse('api-check-detail', kwargs={
+            'patch_id': self.patch.id, 'check_id': item.id})
+
     def setUp(self):
         super(TestCheckAPI, self).setUp()
         project = create_project()
         self.user = create_maintainer(project)
         self.patch = create_patch(project=project)
-        self.urlbase = reverse('api_1.0:patch-detail', args=[self.patch.id])
-        self.urlbase += 'checks/'
 
     def _create_check(self):
         values = {
@@ -416,13 +422,13 @@ class TestCheckAPI(APITestCase):
 
     def test_list_simple(self):
         """Validate we can list checks on a patch."""
-        resp = self.client.get(self.urlbase)
+        resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
         check_obj = self._create_check()
 
-        resp = self.client.get(self.urlbase)
+        resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         check_rsp = resp.data[0]
@@ -434,7 +440,7 @@ class TestCheckAPI(APITestCase):
     def test_detail(self):
         """Validate we can get a specific check."""
         check = self._create_check()
-        resp = self.client.get(self.urlbase + str(check.id) + '/')
+        resp = self.client.get(self.api_url(check))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(check.target_url, resp.data['target_url'])
 
@@ -446,13 +452,13 @@ class TestCheckAPI(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         # update
-        resp = self.client.patch(
-            self.urlbase + str(check.id) + '/', {'target_url': 'fail'})
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        resp = self.client.patch(self.api_url(check),
+                                 {'target_url': 'fail'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         # delete
-        resp = self.client.delete(self.urlbase + str(check.id) + '/')
-        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+        resp = self.client.delete(self.api_url(check))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
     def test_create(self):
         """Ensure creations can be performed by user of patch."""
@@ -464,13 +470,13 @@ class TestCheckAPI(APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
-        resp = self.client.post(self.urlbase, check)
+        resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
         self.assertEqual(1, Check.objects.all().count())
 
         user = create_user()
         self.client.force_authenticate(user=user)
-        resp = self.client.post(self.urlbase, check)
+        resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     def test_create_invalid(self):
@@ -483,6 +489,6 @@ class TestCheckAPI(APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
-        resp = self.client.post(self.urlbase, check)
+        resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())

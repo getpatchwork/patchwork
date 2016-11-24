@@ -19,30 +19,22 @@
 
 import email.parser
 
+from django.core.urlresolvers import reverse
 from rest_framework.serializers import HyperlinkedModelSerializer
-from rest_framework.serializers import ListSerializer
+from rest_framework.generics import ListAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
-from patchwork.api.base import PatchworkViewSet
 from patchwork.models import Patch
 
 
-class PatchListSerializer(ListSerializer):
-    """Semi hack to make the list of patches more efficient"""
-    def to_representation(self, data):
-        del self.child.fields['content']
-        del self.child.fields['headers']
-        del self.child.fields['diff']
-        return super(PatchListSerializer, self).to_representation(data)
-
-
-class PatchSerializer(HyperlinkedModelSerializer):
+class PatchListSerializer(HyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     state = SerializerMethodField()
     tags = SerializerMethodField()
-    headers = SerializerMethodField()
     check = SerializerMethodField()
+    checks = SerializerMethodField()
 
     def get_state(self, instance):
         return instance.state.name
@@ -58,39 +50,65 @@ class PatchSerializer(HyperlinkedModelSerializer):
         else:
             return None
 
-    def get_headers(self, instance):
-        if instance.headers:
-            return
-        email.parser.Parser().parsestr(instance.headers, True)
-
     def get_check(self, instance):
         return instance.combined_check_state
 
-    def to_representation(self, instance):
-        data = super(PatchSerializer, self).to_representation(instance)
-        data['checks'] = data['url'] + 'checks/'
-        return data
+    def get_checks(self, instance):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-check-list', kwargs={'patch_id': instance.id}))
 
     class Meta:
         model = Patch
-        list_serializer_class = PatchListSerializer
         fields = ('url', 'project', 'msgid', 'date', 'name', 'commit_ref',
                   'pull_url', 'state', 'archived', 'hash', 'submitter',
-                  'delegate', 'mbox', 'check', 'checks', 'tags', 'headers',
-                  'content', 'diff')
-        read_only_fields = ('project', 'name', 'date', 'submitter', 'diff',
-                            'content', 'hash', 'msgid')
+                  'delegate', 'mbox', 'check', 'checks', 'tags')
+        read_only_fields = ('project', 'msgid', 'date', 'name', 'hash',
+                            'submitter', 'mbox', 'mbox', 'series', 'check',
+                            'checks', 'tags')
+        extra_kwargs = {
+            'url': {'view_name': 'api-patch-detail'},
+            'project': {'view_name': 'api-project-detail'},
+            'submitter': {'view_name': 'api-person-detail'},
+            'delegate': {'view_name': 'api-user-detail'},
+        }
 
 
-class PatchViewSet(PatchworkViewSet):
+class PatchDetailSerializer(PatchListSerializer):
+    headers = SerializerMethodField()
+
+    def get_headers(self, patch):
+        if patch.headers:
+            return email.parser.Parser().parsestr(patch.headers, True)
+
+    class Meta:
+        model = Patch
+        fields = PatchListSerializer.Meta.fields + (
+            'headers', 'content', 'diff')
+        read_only_fields = PatchListSerializer.Meta.read_only_fields + (
+            'headers', 'content', 'diff')
+        extra_kwargs = PatchListSerializer.Meta.extra_kwargs
+
+
+class PatchList(ListAPIView):
+    """List patches."""
+
     permission_classes = (PatchworkPermission,)
-    serializer_class = PatchSerializer
+    serializer_class = PatchListSerializer
 
     def get_queryset(self):
-        qs = super(PatchViewSet, self).get_queryset().with_tag_counts()\
+        return Patch.objects.all().with_tag_counts()\
+            .prefetch_related('check_set')\
+            .select_related('state', 'submitter', 'delegate')\
+            .defer('content', 'diff', 'headers')
+
+
+class PatchDetail(RetrieveUpdateAPIView):
+    """Show a patch."""
+
+    permission_classes = (PatchworkPermission,)
+    serializer_class = PatchDetailSerializer
+
+    def get_queryset(self):
+        return Patch.objects.all().with_tag_counts()\
             .prefetch_related('check_set')\
             .select_related('state', 'submitter', 'delegate')
-        if 'pk' not in self.kwargs:
-            # we are doing a listing, we don't need these fields
-            qs = qs.defer('content', 'diff', 'headers')
-        return qs

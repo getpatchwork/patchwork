@@ -17,15 +17,16 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.core.urlresolvers import reverse
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.relations import HyperlinkedRelatedField
-from rest_framework.response import Response
 from rest_framework.serializers import CurrentUserDefault
 from rest_framework.serializers import HiddenField
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import HyperlinkedIdentityField
 
-from patchwork.api.base import PatchworkViewSet
+from patchwork.api.base import MultipleFieldLookupMixin
 from patchwork.models import Check
 from patchwork.models import Patch
 
@@ -38,10 +39,29 @@ class CurrentPatchDefault(object):
         return self.patch
 
 
-class CheckSerializer(ModelSerializer):
+class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
+
+    def get_url(self, obj, view_name, request, format):
+        # Unsaved objects will not yet have a valid URL.
+        if obj.pk is None:
+            return None
+
+        return self.reverse(
+            view_name,
+            kwargs={
+                'patch_id': obj.patch.id,
+                'check_id': obj.id,
+            },
+            request=request,
+            format=format,
+        )
+
+
+class CheckSerializer(HyperlinkedModelSerializer):
     user = HyperlinkedRelatedField(
-        'user-detail', read_only=True, default=CurrentUserDefault())
+        'api-user-detail', read_only=True, default=CurrentUserDefault())
     patch = HiddenField(default=CurrentPatchDefault())
+    url = CheckHyperlinkedIdentityField('api-check-detail')
 
     def run_validation(self, data):
         for val, label in Check.STATE_CHOICES:
@@ -53,45 +73,39 @@ class CheckSerializer(ModelSerializer):
     def to_representation(self, instance):
         data = super(CheckSerializer, self).to_representation(instance)
         data['state'] = instance.get_state_display()
-        # drf-nested doesn't handle HyperlinkedModelSerializers properly,
-        # so we have to put the url in by hand here.
-        url = self.context['request'].build_absolute_uri(reverse(
-            'api_1.0:patch-detail', args=[instance.patch.id]))
-        data['url'] = url + 'checks/%s/' % instance.id
         return data
 
     class Meta:
         model = Check
-        fields = ('patch', 'user', 'date', 'state', 'target_url',
+        fields = ('url', 'patch', 'user', 'date', 'state', 'target_url',
                   'context', 'description')
         read_only_fields = ('date',)
+        extra_kwargs = {
+            'url': {'view_name': 'api-check-detail'},
+        }
 
 
-class CheckViewSet(PatchworkViewSet):
+class CheckMixin(object):
+
+    queryset = Check.objects.prefetch_related('patch', 'user')
     serializer_class = CheckSerializer
 
-    def not_allowed(self, request, **kwargs):
-        raise PermissionDenied()
 
-    update = not_allowed
-    partial_update = not_allowed
-    destroy = not_allowed
+class CheckListCreate(CheckMixin, ListCreateAPIView):
+    """List or create checks."""
 
-    def create(self, request, patch_pk):
-        p = Patch.objects.get(id=patch_pk)
+    lookup_url_kwarg = 'patch_id'
+
+    def create(self, request, patch_id):
+        p = Patch.objects.get(id=patch_id)
         if not p.is_editable(request.user):
             raise PermissionDenied()
         request.patch = p
-        return super(CheckViewSet, self).create(request)
+        return super(CheckListCreate, self).create(request)
 
-    def list(self, request, patch_pk):
-        queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.filter(patch=patch_pk)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+class CheckDetail(CheckMixin, MultipleFieldLookupMixin, RetrieveAPIView):
+    """Show a check."""
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    lookup_url_kwargs = ('patch_id', 'check_id')
+    lookup_fields = ('patch_id', 'id')

@@ -140,7 +140,9 @@ except ImportError:
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+    'DEFAULT_VERSIONING_CLASS':
+        'rest_framework.versioning.NamespaceVersioning',
+    'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
 }
 
 #
