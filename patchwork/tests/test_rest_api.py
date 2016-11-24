@@ -57,11 +57,22 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(project_obj.name, project_json['name'])
         self.assertEqual(project_obj.linkname, project_json['link_name'])
         self.assertEqual(project_obj.listid, project_json['list_id'])
+        self.assertEqual(len(project_json['maintainers']),
+                         project_obj.maintainer_project.all().count())
 
     def test_list(self):
         """Validate we can list the default test project."""
         project = create_project()
 
+        # anonymous user
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(project, resp.data[0])
+
+        # maintainer
+        user = create_maintainer(project)
+        self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
