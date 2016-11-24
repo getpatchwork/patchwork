@@ -17,13 +17,14 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from rest_framework.serializers import HyperlinkedModelSerializer
+
 from patchwork.api.base import AuthenticatedReadOnly
 from patchwork.api.base import PatchworkViewSet
-from patchwork.api.base import URLSerializer
 from patchwork.models import Person
 
 
-class PersonSerializer(URLSerializer):
+class PersonSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Person
         fields = ('email', 'name', 'user')

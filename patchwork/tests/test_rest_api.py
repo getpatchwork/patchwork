@@ -175,7 +175,7 @@ class TestPersonAPI(APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertEqual(user.username, resp.data[0]['name'])
         self.assertEqual(user.email, resp.data[0]['email'])
-        self.assertIn('users/%d/' % user.id, resp.data[0]['user_url'])
+        self.assertIn('users/%d/' % user.id, resp.data[0]['user'])
 
     def test_unlinked_user(self):
         person = create_person()
@@ -187,7 +187,7 @@ class TestPersonAPI(APITestCase):
         self.assertEqual(2, len(resp.data))
         self.assertEqual(person.name,
                          resp.data[0]['name'])
-        self.assertIsNone(resp.data[0]['user_url'])
+        self.assertIsNone(resp.data[0]['user'])
 
     def test_readonly(self):
         user = create_maintainer()
@@ -291,13 +291,13 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(patch.name, resp.data['name'])
         self.assertIn(TestProjectAPI.api_url(patch.project.id),
-                      resp.data['project_url'])
+                      resp.data['project'])
         self.assertEqual(patch.msgid, resp.data['msgid'])
         self.assertEqual(patch.diff, resp.data['diff'])
         self.assertIn(TestPersonAPI.api_url(patch.submitter.id),
-                      resp.data['submitter_url'])
+                      resp.data['submitter'])
         self.assertEqual(patch.state.name, resp.data['state'])
-        self.assertIn(patch.get_mbox_url(), resp.data['mbox_url'])
+        self.assertIn(patch.get_mbox_url(), resp.data['mbox'])
 
     def test_detail_tags(self):
         patch = create_patch(

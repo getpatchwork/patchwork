@@ -19,12 +19,12 @@
 
 import email.parser
 
+from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import ListSerializer
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.base import PatchworkViewSet
-from patchwork.api.base import URLSerializer
 from patchwork.models import Patch
 
 
@@ -37,8 +37,8 @@ class PatchListSerializer(ListSerializer):
         return super(PatchListSerializer, self).to_representation(data)
 
 
-class PatchSerializer(URLSerializer):
-    mbox_url = SerializerMethodField()
+class PatchSerializer(HyperlinkedModelSerializer):
+    mbox = SerializerMethodField()
     state = SerializerMethodField()
 
     class Meta:
@@ -53,13 +53,13 @@ class PatchSerializer(URLSerializer):
     def get_state(self, obj):
         return obj.state.name
 
-    def get_mbox_url(self, patch):
+    def get_mbox(self, patch):
         request = self.context.get('request', None)
         return request.build_absolute_uri(patch.get_mbox_url())
 
     def to_representation(self, instance):
         data = super(PatchSerializer, self).to_representation(instance)
-        data['checks_url'] = data['url'] + 'checks/'
+        data['checks'] = data['url'] + 'checks/'
         data['check'] = instance.combined_check_state
         headers = data.get('headers')
         if headers is not None:

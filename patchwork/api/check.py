@@ -58,7 +58,6 @@ class CheckSerializer(ModelSerializer):
         url = self.context['request'].build_absolute_uri(reverse(
             'api_1.0:patch-detail', args=[instance.patch.id]))
         data['url'] = url + 'checks/%s/' % instance.id
-        data['users_url'] = data.pop('user')
         return data
 
     class Meta:

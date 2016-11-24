@@ -21,20 +21,7 @@ from django.conf import settings
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.serializers import HyperlinkedModelSerializer
-from rest_framework.serializers import HyperlinkedRelatedField
 from rest_framework.viewsets import ModelViewSet
-
-
-class URLSerializer(HyperlinkedModelSerializer):
-    """Just like parent but puts _url for fields"""
-
-    def to_representation(self, instance):
-        data = super(URLSerializer, self).to_representation(instance)
-        for name, field in self.fields.items():
-            if isinstance(field, HyperlinkedRelatedField) and name != 'url':
-                data[name + '_url'] = data.pop(name)
-        return data
 
 
 class LinkHeaderPagination(PageNumberPagination):
