@@ -688,7 +688,7 @@ def find_state(mail):
     return get_default_initial_patch_state()
 
 
-def auto_delegate(project, filenames):
+def find_delegate_by_filename(project, filenames):
     if not filenames:
         return None
 
@@ -714,7 +714,7 @@ def auto_delegate(project, filenames):
     return patch_delegate
 
 
-def find_delegate(mail):
+def find_delegate_by_header(mail):
     """Return the delegate with the given email or None."""
     delegate_email = mail.get('X-Patchwork-Delegate', '').strip()
     if delegate_email:
@@ -784,10 +784,10 @@ def parse_mail(mail, list_id=None):
         # we delay the saving until we know we have a patch.
         author.save()
 
-        delegate = find_delegate(mail)
+        delegate = find_delegate_by_header(mail)
         if not delegate and diff:
             filenames = find_filenames(diff)
-            delegate = auto_delegate(project, filenames)
+            delegate = find_delegate_by_filename(project, filenames)
 
         series = find_series(mail)
         # We will create a new series if:
