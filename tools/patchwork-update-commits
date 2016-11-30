@@ -29,6 +29,6 @@ fi
 
 git rev-list --reverse "$@" |
 while read commit; do
-    hash=$(git show "$commit" | python $pwpath/parser.py -#)
+    hash=$(git diff "$commit~..$commit" | python $pwpath/hasher.py)
     $pwpath/bin/pwclient update -s Accepted -c "$commit" -h "$hash"
 done

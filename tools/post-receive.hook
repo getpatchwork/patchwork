@@ -37,7 +37,7 @@ trap "do_exit=1" INT
 
 get_patchwork_hash() {
     local hash
-    hash=$(git show -C $1 | python $PWDIR/parser.py --hash)
+    hash=$(git diff "$1~..$1" | python $PWDIR/hasher.py)
     echo $hash
     test -n "$hash"
 }
