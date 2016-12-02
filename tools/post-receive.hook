@@ -21,37 +21,36 @@
 # Git post-receive hook to update Patchwork patches after Git pushes
 set -eu
 
+PW_DIR=/opt/patchwork/patchwork
+
 #TODO: the state map should really live in the repo's git-config
 STATE_MAP="refs/heads/master:Accepted"
-#
+
 # ignore all commits already present in these refs
 # e.g.,
 #   EXCLUDE="refs/heads/upstream refs/heads/other-project"
-#
 EXCLUDE=""
-
-PWDIR=/opt/patchwork/patchwork
 
 do_exit=0
 trap "do_exit=1" INT
 
 get_patchwork_hash() {
     local hash
-    hash=$(git diff "$1~..$1" | python $PWDIR/hasher.py)
+    hash=$(git diff "$1~..$1" | python $PW_DIR/hasher.py)
     echo "$hash"
     test -n "$hash"
 }
 
 get_patch_id() {
     local id
-    id=$($PWDIR/bin/pwclient info -h "$1" 2>/dev/null \
+    id=$($PW_DIR/bin/pwclient info -h "$1" 2>/dev/null \
          | sed -rne 's,- id[[:space:]]*: ,,p')
     echo "$id"
     test -n "$id"
 }
 
 set_patch_state() {
-    $PWDIR/bin/pwclient update -s "$2" -c "$3" "$1" 2>&1
+    $PW_DIR/bin/pwclient update -s "$2" -c "$3" "$1" 2>&1
 }
 
 update_patches() {

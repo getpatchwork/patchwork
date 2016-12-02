@@ -19,7 +19,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-PATCHWORK_BINDIR=$(dirname "$0")
+BIN_DIR=$(dirname "$0")
 
 if [ $# -lt 1 ]; then
     echo "usage: $0 <dir> [options]" >&2
@@ -40,5 +40,5 @@ shift
 find "$mail_dir" -maxdepth 1 |
 while read -r line; do
     echo "$line"
-    "$PATCHWORK_BINDIR/parsemail.sh" "$@" < "$mail_dir/$line"
+    "$BIN_DIR/parsemail.sh" "$@" < "$mail_dir/$line"
 done
