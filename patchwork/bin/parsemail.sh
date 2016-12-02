@@ -19,20 +19,20 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-BIN_DIR=`dirname $0`
-PATCHWORK_BASE=`readlink -e $BIN_DIR/../..`
+BIN_DIR=$(dirname "$0")
+PATCHWORK_BASE=$(readlink -e "$BIN_DIR/../..")
 
-if [ -z $PW_PYTHON ]; then
+if [ -z "$PW_PYTHON" ]; then
     PW_PYTHON=python2
 fi
 
-if [ -z $DJANGO_SETTINGS_MODULE ]; then
+if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
     DJANGO_SETTINGS_MODULE=patchwork.settings.production
 fi
 
-PYTHONPATH="$PATCHWORK_BASE":"$PATCHWORK_BASE/lib/python:$PYTHONPATH" \
+PYTHONPATH="${PATCHWORK_BASE}:${PATCHWORK_BASE}/lib/python:$PYTHONPATH" \
     DJANGO_SETTINGS_MODULE="$DJANGO_SETTINGS_MODULE" \
-    $PW_PYTHON "$PATCHWORK_BASE/manage.py" parsemail $@
+    "$PW_PYTHON" "$PATCHWORK_BASE/manage.py" parsemail "$@"
 
 # NOTE(stephenfin): We must return 0 here. When parsemail is used as a
 # delivery command from a mail server like postfix (as it is intended
