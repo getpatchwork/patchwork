@@ -4,9 +4,7 @@
 
 echo -e "\n--- Configuring environment ---\n"
 
-PROJECT_NAME=patchwork
 PROJECT_HOME=/vagrant
-WORKON_HOME=$PROJECT_HOME/.virtualenvs
 
 db_user=root
 db_pass=password

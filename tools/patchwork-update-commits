@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 toolsdir="$(dirname "$0")"
-pwpath="${toolsdir}"/../patchwork
+pwpath="${toolsdir}/../patchwork"
 
 if [ "$#" -lt 1 ]; then
     echo "usage: $0 <revspec>" >&2
@@ -28,7 +28,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 git rev-list --reverse "$@" |
-while read commit; do
-    hash=$(git diff "$commit~..$commit" | python $pwpath/hasher.py)
-    $pwpath/bin/pwclient update -s Accepted -c "$commit" -h "$hash"
+while read -r commit; do
+    hash=$(git diff "$commit~..$commit" | python "$pwpath/hasher.py")
+    "$pwpath/bin/pwclient" update -s Accepted -c "$commit" -h "$hash"
 done
