@@ -269,7 +269,7 @@ def action_check_info(rpc, check_id):
     print(s)
     print('-' * len(s))
     for key, value in sorted(check.items()):
-        print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
+        print("- %- 14s: %s" % (key, unicode(value)))
 
 
 def action_check_create(rpc, patch_id, context, state, url, description):
@@ -293,7 +293,7 @@ def action_info(rpc, patch_id):
     print(s)
     print('-' * len(s))
     for key, value in sorted(patch.items()):
-        print("- %- 14s: %s" % (key, unicode(value).encode("utf-8")))
+        print("- %- 14s: %s" % (key, unicode(value)))
 
 
 def action_get(rpc, patch_id):
@@ -311,7 +311,7 @@ def action_get(rpc, patch_id):
         i += 1
 
     with open(fname, 'w') as f:
-        f.write(unicode(s).encode("utf-8"))
+        f.write(unicode(s))
         print('Saved patch to %s' % fname)
 
 
@@ -748,15 +748,15 @@ def main():
             for patch_id in non_empty(h, patch_ids):
                 s = rpc.patch_get_mbox(patch_id)
                 if len(s) > 0:
-                    i.append(unicode(s).encode("utf-8"))
+                    i.append(unicode(s))
             if len(i) > 0:
-                pager.communicate(input="\n".join(i))
+                pager.communicate(input="\n".join(i).encode("utf-8"))
             pager.stdin.close()
         else:
             for patch_id in non_empty(h, patch_ids):
                 s = rpc.patch_get_mbox(patch_id)
                 if len(s) > 0:
-                    print(unicode(s).encode("utf-8"))
+                    print(unicode(s))
 
     elif action == 'info':
         for patch_id in non_empty(h, patch_ids):
