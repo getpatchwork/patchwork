@@ -29,4 +29,21 @@ is to ensure stability for users of these versions of Patchwork.
 * Documentation has been updated with latest release version
 * Documentation references latest supported version of Django
 
+## Backporting
+
+We will occasionally backport bugfixes and security updates. When backporting
+a patch, said patch should first be merged into `master`. Once merged, you can
+backport by cherry-picking commits, using the `-x` flag for posterity:
+
+    $ git cherry-pick <master_commit> -x
+
+There may be some conflicts; resolve these, uncommenting the `Conflicts` line
+when commiting:
+
+    Conflicts
+            patchwork/bin/pwclient
+
+When enough patches have been backported, you should release a new `PATCH`
+release.
+
 [ref-semver]: http://semver.org/
