@@ -263,6 +263,7 @@ def patch_to_dict(obj):
         'delegate': 'admin',
         'delegate_id': 1,
         'commit_ref': '',
+        'hash': '',
     }
 
     Args:
@@ -287,6 +288,7 @@ def patch_to_dict(obj):
         'delegate': six.text_type(obj.delegate).encode('utf-8'),
         'delegate_id': obj.delegate_id or 0,
         'commit_ref': obj.commit_ref or '',
+        'hash': obj.hash or '',
     }
 
 
