@@ -102,31 +102,23 @@ class Filter(object):
         return str(self.d)
 
 
-class BasicHTTPAuthTransport(xmlrpclib.SafeTransport):
+class Transport(xmlrpclib.SafeTransport):
 
-    def __init__(self, username=None, password=None, use_https=False):
-        self.username = username
-        self.password = password
-        self.use_https = use_https
+    def __init__(self, url):
         xmlrpclib.SafeTransport.__init__(self)
+        self.credentials = None
+        self.https = url.startswith('https')
 
-    def authenticated(self):
-        return self.username is not None and self.password is not None
-
-    def send_host(self, connection, host):
-        xmlrpclib.Transport.send_host(self, connection, host)
-        if not self.authenticated():
-            return
-        credentials = '%s:%s' % (self.username, self.password)
-        auth = 'Basic ' + base64.encodestring(credentials).strip()
-        connection.putheader('Authorization', auth)
+    def set_credentials(self, username=None, password=None):
+        self.credentials = '%s:%s' % (username, password)
 
     def make_connection(self, host):
-        if self.use_https:
-            fn = xmlrpclib.SafeTransport.make_connection
+        if self.credentials:
+            host = '@'.join([self.credentials, host])
+        if self.https:
+            return xmlrpclib.SafeTransport.make_connection(self, host)
         else:
-            fn = xmlrpclib.Transport.make_connection
-        return fn(self, host)
+            return xmlrpclib.Transport.make_connection(self, host)
 
 
 def project_id_by_name(rpc, linkname):
@@ -662,18 +654,13 @@ def main():
 
     url = config.get(project_str, 'url')
 
-    transport = None
+    transport = Transport(url)
     if action in auth_actions:
         if config.has_option(project_str, 'username') and \
                 config.has_option(project_str, 'password'):
-
-            use_https = url.startswith('https')
-
-            transport = BasicHTTPAuthTransport(
+            transport.set_credentials(
                 config.get(project_str, 'username'),
-                config.get(project_str, 'password'),
-                use_https)
-
+                config.get(project_str, 'password'))
         else:
             sys.stderr.write("The %s action requires authentication, but no "
                              "username or password\nis configured\n" % action)
