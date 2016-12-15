@@ -21,6 +21,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -40,13 +41,17 @@ except ImportError:
     import configparser as ConfigParser
 import shutil
 import re
+import io
+import locale
 
-# Add a shim for Python 2's unicode() helper.
-try:
-    unicode
-except NameError:
-    # Python 3 does everything by unicode now.
-    unicode = str
+if sys.version_info.major == 2:
+    # hack to make writing unicode to standard output/error work on Python 2
+    OUT_ENCODING = sys.stdout.encoding or locale.getpreferredencoding() or \
+            os.getenv('PYTHONIOENCODING', 'utf-8')
+    sys.stdout = io.open(sys.stdout.fileno(), mode='w',
+                         encoding=OUT_ENCODING, errors='replace')
+    sys.stderr = io.open(sys.stderr.fileno(), mode='w',
+                         encoding=OUT_ENCODING, errors='replace')
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
@@ -214,8 +219,7 @@ def action_list(rpc, filter, submitter_str, delegate_str, format_str=None):
             for id in ids:
                 person = rpc.person_get(id)
                 print('Patches submitted by %s <%s>:' %
-                      (unicode(person['name']).encode('utf-8'),
-                       unicode(person['email']).encode('utf-8')))
+                      (person['name'], person['email']))
                 f = filter
                 f.add("submitter_id", id)
                 patches = rpc.patch_list(f.d)
@@ -269,7 +273,7 @@ def action_check_info(rpc, check_id):
     print(s)
     print('-' * len(s))
     for key, value in sorted(check.items()):
-        print("- %- 14s: %s" % (key, unicode(value)))
+        print("- %- 14s: %s" % (key, value))
 
 
 def action_check_create(rpc, patch_id, context, state, url, description):
@@ -293,7 +297,7 @@ def action_info(rpc, patch_id):
     print(s)
     print('-' * len(s))
     for key, value in sorted(patch.items()):
-        print("- %- 14s: %s" % (key, unicode(value)))
+        print("- %- 14s: %s" % (key, value))
 
 
 def action_get(rpc, patch_id):
@@ -310,8 +314,8 @@ def action_get(rpc, patch_id):
         fname = "%s.%d" % (base_fname, i)
         i += 1
 
-    with open(fname, 'w') as f:
-        f.write(unicode(s))
+    with io.open(fname, 'w', encoding='utf-8') as f:
+        f.write(s)
         print('Saved patch to %s' % fname)
 
 
@@ -333,7 +337,7 @@ def action_apply(rpc, patch_id, apply_cmd=None):
     s = rpc.patch_get_mbox(patch_id)
     if len(s) > 0:
         proc = subprocess.Popen(apply_cmd, stdin=subprocess.PIPE)
-        proc.communicate(unicode(s).encode('utf-8'))
+        proc.communicate(s.encode('utf-8'))
         return proc.returncode
     else:
         sys.stderr.write("Error: No patch content found\n")
@@ -748,7 +752,7 @@ def main():
             for patch_id in non_empty(h, patch_ids):
                 s = rpc.patch_get_mbox(patch_id)
                 if len(s) > 0:
-                    i.append(unicode(s))
+                    i.append(s)
             if len(i) > 0:
                 pager.communicate(input="\n".join(i).encode("utf-8"))
             pager.stdin.close()
@@ -756,7 +760,7 @@ def main():
             for patch_id in non_empty(h, patch_ids):
                 s = rpc.patch_get_mbox(patch_id)
                 if len(s) > 0:
-                    print(unicode(s))
+                    print(s)
 
     elif action == 'info':
         for patch_id in non_empty(h, patch_ids):
