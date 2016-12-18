@@ -33,7 +33,6 @@ except ImportError:
 import argparse
 import string
 import subprocess
-import base64
 try:
     import ConfigParser
 except ImportError:
@@ -46,8 +45,8 @@ import locale
 
 if sys.version_info.major == 2:
     # hack to make writing unicode to standard output/error work on Python 2
-    OUT_ENCODING = sys.stdout.encoding or locale.getpreferredencoding() or \
-            os.getenv('PYTHONIOENCODING', 'utf-8')
+    OUT_ENCODING = (sys.stdout.encoding or locale.getpreferredencoding() or
+                    os.getenv('PYTHONIOENCODING', 'utf-8'))
     sys.stdout = io.open(sys.stdout.fileno(), mode='w',
                          encoding=OUT_ENCODING, errors='replace')
     sys.stderr = io.open(sys.stderr.fileno(), mode='w',
@@ -138,16 +137,15 @@ class Transport(xmlrpclib.SafeTransport):
             return xmlrpclib.Transport.make_connection(self, host)
 
     if sys.version_info[0] == 2:
-
         def send_request(self, connection, handler, request_body):
             handler = '%s://%s%s' % (self.scheme, self.host, handler)
-            xmlrpclib.Transport.send_request(self, connection, handler, request_body)
-
-    else: # Python 3
-
+            xmlrpclib.Transport.send_request(self, connection, handler,
+                                             request_body)
+    else:  # Python 3
         def send_request(self, host, handler, request_body, debug):
             handler = '%s://%s%s' % (self.scheme, host, handler)
-            return xmlrpclib.Transport.send_request(self, host, handler, request_body, debug)
+            return xmlrpclib.Transport.send_request(self, host, handler,
+                                                    request_body, debug)
 
 
 def project_id_by_name(rpc, linkname):
