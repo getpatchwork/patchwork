@@ -482,6 +482,11 @@ def main():
         action='store_true',
         help='''pass --signoff to git-am'''
     )
+    git_am_parser.add_argument(
+        '-3', '--3way',
+        action='store_true',
+        help='''pass --3way to git-am'''
+    )
     get_parser = subparsers.add_parser(
         'get', parents=[hash_parser], conflict_handler='resolve',
         help='''Download a patch and save it locally'''
@@ -619,6 +624,7 @@ def main():
             action_parser.error("Invalid maximum count '%s'" % args.get('N'))
 
     do_signoff = args.get('signoff')
+    do_three_way = args.get('3way')
 
     # grab settings from config files
     config = ConfigParser.ConfigParser()
@@ -677,6 +683,10 @@ def main():
         do_signoff = config.getboolean('options', 'signoff')
     if not do_signoff and config.has_option(project_str, 'signoff'):
         do_signoff = config.getboolean(project_str, 'signoff')
+    if not do_three_way and config.has_option('options', '3way'):
+        do_three_way = config.getboolean('options', '3way')
+    if not do_three_way and config.has_option(project_str, '3way'):
+        do_three_way = config.getboolean(project_str, '3way')
 
     url = config.get(project_str, 'url')
 
@@ -779,6 +789,8 @@ def main():
         cmd = ['git', 'am']
         if do_signoff:
             cmd.append('-s')
+        if do_three_way:
+            cmd.append('-3')
         for patch_id in non_empty(h, patch_ids):
             ret = action_apply(rpc, patch_id, cmd)
             if ret:
