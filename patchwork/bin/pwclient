@@ -128,7 +128,7 @@ class Transport(xmlrpclib.SafeTransport):
     def make_connection(self, host):
         self.host = host
         if self.proxy:
-            host = self.proxy.split('://', 1)[-1]
+            host = self.proxy.split('://', 1)[-1].rstrip('/')
         if self.credentials:
             host = '@'.join([self.credentials, host])
         if self.https:
