@@ -19,6 +19,7 @@
 
 import codecs
 from datetime import datetime as dt
+from datetime import timedelta
 from email.utils import make_msgid
 import os
 
@@ -254,10 +255,12 @@ def _create_submissions(create_func, count=1, **kwargs):
         'submitter': create_person() if 'submitter' not in kwargs else None,
     }
     values.update(kwargs)
+    date = dt.now()
 
     objects = []
     for i in range(0, count):
-        obj = create_func(**values)
+        obj = create_func(date=date + timedelta(minutes=i),
+                          **values)
         objects.append(obj)
 
     return objects
