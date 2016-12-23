@@ -178,9 +178,10 @@ class MultiplePatchForm(forms.Form):
     action = 'update'
     state = OptionalModelChoiceField(queryset=State.objects.all())
     archived = OptionalBooleanField(
-        choices=[('*', 'no change'), (True, 'Archived'),
-                 (False, 'Unarchived')],
-        coerce=bool, empty_value='*')
+        choices=[('*', 'no change'), ('True', 'Archived'),
+                 ('False', 'Unarchived')],
+        coerce=lambda x: x == 'True',
+        empty_value='*')
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
