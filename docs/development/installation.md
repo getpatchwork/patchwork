@@ -16,6 +16,7 @@ development environment. This is the preferred installation method. To
 configure Patchwork using Docker:
 
 1. Install [**Docker**][ref-docker] and [**docker-compose**][ref-compose].
+
 2. Build the images. This will download over 200MB from the internet:
 
         $ docker-compose build
@@ -75,11 +76,35 @@ when you cloned the repo. For more information, see `man docker run`.
 
 **NOTE:** If you see an error like the below:
 
-    ERROR: Couldn't connect to the Docker daemon at
-    http+docker://localunixsocket - is it running?
+    ERROR: Couldn't connect to the Docker daemon at http+docker://localunixsocket - is it running?
 
 ensure you have correctly installed Docker, added your user to the `docker`
 group, and started the daemon, per the [Docker documentation][ref-docker].
+
+**NOTE:** If you see an error like the below:
+
+    py.error.EACCES: [Permission denied]: open('/home/patchwork/patchwork/.tox/py27-django18/.tox-config1', 'w')
+
+your host user account is likely using a different UID to the one hardcoded in
+the Dockerfile.  You can confirm this like so:
+
+    $ echo $UID
+    1234
+
+If this is something other than `1000`, you must must modify the `Dockerfile`
+found in `tools/docker` to use your UID and then rebuild:
+
+    $ sed -i "/ARG UID=/c\ARG UID=$(echo $UID)" tools/docker/Dockerfile
+    $ docker-compose build web
+
+This change must be retained in the event that you rebuild the container. You
+can "hide" the change from Git like so:
+
+    $ git update-index --assume-unchanged tools/docker/Dockerfile
+    $ git update-index --skip-worktree tools/docker/Dockerfile
+
+This should be resolved in a future release when we support docker-compose 2.1
+syntax in `docker-compose.yml`.
 
 ## Vagrant-Based Installation
 
@@ -88,10 +113,11 @@ Like Docker, Vagrant can be used to quickly configure Patchwork in a
 development environment. To configure Patchwork using Vagrant:
 
 1. Install [**Vagrant**][ref-vagrant]
+
 2. Run `vagrant up` from the project directory:
 
-        $ cd patchwork
-        $ vagrant up
+       $ cd patchwork
+       $ vagrant up
 
 Once stacked, follow the on-screen instructions. For more information on
 Vagrant itself, please refer to the [Vagrant documentation][ref-vagrant].
