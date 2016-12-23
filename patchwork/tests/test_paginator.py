@@ -48,7 +48,8 @@ class PaginatorTest(TestCase):
         self.assertEqual(len(response.context['page'].object_list),
                          len(self.patches))
 
-        self.client.force_login(self.user)
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
         response = self._get_patches({})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['page'].object_list),
@@ -56,7 +57,8 @@ class PaginatorTest(TestCase):
 
     def test_page_valid(self):
         page = 2
-        self.client.force_login(self.user)
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
 
         for page_ in [2, str(2)]:
             response = self._get_patches({'page': page_})
@@ -65,7 +67,8 @@ class PaginatorTest(TestCase):
                              self.patches[-page].id)
 
     def test_page_invalid(self):
-        self.client.force_login(self.user)
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
         response = self._get_patches({'page': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['page'].object_list[0].id,
