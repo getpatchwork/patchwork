@@ -120,6 +120,8 @@ class PatchList(ListAPIView):
     serializer_class = PatchListSerializer
     filter_class = PatchFilter
     search_fields = ('name',)
+    ordering_fields = ('id', 'name', 'project', 'date', 'state', 'archived',
+                       'submitter', 'check')
 
     def get_queryset(self):
         return Patch.objects.all().with_tag_counts()\

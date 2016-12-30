@@ -69,6 +69,7 @@ class CoverLetterList(ListAPIView):
     serializer_class = CoverLetterListSerializer
     filter_class = CoverLetterFilter
     search_fields = ('name',)
+    ordering_fields = ('id', 'name', 'date', 'submitter')
 
     def get_queryset(self):
         qs = CoverLetter.objects.all().prefetch_related('series')\

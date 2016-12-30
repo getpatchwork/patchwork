@@ -57,6 +57,7 @@ class UserList(UserMixin, ListAPIView):
     """List users."""
 
     search_fields = ('username', 'first_name', 'last_name', 'email')
+    ordering_fields = ('id', 'username', 'email')
 
 
 class UserDetail(UserMixin, RetrieveUpdateAPIView):
