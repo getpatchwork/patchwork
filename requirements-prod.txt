@@ -1,4 +1,4 @@
 Django>=1.8,<1.11
 djangorestframework>=3.5,<3.6
 psycopg2>2.6,<2.7
-sqlparse
+sqlparse==0.2.2
