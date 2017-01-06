@@ -29,12 +29,14 @@ class SeriesSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Series
-        fields = ('id', 'url', 'name', 'date', 'submitter', 'version', 'total',
-                  'received_total', 'received_all', 'cover_letter', 'patches')
+        fields = ('id', 'url', 'project', 'name', 'date', 'submitter',
+                  'version', 'total', 'received_total', 'received_all',
+                  'cover_letter', 'patches')
         read_only_fields = ('date', 'submitter', 'total', 'received_total',
                             'received_all', 'cover_letter', 'patches')
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
+            'project': {'view_name': 'api-project-detail'},
             'submitter': {'view_name': 'api-person-detail'},
             'cover_letter': {'view_name': 'api-cover-detail'},
             'patches': {'view_name': 'api-patch-detail'},

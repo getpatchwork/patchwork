@@ -490,6 +490,8 @@ class TestSeriesAPI(APITestCase):
     def assertSerialized(self, series_obj, series_json):
         self.assertEqual(series_obj.id, series_json['id'])
         self.assertEqual(series_obj.name, series_json['name'])
+        self.assertIn(TestProjectAPI.api_url(series_obj.project.id),
+                      series_json['project'])
         self.assertIn(TestPersonAPI.api_url(series_obj.submitter.id),
                       series_json['submitter'])
         self.assertEqual(series_obj.patches.count(),
