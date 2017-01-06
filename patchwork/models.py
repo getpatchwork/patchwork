@@ -549,6 +549,9 @@ class Comment(EmailMixin, models.Model):
 class Series(models.Model):
     """An collection of patches."""
 
+    # parent
+    project = models.ForeignKey(Project, related_name='series')
+
     # content
     cover_letter = models.ForeignKey(CoverLetter,
                                      related_name='series',
@@ -676,10 +679,13 @@ class SeriesReference(models.Model):
     """
     series = models.ForeignKey(Series, related_name='references',
                                related_query_name='reference')
-    msgid = models.CharField(max_length=255, unique=True)
+    msgid = models.CharField(max_length=255)
 
     def __str__(self):
         return self.msgid
+
+    class Meta:
+        unique_together = [('series', 'msgid')]
 
 
 class Bundle(models.Model):

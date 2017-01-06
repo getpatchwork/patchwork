@@ -529,12 +529,12 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(series, resp.data)
 
-        patch = create_patch()
+        patch = create_patch(project=series.project)
         series.add_patch(patch, 1)
         resp = self.client.get(self.api_url(series.id))
         self.assertSerialized(series, resp.data)
 
-        cover_letter = create_cover()
+        cover_letter = create_cover(project=series.project)
         series.add_cover_letter(cover_letter)
         resp = self.client.get(self.api_url(series.id))
         self.assertSerialized(series, resp.data)

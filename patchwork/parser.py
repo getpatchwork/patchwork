@@ -171,7 +171,7 @@ def find_project_by_header(mail):
     return project
 
 
-def find_series(mail):
+def find_series(project, mail):
     """Find a patch's series.
 
     Traverse RFC822 headers, starting with most recent first, to find
@@ -194,15 +194,17 @@ def find_series(mail):
       recent (the patch's closest ancestor) to least recent
 
     Args:
+        project (patchwork.Project): The project that the series
+            belongs to
         mail (email.message.Message): The mail to extract series from
 
     Returns:
         The matching ``Series`` instance, if any
     """
     for ref in [mail.get('Message-Id')] + find_references(mail):
-        # try parsing by RFC5322 fields first
         try:
-            return SeriesReference.objects.get(msgid=ref).series
+            return SeriesReference.objects.get(
+                msgid=ref, series__project=project).series
         except SeriesReference.DoesNotExist:
             pass
 
@@ -787,7 +789,7 @@ def parse_mail(mail, list_id=None):
             filenames = find_filenames(diff)
             delegate = find_delegate_by_filename(project, filenames)
 
-        series = find_series(mail)
+        series = find_series(project, mail)
         # We will create a new series if:
         # - we have a patch number (x of n), and
         # - either:
@@ -798,7 +800,8 @@ def parse_mail(mail, list_id=None):
                   (series.version != version) or
                   (SeriesPatch.objects.filter(series=series, number=x).count()
                    )):
-            series = Series(date=date,
+            series = Series(project=project,
+                            date=date,
                             submitter=author,
                             version=version,
                             total=n)
@@ -817,7 +820,8 @@ def parse_mail(mail, list_id=None):
                     # series.) That should not create a series ref
                     # for this series, so check for the msg-id only,
                     # not the msg-id/series pair.
-                    SeriesReference.objects.get(msgid=ref)
+                    SeriesReference.objects.get(msgid=ref,
+                                                series__project=project)
                 except SeriesReference.DoesNotExist:
                     SeriesReference.objects.create(series=series, msgid=ref)
 
@@ -869,12 +873,14 @@ def parse_mail(mail, list_id=None):
             # could only point to a different series or unrelated
             # message
             try:
-                series = SeriesReference.objects.get(msgid=msgid).series
+                series = SeriesReference.objects.get(
+                    msgid=msgid, series__project=project).series
             except SeriesReference.DoesNotExist:
                 series = None
 
             if not series:
-                series = Series(date=date,
+                series = Series(project=project,
+                                date=date,
                                 submitter=author,
                                 version=version,
                                 total=n)

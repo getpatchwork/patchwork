@@ -223,6 +223,7 @@ def create_check(**kwargs):
 def create_series(**kwargs):
     """Create 'Series' object."""
     values = {
+        'project': create_project() if 'project' not in kwargs else None,
         'date': dt.now(),
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'total': 1,

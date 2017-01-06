@@ -33,10 +33,9 @@ TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
 class _BaseTestCase(TestCase):
 
     def setUp(self):
-        self.project = utils.create_project()
         utils.create_state()
 
-    def _parse_mbox(self, name, counts):
+    def _parse_mbox(self, name, counts, project=None):
         """Parse an mbox file and return the results.
 
         :param name: Name of mbox file
@@ -44,10 +43,11 @@ class _BaseTestCase(TestCase):
             letters, patches and replies parsed
         """
         results = [[], [], []]
+        project = project or utils.create_project()
 
         mbox = mailbox.mbox(os.path.join(TEST_SERIES_DIR, name))
         for msg in mbox:
-            obj = parser.parse_mail(msg, self.project.listid)
+            obj = parser.parse_mail(msg, project.listid)
             if type(obj) == models.CoverLetter:
                 results[0].append(obj)
             elif type(obj) == models.Patch:
@@ -143,6 +143,29 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
+
+    def test_duplicated(self):
+        """Series received on multiple mailing lists.
+
+        Parse a series with a two patches sent to two mailing lists
+        at the same time.
+
+        Input:
+
+          - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
+          - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
+        """
+        project_a = utils.create_project()
+        project_b = utils.create_project()
+
+        _, patches_a, _ = self._parse_mbox(
+            'base-no-cover-letter.mbox', [0, 2, 0], project=project_a)
+        _, patches_b, _ = self._parse_mbox(
+            'base-no-cover-letter.mbox', [0, 2, 0], project=project_b)
+
+        self.assertSerialized(patches_a + patches_b, [2, 2])
 
 
 class RevisedSeriesTest(_BaseTestCase):

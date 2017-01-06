@@ -44,6 +44,7 @@ from patchwork.parser import split_prefixes
 from patchwork.parser import subject_check
 from patchwork.tests import TEST_MAIL_DIR
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_reference
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
@@ -347,8 +348,9 @@ class SeriesCorrelationTest(TestCase):
     def test_new_series(self):
         msgid = make_msgid()
         email = self._create_email(msgid)
+        project = create_project()
 
-        self.assertIsNone(find_series(email))
+        self.assertIsNone(find_series(project, email))
 
     def test_first_reply(self):
         msgid_a = make_msgid()
@@ -358,29 +360,31 @@ class SeriesCorrelationTest(TestCase):
         # assume msgid_a was already handled
         ref = create_series_reference(msgid=msgid_a)
 
-        series = find_series(email)
+        series = find_series(ref.series.project, email)
         self.assertEqual(series, ref.series)
 
     def test_nested_series(self):
         """Handle a series sent in-reply-to an existing series."""
         # create an old series with a "cover letter"
         msgids = [make_msgid()]
-        ref_v1 = create_series_reference(msgid=msgids[0])
+        project = create_project()
+        series_v1 = create_series(project=project)
+        create_series_reference(msgid=msgids[0], series=series_v1)
 
         # ...and three patches
         for i in range(3):
             msgids.append(make_msgid())
-            create_series_reference(msgid=msgids[-1],
-                                    series=ref_v1.series)
+            create_series_reference(msgid=msgids[-1], series=series_v1)
 
         # now create a new series with "cover letter"
         msgids.append(make_msgid())
-        ref_v2 = create_series_reference(msgid=msgids[-1])
+        series_v2 = create_series(project=project)
+        ref_v2 = create_series_reference(msgid=msgids[-1], series=series_v2)
 
         # ...and the "first patch" of this new series
         msgid = make_msgid()
         email = self._create_email(msgid, msgids)
-        series = find_series(email)
+        series = find_series(project, email)
 
         # this should link to the second series - not the first
         self.assertEqual(len(msgids), 4 + 1)  # old series + new cover
