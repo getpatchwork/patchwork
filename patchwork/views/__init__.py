@@ -29,6 +29,7 @@ import re
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.utils import six
 
 from patchwork.filters import Filters
 from patchwork.forms import MultiplePatchForm
@@ -399,5 +400,11 @@ def patch_to_mbox(patch):
 
     if 'Date' not in mail:
         mail['Date'] = email.utils.formatdate(utc_timestamp)
+
+    # NOTE(stephenfin) http://stackoverflow.com/a/28584090/613428
+    if six.PY3:
+        mail = mail.as_bytes(True).decode()
+    else:
+        mail = mail.as_string(True)
 
     return mail

@@ -694,7 +694,7 @@ def patch_get_mbox(patch_id):
     """
     try:
         patch = Patch.objects.get(id=patch_id)
-        return patch_to_mbox(patch).as_string(True)
+        return patch_to_mbox(patch)
     except Patch.DoesNotExist:
         return ''
 

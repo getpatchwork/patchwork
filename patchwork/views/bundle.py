@@ -142,14 +142,12 @@ def bundle_mbox(request, username, bundlename):
             (basic_auth and basic_auth.authenticate(request))):
         return HttpResponseNotFound()
 
-    mbox = '\n'.join([patch_to_mbox(p).as_string(True)
-                      for p in bundle.ordered_patches()])
-
     response = HttpResponse(content_type='text/plain')
     response['Content-Disposition'] = \
         'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+    response.write('\n'.join(
+        [patch_to_mbox(p) for p in bundle.ordered_patches()]))
 
-    response.write(mbox)
     return response
 
 
