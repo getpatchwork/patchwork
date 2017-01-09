@@ -26,9 +26,11 @@ from email.parser import HeaderParser
 import email.utils
 import re
 
+from django.http import Http404
 from django.utils import six
 
 from patchwork.models import Comment
+from patchwork.models import Series
 
 
 class PatchMbox(MIMENonMultipart):
@@ -116,3 +118,36 @@ def bundle_to_mbox(bundle):
         A string for the mbox file.
     """
     return '\n'.join([patch_to_mbox(p) for p in bundle.ordered_patches()])
+
+
+def series_patch_to_mbox(patch, series_num):
+    """Get an mbox representation of a patch with dependencies.
+
+    Arguments:
+        patch: The Patch object to convert.
+        series_num: The series number to retrieve dependencies from.
+
+    Returns:
+        A string for the mbox file.
+    """
+    try:
+        series_num = int(series_num)
+    except ValueError:
+        raise Http404('Expected integer series value. Received: %r' %
+                      series_num)
+
+    try:
+        series = patch.series.get(id=series_num)
+    except Series.DoesNotExist:
+        raise Http404('Patch does not belong to series %d' % series_num)
+
+    mbox = []
+
+    # get the series-ified patch
+    number = series.seriespatch_set.get(patch=patch).number
+    for dep in series.seriespatch_set.filter(number__lt=number):
+        mbox.append(patch_to_mbox(dep.patch))
+
+    mbox.append(patch_to_mbox(patch))
+
+    return '\n'.join(mbox)

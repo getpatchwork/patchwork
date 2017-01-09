@@ -34,6 +34,7 @@ from patchwork.models import Project
 from patchwork.models import Submission
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
+from patchwork.views.utils import series_patch_to_mbox
 
 
 def patch_list(request, project_id):
@@ -120,6 +121,7 @@ def patch_detail(request, patch_id):
 
 def patch_raw(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
+
     response = HttpResponse(content_type="text/x-patch")
     response.write(patch.diff)
     response['Content-Disposition'] = 'attachment; filename=' + \
@@ -130,8 +132,13 @@ def patch_raw(request, patch_id):
 
 def patch_mbox(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
-    response = HttpResponse(content_type="text/plain")
-    response.write(patch_to_mbox(patch))
+    series_num = request.GET.get('series')
+
+    response = HttpResponse(content_type='text/plain')
+    if series_num:
+        response.write(series_patch_to_mbox(patch, series_num))
+    else:
+        response.write(patch_to_mbox(patch))
     response['Content-Disposition'] = 'attachment; filename=' + \
         patch.filename.replace(';', '').replace('\n', '')
 
