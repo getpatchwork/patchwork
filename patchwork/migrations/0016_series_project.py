@@ -5,7 +5,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-def copy_series_field(apps, schema_editor):
+def forward(apps, schema_editor):
     """Populate the project field from child cover letter/patches."""
     # TODO(stephenfin): Perhaps we'd like to include an SQL variant of the
     # below though I'd imagine it would be rather tricky
@@ -23,6 +23,11 @@ def copy_series_field(apps, schema_editor):
             # Delete it.
             series.delete()
 
+
+def reverse(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -35,7 +40,7 @@ class Migration(migrations.Migration):
             name='project',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='patchwork.Project'),
         ),
-        migrations.RunPython(copy_series_field, migrations.RunPython.noop),
+        migrations.RunPython(forward, reverse),
         migrations.AlterField(
             model_name='seriesreference',
             name='msgid',
