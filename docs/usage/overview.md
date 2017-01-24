@@ -178,6 +178,136 @@ for merge to the tree.
 
 Patchwork users can store a to-do list of patches.
 
+## Events
+
+Events are raised whenever patches are created or modified.
+
+All events have a number of common properties, along with some event-specific
+properties:
+
+<dl>
+    <dt>category</dt>
+    <dd>The type of event</dd>
+    <dt>project<dt>
+    <dd>The project this event belongs to</dd>
+    <dt>date</dt>
+    <dd>When this event was created</dd>
+</dl>
+
+**NOTE:** Checks can only be created and read through the Patchwork APIs. Refer
+to the [API documentation][doc-api] for more information.
+
+### Cover Letter Created
+
+Sent when a cover letter is created.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>cover-created</code></dd>
+    <dt>cover<dt>
+    <dd>Created cover letter</dd>
+</dl>
+
+### Patch Created
+
+Sent when a patch is created.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>patch-created</code></dd>
+    <dt>patch<dt>
+    <dd>Created patch</dd>
+</dl>
+
+### Patch Completed
+
+Sent when a patch in a series has its dependencies met, or when a patch that is
+not in a series is created (since that patch has no dependencies).
+
+<dl>
+    <dt>category</dt>
+    <dd><code>patch-completed</code></dd>
+    <dt>patch<dt>
+    <dd>Completed patch</dd>
+    <dt>series<dt>
+    <dd>Series from which patch dependencies were extracted, if any</dd>
+</dl>
+
+### Patch Delegated
+
+Sent when a patch's delegate is changed.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>patch-delegated</code></dd>
+    <dt>patch<dt>
+    <dd>Updated patch</dd>
+    <dt>previous</dt>
+    <dd>Previous delegate, if any</dd>
+    <dt>current</dt>
+    <dd>Current delegate, if any</dd>
+</dl>
+
+### Patch State Changed
+
+Sent when a patch's state is changed.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>patch-state-changed</code></dd>
+    <dt>patch<dt>
+    <dd>Updated patch</dd>
+    <dt>previous</dt>
+    <dd>Previous state</dd>
+    <dt>current</dt>
+    <dd>Current state</dd>
+</dl>
+
+### Check Created
+
+Sent when a patch check is created.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>check-created</code></dd>
+    <dt>check<dt>
+    <dd>Created check</dd>
+</dl>
+
+
+### Series Created
+
+Sent when a series is created.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>series-created</code></dd>
+    <dt>series<dt>
+    <dd>Created series</dd>
+</dl>
+
+### Series Completed
+
+Sent when a series is completed.
+
+<dl>
+    <dt>category</dt>
+    <dd><code>series-completed</code></dd>
+    <dt>series<dt>
+    <dd>Completed series</dd>
+</dl>
+
+### What's Not Exposed
+
+* Bundles
+
+  We don't expose an "added to bundle" event as it's unlikely that this will
+  be useful to either users or CI setters.
+
+* Comments
+
+  Like Bundles, there likely isn't much value in exposing these via the API.
+
 [doc-api]: rest.md
 [doc-autodelegation]: delegation.md
 [ref-kernel-submission]: https://www.kernel.org/doc/Documentation/SubmittingPatches
