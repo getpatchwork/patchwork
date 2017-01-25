@@ -16,8 +16,10 @@ def forward(apps, schema_editor):
             series.project = series.cover_letter.project
             series.save()
         elif series.patches:
-            series.project = series.patches.first().project
-            series.save()
+            patch = series.patches.first()
+            if patch:
+                series.project = patch.project
+                series.save()
         else:
             # a series without patches or cover letters should not exist.
             # Delete it.
@@ -38,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='series',
             name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='patchwork.Project'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='series', to='patchwork.Project'),
         ),
         migrations.RunPython(forward, reverse),
         migrations.AlterField(
