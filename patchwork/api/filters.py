@@ -37,7 +37,7 @@ class SeriesFilter(TimestampMixin, FilterSet):
 
     class Meta:
         model = Series
-        fields = ('submitter',)
+        fields = ('submitter', 'project')
 
 
 class CoverLetterFilter(TimestampMixin, FilterSet):
