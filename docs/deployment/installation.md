@@ -478,7 +478,7 @@ using `pwclient` to update patch state. If you do write one, please contribute
 it.
 
 [doc-contributing]: ../development/contributing.md
-[doc-development]: development.md
+[doc-development]: ../development/installation.md
 [ref-django-files]: https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
 [ref-django-settings]: https://docs.djangoproject.com/en/1.8/ref/settings/
 [ref-getmail]: http://pyropus.ca/software/getmail/

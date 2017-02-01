@@ -53,7 +53,7 @@ patches. In particular, please ensure:
 * Documentation has been updated with new requirements, new script names etc.
 * The `CHANGES` file has been updated with any added or removed features
 
-[doc-development]: development.md
+[doc-development]: installation.md
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
 [ref-qemu-contrib]: http://wiki.qemu.org/Contribute/SubmitAPatch
 [ref-tox]: https://tox.readthedocs.io/en/latest/
