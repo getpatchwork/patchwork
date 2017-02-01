@@ -356,7 +356,7 @@ using the provided `dev` settings file.
   <dd>Type of database to use. Options: 'mysql', 'postgres'</dd>
 </dl>
 
-[doc-contributing]: ../CONTRIBUTING.md
+[doc-contributing]: ../development/contributing.md
 [doc-deployment]: development.md
 [doc-testing]: testing.md
 [ref-django-db]: https://docs.djangoproject.com/en/1.8/ref/databases/

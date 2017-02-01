@@ -477,7 +477,7 @@ If you are using a system other than git, you can likely write a similar hook
 using `pwclient` to update patch state. If you do write one, please contribute
 it.
 
-[doc-contributing]: contributing.md
+[doc-contributing]: ../development/contributing.md
 [doc-development]: development.md
 [ref-django-files]: https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
 [ref-django-settings]: https://docs.djangoproject.com/en/1.8/ref/settings/

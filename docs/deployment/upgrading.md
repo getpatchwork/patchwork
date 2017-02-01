@@ -131,7 +131,7 @@ community can benefit from this new functionality. Please see
 process.
 
 [doc-installation]: installation.md
-[doc-contributing]: contributing.md
+[doc-contributing]: ../development/contributing.md
 [gh-upgrading]: https://github.com/getpatchwork/patchwork/blob/master/UPGRADING.md
 [gh-v1]: https://github.com/getpatchwork/patchwork/releases/tag/v1.0.0
 [ref-django-migrate]: https://docs.djangoproject.com/en/1.8/topics/migrations/
