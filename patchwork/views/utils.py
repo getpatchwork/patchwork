@@ -151,3 +151,20 @@ def series_patch_to_mbox(patch, series_num):
     mbox.append(patch_to_mbox(patch))
 
     return '\n'.join(mbox)
+
+
+def series_to_mbox(series):
+    """Get an mbox representation of an entire series.
+
+    Arguments:
+        series: The Series object to convert.
+
+    Returns:
+        A string for the mbox file.
+    """
+    mbox = []
+
+    for dep in series.seriespatch_set.all():
+        mbox.append(patch_to_mbox(dep.patch))
+
+    return '\n'.join(mbox)

@@ -32,6 +32,7 @@ from patchwork.views import notification as notification_views
 from patchwork.views import patch as patch_views
 from patchwork.views import project as project_views
 from patchwork.views import pwclient as pwclient_views
+from patchwork.views import series as series_views
 from patchwork.views import user as user_views
 from patchwork.views import xmlrpc as xmlrpc_views
 
@@ -61,9 +62,13 @@ urlpatterns = [
     url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover_detail,
         name='cover-detail'),
 
-    # comment urls
+    # comment views
     url(r'^comment/(?P<comment_id>\d+)/$', comment_views.comment,
         name='comment-redirect'),
+
+    # series views
+    url(r'^series/(?P<series_id>\d+)/mbox/$', series_views.series_mbox,
+        name='series-mbox'),
 
     # logged-in user stuff
     url(r'^user/$', user_views.profile, name='user-profile'),

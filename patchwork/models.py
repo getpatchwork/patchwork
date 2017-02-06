@@ -587,6 +587,12 @@ class Series(models.Model):
     def received_all(self):
         return self.total <= self.received_total
 
+    @property
+    def filename(self):
+        fname_re = re.compile(r'[^-_A-Za-z0-9\.]+')
+        fname = fname_re.sub('-', str(self))
+        return fname.strip('-') + '.patch'
+
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
 
