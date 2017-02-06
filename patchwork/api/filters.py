@@ -22,6 +22,7 @@ from django_filters import IsoDateTimeFilter
 
 from patchwork.models import Check
 from patchwork.models import CoverLetter
+from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import Series
 
@@ -60,3 +61,10 @@ class CheckFilter(TimestampMixin, FilterSet):
     class Meta:
         model = Check
         fields = ('user', 'state', 'context')
+
+
+class EventFilter(FilterSet):
+
+    class Meta:
+        model = Event
+        fields = ('project', 'series', 'patch', 'cover')

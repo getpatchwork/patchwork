@@ -159,8 +159,9 @@ if settings.ENABLE_REST_API:
             'djangorestframework must be installed to enable the REST API.')
 
     from patchwork.api import check as api_check_views
-    from patchwork.api import index as api_index_views
     from patchwork.api import cover as api_cover_views
+    from patchwork.api import event as api_event_views
+    from patchwork.api import index as api_index_views
     from patchwork.api import patch as api_patch_views
     from patchwork.api import person as api_person_views
     from patchwork.api import project as api_project_views
@@ -213,6 +214,9 @@ if settings.ENABLE_REST_API:
         url(r'^projects/(?P<pk>[^/]+)/$',
             api_project_views.ProjectDetail.as_view(),
             name='api-project-detail'),
+        url(r'^events/$',
+            api_event_views.EventList.as_view(),
+            name='api-event-list'),
     ]
 
     urlpatterns += [
