@@ -15,9 +15,9 @@ TAGS
 /series
 
 # patch files
-*.patch
-*.diff
-*.mbox
+/*.patch
+/*.diff
+/*.mbox
 
 # cscope files
 cscope.*

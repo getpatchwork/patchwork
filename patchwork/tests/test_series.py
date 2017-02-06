@@ -369,10 +369,73 @@ class RevisedSeriesTest(_BaseTestCase):
                 - [PATCH v2 2/2] test: Convert to Markdown
 
         """
-        covers, patches, _ = self._parse_mbox(
+        _, patches, _ = self._parse_mbox(
             'bugs-nocover.mbox', [0, 4, 0])
 
         self.assertSerialized(patches, [2, 2])
+
+
+class SeriesTotalTest(_BaseTestCase):
+
+    def test_incomplete(self):
+        """Series received with patches missing.
+
+        Parse a series where not all patches were received.
+
+        Input:
+
+          - [PATCH 0/2] A sample series
+            - [PATCH 1/2] test: Add some lorem ipsum
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-incomplete.mbox', [1, 1, 0])
+
+        self.assertSerialized(patches, [1])
+        self.assertSerialized(covers, [1])
+
+        series = patches[0].latest_series
+        self.assertFalse(series.received_all)
+
+    def test_complete(self):
+        """Series received with expected number of patches.
+
+        Parse a series where all patches are received as expected.
+
+        Input:
+
+          - [PATCH 0/2] A sample series
+            - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-cover-letter.mbox', [1, 2, 0])
+
+        self.assertSerialized(covers, [1])
+        self.assertSerialized(patches, [2])
+
+        series = patches[0].latest_series
+        self.assertTrue(series.received_all)
+
+    def test_extra_patches(self):
+        """Series received with additional patches.
+
+        Parse a series where an additional patch was later sent.
+
+        Input:
+
+          - [PATCH 0/2] A sample series
+            - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
+            - [PATCH 3/n] test: Remove Markdown formatting
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-extra-patches.mbox', [1, 3, 0])
+
+        self.assertSerialized(covers, [1])
+        self.assertSerialized(patches, [3])
+
+        series = patches[0].latest_series
+        self.assertTrue(series.received_all)
 
 
 class SeriesNameTestCase(TestCase):

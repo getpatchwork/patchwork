@@ -586,7 +586,7 @@ class Series(models.Model):
 
     @property
     def received_all(self):
-        return self.total == self.received_total
+        return self.total <= self.received_total
 
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
