@@ -557,7 +557,8 @@ class Series(models.Model):
     """An collection of patches."""
 
     # parent
-    project = models.ForeignKey(Project, related_name='series')
+    project = models.ForeignKey(Project, related_name='series', null=True,
+                                blank=True)
 
     # content
     cover_letter = models.ForeignKey(CoverLetter,
