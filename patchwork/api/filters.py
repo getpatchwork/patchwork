@@ -26,7 +26,7 @@ from patchwork.models import Patch
 from patchwork.models import Series
 
 
-class TimestampMixin(object):
+class TimestampMixin(FilterSet):
 
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
     before = IsoDateTimeFilter(name='date', lookup_expr='lt')
