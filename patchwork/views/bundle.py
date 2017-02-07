@@ -29,7 +29,8 @@ from django.shortcuts import render, get_object_or_404
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.models import Bundle, BundlePatch, Project
-from patchwork.views import generic_list, patch_to_mbox
+from patchwork.views import generic_list
+from patchwork.views.utils import patch_to_mbox
 
 if settings.ENABLE_REST_API:
     from rest_framework.authentication import BasicAuthentication  # noqa

@@ -45,7 +45,7 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import State
-from patchwork.views import patch_to_mbox
+from patchwork.views.utils import patch_to_mbox
 
 
 class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,

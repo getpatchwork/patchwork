@@ -29,7 +29,8 @@ from django.shortcuts import render, get_object_or_404
 
 from patchwork.forms import PatchForm, CreateBundleForm
 from patchwork.models import Patch, Project, Bundle, Submission
-from patchwork.views import generic_list, patch_to_mbox
+from patchwork.views import generic_list
+from patchwork.views.utils import patch_to_mbox
 
 
 def patch_list(request, project_id):
