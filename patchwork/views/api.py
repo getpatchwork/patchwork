@@ -22,7 +22,8 @@ import json
 from django.db.models import Q
 from django.http import HttpResponse
 
-from patchwork.models import Person, User
+from patchwork.models import Person
+from patchwork.models import User
 
 
 MINIMUM_CHARACTERS = 3

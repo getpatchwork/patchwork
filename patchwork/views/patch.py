@@ -17,18 +17,21 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-
 from django.contrib import messages
 from django.core import urlresolvers
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 
-from patchwork.forms import PatchForm, CreateBundleForm
-from patchwork.models import Patch, Project, Bundle, Submission
+from patchwork.forms import CreateBundleForm
+from patchwork.forms import PatchForm
+from patchwork.models import Bundle
+from patchwork.models import Patch
+from patchwork.models import Project
+from patchwork.models import Submission
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
 

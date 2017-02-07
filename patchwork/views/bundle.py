@@ -17,18 +17,21 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import absolute_import
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-import django.core.urlresolvers
-from django.http import (HttpResponse, HttpResponseRedirect,
-                         HttpResponseNotFound)
-from django.shortcuts import render, get_object_or_404
+from django.core import urlresolvers
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 
 from patchwork.filters import DelegateFilter
-from patchwork.forms import BundleForm, DeleteBundleForm
-from patchwork.models import Bundle, BundlePatch, Project
+from patchwork.forms import BundleForm
+from patchwork.forms import DeleteBundleForm
+from patchwork.models import Bundle
+from patchwork.models import BundlePatch
+from patchwork.models import Project
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
 
@@ -87,7 +90,7 @@ def bundle_detail(request, username, bundlename):
             if action == 'delete':
                 bundle.delete()
                 return HttpResponseRedirect(
-                    django.core.urlresolvers.reverse('user-profile')
+                    urlresolvers.reverse('user-profile')
                 )
             elif action == 'update':
                 form = BundleForm(request.POST, instance=bundle)
@@ -161,7 +164,7 @@ def bundle_detail_redir(request, bundle_id):
 @login_required
 def bundle_mbox_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
-    return HttpResponseRedirect(django.core.urlresolvers.reverse(
+    return HttpResponseRedirect(urlresolvers.reverse(
                                 'bundle-mbox', kwargs={
                                     'username': request.user.username,
                                     'bundlename': bundle.name,
