@@ -23,11 +23,6 @@ from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from patchwork.models import State
-
-STATE_CHOICES = ['-'.join(x.name.lower().split(' '))
-                 for x in State.objects.all()]
-
 
 class LinkHeaderPagination(PageNumberPagination):
     """Provide pagination based on rfc5988.

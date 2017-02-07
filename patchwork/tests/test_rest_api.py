@@ -398,6 +398,20 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
 
+    def test_update_invalid(self):
+        """Ensure we handle invalid Patch states."""
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_maintainer(project)
+
+        # invalid state
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(self.api_url(patch.id), {'state': 'foobar'})
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+        self.assertContains(resp, 'Expected one of: %s.' % state.name,
+                            status_code=status.HTTP_400_BAD_REQUEST)
+
     def test_delete(self):
         """Ensure deletions are always rejected."""
         project = create_project()
