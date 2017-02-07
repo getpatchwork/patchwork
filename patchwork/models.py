@@ -100,10 +100,17 @@ class Project(models.Model):
 
 @python_2_unicode_compatible
 class DelegationRule(models.Model):
-    user = models.ForeignKey(User)
-    path = models.CharField(max_length=255)
     project = models.ForeignKey(Project)
-    priority = models.IntegerField(default=0)
+    user = models.ForeignKey(
+        User,
+        help_text='A user to delegate the patch to.')
+    path = models.CharField(
+        max_length=255,
+        help_text='An fnmatch-style pattern to match filenames against.')
+    priority = models.IntegerField(
+        default=0,
+        help_text='The priority of the rule. Rules with a higher priority '
+        'will override rules with lower priorities')
 
     def __str__(self):
         return self.path
