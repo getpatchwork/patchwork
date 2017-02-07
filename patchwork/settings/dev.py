@@ -18,6 +18,9 @@ from .base import *  # noqa
 # https://docs.djangoproject.com/en/1.8/ref/settings/#core-settings
 #
 
+
+ALLOWED_HOSTS = ['*']
+
 SECRET_KEY = '00000000000000000000000000000000000000000000000000'  # noqa
 
 DEBUG = True
