@@ -31,6 +31,10 @@ To run a shell within this environment, run:
 
     $ docker-compose run --rm web --shell
 
+To run django-manage commands, such as `createsuperuser` or `migrate`, run:
+
+    $ docker-compose run --rm web python manage.py createsuperuser
+
 To run unit tests, excluding Selenium UI interaction tests, using only the
 package versions installed during container initialization, run:
 
@@ -39,6 +43,11 @@ package versions installed during container initialization, run:
 To run the same against all supported versions of Django (via tox), run:
 
     $ docker-compose run --rm web --quick-tox
+
+To run specific tox targets or tests, pass arguments to the above:
+
+    $ docker-compose run --rm web --quick-tox -e py27-django17 \
+        patchwork.tests.test_bundles
 
 To run all tests, including Selenium UI interaction tests, using only the
 package versions installed container initialization, run:
