@@ -17,6 +17,8 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from collections import OrderedDict
+
 from django.core.urlresolvers import reverse
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer
@@ -57,11 +59,18 @@ class EventSerializer(HyperlinkedModelSerializer):
 
     def to_representation(self, instance):
         data = super(EventSerializer, self).to_representation(instance)
-
+        payload = OrderedDict()
         kept_fields = self._category_map[instance.category] + [
             'id', 'category', 'project', 'date']
-        for field in [x for x in data if x not in kept_fields]:
-            del data[field]
+
+        for field in [x for x in data]:
+            if field not in kept_fields:
+                del data[field]
+            elif field in self._category_map[instance.category]:
+                field_name = 'check' if field == 'created_check' else field
+                payload[field_name] = data.pop(field)
+
+        data['payload'] = payload
 
         return data
 
