@@ -88,9 +88,11 @@ class CheckSerializer(HyperlinkedModelSerializer):
 
 class CheckMixin(object):
 
-    queryset = Check.objects.prefetch_related('patch', 'user')
     serializer_class = CheckSerializer
     filter_class = CheckFilter
+
+    def get_queryset(self):
+        return Check.objects.prefetch_related('patch', 'user')
 
 
 class CheckListCreate(CheckMixin, ListCreateAPIView):
