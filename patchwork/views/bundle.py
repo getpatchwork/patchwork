@@ -33,7 +33,7 @@ from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.models import Project
 from patchwork.views import generic_list
-from patchwork.views.utils import patch_to_mbox
+from patchwork.views.utils import bundle_to_mbox
 
 if settings.ENABLE_REST_API:
     from rest_framework.authentication import BasicAuthentication  # noqa
@@ -149,8 +149,7 @@ def bundle_mbox(request, username, bundlename):
     response = HttpResponse(content_type='text/plain')
     response['Content-Disposition'] = \
         'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
-    response.write('\n'.join(
-        [patch_to_mbox(p) for p in bundle.ordered_patches()]))
+    response.write(bundle_to_mbox(bundle))
 
     return response
 

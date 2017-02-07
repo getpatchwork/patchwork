@@ -104,3 +104,15 @@ def patch_to_mbox(patch):
         mail = mail.as_string(True)
 
     return mail
+
+
+def bundle_to_mbox(bundle):
+    """Get an mbox representation of a bundle.
+
+    Arguments:
+        patch: The Bundle object to convert.
+
+    Returns:
+        A string for the mbox file.
+    """
+    return '\n'.join([patch_to_mbox(p) for p in bundle.ordered_patches()])

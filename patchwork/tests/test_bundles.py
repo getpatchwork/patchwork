@@ -26,6 +26,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.http import urlencode
+from django.utils import six
 from django.utils.six.moves import range
 from django.utils.six.moves import zip
 
@@ -39,6 +40,11 @@ from patchwork.tests.utils import create_user
 
 def bundle_url(bundle):
     return reverse('bundle-detail', kwargs={
+        'username': bundle.owner.username, 'bundlename': bundle.name})
+
+
+def bundle_mbox_url(bundle):
+    return reverse('bundle-mbox', kwargs={
         'username': bundle.owner.username, 'bundlename': bundle.name})
 
 
@@ -118,6 +124,21 @@ class BundleViewTest(BundleTestBase):
             # ensure that this patch is now *before* the previous
             self.assertTrue(next_pos < pos)
             pos = next_pos
+
+
+class BundleMboxTest(BundleTestBase):
+
+    def test_empty_bundle(self):
+        response = self.client.get(bundle_mbox_url(self.bundle))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, six.b(''))
+
+    def test_non_empty_bundle(self):
+        self.bundle.append_patch(self.patches[0])
+
+        response = self.client.get(bundle_mbox_url(self.bundle))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.content, six.b(''))
 
 
 class BundleUpdateTest(BundleTestBase):
