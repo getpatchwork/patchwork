@@ -32,7 +32,7 @@ class LinkHeaderPagination(PageNumberPagination):
        https://tools.ietf.org/html/rfc5988#section-5
        https://developer.github.com/guides/traversing-with-pagination
     """
-    page_size = settings.REST_RESULTS_PER_PAGE
+    page_size = max_page_size = settings.REST_RESULTS_PER_PAGE
     page_size_query_param = 'per_page'
 
     def get_paginated_response(self, data):
