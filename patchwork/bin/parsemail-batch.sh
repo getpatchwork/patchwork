@@ -40,5 +40,5 @@ shift
 find "$mail_dir" -maxdepth 1 |
 while read -r line; do
     echo "$line"
-    "$BIN_DIR/parsemail.sh" "$@" < "$mail_dir/$line"
+    "$BIN_DIR/parsemail.sh" "$@" < "$line"
 done
