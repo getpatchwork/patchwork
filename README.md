@@ -49,7 +49,8 @@ guide][docs-development].
 
 # Talks and Presentations
 
-* [**A New Patchwork**][pdf-fosdem] - FOSDEM 2016
+* [**Mailing List, Meet CI**][pdf-fosdem-2] - FOSDEM 2017
+* [**A New Patchwork**][pdf-fosdem-1] - FOSDEM 2016
 * [**Patches carved into stone tablets**][pdf-stone-tools] - Kernel Recipes
   Conference 2016
 * [**Patchwork: reducing your patch workload**][pdf-plumbers] - Linux Plumbers
@@ -78,7 +79,8 @@ For bug reports, patch submissions or other questions, please use the
 [badge-waffle-img]: https://badge.waffle.io/getpatchwork/patchwork.svg?label=ready&title=Ready
 [docs]: https://patchwork.readthedocs.io/en/latest/
 [docs-development]: https://patchwork.readthedocs.io/en/latest/development/
-[pdf-fosdem]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
+[pdf-fosdem-1]: https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
+[pdf-fosdem-2]: https://speakerdeck.com/stephenfin/mailing-list-meet-ci
 [pdf-plumbers]: https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
 [pdf-stone-tools]: https://github.com/gregkh/presentation-stone-tools/blob/34a3963/stone-tools.pdf
 [pw-ml]: https://ozlabs.org/mailman/listinfo/patchwork
