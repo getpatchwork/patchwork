@@ -26,6 +26,7 @@ from django.core.urlresolvers import reverse
 from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import Project
+from patchwork.tests.utils import create_bundle
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
@@ -666,4 +667,80 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.delete(self.api_url(check))
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestBundleAPI(APITestCase):
+    fixtures = ['default_tags']
+
+    @staticmethod
+    def api_url(item=None):
+        if item is None:
+            return reverse('api-bundle-list')
+        return reverse('api-bundle-detail', args=[item])
+
+    def assertSerialized(self, bundle_obj, bundle_json):
+        self.assertEqual(bundle_obj.id, bundle_json['id'])
+        self.assertEqual(bundle_obj.name, bundle_json['name'])
+        self.assertEqual(bundle_obj.public, bundle_json['public'])
+        self.assertIn(bundle_obj.get_mbox_url(), bundle_json['mbox'])
+        self.assertEqual(bundle_obj.patches.count(),
+                         len(bundle_json['patches']))
+        self.assertIn(TestUserAPI.api_url(bundle_obj.owner.id),
+                      bundle_json['owner'])
+        self.assertIn(TestProjectAPI.api_url(bundle_obj.project.id),
+                      bundle_json['project'])
+
+    def test_list(self):
+        """Validate we can list bundles."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+        user = create_user()
+        bundle_public = create_bundle(public=True, owner=user)
+        bundle_private = create_bundle(public=False, owner=user)
+
+        # anonymous users
+        # should only see the public bundle
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        bundle_rsp = resp.data[0]
+        self.assertSerialized(bundle_public, bundle_rsp)
+
+        # authenticated user
+        # should see the public and private bundle
+        self.client.force_authenticate(user=user)
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(2, len(resp.data))
+        for bundle_rsp, bundle_obj in zip(
+                resp.data, [bundle_public, bundle_private]):
+            self.assertSerialized(bundle_obj, bundle_rsp)
+
+    def test_detail(self):
+        """Validate we can get a specific bundle."""
+        user = create_user()
+        bundle = create_bundle(public=True)
+
+        resp = self.client.get(self.api_url(bundle.id))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(bundle, resp.data)
+
+    def test_create_update_delete(self):
+        """Ensure creates, updates and deletes aren't allowed"""
+        user = create_maintainer()
+        user.is_superuser = True
+        user.save()
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.patch(self.api_url(user.id), {'email': 'foo@f.com'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+        resp = self.client.delete(self.api_url(1))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

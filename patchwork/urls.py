@@ -158,6 +158,7 @@ if settings.ENABLE_REST_API:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
 
+    from patchwork.api import bundle as api_bundle_views
     from patchwork.api import check as api_check_views
     from patchwork.api import cover as api_cover_views
     from patchwork.api import event as api_event_views
@@ -208,6 +209,12 @@ if settings.ENABLE_REST_API:
         url(r'^series/(?P<pk>[^/]+)/$',
             api_series_views.SeriesDetail.as_view(),
             name='api-series-detail'),
+        url(r'^bundles/$',
+            api_bundle_views.BundleList.as_view(),
+            name='api-bundle-list'),
+        url(r'^bundles/(?P<pk>[^/]+)/$',
+            api_bundle_views.BundleDetail.as_view(),
+            name='api-bundle-detail'),
         url(r'^projects/$',
             api_project_views.ProjectList.as_view(),
             name='api-project-list'),

@@ -20,6 +20,7 @@
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
 
+from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import CoverLetter
 from patchwork.models import Event
@@ -68,3 +69,10 @@ class EventFilter(FilterSet):
     class Meta:
         model = Event
         fields = ('project', 'series', 'patch', 'cover')
+
+
+class BundleFilter(FilterSet):
+
+    class Meta:
+        model = Bundle
+        fields = ('project', 'owner', 'public')

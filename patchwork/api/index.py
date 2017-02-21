@@ -34,4 +34,5 @@ class IndexView(APIView):
             'covers': request.build_absolute_uri(reverse('api-cover-list')),
             'series': request.build_absolute_uri(reverse('api-series-list')),
             'events': request.build_absolute_uri(reverse('api-event-list')),
+            'bundles': request.build_absolute_uri(reverse('api-bundle-list')),
         })
