@@ -741,6 +741,11 @@ class Bundle(models.Model):
             'bundlename': self.name,
         })
 
+    @models.permalink
+    def get_mbox_url(self):
+        return ('bundle-mbox', (), {'bundlename': self.name,
+                                    'username': self.owner.username})
+
     class Meta:
         unique_together = [('owner', 'name')]
 
