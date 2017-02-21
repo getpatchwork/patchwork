@@ -314,7 +314,7 @@ def bundle_to_dict(obj):
         'id': obj.id,
         'name': obj.name,
         'n_patches': obj.patches.count(),
-        'public_url': obj.public_url(),
+        'public_url': obj.get_mbox_url(),
     }
 
 

@@ -24,12 +24,11 @@
   <td>{{ bundle.project.linkname }}</td>
   <td>
    {% if bundle.public %}
-    <a href="{{ bundle.public_url }}">{{ bundle.public_url }}</a>
+    <a href="{{ bundle.get_mbox_url }}">{{ bundle.get_mbox_url }}</a>
    {% endif %}
   </td>
   <td style="text-align: right">{{ bundle.patches.count }}</td>
-  <td style="text-align: center;"><a
-   href="{% url 'bundle-mbox' username=bundle.owner.username bundlename=bundle.name %}"
+  <td style="text-align: center;"><ahref="{{ bundle.get_mbox_url }}"
    ><span class="glyphicon glyphicon-download-alt"></span></a></td>
   <td style="text-align: center;">
    <form method="post"

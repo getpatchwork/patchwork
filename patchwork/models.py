@@ -29,8 +29,6 @@ import re
 import django
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
@@ -722,17 +720,6 @@ class Bundle(models.Model):
 
         return BundlePatch.objects.create(bundle=self, patch=patch,
                                           order=max_order + 1)
-
-    def public_url(self):
-        if not self.public:
-            return None
-        site = Site.objects.get_current()
-        return 'http://%s%s' % (site.domain,
-                                reverse('bundle-detail',
-                                        kwargs={
-                                            'username': self.owner.username,
-                                            'bundlename': self.name
-                                        }))
 
     @models.permalink
     def get_absolute_url(self):
