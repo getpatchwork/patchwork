@@ -31,6 +31,7 @@ from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import PatchFilter
 from patchwork.models import Patch
 from patchwork.models import State
+from patchwork.parser import clean_subject
 
 
 def format_state_name(state):
@@ -116,17 +117,21 @@ class PatchListSerializer(HyperlinkedModelSerializer):
 
 class PatchDetailSerializer(PatchListSerializer):
     headers = SerializerMethodField()
+    prefixes = SerializerMethodField()
 
     def get_headers(self, patch):
         if patch.headers:
             return email.parser.Parser().parsestr(patch.headers, True)
 
+    def get_prefixes(self, instance):
+        return clean_subject(instance.name)[1]
+
     class Meta:
         model = Patch
         fields = PatchListSerializer.Meta.fields + (
-            'headers', 'content', 'diff')
+            'headers', 'content', 'diff', 'prefixes')
         read_only_fields = PatchListSerializer.Meta.read_only_fields + (
-            'headers', 'content', 'diff')
+            'headers', 'content', 'diff', 'prefixes')
         extra_kwargs = PatchListSerializer.Meta.extra_kwargs
 
 
