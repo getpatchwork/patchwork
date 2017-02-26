@@ -19,6 +19,7 @@
 
 from __future__ import absolute_import
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import django.core.urlresolvers
 from django.http import (HttpResponse, HttpResponseRedirect,
@@ -29,6 +30,12 @@ from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm, DeleteBundleForm
 from patchwork.models import Patch, Bundle, BundlePatch, Project
 from patchwork.views import generic_list, patch_to_mbox, get_patch_ids
+
+if settings.ENABLE_REST_API:
+    from rest_framework.authentication import BasicAuthentication  # noqa
+    basic_auth = BasicAuthentication()
+else:
+    basic_auth = None
 
 
 @login_required
@@ -193,7 +200,8 @@ def mbox(request, username, bundlename):
     bundle = get_object_or_404(Bundle, owner__username=username,
                                name=bundlename)
 
-    if not (request.user == bundle.owner or bundle.public):
+    if not (request.user == bundle.owner or bundle.public or
+            (basic_auth and basic_auth.authenticate(request))):
         return HttpResponseNotFound()
 
     mbox = '\n'.join([patch_to_mbox(p).as_string(True)
