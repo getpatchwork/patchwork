@@ -57,7 +57,7 @@ def get_raw_git_version():
     try:
         git_version = subprocess.check_output(['git', 'describe'],
                                               cwd=ROOT_DIR)
-    except OSError:
+    except (OSError, subprocess.CalledProcessError):
         return ''
 
     return git_version.strip().decode('utf-8')
