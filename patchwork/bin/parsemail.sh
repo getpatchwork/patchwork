@@ -22,11 +22,6 @@
 BIN_DIR=$(dirname "$0")
 PATCHWORK_BASE=$(readlink -e "$BIN_DIR/../..")
 
-if [ $# -lt 1 ]; then
-    echo "usage: $0 <file> [options]" >&2
-    exit 1
-fi
-
 if [ -z "$PW_PYTHON" ]; then
     PW_PYTHON=python2
 fi
