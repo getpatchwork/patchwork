@@ -132,11 +132,11 @@ def patch_raw(request, patch_id):
 
 def patch_mbox(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
-    series_num = request.GET.get('series')
+    series_id = request.GET.get('series')
 
     response = HttpResponse(content_type='text/plain')
-    if series_num:
-        response.write(series_patch_to_mbox(patch, series_num))
+    if series_id:
+        response.write(series_patch_to_mbox(patch, series_id))
     else:
         response.write(patch_to_mbox(patch))
     response['Content-Disposition'] = 'attachment; filename=' + \

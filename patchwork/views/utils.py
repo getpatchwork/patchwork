@@ -120,26 +120,30 @@ def bundle_to_mbox(bundle):
     return '\n'.join([patch_to_mbox(p) for p in bundle.ordered_patches()])
 
 
-def series_patch_to_mbox(patch, series_num):
+def series_patch_to_mbox(patch, series_id):
     """Get an mbox representation of a patch with dependencies.
 
     Arguments:
         patch: The Patch object to convert.
-        series_num: The series number to retrieve dependencies from.
+        series_id: The series number to retrieve dependencies from, or
+            '*' if using the latest series.
 
     Returns:
         A string for the mbox file.
     """
-    try:
-        series_num = int(series_num)
-    except ValueError:
-        raise Http404('Expected integer series value. Received: %r' %
-                      series_num)
+    if series_id == '*':
+        series = patch.latest_series
+    else:
+        try:
+            series_id = int(series_id)
+        except ValueError:
+            raise Http404('Expected integer series value or *. Received: %r' %
+                          series_id)
 
-    try:
-        series = patch.series.get(id=series_num)
-    except Series.DoesNotExist:
-        raise Http404('Patch does not belong to series %d' % series_num)
+        try:
+            series = patch.series.get(id=series_id)
+        except Series.DoesNotExist:
+            raise Http404('Patch does not belong to series %d' % series_id)
 
     mbox = []
 
