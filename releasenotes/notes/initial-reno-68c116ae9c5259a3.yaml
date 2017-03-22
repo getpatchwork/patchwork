@@ -1,0 +1,107 @@
+---
+features:
+  - |
+    REST API.
+
+    Previous versions of Patchwork provided an XML-RPC API. This was functional
+    but there were a couple of issues around usability and general design. This
+    API also provided basic versioning information but the existing clients,
+    mostly `pwclient` variants, did not validate this version. Together, this
+    left us with an API that needed work but no way to fix it without breaking
+    every client out there.
+
+    Rather than breaking all those users, make a clean break and provide
+    another API method. REST APIs are the API method de jour providing a number
+    of advantages over XML-RPC APIs, thus, a REST API is chosen. The following
+    resources are exposed over this new API:
+
+    - Bundles
+    - Checks
+    - Projects
+    - People
+    - Users
+    - Patches
+    - Series
+    - Cover letters
+
+    For information on the usage of the API, refer to the documentation.
+
+    Note that this feature depends on a combination of Django REST framework
+    and Django Filter, which in turn require Django 1.8+. As a result, Django
+    1.8 or greater must be used when the REST API is enabled.
+  - |
+    Cover letters are now supported.
+
+    Cover letters are often sent in addition to a series of patches. They do
+    not contain a diff and can generally be identified as number 0 of a series.
+    For example::
+
+      [PATCH 0/3] A cover letter
+
+    Cover letters contain useful information that should not be discarded.
+    Both cover letters and replies to these mails are now stored for use with
+    series.
+  - |
+    Series are now supported.
+
+    Series are groups of patches sent as one bundle. For example::
+
+      [PATCH 0/3] A cover letter
+        [PATCH 1/3] The first patch
+        [PATCH 2/3] The second patch
+        [PATCH 3/3] The third patch
+
+    While Patchwork already supports bundles, these must be created manually,
+    defeating the purpose of using series in the first place. Series make use
+    of the information provided in the emails themselves, avoiding this manual
+    step. The series support implemented is basic and does not support
+    versioning. This will be added in a future release.
+  - |
+    All comments now have a permalink which can be used to reference individual
+    replies to patches and cover letters.
+  - |
+    `Django Debug Toolbar <https://pypi.python.org/pypi/django-debug-toolbar>`_
+    is now enabled by defaut when using development settings.
+  - |
+    `Django 1.9 <https://docs.djangoproject.com/en/1.10/releases/1.9/>`_ and
+    `1.10 <https://docs.djangoproject.com/en/1.10/releases/1.10/>`_ are now
+    supported.
+  - |
+    `Python 3.5 <https://www.python.org/downloads/release/python-350/>`_ is now
+    supported.
+  - |
+    `Docker <https://www.docker.com/what-docker#/developers>`_ support is now
+    integrated for development usage. To use this, refer to the documentation.
+upgrade:
+  - |
+    The REST API is enabled by default.
+
+    The REST API is enabled by default when using Django 1.8. It is possible to
+    disable this API, though this functionality may be removed in a future
+    release. Should you wish to disable this feature, configure the
+    `ENABLE_REST_API` setting to `False`.
+  - |
+    The `parsemail.py` and `parsearchive.py` scripts have been replaced by the
+    `parsemail` and `parsearchive` management commands. These can be called
+    like any other management commands. For example::
+
+      $ ./manage.py parsemail [args...]
+fixes:
+  - |
+    When downloading an mbox, a user's name will now be set to the name used in
+    the last email recieved from them. Previously, the name used in the first
+    email received from a user was used.
+  - |
+    `user at domain`-style email addresses, commonly found in Mailman archives,
+    are now handled correctly.
+  - |
+    Unicode characters transmitted over the XML-RPC API are now handled
+    correctly under Python 3
+deprecated:
+  - |
+    Django 1.6 and Django 1.7 are no longer supported upstream and will not be
+    supported in a future release.
+other:
+  - |
+    `reno <https://pypi.python.org/pypi/reno>`_ is now used for release note
+    management.

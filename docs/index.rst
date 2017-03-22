@@ -49,3 +49,11 @@ of community projects.
    development/installation
    development/releasing
    development/xmlrpc
+
+.. _release-note-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Release Notes
+
+   releases/unreleased
