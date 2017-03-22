@@ -40,6 +40,9 @@ htmlcov/
 # Django stuff
 *.log
 
+# Sphinx stuff
+/docs/_build
+
 # Vagrant stuff
 /.vagrant
 
