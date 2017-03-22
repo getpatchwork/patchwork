@@ -38,3 +38,14 @@ of community projects.
 
    deployment/installation
    deployment/upgrading
+
+.. development-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development Documentation
+
+   development/contributing
+   development/installation
+   development/releasing
+   development/xmlrpc
