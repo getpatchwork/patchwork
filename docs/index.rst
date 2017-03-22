@@ -57,3 +57,6 @@ of community projects.
    :caption: Release Notes
 
    releases/unreleased
+   releases/cashmere
+   releases/burlap
+   releases/alpaca

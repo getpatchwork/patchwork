@@ -2,4 +2,3 @@ Unreleased
 ==========
 
 .. release-notes::
-
