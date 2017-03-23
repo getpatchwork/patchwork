@@ -291,33 +291,6 @@ def patch_to_dict(obj):
     }
 
 
-def bundle_to_dict(obj):
-    """Serialize a bundle object.
-
-    Return a trimmed down dictionary representation of a Bundle
-    object which is safe to send to the client. For example:
-
-    {
-        'id': 1,
-        'name': 'New',
-        'n_patches': 2,
-        'public_url': 'http://patchwork.example.com/bundle/admin/stuff/mbox/',
-    }
-
-    Args:
-        Bundle object to serialize.
-
-    Returns:
-        Serialized Bundle object.
-    """
-    return {
-        'id': obj.id,
-        'name': obj.name,
-        'n_patches': obj.patches.count(),
-        'public_url': obj.get_mbox_url(),
-    }
-
-
 def state_to_dict(obj):
     """Serialize a state object.
 
