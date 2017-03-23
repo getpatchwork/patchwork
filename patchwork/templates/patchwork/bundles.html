@@ -21,7 +21,11 @@
 {% for bundle in bundles %}
  <tr>
   <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
-  <td>{{ bundle.project.linkname }}</td>
+  <td>
+   <a href="{% url 'project-detail' project_id=bundle.project.linkname %}">
+    {{ bundle.project.linkname }}
+   </a>
+  </td>
   <td style="text-align: center;">
    {% if bundle.public %}
     <span class="glyphicon glyphicon-ok"></span>
