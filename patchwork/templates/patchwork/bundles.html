@@ -11,9 +11,9 @@
 {% if bundles %}
 <table class="bundlelist">
  <tr>
-  <th>Name</th>
+  <th>Bundle</th>
   <th>Project</th>
-  <th>Public Link</th>
+  <th>Public</th>
   <th>Patches</td>
   <th>Download</th>
   <th>Delete</th>
@@ -22,9 +22,11 @@
  <tr>
   <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
   <td>{{ bundle.project.linkname }}</td>
-  <td>
+  <td style="text-align: center;">
    {% if bundle.public %}
-    <a href="{{ bundle.get_mbox_url }}">{{ bundle.get_mbox_url }}</a>
+    <span class="glyphicon glyphicon-ok"></span>
+   {% else %}
+    <span class="glyphicon glyphicon-remove"></span>
    {% endif %}
   </td>
   <td style="text-align: right">{{ bundle.patches.count }}</td>
