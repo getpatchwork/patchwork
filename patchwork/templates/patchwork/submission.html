@@ -27,7 +27,9 @@ function toggle_div(link_id, headers_id)
 }
 </script>
 
-<h1>{{ submission.name }}</h1>
+<h1>{{ submission.name }}
+{% include "patchwork/download_buttons.html" %}
+</h1>
 
 <table class="patchmeta">
  <tr>
@@ -281,30 +283,7 @@ function toggle_div(link_id, headers_id)
 {% if submission.diff %}
 <h2>
  Patch
- <div class="btn-group pull-right">
-  <a href="{% url 'patch-raw' patch_id=submission.id %}"
-   class="btn btn-default" role="button" title="Download patch diff"
-   >diff</a>
-  <a href="{% url 'patch-mbox' patch_id=submission.id %}"
-   class="btn btn-default" role="button" title="Download patch mbox"
-   >mbox</a>
-  {% if submission.series.all|length == 1 %}
-  <a href="{% url 'series-mbox' series_id=submission.latest_series.id %}"
-   class="btn btn-default" role="button"
-   title="Download patch mbox with dependencies">series</a>
-  {% elif submission.series.all|length > 1 %}
-  <button type="button" class="btn btn-default dropdown-toggle"
-   data-toggle="dropdown">
-   series <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu">
-  {% for series in submission.series.all %}
-   <li><a href="{% url 'series-mbox' series_id=series.id %}"
-    >{{ series }}</a></li>
-  {% endfor %}
-  </ul>
-  {% endif %}
- </div>
+ {% include "patchwork/download_buttons.html" %}
 </h2>
 
 <div id="patch" class="patch">
