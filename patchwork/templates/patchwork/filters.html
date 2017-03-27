@@ -144,6 +144,10 @@ $(document).ready(function() {
    href="javascript:filter_click()"><span
    class="glyphicon glyphicon-plus-sign"></span></a>
  {% endif %}
+ {% with patch_count=page.paginator.count %}
+   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{ patch_count }}
+   patch{{ patch_count | pluralize:"es" }}
+ {% endwith %}
  </div>
  <div id="filterform" style="padding-top: 1em; display: none">
   <form class="form-horizontal" method="get">
