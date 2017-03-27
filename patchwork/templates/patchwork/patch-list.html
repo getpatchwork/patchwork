@@ -50,6 +50,18 @@ $(document).ready(function() {
         e.preventDefault();
     });
 });
+
+{% if user.is_authenticated and user.profile.show_ids %}
+function copyToClipboard(patch_id) {
+    input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.setAttribute('value', patch_id);
+    input = document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    input.remove();
+}
+{% endif %}
 </script>
 <form method="post">
 {% csrf_token %}
@@ -62,6 +74,12 @@ $(document).ready(function() {
    {% if user.is_authenticated %}
    <th style="text-align: center;">
     <input type="checkbox" id="check-all"/>
+   </th>
+   {% endif %}
+
+   {% if user.is_authenticated and user.profile.show_ids %}
+   <th>
+     ID
    </th>
    {% endif %}
 
@@ -173,6 +191,13 @@ $(document).ready(function() {
    {% if user.is_authenticated %}
    <td style="text-align: center;">
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
+   </td>
+   {% endif %}
+   {% if user.is_authenticated and user.profile.show_ids %}
+   <td>
+     <button type="button" class="btn btn-xs"
+	     onClick="javascript:copyToClipboard('{{patch.id}}');"
+	     title="Copy to Clipboard">{{ patch.id }}</button>
    </td>
    {% endif %}
    <td>

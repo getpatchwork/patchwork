@@ -138,6 +138,9 @@ class UserProfile(models.Model):
     items_per_page = models.PositiveIntegerField(
         default=100, null=False, blank=False,
         help_text='Number of items to display per page')
+    show_ids = models.BooleanField(
+        default=False,
+        help_text='Show click-to-copy patch IDs in the list view')
 
     @property
     def name(self):

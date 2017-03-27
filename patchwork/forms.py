@@ -107,7 +107,10 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['items_per_page']
+        fields = ['items_per_page', 'show_ids']
+        labels = {
+            'show_ids': 'Show Patch IDs:'
+        }
 
 
 def _get_delegate_qs(project, instance=None):
