@@ -53,6 +53,7 @@ class StateField(RelatedField):
         'incorrect_type': _('Incorrect type. Expected string value, received '
                             '{data_type}.'),
     }
+    queryset = ''  # django 1.6, rest_framework 3.2 require this
 
     def to_internal_value(self, data):
         try:
