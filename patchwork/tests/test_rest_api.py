@@ -722,7 +722,6 @@ class TestBundleAPI(APITestCase):
 
     def test_detail(self):
         """Validate we can get a specific bundle."""
-        user = create_user()
         bundle = create_bundle(public=True)
 
         resp = self.client.get(self.api_url(bundle.id))
