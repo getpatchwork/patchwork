@@ -38,6 +38,17 @@ subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
 of community projects.
 
+Requirements
+------------
+
+- Python (2.7, 3.3 - 3.5)
+
+- Django (1.6 - 1.10)
+
+- Django REST Framework (3.2 - 3.6)
+
+- Django Filters (0.11 - 1.0)
+
 Development Installation
 ------------------------
 
