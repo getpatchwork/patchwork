@@ -20,6 +20,7 @@
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
 
+from patchwork.compat import LOOKUP_FIELD
 from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import CoverLetter
@@ -31,8 +32,8 @@ from patchwork.models import Series
 class TimestampMixin(FilterSet):
 
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
-    before = IsoDateTimeFilter(name='date', lookup_expr='lt')
-    since = IsoDateTimeFilter(name='date', lookup_expr='gte')
+    before = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'lt'})
+    since = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'gte'})
 
 
 class SeriesFilter(TimestampMixin, FilterSet):

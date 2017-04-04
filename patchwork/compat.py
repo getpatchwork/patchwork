@@ -20,6 +20,7 @@
 """Compatibility wrappers for various Django versions."""
 
 import django
+from django.conf import settings
 
 
 # render_to_string
@@ -39,3 +40,39 @@ else:
         context_instance = RequestContext(request) if request else None
         return loader.render_to_string(template_name, context,
                                        context_instance)
+
+
+# DjangoFilterBackend
+#
+# The DjangoFilterBackend was provided in Django REST Framework from 3.0 to
+# 3.4, was marked as pending deprecation in 3.5, was deprecated in 3.6 and will
+# be removed in 3.7. However, the equivalent DjangoFilterBackend found in
+# django-filter is only available since 1.0 of that package.
+#
+# http://www.django-rest-framework.org/topics/3.6-announcement/
+
+if settings.ENABLE_REST_API:
+    import rest_framework  # noqa
+
+    if rest_framework.VERSION >= '3.5':
+        from django_filters.rest_framework import DjangoFilterBackend  # noqa
+    else:
+        from rest_framework.filters import DjangoFilterBackend  # noqa
+
+
+# LOOKUP_FIELD
+#
+# The django-filter library uses the 'lookup_expr' attribute to determine which
+# lookup type to use, e.g. exact, gt, lt etc. However, until 0.13 this was
+# called 'lookup_type', and 0.13 supported both but gave a deprecation warning.
+# We need to support these versions for use with older versions of DRF.
+#
+# https://github.com/carltongibson/django-filter/blob/v0.13/django_filters\
+#   /filters.py#L35-L36
+if settings.ENABLE_REST_API:
+    import django_filters  # noqa
+
+    if django_filters.VERSION >= (1, 0):
+        LOOKUP_FIELD = 'lookup_expr'
+    else:
+        LOOKUP_FIELD = 'lookup_type'
