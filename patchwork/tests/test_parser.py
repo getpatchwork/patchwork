@@ -33,7 +33,7 @@ from patchwork.models import Person
 from patchwork.models import State
 from patchwork.parser import clean_subject
 from patchwork.parser import find_author
-from patchwork.parser import find_content
+from patchwork.parser import find_patch_content as find_content
 from patchwork.parser import find_project_by_header
 from patchwork.parser import find_series
 from patchwork.parser import parse_mail as _parse_mail

@@ -342,10 +342,15 @@ def parse_version(subject, subject_prefixes):
     return 1
 
 
-def find_content(mail):
-    """Extract a comment and potential diff from a mail."""
-    patchbuf = None
-    commentbuf = ''
+def _find_content(mail):
+    """Extract the payload(s) from a mail.
+
+    Handles various payload types.
+
+    :returns: A list of tuples, corresponding the payload and subtype
+        of payload.
+    """
+    results = []
 
     for part in mail.walk():
         if part.get_content_maintype() != 'text':
@@ -381,8 +386,19 @@ def find_content(mail):
 
             # Could not find a valid decoded payload.  Fail.
             if payload is None:
-                return None, None
+                continue
 
+        results.append((payload, subtype))
+
+    return results
+
+
+def find_patch_content(mail):
+    """Extract a comment and potential diff from a mail."""
+    patchbuf = None
+    commentbuf = ''
+
+    for payload, subtype in _find_content(mail):
         if subtype in ['x-patch', 'x-diff']:
             patchbuf = payload
         elif subtype == 'plain':
@@ -397,6 +413,22 @@ def find_content(mail):
     commentbuf = clean_content(commentbuf)
 
     return patchbuf, commentbuf
+
+
+def find_comment_content(mail):
+    """Extract content from a mail."""
+    commentbuf = ''
+
+    for payload, _ in _find_content(mail):
+        if not payload:
+            continue
+
+        commentbuf += payload.strip() + '\n'
+
+    commentbuf = clean_content(commentbuf)
+
+    # keep the method signature the same as find_patch_content
+    return None, commentbuf
 
 
 def find_submission_for_comment(project, refs):
@@ -759,12 +791,7 @@ def parse_mail(mail, list_id=None):
         logger.error('Failed to find a project for email')
         return
 
-    # parse content
-
-    diff, message = find_content(mail)
-
-    if not (diff or message):
-        return  # nothing to work with
+    # parse metadata
 
     msgid = mail.get('Message-Id').strip()
     author = find_author(mail)
@@ -776,6 +803,17 @@ def parse_mail(mail, list_id=None):
     refs = find_references(mail)
     date = find_date(mail)
     headers = find_headers(mail)
+
+    # parse content
+
+    if not is_comment:
+        diff, message = find_patch_content(mail)
+    else:
+        diff, message = find_comment_content(mail)
+
+    if not (diff or message):
+        return  # nothing to work with
+
     pull_url = parse_pull_request(message)
 
     # build objects
@@ -913,9 +951,6 @@ def parse_mail(mail, list_id=None):
     submission = find_submission_for_comment(project, refs)
     if not submission:
         return
-
-    if is_comment and diff:
-        message += diff
 
     author.save()
 
