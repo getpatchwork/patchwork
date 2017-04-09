@@ -69,7 +69,12 @@ class Command(BaseCommand):
             self.stdout.write('Invalid path: %s' % path)
             sys.exit(1)
 
-        mbox = mailbox.mbox(path)
+        # assume if <infile> is a directory, then we're passing a maildir
+        if os.path.isfile(path):
+            mbox = mailbox.mbox(path)
+        else:
+            mbox = mailbox.Maildir(path)
+
         count = len(mbox)
 
         logger.info('Parsing %d mails', count)

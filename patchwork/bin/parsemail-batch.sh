@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Patchwork - automated patch tracking system
-# Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
+# Copyright (C) 2017 Stephen Finucane <stephen@that.guru>
 #
 # This file is part of the Patchwork package.
 #
@@ -20,25 +20,16 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 BIN_DIR=$(dirname "$0")
+PATCHWORK_BASE=$(readlink -e "$BIN_DIR/../..")
 
-if [ $# -lt 1 ]; then
-    echo "usage: $0 <dir> [options]" >&2
-    exit 1
+if [ -z "$PW_PYTHON" ]; then
+    PW_PYTHON=python2
 fi
 
-mail_dir="$1"
-
-echo "dir: $mail_dir"
-
-if [ ! -d "$mail_dir" ]; then
-    echo "$mail_dir should be a directory"? >&2
-    exit 1
+if [ -z "$DJANGO_SETTINGS_MODULE" ]; then
+    DJANGO_SETTINGS_MODULE=patchwork.settings.production
 fi
 
-shift
-
-find "$mail_dir" -maxdepth 1 |
-while read -r line; do
-    echo "$line"
-    "$BIN_DIR/parsemail.sh" "$@" < "$line"
-done
+PYTHONPATH="${PATCHWORK_BASE}:${PATCHWORK_BASE}/lib/python:$PYTHONPATH" \
+    DJANGO_SETTINGS_MODULE="$DJANGO_SETTINGS_MODULE" \
+    "$PW_PYTHON" "$PATCHWORK_BASE/manage.py" parsearchive "$@"
