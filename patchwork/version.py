@@ -56,6 +56,7 @@ def get_raw_git_version():
     """Returns the raw git version via 'git-describe'."""
     try:
         git_version = subprocess.check_output(['git', 'describe'],
+                                              stderr=subprocess.STDOUT,
                                               cwd=ROOT_DIR)
     except (OSError, subprocess.CalledProcessError):
         return ''
