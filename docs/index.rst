@@ -29,3 +29,12 @@ of community projects.
    usage/headers
    usage/rest
    usage/xmlrpc
+
+.. _deployment-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Deployment Documentation
+
+   deployment/installation
+   deployment/upgrading
