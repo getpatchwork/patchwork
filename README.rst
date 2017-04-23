@@ -41,10 +41,10 @@ of community projects.
 Development Installation
 ------------------------
 
-`Docker`_ is the recommended installation methods for a Patchwork
-development environment. To install Patchwork:
+`Docker`_ is the recommended installation methods for a Patchwork development
+environment. To install Patchwork:
 
-1. Install **`Docker`_** and **`docker-compose`_**.
+1. Install `Docker`_ and `docker-compose`_.
 
 2. Clone the Patchwork repo::
 
