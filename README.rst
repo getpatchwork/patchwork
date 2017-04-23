@@ -66,14 +66,20 @@ installation methods, refer to the `documentation`_.
 Talks and Presentations
 -----------------------
 
-* **`Mailing List, Meet CI`_** - FOSDEM 2017
+* **Mailing List, Meet CI** (slides__) - FOSDEM 2017
 
-* **`Patches carved into stone tablets`_** - Kernel Recipes Conference 2016
+* **Patches carved into stone tablets** (slides__) - Kernel Recipes Conference
+  2016
 
-* **`A New Patchwork`_** - FOSDEM 2016
+* **A New Patchwork** (slides__) - FOSDEM 2016
 
-* **`Patchwork: reducing your patch workload`_** - Linux Plumbers Conference
-  2011
+* **Patchwork: reducing your patch workload** (slides__) - Linux Plumbers
+  Conference 2011
+
+__ https://speakerdeck.com/stephenfin/mailing-list-meet-ci
+__ https://github.com/gregkh/presentation-stone-tools/blob/34a3963/stone-tools.pdf
+__ https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
+__ https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
 
 Additional Information
 ----------------------
