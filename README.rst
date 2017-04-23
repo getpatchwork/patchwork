@@ -2,20 +2,20 @@
 Patchwork
 =========
 
-.. image:: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
-   :target: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
+.. image:: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
+   :target: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
    :alt: Requirements Status
 
 .. image:: https://codecov.io/gh/getpatchwork/patchwork/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/getpatchwork/patchwork
    :alt: Codecov
 
-.. image:: https://landscape.io/github/getpatchwork/patchwork/master
-   :target: https://landscape.io/github/getpatchwork/patchwork/master/landscape.svg?style=flat
+.. image:: https://landscape.io/github/getpatchwork/patchwork/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/getpatchwork/patchwork/master
    :alt: Code Health
 
-.. image:: https://travis-ci.org/getpatchwork/patchwork
-   :target: https://travis-ci.org/getpatchwork/patchwork.svg?branch=master
+.. image:: https://travis-ci.org/getpatchwork/patchwork.svg?branch=master
+   :target: https://travis-ci.org/getpatchwork/patchwork
    :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/patchwork/badge/?version=latest
