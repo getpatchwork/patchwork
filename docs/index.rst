@@ -48,6 +48,7 @@ of community projects.
    development/contributing
    development/installation
    development/releasing
+   development/rest
    development/xmlrpc
 
 .. _release-note-docs:

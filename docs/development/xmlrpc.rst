@@ -8,11 +8,6 @@ This guide covers development information for the Patchwork XML-RPC API. For
 information on using the REST API, refer to `rest`. For information on general
 usage of the XML-RPC API, refer to :doc:`../usage/xmlrpc`.
 
-.. note::
-
-   The XML-RPC API can be enabled/disabled by the administrator: it may not be
-   available in every instance.
-
 Documentation
 -------------
 
@@ -23,7 +18,7 @@ You can find this at the following URL:
 
 where `patchwork.example.com` refers to the URL of your Patchwork instance.
 
-.. note::
+.. versionchanged:: 1.1
 
    Automatic documentation generation for the Patchwork API was introduced in
    Patchwork v1.1. Prior versions of Patchwork do not offer this functionality.

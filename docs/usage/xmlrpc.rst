@@ -6,15 +6,20 @@ The XML-RPC API
    This guide covers usage information for the Patchwork XML-RPC API.  For
    information on using the REST API, refer to :doc:`rest`. For information on
    developing custom applications or clients for this API, refer to the
-   `../development/xmlrpc`.
+   :doc:`../development/xmlrpc`.
 
 Patchwork provides an XML-RPC API. This API can be used to be used to retrieve
 and modify information about patches, projects and more.
 
-.. note::
+.. important::
 
    The XML-RPC API can be enabled/disabled by the administrator: it may not be
-   available in every instance.
+   available in every instance. Refer to ``/about`` on your given instance for
+   the status of the API, e.g.
+
+       https://patchwork.ozlabs.org/about
+
+   This URL is only supported on Patchwork 2.0+.
 
 pwclient
 --------

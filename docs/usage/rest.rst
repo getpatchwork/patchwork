@@ -1,63 +1,38 @@
 The REST API
 ============
 
+.. note::
+
+   This guide covers usage information for the Patchwork REST API. For
+   information on using the XML-RPC API, refer to :doc:`xmlrpc`. For
+   information on developing custom applications or clients for this API, refer
+   to the :doc:`../development/rest`.
+
 Patchwork provides a REST API. This API can be used to retrieve and modify
 information about patches, projects and more.
 
-.. note::
+.. important::
+
+   The REST API can be enabled/disabled by the administrator: it may not be
+   available in every instance. Refer to ``/about`` on your given instance for
+   the status of the API, e.g.
+
+       https://patchwork.ozlabs.org/about
+
+.. versionadded:: 2.0
 
    The REST API was introduced in Patchwork v2.0. Users of earlier Patchwork
    versions should instead refer to :doc:`xmlrpc`.
 
-Documentation
--------------
+git-pw
+------
 
-Patchwork provides automatically generated documentation for the RESET API.
-You can find this at the following URL:
+The `git-pw` application can be used to integrate Git with Patchwork. The
+`git-pw` application relies on the REST API and can be used to interact to
+list, download and apply series, bundles and individual patches.
 
-    http://patchwork.example.com/api/
+More information on `git-pw`, including installation and usage instructions,
+can be found in the `documentation`__ and the `GitHub repo`__.
 
-where `patchwork.example.com` refers to the URL of your Patchwork instance.
-
-Interacting with the API
-------------------------
-
-REST APIs run over plain HTTP(S), thus, the API can be interfaced using
-applications or libraries that support this widespread protocol. One such
-application is `curl`__, which can be used to both retrieve and send
-information to the REST API. For example, to get the version of the REST API
-for a Patchwork instance hosted at `patchwork.example.com`, run:
-
-.. code-block:: shell
-
-    $ curl -s http://localhost:8000/api/1.0/ | python -m json.tool
-    {
-        "patches": "http://localhost:8000/api/1.0/patches/",
-        "people": "http://localhost:8000/api/1.0/people/",
-        "projects": "http://localhost:8000/api/1.0/projects/",
-        "users": "http://localhost:8000/api/1.0/users/"
-    }
-
-In addition, a huge variety of libraries are avaiable for interacting with and
-parsing the output of REST APIs. The `requests`__ library is wide-spread and
-well-supported. To repeat the above example using `requests`:
-
-.. code-block:: pycon
-
-    $ python
-    >>> import json
-    >>> import requests
-    >>> r = requests.get('http://patchwork.example.com/api/1.0/')
-    >>> print(json.dumps(r.json(), indent=2))
-    {
-          "users": "http://localhost:8000/api/1.0/users/",
-          "patches": "http://localhost:8000/api/1.0/patches/",
-          "projects": "http://localhost:8000/api/1.0/projects/",
-          "people": "http://localhost:8000/api/1.0/people/"
-    }
-
-Tools like `curl` and libraries like `requests` can be used to build anything
-from small utilities to full-fledged clients targeting the REST API.
-
-__ https://curl.haxx.se/
-__ http://docs.python-requests.org/en/master/
+__ https://git-pw.readthedocs.io/
+__ https://github.com/getpatchwork/git-pw
