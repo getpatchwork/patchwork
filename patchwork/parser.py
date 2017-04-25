@@ -311,7 +311,7 @@ def parse_series_marker(subject_prefixes):
         (x, n) if markers found, else (None, None)
     """
 
-    regex = re.compile('^([0-9]+)/([0-9]+)$')
+    regex = re.compile('^([0-9]+)(?:/| of )([0-9]+)$')
     m = _find_matching_prefix(subject_prefixes, regex)
     if m:
         return (int(m.group(1)), int(m.group(2)))
