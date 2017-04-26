@@ -27,8 +27,7 @@ of community projects.
    usage/design
    usage/delegation
    usage/headers
-   usage/rest
-   usage/xmlrpc
+   usage/clients
 
 .. _deployment-docs:
 
@@ -39,7 +38,7 @@ of community projects.
    deployment/installation
    deployment/upgrading
 
-.. development-docs:
+.. _development-docs:
 
 .. toctree::
    :maxdepth: 2
@@ -48,8 +47,16 @@ of community projects.
    development/contributing
    development/installation
    development/releasing
-   development/rest
-   development/xmlrpc
+   development/api
+
+.. _api-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Documentation
+
+   api/rest
+   api/xmlrpc
 
 .. _release-note-docs:
 
