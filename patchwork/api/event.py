@@ -19,8 +19,8 @@
 
 from collections import OrderedDict
 
-from django.core.urlresolvers import reverse
 from rest_framework.generics import ListAPIView
+from rest_framework.reverse import reverse
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 

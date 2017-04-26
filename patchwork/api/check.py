@@ -100,12 +100,12 @@ class CheckListCreate(CheckMixin, ListCreateAPIView):
 
     lookup_url_kwarg = 'patch_id'
 
-    def create(self, request, patch_id):
+    def create(self, request, patch_id, *args, **kwargs):
         p = Patch.objects.get(id=patch_id)
         if not p.is_editable(request.user):
             raise PermissionDenied()
         request.patch = p
-        return super(CheckListCreate, self).create(request)
+        return super(CheckListCreate, self).create(request, *args, **kwargs)
 
 
 class CheckDetail(CheckMixin, MultipleFieldLookupMixin, RetrieveAPIView):

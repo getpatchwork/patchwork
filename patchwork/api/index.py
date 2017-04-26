@@ -17,22 +17,21 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.core.urlresolvers import reverse
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 
 class IndexView(APIView):
 
-    def get(self, request, format=None):
+    def get(self, request, *args, **kwargs):
         return Response({
-            'projects': request.build_absolute_uri(
-                reverse('api-project-list')),
-            'users': request.build_absolute_uri(reverse('api-user-list')),
-            'people': request.build_absolute_uri(reverse('api-person-list')),
-            'patches': request.build_absolute_uri(reverse('api-patch-list')),
-            'covers': request.build_absolute_uri(reverse('api-cover-list')),
-            'series': request.build_absolute_uri(reverse('api-series-list')),
-            'events': request.build_absolute_uri(reverse('api-event-list')),
-            'bundles': request.build_absolute_uri(reverse('api-bundle-list')),
+            'projects': reverse('api-project-list', request=request),
+            'users': reverse('api-user-list', request=request),
+            'people': reverse('api-person-list', request=request),
+            'patches': reverse('api-patch-list', request=request),
+            'covers': reverse('api-cover-list', request=request),
+            'series': reverse('api-series-list', request=request),
+            'events': reverse('api-event-list', request=request),
+            'bundles': reverse('api-bundle-list', request=request),
         })

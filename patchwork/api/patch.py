@@ -19,11 +19,11 @@
 
 import email.parser
 
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
+from rest_framework.reverse import reverse
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 

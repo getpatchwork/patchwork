@@ -144,7 +144,7 @@ except ImportError:
 
 REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS':
-        'rest_framework.versioning.NamespaceVersioning',
+        'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
     'DEFAULT_FILTER_BACKENDS': (
         'patchwork.compat.DjangoFilterBackend',
