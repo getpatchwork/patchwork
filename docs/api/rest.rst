@@ -86,6 +86,23 @@ overview of existing API clients, refer to :doc:`../usage/clients`.
     own instance of Patchwork locally <../development/installation>` and
     experiment with that instead.
 
+Versioning
+----------
+
+By default, all requests will receive the latest version of the API: currently
+``1.0``:
+
+.. code-block:: http
+
+    GET /api HTTP/1.1
+
+You should explicitly request this version through the URL to prevent API
+changes breaking your application:
+
+.. code-block:: http
+
+    GET /api/1.0 HTTP/1.1
+
 Schema
 ------
 
