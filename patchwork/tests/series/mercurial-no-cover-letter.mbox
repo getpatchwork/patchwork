@@ -1,0 +1,154 @@
+From andrew@shadura.me Mon Jan 23 08:19:08 2017
+Return-Path: <andrew@shadura.me>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Subject: [PATCH 1 of 2] contrib: fix check-commit to not reject commits
+ from `hg sign` and `hg tag`
+X-Mercurial-Node: 2fb3ae89e4e1992e93826c0e3f04e4f965edb0ab
+X-Mercurial-Series-Index: 1
+X-Mercurial-Series-Total: 2
+Message-Id: <2fb3ae89e4e1992e9382.1485159499@nuevo>
+X-Mercurial-Series-Id: <2fb3ae89e4e1992e9382.1485159499@nuevo>
+User-Agent: Mercurial-patchbomb/3.9.1
+Date: Mon, 23 Jan 2017 09:18:19 +0100
+From: Andrew Shadura <andrew@shadura.me>
+To: Stephen Finucane <stephen@that.guru>
+Content-Transfer-Encoding: 8bit
+
+# HG changeset patch
+# User Augie Fackler <augie@google.com>
+# Date 1484800475 18000
+#      Wed Jan 18 23:34:35 2017 -0500
+# Branch stable
+# Node ID 2fb3ae89e4e1992e93826c0e3f04e4f965edb0ab
+# Parent  94af7d0c812fe7d3a5651191685ca43e1a331814
+contrib: fix check-commit to not reject commits from `hg sign` and `hg tag`
+
+I'm tired of having a spurious red build every time we do a
+release. Fix it once and for all.
+
+diff --git a/contrib/check-commit b/contrib/check-commit
+--- a/contrib/check-commit
++++ b/contrib/check-commit
+@@ -59,6 +59,10 @@ def checkcommit(commit, node=None):
+     exitcode = 0
+     printed = node is None
+     hits = []
++    signtag = (afterheader +
++          r'Added (tag [^ ]+|signature) for changeset [a-f0-9]{12}')
++    if re.search(signtag, commit):
++        return 0
+     for exp, msg in errors:
+         for m in re.finditer(exp, commit):
+             end = m.end()
+diff --git a/tests/test-contrib-check-commit.t b/tests/test-contrib-check-commit.t
+--- a/tests/test-contrib-check-commit.t
++++ b/tests/test-contrib-check-commit.t
+@@ -30,6 +30,30 @@ A fine patch:
+   > EOF
+   $ cat patch-with-long-header.diff | $TESTDIR/../contrib/check-commit
+ 
++This would normally be against the rules, but it's okay because that's
++what tagging and signing looks like:
++
++  $ cat > creates-a-tag.diff << EOF
++  > # HG changeset patch
++  > # User Augie Fackler <raf@durin42.com>
++  > # Date 1484787778 18000
++  > #      Wed Jan 18 20:02:58 2017 -0500
++  > # Branch stable
++  > # Node ID c177635e4acf52923bc3aa9f72a5b1ad1197b173
++  > # Parent  a1dd2c0c479e0550040542e392e87bc91262517e
++  > Added tag 4.1-rc for changeset a1dd2c0c479e
++  > 
++  > diff --git a/.hgtags b/.hgtags
++  > --- a/.hgtags
++  > +++ b/.hgtags
++  > @@ -150,3 +150,4 @@ 438173c415874f6ac653efc1099dec9c9150e90f
++  >  eab27446995210c334c3d06f1a659e3b9b5da769 4.0
++  >  b3b1ae98f6a0e14c1e1ba806a6c18e193b6dae5c 4.0.1
++  >  e69874dc1f4e142746ff3df91e678a09c6fc208c 4.0.2
++  > +a1dd2c0c479e0550040542e392e87bc91262517e 4.1-rc
++  > EOF
++  $ $TESTDIR/../contrib/check-commit < creates-a-tag.diff
++
+ A patch with lots of errors:
+ 
+   $ cat > patch-with-long-header.diff << EOF
+
+From andrew@shadura.me Mon Jan 23 08:19:08 2017
+Return-Path: <andrew@shadura.me>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Subject: [PATCH 2 of 2] tests: work around FreeBSD's unzip having slightly
+ different output
+X-Mercurial-Node: b3d2e8cce78c04dbf6f20f0846b6ea8b622983c4
+X-Mercurial-Series-Index: 2
+X-Mercurial-Series-Total: 2
+Message-Id: <b3d2e8cce78c04dbf6f2.1485159500@nuevo>
+X-Mercurial-Series-Id: <2fb3ae89e4e1992e9382.1485159499@nuevo>
+In-Reply-To: <2fb3ae89e4e1992e9382.1485159499@nuevo>
+References: <2fb3ae89e4e1992e9382.1485159499@nuevo>
+User-Agent: Mercurial-patchbomb/3.9.1
+Date: Mon, 23 Jan 2017 09:18:20 +0100
+From: Andrew Shadura <andrew@shadura.me>
+To: Stephen Finucane <stephen@that.guru>
+Content-Transfer-Encoding: 8bit
+
+# HG changeset patch
+# User Augie Fackler <augie@google.com>
+# Date 1484801021 18000
+#      Wed Jan 18 23:43:41 2017 -0500
+# Branch stable
+# Node ID b3d2e8cce78c04dbf6f20f0846b6ea8b622983c4
+# Parent  2fb3ae89e4e1992e93826c0e3f04e4f965edb0ab
+tests: work around FreeBSD's unzip having slightly different output
+
+According to man 1 unzip, this unzip appeared in FreeBSD 8.0. It's
+what comes as /usr/bin/unzip, so we may as well cater to it since it's
+easy.
+
+diff --git a/tests/test-archive.t b/tests/test-archive.t
+--- a/tests/test-archive.t
++++ b/tests/test-archive.t
+@@ -327,14 +327,11 @@ old file -- date clamped to 1980
+   $ hg add old
+   $ hg commit -m old
+   $ hg archive ../old.zip
+-  $ unzip -l ../old.zip
++  $ unzip -l ../old.zip | grep -v -- ----- | egrep -v files$
+   Archive:  ../old.zip
+   \s*Length.* (re)
+-  *-----* (glob)
+   *172*80*00:00*old/.hg_archival.txt (glob)
+   *0*80*00:00*old/old (glob)
+-  *-----* (glob)
+-  \s*172\s+2 files (re)
+ 
+ show an error when a provided pattern matches no files
+ 
+diff --git a/tests/test-subrepo-recursion.t b/tests/test-subrepo-recursion.t
+--- a/tests/test-subrepo-recursion.t
++++ b/tests/test-subrepo-recursion.t
+@@ -321,10 +321,9 @@ Test archiving to zip file (unzip output
+ 
+ (unzip date formating is unstable, we do not care about it and glob it out)
+ 
+-  $ unzip -l ../archive.zip
++  $ unzip -l ../archive.zip | grep -v -- ----- | egrep -v files$
+   Archive:  ../archive.zip
+     Length [ ]* Date [ ]* Time [ ]* Name (re)
+-  [\- ]* (re)
+         172  [0-9:\- ]*  .hg_archival.txt (re)
+          10  [0-9:\- ]*  .hgsub (re)
+          45  [0-9:\- ]*  .hgsubstate (re)
+@@ -333,8 +332,6 @@ Test archiving to zip file (unzip output
+          45  [0-9:\- ]*  foo/.hgsubstate (re)
+           9  [0-9:\- ]*  foo/y.txt (re)
+           9  [0-9:\- ]*  foo/bar/z.txt (re)
+-  [\- ]* (re)
+-        303  [ ]*        8 files (re)
+ 
+ Test archiving a revision that references a subrepo that is not yet
+ cloned:
+

@@ -807,6 +807,8 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_series_marker(['bar']), (None, None))
         self.assertEqual(parse_series_marker(['bar', '1/2']), (1, 2))
         self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
+        self.assertEqual(parse_series_marker(['bar', '1 of 2']), (1, 2))
+        self.assertEqual(parse_series_marker(['bar', '0 of 12']), (0, 12))
 
     def test_version(self):
         self.assertEqual(parse_version('', []), 1)

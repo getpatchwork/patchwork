@@ -311,7 +311,7 @@ def parse_series_marker(subject_prefixes):
         (x, n) if markers found, else (None, None)
     """
 
-    regex = re.compile('^([0-9]+)/([0-9]+)$')
+    regex = re.compile(r'^([0-9]+)(?:/| of )([0-9]+)$')
     m = _find_matching_prefix(subject_prefixes, regex)
     if m:
         return (int(m.group(1)), int(m.group(2)))
@@ -471,10 +471,17 @@ def find_submission_for_comment(project, refs):
 
 def split_prefixes(prefix):
     """Turn a prefix string into a list of prefix tokens."""
+    tokens = []
+    # detect mercurial series marker (M of N)
+    series_re = re.compile(r'^PATCH (\d+ of \d+)(.*)$')
+    match = series_re.match(prefix)
+    if match is not None:
+        series, prefix = match.groups()
+        tokens.extend(['PATCH', series])
     split_re = re.compile(r'[,\s]+')
     matches = split_re.split(prefix)
-
-    return [s for s in matches if s != '']
+    tokens.extend([s for s in matches if s != ''])
+    return tokens
 
 
 def clean_subject(subject, drop_prefixes=None):

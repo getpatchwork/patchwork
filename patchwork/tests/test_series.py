@@ -438,6 +438,50 @@ class SeriesTotalTest(_BaseTestCase):
         self.assertTrue(series.received_all)
 
 
+class MercurialSeriesTest(_BaseTestCase):
+    """Tests for a series without any revisions.
+
+    All patches are generated using hg(1) email, provided via the Patchbomb
+    extension.
+    """
+
+    def test_cover_letter(self):
+        """Series with a cover letter.
+
+        Parse a series with a cover letter and two patches.
+
+        Input:
+
+          - [PATCH 0 of 2] Sample Mercurial patches
+            - [PATCH 1 of 2] contrib: fix check-commit to not reject
+                commits from `hg sign` and `hg tag`
+            - [PATCH 2 of 2] tests: work around FreeBSD's unzip having
+                slightly different output
+        """
+        covers, patches, comments = self._parse_mbox(
+            'mercurial-cover-letter.mbox', [1, 2, 0])
+
+        self.assertSerialized(patches, [2])
+        self.assertSerialized(covers, [1])
+
+    def test_no_cover_letter(self):
+        """Series without a cover letter.
+
+        Parse a series with two patches but no cover letter.
+
+        Input:
+
+          - [PATCH 1 of 2] contrib: fix check-commit to not reject
+              commits from `hg sign` and `hg tag`
+            - [PATCH 2 of 2] tests: work around FreeBSD's unzip having
+                slightly different output
+        """
+        _, patches, _ = self._parse_mbox(
+            'mercurial-no-cover-letter.mbox', [0, 2, 0])
+
+        self.assertSerialized(patches, [2])
+
+
 class SeriesNameTestCase(TestCase):
 
     def setUp(self):
