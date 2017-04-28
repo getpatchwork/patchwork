@@ -4,7 +4,7 @@ Installation
 This document describes the necessary steps to configure Patchwork in a
 production environment. This requires a significantly "harder" deployment than
 the one used for development. If you are interested in developing Patchwork,
-refer to the **development guide** instead.
+refer to the :doc:`development guide <../development/installation>` instead.
 
 This document describes a two-node installation of Patchwork, consisting of a
 database sever and an application server. It should be possible to combine
@@ -186,6 +186,8 @@ corresponding distro package for each of these requirements. For example:
    of these dependencies.
 
 __ https://pkgs.org/
+
+.. _deployment-settings:
 
 Configure Patchwork
 ~~~~~~~~~~~~~~~~~~~
@@ -408,6 +410,8 @@ at boot:
 
 __ https://uwsgi-docs.readthedocs.io/en/latest/Systemd.html
 __ https://uwsgi-docs.readthedocs.io/en/latest/Upstart.html
+
+.. _deployment-final-steps:
 
 Final Steps
 ~~~~~~~~~~~

@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``DEFAULT_PATCHES_PER_PAGE`` has been renamed as
+    ``DEFAULT_ITEMS_PER_PAGE`` as it is now possible to list cover letters in
+    addition to patches.

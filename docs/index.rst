@@ -36,6 +36,7 @@ of community projects.
    :caption: Deployment Documentation
 
    deployment/installation
+   deployment/configuration
    deployment/upgrading
 
 .. _development-docs:
