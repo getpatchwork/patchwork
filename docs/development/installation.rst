@@ -3,8 +3,8 @@ Installation
 
 This document describes the necessary steps to configure Patchwork in a
 development environment. If you are interested in deploying Patchwork in a
-production environment, please refer to [the deployment guide][doc-deployment]
-instead.
+production environment, refer to `the deployment guide
+<../deployment/installation>`__ instead.
 
 To begin, you should clone Patchwork:
 
@@ -19,7 +19,7 @@ Patchwork provides a Docker-based environment for quick configuration of a
 development environment. This is the preferred installation method. To
 configure Patchwork using Docker:
 
-1. Install **`docker`_** and **`docker-compose`_**.
+1. Install `docker`_ and `docker-compose`_.
 
 2. Build the images. This will download over 200MB from the internet:
 
@@ -211,8 +211,8 @@ If you do not have `virtualenv` installed then you should install it now. This
 can be installed using the `python-virtualenv` or `python3-virtualenv`
 packages. Alternatively you can install these using `pip`.
 
-It is also helpful to install [`tox`][ref-tox] which is used for running tests
-in Patchwork. This can be installed using the `python-tox` or `python3-tox`
+It is also helpful to install `tox` which is used for running tests in
+Patchwork. This can be installed using the `python-tox` or `python3-tox`
 packages, or via `pip`.
 
 __ https://virtualenv.readthedocs.io/en/latest/

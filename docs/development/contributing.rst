@@ -18,9 +18,27 @@ below for more information on usage of this tool.
 Testing
 -------
 
-Patchwork includes a `tox`__ script to automate testing. This requires a
-functional database and some Python requirements like `tox`. Refer to the
+Patchwork includes a `tox`_ script to automate testing. This requires a
+functional database and some Python requirements like `tox`. Refer to
 :doc:`installation` for information on how to configure these.
+
+You may also need to install `tox`. If so, do this now:
+
+.. code-block:: shell
+
+   $ sudo pip install tox
+
+.. tip::
+
+   If you're using Docker or Vagrant-based installs, you may not need to
+   install `tox` locally. Instead, it will already be installed inside the
+   container/VM. For Docker, you can run `tox` like so:
+
+   .. code-block:: shell
+
+      $ docker-compose run web tox [ARGS...]
+
+   For Vagrant, SSH into the container and run `tox` as below.
 
 Assuming these requirements are met, actually testing Patchwork is quite easy
 to do. To start, you can show the default targets like so:
@@ -31,7 +49,8 @@ to do. To start, you can show the default targets like so:
 
 You'll see that this includes a number of targets to run unit tests against the
 different versions of Django supported, along with some other targets related
-to code coverage and code quality. To run one of these, use the `-e` parameter:
+to code coverage and code quality. To run one of these, use the ``-e``
+parameter:
 
 .. code-block:: shell
 
@@ -53,13 +72,33 @@ this:
 
    $ tox
 
-__ https://tox.readthedocs.io/en/latest/
+.. _release-notes:
+
+Release Notes
+-------------
+
+Patchwork uses `reno`_ for release note management. To use `reno`, you must
+first install it:
+
+.. code-block:: shell
+
+   $ sudo pip install tox
+
+Once installed, a new release note can be created using the ``reno new``
+command:
+
+.. code-block:: shell
+
+   $ reno new <slugified-summary-of-change>
+
+Modify the created file, removing any irrelevant sections, and include the
+modified file in your change.
 
 Submitting Changes
 ------------------
 
-All patches should be sent to the `mailing list`__. When doing so, please abide
-by the `QEMU guidelines`__ on contributing or submitting patches. This covers
+All patches should be sent to the `mailing list`_. When doing so, please abide
+by the `QEMU guidelines`_ on contributing or submitting patches. This covers
 both the initial submission and any follow up to the patches. In particular,
 ensure:
 
@@ -67,7 +106,9 @@ ensure:
 
 * Documentation has been updated with new requirements, new script names etc.
 
-* The `CHANGES` file has been updated with any added or removed features
+* :ref:`A release note is included <release-notes>`
 
-__ https://ozlabs.org/mailman/listinfo/patchwork
-__ http://wiki.qemu.org/Contribute/SubmitAPatch
+.. _tox: https://tox.readthedocs.io/en/latest/
+.. _reno: https://docs.openstack.org/developer/reno/
+.. _mailing list: https://ozlabs.org/mailman/listinfo/patchwork
+.. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
