@@ -430,20 +430,6 @@ Next up, restart the nginx service:
    $ sudo systemctl restart nginx
    $ sudo systemctl status nginx
 
-Patchwork uses a cron script to clean up expired registrations and send
-notifications of patch changes (for projects with this enabled). Something like
-this in your crontab should work.
-
-::
-
-   # m h  dom mon dow   command
-   */10 * * * * cd patchwork; ./manage.py cron
-
-.. note::
-
-   The frequency should be the same as the `NOTIFICATION_DELAY_MINUTES`
-   setting, which defaults to 10 minutes.
-
 Finally, browse to the instance using your browser of choice.
 
 You may wish to take this opportunity to setup your projects and configure your
@@ -604,9 +590,9 @@ supports incoming mail and writing a little web app.
 -------------------------------------------------------------
 
 The `tools` directory of the Patchwork distribution contains a file named
-`post-receive.hook` which is a sample git hook that can be used to
+`post-receive.hook` which is a sample Git hook that can be used to
 automatically update patches to the `Accepted` state when corresponding
-commits are pushed via git.
+commits are pushed via Git.
 
 To install this hook, simply copy it to the `.git/hooks` directory on your
 server, name it `post-receive`, and make it executable.
@@ -614,6 +600,23 @@ server, name it `post-receive`, and make it executable.
 This sample hook has support to update patches to different states depending
 on which branch is being pushed to. See the `STATE_MAP` setting in that file.
 
-If you are using a system other than git, you can likely write a similar hook
+If you are using a system other than Git, you can likely write a similar hook
 using `pwclient` to update patch state. If you do write one, please contribute
 it.
+
+(Optional) Configure the Patchwork Cron Job
+-------------------------------------------
+
+Patchwork can send notifications of patch changes. Patchwork uses a cron
+management command - ``manage.py cron`` - to send these notifications and to
+clean up expired registrations. To enable this functionality, add the following
+to your crontab::
+
+   # m h  dom mon dow   command
+   */10 * * * * cd patchwork; ./manage.py cron
+
+.. note::
+
+   The frequency should be the same as the ``NOTIFICATION_DELAY_MINUTES``
+   setting, which defaults to 10 minutes. Refer to the :doc:`configuration
+   guide <configuration>` for mor information.
