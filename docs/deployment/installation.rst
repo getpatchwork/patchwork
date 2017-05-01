@@ -6,27 +6,22 @@ production environment. This requires a significantly "harder" deployment than
 the one used for development. If you are interested in developing Patchwork,
 refer to the :doc:`development guide <../development/installation>` instead.
 
-This document describes a two-node installation of Patchwork, consisting of a
-database sever and an application server. It should be possible to combine
-these machines for smaller Patchwork instances. It should also be possible to
-configure high availability deployment through use of additional database and
-application machines, though this is out of the scope of this document.
-
-.. todo::
-
-   Update this guide to the latest Ubuntu LTS (16.04)
+This document describes a single-node installation of Patchwork, which will
+handle the database, server, and application. It is possible to split this into
+multiple servers, which would provide additional scalability and availability,
+but this is is out of scope for this document.
 
 Deployment Guides, Provisioning Tools and Platform-as-a-Service
 ---------------------------------------------------------------
 
 Before continuing, it's worth noting that Patchwork is a Django application.
-With the exception of the handling of incoming mail (described below), it
-can be deployed like any other Django application. This means there are tens,
-if not hundreds, of existing articles and blogs detailing how to deploy an
-application like this. As such, if any of the below information is unclear
-then we'd suggest you go search for "Django deployment guide" or similar,
-deploy your application, and submit a patch for this guide to clear up that
-confusion for others.
+With the exception of the handling of incoming mail (described below), it can
+be deployed like any other Django application. This means there are tens, if
+not hundreds, of existing articles and blogs detailing how to deploy an
+application like this. As such, if any of the below information is unclear then
+we'd suggest you go search for "Django deployment guide" or similar, deploy
+your application, and submit a patch for this guide to clear up that confusion
+for others.
 
 You'll also find that the same search reveals a significant number of existing
 deployment tools aimed at Django. These tools, be they written in Ansible,
@@ -44,67 +39,58 @@ providers don't support. We address this in the appropriate section below.
 Requirements
 ------------
 
-For the purpose of this guide, we will assume the following machines:
+For the purpose of this guide, we will assume an *Ubuntu 16.04 host*: commands,
+package names and/or package versions will likely change if using a different
+distro or release. Similarly, usage of different package versions to the ones
+suggested may require slightly different configuration. For example, this guide
+describes configuration with *Python 3* and using Python 2 will require
+different packages and some minor changes to configuration files.
 
-+-------------+------------+
-| server role | IP address |
-+=============+============+
-| database    | 10.1.1.1   |
-+-------------+------------+
-| application | 10.1.1.2   |
-+-------------+------------+
-
-We will use the database server to, ostensibly enough, host the database for
-the Patchwork instance. The application server, on the other hand, will host
-the Patchwork instance along with the required reverse proxy and WSGI HTTP
-servers.
-
-We expect a Ubuntu 15.04 installation on each of these hosts: commands, package
-names and/or package versions will likely change if using a different distro or
-release. In addition, usage of different package versions to the ones suggested
-may require slightly different configuration.
-
-Before beginning, you should update these systems:
+Before beginning, you should update this system:
 
 .. code-block:: shell
 
    $ sudo apt-get update
    $ sudo apt-get upgrade
 
-We also need to configure some environment variables to ease deployment. These
-should be exported on all systems:
+We also need to configure some environment variables to ease deployment:
 
-`PW_HOST_DB=10.1.1.1`
+``DATABASE_NAME=patchwork``
 
-  IP of the database host
+  Name of the database. We'll name this after the application itself.
 
-`PW_HOST_APP=10.1.1.2`
+``DATABASE_USER=www-data``
 
-  IP of the application host
+  Username that the Patchwork web application will access the database with. We
+  will use ``www-data``, for reasons described below.
 
-`PW_DB_NAME=patchwork`
+``DATABASE_PASS=``
 
-  Name of the database
+  Password that the Patchwork web application will access the database with. As
+  we're going to use ident authentication (more on this later), this will be
+  unset.
 
-`PW_DB_USER=www-data`
+``DATABASE_HOST=``
 
-  Username that the Patchwork app will access the database with
+  IP or hostname of the database host. As we're hosting the application on the
+  same host as the database and hoping to use ident authentication, this will
+  be unset.
+
+``DATABASE_PORT=``
+
+  Port of the database host. As we're hosting the application on the same host
+  as the database and using the default configuration, this will be unset.
+
+The remainder of the requirements are listed as we install and configure the
+various components required.
 
 Database
 --------
 
-These steps should be run on the database server.
-
-.. note::
-
-   If you already have a database server on site, you can skip much of this
-   section.
-
 Install Requirements
 ~~~~~~~~~~~~~~~~~~~~
 
-We're going to rely on PostgreSQL. You can adjust the below steps if using a
-different RDBMS. Install the required packages.
+We're going to rely on PostgreSQL, though MySQL is also supported:
 
 .. code-block:: shell
 
@@ -113,43 +99,56 @@ different RDBMS. Install the required packages.
 Configure Database
 ~~~~~~~~~~~~~~~~~~
 
-PostgreSQL created a user account called `postgres`; you will need to run
-commands as this user. Use this account to create the database that Patchwork
-will use, using the credentials we configured earlier.
+We need to create a database for the system using the database name above. In
+addition, we need to add accounts for two system users, the web user (the user
+that the web server runs as) and the mail user (the user that the mail server
+runs as). On Ubuntu these are ``www-data`` and ``nobody``, respectively.
+PostgreSQL supports ident-based authentication, which uses the standard UNIX
+authentication method as a backend. This means no database-specific passwords
+need to be configured.
+
+PostgreSQL created a user account called ``postgres``; you will need to run
+commands as this user.
 
 .. code-block:: shell
 
-   $ sudo -u postgres createdb $PW_DB_NAME
-   $ sudo -u postgres createuser $PW_DB_USER
+   $ sudo -u postgres createdb $DATABASE_NAME
+   $ sudo -u postgres createuser $DATABASE_USER
+   $ sudo -u postgres createuser nobody
 
 We will also need to apply permissions to the tables in this database but
 seeing as the tables haven't actually been created yet this will have to be
 done later.
 
-.. todo::
+Finally, we should enable ``trust`` authentication. This will allow us to use
+the local ``www-data`` user without having to set a password for a daemon
+account. Replace the following line in
+``/etc/postgresql/9.6/main/pg_hba.conf``::
 
-   Add `pg_hba.conf` configuration
+    local   all             all                                     ident
+
+with::
+
+    local   all             all                                     trust
 
 Patchwork
 ---------
 
-These steps should be run on the application server.
-
-Install Packages
-~~~~~~~~~~~~~~~~
+Install Requirements
+~~~~~~~~~~~~~~~~~~~~
 
 The first requirement is Patchwork itself. It can be downloaded like so:
 
 .. code-block:: shell
 
-   $ wget https://github.com/getpatchwork/patchwork/archive/v1.1.0.tar.gz
+   $ wget https://github.com/getpatchwork/patchwork/archive/v2.0.0.tar.gz
 
 We will install this under `/opt`, though this is only a suggestion:
 
 .. code-block:: shell
 
-   $ tar -xvzf v1.1.0.tar.gz
-   $ sudo mv v1.1.0 /opt/patchwork
+   $ tar -xvzf v2.0.0.tar.gz
+   $ sudo mv v2.0.0 /opt/patchwork
 
 .. important::
 
@@ -160,32 +159,33 @@ We will install this under `/opt`, though this is only a suggestion:
 __ https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
 
 Next we require Python. If not already installed, then you should do so now.
-Patchwork supports both Python 2.7 and Python 3.3+, though we would suggest
-using the latter to ease future upgrades:
+Patchwork supports both Python 2.7 and Python 3.3+, though we're going to use
+the latter to ease future upgrades. Python 3 is installed by default, but you
+should validate this now:
 
 .. code-block:: shell
 
-   $ sudo apt-get install python3  # or 'python' if using Python 2.7
+   $ sudo apt-get install -y python3
 
-We require a number of Python packages. These can be installed using `pip`:
+We also need to install the various requirements. Let's use system packages for
+this also:
+
+.. code-block:: shell
+
+   $ sudo apt-get install -y python3-django python3-psycopg2 \
+       python3-djangorestframework python3-django-filters
+
+.. tip::
+
+   The `pkgs.org <https://pkgs.org/>`__ website provides a great reference for
+   identifying the name of these dependencies.
+
+You can also install requirements using `pip`. If using this method, you can
+install requirements like so:
 
 .. code-block:: shell
 
    $ sudo pip install -r /opt/patchwork/requirements-prod.txt
-
-If you're not using `pip`, you will need to identify and install the
-corresponding distro package for each of these requirements. For example:
-
-.. code-block:: shell
-
-   $ sudo apt-get install python3-django
-
-.. tip::
-
-   The `pkgs.org`__ website provides a great reference for identifying the name
-   of these dependencies.
-
-__ https://pkgs.org/
 
 .. _deployment-settings:
 
@@ -194,38 +194,49 @@ Configure Patchwork
 
 You will also need to configure a `settings file`__ for Django. A sample
 settings file is provided that defines default settings for Patchwork. You'll
-need to configure settings for your own setup and save this as `production.py`.
+need to configure settings for your own setup and save this as
+``production.py``.
 
 .. code-block:: shell
 
-   $ cp patchwork/settings/production.example.py \
-       patchwork/settings/production.py
+   $ cd /opt/patchwork
+   $ cp patchwork/settings/production{.example,}.py
 
-Alternatively, you can override the `DJANGO_SETTINGS_MODULE` environment
+Alternatively, you can override the ``DJANGO_SETTINGS_MODULE`` environment
 variable and provide a completely custom settings file.
+
+The provided ``production.example.py`` settings file is configured to read
+configuration from environment variables. We're not actually going to use this
+here, preferring to hard code settings instead. If you wish to use environment
+variables, you should export each setting using the appropriate name, e.g.
+``DJANGO_SECRET_KEY``, ``DATABASE_NAME``, ``EMAIL_HOST``, etc.
 
 .. important::
 
    You should not include shell variables in settings but rather hardcoded
-   values. These settings files are evaluated in Python - not a shell.
+   values. These settings files are evaluated in Python - not a shell. Load any
+   required environment variables using ``os.environ``.
 
 __ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 Databases
 ^^^^^^^^^
 
-You can configure the `DATABASES` setting using the variables we set earlier.
+As described previously, we're going to modify the ``production.py`` settings
+file we created earlier to hard code our settings. Replace the ``DATABASE``
+setting with the below to use the database configuration we're described in the
+introduction:
 
 .. code-block:: python
 
    DATABASES = {
        'default': {
            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-           'HOST': '$PW_HOST_DB',  # don't use sh variables but actual values
+           'NAME': 'patchwork',
+           'USER': 'www-data',
+           'PASSWORD': '',
+           'HOST': '',
            'PORT': '',
-           'NAME': '$PW_DB_NAME',
-           'USER': '$PW_DB_USER',
-           'PASSWORD': '$PW_DB_PASS',
            'TEST': {
                'CHARSET': 'utf8',
            },
@@ -241,15 +252,16 @@ You can configure the `DATABASES` setting using the variables we set earlier.
 Static Files
 ^^^^^^^^^^^^
 
-While we have not yet configured our proxy server, we do need to configure the
+While we have not yet configured our proxy server, we need to configure the
 location that these files will be stored in. We will install these under
-`/var/www/patchwork`, though this is only a suggestion and can be changed.
+``/var/www/patchwork``, though this is only a suggestion and can be changed.
 
 .. code-block:: shell
 
-   $ mkdir /var/www/patchwork
+   $ sudo mkdir -p /var/www/patchwork
 
-You can configure this by setting the `STATIC_ROOT` variable.
+You can configure this by overriding the ``STATIC_ROOT`` variable with the
+below:
 
 .. code-block:: shell
 
@@ -258,95 +270,104 @@ You can configure this by setting the `STATIC_ROOT` variable.
 Other Options
 ^^^^^^^^^^^^^
 
-Finally, the following settings need to be configured. The purpose of these
-variables is described in the `Django documentation`__:
+Finally, the following settings need to be configured and the appropriate
+setting overridden. The purpose of many of these variables is described in
+:doc:`configuration`.
 
-* `SECRET_KEY`
-* `ADMINS`
-* `TIME_ZONE`
-* `LANGUAGE_CODE`
-* `DEFAULT_FROM_EMAIL`
-* `NOTIFICATION_FROM_EMAIL`
+* ``SECRET_KEY``
+* ``ADMINS``
+* ``TIME_ZONE``
+* ``LANGUAGE_CODE``
+* ``DEFAULT_FROM_EMAIL``
+* ``NOTIFICATION_FROM_EMAIL``
 
-You can generate the `SECRET_KEY` with the following python code:
+You can generate the ``SECRET_KEY`` with the following Python code:
 
 .. code-block:: python
 
    import string, random
-   chars = string.letters + string.digits + string.punctuation
-   print repr("".join([random.choice(chars) for i in range(0,50)]))
+   chars = string.ascii_letters + string.digits + string.punctuation
+   print(repr("".join([random.choice(chars) for i in range(0,50)])))
 
-If you wish to enable the XML-RPC interface, you should add the following to
-the file:
+If you wish to enable the XML-RPC API, you should add the following:
 
 .. code-block:: python
 
    ENABLE_XMLRPC = True
 
-__ https://docs.djangoproject.com/en/1.8/ref/settings/
+Finally, should you wish to disable the REST API, you should add the following:
+
+.. code-block:: python
+
+   ENABLE_REST_API = False
 
 Final Steps
 ~~~~~~~~~~~
 
 Once done, we should be able to check that all requirements are met using the
-`check` command of the `manage.py` executable:
+``check`` command of the ``manage.py`` executable:
 
 .. code-block:: shell
 
-    $ /opt/patchwork/manage.py check
+    $ python3 manage.py check
 
 We should also take this opportunity to both configure the database and static
 files:
 
 .. code-block:: shell
 
-   $ /opt/patchwork/manage.py migrate
-   $ /opt/patchwork/manage.py loaddata \
-       /opt/patchwork/patchwork/fixtures/default_tags.xml
-   $ /opt/patchwork/manage.py loaddata \
-       /opt/patchwork/patchwork/fixtures/default_states.xml
-   $ /opt/patchwork/manage.py collectstatic
+   $ python3 manage.py migrate
+   $ python3 manage.py loaddata default_tags default_states default_projects
+   $ sudo python3 manage.py collectstatic
 
 .. note::
 
-   The above `default_tags` and `default_states` are just that: defaults. You
-   can modify these to fit your own requirements.
+   The above ``default_tags``,``default_states``, and ``default_projects`` are
+   just that: defaults. You can modify these to fit your own requirements.
 
 Finally, it may be helpful to start the development server quickly to ensure
-you can see *something*:
+you can see *something*. For this to function, you will need to add the
+``ALLOWED_HOSTS`` and ``DEBUG`` settings to your settings file.
+
+.. code-block:: python
+
+   ALLOWED_HOSTS = ['*']
+   DEBUG = True
+
+Now, run the server.
 
 .. code-block:: shell
 
-   $ /opt/patchwork/manage.py runserver 0.0.0.0:8080
+   $ python3 manage.py runserver 0.0.0.0:8000
 
-Browse this instance at `http://[your_server_ip]:8000`. If everything is
-working, kill the development server using `Ctrl`+`C`.
+Browse this instance at ``http://[your_server_ip]:8000``. If everything is
+working, kill the development server using :kbd:`Control-c` and remove
+``ALLOWED_HOSTS`` and ``DEBUG``.
 
 Reverse Proxy and WSGI HTTP Servers
 -----------------------------------
 
-These steps should be run on the application server.
-
 Install Packages
 ~~~~~~~~~~~~~~~~
 
-We will use nginx and uWSGI to deploy Patchwork, acting as reverse proxy server
-and WSGI HTTP server respectively. Other options are available, such as
-Apache+mod_wsgi or nginx+Gunicorn. While we don't document these, sample
-configuration files for the former case are provided in `lib/apache2/`.
+We will use `nginx` and `uWSGI` to deploy Patchwork, acting as reverse proxy
+server and WSGI HTTP server respectively. Other options are available, such as
+`Apache` with the `mod_wsgi` module, or `nginx` with the `Gunicorn` WSGI HTTP
+server. While we don't document these, sample configuration files for the
+former case are provided in `lib/apache2/`.
 
 .. code-block:: shell
 
-   $ sudo apt-get install nginx-full uwsgi uwsgi-plugin-python
+   $ sudo apt-get install -y nginx-full uwsgi uwsgi-plugin-python3
 
 Configure nginx and uWSGI
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Configuration files for nginx and uWSGI are provided in the `lib` subdirectory
-of the Patchwork source code. These can be modified as necessary, but for now
-we will simply copy them.
+Configuration files for `nginx` and `uWSGI` are provided in the `lib`
+subdirectory of the Patchwork source code. These can be modified as necessary,
+but for now we will simply copy them.
 
-First, let's load the provided configuration for nginx:
+First, let's load the provided configuration for `nginx`:
 
 .. code-block:: shell
 
@@ -358,11 +379,19 @@ validate and enable your configuration:
 
 .. code-block:: shell
 
-   $ sudo nginx -t
    $ sudo ln -s /etc/nginx/sites-available/patchwork.conf \
        /etc/nginx/sites-enabled/patchwork.conf
+   $ sudo nginx -t
 
-Now use the provided configuration for uWSGI:
+If you see a "duplicate default server" error message, You may need to disable
+the ``default`` application at this point:
+
+.. code-block:: shell
+
+   $ sudo unlink /etc/nginx/sites-enabled/default
+   $ sudo nginx -t
+
+Now, use the provided configuration for `uWSGI`:
 
 .. code-block:: shell
 
@@ -372,18 +401,18 @@ Now use the provided configuration for uWSGI:
 
 .. note::
 
-   We created the `/etc/uwsgi` directory above because we're going to run uWSGI
-   in `emperor mode`__. This has benefits for multi-app deployments.
+   We created the ``/etc/uwsgi`` directory above because we're going to run
+   `uWSGI` in `emperor mode`__. This has benefits for multi-app deployments.
 
 __ https://uwsgi-docs.readthedocs.io/en/latest/Emperor.html
 
 Create systemd Unit File
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-As things stand, uWSGI will need to be started manually every time the system
+As things stand, `uWSGI` will need to be started manually every time the system
 boots, in addition to any time it may fail. We can automate this process using
-systemd. To this end a `systemd unit file`__ should be created to start uWSGI
-at boot:
+`systemd`. To this end a `systemd unit file`__ should be created to start
+`uWSGI` at boot:
 
 .. code-block:: shell
 
@@ -392,7 +421,7 @@ at boot:
    Description=uWSGI Emperor service
 
    [Service]
-   ExecStartPre=/usr/bin/bash -c 'mkdir -p /run/uwsgi; chown user:nginx /run/uwsgi'
+   ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown www-data:www-data /run/uwsgi'
    ExecStart=/usr/bin/uwsgi --emperor /etc/uwsgi/sites
    Restart=always
    KillSignal=SIGQUIT
@@ -403,37 +432,56 @@ at boot:
    WantedBy=multi-user.target
    EOF
 
-.. note::
+You should also delete the default service file found in ``/etc/init.d`` to
+ensure the unit file defined above is used.
 
-   On older version of Ubuntu you may need to tweak these steps to use
-   `upstart`__ instead.
+.. code-block:: shell
+
+   sudo rm /etc/init.d/uwsgi
+   sudo systemctl daemon-reload
 
 __ https://uwsgi-docs.readthedocs.io/en/latest/Systemd.html
-__ https://uwsgi-docs.readthedocs.io/en/latest/Upstart.html
 
 .. _deployment-final-steps:
 
 Final Steps
 ~~~~~~~~~~~
 
-Start the uWSGI service we created above:
+Start the `uWSGI` service we created above:
 
 .. code-block:: shell
 
-   $ sudo systemctl start uwsgi
+   $ sudo systemctl restart uwsgi
    $ sudo systemctl status uwsgi
+   $ sudo systemctl enable uwsgi
 
-Next up, restart the nginx service:
+Next up, restart the `nginx` service:
 
 .. code-block:: shell
 
    $ sudo systemctl restart nginx
    $ sudo systemctl status nginx
+   $ sudo systemctl enable nginx
 
-Finally, browse to the instance using your browser of choice.
+Finally, browse to the instance using your browser of choice. You may wish to
+take this opportunity to setup your projects and configure your website address
+(in the Sites section of the admin console, found at `/admin`).
 
-You may wish to take this opportunity to setup your projects and configure your
-website address (in the Sites section of the admin console, found at `/admin`).
+If there are issues with the instance, you can check the logs for `nginx` and
+`uWSGI`. There are a couple of commands listed below which can help:
+
+- ``sudo systemctl status uwsgi``, ``sudo systemctl status nginx``
+
+  To ensure the services have correctly started
+
+- ``sudo cat /var/log/nginx/error.log``
+
+  To check for issues with `nginx`
+
+- ``sudo cat /var/log/patchwork.log``
+
+  To check for issues with `uWSGI`. This is the default log location set by the
+  ``daemonize``  setting in the `uWSGI` configuration file.
 
 Django administrative console
 -----------------------------
@@ -445,18 +493,18 @@ doing the following:
 
 .. code-block:: shell
 
-   $ /opt/patchwork/manage.py createsuperuser
+   $ python3 manage.py createsuperuser
 
 Once the administrative console is accessible, you would want to configure your
 different sites and their corresponding domain names, which is required for the
-different emails sent by patchwork (registration, password recovery) as well as
+different emails sent by Patchwork (registration, password recovery) as well as
 the sample `pwclientrc` files provided by your project's page.
 
 Incoming Email
 --------------
 
 Patchwork is designed to parse incoming mails which means you need an address
-to receive email at. This is a problem that has been solved for many webapps,
+to receive email at. This is a problem that has been solved for many web apps,
 thus there are many ways to go about this. Some of these ways are discussed
 below.
 
@@ -470,7 +518,7 @@ getmail is easy to set up and configure: to begin, you need to install it:
 
 .. code-block:: shell
 
-   $ sudo apt-get install getmail4
+   $ sudo apt-get install -y getmail4
 
 Once installed, you should configure it, substituting your own configuration
 details where required below:
@@ -507,8 +555,8 @@ Validate that this works as expected by starting `getmail`:
 
    $ getmail --getmaildir=/etc/getmail/user@example.com --idle INBOX
 
-If everything works as expected, you can create a systemd script to ensure this
-starts on boot:
+If everything works as expected, you can create a `systemd` script to ensure
+this starts on boot:
 
 .. code-block:: shell
 
@@ -517,7 +565,7 @@ starts on boot:
    Description=Getmail for user@example.com
 
    [Service]
-   User=pathwork
+   User=nobody
    ExecStart=/usr/bin/getmail --getmaildir=/etc/getmail/user@example.com --idle INBOX
    Restart=always
 
@@ -531,6 +579,7 @@ And start the service:
 
    $ sudo systemctl start getmail
    $ sudo systemctl status getmail
+   $ sudo systemctl enable getmail
 
 __ http://pyropus.ca/software/getmail/
 
@@ -613,7 +662,7 @@ clean up expired registrations. To enable this functionality, add the following
 to your crontab::
 
    # m h  dom mon dow   command
-   */10 * * * * cd patchwork; ./manage.py cron
+   */10 * * * * cd patchwork; python3 ./manage.py cron
 
 .. note::
 
