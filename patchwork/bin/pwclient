@@ -41,16 +41,7 @@ except ImportError:
 import shutil
 import re
 import io
-import locale
 
-if sys.version_info.major == 2:
-    # hack to make writing unicode to standard output/error work on Python 2
-    OUT_ENCODING = (sys.stdout.encoding or locale.getpreferredencoding() or
-                    os.getenv('PYTHONIOENCODING', 'utf-8'))
-    sys.stdout = io.open(sys.stdout.fileno(), mode='w',
-                         encoding=OUT_ENCODING, errors='replace')
-    sys.stderr = io.open(sys.stderr.fileno(), mode='w',
-                         encoding=OUT_ENCODING, errors='replace')
 
 # Default Patchwork remote XML-RPC server URL
 # This script will check the PW_XMLRPC_URL environment variable
@@ -461,7 +452,14 @@ def main():
 
     action_parser = argparse.ArgumentParser(
         prog='pwclient',
-        epilog='Use \'pwclient <command> --help\' for more info',
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="""Use 'pwclient <command> --help' for more info.
+
+To avoid unicode encode/decode errors, you should export the LANG or LC_ALL
+environment variables according to the configured locales on your system. If
+these variables are already set, make sure that they point to valid and
+installed locales.
+""",
     )
 
     subparsers = action_parser.add_subparsers(
@@ -557,13 +555,9 @@ def main():
         help='''Set patch archived state'''
     )
     update_parser.set_defaults(subcmd='update')
-    list_parser = subparsers.add_parser("list",
-                                        # aliases=['search'],
-                                        parents=[filter_parser],
-                                        help='''List patches, using the optional filters specified
-        below and an optional substring to search for patches
-        by name'''
-                                        )
+    list_parser = subparsers.add_parser(
+        'list', parents=[filter_parser],
+        help='List patches using optional filters')
     list_parser.set_defaults(subcmd='list')
     search_parser = subparsers.add_parser("search",
                                           parents=[filter_parser],
@@ -822,4 +816,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (UnicodeEncodeError, UnicodeDecodeError) as e:
+        import traceback
+        traceback.print_exc()
+        sys.stderr.write('Try exporting the LANG or LC_ALL env vars. See '
+                         'pwclient --help for more details.\n')
+        sys.exit(1)
