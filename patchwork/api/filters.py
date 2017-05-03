@@ -73,7 +73,7 @@ class EventFilter(FilterSet):
 
     class Meta:
         model = Event
-        fields = ('project', 'series', 'patch', 'cover')
+        fields = ('project', 'category', 'series', 'patch', 'cover')
 
 
 class BundleFilter(FilterSet):
