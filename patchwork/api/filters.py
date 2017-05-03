@@ -19,6 +19,7 @@
 
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
+from django_filters import CharFilter
 
 from patchwork.compat import LOOKUP_FIELD
 from patchwork.models import Bundle
@@ -51,6 +52,9 @@ class CoverLetterFilter(TimestampMixin, FilterSet):
 
 
 class PatchFilter(FilterSet):
+
+    # TODO(stephenfin): We should probably be using a ChoiceFilter here?
+    state = CharFilter(name='state__name')
 
     class Meta:
         model = Patch

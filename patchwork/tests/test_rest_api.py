@@ -330,6 +330,13 @@ class TestPatchAPI(APITestCase):
         self.assertNotIn('content', patch_rsp)
         self.assertNotIn('diff', patch_rsp)
 
+        # test filtering by state
+        other_state = create_state()
+        resp = self.client.get(self.api_url(), {'state': patch_obj.state.name})
+        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'state': other_state.name})
+        self.assertEqual(0, len(resp.data))
+
         # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
