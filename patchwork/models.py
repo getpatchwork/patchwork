@@ -663,6 +663,7 @@ class Series(models.Model):
 
     class Meta:
         ordering = ('date',)
+        verbose_name_plural = 'Series'
 
 
 @python_2_unicode_compatible
