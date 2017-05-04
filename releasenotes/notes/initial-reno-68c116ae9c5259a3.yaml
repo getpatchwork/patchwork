@@ -24,11 +24,8 @@ features:
     - Series
     - Cover letters
 
-    For information on the usage of the API, refer to the documentation.
-
-    Note that this feature depends on a combination of Django REST framework
-    and Django Filter, which in turn require Django 1.8+. As a result, Django
-    1.8 or greater must be used when the REST API is enabled.
+    For information on the usage of the API, refer to the `documentation
+    <https://patchwork.readthedocs.io/en/latest/api/rest/>`__.
   - |
     Cover letters are now supported.
 
@@ -71,19 +68,20 @@ features:
     supported.
   - |
     `Docker <https://www.docker.com/what-docker#/developers>`_ support is now
-    integrated for development usage. To use this, refer to the documentation.
+    integrated for development usage. To use this, refer to the `documentation
+    <https://patchwork.readthedocs.io/en/latest/development/installation/>`__.
 upgrade:
   - |
     The REST API is enabled by default.
 
-    The REST API is enabled by default when using Django 1.8. It is possible to
-    disable this API, though this functionality may be removed in a future
-    release. Should you wish to disable this feature, configure the
-    `ENABLE_REST_API` setting to `False`.
+    The REST API is enabled by default. It is possible to disable this API,
+    though this functionality may be removed in a future release. Should you
+    wish to disable this feature, configure the ``ENABLE_REST_API`` setting to
+    ``False``.
   - |
-    The `parsemail.py` and `parsearchive.py` scripts have been replaced by the
-    `parsemail` and `parsearchive` management commands. These can be called
-    like any other management commands. For example::
+    The ``parsemail.py`` and ``parsearchive.py`` scripts have been replaced by
+    the ``parsemail`` and ``parsearchive`` management commands. These can be
+    called like any other management commands. For example::
 
       $ ./manage.py parsemail [args...]
 fixes:
