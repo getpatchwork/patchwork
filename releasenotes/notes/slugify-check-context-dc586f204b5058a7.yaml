@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``context`` field for patch checks must now be slug, or a string
+    consisting of only ASCII letters, numbers, underscores or hyphens. While
+    older, non-slugified strings won't cause issues, any scripts creating
+    contexts must be updated where necessary.
