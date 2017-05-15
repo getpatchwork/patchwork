@@ -84,11 +84,9 @@ class PatchListSerializer(HyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_mbox_url())
 
     def get_tags(self, instance):
-        if instance.project.tags:
-            return {x.name: getattr(instance, x.attr_name)
-                    for x in instance.project.tags}
-        else:
-            return None
+        # TODO(stephenfin): Make tags performant, possibly by reworking the
+        # model
+        return {}
 
     def get_check(self, instance):
         return instance.combined_check_state
@@ -149,7 +147,7 @@ class PatchList(ListAPIView):
     def get_queryset(self):
         # TODO(stephenfin): Does the defer here cause issues with Django 1.6
         # (like /cover)?
-        return Patch.objects.all().with_tag_counts()\
+        return Patch.objects.all()\
             .prefetch_related('series', 'check_set')\
             .select_related('project', 'state', 'submitter', 'delegate')\
             .defer('content', 'diff', 'headers')
@@ -162,6 +160,6 @@ class PatchDetail(RetrieveUpdateAPIView):
     serializer_class = PatchDetailSerializer
 
     def get_queryset(self):
-        return Patch.objects.all().with_tag_counts()\
+        return Patch.objects.all()\
             .prefetch_related('series', 'check_set')\
             .select_related('project', 'state', 'submitter', 'delegate')
