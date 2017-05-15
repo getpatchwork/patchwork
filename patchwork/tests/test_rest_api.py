@@ -309,7 +309,7 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.id, patch_json['id'])
         self.assertEqual(patch_obj.name, patch_json['name'])
         self.assertEqual(patch_obj.msgid, patch_json['msgid'])
-        self.assertEqual(patch_obj.state.name, patch_json['state'])
+        self.assertEqual(patch_obj.state.slug, patch_json['state'])
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
 
         # nested fields
@@ -325,7 +325,8 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        patch_obj = create_patch()
+        state_obj = create_state(name='Under Review')
+        patch_obj = create_patch(state=state_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -338,10 +339,9 @@ class TestPatchAPI(APITestCase):
         self.assertNotIn('diff', patch_rsp)
 
         # test filtering by state
-        other_state = create_state()
-        resp = self.client.get(self.api_url(), {'state': patch_obj.state.name})
+        resp = self.client.get(self.api_url(), {'state': 'under-review'})
         self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
-        resp = self.client.get(self.api_url(), {'state': other_state.name})
+        resp = self.client.get(self.api_url(), {'state': 'missing-state'})
         self.assertEqual(0, len(resp.data))
 
         # authenticated user

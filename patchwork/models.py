@@ -195,6 +195,10 @@ class State(models.Model):
     ordering = models.IntegerField(unique=True)
     action_required = models.BooleanField(default=True)
 
+    @property
+    def slug(self):
+        return '-'.join(self.name.lower().split())
+
     def __str__(self):
         return self.name
 

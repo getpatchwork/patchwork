@@ -17,10 +17,11 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.core.exceptions import ValidationError
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
-from django_filters import CharFilter
 from django_filters import ModelChoiceFilter
+from django.forms import ModelChoiceField
 
 from patchwork.compat import LOOKUP_FIELD
 from patchwork.models import Bundle
@@ -30,6 +31,7 @@ from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.models import Series
+from patchwork.models import State
 
 
 class TimestampMixin(FilterSet):
@@ -59,15 +61,39 @@ class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
         fields = ('project', 'series', 'submitter')
 
 
+class StateChoiceField(ModelChoiceField):
+
+    def prepare_value(self, value):
+        if hasattr(value, '_meta'):
+            return value.slug
+        else:
+            return super(StateChoiceField, self).prepare_value(value)
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+        try:
+            value = ' '.join(value.split('-'))
+            value = self.queryset.get(name__iexact=value)
+        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
+            raise ValidationError(self.error_messages['invalid_choice'],
+                                  code='invalid_choice')
+        return value
+
+
+class StateFilter(ModelChoiceFilter):
+
+    field_class = StateChoiceField
+
+
 class PatchFilter(ProjectMixin, FilterSet):
 
-    # TODO(stephenfin): We should probably be using a ChoiceFilter here?
-    state = CharFilter(name='state__name')
+    state = StateFilter(queryset=State.objects.all())
 
     class Meta:
         model = Patch
-        fields = ('project', 'series', 'submitter', 'delegate', 'state',
-                  'archived')
+        fields = ('project', 'series', 'submitter', 'delegate',
+                  'state', 'archived')
 
 
 class CheckFilter(TimestampMixin, FilterSet):

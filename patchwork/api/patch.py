@@ -70,7 +70,7 @@ class StateField(RelatedField):
             self.fail('incorrect_type', data_type=type(data).__name__)
 
     def to_representation(self, obj):
-        return '-'.join(obj.name.lower().split())
+        return obj.slug
 
     def get_queryset(self):
         return State.objects.all()
