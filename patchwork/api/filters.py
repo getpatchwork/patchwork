@@ -20,6 +20,7 @@
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
 from django_filters import CharFilter
+from django_filters import ModelChoiceFilter
 
 from patchwork.compat import LOOKUP_FIELD
 from patchwork.models import Bundle
@@ -27,6 +28,7 @@ from patchwork.models import Check
 from patchwork.models import CoverLetter
 from patchwork.models import Event
 from patchwork.models import Patch
+from patchwork.models import Project
 from patchwork.models import Series
 
 
@@ -37,21 +39,27 @@ class TimestampMixin(FilterSet):
     since = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'gte'})
 
 
-class SeriesFilter(TimestampMixin, FilterSet):
+class ProjectMixin(FilterSet):
+
+    project = ModelChoiceFilter(to_field_name='linkname',
+                                queryset=Project.objects.all())
+
+
+class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     class Meta:
         model = Series
         fields = ('submitter', 'project')
 
 
-class CoverLetterFilter(TimestampMixin, FilterSet):
+class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     class Meta:
         model = CoverLetter
         fields = ('project', 'series', 'submitter')
 
 
-class PatchFilter(FilterSet):
+class PatchFilter(ProjectMixin, FilterSet):
 
     # TODO(stephenfin): We should probably be using a ChoiceFilter here?
     state = CharFilter(name='state__name')
@@ -69,14 +77,14 @@ class CheckFilter(TimestampMixin, FilterSet):
         fields = ('user', 'state', 'context')
 
 
-class EventFilter(FilterSet):
+class EventFilter(ProjectMixin, FilterSet):
 
     class Meta:
         model = Event
         fields = ('project', 'category', 'series', 'patch', 'cover')
 
 
-class BundleFilter(FilterSet):
+class BundleFilter(ProjectMixin, FilterSet):
 
     class Meta:
         model = Bundle
