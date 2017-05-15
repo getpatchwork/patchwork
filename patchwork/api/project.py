@@ -48,7 +48,6 @@ class ProjectSerializer(HyperlinkedModelSerializer):
 
 class ProjectMixin(object):
 
-    queryset = Project.objects.all()
     permission_classes = (PatchworkPermission,)
     serializer_class = ProjectSerializer
 
@@ -69,6 +68,9 @@ class ProjectMixin(object):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+    def get_queryset(self):
+        return Project.objects.all().prefetch_related('maintainer_project')
 
 
 class ProjectList(ProjectMixin, ListAPIView):

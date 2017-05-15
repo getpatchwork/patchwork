@@ -38,9 +38,11 @@ class PersonSerializer(HyperlinkedModelSerializer):
 
 class PersonMixin(object):
 
-    queryset = Person.objects.prefetch_related('user')
     permission_classes = (IsAuthenticated,)
     serializer_class = PersonSerializer
+
+    def get_queryset(self):
+        return Person.objects.all().prefetch_related('user')
 
 
 class PersonList(PersonMixin, ListAPIView):

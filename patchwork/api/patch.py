@@ -147,9 +147,11 @@ class PatchList(ListAPIView):
                        'submitter', 'check')
 
     def get_queryset(self):
+        # TODO(stephenfin): Does the defer here cause issues with Django 1.6
+        # (like /cover)?
         return Patch.objects.all().with_tag_counts()\
             .prefetch_related('series', 'check_set')\
-            .select_related('state', 'submitter', 'delegate')\
+            .select_related('project', 'state', 'submitter', 'delegate')\
             .defer('content', 'diff', 'headers')
 
 
@@ -162,4 +164,4 @@ class PatchDetail(RetrieveUpdateAPIView):
     def get_queryset(self):
         return Patch.objects.all().with_tag_counts()\
             .prefetch_related('series', 'check_set')\
-            .select_related('state', 'submitter', 'delegate')
+            .select_related('project', 'state', 'submitter', 'delegate')

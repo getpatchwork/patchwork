@@ -73,7 +73,7 @@ class CoverLetterList(ListAPIView):
 
     def get_queryset(self):
         qs = CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('submitter')
+            .select_related('project', 'submitter')
 
         # FIXME(stephenfin): This causes issues with Django 1.6 for whatever
         # reason. Suffer the performance hit on those versions.
@@ -90,4 +90,4 @@ class CoverLetterDetail(RetrieveAPIView):
 
     def get_queryset(self):
         return CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('submitter')
+            .select_related('project', 'submitter')
