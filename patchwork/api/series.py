@@ -20,6 +20,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import SeriesFilter
@@ -28,13 +29,19 @@ from patchwork.models import Series
 
 class SeriesSerializer(HyperlinkedModelSerializer):
 
+    mbox = SerializerMethodField()
+
+    def get_mbox(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_mbox_url())
+
     class Meta:
         model = Series
         fields = ('id', 'url', 'project', 'name', 'date', 'submitter',
                   'version', 'total', 'received_total', 'received_all',
-                  'cover_letter', 'patches')
+                  'mbox', 'cover_letter', 'patches')
         read_only_fields = ('date', 'submitter', 'total', 'received_total',
-                            'received_all', 'cover_letter', 'patches')
+                            'received_all', 'mbox', 'cover_letter', 'patches')
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
             'project': {'view_name': 'api-project-detail'},

@@ -668,6 +668,10 @@ class Series(models.Model):
                                           patch=patch,
                                           number=number)
 
+    @models.permalink
+    def get_mbox_url(self):
+        return ('series-mbox', (), {'series_id': self.id})
+
     def __str__(self):
         return self.name if self.name else 'Untitled series #%d' % self.id
 
