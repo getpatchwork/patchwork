@@ -22,6 +22,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.serializers import HyperlinkedIdentityField
 
 
 class LinkHeaderPagination(PageNumberPagination):
@@ -72,3 +73,21 @@ class MultipleFieldLookupMixin(object):
                 filter_kwargs[field_name] = self.kwargs[field]
 
         return get_object_or_404(queryset, **filter_kwargs)
+
+
+class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
+
+    def get_url(self, obj, view_name, request, format):
+        # Unsaved objects will not yet have a valid URL.
+        if obj.pk is None:
+            return None
+
+        return self.reverse(
+            view_name,
+            kwargs={
+                'patch_id': obj.patch.id,
+                'check_id': obj.id,
+            },
+            request=request,
+            format=format,
+        )

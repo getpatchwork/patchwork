@@ -20,13 +20,13 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.relations import HyperlinkedRelatedField
 from rest_framework.serializers import CurrentUserDefault
 from rest_framework.serializers import HiddenField
 from rest_framework.serializers import HyperlinkedModelSerializer
-from rest_framework.serializers import HyperlinkedIdentityField
 
+from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
+from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import CheckFilter
 from patchwork.models import Check
 from patchwork.models import Patch
@@ -40,29 +40,11 @@ class CurrentPatchDefault(object):
         return self.patch
 
 
-class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
-
-    def get_url(self, obj, view_name, request, format):
-        # Unsaved objects will not yet have a valid URL.
-        if obj.pk is None:
-            return None
-
-        return self.reverse(
-            view_name,
-            kwargs={
-                'patch_id': obj.patch.id,
-                'check_id': obj.id,
-            },
-            request=request,
-            format=format,
-        )
-
-
 class CheckSerializer(HyperlinkedModelSerializer):
-    user = HyperlinkedRelatedField(
-        'api-user-detail', read_only=True, default=CurrentUserDefault())
-    patch = HiddenField(default=CurrentPatchDefault())
+
     url = CheckHyperlinkedIdentityField('api-check-detail')
+    patch = HiddenField(default=CurrentPatchDefault())
+    user = UserSerializer(read_only=True, default=CurrentUserDefault())
 
     def run_validation(self, data):
         for val, label in Check.STATE_CHOICES:

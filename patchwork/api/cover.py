@@ -23,18 +23,20 @@ import django
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer
-from rest_framework.serializers import HyperlinkedRelatedField
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.filters import CoverLetterFilter
+from patchwork.api.embedded import PersonSerializer
+from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import SeriesSerializer
 from patchwork.models import CoverLetter
 
 
 class CoverLetterListSerializer(HyperlinkedModelSerializer):
-    series = HyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='api-series-detail')
+
+    project = ProjectSerializer(read_only=True)
+    submitter = PersonSerializer(read_only=True)
+    series = SeriesSerializer(many=True, read_only=True)
 
     class Meta:
         model = CoverLetter
@@ -43,8 +45,6 @@ class CoverLetterListSerializer(HyperlinkedModelSerializer):
         read_only_fields = fields
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
-            'project': {'view_name': 'api-project-detail'},
-            'submitter': {'view_name': 'api-person-detail'},
         }
 
 
@@ -58,8 +58,7 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
     class Meta:
         model = CoverLetter
         fields = CoverLetterListSerializer.Meta.fields + ('headers', 'content')
-        read_only_fields = CoverLetterListSerializer.Meta.read_only_fields + (
-            'headers', 'content')
+        read_only_fields = fields
         extra_kwargs = CoverLetterListSerializer.Meta.extra_kwargs
 
 

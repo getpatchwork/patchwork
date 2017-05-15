@@ -60,6 +60,9 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(project_obj.name, project_json['name'])
         self.assertEqual(project_obj.linkname, project_json['link_name'])
         self.assertEqual(project_obj.listid, project_json['list_id'])
+
+        # nested fields
+
         self.assertEqual(len(project_json['maintainers']),
                          project_obj.maintainer_project.all().count())
 
@@ -175,8 +178,9 @@ class TestPersonAPI(APITestCase):
         else:
             self.assertEqual(person_obj.user.username, person_json['name'])
             self.assertEqual(person_obj.user.email, person_json['email'])
-            self.assertIn(TestUserAPI.api_url(person_obj.user.id),
-                          person_json['user'])
+            # nested fields
+            self.assertEqual(person_obj.user.id,
+                             person_json['user']['id'])
 
     def test_list(self):
         """This API requires authenticated users."""
@@ -307,10 +311,13 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.msgid, patch_json['msgid'])
         self.assertEqual(patch_obj.state.name, patch_json['state'])
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
-        self.assertIn(TestPersonAPI.api_url(patch_obj.submitter.id),
-                      patch_json['submitter'])
-        self.assertIn(TestProjectAPI.api_url(patch_obj.project.id),
-                      patch_json['project'])
+
+        # nested fields
+
+        self.assertEqual(patch_obj.submitter.id,
+                         patch_json['submitter']['id'])
+        self.assertEqual(patch_obj.project.id,
+                         patch_json['project']['id'])
 
     def test_list(self):
         """Validate we can list a patch."""
@@ -450,8 +457,11 @@ class TestCoverLetterAPI(APITestCase):
     def assertSerialized(self, cover_obj, cover_json):
         self.assertEqual(cover_obj.id, cover_json['id'])
         self.assertEqual(cover_obj.name, cover_json['name'])
-        self.assertIn(TestPersonAPI.api_url(cover_obj.submitter.id),
-                      cover_json['submitter'])
+
+        # nested fields
+
+        self.assertEqual(cover_obj.submitter.id,
+                         cover_json['submitter']['id'])
 
     def test_list(self):
         """Validate we can list cover letters."""
@@ -512,16 +522,20 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(series_obj.id, series_json['id'])
         self.assertEqual(series_obj.name, series_json['name'])
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
-        self.assertIn(TestProjectAPI.api_url(series_obj.project.id),
-                      series_json['project'])
-        self.assertIn(TestPersonAPI.api_url(series_obj.submitter.id),
-                      series_json['submitter'])
+
+        # nested fields
+
+        self.assertEqual(series_obj.project.id,
+                         series_json['project']['id'])
+        self.assertEqual(series_obj.submitter.id,
+                         series_json['submitter']['id'])
         self.assertEqual(series_obj.patches.count(),
                          len(series_json['patches']))
+
         if series_obj.cover_letter:
-            self.assertIn(
-                TestCoverLetterAPI.api_url(series_obj.cover_letter.id),
-                series_json['cover_letter'])
+            self.assertEqual(
+                series_obj.cover_letter.id,
+                series_json['cover_letter']['id'])
 
     def test_list(self):
         """Validate we can list series."""
@@ -692,12 +706,15 @@ class TestBundleAPI(APITestCase):
         self.assertEqual(bundle_obj.name, bundle_json['name'])
         self.assertEqual(bundle_obj.public, bundle_json['public'])
         self.assertIn(bundle_obj.get_mbox_url(), bundle_json['mbox'])
+
+        # nested fields
+
         self.assertEqual(bundle_obj.patches.count(),
                          len(bundle_json['patches']))
-        self.assertIn(TestUserAPI.api_url(bundle_obj.owner.id),
-                      bundle_json['owner'])
-        self.assertIn(TestProjectAPI.api_url(bundle_obj.project.id),
-                      bundle_json['project'])
+        self.assertEqual(bundle_obj.owner.id,
+                         bundle_json['owner']['id'])
+        self.assertEqual(bundle_obj.project.id,
+                         bundle_json['project']['id'])
 
     def test_list(self):
         """Validate we can list bundles."""

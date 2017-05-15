@@ -25,13 +25,19 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import BundleFilter
+from patchwork.api.embedded import PatchSerializer
+from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import UserSerializer
 from patchwork.compat import is_authenticated
 from patchwork.models import Bundle
 
 
 class BundleSerializer(HyperlinkedModelSerializer):
 
+    project = ProjectSerializer(read_only=True)
     mbox = SerializerMethodField()
+    owner = UserSerializer(read_only=True)
+    patches = PatchSerializer(many=True, read_only=True)
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -44,9 +50,6 @@ class BundleSerializer(HyperlinkedModelSerializer):
         read_only_fields = ('owner', 'patches', 'mbox')
         extra_kwargs = {
             'url': {'view_name': 'api-bundle-detail'},
-            'project': {'view_name': 'api-project-detail'},
-            'owner': {'view_name': 'api-user-detail'},
-            'patches': {'view_name': 'api-patch-detail'},
         }
 
 

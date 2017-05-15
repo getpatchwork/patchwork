@@ -22,17 +22,20 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from patchwork.api.embedded import UserSerializer
 from patchwork.models import Person
 
 
 class PersonSerializer(HyperlinkedModelSerializer):
+
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = Person
         fields = ('id', 'url', 'name', 'email', 'user')
         read_only_fields = fields
         extra_kwargs = {
             'url': {'view_name': 'api-person-detail'},
-            'user': {'view_name': 'api-user-detail'},
         }
 
 

@@ -29,6 +29,10 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import PatchFilter
+from patchwork.api.embedded import PersonSerializer
+from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import SeriesSerializer
+from patchwork.api.embedded import UserSerializer
 from patchwork.models import Patch
 from patchwork.models import State
 from patchwork.parser import clean_subject
@@ -73,11 +77,16 @@ class StateField(RelatedField):
 
 
 class PatchListSerializer(HyperlinkedModelSerializer):
-    mbox = SerializerMethodField()
+
+    project = ProjectSerializer(read_only=True)
     state = StateField()
-    tags = SerializerMethodField()
+    submitter = PersonSerializer(read_only=True)
+    delegate = UserSerializer()
+    mbox = SerializerMethodField()
+    series = SeriesSerializer(many=True, read_only=True)
     check = SerializerMethodField()
     checks = SerializerMethodField()
+    tags = SerializerMethodField()
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -106,15 +115,11 @@ class PatchListSerializer(HyperlinkedModelSerializer):
                             'checks', 'tags')
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
-            'project': {'view_name': 'api-project-detail'},
-            'submitter': {'view_name': 'api-person-detail'},
-            'delegate': {'view_name': 'api-user-detail'},
-            'series': {'view_name': 'api-series-detail',
-                       'lookup_url_kwarg': 'pk'},
         }
 
 
 class PatchDetailSerializer(PatchListSerializer):
+
     headers = SerializerMethodField()
     prefixes = SerializerMethodField()
 

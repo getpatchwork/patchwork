@@ -24,12 +24,20 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import SeriesFilter
+from patchwork.api.embedded import CoverLetterSerializer
+from patchwork.api.embedded import PatchSerializer
+from patchwork.api.embedded import PersonSerializer
+from patchwork.api.embedded import ProjectSerializer
 from patchwork.models import Series
 
 
 class SeriesSerializer(HyperlinkedModelSerializer):
 
+    project = ProjectSerializer(read_only=True)
+    submitter = PersonSerializer(read_only=True)
     mbox = SerializerMethodField()
+    cover_letter = CoverLetterSerializer(read_only=True)
+    patches = PatchSerializer(read_only=True, many=True)
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -44,10 +52,6 @@ class SeriesSerializer(HyperlinkedModelSerializer):
                             'received_all', 'mbox', 'cover_letter', 'patches')
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
-            'project': {'view_name': 'api-project-detail'},
-            'submitter': {'view_name': 'api-person-detail'},
-            'cover_letter': {'view_name': 'api-cover-detail'},
-            'patches': {'view_name': 'api-patch-detail'},
         }
 
 

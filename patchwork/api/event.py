@@ -20,20 +20,32 @@
 from collections import OrderedDict
 
 from rest_framework.generics import ListAPIView
-from rest_framework.reverse import reverse
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.embedded import CheckSerializer
+from patchwork.api.embedded import CoverLetterSerializer
+from patchwork.api.embedded import PatchSerializer
+from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import SeriesSerializer
+from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import EventFilter
 from patchwork.api.patch import StateField
 from patchwork.models import Event
 
 
-class EventSerializer(HyperlinkedModelSerializer):
+class EventSerializer(ModelSerializer):
 
+    project = ProjectSerializer(read_only=True)
+    patch = PatchSerializer(read_only=True)
+    series = SeriesSerializer(read_only=True)
+    cover = CoverLetterSerializer(read_only=True)
     previous_state = StateField()
     current_state = StateField()
+    previous_delegate = UserSerializer()
+    current_delegate = UserSerializer()
     created_check = SerializerMethodField()
+    created_check = CheckSerializer()
 
     _category_map = {
         Event.CATEGORY_COVER_CREATED: ['cover'],
@@ -47,15 +59,6 @@ class EventSerializer(HyperlinkedModelSerializer):
         Event.CATEGORY_SERIES_CREATED: ['series'],
         Event.CATEGORY_SERIES_COMPLETED: ['series'],
     }
-
-    def get_created_check(self, instance):
-        if not instance.patch or not instance.created_check:
-            return
-
-        return self.context.get('request').build_absolute_uri(
-            reverse('api-check-detail', kwargs={
-                'patch_id': instance.patch.id,
-                'check_id': instance.created_check.id}))
 
     def to_representation(self, instance):
         data = super(EventSerializer, self).to_representation(instance)
@@ -80,15 +83,6 @@ class EventSerializer(HyperlinkedModelSerializer):
                   'cover', 'previous_state', 'current_state',
                   'previous_delegate', 'current_delegate', 'created_check')
         read_only_fields = fields
-        extra_kwargs = {
-            'project': {'view_name': 'api-project-detail'},
-            'patch': {'view_name': 'api-patch-detail'},
-            'series': {'view_name': 'api-series-detail'},
-            'cover': {'view_name': 'api-cover-detail'},
-            'previous_delegate': {'view_name': 'api-user-detail'},
-            'current_delegate': {'view_name': 'api-user-detail'},
-            'created_check': {'view_name': 'api-check-detail'},
-        }
 
 
 class EventList(ListAPIView):
