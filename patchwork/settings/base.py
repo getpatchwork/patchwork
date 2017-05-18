@@ -31,6 +31,7 @@ _MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -40,12 +41,6 @@ if django.VERSION >= (1, 7):
         'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     ]
 
-if django.VERSION >= (1, 7):
-    _MIDDLEWARE_CLASSES += [
-        'django.contrib.admindocs.middleware.XViewMiddleware'
-    ]
-else:
-    _MIDDLEWARE_CLASSES += ['django.middleware.doc.XViewMiddleware']
 
 if django.VERSION >= (1, 10):
     MIDDLEWARE = _MIDDLEWARE_CLASSES
