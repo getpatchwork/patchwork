@@ -41,10 +41,34 @@ class TimestampMixin(FilterSet):
     since = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'gte'})
 
 
+class ProjectChoiceField(ModelChoiceField):
+
+    def to_python(self, value):
+        if value in self.empty_values:
+            return None
+
+        try:
+            filters = {'pk': int(value)}
+        except ValueError:
+            filters = {'name__iexact': ' '.join(value.split('-'))}
+
+        try:
+            value = self.queryset.get(**filters)
+        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
+            raise ValidationError(self.error_messages['invalid_choice'],
+                                  code='invalid_choice')
+        return value
+
+
+class ProjectFilter(ModelChoiceFilter):
+
+    field_class = ProjectChoiceField
+
+
 class ProjectMixin(FilterSet):
 
-    project = ModelChoiceFilter(to_field_name='linkname',
-                                queryset=Project.objects.all())
+    project = ProjectFilter(to_field_name='linkname',
+                            queryset=Project.objects.all())
 
 
 class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
