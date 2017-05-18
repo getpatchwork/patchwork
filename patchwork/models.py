@@ -100,9 +100,10 @@ class Project(models.Model):
 
 @python_2_unicode_compatible
 class DelegationRule(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     user = models.ForeignKey(
         User,
+        on_delete=models.CASCADE,
         help_text='A user to delegate the patch to.')
     path = models.CharField(
         max_length=255,
@@ -122,7 +123,8 @@ class DelegationRule(models.Model):
 
 @python_2_unicode_compatible
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, unique=True, related_name='profile')
+    user = models.OneToOneField(User, unique=True, related_name='profile',
+                                on_delete=models.CASCADE)
 
     # projects
 
@@ -222,8 +224,8 @@ class Tag(models.Model):
 
 
 class PatchTag(models.Model):
-    patch = models.ForeignKey('Patch')
-    tag = models.ForeignKey('Tag')
+    patch = models.ForeignKey('Patch', on_delete=models.CASCADE)
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
     count = models.IntegerField(default=1)
 
     class Meta:
@@ -286,7 +288,7 @@ class EmailMixin(models.Model):
 
     # content
 
-    submitter = models.ForeignKey(Person)
+    submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     content = models.TextField(null=True, blank=True)
 
     response_re = re.compile(
@@ -309,7 +311,7 @@ class EmailMixin(models.Model):
 class Submission(EmailMixin, models.Model):
     # parent
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     # submission metadata
 
@@ -366,8 +368,9 @@ class Patch(SeriesMixin, Submission):
 
     # patchwork metadata
 
-    delegate = models.ForeignKey(User, blank=True, null=True)
-    state = models.ForeignKey(State, null=True)
+    delegate = models.ForeignKey(User, blank=True, null=True,
+                                 on_delete=models.CASCADE)
+    state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True)
 
@@ -540,7 +543,8 @@ class Comment(EmailMixin, models.Model):
     # parent
 
     submission = models.ForeignKey(Submission, related_name='comments',
-                                   related_query_name='comment')
+                                   related_query_name='comment',
+                                   on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
@@ -561,12 +565,13 @@ class Series(models.Model):
 
     # parent
     project = models.ForeignKey(Project, related_name='series', null=True,
-                                blank=True)
+                                blank=True, on_delete=models.CASCADE)
 
     # content
     cover_letter = models.ForeignKey(CoverLetter,
                                      related_name='series',
-                                     null=True, blank=True)
+                                     null=True, blank=True,
+                                     on_delete=models.CASCADE)
     patches = models.ManyToManyField(Patch, through='SeriesPatch',
                                      related_name='series')
 
@@ -575,7 +580,7 @@ class Series(models.Model):
                             help_text='An optional name to associate with '
                             'the series, e.g. "John\'s PCI series".')
     date = models.DateTimeField()
-    submitter = models.ForeignKey(Person)
+    submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     version = models.IntegerField(default=1,
                                   help_text='Version of series as indicated '
                                   'by the subject prefix(es)')
@@ -673,8 +678,8 @@ class SeriesPatch(models.Model):
     Patches can belong to many series. This allows for things like
     auto-completion of partial series.
     """
-    patch = models.ForeignKey(Patch)
-    series = models.ForeignKey(Series)
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    series = models.ForeignKey(Series, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField(
         help_text='The number assigned to this patch in the series')
 
@@ -696,7 +701,8 @@ class SeriesReference(models.Model):
     received before the cover letter.
     """
     series = models.ForeignKey(Series, related_name='references',
-                               related_query_name='reference')
+                               related_query_name='reference',
+                               on_delete=models.CASCADE)
     msgid = models.CharField(max_length=255)
 
     def __str__(self):
@@ -707,8 +713,8 @@ class SeriesReference(models.Model):
 
 
 class Bundle(models.Model):
-    owner = models.ForeignKey(User)
-    project = models.ForeignKey(Project)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=False, blank=False)
     patches = models.ManyToManyField(Patch, through='BundlePatch')
     public = models.BooleanField(default=False)
@@ -748,8 +754,8 @@ class Bundle(models.Model):
 
 
 class BundlePatch(models.Model):
-    patch = models.ForeignKey(Patch)
-    bundle = models.ForeignKey(Bundle)
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    bundle = models.ForeignKey(Bundle, on_delete=models.CASCADE)
     order = models.IntegerField()
 
     class Meta:
@@ -777,8 +783,8 @@ class Check(models.Model):
         (STATE_FAIL, 'fail'),
     )
 
-    patch = models.ForeignKey(Patch)
-    user = models.ForeignKey(User)
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(default=datetime.datetime.now)
 
     state = models.SmallIntegerField(
@@ -840,6 +846,7 @@ class Event(models.Model):
 
     project = models.ForeignKey(
         Project, related_name='+', db_index=True,
+        on_delete=models.CASCADE,
         help_text='The project that the events belongs to.')
 
     # event metadata
@@ -860,32 +867,40 @@ class Event(models.Model):
 
     patch = models.ForeignKey(
         Patch, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE,
         help_text='The patch that this event was created for.')
     series = models.ForeignKey(
         Series, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE,
         help_text='The series that this event was created for.')
     cover = models.ForeignKey(
         CoverLetter, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE,
         help_text='The cover letter that this event was created for.')
 
     # fields for 'patch-state-changed' events
 
     previous_state = models.ForeignKey(
-        State, related_name='+', null=True, blank=True)
+        State, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
     current_state = models.ForeignKey(
-        State, related_name='+', null=True, blank=True)
+        State, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
 
     # fields for 'patch-delegate-changed' events
 
     previous_delegate = models.ForeignKey(
-        User, related_name='+', null=True, blank=True)
+        User, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
     current_delegate = models.ForeignKey(
-        User, related_name='+', null=True, blank=True)
+        User, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
 
     # fields or 'patch-check-created' events
 
     created_check = models.ForeignKey(
-        Check, related_name='+', null=True, blank=True)
+        Check, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
 
     # TODO(stephenfin): Validate that the correct fields are being set by way
     # of a 'clean' method
@@ -905,7 +920,7 @@ class EmailConfirmation(models.Model):
         ('optout', 'Email opt-out'),
     ])
     email = models.CharField(max_length=200)
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     key = HashField()
     date = models.DateTimeField(default=datetime.datetime.now)
     active = models.BooleanField(default=True)
@@ -939,9 +954,10 @@ class EmailOptout(models.Model):
 
 
 class PatchChangeNotification(models.Model):
-    patch = models.OneToOneField(Patch, primary_key=True)
+    patch = models.OneToOneField(Patch, primary_key=True,
+                                 on_delete=models.CASCADE)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
-    orig_state = models.ForeignKey(State)
+    orig_state = models.ForeignKey(State, on_delete=models.CASCADE)
 
 
 if django.VERSION < (1, 7):
