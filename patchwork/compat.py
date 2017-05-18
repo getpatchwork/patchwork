@@ -89,3 +89,17 @@ if django.VERSION >= (1, 10):
 else:
     from django.core.urlresolvers import NoReverseMatch  # noqa
     from django.core.urlresolvers import reverse  # noqa
+
+
+# is_authenticated
+#
+# models.User.is_authenticated is now an attribute in Django 1.10 instead of a
+# function
+#
+# https://docs.djangoproject.com/en/dev/releases/1.10/
+
+def is_authenticated(user):
+    if django.VERSION >= (1, 10):
+        return user.is_authenticated
+    else:
+        return user.is_authenticated()

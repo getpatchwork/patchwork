@@ -33,6 +33,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 
+from patchwork.compat import is_authenticated
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
 
@@ -81,7 +82,7 @@ class Project(models.Model):
     use_tags = models.BooleanField(default=True)
 
     def is_editable(self, user):
-        if not user.is_authenticated():
+        if not is_authenticated(user):
             return False
         return self in user.profile.maintainer_projects.all()
 
@@ -423,7 +424,7 @@ class Patch(SeriesMixin, Submission):
         self.refresh_tag_counts()
 
     def is_editable(self, user):
-        if not user.is_authenticated():
+        if not is_authenticated(user):
             return False
 
         if user in [self.submitter.user, self.delegate]:

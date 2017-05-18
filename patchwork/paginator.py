@@ -22,6 +22,8 @@ from __future__ import absolute_import
 from django.conf import settings
 from django.core import paginator
 
+from patchwork.compat import is_authenticated
+
 
 DEFAULT_ITEMS_PER_PAGE = 100
 LONG_PAGE_THRESHOLD = 30
@@ -42,7 +44,7 @@ class Paginator(paginator.Paginator):
 
         items_per_page = settings.DEFAULT_ITEMS_PER_PAGE
 
-        if request.user.is_authenticated():
+        if is_authenticated(request.user):
             items_per_page = request.user.profile.items_per_page
 
         super(Paginator, self).__init__(objects, items_per_page)

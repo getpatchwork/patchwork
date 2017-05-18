@@ -26,6 +26,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from patchwork.compat import reverse
+from patchwork.compat import is_authenticated
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Bundle
@@ -65,7 +66,7 @@ def patch_detail(request, patch_id):
 
     if editable:
         form = PatchForm(instance=patch)
-    if request.user.is_authenticated():
+    if is_authenticated(request.user):
         createbundleform = CreateBundleForm()
 
     if request.method == 'POST':
@@ -106,7 +107,7 @@ def patch_detail(request, patch_id):
                 form.save()
                 messages.success(request, 'Patch updated')
 
-    if request.user.is_authenticated():
+    if is_authenticated(request.user):
         context['bundles'] = Bundle.objects.filter(owner=request.user)
 
     context['submission'] = patch

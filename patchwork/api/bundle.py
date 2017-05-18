@@ -25,6 +25,7 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import BundleFilter
+from patchwork.compat import is_authenticated
 from patchwork.models import Bundle
 
 
@@ -55,7 +56,7 @@ class BundleMixin(object):
     serializer_class = BundleSerializer
 
     def get_queryset(self):
-        if not self.request.user.is_anonymous():
+        if is_authenticated(self.request.user):
             bundle_filter = Q(owner=self.request.user) | Q(public=True)
         else:
             bundle_filter = Q(public=True)

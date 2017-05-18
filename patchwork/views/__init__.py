@@ -20,6 +20,7 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
+from patchwork.compat import is_authenticated
 from patchwork.filters import Filters
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
@@ -229,7 +230,7 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
     user = request.user
     properties_form = None
 
-    if user.is_authenticated():
+    if is_authenticated(user):
         # we only pass the post data to the MultiplePatchForm if that was
         # the actual form submitted
         data_tmp = None
