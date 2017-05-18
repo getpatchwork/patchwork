@@ -317,13 +317,13 @@ files:
 .. code-block:: shell
 
    $ python3 manage.py migrate
-   $ python3 manage.py loaddata default_tags default_states default_projects
    $ sudo python3 manage.py collectstatic
+   $ python3 manage.py loaddata default_tags default_states
 
 .. note::
 
-   The above ``default_tags``,``default_states``, and ``default_projects`` are
-   just that: defaults. You can modify these to fit your own requirements.
+   The above ``default_tags`` and ``default_states`` fixtures above are just
+   that: defaults. You can modify these to fit your own requirements.
 
 Finally, it may be helpful to start the development server quickly to ensure
 you can see *something*. For this to function, you will need to add the
