@@ -270,6 +270,9 @@ class PatchQuerySet(models.query.QuerySet):
 
 class PatchManager(models.Manager):
     use_for_related_fields = True
+    # NOTE(stephenfin): This is necessary to silence a warning with Django >=
+    # 1.10. Remove when 1.10 is the minimum supported version.
+    silence_use_for_related_fields_deprecation = True
 
     def get_queryset(self):
         return PatchQuerySet(self.model, using=self.db)
@@ -537,6 +540,7 @@ class Patch(SeriesMixin, Submission):
 
     class Meta:
         verbose_name_plural = 'Patches'
+        base_manager_name = 'objects'
 
 
 class Comment(EmailMixin, models.Model):
