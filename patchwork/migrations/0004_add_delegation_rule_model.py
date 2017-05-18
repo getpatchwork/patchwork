@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 from django.conf import settings
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -19,8 +20,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('path', models.CharField(max_length=255)),
                 ('priority', models.IntegerField(default=0)),
-                ('project', models.ForeignKey(to='patchwork.Project')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Project')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'ordering': ['-priority', 'path'],

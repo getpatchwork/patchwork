@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
                 ('public', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('order', models.IntegerField()),
-                ('bundle', models.ForeignKey(to='patchwork.Bundle')),
+                ('bundle', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Bundle')),
             ],
             options={
                 'ordering': ['order'],
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('key', patchwork.models.HashField(max_length=40)),
                 ('date', models.DateTimeField(default=datetime.datetime.now)),
                 ('active', models.BooleanField(default=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -153,47 +153,47 @@ class Migration(migrations.Migration):
                 ('send_email', models.BooleanField(default=False, help_text=b'Selecting this option allows patchwork to send email on your behalf')),
                 ('patches_per_page', models.PositiveIntegerField(default=100, help_text=b'Number of patches to display per page')),
                 ('maintainer_projects', models.ManyToManyField(related_name='maintainer_project', to='patchwork.Project')),
-                ('primary_project', models.ForeignKey(blank=True, to='patchwork.Project', null=True)),
-                ('user', models.OneToOneField(related_name='profile', to=settings.AUTH_USER_MODEL)),
+                ('primary_project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, blank=True, to='patchwork.Project', null=True)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
             name='PatchChangeNotification',
             fields=[
-                ('patch', models.OneToOneField(primary_key=True, serialize=False, to='patchwork.Patch')),
+                ('patch', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='patchwork.Patch')),
                 ('last_modified', models.DateTimeField(default=datetime.datetime.now)),
-                ('orig_state', models.ForeignKey(to='patchwork.State')),
+                ('orig_state', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.State')),
             ],
         ),
         migrations.AddField(
             model_name='patchtag',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Patch'),
         ),
         migrations.AddField(
             model_name='patchtag',
             name='tag',
-            field=models.ForeignKey(to='patchwork.Tag'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Tag'),
         ),
         migrations.AddField(
             model_name='patch',
             name='delegate',
-            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, blank=True, to=settings.AUTH_USER_MODEL, null=True),
         ),
         migrations.AddField(
             model_name='patch',
             name='project',
-            field=models.ForeignKey(to='patchwork.Project'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Project'),
         ),
         migrations.AddField(
             model_name='patch',
             name='state',
-            field=models.ForeignKey(to='patchwork.State'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.State'),
         ),
         migrations.AddField(
             model_name='patch',
             name='submitter',
-            field=models.ForeignKey(to='patchwork.Person'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Person'),
         ),
         migrations.AddField(
             model_name='patch',
@@ -203,17 +203,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comment',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Patch'),
         ),
         migrations.AddField(
             model_name='comment',
             name='submitter',
-            field=models.ForeignKey(to='patchwork.Person'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Person'),
         ),
         migrations.AddField(
             model_name='bundlepatch',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Patch'),
         ),
         migrations.AddField(
             model_name='bundle',
@@ -223,7 +223,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bundle',
             name='project',
-            field=models.ForeignKey(to='patchwork.Project'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Project'),
         ),
         migrations.AlterUniqueTogether(
             name='patchtag',

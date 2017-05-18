@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -94,28 +95,37 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bundlepatch',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.Patch'),
         ),
         migrations.AlterField(
             model_name='check',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.Patch'),
         ),
         migrations.AlterField(
             model_name='patch',
             name='state',
-            field=models.ForeignKey(to='patchwork.State', null=True),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.State', null=True),
         ),
         migrations.AlterField(
             model_name='patchchangenotification',
             name='patch',
-            field=models.OneToOneField(primary_key=True,
-                                       serialize=False,
-                                       to='patchwork.Patch'),
+            field=models.OneToOneField(
+                primary_key=True, serialize=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.Patch'),
         ),
         migrations.AlterField(
             model_name='patchtag',
             name='patch',
-            field=models.ForeignKey(to='patchwork.Patch'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.Patch'),
         ),
     ]

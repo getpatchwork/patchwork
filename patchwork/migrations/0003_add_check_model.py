@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import datetime
 from django.conf import settings
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -23,8 +24,8 @@ class Migration(migrations.Migration):
                 ('target_url', models.URLField(help_text=b'The target URL to associate with this check. This should be specific to the patch.', null=True, blank=True)),
                 ('description', models.TextField(help_text=b'A brief description of the check.', null=True, blank=True)),
                 ('context', models.CharField(default=b'default', max_length=255, null=True, help_text=b'A label to discern check from checks of other testing systems.', blank=True)),
-                ('patch', models.ForeignKey(to='patchwork.Patch')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('patch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.Patch')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -14,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CoverLetter',
             fields=[
-                ('submission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='patchwork.Submission')),
+                ('submission_ptr', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, auto_created=True, primary_key=True, serialize=False, to='patchwork.Submission')),
             ],
             options={
                 'abstract': False,

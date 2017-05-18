@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import migrations, models
+import django.db.models.deletion
 
 import patchwork.models
 
@@ -55,6 +56,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('submission_ptr', models.OneToOneField(
                     parent_link=True, auto_created=True, primary_key=True,
+                    on_delete=django.db.models.deletion.CASCADE,
                     serialize=False, to='patchwork.Submission')),
                 ('diff2', models.TextField(null=True, blank=True)),
                 ('commit_ref2', models.CharField(
@@ -66,8 +68,11 @@ class Migration(migrations.Migration):
                 ('tags2', models.ManyToManyField(
                     to='patchwork.Tag', through='patchwork.PatchTag')),
                 ('delegate2', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
                     blank=True, to=settings.AUTH_USER_MODEL, null=True)),
-                ('state2', models.ForeignKey(to='patchwork.State')),
+                ('state2', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='patchwork.State')),
                 ('archived2', models.BooleanField(default=False)),
                 ('hash2', patchwork.models.HashField(
                     max_length=40, null=True, blank=True)),
