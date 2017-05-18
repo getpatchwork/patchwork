@@ -76,3 +76,16 @@ if settings.ENABLE_REST_API:
         LOOKUP_FIELD = 'lookup_expr'
     else:
         LOOKUP_FIELD = 'lookup_type'
+
+
+# reverse
+#
+# The reverse function has been moved to django.urls in Django 1.10 and
+# backwards compatible imports will be removed in Django 2.0
+
+if django.VERSION >= (1, 10):
+    from django.urls import NoReverseMatch  # noqa
+    from django.urls import reverse  # noqa
+else:
+    from django.core.urlresolvers import NoReverseMatch  # noqa
+    from django.core.urlresolvers import reverse  # noqa

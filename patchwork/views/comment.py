@@ -17,10 +17,10 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.core import urlresolvers
 from django import http
 from django import shortcuts
 
+from patchwork.compat import reverse
 from patchwork import models
 
 
@@ -35,5 +35,4 @@ def comment(request, comment_id):
         key = 'cover_id'
 
     return http.HttpResponseRedirect('%s#%s' % (
-        urlresolvers.reverse(url, kwargs={key: submission.id}),
-        comment_id))
+        reverse(url, kwargs={key: submission.id}), comment_id))

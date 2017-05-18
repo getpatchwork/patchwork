@@ -18,7 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.contrib import messages
-from django.core import urlresolvers
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -26,6 +25,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
+from patchwork.compat import reverse
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Bundle
@@ -52,9 +52,7 @@ def patch_detail(request, patch_id):
         submissions = Submission.objects.filter(id=patch_id)
         if submissions:
             return HttpResponseRedirect(
-                urlresolvers.reverse(
-                    'cover-detail',
-                    kwargs={'cover_id': patch_id}))
+                reverse('cover-detail', kwargs={'cover_id': patch_id}))
         raise exc
 
     editable = patch.is_editable(request.user)

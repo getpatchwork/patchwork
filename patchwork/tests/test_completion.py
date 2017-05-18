@@ -21,10 +21,10 @@ from __future__ import absolute_import
 
 import json
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.six.moves import range
 
+from patchwork.compat import reverse
 from patchwork.tests.utils import create_person
 
 

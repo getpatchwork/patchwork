@@ -19,9 +19,9 @@
 
 from __future__ import absolute_import
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from patchwork.compat import reverse
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch

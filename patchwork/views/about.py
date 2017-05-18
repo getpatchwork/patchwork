@@ -19,9 +19,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import render
+
+from patchwork.compat import reverse
 
 
 def about(request):

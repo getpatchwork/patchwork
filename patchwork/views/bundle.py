@@ -19,13 +19,13 @@
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core import urlresolvers
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
+from patchwork.compat import reverse
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm
 from patchwork.forms import DeleteBundleForm
@@ -89,9 +89,7 @@ def bundle_detail(request, username, bundlename):
             action = request.POST.get('action', '').lower()
             if action == 'delete':
                 bundle.delete()
-                return HttpResponseRedirect(
-                    urlresolvers.reverse('user-profile')
-                )
+                return HttpResponseRedirect(reverse('user-profile'))
             elif action == 'update':
                 form = BundleForm(request.POST, instance=bundle)
                 if form.is_valid():
@@ -163,8 +161,8 @@ def bundle_detail_redir(request, bundle_id):
 @login_required
 def bundle_mbox_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
-    return HttpResponseRedirect(urlresolvers.reverse(
-                                'bundle-mbox', kwargs={
-                                    'username': request.user.username,
-                                    'bundlename': bundle.name,
-                                }))
+    return HttpResponseRedirect(
+        reverse('bundle-mbox', kwargs={
+            'username': request.user.username,
+            'bundlename': bundle.name,
+        }))

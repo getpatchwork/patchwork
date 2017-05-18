@@ -21,8 +21,8 @@ from email.utils import make_msgid
 import unittest
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 
+from patchwork.compat import reverse
 from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import Project

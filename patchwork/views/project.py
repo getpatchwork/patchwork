@@ -19,11 +19,11 @@
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core import urlresolvers
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
+from patchwork.compat import reverse
 from patchwork.models import Patch
 from patchwork.models import Project
 
@@ -33,8 +33,8 @@ def project_list(request):
 
     if projects.count() == 1:
         return HttpResponseRedirect(
-            urlresolvers.reverse('patch-list',
-                                 kwargs={'project_id': projects[0].linkname}))
+            reverse('patch-list',
+                    kwargs={'project_id': projects[0].linkname}))
 
     context = {
         'projects': projects,

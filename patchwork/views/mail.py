@@ -21,11 +21,11 @@ import smtplib
 
 from django.conf import settings as conf_settings
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from patchwork.compat import render_to_string
+from patchwork.compat import reverse
 from patchwork.forms import EmailForm
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout

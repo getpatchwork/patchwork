@@ -30,7 +30,6 @@ except ImportError:
     from xmlrpc.server import XMLRPCDocGenerator
 import sys
 
-from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -40,6 +39,7 @@ from django.utils import six
 from django.utils.six.moves import xmlrpc_client
 from django.utils.six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
 
+from patchwork.compat import reverse
 from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import Person

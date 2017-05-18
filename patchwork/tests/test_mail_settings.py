@@ -20,9 +20,9 @@
 import re
 
 from django.core import mail
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from patchwork.compat import reverse
 from patchwork.models import EmailOptout
 from patchwork.models import EmailConfirmation
 from patchwork.tests.utils import create_person

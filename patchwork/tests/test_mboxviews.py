@@ -24,9 +24,9 @@ import dateutil.parser
 import dateutil.tz
 import email
 
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from patchwork.compat import reverse
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_project

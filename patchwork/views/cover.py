@@ -17,12 +17,12 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from django.core import urlresolvers
 from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
 
+from patchwork.compat import reverse
 from patchwork.models import CoverLetter
 from patchwork.models import Submission
 
@@ -35,9 +35,7 @@ def cover_detail(request, cover_id):
         submissions = Submission.objects.filter(id=cover_id)
         if submissions:
             return HttpResponseRedirect(
-                urlresolvers.reverse(
-                    'patch-detail',
-                    kwargs={'patch_id': cover_id}))
+                reverse('patch-detail', kwargs={'patch_id': cover_id}))
         raise exc
 
     context = {

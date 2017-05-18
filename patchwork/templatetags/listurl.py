@@ -20,11 +20,12 @@
 from __future__ import absolute_import
 
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django import template
 from django.utils.encoding import smart_str
 from django.utils.html import escape
 
+from patchwork.compat import reverse
+from patchwork.compat import NoReverseMatch
 from patchwork.filters import filterclasses
 
 

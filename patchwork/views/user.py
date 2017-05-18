@@ -24,12 +24,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.mail import send_mail
-from django.core import urlresolvers
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from patchwork.compat import render_to_string
+from patchwork.compat import reverse
 from patchwork.filters import DelegateFilter
 from patchwork.forms import EmailForm
 from patchwork.forms import RegistrationForm
@@ -188,7 +188,7 @@ def unlink(request, person_id):
         person.user = None
         person.save()
 
-    return HttpResponseRedirect(urlresolvers.reverse('user-profile'))
+    return HttpResponseRedirect(reverse('user-profile'))
 
 
 @login_required
@@ -204,7 +204,7 @@ def todo_lists(request):
 
     if len(todo_lists) == 1:
         return HttpResponseRedirect(
-            urlresolvers.reverse(
+            reverse(
                 'user-todo',
                 kwargs={'project_id': todo_lists[0]['project'].linkname}))
 
