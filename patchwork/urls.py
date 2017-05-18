@@ -40,7 +40,7 @@ from patchwork.views import xmlrpc as xmlrpc_views
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     url(r'^$', project_views.project_list, name='project-list'),
     url(r'^project/(?P<project_id>[^/]+)/list/$', patch_views.patch_list,
