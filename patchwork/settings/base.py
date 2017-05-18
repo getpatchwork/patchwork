@@ -35,10 +35,16 @@ MIDDLEWARE_CLASSES = [
 ]
 
 if django.VERSION >= (1, 7):
-    MIDDLEWARE_CLASSES.append(
-        'django.contrib.admindocs.middleware.XViewMiddleware')
+    MIDDLEWARE_CLASSES += [
+        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    ]
+
+if django.VERSION >= (1, 7):
+    MIDDLEWARE_CLASSES += [
+        'django.contrib.admindocs.middleware.XViewMiddleware'
+    ]
 else:
-    MIDDLEWARE_CLASSES.append('django.middleware.doc.XViewMiddleware')
+    MIDDLEWARE_CLASSES += ['django.middleware.doc.XViewMiddleware']
 
 TIME_ZONE = 'Australia/Canberra'
 
