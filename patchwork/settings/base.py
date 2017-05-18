@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'patchwork',
 ]
 
-MIDDLEWARE_CLASSES = [
+_MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -35,16 +35,21 @@ MIDDLEWARE_CLASSES = [
 ]
 
 if django.VERSION >= (1, 7):
-    MIDDLEWARE_CLASSES += [
+    _MIDDLEWARE_CLASSES += [
         'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     ]
 
 if django.VERSION >= (1, 7):
-    MIDDLEWARE_CLASSES += [
+    _MIDDLEWARE_CLASSES += [
         'django.contrib.admindocs.middleware.XViewMiddleware'
     ]
 else:
-    MIDDLEWARE_CLASSES += ['django.middleware.doc.XViewMiddleware']
+    _MIDDLEWARE_CLASSES += ['django.middleware.doc.XViewMiddleware']
+
+if django.VERSION >= (1, 10):
+    MIDDLEWARE = _MIDDLEWARE_CLASSES
+else:
+    MIDDLEWARE_CLASSES = _MIDDLEWARE_CLASSES
 
 TIME_ZONE = 'Australia/Canberra'
 

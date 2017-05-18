@@ -76,9 +76,14 @@ if django.VERSION >= (1, 8):
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
     # This should go first in the middleware classes
-    MIDDLEWARE_CLASSES = [
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ] + MIDDLEWARE_CLASSES
+    if django.VERSION >= (1, 10):
+        MIDDLEWARE = [
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+        ] + MIDDLEWARE
+    else:
+        MIDDLEWARE_CLASSES = [
+            'debug_toolbar.middleware.DebugToolbarMiddleware',
+        ] + MIDDLEWARE_CLASSES
 
     INTERNAL_IPS = [
         '127.0.0.1', '::1',
