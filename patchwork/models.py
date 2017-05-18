@@ -545,7 +545,8 @@ class Patch(SeriesMixin, Submission):
 
     class Meta:
         verbose_name_plural = 'Patches'
-        base_manager_name = 'objects'
+        if django.VERSION >= (1, 10):
+            base_manager_name = 'objects'
 
 
 class Comment(EmailMixin, models.Model):
