@@ -91,6 +91,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(copy_comment_field, uncopy_comment_field),
-        migrations.RunPython(remove_duplicate_comments, recreate_comments),
+        migrations.RunPython(copy_comment_field, uncopy_comment_field,
+                             atomic=False),
+        migrations.RunPython(remove_duplicate_comments, recreate_comments,
+                             atomic=False),
     ]

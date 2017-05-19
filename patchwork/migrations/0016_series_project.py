@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
             name='project',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='series', to='patchwork.Project'),
         ),
-        migrations.RunPython(forward, reverse),
+        migrations.RunPython(forward, reverse, atomic=False),
         migrations.AlterField(
             model_name='seriesreference',
             name='msgid',
