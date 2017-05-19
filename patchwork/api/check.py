@@ -49,7 +49,16 @@ class CheckSerializer(HyperlinkedModelSerializer):
     def run_validation(self, data):
         for val, label in Check.STATE_CHOICES:
             if label == data['state']:
+                # NOTE(stephenfin): 'data' is essentially 'request.POST', which
+                # is immutable by default. However, there's no good reason for
+                # this to be this way [1], so temporarily unset that mutability
+                # to fix what we need to here.
+                #
+                # [1] http://stackoverflow.com/a/12619745/613428
+                mutable = data._mutable  # noqa
+                data._mutable = True  # noqa
                 data['state'] = val
+                data._mutable = mutable  # noqa
                 break
         return super(CheckSerializer, self).run_validation(data)
 
