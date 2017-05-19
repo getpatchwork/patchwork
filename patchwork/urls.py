@@ -188,7 +188,7 @@ urlpatterns += [
 ]
 
 if 'debug_toolbar' in settings.INSTALLED_APPS:
-    import debug_toolbar
+    import debug_toolbar  # noqa
 
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
@@ -211,16 +211,16 @@ if settings.ENABLE_REST_API:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
 
-    from patchwork.api import bundle as api_bundle_views
-    from patchwork.api import check as api_check_views
-    from patchwork.api import cover as api_cover_views
-    from patchwork.api import event as api_event_views
-    from patchwork.api import index as api_index_views
-    from patchwork.api import patch as api_patch_views
-    from patchwork.api import person as api_person_views
-    from patchwork.api import project as api_project_views
-    from patchwork.api import series as api_series_views
-    from patchwork.api import user as api_user_views
+    from patchwork.api import bundle as api_bundle_views  # noqa
+    from patchwork.api import check as api_check_views  # noqa
+    from patchwork.api import cover as api_cover_views  # noqa
+    from patchwork.api import event as api_event_views  # noqa
+    from patchwork.api import index as api_index_views  # noqa
+    from patchwork.api import patch as api_patch_views  # noqa
+    from patchwork.api import person as api_person_views  # noqa
+    from patchwork.api import project as api_project_views  # noqa
+    from patchwork.api import series as api_series_views  # noqa
+    from patchwork.api import user as api_user_views  # noqa
 
     api_patterns = [
         url(r'^$',
