@@ -167,6 +167,28 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches_a + patches_b, [2, 2])
 
+    def test_multiple_references(self):
+        """Series received with multiple reference headers.
+
+        Parse a series with four patches and a cover letter that is received
+        with multiple reference headers.
+
+        Input:
+          - [PATCH V2 0/4] PM / OPP: Minor cleanups
+            - [PATCH V2 1/4] PM / OPP: Reorganize _generic_set_opp_regulator()
+            - [PATCH V2 2/4] PM / OPP: Don't create copy of regulators
+                unnecessarily
+            - PATCH V2 3/4] PM / OPP: opp-microvolt is not optional if
+                regulators are set
+            - [PATCH V2 4/4] PM / OPP: Don't create debugfs "supply-0"
+                directory unnecessarily
+        """
+        covers, patches, _ = self._parse_mbox(
+            'bugs-multiple-references.mbox', [1, 4, 0])
+
+        self.assertSerialized(covers, [1])
+        self.assertSerialized(patches, [4])
+
     def test_no_references(self):
         """Series received with no reference headers.
 

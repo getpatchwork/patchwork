@@ -335,19 +335,26 @@ def find_headers(mail):
 
 
 def find_references(mail):
-    """Construct a list of possible reply message ids."""
+    """Construct a list of possible reply message ids.
+
+    Extract 'in-reply-to' and 'references' headers from a given mail
+    and return the combined set of each. Because headers can be
+    duplicated, 'get_all' is used rather than 'get'.
+    """
     refs = []
 
     if 'In-Reply-To' in mail:
-        refs.append(mail.get('In-Reply-To').strip())
+        for in_reply_to in mail.get_all('In-Reply-To'):
+            refs.append(in_reply_to.strip())
 
     if 'References' in mail:
-        rs = mail.get('References').split()
-        rs.reverse()
-        for r in rs:
-            r = r.strip()
-            if r not in refs:
-                refs.append(r)
+        for references_header in mail.get_all('References'):
+            references = references_header.split()
+            references.reverse()
+            for ref in references:
+                ref = ref.strip()
+                if ref not in refs:
+                    refs.append(ref)
 
     return refs
 
