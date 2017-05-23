@@ -105,7 +105,7 @@ class BaseSeriesTest(_BaseTestCase):
             - [PATCH 1/2] test: Add some lorem ipsum
             - [PATCH 2/2] test: Convert to Markdown
         """
-        covers, patches, comments = self._parse_mbox(
+        covers, patches, _ = self._parse_mbox(
             'base-cover-letter.mbox', [1, 2, 0])
 
         self.assertSerialized(patches, [2])
@@ -138,7 +138,7 @@ class BaseSeriesTest(_BaseTestCase):
             - [PATCH 1/2] test: Add some lorem ipsum
           - [PATCH 0/2] A sample series
         """
-        covers, patches, comments = self._parse_mbox(
+        covers, patches, _ = self._parse_mbox(
             'base-out-of-order.mbox', [1, 2, 0])
 
         self.assertSerialized(patches, [2])
@@ -166,6 +166,21 @@ class BaseSeriesTest(_BaseTestCase):
             'base-no-cover-letter.mbox', [0, 2, 0], project=project_b)
 
         self.assertSerialized(patches_a + patches_b, [2, 2])
+
+    def test_no_references(self):
+        """Series received with no reference headers.
+
+        Parse a series with two patches that is received without any
+        reference headers.
+
+        Input:
+          - [PATCH 1/2] net: ieee802154: remove explicit set skb->sk
+          - [PATCH 2/2] net: ieee802154: fix net_device reference release too
+        """
+        _, patches, _ = self._parse_mbox(
+            'base-no-references.mbox', [0, 2, 0])
+
+        self.assertSerialized(patches, [2])
 
 
 class RevisedSeriesTest(_BaseTestCase):
@@ -311,6 +326,26 @@ class RevisedSeriesTest(_BaseTestCase):
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
 
+    def test_unlabeled_noreferences(self):
+        """Series with a revision sent without a version label or
+        reference headers.
+
+        Parse a series with two patches, followed by a second revision of the
+        same. The second revision is not labeled with a series version marker
+        and neither revision contains reference headers. Only the message-ids
+        and receipt times vary (by one hour).
+
+        Input:
+          - [PATCH 1/2] net: ieee802154: remove explicit set skb->sk
+          - [PATCH 2/2] net: ieee802154: fix net_device reference release too
+          - [PATCH 1/2] net: ieee802154: remove explicit set skb->sk
+          - [PATCH 2/2] net: ieee802154: fix net_device reference release too
+        """
+        _, patches, _ = self._parse_mbox(
+            'revision-unlabeled-noreferences.mbox', [0, 4, 0])
+
+        self.assertSerialized(patches, [2, 2])
+
     def test_unnumbered(self):
         """Series with a reply with a diff but no number.
 
@@ -367,7 +402,6 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
               - [PATCH v2 1/2] test: Add some lorem ipsum
                 - [PATCH v2 2/2] test: Convert to Markdown
-
         """
         _, patches, _ = self._parse_mbox(
             'bugs-nocover.mbox', [0, 4, 0])

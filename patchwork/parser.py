@@ -48,6 +48,8 @@ _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile(r'^(---|\+\+\+) (\S+)')
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
+SERIES_DELAY_INTERVAL = 10
+
 logger = logging.getLogger(__name__)
 
 
@@ -171,8 +173,8 @@ def find_project_by_header(mail):
     return project
 
 
-def find_series(project, mail):
-    """Find a patch's series.
+def _find_series_by_references(project, mail):
+    """Find a patch's series using message references.
 
     Traverse RFC822 headers, starting with most recent first, to find
     ancestors and the related series. Headers are traversed in reverse
@@ -206,7 +208,66 @@ def find_series(project, mail):
             return SeriesReference.objects.get(
                 msgid=ref, series__project=project).series
         except SeriesReference.DoesNotExist:
-            pass
+            continue
+
+
+def _find_series_by_markers(project, mail):
+    """Find a patch's series using series markers and sender.
+
+    Identify suitable series for a patch using a combination of the
+    series markers found in the subject (version, number of patches)
+    and the patch author. This is less reliable indicator than message
+    headers and is subject to two main types of false positives that we
+    must handle:
+
+    - Series that are resubmitted, either by mistake or for some odd
+      reason (perhaps the patches didn't show up immediately)
+    - Series that have the same author, the same number of patches, and
+      the same version, but which are in fact completely different
+      series.
+
+    To mitigate both cases, patches are also timeboxed such that any
+    patches arriving SERIES_DELAY_INTERVAL minutes after the first
+    patch in the series was created will not be grouped together. This
+    still won't help us if someone spams the mailing list with
+    duplicate series but that's a tricky situation for anyone to parse.
+    """
+    author = find_author(mail)
+
+    subject = mail.get('Subject')
+    name, prefixes = clean_subject(subject, [project.linkname])
+    _, total = parse_series_marker(prefixes)
+    version = parse_version(name, prefixes)
+
+    date = find_date(mail)
+    delta = datetime.timedelta(minutes=SERIES_DELAY_INTERVAL)
+    start_date = date - delta
+    end_date = date + delta
+
+    try:
+        return Series.objects.get(
+            submitter=author, project=project, version=version, total=total,
+            date__range=[start_date, end_date])
+    except (Series.DoesNotExist, Series.MultipleObjectsReturned):
+        return
+
+
+def find_series(project, mail):
+    """Find a series, if any, for a given patch.
+
+    Args:
+        project (patchwork.Project): The project that the series
+            belongs to
+        mail (email.message.Message): The mail to extract series from
+
+    Returns:
+        The matching ``Series`` instance, if any
+    """
+    series = _find_series_by_references(project, mail)
+    if series:
+        return series
+
+    return _find_series_by_markers(project, mail)
 
 
 def find_author(mail):
