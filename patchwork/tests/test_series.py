@@ -126,6 +126,24 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [2])
 
+    def test_deep_threaded(self):
+        """Series with deep threading.
+
+        Parse a series with a cover letter and two patches that uses
+        deep threading (git-format-patch --thread=deep).
+
+        Input:
+
+          - [PATCH 0/2] A sample series
+            - [PATCH 1/2] test: Add some lorem ipsum
+              - [PATCH 2/2] test: Convert to Markdown
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-deep-threaded.mbox', [1, 2, 0])
+
+        self.assertSerialized(patches, [2])
+        self.assertSerialized(covers, [1])
+
     def test_out_of_order(self):
         """Series received out of order.
 
