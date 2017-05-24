@@ -339,12 +339,13 @@ def find_references(mail):
     refs = []
 
     if 'In-Reply-To' in mail:
-        refs.append(mail.get('In-Reply-To'))
+        refs.append(mail.get('In-Reply-To').strip())
 
     if 'References' in mail:
         rs = mail.get('References').split()
         rs.reverse()
         for r in rs:
+            r = r.strip()
             if r not in refs:
                 refs.append(r)
 
