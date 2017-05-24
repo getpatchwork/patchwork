@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from django.http import Http404
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
@@ -25,6 +26,7 @@ from django.shortcuts import render_to_response
 from patchwork.compat import reverse
 from patchwork.models import CoverLetter
 from patchwork.models import Submission
+from patchwork.views.utils import cover_to_mbox
 
 
 def cover_detail(request, cover_id):
@@ -44,3 +46,14 @@ def cover_detail(request, cover_id):
     }
 
     return render_to_response('patchwork/submission.html', context)
+
+
+def cover_mbox(request, cover_id):
+    cover = get_object_or_404(CoverLetter, id=cover_id)
+
+    response = HttpResponse(content_type='text/plain')
+    response.write(cover_to_mbox(cover))
+    response['Content-Disposition'] = 'attachment; filename=%s.mbox' % (
+        cover.filename)
+
+    return response

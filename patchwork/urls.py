@@ -61,6 +61,8 @@ urlpatterns = [
     # cover views
     url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover_detail,
         name='cover-detail'),
+    url(r'^cover/(?P<cover_id>\d+)/mbox/$', cover_views.cover_mbox,
+        name='cover-mbox'),
 
     # comment views
     url(r'^comment/(?P<comment_id>\d+)/$', comment_views.comment,

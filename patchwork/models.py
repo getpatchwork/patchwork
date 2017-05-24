@@ -372,7 +372,10 @@ class SeriesMixin(object):
 
 
 class CoverLetter(SeriesMixin, Submission):
-    pass
+
+    @models.permalink
+    def get_mbox_url(self):
+        return ('cover-mbox', (), {'cover_id': self.id})
 
 
 @python_2_unicode_compatible

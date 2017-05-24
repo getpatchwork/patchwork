@@ -30,6 +30,7 @@ from django.http import Http404
 from django.utils import six
 
 from patchwork.models import Comment
+from patchwork.models import Patch
 from patchwork.models import Series
 
 
@@ -43,20 +44,24 @@ class PatchMbox(MIMENonMultipart):
         encode_7or8bit(self)
 
 
-def patch_to_mbox(patch):
-    """Get an mbox representation of a single patch.
+def _submission_to_mbox(submission):
+    """Get an mbox representation of a single Submission.
+
+    Handles both Patch and CoverLetter objects.
 
     Arguments:
-        patch: The Patch object to convert.
+        submission: The Patch object to convert.
 
     Returns:
         A string for the mbox file.
     """
+    is_patch = isinstance(submission, Patch)
+
     postscript_re = re.compile('\n-{2,3} ?\n')
     body = ''
 
-    if patch.content:
-        body = patch.content.strip() + "\n"
+    if submission.content:
+        body = submission.content.strip() + "\n"
 
     parts = postscript_re.split(body, 1)
     if len(parts) == 2:
@@ -67,31 +72,31 @@ def patch_to_mbox(patch):
         postscript = ''
 
     # TODO(stephenfin): Make this use the tags infrastructure
-    for comment in Comment.objects.filter(submission=patch):
+    for comment in Comment.objects.filter(submission=submission):
         body += comment.patch_responses
 
     if postscript:
         body += '---\n' + postscript + '\n'
 
-    if patch.diff:
-        body += '\n' + patch.diff
+    if is_patch and submission.diff:
+        body += '\n' + submission.diff
 
-    delta = patch.date - datetime.datetime.utcfromtimestamp(0)
+    delta = submission.date - datetime.datetime.utcfromtimestamp(0)
     utc_timestamp = delta.seconds + delta.days * 24 * 3600
 
     mail = PatchMbox(body)
-    mail['Subject'] = patch.name
+    mail['Subject'] = submission.name
     mail['X-Patchwork-Submitter'] = email.utils.formataddr((
-        str(Header(patch.submitter.name, mail.patch_charset)),
-        patch.submitter.email))
-    mail['X-Patchwork-Id'] = str(patch.id)
-    if patch.delegate:
-        mail['X-Patchwork-Delegate'] = str(patch.delegate.email)
-    mail['Message-Id'] = patch.msgid
-    mail.set_unixfrom('From patchwork ' + patch.date.ctime())
+        str(Header(submission.submitter.name, mail.patch_charset)),
+        submission.submitter.email))
+    mail['X-Patchwork-Id'] = str(submission.id)
+    if is_patch and submission.delegate:
+        mail['X-Patchwork-Delegate'] = str(submission.delegate.email)
+    mail['Message-Id'] = submission.msgid
+    mail.set_unixfrom('From patchwork ' + submission.date.ctime())
 
     copied_headers = ['To', 'Cc', 'Date', 'From', 'List-Id']
-    orig_headers = HeaderParser().parsestr(str(patch.headers))
+    orig_headers = HeaderParser().parsestr(str(submission.headers))
     for header in copied_headers:
         if header in orig_headers:
             mail[header] = orig_headers[header]
@@ -106,6 +111,10 @@ def patch_to_mbox(patch):
         mail = mail.as_string(True)
 
     return mail
+
+
+patch_to_mbox = _submission_to_mbox
+cover_to_mbox = _submission_to_mbox
 
 
 def bundle_to_mbox(bundle):
