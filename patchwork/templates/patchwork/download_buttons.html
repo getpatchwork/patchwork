@@ -1,10 +1,16 @@
 <div class="btn-group pull-right">
+  {% if submission.diff %}
   <a href="{% url 'patch-raw' patch_id=submission.id %}"
    class="btn btn-default" role="button" title="Download patch diff"
    >diff</a>
   <a href="{% url 'patch-mbox' patch_id=submission.id %}"
    class="btn btn-default" role="button" title="Download patch mbox"
    >mbox</a>
+  {% else %}
+  <a href="{% url 'cover-mbox' cover_id=submission.id %}"
+   class="btn btn-default" role="button" title="Download cover mbox"
+   >mbox</a>
+  {% endif %}
   {% if submission.series.all|length == 1 %}
   <a href="{% url 'series-mbox' series_id=submission.latest_series.id %}"
    class="btn btn-default" role="button"
