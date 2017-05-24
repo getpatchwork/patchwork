@@ -457,6 +457,7 @@ class TestCoverLetterAPI(APITestCase):
     def assertSerialized(self, cover_obj, cover_json):
         self.assertEqual(cover_obj.id, cover_json['id'])
         self.assertEqual(cover_obj.name, cover_json['name'])
+        self.assertIn(cover_obj.get_mbox_url(), cover_json['mbox'])
 
         # nested fields
 

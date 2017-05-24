@@ -36,12 +36,17 @@ class CoverLetterListSerializer(HyperlinkedModelSerializer):
 
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
+    mbox = SerializerMethodField()
     series = SeriesSerializer(many=True, read_only=True)
+
+    def get_mbox(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_mbox_url())
 
     class Meta:
         model = CoverLetter
         fields = ('id', 'url', 'project', 'msgid', 'date', 'name', 'submitter',
-                  'series')
+                  'mbox', 'series')
         read_only_fields = fields
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
@@ -49,6 +54,7 @@ class CoverLetterListSerializer(HyperlinkedModelSerializer):
 
 
 class CoverLetterDetailSerializer(CoverLetterListSerializer):
+
     headers = SerializerMethodField()
 
     def get_headers(self, instance):
