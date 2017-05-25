@@ -53,8 +53,13 @@ if ! test_db_connection; then
     sleep 5
     if ! test_db_connection; then
         echo "Still cannot connect to MySQL."
-        echo "Maybe you are starting the db for the first time. Waiting 15 seconds."
-        sleep 15
+        echo "Maybe you are starting the db for the first time. Waiting up to 60 seconds."
+        for i in {0..9}; do
+            sleep 5
+            if test_db_connection; then
+                break
+            fi
+        done
         if ! test_db_connection; then
             echo "Still cannot connect to MySQL. Giving up."
             echo "Are you using docker-compose? If not, have you set up the link correctly?"
