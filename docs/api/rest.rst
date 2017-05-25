@@ -155,7 +155,7 @@ parameters should be passed as form-encoded data:
 
 .. code-block:: shell
 
-    $ curl -X POST -F 'state=under-review' \
+    $ curl -X PATCH -F 'state=under-review' \
       'https://patchwork.example.com/api/patches/123'
 
 Authentication
