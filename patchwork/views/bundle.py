@@ -37,9 +37,19 @@ from patchwork.views.utils import bundle_to_mbox
 
 if settings.ENABLE_REST_API:
     from rest_framework.authentication import BasicAuthentication  # noqa
-    basic_auth = BasicAuthentication()
-else:
-    basic_auth = None
+    from rest_framework.exceptions import AuthenticationFailed
+
+
+def rest_auth(request):
+    if not settings.ENABLE_REST_API:
+        return request.user
+    try:
+        auth_result = BasicAuthentication().authenticate(request)
+        if auth_result:
+            return auth_result[0]
+    except AuthenticationFailed:
+        pass
+    return request.user
 
 
 @login_required
@@ -140,8 +150,8 @@ def bundle_mbox(request, username, bundlename):
     bundle = get_object_or_404(Bundle, owner__username=username,
                                name=bundlename)
 
-    if not (request.user == bundle.owner or bundle.public or
-            (basic_auth and basic_auth.authenticate(request))):
+    request.user = rest_auth(request)
+    if not (request.user == bundle.owner or bundle.public):
         return HttpResponseNotFound()
 
     response = HttpResponse(content_type='text/plain')
