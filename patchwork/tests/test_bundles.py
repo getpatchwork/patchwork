@@ -19,6 +19,7 @@
 
 from __future__ import absolute_import
 
+import base64
 import datetime
 import unittest
 
@@ -281,6 +282,65 @@ class BundlePublicModifyTest(BundleTestBase):
         self.client.post(bundle_url(self.bundle), data)
         self.bundle = Bundle.objects.get(pk=self.bundle.pk)
         self.assertNotEqual(self.bundle.name, newname)
+
+
+class BundlePrivateViewTest(BundleTestBase):
+
+    """Ensure that non-owners can't view private bundles"""
+
+    def setUp(self):
+        super(BundlePrivateViewTest, self).setUp()
+        self.bundle.public = False
+        self.bundle.save()
+        self.bundle.append_patch(self.patches[0])
+        self.url = bundle_url(self.bundle)
+        self.other_user = create_user()
+
+    def test_private_bundle(self):
+        # Check we can view as owner
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.patches[0].name)
+
+        # Check we can't view as another user
+        self.client.login(username=self.other_user.username,
+                          password=self.other_user.username)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+
+
+class BundlePrivateViewMboxTest(BundlePrivateViewTest):
+
+    """Ensure that non-owners can't view private bundle mboxes"""
+
+    def setUp(self):
+        super(BundlePrivateViewMboxTest, self).setUp()
+        self.url = reverse('bundle-mbox', kwargs={
+            'username': self.bundle.owner.username,
+            'bundlename': self.bundle.name})
+
+    def test_private_bundle_mbox_basic_auth(self):
+        self.client.logout()
+
+        def _get_auth_string(user):
+            return 'Basic ' + base64.b64encode(b':'.join((
+                user.username.encode(),
+                user.username.encode()))
+            ).strip().decode()
+
+        # Check we can view as owner
+        auth_string = _get_auth_string(self.user)
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.patches[0].name)
+
+        # Check we can't view as another user
+        auth_string = _get_auth_string(self.other_user)
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        self.assertEqual(response.status_code, 404)
 
 
 class BundleCreateFromListTest(BundleTestBase):
