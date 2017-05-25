@@ -134,7 +134,35 @@ address.</p>
 
 <div class="box">
 <h2>Authentication</h2>
-<a href="{% url 'password_change' %}">Change password</a>
+
+<table class="form">
+ <tr>
+  <th>Password:</th>
+  <td><a href="{% url 'password_change' %}">Change password</a>
+ </tr>
+ <tr>
+  <th>API Token:</th>
+  <td>
+   {% if api_token %}
+   <input id="token" style="width: 25em;" readonly value="{{ api_token }}">
+   <button type="button" class="btn-copy" title="Copy to clipboard"
+    data-clipboard-target="#token">Copy</button>
+   {% endif %}
+  </td>
+ <tr>
+  <th></th>
+  <td>
+   <form method="post" action="{% url 'generate_token' %}">
+    {% csrf_token %}
+    {% if api_token %}
+    <input type="submit" value="Regenerate token"/>
+    {% else %}
+    <input type="submit" value="Generate token"/>
+    {% endif %}
+   </form>
+  </td>
+ </tr>
+</table>
 </div>
 
 </div>

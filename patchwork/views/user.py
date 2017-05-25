@@ -41,6 +41,7 @@ from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import State
 from patchwork.views import generic_list
+from patchwork.views import utils
 
 
 def register(request):
@@ -126,6 +127,7 @@ def profile(request):
         .extra(select={'is_optout': optout_query})
     context['linked_emails'] = people
     context['linkform'] = EmailForm()
+    context['api_token'] = request.user.profile.token
 
     return render(request, 'patchwork/profile.html', context)
 
@@ -232,3 +234,9 @@ def todo_list(request, project_id):
     context['action_required_states'] = \
         State.objects.filter(action_required=True).all()
     return render(request, 'patchwork/todo-list.html', context)
+
+
+@login_required
+def generate_token(request):
+    utils.regenerate_token(request.user)
+    return HttpResponseRedirect(reverse('user-profile'))
