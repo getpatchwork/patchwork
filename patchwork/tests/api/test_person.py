@@ -32,7 +32,7 @@ class TestPersonAPI(utils.APITestCase):
             self.assertEqual(person_obj.name, person_json['name'])
             self.assertEqual(person_obj.email, person_json['email'])
         else:
-            self.assertEqual(person_obj.user.username, person_json['name'])
+            self.assertEqual(person_obj.user.profile.name, person_json['name'])
             self.assertEqual(person_obj.user.email, person_json['email'])
             # nested fields
             self.assertEqual(person_obj.user.id,

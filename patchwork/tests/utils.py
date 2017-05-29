@@ -89,15 +89,22 @@ def create_user(link_person=True, **kwargs):
 
     values = {
         'username': 'test_user_%d' % num,
-        'name': 'test_user_%d' % num,
         'email': 'test_user_%d@example.com' % num,
+        'first_name': 'Tester',
+        'last_name': 'Num%d' % num,
     }
     values.update(kwargs)
 
+    # this one must be done rather specifically
     user = User.objects.create_user(values['username'], values['email'],
-                                    values['name'])
+                                    values['username'],
+                                    first_name=values['first_name'],
+                                    last_name=values['last_name'])
 
     if link_person:
+        # unfortunately we don't split on these
+        values['name'] = ' '.join([values.pop('first_name'),
+                                   values.pop('last_name')])
         values.pop('username')
         create_person(user=user, **values)
 
