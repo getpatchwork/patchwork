@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The `pwclient` tool will no longer attempt to re-encode unicode to ascii
+    bytes, which was a frequent cause of ``UnicodeEncodeError`` exceptions.
+    Instead, a warning is produced if your environement is not configured for
+    unicode.
