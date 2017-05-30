@@ -315,8 +315,18 @@ class EmailMixin(models.Model):
         abstract = True
 
 
+class FilenameMixin(object):
+
+    @property
+    def filename(self):
+        """Return a sanitized filename without extension."""
+        fname_re = re.compile(r'[^-_A-Za-z0-9\.]+')
+        fname = fname_re.sub('-', str(self)).strip('-')
+        return fname
+
+
 @python_2_unicode_compatible
-class Submission(EmailMixin, models.Model):
+class Submission(FilenameMixin, EmailMixin, models.Model):
     # parent
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -435,12 +445,6 @@ class Patch(SeriesMixin, Submission):
             return True
 
         return self.project.is_editable(user)
-
-    @property
-    def filename(self):
-        fname_re = re.compile(r'[^-_A-Za-z0-9\.]+')
-        str = fname_re.sub('-', self.name)
-        return str.strip('-') + '.patch'
 
     @property
     def combined_check_state(self):
@@ -570,7 +574,7 @@ class Comment(EmailMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class Series(models.Model):
+class Series(FilenameMixin, models.Model):
     """An collection of patches."""
 
     # parent
@@ -604,12 +608,6 @@ class Series(models.Model):
     @property
     def received_all(self):
         return self.total <= self.received_total
-
-    @property
-    def filename(self):
-        fname_re = re.compile(r'[^-_A-Za-z0-9\.]+')
-        fname = fname_re.sub('-', str(self))
-        return fname.strip('-') + '.patch'
 
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
