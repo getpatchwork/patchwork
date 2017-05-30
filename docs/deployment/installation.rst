@@ -500,6 +500,8 @@ different sites and their corresponding domain names, which is required for the
 different emails sent by Patchwork (registration, password recovery) as well as
 the sample `pwclientrc` files provided by your project's page.
 
+.. _deployment-parsemail:
+
 Incoming Email
 --------------
 
@@ -635,6 +637,8 @@ services can be more than to get email into Patchwork.
 You can also create such as service yourself using a PaaS provider that
 supports incoming mail and writing a little web app.
 
+.. _deployment-vcs:
+
 (Optional) Configure your VCS to Automatically Update Patches
 -------------------------------------------------------------
 
@@ -652,6 +656,8 @@ on which branch is being pushed to. See the `STATE_MAP` setting in that file.
 If you are using a system other than Git, you can likely write a similar hook
 using `pwclient` to update patch state. If you do write one, please contribute
 it.
+
+.. _deployment-cron:
 
 (Optional) Configure the Patchwork Cron Job
 -------------------------------------------

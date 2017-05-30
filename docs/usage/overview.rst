@@ -105,6 +105,8 @@ one delegate can be assigned to a patch.
    Patchwork supports automatic delegation of patches. Refer to
    :doc:`delegation` for more information.
 
+.. _overview-tags:
+
 Tags
 ~~~~
 

@@ -24,7 +24,7 @@ from patchwork.notifications import send_notifications
 
 
 class Command(BaseCommand):
-    help = ('Run periodic patchwork functions: send notifications and '
+    help = ('Run periodic Patchwork functions: send notifications and '
             'expire unused users')
 
     def handle(self, *args, **kwargs):

@@ -37,6 +37,7 @@ of community projects.
 
    deployment/installation
    deployment/configuration
+   deployment/management
    deployment/upgrading
 
 .. _development-docs:
