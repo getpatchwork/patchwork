@@ -1,0 +1,14 @@
+---
+prelude:
+  - |
+    The v2.0.0 release includes many new features and bug fixes. For full
+    information on the options avaiable, you should look at the full release
+    notes in detail. However, there are two key features that make v2.0.0 a
+    worthwhile upgrade:
+
+    - A REST API is now provided, which will eventually replace the legacy
+      XML-RPC API
+    - Patch series and series cover letters are now supported
+
+    For further information on these features and the other changes in this
+    release, review the full release notes.
