@@ -160,12 +160,27 @@ string parameters:
     $ curl 'https://patchwork.example.com/api/patches?state=under-review'
 
 For all other types of requests, including ``POST`` and ``PATCH``, these
-parameters should be passed as form-encoded data:
+parameters should be encoded as JSON with a ``Content-Type`` of
+``application/json`` or passed as form-encoded data:
 
 .. code-block:: shell
 
-    $ curl -X PATCH -F 'state=under-review' \
+    $ curl -X PATCH \
+      --header "Content-Type: application/json" \
+      --data '{"state":"under-review"}' \
+      'http://localhost:8000/api/patches/123/'
+
+.. code-block:: shell
+
+    $ curl -X PATCH \
+      --form 'state=under-review' \
       'https://patchwork.example.com/api/patches/123'
+
+.. important::
+
+    If you do not include the ``Content-Type`` header in your request, you will
+    receive a ``HTTP 200 (OK)`` but the resource will not be updated. This
+    header **must** be included.
 
 .. versionchanged:: 2.1
 
