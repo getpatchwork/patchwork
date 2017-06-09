@@ -161,14 +161,29 @@ parameters should be passed as form-encoded data:
 Authentication
 --------------
 
-Patchwork only supports basic authentication:
+Patchwork supports authentication using your username and password (basic
+authentication) or with a token (token authentication). The latter is
+recommended.
+
+To authenticate with token authentication, you must first obtain a token. This
+can be done from your profile, e.g. https://patchwork.example.com/profile.
+Once you have a token, run:
 
 .. code-block:: shell
 
-    $ curl -u username:password 'https://patchwork.example.com/api/'
+    $ curl -H "Authorization: Token ${token}" \
+        'https://patchwork.example.com/api/'
 
-Not all resources require authentication. Those that do will return ``404 Not
-Found`` if authentication is not provided to avoid leaking information.
+To authenticate using basic auth, you should use your Patchwork username and
+password. To do this, run:
+
+.. code-block:: shell
+
+    $ curl -u ${username}:${password} \
+        'https://patchwork.example.com/api/'
+
+Not all resources require authentication. Those that do will return ``404 (Not
+Found)`` if authentication is not provided to avoid leaking information.
 
 Pagination
 ----------
