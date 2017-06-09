@@ -50,6 +50,7 @@ of community projects.
    development/installation
    development/releasing
    development/api
+   development/assets
 
 .. _api-docs:
 
