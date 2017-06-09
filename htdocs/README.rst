@@ -65,6 +65,16 @@ js
 
   Part of Patchwork.
 
+``clipboard.min.js``
+
+  Modern copy to clipboard. No Flash. Just 3kb gzipped
+
+  This is used to allow us to "click to copy" various elements in the UI.
+
+  :Website: https://clipboardjs.com/
+  :GitHub: https://github.com/zenorocha/clipboard.js/
+  :Version: 1.7.1
+
 ``jquery.js``
 
   jQuery is a fast, small, and feature-rich JavaScript library. It makes things

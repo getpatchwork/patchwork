@@ -20,6 +20,12 @@
   <![endif]-->
   <script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
   <script type="text/javascript" src="{% static "js/selectize.min.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/clipboard.min.js" %}"></script>
+  <script type="text/javascript">
+   $(document).ready(function() {
+       new Clipboard(document.querySelectorAll('button.btn-copy'));
+   });
+  </script>
 {% block headers %}{% endblock %}
  </head>
  <body>
