@@ -143,6 +143,7 @@ try:
 
     INSTALLED_APPS += [
         'rest_framework',
+        'rest_framework.authtoken',
         'django_filters',
     ]
 except ImportError:
@@ -157,6 +158,11 @@ REST_FRAMEWORK = {
         'patchwork.compat.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'SEARCH_PARAM': 'q',
     'ORDERING_PARAM': 'order',

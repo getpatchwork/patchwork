@@ -37,6 +37,7 @@ from patchwork.tests.utils import create_bundle
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
+from patchwork.views import utils as view_utils
 
 
 def bundle_url(bundle):
@@ -311,6 +312,7 @@ class BundlePrivateViewTest(BundleTestBase):
         self.assertEqual(response.status_code, 404)
 
 
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class BundlePrivateViewMboxTest(BundlePrivateViewTest):
 
     """Ensure that non-owners can't view private bundle mboxes"""
@@ -329,6 +331,28 @@ class BundlePrivateViewMboxTest(BundlePrivateViewTest):
                 user.username.encode(),
                 user.username.encode()))
             ).strip().decode()
+
+        # Check we can view as owner
+        auth_string = _get_auth_string(self.user)
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.patches[0].name)
+
+        # Check we can't view as another user
+        auth_string = _get_auth_string(self.other_user)
+        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        self.assertEqual(response.status_code, 404)
+
+    def test_private_bundle_mbox_token_auth(self):
+        self.client.logout()
+
+        # create tokens for both users
+        for user in [self.user, self.other_user]:
+            view_utils.regenerate_token(user)
+
+        def _get_auth_string(user):
+            return 'Token {}'.format(str(user.profile.token))
 
         # Check we can view as owner
         auth_string = _get_auth_string(self.user)

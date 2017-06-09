@@ -37,6 +37,9 @@ from patchwork.compat import is_authenticated
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
 
+if settings.ENABLE_REST_API:
+    from rest_framework.authtoken.models import Token
+
 
 @python_2_unicode_compatible
 class Person(models.Model):
@@ -161,6 +164,16 @@ class UserProfile(models.Model):
     @property
     def n_todo_patches(self):
         return self.todo_patches().count()
+
+    @property
+    def token(self):
+        if not settings.ENABLE_REST_API:
+            return
+
+        try:
+            return Token.objects.get(user=self.user)
+        except Token.DoesNotExist:
+            return
 
     def todo_patches(self, project=None):
         # filter on project, if necessary

@@ -36,19 +36,23 @@ from patchwork.views import generic_list
 from patchwork.views.utils import bundle_to_mbox
 
 if settings.ENABLE_REST_API:
-    from rest_framework.authentication import BasicAuthentication  # noqa
+    from rest_framework.authentication import SessionAuthentication
     from rest_framework.exceptions import AuthenticationFailed
+    from rest_framework.settings import api_settings
 
 
 def rest_auth(request):
     if not settings.ENABLE_REST_API:
         return request.user
-    try:
-        auth_result = BasicAuthentication().authenticate(request)
-        if auth_result:
-            return auth_result[0]
-    except AuthenticationFailed:
-        pass
+    for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES:
+        if auth == SessionAuthentication:
+            continue
+        try:
+            auth_result = auth().authenticate(request)
+            if auth_result:
+                return auth_result[0]
+        except AuthenticationFailed:
+            pass
     return request.user
 
 

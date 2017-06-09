@@ -26,12 +26,16 @@ from email.parser import HeaderParser
 import email.utils
 import re
 
+from django.conf import settings
 from django.http import Http404
 from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
 from patchwork.models import Series
+
+if settings.ENABLE_REST_API:
+    from rest_framework.authtoken.models import Token
 
 
 class PatchMbox(MIMENonMultipart):
@@ -181,3 +185,13 @@ def series_to_mbox(series):
         mbox.append(patch_to_mbox(dep.patch))
 
     return '\n'.join(mbox)
+
+
+def regenerate_token(user):
+    """Generate (or regenerate) user API tokens.
+
+    Arguments:
+        user: The User object to generate a token for.
+    """
+    Token.objects.filter(user=user).delete()
+    Token.objects.create(user=user)
