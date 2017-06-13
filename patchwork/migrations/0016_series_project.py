@@ -32,6 +32,12 @@ def reverse(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
+    # This is necessary due to a mistake made when writing the migration.
+    # PostgreSQL does not allow mixing of schema and data migrations within the
+    # same transaction. Disabling transactions ensures this doesn't happen.
+    # Refer to bug #104 for more information.
+    atomic = False
+
     dependencies = [
         ('patchwork', '0015_add_series_models'),
     ]
