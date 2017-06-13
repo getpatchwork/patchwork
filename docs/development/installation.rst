@@ -47,6 +47,12 @@ To run `django-manage` commands, such as `createsuperuser` or `migrate`, run:
 
    $ docker-compose run --rm web python manage.py createsuperuser
 
+To access the SQL command-line client, run:
+
+.. code-block:: shell
+
+   $ docker-compose run --rm web python manage.py dbshell
+
 To run unit tests, excluding Selenium UI interaction tests, using only the
 package versions installed during container initialization, run:
 
