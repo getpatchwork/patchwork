@@ -127,7 +127,7 @@ class CheckFilter(TimestampMixin, FilterSet):
         fields = ('user', 'state', 'context')
 
 
-class EventFilter(ProjectMixin, FilterSet):
+class EventFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     class Meta:
         model = Event
