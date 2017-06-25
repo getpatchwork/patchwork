@@ -222,6 +222,25 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [2])
 
+    def test_no_references_no_cover(self):
+        """Series received with no reference headers or cover letter.
+
+        Parse a series with a cover letter and two patches that is received
+        without any reference headers.
+
+        Input:
+          - [PATCH 0/2] powerpc/dlpar: Correct display of hot-add/hot-remove
+                CPUs
+            - [PATCH 1/2] powerpc/numa: Update CPU topology when VPHN enabled
+            - [Patch 2/2]: powerpc/hotplug/mm: Fix hot-add memory node assoc
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-no-references-no-cover.mbox', [1, 2, 0])
+
+        self.assertSerialized(patches, [2])
+        self.assertSerialized(covers, [1])
+
+
 
 class RevisedSeriesTest(_BaseTestCase):
     """Tests for a series plus a single revision.
