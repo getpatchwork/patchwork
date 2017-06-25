@@ -185,6 +185,24 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches_a + patches_b, [2, 2])
 
+    def test_different_versions(self):
+        """Series received with different version on cover to patches.
+
+        Input:
+          - [PATCH net-next v3 0/4] net: dsa: Multi-CPU ground work (v3)
+            - [PATCH 1/4] net: dsa: Remove master_netdev and use
+                dst->cpu_dp->netdev
+            - [PATCH 2/4] net: dsa: Relocate master ethtool operations
+            - [PATCH 3/4] net: dsa: Associate slave network device with CPU
+                port
+            - [PATCH 4/4] net: dsa: Introduce dsa_get_cpu_port()
+        """
+        covers, patches, _ = self._parse_mbox(
+            'base-different-versions.mbox', [1, 4, 0])
+
+        self.assertSerialized(covers, [1])
+        self.assertSerialized(patches, [4])
+
     def test_multiple_references(self):
         """Series received with multiple reference headers.
 

@@ -908,10 +908,8 @@ def parse_mail(mail, list_id=None):
         # - we have a patch number (x of n), and
         # - either:
         #    * there is no series, or
-        #    * the version doesn't match
         #    * we have a patch with this number already
         if n and ((not series) or
-                  (series.version != version) or
                   (SeriesPatch.objects.filter(series=series, number=x).count()
                    )):
             series = Series(project=project,
