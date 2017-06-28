@@ -903,15 +903,20 @@ def parse_mail(mail, list_id=None):
             filenames = find_filenames(diff)
             delegate = find_delegate_by_filename(project, filenames)
 
-        series = find_series(project, mail)
+        # if we don't have a series marker, we will never have an existing
+        # series to match against.
+        series = None
+        if n:
+            series = find_series(project, mail)
+        else:
+            x = n = 1
+
         # We will create a new series if:
-        # - we have a patch number (x of n), and
-        # - either:
-        #    * there is no series, or
-        #    * we have a patch with this number already
-        if n and ((not series) or
-                  (SeriesPatch.objects.filter(series=series, number=x).count()
-                   )):
+        # - there is no existing series to assign this patch to, or
+        # - there is an existing series, but it already has a patch with this
+        #   number in it
+        if not series or (
+                SeriesPatch.objects.filter(series=series, number=x).count()):
             series = Series(project=project,
                             date=date,
                             submitter=author,

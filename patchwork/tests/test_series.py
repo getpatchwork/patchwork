@@ -94,6 +94,20 @@ class _BaseTestCase(TestCase):
 class BaseSeriesTest(_BaseTestCase):
     """Tests for a series without any revisions."""
 
+    def test_single_patch(self):
+        """Series with only a single patch.
+
+        Parse a "series" with only a single patch and no subject prefixes.
+
+        Input:
+
+          - [PATCH] test: Add some lorem ipsum
+        """
+        _, patches, _ = self._parse_mbox(
+            'base-single-patch.mbox', [0, 1, 0])
+
+        self.assertSerialized(patches, [1])
+
     def test_cover_letter(self):
         """Series with a cover letter.
 
@@ -291,6 +305,21 @@ class RevisedSeriesTest(_BaseTestCase):
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
 
+    def test_threaded_to_single_patch(self):
+        """Series with a revision sent in-reply-to a single-patch series.
+
+        Parse a series with a single patch, followed by a second revision of
+        the same. The second revision is correctly labeled but is sent in reply
+        to the original patch.
+
+          - [PATCH] test: Add some lorem ipsum
+            - [PATCH v2] test: Add some lorem ipsum
+        """
+        _, patches, _ = self._parse_mbox(
+            'revision-threaded-to-single-patch.mbox', [0, 2, 0])
+
+        self.assertSerialized(patches, [1, 1])
+
     def test_threaded_to_cover(self):
         """Series with a revision sent in-reply-to a cover.
 
@@ -427,8 +456,8 @@ class RevisedSeriesTest(_BaseTestCase):
         """Series with a reply with a diff but no number.
 
         The random message with the diff should not belong to the
-        series, as it lacks a n/N label. We expect 1 series and the
-        random message to be orphaned.
+        series, as it lacks a n/N label. We expect two series and the
+        random message to be assigned its own series.
 
         Input:
 
@@ -439,9 +468,8 @@ class RevisedSeriesTest(_BaseTestCase):
         covers, patches, _ = self._parse_mbox(
             'bugs-unnumbered.mbox', [1, 2, 0])
 
-        self.assertEqual(len([p for p in patches if p.latest_series]), 1)
-        self.assertEqual(len([p for p in patches if not p.latest_series]), 1)
-        self.assertSerialized(covers, [1])
+        self.assertSerialized(patches, [1, 1])
+        self.assertSerialized(covers, [1, 0])
 
     def test_reply_nocover_noversion(self):
         """Series with a revision sent without a version label or cover
