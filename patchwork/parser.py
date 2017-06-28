@@ -90,9 +90,11 @@ def sanitise_header(header_contents, header_name=None):
         header = make_header(value,
                              header_name=header_name,
                              continuation_ws='\t')
-    except UnicodeDecodeError:
-        # At least one of the parts cannot be encoded as ascii.
-        # Find out which one and fix it somehow.
+    except (UnicodeDecodeError, LookupError, ValueError, TypeError):
+        #  - a part cannot be encoded as ascii. (UnicodeDecodeError), or
+        #  - we don't have a codec matching the hint (LookupError)
+        #  - the codec has a null byte (Py3 ValueError/Py2 TypeError)
+        # Find out which part and fix it somehow.
         #
         # We get here under Py2 when there's non-7-bit chars in header,
         # or under Py2 or Py3 where decoding with the coding hint fails.
