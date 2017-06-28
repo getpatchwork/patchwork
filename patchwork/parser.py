@@ -448,10 +448,11 @@ def _find_content(mail):
 
             for cset in try_charsets:
                 try:
-                    payload = six.text_type(payload, cset)
+                    new_payload = six.text_type(payload, cset)
                     break
                 except UnicodeDecodeError:
-                    payload = None
+                    new_payload = None
+            payload = new_payload
 
             # Could not find a valid decoded payload.  Fail.
             if payload is None:
