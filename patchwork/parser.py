@@ -225,7 +225,7 @@ def _find_series_by_references(project, mail):
     for ref in refs:
         try:
             return SeriesReference.objects.get(
-                msgid=ref, series__project=project).series
+                msgid=ref[:255], series__project=project).series
         except SeriesReference.DoesNotExist:
             continue
 
@@ -548,6 +548,7 @@ def find_comment_content(mail):
 
 def find_submission_for_comment(project, refs):
     for ref in refs:
+        ref = ref[:255]
         # first, check for a direct reply
         try:
             submission = Submission.objects.get(project=project, msgid=ref)
@@ -924,6 +925,7 @@ def parse_mail(mail, list_id=None):
     msgid = clean_header(mail.get('Message-Id'))
     if not msgid:
         raise ValueError("Broken 'Message-Id' header")
+    msgid = msgid[:255]
 
     author = find_author(mail)
     subject = mail.get('Subject')
@@ -985,6 +987,7 @@ def parse_mail(mail, list_id=None):
             # be possible to identify the relationship between patches
             # as the earlier patch does not reference the later one.
             for ref in refs + [msgid]:
+                ref = ref[:255]
                 # we don't want duplicates
                 try:
                     # we could have a ref to a previous series. (For
