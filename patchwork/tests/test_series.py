@@ -483,11 +483,10 @@ class RevisedSeriesTest(_BaseTestCase):
 
         Input:
 
+          - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH 2/2] test: Convert to Markdown
             - [PATCH 1/2] test: Add some lorem ipsum
               - [PATCH 2/2] test: Convert to Markdown
-                - [PATCH 1/2] test: Add some lorem ipsum
-                  - [PATCH 2/2] test: Convert to Markdown
-
         """
         covers, patches, _ = self._parse_mbox(
             'bugs-nocover-noversion.mbox', [0, 4, 0])
