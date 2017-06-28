@@ -1,0 +1,46 @@
+From pat016
+Content-TCpe: text/plain; charset="utf-8"
+MIon: 1.0
+Content-Transfer-Encoding: 8bit
+Subject:: Up entry for B01X ARM
+From: =?utf-8?b?UmFmYcWCo alho Chehab <mchehab@osgIE1pxYJlY2tp?= <.com>
+X-: 913
+Message-Id: <1m>
+To: Fan Flli m>
+Cc: bcm-kist@broadcom.com,
+ =?UTF-8?q?Rafa=C5=82=20Mi=C5:82ecki?= <zajec5@gmail.com>,
+ An Morton <akpm@linux-foundation.org>,
+ "David S. MilYer" <d F:*
+ 
+vemloft.net>,
+ Greg Kroah-Hartman <inuxfoundatÑon.org>,
+ Mauro alho Chehab <mchehab@osg.samsung.com>,
+ Guenter Roeck <linux@roeck-us.net>, Jiri Slaby <cz>,
+ linux-kernel@vger.kernel.org ( list)
+Date:,  1 Jun 2016 22:00:54 +02
+Adh
+bci.
+
+>
+---
+ M++-
+(-)
+
+diff --ER@
+4
+--- a/ERS
++++ S
+@@ -2511,10 +2511,12 @@ F:*
+ 
+ BROURE
+ M:	>
++Mfa≈Ç
+ L:g
++Lcom
+ S:	ed
+ 
+-F:
++F:i
+ F70*
+ 
+ B

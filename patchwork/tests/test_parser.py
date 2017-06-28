@@ -23,6 +23,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid
 import os
+import unittest
 
 from django.test import TestCase
 from django.utils import six
@@ -43,6 +44,7 @@ from patchwork.parser import parse_version
 from patchwork.parser import split_prefixes
 from patchwork.parser import subject_check
 from patchwork.tests import TEST_MAIL_DIR
+from patchwork.tests import TEST_FUZZ_DIR
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_reference
@@ -52,15 +54,20 @@ from patchwork.tests.utils import read_patch
 from patchwork.tests.utils import SAMPLE_DIFF
 
 
-def read_mail(filename, project=None):
-    """Read a mail from a file."""
-    file_path = os.path.join(TEST_MAIL_DIR, filename)
+def load_mail(file_path):
     if six.PY3:
         with open(file_path, 'rb') as f:
             mail = email.message_from_binary_file(f)
     else:
         with open(file_path) as f:
             mail = email.message_from_file(f)
+    return mail
+
+
+def read_mail(filename, project=None):
+    """Read a mail from a file."""
+    file_path = os.path.join(TEST_MAIL_DIR, filename)
+    mail = load_mail(file_path)
     if 'Message-Id' not in mail:
         mail['Message-Id'] = make_msgid()
     if project:
@@ -819,3 +826,47 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world', ['v10']), 10)
         self.assertEqual(parse_version('Hello, world (v2)', []), 2)
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
+
+
+class FuzzTest(TestCase):
+    """Test fuzzed patches."""
+    def setUp(self):
+        create_project(listid='patchwork.ozlabs.org')
+
+    def _test_patch(self, name):
+        file_path = os.path.join(TEST_FUZZ_DIR, name)
+        m = load_mail(file_path)
+        try:
+            parse_mail(m, list_id='patchwork.ozlabs.org')
+        except ValueError:
+            pass
+
+    @unittest.skipIf(six.PY2, 'Breaks only on Python 3')
+    def test_early_fail(self):
+        file_path = os.path.join(TEST_FUZZ_DIR, 'earlyfail.mbox')
+        with self.assertRaises(AttributeError):
+            load_mail(file_path)
+
+    def test_base64err(self):
+        self._test_patch('base64err.mbox')
+
+    def test_codec(self):
+        self._test_patch('codec-null.mbox')
+        self._test_patch('charset.mbox')
+        self._test_patch('unknown-encoding.mbox')
+        self._test_patch('value2.mbox')
+
+    def test_date(self):
+        self._test_patch('date.mbox')
+        self._test_patch('date-too-long.mbox')
+        self._test_patch('year-out-of-range.mbox')
+        self._test_patch('date-oserror.mbox')
+
+    def test_msgid(self):
+        self._test_patch('msgid-len.mbox')
+        self._test_patch('msgid-len2.mbox')
+
+    def test_hdr(self):
+        self._test_patch('refshdr.mbox')
+        self._test_patch('dateheader.mbox')
+        self._test_patch('msgidheader.mbox')
