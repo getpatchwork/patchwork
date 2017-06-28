@@ -436,7 +436,7 @@ def _find_content(mail):
             if charset is not None:
                 try:
                     codecs.lookup(charset)
-                except LookupError:
+                except (LookupError, ValueError, TypeError):
                     charset = None
 
             # If there is no charset or if it is unknown, then try some common
