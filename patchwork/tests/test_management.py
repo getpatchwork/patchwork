@@ -52,6 +52,7 @@ class ParsemailTest(TestCase):
         with self.assertRaises(SystemExit) as exc:
             call_command('parsemail', infile=None)
 
+        sys.stdin.close()
         self.assertEqual(exc.exception.code, 1)
 
     def test_valid_path(self):
@@ -78,6 +79,7 @@ class ParsemailTest(TestCase):
             call_command('parsemail', infile=None,
                          list_id=project.listid)
 
+        sys.stdin.close()
         self.assertEqual(exc.exception.code, 0)
 
         count = models.Patch.objects.filter(project=project.id).count()

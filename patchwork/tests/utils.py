@@ -54,7 +54,9 @@ def read_patch(filename, encoding=None):
     else:
         f = open(file_path)
 
-    return f.read()
+    result = f.read()
+    f.close()
+    return result
 
 
 error_strings = {

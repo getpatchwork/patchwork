@@ -114,3 +114,4 @@ class Command(BaseCommand):
                 'errors': errors,
                 'new': count - duplicates - dropped - errors,
             })
+        mbox.close()

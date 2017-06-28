@@ -54,6 +54,7 @@ class _BaseTestCase(TestCase):
                 results[1].append(obj)
             else:
                 results[2].append(obj)
+        mbox.close()
 
         self.assertParsed(results, counts)
 
@@ -271,7 +272,6 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
-
 
 
 class RevisedSeriesTest(_BaseTestCase):
@@ -665,6 +665,8 @@ class SeriesNameTestCase(TestCase):
         self._parse_mail(mbox[2])
         self.assertEqual(cover.latest_series.name, cover_name)
 
+        mbox.close()
+
     def test_no_cover_letter(self):
         """Series without a cover letter.
 
@@ -684,6 +686,8 @@ class SeriesNameTestCase(TestCase):
 
         self._parse_mail(mbox[1])
         self.assertEqual(series.name, patch.name)
+
+        mbox.close()
 
     def test_out_of_order(self):
         """Series received out of order.
@@ -708,6 +712,8 @@ class SeriesNameTestCase(TestCase):
 
         cover = self._parse_mail(mbox[2])
         self.assertEqual(cover.latest_series.name, self._format_name(cover))
+
+        mbox.close()
 
     def test_custom_name(self):
         """Series with custom name.
@@ -737,3 +743,5 @@ class SeriesNameTestCase(TestCase):
 
         self._parse_mail(mbox[2])
         self.assertEqual(series.name, series_name)
+
+        mbox.close()
