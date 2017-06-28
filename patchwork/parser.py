@@ -344,10 +344,24 @@ def find_date(mail):
     h = clean_header(mail.get('Date', ''))
     if not h:
         return datetime.datetime.utcnow()
+
     t = parsedate_tz(h)
     if not t:
         return datetime.datetime.utcnow()
-    return datetime.datetime.utcfromtimestamp(mktime_tz(t))
+
+    try:
+        d = datetime.datetime.utcfromtimestamp(mktime_tz(t))
+    except (OverflowError, ValueError, OSError):
+        # If you have a date like:
+        # - Date: Wed, 4 Jun 207777777777777777777714 17:50:46 0
+        #   -> OverflowError
+        # - Date:, 11 Sep 2016 23:22:904070804030804 +0100
+        #   -> ValueError
+        # - Date:, 11 Sep 2016 407080403080105:04 +0100
+        #   -> OSError (Python 3)
+        d = datetime.datetime.utcnow()
+
+    return d
 
 
 def find_headers(mail):
