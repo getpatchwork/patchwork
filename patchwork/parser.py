@@ -157,7 +157,7 @@ def find_project_by_header(mail):
         if header in mail:
 
             for listid_re in listid_res:
-                match = listid_re.match(mail.get(header))
+                match = listid_re.match(clean_header(mail.get(header)))
                 if match:
                     break
 
@@ -203,7 +203,7 @@ def _find_series_by_references(project, mail):
     Returns:
         The matching ``Series`` instance, if any
     """
-    for ref in [mail.get('Message-Id')] + find_references(mail):
+    for ref in [clean_header(mail.get('Message-Id'))] + find_references(mail):
         try:
             return SeriesReference.objects.get(
                 msgid=ref, series__project=project).series
@@ -318,7 +318,7 @@ def find_author(mail):
 
 
 def find_date(mail):
-    t = parsedate_tz(mail.get('Date', ''))
+    t = parsedate_tz(clean_header(mail.get('Date', '')))
     if not t:
         return datetime.datetime.utcnow()
     return datetime.datetime.utcfromtimestamp(mktime_tz(t))
@@ -345,11 +345,11 @@ def find_references(mail):
 
     if 'In-Reply-To' in mail:
         for in_reply_to in mail.get_all('In-Reply-To'):
-            refs.append(in_reply_to.strip())
+            refs.append(clean_header(in_reply_to).strip())
 
     if 'References' in mail:
         for references_header in mail.get_all('References'):
-            references = references_header.split()
+            references = clean_header(references_header).split()
             references.reverse()
             for ref in references:
                 ref = ref.strip()
@@ -788,7 +788,7 @@ def parse_pull_request(content):
 
 def find_state(mail):
     """Return the state with the given name or the default."""
-    state_name = mail.get('X-Patchwork-State', '').strip()
+    state_name = clean_header(mail.get('X-Patchwork-State', '')).strip()
     if state_name:
         try:
             return State.objects.get(name__iexact=state_name)
@@ -825,7 +825,7 @@ def find_delegate_by_filename(project, filenames):
 
 def find_delegate_by_header(mail):
     """Return the delegate with the given email or None."""
-    delegate_email = mail.get('X-Patchwork-Delegate', '').strip()
+    delegate_email = clean_header(mail.get('X-Patchwork-Delegate', '')).strip()
     if delegate_email:
         try:
             return User.objects.get(email__iexact=delegate_email)
@@ -854,7 +854,7 @@ def parse_mail(mail, list_id=None):
     if 'Message-Id' not in mail:
         raise ValueError("Missing 'Message-Id' header")
 
-    hint = mail.get('X-Patchwork-Hint', '').lower()
+    hint = clean_header(mail.get('X-Patchwork-Hint', '')).lower()
     if hint == 'ignore':
         logger.debug("Ignoring email due to 'ignore' hint")
         return
@@ -870,7 +870,7 @@ def parse_mail(mail, list_id=None):
 
     # parse metadata
 
-    msgid = mail.get('Message-Id').strip()
+    msgid = clean_header(mail.get('Message-Id')).strip()
     author = find_author(mail)
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
