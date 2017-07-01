@@ -30,6 +30,7 @@ from selenium.common.exceptions import (
     TimeoutException)
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 
 
 class Wait(WebDriverWait):
@@ -110,8 +111,14 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         if self.browser == 'firefox':
             self.selenium = webdriver.Firefox()
         if self.browser == 'chrome':
+            chrome_options = Options()
+            # chrome's aggressive sandboxing doesn't work well with
+            # docker so disable the sandbox. We're only looking at our
+            # own site so it should be safe enough
+            chrome_options.add_argument("--no-sandbox")
             self.selenium = webdriver.Chrome(
-                service_args=['--verbose', '--log-path=selenium.log']
+                service_args=['--verbose', '--log-path=selenium.log'],
+                chrome_options=chrome_options
             )
 
         mkdir(self._SCREENSHOT_DIR)
