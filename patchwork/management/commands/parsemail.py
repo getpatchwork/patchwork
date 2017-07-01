@@ -58,20 +58,25 @@ class Command(base.BaseCommand):
     def handle(self, *args, **options):
         infile = args[0] if args else options['infile']
 
-        if infile:
-            logger.info('Parsing mail loaded by filename')
-            if six.PY3:
-                with open(infile, 'rb') as file_:
-                    mail = email.message_from_binary_file(file_)
+        try:
+            if infile:
+                logger.info('Parsing mail loaded by filename')
+                if six.PY3:
+                    with open(infile, 'rb') as file_:
+                        mail = email.message_from_binary_file(file_)
+                else:
+                    with open(infile) as file_:
+                        mail = email.message_from_file(file_)
             else:
-                with open(infile) as file_:
-                    mail = email.message_from_file(file_)
-        else:
-            logger.info('Parsing mail loaded from stdin')
-            if six.PY3:
-                mail = email.message_from_binary_file(sys.stdin.buffer)
-            else:
-                mail = email.message_from_file(sys.stdin)
+                logger.info('Parsing mail loaded from stdin')
+                if six.PY3:
+                    mail = email.message_from_binary_file(sys.stdin.buffer)
+                else:
+                    mail = email.message_from_file(sys.stdin)
+        except AttributeError:
+            logger.warning("Broken email ignored")
+            return
+
         try:
             result = parse_mail(mail, options['list_id'])
             if result:

@@ -77,6 +77,23 @@ class Command(BaseCommand):
 
         count = len(mbox)
 
+        # Iterate through the mbox. This will pick up exceptions that are only
+        # thrown when a broken email is found part way through. Without this
+        # block, we'd get the exception thrown in enumerate(mbox) below, which
+        # is harder to catch. This is due to a bug in the Python 'email'
+        # library, as described here:
+        #
+        #   https://lists.ozlabs.org/pipermail/patchwork/2017-July/004486.html
+        #
+        # The alternative is converting the mbox to a list of messages, but
+        # that requires holding the entire thing in memory, which is wateful.
+        try:
+            for m in mbox:
+                pass
+        except AttributeError:
+            logger.warning('Broken mbox/Maildir, aborting')
+            return
+
         logger.info('Parsing %d mails', count)
         for i, msg in enumerate(mbox):
             try:
