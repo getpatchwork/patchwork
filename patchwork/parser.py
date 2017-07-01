@@ -326,9 +326,9 @@ def find_author(mail):
     if not email:
         raise ValueError("Invalid 'From' header")
 
-    email = email.strip()
+    email = email.strip()[:255]
     if name is not None:
-        name = name.strip()
+        name = name.strip()[:255]
 
     try:
         person = Person.objects.get(email__iexact=email)

@@ -862,9 +862,11 @@ class FuzzTest(TestCase):
         self._test_patch('year-out-of-range.mbox')
         self._test_patch('date-oserror.mbox')
 
-    def test_msgid(self):
+    def test_length_for_db(self):
         self._test_patch('msgid-len.mbox')
         self._test_patch('msgid-len2.mbox')
+        self._test_patch('email-len.mbox')
+        self._test_patch('name-len.mbox')
 
     def test_hdr(self):
         self._test_patch('refshdr.mbox')
