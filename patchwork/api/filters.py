@@ -110,7 +110,7 @@ class StateFilter(ModelChoiceFilter):
     field_class = StateChoiceField
 
 
-class PatchFilter(ProjectMixin, FilterSet):
+class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     state = StateFilter(queryset=State.objects.all())
 
