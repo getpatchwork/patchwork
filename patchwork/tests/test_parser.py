@@ -609,6 +609,12 @@ class PatchParseTest(PatchTest):
         # Confirm we got both markers
         self.assertEqual(2, diff.count('\ No newline at end of file'))
 
+    def test_no_subject(self):
+        """Validate parsing a mail with no subject."""
+        diff, message = self._find_content('0016-no-subject.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+
 
 class EncodingParseTest(TestCase):
     """Test parsing of patches with different encoding issues."""

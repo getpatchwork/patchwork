@@ -617,7 +617,7 @@ def clean_subject(subject, drop_prefixes=None):
     prefix_re = re.compile(r'^\[([^\]]*)\]\s*(.*)$')
     subject = clean_header(subject)
 
-    if not subject:
+    if subject is None:
         raise ValueError("Invalid 'Subject' header")
 
     if drop_prefixes is None:

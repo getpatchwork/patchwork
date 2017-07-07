@@ -1,0 +1,25 @@
+From: "Yann E. MORIN" <yann.morin.1998@free.fr>
+Subject:
+Date: Tue, 8 Oct 2013 22:09:47 +0000
+Message-ID: <ABC@DEF>
+
+Rename patches to follow standard naming scheme.
+
+Signed-off-by: "Yann E. MORIN" <yann.morin.1998@free.fr>
+---
+ ...d-pkgconfig-files.patch => rpi-userland-000-add-pkgconfig-files.patch} | 0
+ ...erland-001-makefiles-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch} | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ rename package/rpi-userland/{rpi-userland-add-pkgconfig-files.patch => rpi-userland-000-add-pkgconfig-files.patch} (100%)
+ rename package/rpi-userland/{rpi-userland-makefiles-0001-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch => rpi-userland-001-makefiles-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch} (100%)
+
+diff --git a/package/rpi-userland/rpi-userland-add-pkgconfig-files.patch b/package/rpi-userland/rpi-userland-000-add-pkgconfig-files.patch
+similarity index 100%
+rename from package/rpi-userland/rpi-userland-add-pkgconfig-files.patch
+rename to package/rpi-userland/rpi-userland-000-add-pkgconfig-files.patch
+diff --git a/package/rpi-userland/rpi-userland-makefiles-0001-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch b/package/rpi-userland/rpi-userland-001-makefiles-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch
+similarity index 100%
+rename from package/rpi-userland/rpi-userland-makefiles-0001-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch
+rename to package/rpi-userland/rpi-userland-001-makefiles-cmake-vmcs.cmake-allow-to-override-VMCS_IN.patch
+-- 
+1.8.1.2
