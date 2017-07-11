@@ -84,10 +84,12 @@ if [ $# -eq 0 ]; then
 elif [ "$1" == "--shell" ]; then
     exec bash
 elif [ "$1" == "--quick-test" ]; then
+    shift
     export PW_SKIP_BROWSER_TESTS=yes
-    python3 manage.py test
+    python3 manage.py test $@
 elif [ "$1" == "--test" ]; then
-    xvfb-run --server-args='-screen 0, 1024x768x16' python3 manage.py test
+    shift
+    xvfb-run --server-args='-screen 0, 1024x768x16' python3 manage.py test $@
 elif [ "$1" == "--quick-tox" ]; then
     shift
     export PW_SKIP_BROWSER_TESTS=yes
