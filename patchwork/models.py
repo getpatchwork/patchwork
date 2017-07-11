@@ -619,7 +619,15 @@ class Series(FilenameMixin, models.Model):
 
     @staticmethod
     def _format_name(obj):
-        return obj.name.split(']')[-1].strip()
+        # The parser ensure 'Submission.name' will always take the form
+        # 'subject' or '[prefix_a,prefix_b,...] subject'. There will never be
+        # multiple prefixes (text inside brackets), thus, we don't need to
+        # account for multiple prefixes here.
+        prefix_re = re.compile(r'^\[([^\]]*)\]\s*(.*)$')
+        match = prefix_re.match(obj.name)
+        if match:
+            return match.group(2)
+        return obj.name.strip()
 
     @property
     def received_total(self):
