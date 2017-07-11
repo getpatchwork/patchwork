@@ -617,6 +617,10 @@ class Series(FilenameMixin, models.Model):
     total = models.IntegerField(help_text='Number of patches in series as '
                                 'indicated by the subject prefix(es)')
 
+    @staticmethod
+    def _format_name(obj):
+        return obj.name.split(']')[-1].strip()
+
     @property
     def received_total(self):
         return self.patches.count()
@@ -631,9 +635,6 @@ class Series(FilenameMixin, models.Model):
         Helper method so we can use the same pattern to add both
         patches and cover letters.
         """
-
-        def _format_name(obj):
-            return obj.name.split(']')[-1]
 
         if self.cover_letter:
             # TODO(stephenfin): We may wish to raise an exception here in the
@@ -657,7 +658,7 @@ class Series(FilenameMixin, models.Model):
         # If none of the above are available, the name will be null.
 
         if not self.name:
-            self.name = _format_name(cover)
+            self.name = self._format_name(cover)
         else:
             try:
                 name = SeriesPatch.objects.get(series=self,
@@ -666,7 +667,7 @@ class Series(FilenameMixin, models.Model):
                 name = None
 
             if self.name == name:
-                self.name = _format_name(cover)
+                self.name = self._format_name(cover)
 
         self.save()
 

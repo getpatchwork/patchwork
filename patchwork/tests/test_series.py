@@ -639,7 +639,7 @@ class SeriesNameTestCase(TestCase):
 
     @staticmethod
     def _format_name(cover):
-        return cover.name.split(']')[-1]
+        return models.Series._format_name(cover)
 
     def test_cover_letter(self):
         """Cover letter name set as series name.
