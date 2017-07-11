@@ -25,7 +25,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
-from django.db.models import Count, Q, F
+from django.db.models import Count
+from django.db.models import Q
 
 from patchwork.compat import render_to_string
 from patchwork.models import EmailConfirmation
@@ -109,9 +110,7 @@ def expire_notifications():
 
     # remove inactive users with no pending confirmation
     pending_confs = EmailConfirmation.objects.values('user')
-    users = User.objects.filter(is_active=False,
-                                last_login=F('date_joined')).exclude(
-                                    id__in=pending_confs)
+    users = User.objects.filter(is_active=False).exclude(id__in=pending_confs)
 
     # delete users
     users.delete()
