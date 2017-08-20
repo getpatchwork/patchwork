@@ -75,19 +75,22 @@ def read_mail(filename, project=None):
     return mail
 
 
-def _create_email(msg, msgid=None, sender=None, listid=None):
+def _create_email(msg, msgid=None, sender=None, listid=None, in_reply_to=None):
     msg['Message-Id'] = msgid or make_msgid()
     msg['Subject'] = 'Test subject'
     msg['From'] = sender or 'Test Author <test-author@example.com>'
     msg['List-Id'] = listid or 'test.example.com'
+    if in_reply_to:
+        msg['In-Reply-To'] = in_reply_to
 
     return msg
 
 
-def create_email(content, msgid=None, sender=None, listid=None):
+def create_email(content, msgid=None, sender=None, listid=None,
+                 in_reply_to=None):
     msg = MIMEText(content, _charset='us-ascii')
 
-    return _create_email(msg, msgid, sender, listid)
+    return _create_email(msg, msgid, sender, listid, in_reply_to)
 
 
 def parse_mail(*args, **kwargs):
@@ -755,6 +758,34 @@ class ParseInitialTagsTest(PatchTest):
         email = create_email(self.orig_content + '\n' + self.orig_diff,
                              listid=project.listid)
         parse_mail(email)
+
+    def test_tags(self):
+        self.assertEqual(Patch.objects.count(), 1)
+        patch = Patch.objects.all()[0]
+        self.assertEqual(patch.patchtag_set.filter(
+            tag__name='Acked-by').count(), 0)
+        self.assertEqual(patch.patchtag_set.get(
+            tag__name='Reviewed-by').count, 1)
+        self.assertEqual(patch.patchtag_set.get(
+            tag__name='Tested-by').count, 1)
+
+
+class ParseCommentTagsTest(PatchTest):
+    fixtures = ['default_tags']
+    patch_filename = '0001-add-line.patch'
+    comment_content = ('test comment\n\n' +
+                       'Tested-by: Test User <test@example.com>\n' +
+                       'Reviewed-by: Test User <test@example.com>\n')
+
+    def setUp(self):
+        project = create_project(listid='test.example.com')
+        self.orig_diff = read_patch(self.patch_filename)
+        email = create_email(self.orig_diff,
+                             listid=project.listid)
+        parse_mail(email)
+        email2 = create_email(self.comment_content,
+                              in_reply_to=email['Message-Id'])
+        parse_mail(email2)
 
     def test_tags(self):
         self.assertEqual(Patch.objects.count(), 1)
