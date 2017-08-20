@@ -350,10 +350,6 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
 
     # patchwork metadata
 
-    def refresh_tag_counts(self):
-        # This is subclassed on 'Patch' to do something useful
-        pass
-
     def is_editable(self, user):
         return False
 
@@ -578,11 +574,13 @@ class Comment(EmailMixin, models.Model):
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
-        self.submission.refresh_tag_counts()
+        if hasattr(self.submission, 'patch'):
+            self.submission.patch.refresh_tag_counts()
 
     def delete(self, *args, **kwargs):
         super(Comment, self).delete(*args, **kwargs)
-        self.submission.refresh_tag_counts()
+        if hasattr(self.submission, 'patch'):
+            self.submission.patch.refresh_tag_counts()
 
     class Meta:
         ordering = ['date']
