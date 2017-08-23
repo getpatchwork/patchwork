@@ -574,8 +574,12 @@ class Comment(EmailMixin, models.Model):
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
-        if hasattr(self.submission, 'patch'):
-            self.submission.patch.refresh_tag_counts()
+        # NOTE(stephenfin): Mitigate an issue with Python 3.4 + Django 1.6
+        try:
+            if hasattr(self.submission, 'patch'):
+                self.submission.patch.refresh_tag_counts()
+        except Patch.DoesNotExist:
+            pass
 
     def delete(self, *args, **kwargs):
         super(Comment, self).delete(*args, **kwargs)
