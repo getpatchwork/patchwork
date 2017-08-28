@@ -12,6 +12,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	auth_group,
 	auth_user_user_permissions,
 	auth_permission,
+	authtoken_token,
 	patchwork_emailconfirmation,
 	patchwork_state,
 	patchwork_comment,
@@ -47,9 +48,7 @@ GRANT SELECT, UPDATE ON
 	patchwork_bundle_id_seq,
 	patchwork_bundlepatch_id_seq,
 	patchwork_comment_id_seq,
-	patchwork_submission_id_seq,
 	patchwork_patch_id_seq,
-	patchwork_coverletter_id_seq,
 	patchwork_series_id_seq,
 	patchwork_seriespatch_id_seq,
 	patchwork_seriesreference_id_seq,
@@ -69,16 +68,17 @@ TO "www-data";
 -- cover letters) and series
 GRANT INSERT, SELECT ON
 	patchwork_submission,
-	patchwork_patch,
 	patchwork_coverletter,
-	patchwork_series,
 	patchwork_seriespatch,
 	patchwork_seriesreference,
 	patchwork_comment,
-	patchwork_person
+	patchwork_event
 TO "nobody";
 GRANT INSERT, SELECT, UPDATE, DELETE ON
-	patchwork_patchtag
+	patchwork_patchtag,
+	patchwork_patch,
+	patchwork_series,
+	patchwork_person
 TO "nobody";
 GRANT SELECT ON
 	patchwork_project,
@@ -87,15 +87,14 @@ GRANT SELECT ON
 	patchwork_delegationrule
 TO "nobody";
 GRANT UPDATE, SELECT ON
-	patchwork_submission_id_seq,
 	patchwork_patch_id_seq,
-	patchwork_coverletter_id_seq,
 	patchwork_series_id_seq,
 	patchwork_seriespatch_id_seq,
 	patchwork_seriesreference_id_seq,
 	patchwork_person_id_seq,
 	patchwork_comment_id_seq,
-	patchwork_patchtag_id_seq
+	patchwork_patchtag_id_seq,
+	patchwork_event_id_seq
 TO "nobody";
 
 COMMIT;
