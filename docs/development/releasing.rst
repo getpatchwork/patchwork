@@ -39,19 +39,41 @@ Release Checklist
 
 * Documentation references latest supported version of Django
 
+* 'alpha' tag has been removed from ``__version__`` in
+  ``patchwork/__init__.py``
+
+* Commit has been tagged with an `annotated tag`__. The tag should take the
+  form `v[MAJOR].[MINOR].[PATCH]`, e.g. `v2.0.1`. The message should read::
+
+    Version [MAJOR].[MINOR].[PATCH]
+
+* A `GitHub Release`__, with text corresponding to an abbreviated form of the
+  release notes for that cycle, has been created
+
+The following only apply to full releases, or those where the `MAJOR` or
+`MINOR` number is incremented:
+
+* A new branch called `stable/MAJOR.MINOR` has been created from the tagged
+  commit
+
+Once released, bump the version found in ``patchwork/__init__.py`` once again.
+
+__ https://git-scm.com/book/en/v2/Git-Basics-Tagging
+__ https://github.com/getpatchwork/patchwork/releases/new
+
 Backporting
 -----------
 
 We will occasionally backport bugfixes and security updates. When backporting a
 patch, said patch should first be merged into `master`. Once merged, you can
-backport by cherry-picking commits, using the `-x` flag for posterity:
+backport by cherry-picking commits, using the ``-x`` flag for posterity:
 
 .. code-block:: shell
 
-   $ git cherry-pick <master_commit> -x
+   $ git cherry-pick -x <master_commit>
 
 There may be some conflicts; resolve these, uncommenting the `Conflicts` line
-when commiting::
+when committing::
 
    Conflicts
            patchwork/bin/pwclient
