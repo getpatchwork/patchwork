@@ -55,6 +55,12 @@ class Paginator(paginator.Paginator):
         except ValueError:
             page_no = 1
             self.current_page = self.page(page_no)
+        except paginator.EmptyPage:
+            if page_no < 1:
+                page_no = 1
+            else:
+                page_no = self.num_pages
+            self.current_page = self.page(page_no)
 
         self.leading_set = self.trailing_set = []
 
