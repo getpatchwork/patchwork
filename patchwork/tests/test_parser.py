@@ -26,6 +26,7 @@ import os
 import unittest
 
 from django.test import TestCase
+from django.test import TransactionTestCase
 from django.utils import six
 
 from patchwork.models import Comment
@@ -865,7 +866,7 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
 
 
-class FuzzTest(TestCase):
+class FuzzTest(TransactionTestCase):
     """Test fuzzed patches."""
     def setUp(self):
         create_project(listid='patchwork.ozlabs.org')
