@@ -42,6 +42,10 @@ def patch_list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
     context = generic_list(request, project, 'patch-list',
                            view_args={'project_id': project.linkname})
+
+    if is_authenticated(request.user):
+        context['bundles'] = Bundle.objects.filter(owner=request.user)
+
     return render(request, 'patchwork/list.html', context)
 
 
