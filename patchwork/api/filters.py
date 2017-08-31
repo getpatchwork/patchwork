@@ -50,7 +50,7 @@ class ProjectChoiceField(ModelChoiceField):
         try:
             filters = {'pk': int(value)}
         except ValueError:
-            filters = {'name__iexact': ' '.join(value.split('-'))}
+            filters = {'linkname__iexact': ' '.join(value.split('-'))}
 
         try:
             value = self.queryset.get(**filters)

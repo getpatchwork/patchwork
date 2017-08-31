@@ -97,7 +97,23 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
 
-    def test_get_numeric_linkname(self):
+    def test_get_by_id(self):
+        """Validate that it's possible to filter by pk."""
+        project = create_project()
+
+        resp = self.client.get(self.api_url(project.pk))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(project, resp.data)
+
+    def test_get_by_linkname(self):
+        """Validate that it's possible to filter by linkname."""
+        project = create_project(linkname='project', name='Sample project')
+
+        resp = self.client.get(self.api_url('project'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertSerialized(project, resp.data)
+
+    def test_get_by_numeric_linkname(self):
         """Validate we try to do the right thing for numeric linkname"""
         project = create_project(linkname='12345')
 
@@ -326,7 +342,8 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(0, len(resp.data))
 
         state_obj = create_state(name='Under Review')
-        patch_obj = create_patch(state=state_obj)
+        project_obj = create_project(linkname='myproject')
+        patch_obj = create_patch(state=state_obj, project=project_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -338,12 +355,6 @@ class TestPatchAPI(APITestCase):
         self.assertNotIn('content', patch_rsp)
         self.assertNotIn('diff', patch_rsp)
 
-        # test filtering by state
-        resp = self.client.get(self.api_url(), {'state': 'under-review'})
-        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
-        resp = self.client.get(self.api_url(), {'state': 'missing-state'})
-        self.assertEqual(0, len(resp.data))
-
         # authenticated user
         user = create_user()
         self.client.force_authenticate(user=user)
@@ -352,6 +363,18 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(1, len(resp.data))
         patch_rsp = resp.data[0]
         self.assertSerialized(patch_obj, patch_rsp)
+
+        # test filtering by state
+        resp = self.client.get(self.api_url(), {'state': 'under-review'})
+        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'state': 'missing-state'})
+        self.assertEqual(0, len(resp.data))
+
+        # test filtering by project
+        resp = self.client.get(self.api_url(), {'project': 'myproject'})
+        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
         """Validate we can get a specific patch."""
