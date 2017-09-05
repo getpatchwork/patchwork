@@ -12,7 +12,7 @@ services:
 
 env:
   global:
-    - PW_TEST_DB_USER=travis
+    - PW_TEST_DB_USER=root
     - PW_TEST_DB_PASS=""
     - PW_SKIP_BROWSER_TESTS=yes
 
