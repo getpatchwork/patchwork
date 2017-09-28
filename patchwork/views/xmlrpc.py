@@ -585,6 +585,11 @@ def patch_list(filt=None):
 
     patches = Patch.objects.filter(**dfilter)
 
+    # Only extract the relevant fields. This saves a big db load as we
+    # no longer fetch content/headers/etc for potentially every patch
+    # in a project.
+    patches = patches.defer('content', 'headers', 'diff')
+
     return _get_objects(patch_to_dict, patches, max_count)
 
 
