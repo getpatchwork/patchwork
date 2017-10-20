@@ -1,5 +1,6 @@
 language: python
 
+dist: trusty
 sudo: false
 
 python:
@@ -7,17 +8,24 @@ python:
   - 3.4
   - 3.5
 
+addons:
+  postgresql: "9.6"
+
 services:
   - mysql
+  - postgresql
 
 env:
+  matrix:
+    - PW_TEST_DB_TYPE=postgres PW_TEST_DB_USER=postgres
+    - PW_TEST_DB_TYPE=mysql PW_TEST_DB_USER=root
   global:
-    - PW_TEST_DB_USER=root
     - PW_TEST_DB_PASS=""
     - PW_SKIP_BROWSER_TESTS=yes
 
 before_script:
   - mysql -e 'create database patchwork character set utf8;'
+  - psql -c "create database patchwork with ENCODING = 'UTF8';" -U postgres
 
 install:
   - pip install tox-travis
