@@ -5,9 +5,14 @@
 # or upgrade to v2 and use the build-arg to override it.
 
 db:
-  build: tools/docker/db
+  image: mysql:5.7
   volumes:
-   - ./tools/docker/db/data:/var/lib/mysql
+    - ./tools/docker/db/data:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_USER=patchwork
+    - MYSQL_PASSWORD=password
+
 web:
   build: .
   dockerfile: ./tools/docker/Dockerfile
