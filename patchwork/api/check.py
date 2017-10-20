@@ -81,6 +81,7 @@ class CheckListCreate(CheckMixin, ListCreateAPIView):
     """List or create checks."""
 
     lookup_url_kwarg = 'patch_id'
+    ordering = 'id'
 
     def create(self, request, patch_id, *args, **kwargs):
         p = Patch.objects.get(id=patch_id)

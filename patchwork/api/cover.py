@@ -75,6 +75,7 @@ class CoverLetterList(ListAPIView):
     filter_class = CoverLetterFilter
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter')
+    ordering = 'id'
 
     def get_queryset(self):
         qs = CoverLetter.objects.all().prefetch_related('series')\

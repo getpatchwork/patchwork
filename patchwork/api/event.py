@@ -91,13 +91,12 @@ class EventList(ListAPIView):
     serializer_class = EventSerializer
     filter_class = EventFilter
     page_size_query_param = None  # fixed page size
-    ordering = '-date'
     ordering_fields = ()
+    ordering = '-date'
 
     def get_queryset(self):
         return Event.objects.all()\
             .select_related('project', 'patch', 'series', 'cover',
                             'previous_state', 'current_state',
                             'previous_delegate', 'current_delegate',
-                            'created_check')\
-            .order_by('-date')
+                            'created_check')

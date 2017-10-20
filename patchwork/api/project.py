@@ -79,6 +79,7 @@ class ProjectList(ProjectMixin, ListAPIView):
     search_fields = ('link_name', 'list_id', 'list_email', 'web_url',
                      'scm_url', 'webscm_url')
     ordering_fields = ('id', 'name', 'link_name', 'list_id')
+    ordering = 'id'
 
 
 class ProjectDetail(ProjectMixin, RetrieveUpdateAPIView):

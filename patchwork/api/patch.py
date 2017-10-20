@@ -148,6 +148,7 @@ class PatchList(ListAPIView):
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'project', 'date', 'state', 'archived',
                        'submitter', 'check')
+    ordering = 'id'
 
     def get_queryset(self):
         # TODO(stephenfin): Does the defer here cause issues with Django 1.6

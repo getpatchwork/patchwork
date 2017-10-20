@@ -71,6 +71,7 @@ class SeriesList(SeriesMixin, ListAPIView):
     filter_class = SeriesFilter
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter', 'received_all')
+    ordering = 'id'
 
 
 class SeriesDetail(SeriesMixin, RetrieveAPIView):

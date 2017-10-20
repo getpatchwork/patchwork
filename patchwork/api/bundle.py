@@ -76,6 +76,7 @@ class BundleList(BundleMixin, ListAPIView):
     filter_class = BundleFilter
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'owner')
+    ordering = 'id'
 
 
 class BundleDetail(BundleMixin, RetrieveAPIView):

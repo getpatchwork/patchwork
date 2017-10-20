@@ -53,6 +53,7 @@ class PersonList(PersonMixin, ListAPIView):
 
     search_fields = ('name', 'email')
     ordering_fields = ('id', 'name', 'email')
+    ordering = 'id'
 
 
 class PersonDetail(PersonMixin, RetrieveAPIView):
