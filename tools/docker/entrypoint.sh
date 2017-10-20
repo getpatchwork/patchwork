@@ -1,13 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
+PW_TEST_DB_TYPE=${PW_TEST_DB_TYPE:-mysql}
+
 # functions
 
 test_db_connection() {
-    mysqladmin -h $PW_TEST_DB_HOST -u patchwork --password=password ping > /dev/null 2> /dev/null
+    if [ ${PW_TEST_DB_TYPE} = "postgres" ]; then
+	echo ';' | psql -h $PW_TEST_DB_HOST -U postgres 2> /dev/null > /dev/null
+    else
+	mysqladmin -h $PW_TEST_DB_HOST -u patchwork --password=password ping > /dev/null 2> /dev/null
+    fi
 }
 
-reset_data() {
+test_database() {
+    if [ ${PW_TEST_DB_TYPE} = "postgres" ]; then
+	echo ';' | psql -h $PW_TEST_DB_HOST -U postgres patchwork 2> /dev/null
+    else
+	echo ';' | mysql -h $PW_TEST_DB_HOST -u patchwork -ppassword patchwork 2> /dev/null
+    fi
+}
+
+reset_data_mysql() {
     mysql -u$db_user -p$db_pass -h $PW_TEST_DB_HOST << EOF
 DROP DATABASE IF EXISTS patchwork;
 CREATE DATABASE patchwork CHARACTER SET utf8;
@@ -15,6 +29,21 @@ GRANT ALL ON patchwork.* TO 'patchwork' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON test_patchwork.* TO 'patchwork'@'%';
 FLUSH PRIVILEGES;
 EOF
+}
+
+reset_data_postgres() {
+    psql -h $PW_TEST_DB_HOST -U postgres <<EOF
+DROP DATABASE IF EXISTS patchwork;
+CREATE DATABASE patchwork WITH ENCODING = 'UTF8';
+EOF
+}
+
+reset_data() {
+    if [ x${PW_TEST_DB_TYPE} = x"postgres" ]; then
+	reset_data_postgres
+    else
+	reset_data_mysql
+    fi
 
     # load initial data
     python3 $PROJECT_HOME/manage.py migrate #> /dev/null
@@ -46,13 +75,13 @@ for x in /tmp/requirements-*.txt; do
     fi
 done
 
-# check if mysql is connected
+# check if db is connected
 if ! test_db_connection; then
-    echo "MySQL seems not to be connected, or the patchwork user is broken"
-    echo "MySQL may still be starting. Waiting 5 seconds."
+    echo "The database seems not to be connected, or the patchwork user is broken"
+    echo "MySQL/Postgres may still be starting. Waiting 5 seconds."
     sleep 5
     if ! test_db_connection; then
-        echo "Still cannot connect to MySQL."
+        echo "Still cannot connect to database."
         echo "Maybe you are starting the db for the first time. Waiting up to 60 seconds."
         for i in {0..9}; do
             sleep 5
@@ -61,19 +90,19 @@ if ! test_db_connection; then
             fi
         done
         if ! test_db_connection; then
-            echo "Still cannot connect to MySQL. Giving up."
+            echo "Still cannot connect to database. Giving up."
             echo "Are you using docker-compose? If not, have you set up the link correctly?"
             exit 1
         fi
     fi
 fi
 
-# rebuild mysql db
+# rebuild db
 # do this on --reset or if the db doesn't exist
 if [[ "$1" == "--reset" ]]; then
     shift
     reset_data
-elif ! ( echo ';' | mysql -h db -u patchwork -ppassword patchwork 2> /dev/null ); then
+elif ! test_database; then
     reset_data
 fi
 

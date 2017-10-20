@@ -21,7 +21,7 @@ RUN apt-get update -qq && \
     python3.5-dev python3-pip python3-setuptools python3-wheel \
     python3.4-dev findutils=4.4.2-7 \
     libmysqlclient-dev mysql-client curl unzip xvfb chromium-chromedriver \
-    chromium-browser build-essential git && \
+    chromium-browser build-essential git postgresql-client && \
     ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/
 
 # User
