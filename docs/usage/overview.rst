@@ -131,7 +131,7 @@ Reviewed-by:
 
   For example::
 
-      Tested-by: Stephen Finucane <stephen@that.guru>
+      Reviewed-by: Stephen Finucane <stephen@that.guru>
 
 The available tags, along with the significance of said tags, varies from
 project to project and Patchwork instance to Patchwork instance. The `kernel
