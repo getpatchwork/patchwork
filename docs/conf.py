@@ -2,6 +2,12 @@
 #
 # Patchwork documentation build configuration file
 
+try:
+    import sphinx_rtd_theme
+    has_rtd_theme = True
+except ImportError:
+    has_rtd_theme = False
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -12,6 +18,11 @@ needs_sphinx = '1.5'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.todo', 'reno.sphinxext']
+
+if has_rtd_theme:
+    html_theme = 'sphinx_rtd_theme'
+    # TODO(stephenfin): Remove this once we use v0.2.5
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = []
