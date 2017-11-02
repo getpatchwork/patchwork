@@ -21,7 +21,7 @@ of community projects.
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Documentation
+   :caption: Usage Documentation
 
    usage/overview
    usage/design
@@ -72,3 +72,12 @@ of community projects.
    releases/cashmere
    releases/burlap
    releases/alpaca
+
+.. toctree::
+   :hidden:
+
+   usage/index
+   deployment/index
+   development/index
+   api/index
+   releases/index
