@@ -3,9 +3,9 @@ Upgrading
 
 This document provides some general tips and tricks that one can use when
 upgrading an existing, production installation of Patchwork. If you are
-interested in the specific changes between each release, refer to the
-`UPGRADING` document instead. If this is your first time installing Patchwork,
-refer to the :doc:`installation` instead.
+interested in the specific changes between each release, refer to
+:doc:`/releases/index` instead. If this is your first time installing
+Patchwork, refer to the :doc:`installation` instead.
 
 Before You Start
 ----------------
@@ -21,7 +21,7 @@ will provide an easier, if slower, upgrade process.
 Identify Changed Scripts, Requirements, etc.
 --------------------------------------------
 
-The `CHANGELOG` document provides a comprehensive listing of all
+:doc:`/releases/index` provides a comprehensive listing of all
 backwards-incompatible changes that occur between releases of Patchwork.
 Examples of such changes include:
 
@@ -42,7 +42,7 @@ dependencies, e.g. newer versions of Django. It is important that you
 understand these requirements and can fulfil them. This is particularly true
 for users relying on distro-provided packages, who may have to deal with older
 versions of a package or may be missing a package altogether (though we try to
-avoid this). Such changes are usually listed in the `UPGRADING` document, but
+avoid this). Such changes are usually listed in the :doc:`/releases/index`, but
 you can also diff the `requirements.txt` files in each release for comparison.
 
 Collect Static Files
