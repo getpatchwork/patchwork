@@ -43,11 +43,11 @@ Requirements
 
 - Python (2.7, 3.3 - 3.5)
 
-- Django (1.6 - 1.11)
+- Django (1.8 - 1.11)
 
 - Django REST Framework (3.2 - 3.6)
 
-- Django Filters (0.11 - 1.0)
+- Django Filters (1.0)
 
 Development Installation
 ------------------------

@@ -27,8 +27,8 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.db.models import Count
 from django.db.models import Q
+from django.template.loader import render_to_string
 
-from patchwork.compat import render_to_string
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout
 from patchwork.models import PatchChangeNotification

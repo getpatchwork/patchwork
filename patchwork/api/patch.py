@@ -57,7 +57,6 @@ class StateField(RelatedField):
         'incorrect_type': _('Incorrect type. Expected string value, received '
                             '{data_type}.'),
     }
-    queryset = ''  # django 1.6, rest_framework 3.2 require this
 
     def to_internal_value(self, data):
         try:
@@ -151,8 +150,6 @@ class PatchList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        # TODO(stephenfin): Does the defer here cause issues with Django 1.6
-        # (like /cover)?
         return Patch.objects.all()\
             .prefetch_related('series', 'check_set')\
             .select_related('project', 'state', 'submitter', 'delegate')\

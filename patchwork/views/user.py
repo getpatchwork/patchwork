@@ -27,8 +27,8 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.template.loader import render_to_string
 
-from patchwork.compat import render_to_string
 from patchwork.compat import reverse
 from patchwork.filters import DelegateFilter
 from patchwork.forms import EmailForm

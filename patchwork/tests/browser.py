@@ -21,10 +21,7 @@ import errno
 import os
 import time
 
-try:
-    from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-except:  # Django < 1.7
-    from django.test import LiveServerTestCase as StaticLiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.common.exceptions import (
     NoSuchElementException, StaleElementReferenceException,
     TimeoutException)

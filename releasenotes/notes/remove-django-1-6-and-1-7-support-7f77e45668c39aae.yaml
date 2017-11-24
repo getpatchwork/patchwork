@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Django 1.6 and 1.7 are no longer supported. These are no longer supported
+    upstream and most distributions provide a newer version.
+  - |
+    django-filter 0.11 is no longer supported. This was only used with Django
+    1.6 and 1.7 and is not compatible with any version supported by Patchwork.

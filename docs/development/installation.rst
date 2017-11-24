@@ -70,7 +70,7 @@ To run specific tox targets or tests, pass arguments to the above:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --quick-tox -e py27-django17 \
+   $ docker-compose run --rm web --quick-tox -e py27-django18 \
        patchwork.tests.test_bundles
 
 To run all tests, including Selenium UI interaction tests, using only the

@@ -575,12 +575,8 @@ class Comment(EmailMixin, models.Model):
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
-        # NOTE(stephenfin): Mitigate an issue with Python 3.4 + Django 1.6
-        try:
-            if hasattr(self.submission, 'patch'):
-                self.submission.patch.refresh_tag_counts()
-        except Patch.DoesNotExist:
-            pass
+        if hasattr(self.submission, 'patch'):
+            self.submission.patch.refresh_tag_counts()
 
     def delete(self, *args, **kwargs):
         super(Comment, self).delete(*args, **kwargs)
@@ -997,8 +993,3 @@ class PatchChangeNotification(models.Model):
                                  on_delete=models.CASCADE)
     last_modified = models.DateTimeField(default=datetime.datetime.now)
     orig_state = models.ForeignKey(State, on_delete=models.CASCADE)
-
-
-if django.VERSION < (1, 7):
-    # We don't have support for AppConfig in Django 1.6.x
-    import patchwork.signals  # noqa

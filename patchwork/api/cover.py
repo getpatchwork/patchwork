@@ -19,7 +19,6 @@
 
 import email.parser
 
-import django
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import HyperlinkedModelSerializer
@@ -78,15 +77,9 @@ class CoverLetterList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        qs = CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('project', 'submitter')
-
-        # FIXME(stephenfin): This causes issues with Django 1.6 for whatever
-        # reason. Suffer the performance hit on those versions.
-        if django.VERSION >= (1, 7):
-            qs.defer('content', 'headers')
-
-        return qs
+        return CoverLetter.objects.all().prefetch_related('series')\
+            .select_related('project', 'submitter')\
+            .defer('content', 'headers')
 
 
 class CoverLetterDetail(RetrieveAPIView):
