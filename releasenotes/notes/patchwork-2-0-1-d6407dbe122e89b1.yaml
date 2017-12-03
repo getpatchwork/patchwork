@@ -1,0 +1,12 @@
+---
+fixes:
+  - |
+    Handle requests for pages out of range.
+  - |
+    Fix SQL permissions scripts for tables and columns added in 2.0.
+  - |
+    Fix filtering of projects by name
+  - |
+    Fix "add to bundle" dropdown
+  - |
+    Performance improvements for the XML-RPC API
