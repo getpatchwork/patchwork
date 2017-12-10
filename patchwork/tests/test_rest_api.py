@@ -341,9 +341,11 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
+        person_obj = create_person(email='test@example.com')
         state_obj = create_state(name='Under Review')
         project_obj = create_project(linkname='myproject')
-        patch_obj = create_patch(state=state_obj, project=project_obj)
+        patch_obj = create_patch(state=state_obj, project=project_obj,
+                                 submitter=person_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -374,6 +376,16 @@ class TestPatchAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
         self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
+
+        # test filtering by submitter, both ID and email
+        resp = self.client.get(self.api_url(), {'submitter': person_obj.id})
+        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.com'})
+        self.assertEqual([patch_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
@@ -493,8 +505,9 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
+        person_obj = create_person(email='test@example.com')
         project_obj = create_project(linkname='myproject')
-        cover_obj = create_cover(project=project_obj)
+        cover_obj = create_cover(project=project_obj, submitter=person_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -514,6 +527,16 @@ class TestCoverLetterAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
         self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
+
+        # test filtering by submitter, both ID and email
+        resp = self.client.get(self.api_url(), {'submitter': person_obj.id})
+        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.com'})
+        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
@@ -574,8 +597,9 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
+        person_obj = create_person(email='test@example.com')
         project_obj = create_project(linkname='myproject')
-        series_obj = create_series(project=project_obj)
+        series_obj = create_series(project=project_obj, submitter=person_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -595,6 +619,16 @@ class TestSeriesAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
         self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
+
+        # test filtering by submitter, both ID and email
+        resp = self.client.get(self.api_url(), {'submitter': person_obj.id})
+        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.com'})
+        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {
+            'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
     def test_detail(self):

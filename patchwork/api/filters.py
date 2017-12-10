@@ -28,6 +28,7 @@ from patchwork.models import Check
 from patchwork.models import CoverLetter
 from patchwork.models import Event
 from patchwork.models import Patch
+from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import State
@@ -40,16 +41,16 @@ class TimestampMixin(FilterSet):
     since = IsoDateTimeFilter(name='date', lookup_expr='gte')
 
 
-class ProjectChoiceField(ModelChoiceField):
+class ModelMultiChoiceField(ModelChoiceField):
+
+    def _get_filters(self, value):
+        raise NotImplementedError
 
     def to_python(self, value):
         if value in self.empty_values:
             return None
 
-        try:
-            filters = {'pk': int(value)}
-        except ValueError:
-            filters = {'linkname__iexact': value}
+        filters = self._get_filters(value)
 
         try:
             value = self.queryset.get(**filters)
@@ -57,6 +58,15 @@ class ProjectChoiceField(ModelChoiceField):
             raise ValidationError(self.error_messages['invalid_choice'],
                                   code='invalid_choice')
         return value
+
+
+class ProjectChoiceField(ModelMultiChoiceField):
+
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'linkname__iexact': value}
 
 
 class ProjectFilter(ModelChoiceFilter):
@@ -70,7 +80,23 @@ class ProjectMixin(FilterSet):
                             queryset=Project.objects.all())
 
 
+class PersonChoiceField(ModelMultiChoiceField):
+
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'email__iexact': value}
+
+
+class PersonFilter(ModelChoiceFilter):
+
+    field_class = PersonChoiceField
+
+
 class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
         model = Series
@@ -78,6 +104,8 @@ class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
 
 
 class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
         model = CoverLetter
@@ -112,6 +140,7 @@ class StateFilter(ModelChoiceFilter):
 class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     state = StateFilter(queryset=State.objects.all())
+    submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
         model = Patch
