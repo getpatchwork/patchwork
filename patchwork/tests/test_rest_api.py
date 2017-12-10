@@ -493,7 +493,8 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        cover_obj = create_cover()
+        project_obj = create_project(linkname='myproject')
+        cover_obj = create_cover(project=project_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
@@ -508,6 +509,12 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(cover_obj, resp.data[0])
+
+        # test filtering by project
+        resp = self.client.get(self.api_url(), {'project': 'myproject'})
+        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
         """Validate we can get a specific cover letter."""
@@ -567,13 +574,14 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        series = create_series()
+        project_obj = create_project(linkname='myproject')
+        series_obj = create_series(project=project_obj)
 
         # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(series, resp.data[0])
+        self.assertSerialized(series_obj, resp.data[0])
 
         # authenticated user
         user = create_user()
@@ -581,7 +589,13 @@ class TestSeriesAPI(APITestCase):
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(series, resp.data[0])
+        self.assertSerialized(series_obj, resp.data[0])
+
+        # test filtering by project
+        resp = self.client.get(self.api_url(), {'project': 'myproject'})
+        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
         """Validate we can get a specific series."""
@@ -747,8 +761,11 @@ class TestBundleAPI(APITestCase):
         self.assertEqual(0, len(resp.data))
 
         user = create_user()
-        bundle_public = create_bundle(public=True, owner=user)
-        bundle_private = create_bundle(public=False, owner=user)
+        project = create_project(linkname='myproject')
+        bundle_public = create_bundle(public=True, owner=user,
+                                      project=project)
+        bundle_private = create_bundle(public=False, owner=user,
+                                       project=project)
 
         # anonymous users
         # should only see the public bundle
@@ -767,6 +784,13 @@ class TestBundleAPI(APITestCase):
         for bundle_rsp, bundle_obj in zip(
                 resp.data, [bundle_public, bundle_private]):
             self.assertSerialized(bundle_obj, bundle_rsp)
+
+        # test filtering by project
+        resp = self.client.get(self.api_url(), {'project': 'myproject'})
+        self.assertEqual([bundle_public.id, bundle_private.id],
+                         [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
 
     def test_detail(self):
         """Validate we can get a specific bundle."""
