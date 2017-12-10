@@ -708,6 +708,14 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(check_obj, resp.data[0])
 
+        # test filtering by owner, both ID and username
+        resp = self.client.get(self.api_url(), {'user': self.user.id})
+        self.assertEqual([check_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'user': self.user.username})
+        self.assertEqual([check_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'user': 'otheruser'})
+        self.assertEqual(0, len(resp.data))
+
     def test_detail(self):
         """Validate we can get a specific check."""
         check = self._create_check()
@@ -794,7 +802,7 @@ class TestBundleAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        user = create_user()
+        user = create_user(username='myuser')
         project = create_project(linkname='myproject')
         bundle_public = create_bundle(public=True, owner=user,
                                       project=project)
@@ -824,6 +832,16 @@ class TestBundleAPI(APITestCase):
         self.assertEqual([bundle_public.id, bundle_private.id],
                          [x['id'] for x in resp.data])
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
+
+        # test filtering by owner, both ID and username
+        resp = self.client.get(self.api_url(), {'owner': user.id})
+        self.assertEqual([bundle_public.id, bundle_private.id],
+                         [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'owner': 'myuser'})
+        self.assertEqual([bundle_public.id, bundle_private.id],
+                         [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'owner': 'otheruser'})
         self.assertEqual(0, len(resp.data))
 
     def test_detail(self):

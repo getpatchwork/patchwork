@@ -7,3 +7,10 @@ api:
     .. code-block:: shell
 
        $ curl /covers/?submitter=stephen@that.guru
+  - |
+    Bundles can be filtered by owner and checks by user using username. For
+    example:
+
+    .. code-block:: shell
+
+       $ curl /bundles/?owner=stephenfin

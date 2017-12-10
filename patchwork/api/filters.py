@@ -17,6 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
@@ -148,7 +149,23 @@ class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
                   'state', 'archived')
 
 
+class UserChoiceField(ModelMultiChoiceField):
+
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'username__iexact': value}
+
+
+class UserFilter(ModelChoiceFilter):
+
+    field_class = UserChoiceField
+
+
 class CheckFilter(TimestampMixin, FilterSet):
+
+    user = UserFilter(queryset=User.objects.all())
 
     class Meta:
         model = Check
@@ -163,6 +180,8 @@ class EventFilter(ProjectMixin, TimestampMixin, FilterSet):
 
 
 class BundleFilter(ProjectMixin, FilterSet):
+
+    owner = UserFilter(queryset=User.objects.all())
 
     class Meta:
         model = Bundle
