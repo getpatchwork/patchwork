@@ -230,6 +230,9 @@ class Tag(models.Model):
     abbrev = models.CharField(
         max_length=2, unique=True, help_text='Short (one-or-two letter)'
         ' abbreviation for the tag, used in table column headers')
+    show_column = models.BooleanField(help_text='Show a column displaying this'
+                                      ' tag\'s count in the patch list view',
+                                      default=True)
 
     @property
     def attr_name(self):

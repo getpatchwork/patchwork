@@ -34,7 +34,7 @@ register = template.Library()
 def patch_tags(patch):
     counts = []
     titles = []
-    for tag in patch.project.tags:
+    for tag in [t for t in patch.project.tags if t.show_column]:
         count = getattr(patch, tag.attr_name)
         titles.append('%d %s' % (count, tag.name))
         if count == 0:

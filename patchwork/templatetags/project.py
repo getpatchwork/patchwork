@@ -28,6 +28,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def project_tags(context):
+    tags = [t for t in context['project'].tags if t.show_column]
     return mark_safe('<span title="%s">%s</span>' % (
-        ' / '.join([tag.name for tag in context['project'].tags]),
-        '/'.join([tag.abbrev for tag in context['project'].tags])))
+        ' / '.join([tag.name for tag in tags]),
+        '/'.join([tag.abbrev for tag in tags])))
