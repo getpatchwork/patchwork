@@ -128,6 +128,8 @@ def profile(request):
     context['linked_emails'] = people
     context['linkform'] = EmailForm()
     context['api_token'] = request.user.profile.token
+    if settings.ENABLE_REST_API:
+        context['rest_api_enabled'] = True
 
     return render(request, 'patchwork/profile.html', context)
 
