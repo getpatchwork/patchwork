@@ -75,11 +75,11 @@ class CheckSerializer(HyperlinkedModelSerializer):
         }
 
 
-class CoverLetterSerializer(HyperlinkedModelSerializer):
+class CoverLetterSerializer(MboxMixin, HyperlinkedModelSerializer):
 
     class Meta:
         model = models.CoverLetter
-        fields = ('id', 'url', 'msgid', 'date', 'name')
+        fields = ('id', 'url', 'msgid', 'date', 'name', 'mbox')
         read_only_fields = fields
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
