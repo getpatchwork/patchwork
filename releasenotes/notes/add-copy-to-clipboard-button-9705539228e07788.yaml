@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    The patch ID on the patch detail page can now be clicked to copy it. This
+    is similar to what we already do on the patch list page.

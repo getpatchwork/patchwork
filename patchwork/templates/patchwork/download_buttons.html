@@ -1,4 +1,8 @@
 <div class="btn-group pull-right">
+  <button type="button" class="btn btn-default btn-copy"
+     data-clipboard-text="{{ submission.id }}" title="Copy to Clipboard">
+      {{ submission.id }}
+  </button>
   {% if submission.diff %}
   <a href="{% url 'patch-raw' patch_id=submission.id %}"
    class="btn btn-default" role="button" title="Download patch diff"
