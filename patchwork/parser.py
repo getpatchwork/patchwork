@@ -156,7 +156,7 @@ def find_project_by_id(list_id):
     try:
         project = Project.objects.get(listid=list_id)
     except Project.DoesNotExist:
-        pass
+        logger.debug("'%s' if not a valid project list-id", list_id)
     return project
 
 
@@ -184,6 +184,9 @@ def find_project_by_header(mail):
             project = find_project_by_id(listid)
             if project:
                 break
+
+    if not project:
+        logger.debug("Could not find a list-id in mail headers", list_id)
 
     return project
 
