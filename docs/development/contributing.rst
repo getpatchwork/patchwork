@@ -45,7 +45,7 @@ to do. To start, you can show the default targets like so:
 
 .. code-block:: shell
 
-   $ tox --list
+   $ tox -l
 
 You'll see that this includes a number of targets to run unit tests against the
 different versions of Django supported, along with some other targets related
