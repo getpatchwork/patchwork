@@ -38,10 +38,6 @@ from patchwork.models import State
 from patchwork.parser import clean_subject
 
 
-def format_state_name(state):
-    return ' '.join(state.split('-'))
-
-
 class StateField(RelatedField):
     """Avoid the need for a state endpoint.
 
@@ -58,13 +54,17 @@ class StateField(RelatedField):
                             '{data_type}.'),
     }
 
+    @staticmethod
+    def format_state_name(state):
+        return ' '.join(state.split('-'))
+
     def to_internal_value(self, data):
         try:
-            data = format_state_name(data)
+            data = self.format_state_name(data)
             return self.get_queryset().get(name__iexact=data)
         except State.DoesNotExist:
             self.fail('invalid_choice', name=data, choices=', '.join([
-                format_state_name(x.name) for x in self.get_queryset()]))
+                self.format_state_name(x.name) for x in self.get_queryset()]))
         except (TypeError, ValueError):
             self.fail('incorrect_type', data_type=type(data).__name__)
 
