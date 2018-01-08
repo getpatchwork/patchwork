@@ -545,6 +545,19 @@ class PatchParseTest(PatchTest):
     def test_git_pull_request(self):
         self._test_pull_request_parse('0001-git-pull-request.mbox')
 
+    @unittest.skipIf(six.PY3, 'Breaks only on Python 2')
+    def test_git_pull_request_crlf_newlines(self):
+        # verify that we haven't munged the file
+        crlf_file = os.path.join(TEST_MAIL_DIR,
+                                 '0018-git-pull-request-crlf-newlines.mbox')
+        with open(crlf_file) as f:
+            message = f.read()
+            self.assertIn('\r\n', message)
+
+        # verify the file works
+        self._test_pull_request_parse(
+            '0018-git-pull-request-crlf-newlines.mbox')
+
     def test_git_pull_wrapped_request(self):
         self._test_pull_request_parse('0002-git-pull-request-wrapped.mbox')
 

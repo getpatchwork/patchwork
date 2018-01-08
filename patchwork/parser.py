@@ -666,7 +666,11 @@ def clean_content(content):
     """Remove cruft from the email message.
 
     Catch signature (-- ) and list footer (_____) cruft.
+
+    Change to Unix line endings (the Python 3 email module does this for us,
+    but not Python 2).
     """
+    content = content.replace('\r\n', '\n')
     sig_re = re.compile(r'^(-- |_+)\n.*', re.S | re.M)
     content = sig_re.sub('', content)
 
