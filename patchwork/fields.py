@@ -22,19 +22,11 @@ from __future__ import absolute_import
 
 import hashlib
 
-import django
 from django.db import models
 from django.utils import six
 
 
-if django.VERSION < (1, 8):
-    HashFieldBase = six.with_metaclass(models.SubfieldBase,
-                                       models.CharField)  # noqa
-else:
-    HashFieldBase = models.CharField
-
-
-class HashField(HashFieldBase):
+class HashField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         self.n_bytes = len(hashlib.sha1().hexdigest())
