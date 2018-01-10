@@ -186,7 +186,7 @@ def find_project_by_header(mail):
                 break
 
     if not project:
-        logger.debug("Could not find a list-id in mail headers", list_id)
+        logger.debug("Could not find a list-id in mail headers", listid)
 
     return project
 
