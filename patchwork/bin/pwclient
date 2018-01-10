@@ -388,7 +388,7 @@ def patch_id_from_hash(rpc, project, hash):
     # be super paranoid
     try:
         patch_id = int(patch_id)
-    except:
+    except ValueError:
         sys.stderr.write("Invalid patch ID obtained from server\n")
         sys.exit(1)
     return patch_id
@@ -434,13 +434,11 @@ def main():
         help='''Filter by delegate (name, e-mail substring search)'''
     )
     filter_parser.add_argument(
-        '-n', metavar='MAX#',
-        type=int,
+        '-n', metavar='MAX#', type=int,
         help='''Return first n results'''
     )
     filter_parser.add_argument(
-        '-N', metavar='MAX#',
-        type=int,
+        '-N', metavar='MAX#', type=int,
         help='''Return last N results'''
     )
     filter_parser.add_argument(
@@ -613,16 +611,10 @@ installed locales.
             'Must specify one or more update options (-a or -s)')
 
     if args.get('n') is not None:
-        try:
-            filt.add("max_count", args.get('n'))
-        except:
-            action_parser.error("Invalid maximum count '%s'" % args.get('n'))
+        filt.add("max_count", args.get('n'))
 
     if args.get('N') is not None:
-        try:
-            filt.add("max_count", 0 - args.get('N'))
-        except:
-            action_parser.error("Invalid maximum count '%s'" % args.get('N'))
+        filt.add("max_count", 0 - args.get('N'))
 
     do_signoff = args.get('signoff')
     do_three_way = args.get('3way')
@@ -668,7 +660,7 @@ installed locales.
     if not project_str:
         try:
             project_str = config.get('options', 'default')
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             action_parser.error(
                 "No default project configured in %s\n" % CONFIG_FILE)
 
@@ -717,8 +709,8 @@ installed locales.
 
     try:
         rpc = xmlrpclib.Server(url, transport=transport)
-    except:
-        sys.stderr.write("Unable to connect to %s\n" % url)
+    except (IOError, OSError):
+        sy.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
 
     # It should be safe to assume hash_str is not zero, but who knows..
