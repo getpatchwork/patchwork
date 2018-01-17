@@ -557,6 +557,13 @@ class PatchParseTest(PatchTest):
     def test_git_pull_http_url(self):
         self._test_pull_request_parse('0006-git-pull-request-http.mbox')
 
+    def test_git_pull_git_2_14_3(self):
+        """Handle messages from Git 2.14.3+.
+
+        See: https://github.com/git/git/commit/e66d7c37a
+        """
+        self._test_pull_request_parse('0017-git-pull-request-git-2-14-3.mbox')
+
     def test_git_pull_with_diff(self):
         diff, message = self._find_content(
             '0003-git-pull-request-with-diff.mbox')
