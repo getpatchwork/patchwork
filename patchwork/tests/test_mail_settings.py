@@ -245,9 +245,9 @@ class UserProfileOptoutFormTest(TestCase):
 
     """Validate presence of correct optin/optout forms."""
 
-    form_re_template = ('<form\s+[^>]*action="%(url)s"[^>]*>'
-                        '.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
-                        '</form>')
+    form_re_template = (r'<form\s+[^>]*action="%(url)s"[^>]*>'
+                        r'.*?<input\s+[^>]*value="%(email)s"[^>]*>.*?'
+                        r'</form>')
 
     def setUp(self):
         self.secondary_email = 'test2@example.com'

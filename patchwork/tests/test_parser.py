@@ -613,12 +613,12 @@ class PatchParseTest(PatchTest):
             'diff --git a/tools/testing/selftests/powerpc/Makefile'))
         # Confirm the trailing no newline marker doesn't end up in the comment
         self.assertFalse(message.rstrip().endswith(
-            '\ No newline at end of file'))
+            r'\ No newline at end of file'))
         # Confirm it's instead at the bottom of the patch
         self.assertTrue(diff.rstrip().endswith(
-            '\ No newline at end of file'))
+            r'\ No newline at end of file'))
         # Confirm we got both markers
-        self.assertEqual(2, diff.count('\ No newline at end of file'))
+        self.assertEqual(2, diff.count(r'\ No newline at end of file'))
 
     def test_no_subject(self):
         """Validate parsing a mail with no subject."""
