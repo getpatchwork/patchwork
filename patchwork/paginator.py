@@ -28,7 +28,7 @@ from patchwork.compat import is_authenticated
 DEFAULT_ITEMS_PER_PAGE = 100
 LONG_PAGE_THRESHOLD = 30
 LEADING_PAGE_RANGE_DISPLAYED = 4
-TRAILING_PAGE_RANGE_DISPLAYED = 2
+TRAILING_PAGE_RANGE_DISPLAYED = 4
 LEADING_PAGE_RANGE = 4
 TRAILING_PAGE_RANGE = 2
 NUM_PAGES_OUTSIDE_RANGE = 2
@@ -69,12 +69,12 @@ class Paginator(paginator.Paginator):
         if pages <= LEADING_PAGE_RANGE_DISPLAYED:
             adjacent_start = 1
             adjacent_end = pages + 1
-        elif page_no <= LEADING_PAGE_RANGE:
+        elif page_no < LEADING_PAGE_RANGE:
             adjacent_start = 1
             adjacent_end = LEADING_PAGE_RANGE_DISPLAYED + 1
             self.leading_set = [n + pages for n in
                                 range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)]
-        elif page_no > pages - TRAILING_PAGE_RANGE:
+        elif page_no >= pages - TRAILING_PAGE_RANGE:
             adjacent_start = pages - TRAILING_PAGE_RANGE_DISPLAYED + 1
             adjacent_end = pages + 1
             self.trailing_set = [n + 1 for n in
