@@ -39,20 +39,32 @@ class MboxPatchResponseTest(TestCase):
     """Test that the mbox view appends the Acked-by from a patch comment."""
 
     def setUp(self):
-        project = create_project()
+        self.project = create_project()
         self.person = create_person()
-        self.patch = create_patch(
-            project=project,
-            submitter=self.person,
-            content='comment 1 text\nAcked-by: 1\n')
-        self.comment = create_comment(
-            submission=self.patch,
-            submitter=self.person,
-            content='comment 2 text\nAcked-by: 2\n')
 
     def test_patch_response(self):
-        response = self.client.get(reverse('patch-mbox', args=[self.patch.id]))
+        patch = create_patch(
+            project=self.project,
+            submitter=self.person,
+            content='comment 1 text\nAcked-by: 1\n')
+        create_comment(
+            submission=patch,
+            submitter=self.person,
+            content='comment 2 text\nAcked-by: 2\n')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
         self.assertContains(response, 'Acked-by: 1\nAcked-by: 2\n')
+
+    def test_patch_utf8_nbsp(self):
+        patch = create_patch(
+            project=self.project,
+            submitter=self.person,
+            content='patch text\n')
+        create_comment(
+            submission=patch,
+            submitter=self.person,
+            content=u'comment\nAcked-by:\u00A0 foo')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertContains(response, u'\u00A0 foo\n')
 
 
 class MboxPatchSplitResponseTest(TestCase):

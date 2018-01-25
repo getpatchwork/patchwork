@@ -313,7 +313,7 @@ class EmailMixin(models.Model):
     content = models.TextField(null=True, blank=True)
 
     response_re = re.compile(
-        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
+        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by:.*$',
         re.M | re.I)
 
     @property
