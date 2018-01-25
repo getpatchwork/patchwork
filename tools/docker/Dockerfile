@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:17.10
 
 ARG UID=1000
 
@@ -12,14 +12,15 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
 # System
-# python3.4-minimal libpython3.4-stdlib libpython3.4-minimal \
-# findutils is for python3.4... :/
+# trusty and findutils is for python3.4
+# xenial is for python3.5
 COPY tools/docker/trusty.list /etc/apt/sources.list.d/trusty.list
+COPY tools/docker/xenial.list /etc/apt/sources.list.d/xenial.list
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends --allow-downgrades \
     python-dev python-pip python-setuptools python-wheel \
     python3.5-dev python3-pip python3-setuptools python3-wheel \
-    python3.4-dev findutils=4.4.2-7 \
+    python3.4-dev findutils=4.4.2-7 python3.6-dev \
     libmysqlclient-dev mysql-client curl unzip xvfb chromium-chromedriver \
     chromium-browser build-essential git postgresql-client && \
     ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/
