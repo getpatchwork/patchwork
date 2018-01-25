@@ -710,7 +710,7 @@ installed locales.
     try:
         rpc = xmlrpclib.Server(url, transport=transport)
     except (IOError, OSError):
-        sy.stderr.write("Unable to connect to %s\n" % url)
+        sys.stderr.write("Unable to connect to %s\n" % url)
         sys.exit(1)
 
     # It should be safe to assume hash_str is not zero, but who knows..
