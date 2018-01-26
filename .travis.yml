@@ -33,7 +33,6 @@ install:
 
 script:
   - tox
-  - tox -e pep8
   - tox -e coverage
 
 after_success:
