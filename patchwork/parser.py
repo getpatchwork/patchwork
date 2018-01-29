@@ -428,7 +428,12 @@ def parse_series_marker(subject_prefixes):
         (x, n) if markers found, else (None, None)
     """
 
-    regex = re.compile(r'^([0-9]+)(?:/| of )([0-9]+)$')
+    # Allow for there to be stuff before the number. This allows for
+    # e.g. "PATCH1/8" which we have seen in the wild. To allow
+    # e.g. PATCH100/123 to work, make the pre-number match
+    # non-greedy. To allow really pathological cases like v2PATCH12/15
+    # to work, allow it to match everthing (don't exclude numbers).
+    regex = re.compile(r'.*?([0-9]+)(?:/| of )([0-9]+)$')
     m = _find_matching_prefix(subject_prefixes, regex)
     if m:
         return (int(m.group(1)), int(m.group(2)))
