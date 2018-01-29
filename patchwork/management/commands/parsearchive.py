@@ -71,9 +71,9 @@ class Command(BaseCommand):
 
         # assume if <infile> is a directory, then we're passing a maildir
         if os.path.isfile(path):
-            mbox = mailbox.mbox(path)
+            mbox = mailbox.mbox(path, create=False)
         else:
-            mbox = mailbox.Maildir(path)
+            mbox = mailbox.Maildir(path, create=False)
 
         count = len(mbox)
 
