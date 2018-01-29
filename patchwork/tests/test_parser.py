@@ -874,6 +874,16 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
         self.assertEqual(parse_series_marker(['bar', '1 of 2']), (1, 2))
         self.assertEqual(parse_series_marker(['bar', '0 of 12']), (0, 12))
+        # Handle people missing the space between PATCH and the markers
+        # e.g. PATCH1/8
+        self.assertEqual(parse_series_marker(['PATCH1/8']), (1, 8))
+        self.assertEqual(parse_series_marker(['PATCH1 of 8']), (1, 8))
+        # verify the prefix-stripping is non-greedy
+        self.assertEqual(parse_series_marker(['PATCH100/123']), (100, 123))
+        # and that it is hard to confuse
+        self.assertEqual(parse_series_marker(['v2PATCH1/4']), (1, 4))
+        self.assertEqual(parse_series_marker(['v2', 'PATCH1/4']), (1, 4))
+        self.assertEqual(parse_series_marker(['v2.3PATCH1/4']), (1, 4))
 
     def test_version(self):
         self.assertEqual(parse_version('', []), 1)
