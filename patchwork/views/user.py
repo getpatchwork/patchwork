@@ -117,7 +117,11 @@ def profile(request):
         'profileform': form,
     }
 
-    # FIXME(stephenfin): This looks unsafe. Investigate.
+    # This looks unsafe but is actually fine: it just gets the names
+    # of tables and columns, not user-supplied data.
+    #
+    # An example of generated SQL is:
+    # patchwork_person.email IN (SELECT email FROM patchwork_emailoptout)
     optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
         Person._meta.db_table,
         Person._meta.get_field('email').column,
