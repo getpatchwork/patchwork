@@ -328,6 +328,14 @@ class EmailMixin(models.Model):
         return ''.join([match.group(0) + '\n' for match in
                         self.response_re.finditer(self.content)])
 
+    def save(self, *args, **kwargs):
+        # Modifying a submission via admin interface changes '\n' newlines in
+        # message content to '\r\n'. We need to fix them to avoid problems,
+        # especially as git complains about malformed patches when PW runs
+        # on PY2
+        self.content = self.content.replace('\r\n', '\n')
+        super(EmailMixin, self).save(*args, **kwargs)
+
     class Meta:
         abstract = True
 
