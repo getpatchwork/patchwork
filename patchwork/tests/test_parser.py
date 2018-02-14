@@ -36,7 +36,7 @@ from patchwork.models import State
 from patchwork.parser import clean_subject
 from patchwork.parser import find_author
 from patchwork.parser import find_patch_content as find_content
-from patchwork.parser import find_project_by_header
+from patchwork.parser import find_project
 from patchwork.parser import find_series
 from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_pull_request
@@ -496,25 +496,25 @@ class ListIdHeaderTest(TestCase):
 
     def test_no_list_id(self):
         email = MIMEText('')
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_blank_list_id(self):
         email = MIMEText('')
         email['List-Id'] = ''
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_whitespace_list_id(self):
         email = MIMEText('')
         email['List-Id'] = ' '
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_substring_list_id(self):
         email = MIMEText('')
         email['List-Id'] = 'example.com'
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_short_list_id(self):
@@ -522,13 +522,13 @@ class ListIdHeaderTest(TestCase):
            is only the list ID itself (without enclosing angle-brackets). """
         email = MIMEText('')
         email['List-Id'] = self.project.listid
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, self.project)
 
     def test_long_list_id(self):
         email = MIMEText('')
         email['List-Id'] = 'Test text <%s>' % self.project.listid
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, self.project)
 
 

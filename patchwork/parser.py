@@ -150,17 +150,30 @@ def clean_header(header):
     return normalise_space(header_str)
 
 
-def find_project_by_id(list_id):
-    """Find a `project` object with given `list_id`."""
-    project = None
-    try:
-        project = Project.objects.get(listid=list_id)
-    except Project.DoesNotExist:
-        logger.debug("'%s' if not a valid project list-id", list_id)
-    return project
+def find_project_by_id_and_subject(list_id, subject):
+    """Find a `project` object based on `list_id` and subject match.
+    Since empty `subject_match` field matches everything, project with
+    given `list_id` and empty `subject_match` field serves as a default
+    (in case it exists) if no other match is found.
+    """
+    projects = Project.objects.filter(listid=list_id)
+    default = None
+    for project in projects:
+        if not project.subject_match:
+            default = project
+        elif re.search(project.subject_match, subject,
+                       re.MULTILINE | re.IGNORECASE):
+            return project
+
+    return default
 
 
-def find_project_by_header(mail):
+def find_project(mail, list_id=None):
+    clean_subject = clean_header(mail.get('Subject', ''))
+
+    if list_id:
+        return find_project_by_id_and_subject(list_id, clean_subject)
+
     project = None
     listid_res = [re.compile(r'.*<([^>]+)>.*', re.S),
                   re.compile(r'^([\S]+)$', re.S)]
@@ -181,12 +194,13 @@ def find_project_by_header(mail):
 
             listid = match.group(1)
 
-            project = find_project_by_id(listid)
+            project = find_project_by_id_and_subject(listid, clean_subject)
             if project:
                 break
 
     if not project:
-        logger.debug("Could not find a list-id in mail headers")
+        logger.debug("Could not find a valid project for given list-id and "
+                     "subject.")
 
     return project
 
@@ -923,10 +937,7 @@ def parse_mail(mail, list_id=None):
         logger.debug("Ignoring email due to 'ignore' hint")
         return
 
-    if list_id:
-        project = find_project_by_id(list_id)
-    else:
-        project = find_project_by_header(mail)
+    project = find_project(mail, list_id)
 
     if project is None:
         logger.error('Failed to find a project for email')
