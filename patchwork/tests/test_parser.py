@@ -896,6 +896,60 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
 
 
+class SubjectMatchTest(TestCase):
+
+    def setUp(self):
+        self.list_id = 'test-subject-match.test.org'
+        self.project_x = create_project(name='PROJECT X',
+                                        listid=self.list_id,
+                                        subject_match=r'.*PROJECT[\s]?X.*')
+        self.default_project = create_project(name='Default',
+                                              listid=self.list_id,
+                                              subject_match=r'')
+        self.keyword_project = create_project(name='keyword',
+                                              listid=self.list_id,
+                                              subject_match=r'keyword')
+
+        self.email = MIMEText('')
+        self.email['List-Id'] = self.list_id
+
+        self.email_no_project = MIMEText('')
+        self.email_no_project['List-Id'] = 'nonexistent-project.test.org'
+        self.email_no_project['Subject'] = '[PATCH keyword]'
+
+    def test_project_with_regex(self):
+        self.email['Subject'] = '[PATCH PROJECT X subsystem]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.project_x)
+
+        self.email['Subject'] = '[PATCH PROJECTX another subsystem]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.project_x)
+
+    def test_project_with_keyword(self):
+        self.email['Subject'] = '[PATCH keyword] subsystem'
+        project = find_project(self.email)
+        self.assertEqual(project, self.keyword_project)
+
+    def test_default_project(self):
+        self.email['Subject'] = '[PATCH unknown project]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.default_project)
+
+        self.email['Subject'] = '[PATCH NOT-PROJECT-X]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.default_project)
+
+    def test_nonexistent_project(self):
+        project = find_project(self.email_no_project)
+        self.assertEqual(project, None)
+
+    def test_list_id_override(self):
+        project = find_project(self.email_no_project,
+                               self.keyword_project.listid)
+        self.assertEqual(project, self.keyword_project)
+
+
 class FuzzTest(TransactionTestCase):
     """Test fuzzed patches."""
     def setUp(self):
