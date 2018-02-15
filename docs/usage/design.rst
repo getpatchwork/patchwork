@@ -10,10 +10,6 @@ be two forums of discussion on patches, which fragments the patch review
 process. Developers who don't use Patchwork would get left out of the
 discussion.
 
-However, a future development item for Patchwork is to facilitate on-list
-commenting, by providing a "send a reply to the list" feature for logged-in
-users.
-
 Don't pollute the project's changelogs with Patchwork poop
 ----------------------------------------------------------
 
