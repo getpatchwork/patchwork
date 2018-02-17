@@ -238,7 +238,7 @@ def _find_series_by_references(project, mail):
             continue
 
 
-def _find_series_by_markers(project, mail):
+def _find_series_by_markers(project, mail, author):
     """Find a patch's series using series markers and sender.
 
     Identify suitable series for a patch using a combination of the
@@ -259,7 +259,6 @@ def _find_series_by_markers(project, mail):
     still won't help us if someone spams the mailing list with
     duplicate series but that's a tricky situation for anyone to parse.
     """
-    author = find_author(mail)
 
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
@@ -279,7 +278,7 @@ def _find_series_by_markers(project, mail):
         return
 
 
-def find_series(project, mail):
+def find_series(project, mail, author):
     """Find a series, if any, for a given patch.
 
     Args:
@@ -294,10 +293,10 @@ def find_series(project, mail):
     if series:
         return series
 
-    return _find_series_by_markers(project, mail)
+    return _find_series_by_markers(project, mail, author)
 
 
-def find_author(mail):
+def get_or_create_author(mail):
     from_header = clean_header(mail.get('From'))
 
     if not from_header:
@@ -338,12 +337,17 @@ def find_author(mail):
     if name is not None:
         name = name.strip()[:255]
 
-    try:
-        person = Person.objects.get(email__iexact=email)
-        if name:  # use the latest provided name
-            person.name = name
-    except Person.DoesNotExist:
-        person = Person(name=name, email=email)
+    # this correctly handles the case where we lose the race to create
+    # the person and another process beats us to it. (If the record
+    # does not exist, g_o_c invokes _create_object_from_params which
+    # catches the IntegrityError and repeats the SELECT.)
+    person = Person.objects.get_or_create(email__iexact=email,
+                                          defaults={'name': name,
+                                                    'email': email})[0]
+
+    if name:  # use the latest provided name
+        person.name = name
+        person.save()
 
     return person
 
@@ -944,7 +948,6 @@ def parse_mail(mail, list_id=None):
         raise ValueError("Broken 'Message-Id' header")
     msgid = msgid[:255]
 
-    author = find_author(mail)
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
     is_comment = subject_check(subject)
@@ -970,7 +973,7 @@ def parse_mail(mail, list_id=None):
 
     if not is_comment and (diff or pull_url):  # patches or pull requests
         # we delay the saving until we know we have a patch.
-        author.save()
+        author = get_or_create_author(mail)
 
         delegate = find_delegate_by_header(mail)
         if not delegate and diff:
@@ -981,7 +984,7 @@ def parse_mail(mail, list_id=None):
         # series to match against.
         series = None
         if n:
-            series = find_series(project, mail)
+            series = find_series(project, mail, author)
         else:
             x = n = 1
 
@@ -1058,7 +1061,7 @@ def parse_mail(mail, list_id=None):
                 is_cover_letter = True
 
         if is_cover_letter:
-            author.save()
+            author = get_or_create_author(mail)
 
             # we don't use 'find_series' here as a cover letter will
             # always be the first item in a thread, thus the references
@@ -1106,7 +1109,7 @@ def parse_mail(mail, list_id=None):
     if not submission:
         return
 
-    author.save()
+    author = get_or_create_author(mail)
 
     comment = Comment(
         submission=submission,

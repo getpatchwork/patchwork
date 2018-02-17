@@ -34,7 +34,7 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
 from patchwork.parser import clean_subject
-from patchwork.parser import find_author
+from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
 from patchwork.parser import find_project_by_header
 from patchwork.parser import find_series
@@ -225,7 +225,7 @@ class SenderEncodingTest(TestCase):
 
     def _test_encoding(self, from_header, sender_name, sender_email):
         email = self._create_email(from_header)
-        person = find_author(email)
+        person = get_or_create_author(email)
         person.save()
 
         # ensure it was parsed correctly
@@ -241,7 +241,7 @@ class SenderEncodingTest(TestCase):
     def test_empty(self):
         email = self._create_email('')
         with self.assertRaises(ValueError):
-            find_author(email)
+            get_or_create_author(email)
 
     def test_ascii_encoding(self):
         from_header = 'example user <user@example.com>'
@@ -269,7 +269,7 @@ class SenderEncodingTest(TestCase):
 
 
 class SenderCorrelationTest(TestCase):
-    """Validate correct behavior of the find_author case.
+    """Validate correct behavior of the get_or_create_author case.
 
     Relies of checking the internal state of a Django model object.
 
@@ -284,25 +284,16 @@ class SenderCorrelationTest(TestCase):
                'test\n'
         return message_from_string(mail)
 
-    def test_non_existing_sender(self):
-        sender = 'Non-existing Sender <nonexisting@example.com>'
-        mail = self._create_email(sender)
-
-        # don't create the person - attempt to find immediately
-        person = find_author(mail)
-        self.assertEqual(person._state.adding, True)
-        self.assertEqual(person.id, None)
-
     def test_existing_sender(self):
         sender = 'Existing Sender <existing@example.com>'
         mail = self._create_email(sender)
 
         # create the person first
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         # then attempt to parse email with the same 'From' line
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -311,12 +302,12 @@ class SenderCorrelationTest(TestCase):
         mail = self._create_email(sender)
 
         # create the person first
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         # then attempt to parse email with a new 'From' line
         mail = self._create_email('existing@example.com')
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -324,11 +315,11 @@ class SenderCorrelationTest(TestCase):
         sender = 'Existing Sender <existing@example.com>'
         mail = self._create_email(sender)
 
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         mail = self._create_email(sender.upper())
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -361,7 +352,8 @@ class SeriesCorrelationTest(TestCase):
         email = self._create_email(msgid)
         project = create_project()
 
-        self.assertIsNone(find_series(project, email))
+        self.assertIsNone(find_series(project, email,
+                                      get_or_create_author(email)))
 
     def test_first_reply(self):
         msgid_a = make_msgid()
@@ -371,7 +363,8 @@ class SeriesCorrelationTest(TestCase):
         # assume msgid_a was already handled
         ref = create_series_reference(msgid=msgid_a)
 
-        series = find_series(ref.series.project, email)
+        series = find_series(ref.series.project, email,
+                             get_or_create_author(email))
         self.assertEqual(series, ref.series)
 
     def test_nested_series(self):
@@ -395,7 +388,7 @@ class SeriesCorrelationTest(TestCase):
         # ...and the "first patch" of this new series
         msgid = make_msgid()
         email = self._create_email(msgid, msgids)
-        series = find_series(project, email)
+        series = find_series(project, email, get_or_create_author(email))
 
         # this should link to the second series - not the first
         self.assertEqual(len(msgids), 4 + 1)  # old series + new cover
