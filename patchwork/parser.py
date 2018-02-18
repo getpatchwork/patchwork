@@ -345,7 +345,7 @@ def get_or_create_author(mail):
                                           defaults={'name': name,
                                                     'email': email})[0]
 
-    if name:  # use the latest provided name
+    if name and name != person.name:  # use the latest provided name
         person.name = name
         person.save()
 
