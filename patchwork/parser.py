@@ -980,6 +980,20 @@ def parse_mail(mail, list_id=None):
             filenames = find_filenames(diff)
             delegate = find_delegate_by_filename(project, filenames)
 
+        patch = Patch.objects.create(
+            msgid=msgid,
+            project=project,
+            name=name[:255],
+            date=date,
+            headers=headers,
+            submitter=author,
+            content=message,
+            diff=diff,
+            pull_url=pull_url,
+            delegate=delegate,
+            state=find_state(mail))
+        logger.debug('Patch saved')
+
         # if we don't have a series marker, we will never have an existing
         # series to match against.
         series = None
@@ -1019,21 +1033,6 @@ def parse_mail(mail, list_id=None):
                                                 series__project=project)
                 except SeriesReference.DoesNotExist:
                     SeriesReference.objects.create(series=series, msgid=ref)
-
-        patch = Patch(
-            msgid=msgid,
-            project=project,
-            name=name[:255],
-            date=date,
-            headers=headers,
-            submitter=author,
-            content=message,
-            diff=diff,
-            pull_url=pull_url,
-            delegate=delegate,
-            state=find_state(mail))
-        patch.save()
-        logger.debug('Patch saved')
 
         # add to a series if we have found one, and we have a numbered
         # patch. Don't add unnumbered patches (for example diffs sent
