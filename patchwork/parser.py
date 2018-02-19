@@ -253,6 +253,13 @@ def _find_series_by_references(project, mail):
                 msgid=ref[:255], series__project=project).series
         except SeriesReference.DoesNotExist:
             continue
+        except SeriesReference.MultipleObjectsReturned:
+            # FIXME: Open bug: this can happen when we're processing
+            # messages in parallel. Pick the first and log.
+            logger.error("Multiple SeriesReferences for %s in project %s!" %
+                         (ref[:255], project.name))
+            return SeriesReference.objects.filter(
+                msgid=ref[:255], series__project=project).first().series
 
 
 def _find_series_by_markers(project, mail, author):
@@ -1047,6 +1054,9 @@ def parse_mail(mail, list_id=None):
                                                 series__project=project)
                 except SeriesReference.DoesNotExist:
                     SeriesReference.objects.create(series=series, msgid=ref)
+                except SeriesReference.MultipleObjectsReturned:
+                    logger.error("Multiple SeriesReferences for %s"
+                                 " in project %s!" % (ref, project.name))
 
         # add to a series if we have found one, and we have a numbered
         # patch. Don't add unnumbered patches (for example diffs sent
@@ -1085,6 +1095,11 @@ def parse_mail(mail, list_id=None):
                     msgid=msgid, series__project=project).series
             except SeriesReference.DoesNotExist:
                 series = None
+            except SeriesReference.MultipleObjectsReturned:
+                logger.error("Multiple SeriesReferences for %s"
+                             " in project %s!" % (msgid, project.name))
+                series = SeriesReference.objects.filter(
+                    msgid=msgid, series__project=project).first().series
 
             if not series:
                 series = Series(project=project,
@@ -1097,8 +1112,12 @@ def parse_mail(mail, list_id=None):
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
                 # series
-                SeriesReference.objects.get_or_create(series=series,
-                                                      msgid=msgid)
+                try:
+                    SeriesReference.objects.get_or_create(series=series,
+                                                          msgid=msgid)
+                except SeriesReference.MultipleObjectsReturned:
+                    logger.error("Multiple SeriesReferences for %s"
+                                 " in project %s!" % (msgid, project.name))
 
             cover_letter = CoverLetter(
                 msgid=msgid,
