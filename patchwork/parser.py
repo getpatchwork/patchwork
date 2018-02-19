@@ -129,6 +129,14 @@ def sanitise_header(header_contents, header_name=None):
                              header_name=header_name,
                              continuation_ws='\t')
 
+    try:
+        header.encode()
+    except (HeaderParseError, IndexError):
+        # despite our best efforts, the header is stuffed
+        # HeaderParseError: some very weird multi-line headers
+        # IndexError: bug, thrown by make_header(decode_header(' ')).encode()
+        return None
+
     return header
 
 

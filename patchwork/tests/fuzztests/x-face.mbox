@@ -1,0 +1,58 @@
+From laurent.pinchart@skynet.be Thu Nov 13 15:54:10 2008
+Received: from mailrelay005.isp.belgacom.be ([195.238.6.171])
+	by chlorine.canonical.com with esmtp (Exim 4.60)
+	(envelope-from <laurent.pinchart@skynet.be>) id 1L0eWI-0007oB-7K
+	for kernel-team@lists.ubuntu.com; Thu, 13 Nov 2008 15:54:10 +0000
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: ApsEAP/aG0nCTsYx/2dsb2JhbACBds9Hg1c
+Received: from 49.198-78-194.adsl-static.isp.belgacom.be (HELO
+	laptop-laurent.belgium.cse-semaphore.com) ([194.78.198.49])
+	by relay.skynet.be with ESMTP; 13 Nov 2008 16:54:09 +0100
+From: Laurent Pinchart <laurent.pinchart@skynet.be>
+To: kernel-team@lists.ubuntu.com
+Subject: uvcvideo (webcam) support for COMPAL JHL90 based laptops
+Date: Thu, 13 Nov 2008 16:54:22 +0100
+User-Agent: KMail/1.9.9
+X-Face: 4Mf^tnii7k\_EnR5aobBm6Di[DZ9@AX1wJ"okBdX-UoJ>:SRn]c6DDU"qUIwfs98vF>=?utf-8?q?Tnf=0A=09SacR=7B?=(0Du"N%_.#X]"TXx)A'gKB1i7SK$CTLuy{h})c=g:'w3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200811131654.22389.laurent.pinchart@skynet.be>
+X-Mailman-Approved-At: Fri, 14 Nov 2008 14:54:06 +0000
+Cc: amit@ubuntu.com
+X-BeenThere: kernel-team@lists.ubuntu.com
+X-Mailman-Version: 2.1.8
+Precedence: list
+List-Id: Kernel team discussions <kernel-team.lists.ubuntu.com>
+List-Unsubscribe: <https://lists.ubuntu.com/mailman/listinfo/kernel-team>,
+	<mailto:kernel-team-request@lists.ubuntu.com?subject=unsubscribe>
+List-Archive: <https://lists.ubuntu.com/archives/kernel-team>
+List-Post: <mailto:kernel-team@lists.ubuntu.com>
+List-Help: <mailto:kernel-team-request@lists.ubuntu.com?subject=help>
+List-Subscribe: <https://lists.ubuntu.com/mailman/listinfo/kernel-team>,
+	<mailto:kernel-team-request@lists.ubuntu.com?subject=subscribe>
+X-List-Received-Date: Thu, 13 Nov 2008 15:54:10 -0000
+
+Hi Amit,
+
+I've noticed by sheer luck that the Ubuntu 8.10 linux-image-2.6.27-7 packages 
+include a patch to the uvcvideo driver to support webcam modules integrated 
+into Compal JHL90 laptops.
+
+Is there a reason why the patch hasn't been pushed upstream ? Being the 
+uvcvideo author and maintainer, I'd appreciate if you could forward patches 
+related to the driver in the future.
+
+On a pure technical note, the patch might not be required with the current 
+uvcvideo driver version. There is no way to confirm this without testing the 
+driver with that particular webcam model, so I'd appreciate if you could 
+contact the patch author and check with him if his camera works with the 
+latest uvcvideo driver (available from http://linux-uvc.berlios.de/).
+
+Best regards,
+
+Laurent Pinchart
+
+

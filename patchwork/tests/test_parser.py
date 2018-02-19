@@ -896,8 +896,9 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
 
 
-class FuzzTest(TransactionTestCase):
-    """Test fuzzed patches."""
+class WeirdMailTest(TransactionTestCase):
+    """Test fuzzed or otherwise weird patches."""
+
     def setUp(self):
         create_project(listid='patchwork.ozlabs.org')
 
@@ -940,3 +941,6 @@ class FuzzTest(TransactionTestCase):
         self._test_patch('refshdr.mbox')
         self._test_patch('dateheader.mbox')
         self._test_patch('msgidheader.mbox')
+
+    def test_x_face(self):
+        self._test_patch('x-face.mbox')
