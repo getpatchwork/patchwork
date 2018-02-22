@@ -65,7 +65,7 @@ def patch_change_callback(sender, instance, raw, **kwargs):
         notification.delete()
         return
 
-    notification.last_modified = dt.now()
+    notification.last_modified = dt.utcnow()
     notification.save()
 
 

@@ -35,7 +35,7 @@ from patchwork.models import PatchChangeNotification
 
 
 def send_notifications():
-    date_limit = datetime.datetime.now() - datetime.timedelta(
+    date_limit = datetime.datetime.utcnow() - datetime.timedelta(
         minutes=settings.NOTIFICATION_DELAY_MINUTES)
 
     # We delay sending notifications to a user if they have other
@@ -104,7 +104,7 @@ def expire_notifications():
     Users whose registration confirmation has expired are removed.
     """
     # expire any invalid confirmations
-    q = (Q(date__lt=datetime.datetime.now() - EmailConfirmation.validity) |
+    q = (Q(date__lt=datetime.datetime.utcnow() - EmailConfirmation.validity) |
          Q(active=False))
     EmailConfirmation.objects.filter(q).delete()
 

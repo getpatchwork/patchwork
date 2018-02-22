@@ -215,7 +215,7 @@ def create_check(**kwargs):
     values = {
         'patch': create_patch() if 'patch' not in kwargs else None,
         'user': create_user() if 'user' not in kwargs else None,
-        'date': dt.now(),
+        'date': dt.utcnow(),
         'state': Check.STATE_SUCCESS,
         'target_url': 'http://example.com/',
         'description': '',
@@ -230,7 +230,7 @@ def create_series(**kwargs):
     """Create 'Series' object."""
     values = {
         'project': create_project() if 'project' not in kwargs else None,
-        'date': dt.now(),
+        'date': dt.utcnow(),
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'total': 1,
     }
@@ -276,7 +276,7 @@ def _create_submissions(create_func, count=1, **kwargs):
         'submitter': create_person() if 'submitter' not in kwargs else None,
     }
     values.update(kwargs)
-    date = dt.now()
+    date = dt.utcnow()
 
     objects = []
     for i in range(0, count):

@@ -1,0 +1,7 @@
+---
+other:
+  - |
+    Unify timezones used -- use UTC for both email submissions and internal
+    events. Please note that this change doesn't modify already existing data
+    so in case the instance's timezone is UTC+XX, events will appear out of
+    order (as if they happened earlier) for XX hours in the events API feed.

@@ -107,7 +107,8 @@ Schema
 ------
 
 Responses are returned as JSON. Blank fields are returned as ``null``, rather
-than being omitted. Timestamps use the ISO 8601 format::
+than being omitted. Timestamps use the ISO 8601 format, times are by default
+in UTC::
 
     YYYY-MM-DDTHH:MM:SSZ
 

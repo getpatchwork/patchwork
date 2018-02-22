@@ -120,7 +120,7 @@ class PatchNotificationEmailTest(TestCase):
         self.project = create_project(send_notifications=True)
 
     def _expire_notifications(self, **kwargs):
-        timestamp = datetime.datetime.now() - \
+        timestamp = datetime.datetime.utcnow() - \
             datetime.timedelta(minutes=settings.NOTIFICATION_DELAY_MINUTES + 1)
 
         qs = PatchChangeNotification.objects.all()

@@ -86,12 +86,12 @@ class PatchChecksTest(TransactionTestCase):
         self.assertChecksEqual(self.patch, [check_a, check_b])
 
     def test_checks__duplicate_checks(self):
-        self._create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.utcnow() - timedelta(days=1)))
         check = self._create_check()
         # this isn't a realistic scenario (dates shouldn't be set by user so
         # they will always increment), but it's useful to verify the removal
         # of older duplicates by the function
-        self._create_check(date=(dt.now() - timedelta(days=2)))
+        self._create_check(date=(dt.utcnow() - timedelta(days=2)))
         self.assertChecksEqual(self.patch, [check])
 
     def test_checks__nultiple_users(self):
@@ -107,7 +107,7 @@ class PatchChecksTest(TransactionTestCase):
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
     def test_check_count__multiple_checks(self):
-        self._create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.utcnow() - timedelta(days=1)))
         self._create_check(context='new/test1')
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
 
@@ -117,14 +117,14 @@ class PatchChecksTest(TransactionTestCase):
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 2})
 
     def test_check_count__duplicate_check_same_state(self):
-        self._create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.utcnow() - timedelta(days=1)))
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
         self._create_check()
         self.assertCheckCountEqual(self.patch, 2, {Check.STATE_SUCCESS: 1})
 
     def test_check_count__duplicate_check_new_state(self):
-        self._create_check(date=(dt.now() - timedelta(days=1)))
+        self._create_check(date=(dt.utcnow() - timedelta(days=1)))
         self.assertCheckCountEqual(self.patch, 1, {Check.STATE_SUCCESS: 1})
 
         self._create_check(state=Check.STATE_FAIL)

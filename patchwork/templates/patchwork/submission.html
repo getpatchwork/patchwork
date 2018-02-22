@@ -255,7 +255,7 @@ function toggle_div(link_id, headers_id)
 <div class="comment">
 <div class="meta">
  <span>{{ submission.submitter|personify:project }}</span>
- <span class="pull-right">{{ submission.date }}</span>
+ <span class="pull-right">{{ submission.date }} UTC</span>
 </div>
 <pre class="content">
 {{ submission|commentsyntax }}
@@ -271,7 +271,7 @@ function toggle_div(link_id, headers_id)
 <div class="comment">
 <div class="meta">
  <span>{{ item.submitter|personify:project }}</span>
- <span class="pull-right">{{ item.date }} | <a href="{% url 'comment-redirect' comment_id=item.id %}"
+ <span class="pull-right">{{ item.date }} UTC | <a href="{% url 'comment-redirect' comment_id=item.id %}"
    >#{{ forloop.counter }}</a></span>
 </div>
 <pre class="content">
