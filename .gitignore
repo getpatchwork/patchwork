@@ -44,9 +44,6 @@ htmlcov/
 # Sphinx stuff
 /docs/_build
 
-# Vagrant stuff
-/.vagrant
-
 # Selenium test artifacts
 /selenium.log
 /selenium_screenshots

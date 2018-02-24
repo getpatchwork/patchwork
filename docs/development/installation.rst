@@ -163,29 +163,10 @@ For more information on Docker itself, please refer to the `docker`_ and
 .. _docker: https://docs.docker.com/compose/install/
 .. _docker-compose: https://docs.docker.com/engine/installation/linux/
 
-Vagrant-Based Installation
---------------------------
-
-Patchwork provides a Vagrant-based environment as an alternative to Docker.
-Like Docker, Vagrant can be used to quickly configure Patchwork in a
-development environment. To configure Patchwork using Vagrant:
-
-1. Install `**Vagrant** <vagrant>`_
-
-2. Run `vagrant up` from the project directory:
-
-   .. code-block:: shell
-
-      $ cd patchwork
-      $ vagrant up
-
-Once stacked, follow the on-screen instructions. For more information on
-Vagrant itself, refer to the `Vagrant documentation <vagrant>`_.
-
 Manual Installation
 -------------------
 
-Manual installation can be used where use of Docker or Vagrant is not possible
+Manual installation can be used where use of Docker is not possible
 or desired.
 
 Install Required Packages

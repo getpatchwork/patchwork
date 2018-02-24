@@ -30,15 +30,13 @@ You may also need to install `tox`. If so, do this now:
 
 .. tip::
 
-   If you're using Docker or Vagrant-based installs, you may not need to
-   install `tox` locally. Instead, it will already be installed inside the
-   container/VM. For Docker, you can run `tox` like so:
+   If you're using Docker, you may not need to install `tox`
+   locally. Instead, it will already be installed inside the
+   container. For Docker, you can run `tox` like so:
 
    .. code-block:: shell
 
       $ docker-compose run web tox [ARGS...]
-
-   For Vagrant, SSH into the container and run `tox` as below.
 
 Assuming these requirements are met, actually testing Patchwork is quite easy
 to do. To start, you can show the default targets like so:
