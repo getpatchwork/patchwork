@@ -1004,6 +1004,7 @@ def parse_mail(mail, list_id=None):
         patch = Patch.objects.create(
             msgid=msgid,
             project=project,
+            patch_project=project,
             name=name[:255],
             date=date,
             headers=headers,

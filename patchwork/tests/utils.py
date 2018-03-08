@@ -176,6 +176,8 @@ def create_patch(**kwargs):
         'diff': SAMPLE_DIFF,
     }
     values.update(kwargs)
+    if 'patch_project' not in values:
+        values['patch_project'] = values['project']
 
     return Patch.objects.create(**values)
 
