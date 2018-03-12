@@ -18,10 +18,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from collections import OrderedDict
+import json
 
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import TemplateHTMLRenderer
 
 from patchwork.api.embedded import CheckSerializer
 from patchwork.api.embedded import CoverLetterSerializer
@@ -85,9 +88,21 @@ class EventSerializer(ModelSerializer):
         read_only_fields = fields
 
 
+# The standard template html renderer is broken:
+# https://github.com/encode/django-rest-framework/issues/5236
+class JSONListHTMLRenderer(TemplateHTMLRenderer):
+    def get_template_context(self, data, renderer_context):
+        response = renderer_context['response']
+        if response.exception:
+            data['status_code'] = response.status_code
+        return {'data': json.dumps(data, indent=4)}
+
+
 class EventList(ListAPIView):
     """List events."""
 
+    renderer_classes = (JSONRenderer, JSONListHTMLRenderer)
+    template_name = 'patchwork/event-list.html'
     serializer_class = EventSerializer
     filter_class = EventFilter
     page_size_query_param = None  # fixed page size
