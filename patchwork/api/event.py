@@ -96,7 +96,7 @@ class EventList(ListAPIView):
 
     def get_queryset(self):
         return Event.objects.all()\
-            .select_related('project', 'patch', 'series', 'cover',
-                            'previous_state', 'current_state',
-                            'previous_delegate', 'current_delegate',
-                            'created_check')
+            .prefetch_related('project', 'patch', 'series', 'cover',
+                              'previous_state', 'current_state',
+                              'previous_delegate', 'current_delegate',
+                              'created_check')
