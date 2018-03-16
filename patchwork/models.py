@@ -29,6 +29,7 @@ import re
 import django
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
@@ -40,6 +41,13 @@ from patchwork.hasher import hash_diff
 
 if settings.ENABLE_REST_API:
     from rest_framework.authtoken.models import Token
+
+
+def validate_regex_compiles(regex_string):
+    try:
+        re.compile(regex_string)
+    except Exception:
+        raise ValidationError('Invalid regular expression entered!')
 
 
 @python_2_unicode_compatible
@@ -74,7 +82,8 @@ class Project(models.Model):
     listid = models.CharField(max_length=255)
     listemail = models.CharField(max_length=200)
     subject_match = models.CharField(
-        max_length=64, blank=True, default='', help_text='Regex to match the '
+        max_length=64, blank=True, default='',
+        validators=[validate_regex_compiles], help_text='Regex to match the '
         'subject against if only part of emails sent to the list belongs to '
         'this project. Will be used with IGNORECASE and MULTILINE flags. If '
         'rules for more projects match the first one returned from DB is '
@@ -232,9 +241,10 @@ class State(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     pattern = models.CharField(
-        max_length=50, help_text='A simple regex to match the tag in the'
-        ' content of a message. Will be used with MULTILINE and IGNORECASE'
-        ' flags. eg. ^Acked-by:')
+        max_length=50, validators=[validate_regex_compiles],
+        help_text='A simple regex to match the tag in the content of a '
+        'message. Will be used with MULTILINE and IGNORECASE flags. eg. '
+        '^Acked-by:')
     abbrev = models.CharField(
         max_length=2, unique=True, help_text='Short (one-or-two letter)'
         ' abbreviation for the tag, used in table column headers')
