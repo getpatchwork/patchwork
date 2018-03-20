@@ -1,6 +1,7 @@
 FROM ubuntu:17.10
 
 ARG UID=1000
+ARG TZ="Australia/Canberra"
 
 ENV PROJECT_HOME /home/patchwork/patchwork
 
@@ -22,11 +23,14 @@ RUN apt-get update -qq && \
     python3.5-dev python3-pip python3-setuptools python3-wheel \
     python3.4-dev findutils=4.4.2-7 python3.6-dev \
     libmysqlclient-dev mysql-client curl unzip xvfb chromium-chromedriver \
-    chromium-browser build-essential git postgresql-client && \
+    chromium-browser build-essential git postgresql-client tzdata && \
     ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/
 
 # User
 RUN useradd --uid=$UID --create-home patchwork
+
+# Timezone
+RUN rm /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
 # Python requirements.
 # If you update requirements, you should rebuild the container.
