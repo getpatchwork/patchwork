@@ -21,14 +21,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.serializers import CharField
-from rest_framework.serializers import HyperlinkedModelSerializer
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.embedded import UserProfileSerializer
 from patchwork.models import Project
 
 
-class ProjectSerializer(HyperlinkedModelSerializer):
+class ProjectSerializer(BaseHyperlinkedModelSerializer):
 
     link_name = CharField(max_length=255, source='linkname')
     list_id = CharField(max_length=255, source='listid')
@@ -42,6 +42,9 @@ class ProjectSerializer(HyperlinkedModelSerializer):
                   'web_url', 'scm_url', 'webscm_url', 'maintainers',
                   'subject_match')
         read_only_fields = ('name', 'maintainers', 'subject_match')
+        versioned_fields = {
+            '1.1': ('subject_match', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-project-detail'},
         }

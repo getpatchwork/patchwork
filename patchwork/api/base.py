@@ -17,12 +17,15 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from distutils.version import StrictVersion
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.serializers import HyperlinkedIdentityField
+from rest_framework.serializers import HyperlinkedModelSerializer
 
 
 class LinkHeaderPagination(PageNumberPagination):
@@ -91,3 +94,27 @@ class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
             request=request,
             format=format,
         )
+
+
+class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
+
+    def to_representation(self, instance):
+        data = super(BaseHyperlinkedModelSerializer, self).to_representation(
+            instance)
+
+        request = self.context.get('request')
+        if not request or not request.version:
+            # without version information, we have to assume the latest
+            return data
+
+        requested_version = StrictVersion(request.version)
+
+        for version in getattr(self.Meta, 'versioned_fields', {}):
+            # if the user has requested a version lower that than in which the
+            # field was added, we drop it
+            required_version = StrictVersion(version)
+            if required_version > requested_version:
+                for field in self.Meta.versioned_fields[version]:
+                    data.pop(field)
+
+        return data

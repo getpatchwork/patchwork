@@ -21,9 +21,9 @@ import email.parser
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.filters import CoverLetterFilter
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
@@ -31,7 +31,7 @@ from patchwork.api.embedded import SeriesSerializer
 from patchwork.models import CoverLetter
 
 
-class CoverLetterListSerializer(HyperlinkedModelSerializer):
+class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
@@ -47,6 +47,9 @@ class CoverLetterListSerializer(HyperlinkedModelSerializer):
         fields = ('id', 'url', 'project', 'msgid', 'date', 'name', 'submitter',
                   'mbox', 'series')
         read_only_fields = fields
+        versioned_fields = {
+            '1.1': ('mbox', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
         }

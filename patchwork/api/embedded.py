@@ -24,14 +24,14 @@ nested fields.
 """
 
 from rest_framework.serializers import CharField
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork import models
 
 
-class MboxMixin(HyperlinkedModelSerializer):
+class MboxMixin(BaseHyperlinkedModelSerializer):
     """Embed an link to the mbox URL.
 
     This field is just way too useful to leave out of even the embedded
@@ -45,7 +45,7 @@ class MboxMixin(HyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_mbox_url())
 
 
-class BundleSerializer(MboxMixin, HyperlinkedModelSerializer):
+class BundleSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Bundle
@@ -56,7 +56,7 @@ class BundleSerializer(MboxMixin, HyperlinkedModelSerializer):
         }
 
 
-class CheckSerializer(HyperlinkedModelSerializer):
+class CheckSerializer(BaseHyperlinkedModelSerializer):
 
     url = CheckHyperlinkedIdentityField('api-check-detail')
 
@@ -75,18 +75,21 @@ class CheckSerializer(HyperlinkedModelSerializer):
         }
 
 
-class CoverLetterSerializer(MboxMixin, HyperlinkedModelSerializer):
+class CoverLetterSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.CoverLetter
         fields = ('id', 'url', 'msgid', 'date', 'name', 'mbox')
         read_only_fields = fields
+        versioned_field = {
+            '1.1': ('mbox', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
         }
 
 
-class PatchSerializer(MboxMixin, HyperlinkedModelSerializer):
+class PatchSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Patch
@@ -97,7 +100,7 @@ class PatchSerializer(MboxMixin, HyperlinkedModelSerializer):
         }
 
 
-class PersonSerializer(HyperlinkedModelSerializer):
+class PersonSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Person
@@ -108,7 +111,7 @@ class PersonSerializer(HyperlinkedModelSerializer):
         }
 
 
-class ProjectSerializer(HyperlinkedModelSerializer):
+class ProjectSerializer(BaseHyperlinkedModelSerializer):
 
     link_name = CharField(max_length=255, source='linkname')
     list_id = CharField(max_length=255, source='listid')
@@ -124,7 +127,7 @@ class ProjectSerializer(HyperlinkedModelSerializer):
         }
 
 
-class SeriesSerializer(MboxMixin, HyperlinkedModelSerializer):
+class SeriesSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Series
@@ -135,7 +138,7 @@ class SeriesSerializer(MboxMixin, HyperlinkedModelSerializer):
         }
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class UserSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.User
@@ -146,7 +149,7 @@ class UserSerializer(HyperlinkedModelSerializer):
         }
 
 
-class UserProfileSerializer(HyperlinkedModelSerializer):
+class UserProfileSerializer(BaseHyperlinkedModelSerializer):
 
     username = CharField(source='user.username')
     first_name = CharField(source='user.first_name')

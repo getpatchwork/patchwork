@@ -40,16 +40,22 @@ else:
 class TestProjectAPI(APITestCase):
 
     @staticmethod
-    def api_url(item=None):
+    def api_url(item=None, version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
         if item is None:
-            return reverse('api-project-list')
-        return reverse('api-project-detail', args=[item])
+            return reverse('api-project-list', kwargs=kwargs)
+        return reverse('api-project-detail', args=[item], kwargs=kwargs)
 
     def assertSerialized(self, project_obj, project_json):
         self.assertEqual(project_obj.id, project_json['id'])
         self.assertEqual(project_obj.name, project_json['name'])
         self.assertEqual(project_obj.linkname, project_json['link_name'])
         self.assertEqual(project_obj.listid, project_json['list_id'])
+        self.assertEqual(project_obj.subject_match,
+                         project_json['subject_match'])
 
         # nested fields
 
@@ -73,6 +79,12 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(project, resp.data[0])
+
+        # test old version of API
+        resp = self.client.get(self.api_url(version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertNotIn('subject_match', resp.data[0])
 
     def test_detail(self):
         """Validate we can get a specific project."""

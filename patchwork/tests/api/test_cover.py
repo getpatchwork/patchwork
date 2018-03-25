@@ -42,10 +42,14 @@ class TestCoverLetterAPI(APITestCase):
     fixtures = ['default_tags']
 
     @staticmethod
-    def api_url(item=None):
+    def api_url(item=None, version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
         if item is None:
-            return reverse('api-cover-list')
-        return reverse('api-cover-detail', args=[item])
+            return reverse('api-cover-list', kwargs=kwargs)
+        return reverse('api-cover-detail', args=[item], kwargs=kwargs)
 
     def assertSerialized(self, cover_obj, cover_json):
         self.assertEqual(cover_obj.id, cover_json['id'])
@@ -96,6 +100,12 @@ class TestCoverLetterAPI(APITestCase):
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
+
+        # test old version of API
+        resp = self.client.get(self.api_url(version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertNotIn('mbox', resp.data[0])
 
     def test_detail(self):
         """Validate we can get a specific cover letter."""
