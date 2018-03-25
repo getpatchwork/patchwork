@@ -35,12 +35,7 @@ from patchwork.models import Series
 from patchwork.models import State
 
 
-class TimestampMixin(FilterSet):
-
-    # TODO(stephenfin): These should filter on a 'updated_at' field instead
-    before = IsoDateTimeFilter(name='date', lookup_expr='lt')
-    since = IsoDateTimeFilter(name='date', lookup_expr='gte')
-
+# custom fields, filters
 
 class ModelMultiChoiceField(ModelChoiceField):
 
@@ -75,12 +70,6 @@ class ProjectFilter(ModelChoiceFilter):
     field_class = ProjectChoiceField
 
 
-class ProjectMixin(FilterSet):
-
-    project = ProjectFilter(to_field_name='linkname',
-                            queryset=Project.objects.all())
-
-
 class PersonChoiceField(ModelMultiChoiceField):
 
     def _get_filters(self, value):
@@ -93,24 +82,6 @@ class PersonChoiceField(ModelMultiChoiceField):
 class PersonFilter(ModelChoiceFilter):
 
     field_class = PersonChoiceField
-
-
-class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
-
-    submitter = PersonFilter(queryset=Person.objects.all())
-
-    class Meta:
-        model = Series
-        fields = ('submitter', 'project')
-
-
-class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
-
-    submitter = PersonFilter(queryset=Person.objects.all())
-
-    class Meta:
-        model = CoverLetter
-        fields = ('project', 'series', 'submitter')
 
 
 class StateChoiceField(ModelChoiceField):
@@ -138,17 +109,6 @@ class StateFilter(ModelChoiceFilter):
     field_class = StateChoiceField
 
 
-class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
-
-    state = StateFilter(queryset=State.objects.all())
-    submitter = PersonFilter(queryset=Person.objects.all())
-
-    class Meta:
-        model = Patch
-        fields = ('project', 'series', 'submitter', 'delegate',
-                  'state', 'archived')
-
-
 class UserChoiceField(ModelMultiChoiceField):
 
     def _get_filters(self, value):
@@ -161,6 +121,50 @@ class UserChoiceField(ModelMultiChoiceField):
 class UserFilter(ModelChoiceFilter):
 
     field_class = UserChoiceField
+
+
+# filter sets
+
+class TimestampMixin(FilterSet):
+
+    # TODO(stephenfin): These should filter on a 'updated_at' field instead
+    before = IsoDateTimeFilter(name='date', lookup_expr='lt')
+    since = IsoDateTimeFilter(name='date', lookup_expr='gte')
+
+
+class ProjectMixin(FilterSet):
+
+    project = ProjectFilter(to_field_name='linkname',
+                            queryset=Project.objects.all())
+
+
+class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
+
+    class Meta:
+        model = Series
+        fields = ('submitter', 'project')
+
+
+class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
+
+    class Meta:
+        model = CoverLetter
+        fields = ('project', 'series', 'submitter')
+
+
+class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    state = StateFilter(queryset=State.objects.all())
+    submitter = PersonFilter(queryset=Person.objects.all())
+
+    class Meta:
+        model = Patch
+        fields = ('project', 'series', 'submitter', 'delegate',
+                  'state', 'archived')
 
 
 class CheckFilter(TimestampMixin, FilterSet):
