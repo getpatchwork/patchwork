@@ -96,8 +96,17 @@ run:
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -e PW_TEST_DB_HOST=db -e DISPLAY patchwork_web bash
 
-To reset the database before any of these commands, add `--reset` to the
-command line after `web` and before any other arguments.
+To reset the database before any of these commands, add ``--reset`` to the
+command line after ``web`` and before any other arguments. Conversely, to
+backup the database at any stage, run:
+
+.. code-block:: shell
+
+    $ docker exec DATABASECONTAINER /usr/bin/mysqldump -u DATABASEUSER \
+        --password=DATABASEPASSWORD DATABASE > backup.sql
+
+where ``DATABASECONTAINER`` is found by ``docker ps -a`` and the other settings
+are the same as those defined in ``patchwork/settings/dev.py``.
 
 Any local edits to the project files made locally are immediately visible to
 the Docker container, and so should be picked up by the Django auto-reloader.
