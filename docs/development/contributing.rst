@@ -92,6 +92,20 @@ command:
 Modify the created file, removing any irrelevant sections, and include the
 modified file in your change.
 
+API
+---
+
+As discussed in :doc:`releasing`, the API is versioned differently from
+Patchwork itself. Should you make changes to the API, you need to ensure these
+only affect newer versions of the API. Refer to previous changes in the
+``patchwork/api`` directory and to the `Django REST Framework documentation`_
+for more information.
+
+.. important::
+
+    All API changes should be called out in :ref:`release notes
+    <release-notes>` using the ``api`` section.
+
 Submitting Changes
 ------------------
 
@@ -110,3 +124,4 @@ ensure:
 .. _reno: https://docs.openstack.org/developer/reno/
 .. _mailing list: https://ozlabs.org/mailman/listinfo/patchwork
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
+.. _Django REST Framework documentation: http://www.django-rest-framework.org/api-guide/versioning/
