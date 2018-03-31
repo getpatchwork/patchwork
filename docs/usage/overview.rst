@@ -138,7 +138,7 @@ project to project and Patchwork instance to Patchwork instance. The `kernel
 project documentation`__ provides an overview of the supported tags for the
 Linux kernel project.
 
-__ https://www.kernel.org/doc/Documentation/SubmittingPatches
+__ https://www.kernel.org/doc/html/latest/process/submitting-patches.html
 
 Checks
 ~~~~~~
