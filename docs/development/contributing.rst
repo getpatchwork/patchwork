@@ -80,7 +80,7 @@ first install it:
 
 .. code-block:: shell
 
-   $ sudo pip install tox
+   $ sudo pip install reno
 
 Once installed, a new release note can be created using the ``reno new``
 command:
