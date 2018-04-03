@@ -177,7 +177,7 @@ $(document).ready(function() {
   <tr id="patch_row:{{patch.id}}">
    {% if user.is_authenticated %}
    <td style="text-align: center;">
-    <input type="checkbox" name="patch_id:{{patch.id}}"/>
+    <input type="checkbox" name="patch_id:{{patch.id}}" id="patch_id:{{patch.id}}" />
    </td>
    {% endif %}
    {% if user.is_authenticated and user.profile.show_ids %}
@@ -202,12 +202,36 @@ $(document).ready(function() {
      {% endif %}
     {% endwith %}
    </td>
-   <td class="text-nowrap">{{ patch|patch_tags }}</td>
-   <td class="text-nowrap">{{ patch|patch_checks }}</td>
-   <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
-   <td>{{ patch.submitter|personify:project }}</td>
-   <td>{{ patch.delegate.username }}</td>
-   <td>{{ patch.state }}</td>
+   <td class="text-nowrap">
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch|patch_tags }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
+   <td class="text-nowrap">
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch|patch_checks }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
+   <td class="text-nowrap">
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch.date|date:"Y-m-d" }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
+   <td>
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch.submitter|personify:project }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
+   <td>
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch.delegate.username }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
+   <td>
+	   {% if user.is_authenticated %}<label for="patch_id:{{patch.id}}">{% endif %}
+	   {{ patch.state }}
+	   {% if user.is_authenticated %}</label>{% endif %}
+   </td>
   </tr>
  {% empty %}
   <tr>
