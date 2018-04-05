@@ -9,7 +9,7 @@ on the release process, refer to :doc:`/development/releasing`.
 .. toctree::
    :maxdepth: 2
 
-   /releases/unreleased
+   /releases/eolienne
    /releases/dazzle
    /releases/cashmere
    /releases/burlap

@@ -57,7 +57,7 @@ of community projects.
    :maxdepth: 2
    :caption: Release Notes
 
-   releases/unreleased
+   releases/eolienne
    releases/dazzle
    releases/cashmere
    releases/burlap

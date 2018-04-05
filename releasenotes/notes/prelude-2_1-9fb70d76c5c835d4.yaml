@@ -1,0 +1,20 @@
+---
+prelude: |
+    The key part of this release is a major performance fix -
+    denormalising the project field into patch model so that counting a
+    project's patches doesn't require a JOIN. This requires a migration
+    and so isn't suitable for a stable backport. Event listing in the API
+    has also been sped up by refactoring the queries.
+
+    This release also includes the feature development that had accured in
+    the mean time, and numerous bug fixes.
+
+    The REST API version has been bumped to 1.1.
+issues:
+  - Series parsing in the presence of parallel mail processing is still
+    unreliable.
+  - Several more minor issues can be browsed on our `issue tracker 
+    <https://github.com/getpatchwork/patchwork/issues>`_.
+fixes:
+  - A nasty race condition bug that could cause patches in a series to be
+    dropped has been fixed.
