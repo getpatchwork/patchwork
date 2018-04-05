@@ -89,21 +89,17 @@ def _submission_to_mbox(submission):
     utc_timestamp = delta.seconds + delta.days * 24 * 3600
 
     mail = PatchMbox(body)
-    mail['Subject'] = submission.name
     mail['X-Patchwork-Submitter'] = email.utils.formataddr((
         str(Header(submission.submitter.name, mail.patch_charset)),
         submission.submitter.email))
     mail['X-Patchwork-Id'] = str(submission.id)
     if is_patch and submission.delegate:
         mail['X-Patchwork-Delegate'] = str(submission.delegate.email)
-    mail['Message-Id'] = submission.msgid
     mail.set_unixfrom('From patchwork ' + submission.date.ctime())
 
-    copied_headers = ['To', 'Cc', 'Date', 'From', 'List-Id']
     orig_headers = HeaderParser().parsestr(str(submission.headers))
-    for header in copied_headers:
-        if header in orig_headers:
-            mail[header] = orig_headers[header]
+    for key, val in orig_headers.items():
+        mail[key] = val
 
     if 'Date' not in mail:
         mail['Date'] = email.utils.formatdate(utc_timestamp)
