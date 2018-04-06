@@ -60,8 +60,18 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
     headers = SerializerMethodField()
 
     def get_headers(self, instance):
+        headers = {}
+
         if instance.headers:
-            return email.parser.Parser().parsestr(instance.headers, True)
+            parsed = email.parser.Parser().parsestr(instance.headers, True)
+            for key in parsed.keys():
+                headers[key] = parsed.get_all(key)
+                # Let's return a single string instead of a list if only one
+                # header with this key is present
+                if len(headers[key]) == 1:
+                    headers[key] = headers[key][0]
+
+        return headers
 
     class Meta:
         model = CoverLetter

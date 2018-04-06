@@ -123,8 +123,18 @@ class PatchDetailSerializer(PatchListSerializer):
     prefixes = SerializerMethodField()
 
     def get_headers(self, patch):
+        headers = {}
+
         if patch.headers:
-            return email.parser.Parser().parsestr(patch.headers, True)
+            parsed = email.parser.Parser().parsestr(patch.headers, True)
+            for key in parsed.keys():
+                headers[key] = parsed.get_all(key)
+                # Let's return a single string instead of a list if only one
+                # header with this key is present
+                if len(headers[key]) == 1:
+                    headers[key] = headers[key][0]
+
+        return headers
 
     def get_prefixes(self, instance):
         return clean_subject(instance.name)[1]

@@ -17,6 +17,7 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import email.parser
 from email.utils import make_msgid
 import unittest
 
@@ -120,12 +121,20 @@ class TestPatchAPI(APITestCase):
     def test_detail(self):
         """Validate we can get a specific patch."""
         patch = create_patch(
-            content='Reviewed-by: Test User <test@example.com>\n')
+            content='Reviewed-by: Test User <test@example.com>\n',
+            headers='Received: from somewhere\nReceived: from another place'
+        )
 
         resp = self.client.get(self.api_url(patch.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(patch, resp.data)
-        self.assertEqual(patch.headers, resp.data['headers'] or '')
+
+        # Make sure we don't regress and all headers with the same key are
+        # included in the response
+        parsed_headers = email.parser.Parser().parsestr(patch.headers, True)
+        for key, value in parsed_headers.items():
+            self.assertIn(value, resp.data['headers'][key])
+
         self.assertEqual(patch.content, resp.data['content'])
         self.assertEqual(patch.diff, resp.data['diff'])
         self.assertEqual(0, len(resp.data['tags']))
