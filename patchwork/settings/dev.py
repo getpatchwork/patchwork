@@ -25,11 +25,6 @@ SECRET_KEY = '00000000000000000000000000000000000000000000000000'  # noqa
 
 DEBUG = True
 
-if django.VERSION < (1, 8):
-    # In Django 1.8+, this is only necessary if the value differs from
-    # the value for 'DEBUG'
-    TEMPLATE_DEBUG = True
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -38,18 +33,14 @@ DATABASES = {
         'USER': os.getenv('PW_TEST_DB_USER', 'patchwork'),
         'PASSWORD': os.getenv('PW_TEST_DB_PASS', 'password'),
         'NAME': os.getenv('PW_TEST_DB_NAME', 'patchwork'),
+        'TEST': {
+            'CHARSET': 'utf8',
+        },
     },
 }
 
 if os.getenv('PW_TEST_DB_TYPE', None) == 'postgres':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-
-if django.VERSION >= (1, 7):
-    DATABASES['default']['TEST'] = {
-        'CHARSET': 'utf8',
-    }
-else:
-    DATABASES['default']['TEST_CHARSET'] = 'utf8'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -68,27 +59,26 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 # django-debug-toolbar
 
-if django.VERSION >= (1, 8):
-    INSTALLED_APPS += [
-        'debug_toolbar'
-    ]
+INSTALLED_APPS += [
+    'debug_toolbar'
+]
 
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-    # This should go first in the middleware classes
-    if django.VERSION >= (1, 10):
-        MIDDLEWARE = [
-            'debug_toolbar.middleware.DebugToolbarMiddleware',
-        ] + MIDDLEWARE
-    else:
-        MIDDLEWARE_CLASSES = [
-            'debug_toolbar.middleware.DebugToolbarMiddleware',
-        ] + MIDDLEWARE_CLASSES
+# This should go first in the middleware classes
+if django.VERSION >= (1, 10):
+    MIDDLEWARE = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ] + MIDDLEWARE
+else:
+    MIDDLEWARE_CLASSES = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ] + MIDDLEWARE_CLASSES
 
-    INTERNAL_IPS = [
-        '127.0.0.1', '::1',
-        '172.17.0.1'
-    ]
+INTERNAL_IPS = [
+    '127.0.0.1', '::1',
+    '172.17.0.1'
+]
 
 
 #

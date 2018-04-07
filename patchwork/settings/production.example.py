@@ -11,8 +11,6 @@ from __future__ import absolute_import
 
 import os
 
-import django
-
 from .base import *  # noqa
 
 #
@@ -74,6 +72,5 @@ DATABASES = {
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT', '/srv/patchwork/htdocs/static')
 
-if django.VERSION >= (1, 7):
-    STATICFILES_STORAGE = \
-        'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = (
+    'django.contrib.staticfiles.storage.ManifestStaticFilesStorage')

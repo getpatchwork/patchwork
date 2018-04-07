@@ -19,10 +19,8 @@
 
 import email
 import logging
-from optparse import make_option
 import sys
 
-import django
 from django.core.management import base
 from django.utils import six
 
@@ -34,26 +32,17 @@ logger = logging.getLogger(__name__)
 class Command(base.BaseCommand):
     help = 'Parse an mbox file and store any patch/comment found.'
 
-    if django.VERSION < (1, 8):
-        args = '<infile>'
-        option_list = base.BaseCommand.option_list + (
-            make_option(
-                '--list-id',
-                help='mailing list ID. If not supplied, this will be '
-                'extracted from the mail headers.'),
-        )
-    else:
-        def add_arguments(self, parser):
-            parser.add_argument(
-                'infile',
-                nargs='?',
-                type=str,
-                default=None,
-                help='input mbox file (a filename or stdin)')
-            parser.add_argument(
-                '--list-id',
-                help='mailing list ID. If not supplied, this will be '
-                'extracted from the mail headers.')
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'infile',
+            nargs='?',
+            type=str,
+            default=None,
+            help='input mbox file (a filename or stdin)')
+        parser.add_argument(
+            '--list-id',
+            help='mailing list ID. If not supplied, this will be '
+            'extracted from the mail headers.')
 
     def handle(self, *args, **options):
         infile = args[0] if args else options['infile']
