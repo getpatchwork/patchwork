@@ -106,7 +106,15 @@ backup the database at any stage, run:
         --password=DATABASEPASSWORD DATABASE > backup.sql
 
 where ``DATABASECONTAINER`` is found by ``docker ps -a`` and the other settings
-are the same as those defined in ``patchwork/settings/dev.py``.
+are the same as those defined in ``patchwork/settings/dev.py``. To restore this
+again, run:
+
+.. code-block:: shell
+
+    $ docker-compose run --rm web python manage.py dbshell
+    mysql> use DATABASE;
+    mysql> set autocommit=0; source backup.sql; commit;
+    mysql> exit;
 
 Any local edits to the project files made locally are immediately visible to
 the Docker container, and so should be picked up by the Django auto-reloader.
