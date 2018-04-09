@@ -23,13 +23,14 @@ TAGS
 cscope.*
 
 # misc files
-
 *.orig
 *.rej
 
 *.swp
 *~
 \#*\#
+
+*.sql
 
 # Unit test / coverage reports
 htmlcov/
