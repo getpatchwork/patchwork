@@ -172,7 +172,7 @@ def create_patch(**kwargs):
         'state': create_state() if 'state' not in kwargs else None,
         'name': 'testpatch%d' % num,
         'headers': '',
-        'content': '',
+        'content': 'Patch testpatch%d' % num,
         'diff': SAMPLE_DIFF,
     }
     values.update(kwargs)

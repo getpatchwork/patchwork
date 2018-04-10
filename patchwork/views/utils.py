@@ -101,9 +101,6 @@ def _submission_to_mbox(submission):
     for key, val in orig_headers.items():
         mail[key] = val
 
-    # specifically overwrite the subject with our own nicely formatted name
-    mail['Subject'] = submission.name
-
     if 'Date' not in mail:
         mail['Date'] = email.utils.formatdate(utc_timestamp)
 
