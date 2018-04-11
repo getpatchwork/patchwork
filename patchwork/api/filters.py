@@ -39,14 +39,14 @@ from patchwork.models import State
 
 class ModelMultiChoiceField(ModelChoiceField):
 
-    def _get_filters(self, value):
-        raise NotImplementedError
-
     def to_python(self, value):
         if value in self.empty_values:
             return None
 
-        filters = self._get_filters(value)
+        try:
+            filters = {'pk': int(value)}
+        except ValueError:
+            filters = {self.alternate_lookup: value}
 
         try:
             value = self.queryset.get(**filters)
@@ -58,11 +58,7 @@ class ModelMultiChoiceField(ModelChoiceField):
 
 class ProjectChoiceField(ModelMultiChoiceField):
 
-    def _get_filters(self, value):
-        try:
-            return {'pk': int(value)}
-        except ValueError:
-            return {'linkname__iexact': value}
+    alternate_lookup = 'linkname__iexact'
 
 
 class ProjectFilter(ModelChoiceFilter):
@@ -72,11 +68,7 @@ class ProjectFilter(ModelChoiceFilter):
 
 class PersonChoiceField(ModelMultiChoiceField):
 
-    def _get_filters(self, value):
-        try:
-            return {'pk': int(value)}
-        except ValueError:
-            return {'email__iexact': value}
+    alternate_lookup = 'email__iexact'
 
 
 class PersonFilter(ModelChoiceFilter):
@@ -111,11 +103,7 @@ class StateFilter(ModelChoiceFilter):
 
 class UserChoiceField(ModelMultiChoiceField):
 
-    def _get_filters(self, value):
-        try:
-            return {'pk': int(value)}
-        except ValueError:
-            return {'username__iexact': value}
+    alternate_lookup = 'username__iexact'
 
 
 class UserFilter(ModelChoiceFilter):
