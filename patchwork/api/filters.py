@@ -141,22 +141,19 @@ class TimestampMixin(FilterSet):
     since = IsoDateTimeFilter(name='date', lookup_expr='gte')
 
 
-class ProjectMixin(FilterSet):
-
-    project = ProjectFilter(queryset=Project.objects.all())
-
-
-class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
+class SeriesFilter(TimestampMixin, FilterSet):
 
     submitter = PersonFilter(queryset=Person.objects.all())
+    project = ProjectFilter(queryset=Project.objects.all())
 
     class Meta:
         model = Series
         fields = ('submitter', 'project')
 
 
-class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
+class CoverLetterFilter(TimestampMixin, FilterSet):
 
+    project = ProjectFilter(queryset=Project.objects.all())
     submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
@@ -164,8 +161,9 @@ class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
         fields = ('project', 'series', 'submitter')
 
 
-class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
+class PatchFilter(TimestampMixin, FilterSet):
 
+    project = ProjectFilter(queryset=Project.objects.all())
     submitter = PersonFilter(queryset=Person.objects.all())
     delegate = UserFilter(queryset=User.objects.all())
     state = StateFilter(queryset=State.objects.all())
@@ -185,15 +183,18 @@ class CheckFilter(TimestampMixin, FilterSet):
         fields = ('user', 'state', 'context')
 
 
-class EventFilter(ProjectMixin, TimestampMixin, FilterSet):
+class EventFilter(TimestampMixin, FilterSet):
+
+    project = ProjectFilter(queryset=Project.objects.all())
 
     class Meta:
         model = Event
         fields = ('project', 'category', 'series', 'patch', 'cover')
 
 
-class BundleFilter(ProjectMixin, FilterSet):
+class BundleFilter(FilterSet):
 
+    project = ProjectFilter(queryset=Project.objects.all())
     owner = UserFilter(queryset=User.objects.all())
 
     class Meta:
