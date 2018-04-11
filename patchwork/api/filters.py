@@ -158,8 +158,9 @@ class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
 
 class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
 
-    state = StateFilter(queryset=State.objects.all())
     submitter = PersonFilter(queryset=Person.objects.all())
+    delegate = UserFilter(queryset=User.objects.all())
+    state = StateFilter(queryset=State.objects.all())
 
     class Meta:
         model = Patch
