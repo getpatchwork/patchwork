@@ -2,5 +2,5 @@
 other:
   - |
     mbox files now contain all headers from the original email. This also means
-    the ``Subject: `` header included will contain the original subject and not
+    the ``Subject:`` header included will contain the original subject and not
     the parsed Patchwork's version.
