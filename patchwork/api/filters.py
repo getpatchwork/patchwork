@@ -20,7 +20,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django_filters import FilterSet
+from django_filters.rest_framework import FilterSet
 from django_filters import IsoDateTimeFilter
 from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
