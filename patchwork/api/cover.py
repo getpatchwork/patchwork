@@ -25,7 +25,7 @@ from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
-from patchwork.api.filters import CoverLetterFilter
+from patchwork.api.filters import CoverLetterFilterSet
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
@@ -92,7 +92,7 @@ class CoverLetterList(ListAPIView):
     """List cover letters."""
 
     serializer_class = CoverLetterListSerializer
-    filter_class = CoverLetterFilter
+    filter_class = CoverLetterFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter')
     ordering = 'id'

@@ -24,7 +24,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
-from patchwork.api.filters import BundleFilter
+from patchwork.api.filters import BundleFilterSet
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import UserSerializer
@@ -73,7 +73,7 @@ class BundleMixin(object):
 class BundleList(BundleMixin, ListAPIView):
     """List bundles."""
 
-    filter_class = BundleFilter
+    filter_class = BundleFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'owner')
     ordering = 'id'

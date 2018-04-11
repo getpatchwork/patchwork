@@ -32,7 +32,7 @@ from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
-from patchwork.api.filters import EventFilter
+from patchwork.api.filters import EventFilterSet
 from patchwork.api.patch import StateField
 from patchwork.models import Event
 
@@ -104,7 +104,7 @@ class EventList(ListAPIView):
     renderer_classes = (JSONRenderer, JSONListHTMLRenderer)
     template_name = 'patchwork/event-list.html'
     serializer_class = EventSerializer
-    filter_class = EventFilter
+    filter_class = EventFilterSet
     page_size_query_param = None  # fixed page size
     ordering_fields = ()
     ordering = '-date'

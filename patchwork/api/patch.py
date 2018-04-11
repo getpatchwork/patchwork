@@ -28,7 +28,7 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
-from patchwork.api.filters import PatchFilter
+from patchwork.api.filters import PatchFilterSet
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
@@ -162,7 +162,7 @@ class PatchList(ListAPIView):
 
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchListSerializer
-    filter_class = PatchFilter
+    filter_class = PatchFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'project', 'date', 'state', 'archived',
                        'submitter', 'check')

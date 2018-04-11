@@ -27,7 +27,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
 from patchwork.api.embedded import UserSerializer
-from patchwork.api.filters import CheckFilter
+from patchwork.api.filters import CheckFilterSet
 from patchwork.models import Check
 from patchwork.models import Patch
 
@@ -80,7 +80,7 @@ class CheckSerializer(HyperlinkedModelSerializer):
 class CheckMixin(object):
 
     serializer_class = CheckSerializer
-    filter_class = CheckFilter
+    filter_class = CheckFilterSet
 
     def get_queryset(self):
         return Check.objects.prefetch_related('patch', 'user')

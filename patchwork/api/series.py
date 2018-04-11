@@ -23,7 +23,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import PatchworkPermission
-from patchwork.api.filters import SeriesFilter
+from patchwork.api.filters import SeriesFilterSet
 from patchwork.api.embedded import CoverLetterSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
@@ -68,7 +68,7 @@ class SeriesMixin(object):
 class SeriesList(SeriesMixin, ListAPIView):
     """List series."""
 
-    filter_class = SeriesFilter
+    filter_class = SeriesFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter', 'received_all')
     ordering = 'id'
