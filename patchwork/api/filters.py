@@ -41,6 +41,9 @@ from patchwork.models import State
 class ModelMultipleChoiceField(BaseMultipleChoiceField):
 
     def _get_filter(self, value):
+        if not self.alternate_lookup:
+            return 'pk', value
+
         try:
             return 'pk', int(value)
         except ValueError:
@@ -88,14 +91,14 @@ class ModelMultipleChoiceField(BaseMultipleChoiceField):
         return qs
 
 
-class ProjectChoiceField(ModelMultipleChoiceField):
+class BaseField(ModelMultipleChoiceField):
 
-    alternate_lookup = 'linkname__iexact'
+    alternate_lookup = None
 
 
-class ProjectFilter(ModelMultipleChoiceFilter):
+class BaseFilter(ModelMultipleChoiceFilter):
 
-    field_class = ProjectChoiceField
+    field_class = BaseField
 
 
 class PersonChoiceField(ModelMultipleChoiceField):
@@ -106,6 +109,16 @@ class PersonChoiceField(ModelMultipleChoiceField):
 class PersonFilter(ModelMultipleChoiceFilter):
 
     field_class = PersonChoiceField
+
+
+class ProjectChoiceField(ModelMultipleChoiceField):
+
+    alternate_lookup = 'linkname__iexact'
+
+
+class ProjectFilter(ModelMultipleChoiceFilter):
+
+    field_class = ProjectChoiceField
 
 
 class StateChoiceField(ModelMultipleChoiceField):
@@ -154,6 +167,7 @@ class SeriesFilterSet(TimestampMixin, FilterSet):
 class CoverLetterFilterSet(TimestampMixin, FilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
+    series = BaseFilter(queryset=Project.objects.all())
     submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
@@ -164,6 +178,7 @@ class CoverLetterFilterSet(TimestampMixin, FilterSet):
 class PatchFilterSet(TimestampMixin, FilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
+    series = BaseFilter(queryset=Series.objects.all())
     submitter = PersonFilter(queryset=Person.objects.all())
     delegate = UserFilter(queryset=User.objects.all())
     state = StateFilter(queryset=State.objects.all())
@@ -186,6 +201,9 @@ class CheckFilterSet(TimestampMixin, FilterSet):
 class EventFilterSet(TimestampMixin, FilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
+    series = BaseFilter(queryset=Series.objects.all())
+    patch = BaseFilter(queryset=Patch.objects.all())
+    cover = BaseFilter(queryset=CoverLetter.objects.all())
 
     class Meta:
         model = Event
