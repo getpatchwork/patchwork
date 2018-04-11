@@ -8,9 +8,18 @@ api:
 
        $ curl /covers/?submitter=stephen@that.guru
   - |
-    Bundles can be filtered by owner and checks by user using username. For
-    example:
+    Bundles can be filtered by owner, patches by delegate and checks by user
+    using username. For example:
 
     .. code-block:: shell
 
        $ curl /bundles/?owner=stephenfin
+  - |
+    Filters can now be specified multiple times. For example:
+
+    .. code-block:: shell
+
+       $ curl /patches/?state=under-review&state=rfc
+
+    This operates as a logical OR: it will retrieve patches that are either
+    Under Review or RFC.

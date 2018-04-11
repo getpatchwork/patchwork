@@ -78,8 +78,8 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(0, len(resp.data))
 
         person_obj = create_person(email='test@example.com')
-        state_obj = create_state(name='Under Review')
         project_obj = create_project(linkname='myproject')
+        state_obj = create_state(name='Under Review')
         patch_obj = create_patch(state=state_obj, project=project_obj,
                                  submitter=person_obj)
 
@@ -123,6 +123,19 @@ class TestPatchAPI(APITestCase):
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
+
+        state_obj_b = create_state(name='New')
+        create_patch(state=state_obj_b)
+        state_obj_c = create_state(name='RFC')
+        create_patch(state=state_obj_c)
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(3, len(resp.data))
+        resp = self.client.get(self.api_url(), [('state', 'under-review')])
+        self.assertEqual(1, len(resp.data))
+        resp = self.client.get(self.api_url(), [('state', 'under-review'),
+                                                ('state', 'new')])
+        self.assertEqual(2, len(resp.data))
 
     def test_detail(self):
         """Validate we can get a specific patch."""

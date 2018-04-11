@@ -19,10 +19,11 @@
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
-from django_filters import ModelChoiceFilter
-from django.forms import ModelChoiceField
+from django_filters import ModelMultipleChoiceFilter
+from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
 
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -37,76 +38,96 @@ from patchwork.models import State
 
 # custom fields, filters
 
-class ModelMultiChoiceField(ModelChoiceField):
+class ModelMultipleChoiceField(BaseMultipleChoiceField):
 
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
-
+    def _get_filter(self, value):
         try:
-            filters = {'pk': int(value)}
+            return 'pk', int(value)
         except ValueError:
-            filters = {self.alternate_lookup: value}
+            return self.alternate_lookup, value
 
+    def _check_values(self, value):
+        """
+        Given a list of possible PK values, returns a QuerySet of the
+        corresponding objects. Raises a ValidationError if a given value is
+        invalid (not a valid PK, not in the queryset, etc.)
+        """
+        # deduplicate given values to avoid creating many querysets or
+        # requiring the database backend deduplicate efficiently.
         try:
-            value = self.queryset.get(**filters)
-        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
-            raise ValidationError(self.error_messages['invalid_choice'],
-                                  code='invalid_choice')
-        return value
+            value = frozenset(value)
+        except TypeError:
+            # list of lists isn't hashable, for example
+            raise ValidationError(
+                self.error_messages['list'],
+                code='list',
+            )
+
+        q_objects = Q()
+
+        for pk in value:
+            key, val = self._get_filter(pk)
+
+            try:
+                # NOTE(stephenfin): In contrast to the Django implementation
+                # of this, we check to ensure each specified key exists and
+                # fail if not. If we don't this, we can end up doing nothing
+                # for the filtering which, to me, seems very confusing
+                self.queryset.get(**{key: val})
+            except (ValueError, TypeError, self.queryset.model.DoesNotExist):
+                raise ValidationError(
+                    self.error_messages['invalid_pk_value'],
+                    code='invalid_pk_value',
+                    params={'pk': val},
+                )
+
+            q_objects |= Q(**{key: val})
+
+        qs = self.queryset.filter(q_objects)
+
+        return qs
 
 
-class ProjectChoiceField(ModelMultiChoiceField):
+class ProjectChoiceField(ModelMultipleChoiceField):
 
     alternate_lookup = 'linkname__iexact'
 
 
-class ProjectFilter(ModelChoiceFilter):
+class ProjectFilter(ModelMultipleChoiceFilter):
 
     field_class = ProjectChoiceField
 
 
-class PersonChoiceField(ModelMultiChoiceField):
+class PersonChoiceField(ModelMultipleChoiceField):
 
     alternate_lookup = 'email__iexact'
 
 
-class PersonFilter(ModelChoiceFilter):
+class PersonFilter(ModelMultipleChoiceFilter):
 
     field_class = PersonChoiceField
 
 
-class StateChoiceField(ModelChoiceField):
+class StateChoiceField(ModelMultipleChoiceField):
 
-    def prepare_value(self, value):
-        if hasattr(value, '_meta'):
-            return value.slug
-        else:
-            return super(StateChoiceField, self).prepare_value(value)
-
-    def to_python(self, value):
-        if value in self.empty_values:
-            return None
+    def _get_filter(self, value):
         try:
-            value = ' '.join(value.split('-'))
-            value = self.queryset.get(name__iexact=value)
-        except (ValueError, TypeError, self.queryset.model.DoesNotExist):
-            raise ValidationError(self.error_messages['invalid_choice'],
-                                  code='invalid_choice')
-        return value
+            return 'pk', int(value)
+        except ValueError:
+            return 'name__iexact', ' '.join(value.split('-'))
 
 
-class StateFilter(ModelChoiceFilter):
+class StateFilter(ModelMultipleChoiceFilter):
 
     field_class = StateChoiceField
 
 
-class UserChoiceField(ModelMultiChoiceField):
+class UserChoiceField(ModelMultipleChoiceField):
 
     alternate_lookup = 'username__iexact'
 
 
-class UserFilter(ModelChoiceFilter):
+class UserFilter(ModelMultipleChoiceFilter):
 
     field_class = UserChoiceField
 
@@ -122,8 +143,7 @@ class TimestampMixin(FilterSet):
 
 class ProjectMixin(FilterSet):
 
-    project = ProjectFilter(to_field_name='linkname',
-                            queryset=Project.objects.all())
+    project = ProjectFilter(queryset=Project.objects.all())
 
 
 class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
