@@ -35,6 +35,7 @@ cscope.*
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.venv/
 .coverage
 .coverage.*
 
