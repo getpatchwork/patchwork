@@ -778,7 +778,9 @@ class SeriesReference(models.Model):
 
 
 class Bundle(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name='bundles',
+                              related_query_name='bundle')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=False, blank=False)
     patches = models.ManyToManyField(Patch, through='BundlePatch')

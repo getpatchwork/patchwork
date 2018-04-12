@@ -111,9 +111,8 @@ def profile(request):
     else:
         form = UserProfileForm(instance=request.user.profile)
 
-    # TODO(stephenfin): Add a related_name for User->Bundle
     context = {
-        'bundles': Bundle.objects.filter(owner=request.user),
+        'bundles': request.user.bundles.all(),
         'profileform': form,
     }
 

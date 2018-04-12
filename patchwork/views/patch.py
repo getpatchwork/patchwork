@@ -44,7 +44,7 @@ def patch_list(request, project_id):
                            view_args={'project_id': project.linkname})
 
     if is_authenticated(request.user):
-        context['bundles'] = Bundle.objects.filter(owner=request.user)
+        context['bundles'] = request.user.bundles.all()
 
     return render(request, 'patchwork/list.html', context)
 
@@ -112,7 +112,7 @@ def patch_detail(request, patch_id):
                 messages.success(request, 'Patch updated')
 
     if is_authenticated(request.user):
-        context['bundles'] = Bundle.objects.filter(owner=request.user)
+        context['bundles'] = request.user.bundles.all()
 
     context['submission'] = patch
     context['patchform'] = form
