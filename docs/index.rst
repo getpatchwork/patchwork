@@ -17,8 +17,6 @@ subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
 of community projects.
 
-.. _user-docs:
-
 .. toctree::
    :maxdepth: 2
    :caption: Usage Documentation
@@ -29,8 +27,6 @@ of community projects.
    usage/headers
    usage/clients
 
-.. _deployment-docs:
-
 .. toctree::
    :maxdepth: 2
    :caption: Deployment Documentation
@@ -39,8 +35,6 @@ of community projects.
    deployment/configuration
    deployment/management
    deployment/upgrading
-
-.. _development-docs:
 
 .. toctree::
    :maxdepth: 2
@@ -52,16 +46,12 @@ of community projects.
    development/api
    development/assets
 
-.. _api-docs:
-
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation
 
    api/rest
    api/xmlrpc
-
-.. _release-note-docs:
 
 .. toctree::
    :maxdepth: 2
@@ -72,12 +62,3 @@ of community projects.
    releases/cashmere
    releases/burlap
    releases/alpaca
-
-.. toctree::
-   :hidden:
-
-   usage/index
-   deployment/index
-   development/index
-   api/index
-   releases/index

@@ -17,17 +17,14 @@ configured in the project administration page. This can usually be found at:
 In this section there are the following fields:
 
 User
-
   The patchwork user that should be autodelegated to the patch
 
 Priority
-
   The priority of the rule relative to other patches. Higher values indicate
   higher priority. If two rules have the same priority, ordering will be based
   on the path.
 
 Path
-
   A path in `fnmatch`__ format. The fnmatch library allows for limited, Unix
   shell-style wildcarding. Filenames are extracted from patch lines beginning
   with ``---`` or ``+++``.
