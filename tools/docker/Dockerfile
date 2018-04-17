@@ -43,15 +43,7 @@ RUN pip2 install virtualenv tox && \
 # we deliberately leave the requirements files in tmp so we can
 # ping the user in entrypoint.sh if the change them!
 
-COPY tools/docker/bashrc /tmp/bashrc
-
-# we put the code in ~/patchwork rather than ~ so that we
-# can put in these bashrc snippets without dirtying the
-# working directory
-RUN cat /tmp/bashrc >> /home/patchwork/.bashrc
-
 COPY tools/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 USER patchwork
 WORKDIR /home/patchwork/patchwork

@@ -1,5 +1,0 @@
-# This snippet is appended to ~/.bashrc when the container is created
-
-alias runserver='python3 $PROJECT_HOME/manage.py runserver 0.0.0.0:8000'
-alias createsu='python3 $PROJECT_HOME/manage.py createsuperuser'
-
