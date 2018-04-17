@@ -41,7 +41,8 @@ To run a shell within this environment, run:
 
    $ docker-compose run --rm web --shell
 
-To run `django-manage` commands, such as `createsuperuser` or `migrate`, run:
+To run ``django-manage`` commands, such as ``createsuperuser`` or ``migrate``,
+run:
 
 .. code-block:: shell
 
@@ -53,48 +54,17 @@ To access the SQL command-line client, run:
 
    $ docker-compose run --rm web python manage.py dbshell
 
-To run unit tests, excluding Selenium UI interaction tests, using only the
-package versions installed during container initialization, run:
+To run unit tests against the system Python packages, run:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --quick-test
+   $ docker-compose run --rm web python manage.py test
 
-To run the same against all supported versions of Django (via tox), run:
-
-.. code-block:: shell
-
-   $ docker-compose run --rm web --quick-tox
-
-To run specific tox targets or tests, pass arguments to the above:
+To run unit tests for multiple versions using ``tox``, run:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --quick-tox -e py27-django18 \
-       patchwork.tests.test_bundles
-
-To run all tests, including Selenium UI interaction tests, using only the
-package versions installed container initialization, run:
-
-.. code-block:: shell
-
-   $ docker-compose run --rm web --test
-
-To run the same against all supported versions of Django (via tox), run:
-
-.. code-block:: shell
-
-   $ docker-compose run --rm web --tox
-
-To run all tests, including Selenium UI interaction tests in non-headless mode,
-run:
-
-.. code-block:: shell
-
-   $ docker run -it --rm -v (pwd):/home/patchwork/patchwork/ \
-       --link patchwork_db_1:db -p 8000:8000 \
-       -v /tmp/.X11-unix:/tmp/.X11-unix \
-       -e PW_TEST_DB_HOST=db -e DISPLAY patchwork_web bash
+   $ docker-compose run --rm web tox
 
 To reset the database before any of these commands, add ``--reset`` to the
 command line after ``web`` and before any other arguments. Conversely, to
@@ -102,8 +72,8 @@ backup the database at any stage, run:
 
 .. code-block:: shell
 
-    $ docker exec DATABASECONTAINER /usr/bin/mysqldump -u DATABASEUSER \
-        --password=DATABASEPASSWORD DATABASE > backup.sql
+   $ docker exec DATABASECONTAINER /usr/bin/mysqldump -u DATABASEUSER \
+       --password=DATABASEPASSWORD DATABASE > backup.sql
 
 where ``DATABASECONTAINER`` is found by ``docker ps -a`` and the other settings
 are the same as those defined in ``patchwork/settings/dev.py``. To restore this
