@@ -52,3 +52,6 @@ htmlcov/
 
 # Patchwork configuration files
 patchwork/settings/production.py
+
+# docker-compose configuration files
+/.env

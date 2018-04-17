@@ -19,15 +19,22 @@ Patchwork provides a Docker-based environment for quick configuration of a
 development environment. This is the preferred installation method. To
 configure Patchwork using Docker:
 
-1. Install `docker`_ and `docker-compose`_.
+#. Install `docker`_ and `docker-compose`_.
 
-2. Build the images. This will download over 200MB from the internet:
+#. Create a ``.env`` file in the root directory of the project and store your
+   ``UID`` attribute there.
+
+   .. code-block:: shell
+
+      $ echo "UID=$UID" > .env
+
+#. Build the images. This will download over 200MB from the internet:
 
    .. code-block:: shell
 
       $ docker-compose build
 
-3. Run `docker-compose up`:
+#. Run ``docker-compose up``:
 
    .. code-block:: shell
 
@@ -118,37 +125,17 @@ For more information on Docker itself, please refer to the `docker`_ and
 
    If you see an error like the below::
 
-     py.error.EACCES: [Permission denied]: open('/home/patchwork/patchwork/.tox/py27-django18/.tox-config1', 'w')
+     You must define UID in .env
 
-   your host user account is likely using a different UID to the one hardcoded
-   in the Dockerfile.  You can confirm this like so:
+   Ensure you have created a ``.env`` file in the root of your project
+   directory and stored the ``UID`` attribute there. For more information on
+   why this is necessary, refer to this `docker-compose issue`__.
 
-   .. code-block:: shell
-
-      $ echo $UID
-      1234
-
-   If this is anything other than `1000`, you must must modify the `Dockerfile`
-   found in `tools/docker` to use your UID and then rebuild:
-
-   .. code-block:: shell
-
-      $ sed -i "/ARG UID=/c\ARG UID=$(echo $UID)" tools/docker/Dockerfile
-      $ docker-compose build web
-
-   This change must be retained in the event that you rebuild the container.
-   You can "hide" the change from Git like so:
-
-   .. code-block:: shell
-
-      $ git update-index --assume-unchanged tools/docker/Dockerfile
-      $ git update-index --skip-worktree tools/docker/Dockerfile
-
-   This should be resolved in a future release when we support docker-compose
-   2.1 syntax in `docker-compose.yml`.
+   __ https://github.com/docker/compose/issues/2380
 
 .. _docker: https://docs.docker.com/compose/install/
 .. _docker-compose: https://docs.docker.com/engine/installation/linux/
+
 
 Manual Installation
 -------------------
@@ -375,6 +362,7 @@ using the aptly-named `createsuperuser` command:
 
    (.venv)$ ./manage.py createsuperuser
 
+
 Import Mailing List Archives
 ----------------------------
 
@@ -429,6 +417,7 @@ script again.
 
 __ http://blog.behnel.de/posts/indexp118.html
 
+
 Django Debug Toolbar
 --------------------
 
@@ -436,6 +425,7 @@ Patchwork installs and enables the 'Django Debug Toolbar' by default. However,
 by default this is only displayed if you are developing on localhost. If
 developing on a different machine, you should configure an SSH tunnel such
 that, for example, `localhost:8000` points to `[DEV_MACHINE_IP]:8000`.
+
 
 .. _dev-envvar:
 

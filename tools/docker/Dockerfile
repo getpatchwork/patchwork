@@ -1,7 +1,10 @@
 FROM ubuntu:17.10
 
-ARG UID=1000
+ARG UID
 ARG TZ="Australia/Canberra"
+
+RUN echo $UID
+RUN [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }
 
 ENV PROJECT_HOME /home/patchwork/patchwork
 
