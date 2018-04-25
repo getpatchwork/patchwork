@@ -23,7 +23,6 @@ TAGS
 cscope.*
 
 # misc files
-
 *.orig
 *.rej
 
@@ -31,20 +30,21 @@ cscope.*
 *~
 \#*\#
 
+*.sql
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.venv/
 .coverage
 .coverage.*
 
 # Django stuff
 *.log
+/*.json
 
 # Sphinx stuff
 /docs/_build
-
-# Vagrant stuff
-/.vagrant
 
 # Selenium test artifacts
 /selenium.log

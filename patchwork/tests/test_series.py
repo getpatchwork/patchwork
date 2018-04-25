@@ -45,7 +45,7 @@ class _BaseTestCase(TestCase):
         results = [[], [], []]
         project = project or utils.create_project()
 
-        mbox = mailbox.mbox(os.path.join(TEST_SERIES_DIR, name))
+        mbox = mailbox.mbox(os.path.join(TEST_SERIES_DIR, name), create=False)
         for msg in mbox:
             obj = parser.parse_mail(msg, project.listid)
             if type(obj) == models.CoverLetter:
@@ -632,7 +632,7 @@ class SeriesNameTestCase(TestCase):
 
         :param name: Name of mbox file
         """
-        return mailbox.mbox(os.path.join(TEST_SERIES_DIR, name))
+        return mailbox.mbox(os.path.join(TEST_SERIES_DIR, name), create=False)
 
     def _parse_mail(self, mail):
         return parser.parse_mail(mail, self.project.listid)

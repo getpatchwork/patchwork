@@ -4,15 +4,18 @@
     <field type="CharField" name="name">Acked-by</field>
     <field type="CharField" name="pattern">^Acked-by:</field>
     <field type="CharField" name="abbrev">A</field>
+    <field type="BooleanField" name="show_column">True</field>
   </object>
   <object pk="2" model="patchwork.tag">
     <field type="CharField" name="name">Reviewed-by</field>
     <field type="CharField" name="pattern">^Reviewed-by:</field>
     <field type="CharField" name="abbrev">R</field>
+    <field type="BooleanField" name="show_column">True</field>
   </object>
   <object pk="3" model="patchwork.tag">
     <field type="CharField" name="name">Tested-by</field>
     <field type="CharField" name="pattern">^Tested-by:</field>
     <field type="CharField" name="abbrev">T</field>
+    <field type="BooleanField" name="show_column">True</field>
   </object>
 </django-objects>

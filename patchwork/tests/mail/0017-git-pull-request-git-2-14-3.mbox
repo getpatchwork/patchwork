@@ -1,0 +1,164 @@
+Subject: [GIT] Networking
+From:   David Miller <davem@davemloft.net>
+To:     torvalds@linux-foundation.org
+CC:     akpm@linux-foundation.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Wed, 10 Jan 2018 17:21:11 -0500 (EST)
+Sender: netdev-owner@vger.kernel.org
+X-Mailer: Mew version 6.7 on Emacs 25.3 / Mule 6.0 (HANACHIRUSATO)
+
+
+1) BPF speculation prevention and BPF_JIT_ALWAYS_ON, from Alexei
+   Starovoitov.
+
+2) Revert dev_get_random_name() changes as adjust the error code returns
+   seen by userspace definitely breaks stuff.
+
+3) Fix TX DMA map/unmap on older iwlwifi devices, from Emmanuel
+   Grumbach.
+
+4) From wrong AF family when requesting sock diag modules, from
+   Andrii Vladyka.
+
+5) Don't add new ipv6 routes attached to the null_entry, from Wei
+   Wang.
+
+6) Some SCTP sockopt length fixes from Marcelo Ricardo Leitner.
+
+7) Don't leak when removing VLAN ID 0, from Cong Wang.
+
+8) Hey there's a potential leak in ipv6_make_skb() too, from Eric
+   Dumazet.
+
+Please pull, thanks a lot.
+
+The following changes since commit ef7f8cec80a0ba7bd00ece46844c8994117dc910:
+
+  Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/net (2018-01-08 20:21:39 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/davem/net 
+
+for you to fetch changes up to ccc12b11c5332c84442ef120dcd631523be75089:
+
+  ipv6: sr: fix TLVs not being copied using setsockopt (2018-01-10 16:03:55 -0500)
+
+----------------------------------------------------------------
+Alexei Starovoitov (3):
+      selftests/bpf: fix test_align
+      bpf: prevent out-of-bounds speculation
+      bpf: introduce BPF_JIT_ALWAYS_ON config
+
+Andrii Vladyka (1):
+      net: core: fix module type in sock_diag_bind
+
+Cong Wang (1):
+      8021q: fix a memory leak for VLAN 0 device
+
+Daniel Borkmann (1):
+      bpf: avoid false sharing of map refcount with max_entries
+
+David S. Miller (5):
+      Merge branch 'Ether-fixes-for-the-SolutionEngine771x-boards'
+      Merge git://git.kernel.org/.../bpf/bpf
+      Merge branch 'sctp-Some-sockopt-optlen-fixes'
+      Merge tag 'wireless-drivers-for-davem-2018-01-09' of git://git.kernel.org/.../kvalo/wireless-drivers
+      Merge branch 'mlxsw-couple-of-fixes'
+
+Emmanuel Grumbach (1):
+      iwlwifi: pcie: fix DMA memory mapping / unmapping
+
+Eric Dumazet (1):
+      ipv6: fix possible mem leaks in ipv6_make_skb()
+
+Jakub Kicinski (1):
+      nfp: always unmask aux interrupts at init
+
+Jiri Pirko (1):
+      mlxsw: spectrum_qdisc: Don't use variable array in mlxsw_sp_tclass_congestion_enable
+
+John Fastabend (1):
+      bpf: sockmap missing NULL psock check
+
+Kalle Valo (1):
+      Merge ath-current from git://git.kernel.org/.../kvalo/ath.git
+
+Kornilios Kourtis (1):
+      doc: clarification about setting SO_ZEROCOPY
+
+Loic Poulain (1):
+      wcn36xx: Fix dynamic power saving
+
+Madalin Bucur (1):
+      of_mdio: avoid MDIO bus removal when a PHY is missing
+
+Marcelo Ricardo Leitner (3):
+      sctp: GFP_ATOMIC is not needed in sctp_setsockopt_events
+      sctp: add a ceiling to optlen in some sockopts
+      sctp: make use of pre-calculated len
+
+Mathieu Xhonneux (1):
+      ipv6: sr: fix TLVs not being copied using setsockopt
+
+Mike Rapoport (1):
+      docs-rst: networking: wire up msg_zerocopy
+
+Nicolai Stange (1):
+      net: ipv4: emulate READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()
+
+Sergei Shtylyov (2):
+      SolutionEngine771x: fix Ether platform data
+      SolutionEngine771x: add Ether TSU resource
+
+Wei Wang (1):
+      ipv6: remove null_entry before adding default route
+
+Xiongfeng Wang (2):
+      net: caif: use strlcpy() instead of strncpy()
+      caif_usb: use strlcpy() instead of strncpy()
+
+Yangbo Lu (1):
+      net: gianfar_ptp: move set_fipers() to spinlock protecting area
+
+Yuval Mintz (1):
+      mlxsw: pci: Wait after reset before accessing HW
+
+ Documentation/networking/index.rst                   |  2 +-
+ Documentation/networking/msg_zerocopy.rst            |  4 ++++
+ arch/sh/boards/mach-se/770x/setup.c                  | 24 ++++++++++++++++++++----
+ arch/sh/include/mach-se/mach/se.h                    |  1 +
+ drivers/net/ethernet/freescale/gianfar_ptp.c         |  3 +--
+ drivers/net/ethernet/mellanox/mlxsw/pci.c            |  7 ++++++-
+ drivers/net/ethernet/mellanox/mlxsw/pci_hw.h         |  1 +
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_qdisc.c |  7 ++++---
+ drivers/net/ethernet/netronome/nfp/nfp_net_common.c  |  2 ++
+ drivers/net/wireless/ath/wcn36xx/main.c              | 23 ++++++++++++-----------
+ drivers/net/wireless/ath/wcn36xx/pmc.c               |  6 ++++--
+ drivers/net/wireless/intel/iwlwifi/pcie/internal.h   | 10 +++++++---
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c    | 11 +++--------
+ drivers/net/wireless/intel/iwlwifi/pcie/tx.c         |  8 ++++----
+ drivers/of/of_mdio.c                                 |  9 +++++++--
+ include/linux/bpf.h                                  | 26 ++++++++++++++++++--------
+ init/Kconfig                                         |  7 +++++++
+ kernel/bpf/arraymap.c                                | 47 ++++++++++++++++++++++++++++++++++++-----------
+ kernel/bpf/core.c                                    | 19 +++++++++++++++++++
+ kernel/bpf/sockmap.c                                 | 11 +++++++++--
+ kernel/bpf/verifier.c                                | 36 ++++++++++++++++++++++++++++++++++++
+ lib/test_bpf.c                                       | 11 +++++++----
+ net/8021q/vlan.c                                     |  7 +------
+ net/caif/caif_dev.c                                  |  5 ++---
+ net/caif/caif_usb.c                                  |  4 +---
+ net/caif/cfcnfg.c                                    | 10 ++++------
+ net/caif/cfctrl.c                                    |  4 ++--
+ net/core/filter.c                                    |  6 ++----
+ net/core/sock_diag.c                                 |  2 +-
+ net/core/sysctl_net_core.c                           |  6 ++++++
+ net/ipv4/raw.c                                       |  4 +++-
+ net/ipv6/exthdrs.c                                   |  9 +++++++++
+ net/ipv6/ip6_fib.c                                   | 38 +++++++++++++++++++++++++++++---------
+ net/ipv6/ip6_output.c                                |  5 +++--
+ net/sctp/socket.c                                    | 28 +++++++++++++++++++++-------
+ net/socket.c                                         |  9 +++++++++
+ tools/testing/selftests/bpf/test_align.c             | 22 +---------------------
+ 37 files changed, 303 insertions(+), 131 deletions(-)

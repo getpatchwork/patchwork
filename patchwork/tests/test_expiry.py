@@ -46,7 +46,7 @@ class TestRegistrationExpiry(TestCase):
         return (user, conf)
 
     def test_old_registration_expiry(self):
-        date = ((datetime.datetime.now() - EmailConfirmation.validity) -
+        date = ((datetime.datetime.utcnow() - EmailConfirmation.validity) -
                 datetime.timedelta(hours=1))
         user, conf = self.register(date)
 
@@ -57,7 +57,7 @@ class TestRegistrationExpiry(TestCase):
             EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
     def test_recent_registration_expiry(self):
-        date = ((datetime.datetime.now() - EmailConfirmation.validity) +
+        date = ((datetime.datetime.utcnow() - EmailConfirmation.validity) +
                 datetime.timedelta(hours=1))
         user, conf = self.register(date)
 
@@ -68,7 +68,7 @@ class TestRegistrationExpiry(TestCase):
             EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
     def test_inactive_registration_expiry(self):
-        user, conf = self.register(datetime.datetime.now())
+        user, conf = self.register(datetime.datetime.utcnow())
 
         # confirm registration
         conf.user.is_active = True
@@ -87,7 +87,7 @@ class TestRegistrationExpiry(TestCase):
         submitter = patch.submitter
 
         # ... then starts registration...
-        date = ((datetime.datetime.now() - EmailConfirmation.validity) -
+        date = ((datetime.datetime.utcnow() - EmailConfirmation.validity) -
                 datetime.timedelta(hours=1))
         user = create_user(link_person=False, email=submitter.email)
         user.is_active = False

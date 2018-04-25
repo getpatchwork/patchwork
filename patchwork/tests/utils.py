@@ -72,6 +72,7 @@ def create_project(**kwargs):
         'linkname': 'test-project-%d' % num,
         'name': 'Test Project %d' % num,
         'listid': 'test%d.example.com' % num,
+        'subject_match': '',
     }
     values.update(kwargs)
 
@@ -101,15 +102,17 @@ def create_user(link_person=True, **kwargs):
     num = User.objects.count()
 
     values = {
+        'username': 'test_user_%d' % num,
         'name': 'test_user_%d' % num,
         'email': 'test_user_%d@example.com' % num,
     }
     values.update(kwargs)
 
-    user = User.objects.create_user(values['name'], values['email'],
+    user = User.objects.create_user(values['username'], values['email'],
                                     values['name'])
 
     if link_person:
+        values.pop('username')
         create_person(user=user, **values)
 
     return user
@@ -169,10 +172,12 @@ def create_patch(**kwargs):
         'state': create_state() if 'state' not in kwargs else None,
         'name': 'testpatch%d' % num,
         'headers': '',
-        'content': '',
+        'content': 'Patch testpatch%d' % num,
         'diff': SAMPLE_DIFF,
     }
     values.update(kwargs)
+    if 'patch_project' not in values:
+        values['patch_project'] = values['project']
 
     return Patch.objects.create(**values)
 
@@ -212,7 +217,7 @@ def create_check(**kwargs):
     values = {
         'patch': create_patch() if 'patch' not in kwargs else None,
         'user': create_user() if 'user' not in kwargs else None,
-        'date': dt.now(),
+        'date': dt.utcnow(),
         'state': Check.STATE_SUCCESS,
         'target_url': 'http://example.com/',
         'description': '',
@@ -227,7 +232,7 @@ def create_series(**kwargs):
     """Create 'Series' object."""
     values = {
         'project': create_project() if 'project' not in kwargs else None,
-        'date': dt.now(),
+        'date': dt.utcnow(),
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'total': 1,
     }
@@ -273,7 +278,7 @@ def _create_submissions(create_func, count=1, **kwargs):
         'submitter': create_person() if 'submitter' not in kwargs else None,
     }
     values.update(kwargs)
-    date = dt.now()
+    date = dt.utcnow()
 
     objects = []
     for i in range(0, count):

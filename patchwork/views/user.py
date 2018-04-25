@@ -27,14 +27,13 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.template.loader import render_to_string
 
-from patchwork.compat import render_to_string
 from patchwork.compat import reverse
 from patchwork.filters import DelegateFilter
 from patchwork.forms import EmailForm
 from patchwork.forms import RegistrationForm
 from patchwork.forms import UserProfileForm
-from patchwork.models import Bundle
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout
 from patchwork.models import Person
@@ -111,13 +110,16 @@ def profile(request):
     else:
         form = UserProfileForm(instance=request.user.profile)
 
-    # TODO(stephenfin): Add a related_name for User->Bundle
     context = {
-        'bundles': Bundle.objects.filter(owner=request.user),
+        'bundles': request.user.bundles.all(),
         'profileform': form,
     }
 
-    # FIXME(stephenfin): This looks unsafe. Investigate.
+    # This looks unsafe but is actually fine: it just gets the names
+    # of tables and columns, not user-supplied data.
+    #
+    # An example of generated SQL is:
+    # patchwork_person.email IN (SELECT email FROM patchwork_emailoptout)
     optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
         Person._meta.db_table,
         Person._meta.get_field('email').column,
@@ -128,6 +130,8 @@ def profile(request):
     context['linked_emails'] = people
     context['linkform'] = EmailForm()
     context['api_token'] = request.user.profile.token
+    if settings.ENABLE_REST_API:
+        context['rest_api_enabled'] = True
 
     return render(request, 'patchwork/profile.html', context)
 

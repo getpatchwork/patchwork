@@ -66,7 +66,7 @@ update_patches() {
             echo "E: failed to hash rev $rev." >&2
             continue
         fi
-        id=$(get_patch_id "$hash")
+        id=$(get_patch_id "$hash" || true)
         if [ -z "$id" ]; then
             echo "E: failed to find patch for rev $rev." >&2
             continue

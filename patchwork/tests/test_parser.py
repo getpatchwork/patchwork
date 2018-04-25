@@ -34,9 +34,9 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
 from patchwork.parser import clean_subject
-from patchwork.parser import find_author
+from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
-from patchwork.parser import find_project_by_header
+from patchwork.parser import find_project
 from patchwork.parser import find_series
 from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_pull_request
@@ -225,7 +225,7 @@ class SenderEncodingTest(TestCase):
 
     def _test_encoding(self, from_header, sender_name, sender_email):
         email = self._create_email(from_header)
-        person = find_author(email)
+        person = get_or_create_author(email)
         person.save()
 
         # ensure it was parsed correctly
@@ -241,7 +241,7 @@ class SenderEncodingTest(TestCase):
     def test_empty(self):
         email = self._create_email('')
         with self.assertRaises(ValueError):
-            find_author(email)
+            get_or_create_author(email)
 
     def test_ascii_encoding(self):
         from_header = 'example user <user@example.com>'
@@ -269,7 +269,7 @@ class SenderEncodingTest(TestCase):
 
 
 class SenderCorrelationTest(TestCase):
-    """Validate correct behavior of the find_author case.
+    """Validate correct behavior of the get_or_create_author case.
 
     Relies of checking the internal state of a Django model object.
 
@@ -284,25 +284,16 @@ class SenderCorrelationTest(TestCase):
                'test\n'
         return message_from_string(mail)
 
-    def test_non_existing_sender(self):
-        sender = 'Non-existing Sender <nonexisting@example.com>'
-        mail = self._create_email(sender)
-
-        # don't create the person - attempt to find immediately
-        person = find_author(mail)
-        self.assertEqual(person._state.adding, True)
-        self.assertEqual(person.id, None)
-
     def test_existing_sender(self):
         sender = 'Existing Sender <existing@example.com>'
         mail = self._create_email(sender)
 
         # create the person first
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         # then attempt to parse email with the same 'From' line
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -311,12 +302,12 @@ class SenderCorrelationTest(TestCase):
         mail = self._create_email(sender)
 
         # create the person first
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         # then attempt to parse email with a new 'From' line
         mail = self._create_email('existing@example.com')
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -324,11 +315,11 @@ class SenderCorrelationTest(TestCase):
         sender = 'Existing Sender <existing@example.com>'
         mail = self._create_email(sender)
 
-        person_a = find_author(mail)
+        person_a = get_or_create_author(mail)
         person_a.save()
 
         mail = self._create_email(sender.upper())
-        person_b = find_author(mail)
+        person_b = get_or_create_author(mail)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
@@ -361,7 +352,8 @@ class SeriesCorrelationTest(TestCase):
         email = self._create_email(msgid)
         project = create_project()
 
-        self.assertIsNone(find_series(project, email))
+        self.assertIsNone(find_series(project, email,
+                                      get_or_create_author(email)))
 
     def test_first_reply(self):
         msgid_a = make_msgid()
@@ -371,7 +363,8 @@ class SeriesCorrelationTest(TestCase):
         # assume msgid_a was already handled
         ref = create_series_reference(msgid=msgid_a)
 
-        series = find_series(ref.series.project, email)
+        series = find_series(ref.series.project, email,
+                             get_or_create_author(email))
         self.assertEqual(series, ref.series)
 
     def test_nested_series(self):
@@ -395,7 +388,7 @@ class SeriesCorrelationTest(TestCase):
         # ...and the "first patch" of this new series
         msgid = make_msgid()
         email = self._create_email(msgid, msgids)
-        series = find_series(project, email)
+        series = find_series(project, email, get_or_create_author(email))
 
         # this should link to the second series - not the first
         self.assertEqual(len(msgids), 4 + 1)  # old series + new cover
@@ -496,25 +489,25 @@ class ListIdHeaderTest(TestCase):
 
     def test_no_list_id(self):
         email = MIMEText('')
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_blank_list_id(self):
         email = MIMEText('')
         email['List-Id'] = ''
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_whitespace_list_id(self):
         email = MIMEText('')
         email['List-Id'] = ' '
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_substring_list_id(self):
         email = MIMEText('')
         email['List-Id'] = 'example.com'
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, None)
 
     def test_short_list_id(self):
@@ -522,13 +515,13 @@ class ListIdHeaderTest(TestCase):
            is only the list ID itself (without enclosing angle-brackets). """
         email = MIMEText('')
         email['List-Id'] = self.project.listid
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, self.project)
 
     def test_long_list_id(self):
         email = MIMEText('')
         email['List-Id'] = 'Test text <%s>' % self.project.listid
-        project = find_project_by_header(email)
+        project = find_project(email)
         self.assertEqual(project, self.project)
 
 
@@ -545,6 +538,19 @@ class PatchParseTest(PatchTest):
     def test_git_pull_request(self):
         self._test_pull_request_parse('0001-git-pull-request.mbox')
 
+    @unittest.skipIf(six.PY3, 'Breaks only on Python 2')
+    def test_git_pull_request_crlf_newlines(self):
+        # verify that we haven't munged the file
+        crlf_file = os.path.join(TEST_MAIL_DIR,
+                                 '0018-git-pull-request-crlf-newlines.mbox')
+        with open(crlf_file) as f:
+            message = f.read()
+            self.assertIn('\r\n', message)
+
+        # verify the file works
+        self._test_pull_request_parse(
+            '0018-git-pull-request-crlf-newlines.mbox')
+
     def test_git_pull_wrapped_request(self):
         self._test_pull_request_parse('0002-git-pull-request-wrapped.mbox')
 
@@ -556,6 +562,13 @@ class PatchParseTest(PatchTest):
 
     def test_git_pull_http_url(self):
         self._test_pull_request_parse('0006-git-pull-request-http.mbox')
+
+    def test_git_pull_git_2_14_3(self):
+        """Handle messages from Git 2.14.3+.
+
+        See: https://github.com/git/git/commit/e66d7c37a
+        """
+        self._test_pull_request_parse('0017-git-pull-request-git-2-14-3.mbox')
 
     def test_git_pull_with_diff(self):
         diff, message = self._find_content(
@@ -606,12 +619,12 @@ class PatchParseTest(PatchTest):
             'diff --git a/tools/testing/selftests/powerpc/Makefile'))
         # Confirm the trailing no newline marker doesn't end up in the comment
         self.assertFalse(message.rstrip().endswith(
-            '\ No newline at end of file'))
+            r'\ No newline at end of file'))
         # Confirm it's instead at the bottom of the patch
         self.assertTrue(diff.rstrip().endswith(
-            '\ No newline at end of file'))
+            r'\ No newline at end of file'))
         # Confirm we got both markers
-        self.assertEqual(2, diff.count('\ No newline at end of file'))
+        self.assertEqual(2, diff.count(r'\ No newline at end of file'))
 
     def test_no_subject(self):
         """Validate parsing a mail with no subject."""
@@ -854,6 +867,16 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_series_marker(['bar', '0/12']), (0, 12))
         self.assertEqual(parse_series_marker(['bar', '1 of 2']), (1, 2))
         self.assertEqual(parse_series_marker(['bar', '0 of 12']), (0, 12))
+        # Handle people missing the space between PATCH and the markers
+        # e.g. PATCH1/8
+        self.assertEqual(parse_series_marker(['PATCH1/8']), (1, 8))
+        self.assertEqual(parse_series_marker(['PATCH1 of 8']), (1, 8))
+        # verify the prefix-stripping is non-greedy
+        self.assertEqual(parse_series_marker(['PATCH100/123']), (100, 123))
+        # and that it is hard to confuse
+        self.assertEqual(parse_series_marker(['v2PATCH1/4']), (1, 4))
+        self.assertEqual(parse_series_marker(['v2', 'PATCH1/4']), (1, 4))
+        self.assertEqual(parse_series_marker(['v2.3PATCH1/4']), (1, 4))
 
     def test_version(self):
         self.assertEqual(parse_version('', []), 1)
@@ -866,8 +889,63 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
 
 
-class FuzzTest(TransactionTestCase):
-    """Test fuzzed patches."""
+class SubjectMatchTest(TestCase):
+
+    def setUp(self):
+        self.list_id = 'test-subject-match.test.org'
+        self.project_x = create_project(name='PROJECT X',
+                                        listid=self.list_id,
+                                        subject_match=r'.*PROJECT[\s]?X.*')
+        self.default_project = create_project(name='Default',
+                                              listid=self.list_id,
+                                              subject_match=r'')
+        self.keyword_project = create_project(name='keyword',
+                                              listid=self.list_id,
+                                              subject_match=r'keyword')
+
+        self.email = MIMEText('')
+        self.email['List-Id'] = self.list_id
+
+        self.email_no_project = MIMEText('')
+        self.email_no_project['List-Id'] = 'nonexistent-project.test.org'
+        self.email_no_project['Subject'] = '[PATCH keyword]'
+
+    def test_project_with_regex(self):
+        self.email['Subject'] = '[PATCH PROJECT X subsystem]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.project_x)
+
+        self.email['Subject'] = '[PATCH PROJECTX another subsystem]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.project_x)
+
+    def test_project_with_keyword(self):
+        self.email['Subject'] = '[PATCH keyword] subsystem'
+        project = find_project(self.email)
+        self.assertEqual(project, self.keyword_project)
+
+    def test_default_project(self):
+        self.email['Subject'] = '[PATCH unknown project]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.default_project)
+
+        self.email['Subject'] = '[PATCH NOT-PROJECT-X]'
+        project = find_project(self.email)
+        self.assertEqual(project, self.default_project)
+
+    def test_nonexistent_project(self):
+        project = find_project(self.email_no_project)
+        self.assertEqual(project, None)
+
+    def test_list_id_override(self):
+        project = find_project(self.email_no_project,
+                               self.keyword_project.listid)
+        self.assertEqual(project, self.keyword_project)
+
+
+class WeirdMailTest(TransactionTestCase):
+    """Test fuzzed or otherwise weird patches."""
+
     def setUp(self):
         create_project(listid='patchwork.ozlabs.org')
 
@@ -910,3 +988,6 @@ class FuzzTest(TransactionTestCase):
         self._test_patch('refshdr.mbox')
         self._test_patch('dateheader.mbox')
         self._test_patch('msgidheader.mbox')
+
+    def test_x_face(self):
+        self._test_patch('x-face.mbox')

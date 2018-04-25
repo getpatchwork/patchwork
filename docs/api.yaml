@@ -374,6 +374,9 @@ definitions:
       list_id:
         type: string
         description: Mailing list identifier for project.
+      subject_match:
+        type: string
+        description: Regex used for email filtering.
       list_email:
         type: string
         description: Mailing list email address for project.

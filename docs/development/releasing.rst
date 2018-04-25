@@ -4,6 +4,13 @@ Release Process
 Versioning
 ----------
 
+There are two types of versioning in play in Patchwork: the version for
+Patchwork itself (i.e. the code or *core*) and the version for the `REST
+API <../api/rest>`.
+
+Patchwork Code
+~~~~~~~~~~~~~~
+
 Since version 1.0, Patchwork has implemented a version of `Semantic
 Versioning`__ . To summarise, releases take the format **MAJOR.MINOR.PATCH**
 (or just **MAJOR.MINOR**). We increment:
@@ -19,6 +26,22 @@ addition, each release series has it's own branch called `stable/MAJOR.MINOR`
 to allow backporting of bugfixes or security updates to older versions.
 
 __ http://semver.org/
+
+REST API
+~~~~~~~~
+
+The REST API also uses a variant of *Semantic Versioning*. To summarise, API
+versions take the format **MAJOR.MINOR**. We increment:
+
+1. **MAJOR** version when we make breaking changes to the API. This generally
+   means removing an API or fields in an API.
+
+2. **MINOR** version when we add functionality in a backwards-compatible
+   manner. This generally means adding new fields and endpoint.
+
+These version numbers are exposed via the API and it's possible to request a
+specific version in the URL. Refer to the `API Guide <../api/rest>` for more
+information.
 
 Release Cycle
 -------------

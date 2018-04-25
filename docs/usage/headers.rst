@@ -5,16 +5,16 @@ Patchwork provides a number of special email headers to control how a patch is
 handled when it is received. The examples provided below use `git-send-email`,
 but custom headers can also be set when using tools like `mutt`.
 
-`X-Patchwork-Ignore`
+`X-Patchwork-Hint`
 
-  Valid values: *
+  Valid values: ignore
 
-  When set, the mere presence of this header will ensure the provided email is
-  not parsed by Patchwork. For example:
+  When set, this header will ensure the provided email is not parsed
+  by Patchwork. For example:
 
   .. code-block:: shell
 
-     $ git send-email --add-header="X-Patchwork-Ignore: test" master
+     $ git send-email --add-header="X-Patchwork-Hint: ignore" master
 
 `X-Patchwork-Delegate`
 

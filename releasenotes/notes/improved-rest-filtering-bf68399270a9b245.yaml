@@ -1,0 +1,16 @@
+---
+api:
+  - |
+    Series, patches and cover letters can be filtered by submitter using email
+    addresses. For example:
+
+    .. code-block:: shell
+
+       $ curl /covers/?submitter=stephen@that.guru
+  - |
+    Bundles can be filtered by owner and checks by user using username. For
+    example:
+
+    .. code-block:: shell
+
+       $ curl /bundles/?owner=stephenfin

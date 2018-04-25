@@ -33,9 +33,9 @@ from patchwork.models import SeriesPatch
 
 
 @receiver(pre_save, sender=Patch)
-def patch_change_callback(sender, instance, **kwargs):
+def patch_change_callback(sender, instance, raw, **kwargs):
     # we only want notification of modified patches
-    if instance.pk is None:
+    if raw or instance.pk is None:
         return
 
     if instance.project is None or not instance.project.send_notifications:
@@ -65,53 +65,55 @@ def patch_change_callback(sender, instance, **kwargs):
         notification.delete()
         return
 
-    notification.last_modified = dt.now()
+    notification.last_modified = dt.utcnow()
     notification.save()
 
 
 @receiver(post_save, sender=CoverLetter)
-def create_cover_created_event(sender, instance, created, **kwargs):
+def create_cover_created_event(sender, instance, created, raw, **kwargs):
 
     def create_event(cover):
         return Event.objects.create(
+            category=Event.CATEGORY_COVER_CREATED,
             project=cover.project,
-            cover=cover,
-            category=Event.CATEGORY_COVER_CREATED)
+            cover=cover)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or new items
+    if raw or not created:
         return
 
     create_event(instance)
 
 
 @receiver(post_save, sender=Patch)
-def create_patch_created_event(sender, instance, created, **kwargs):
+def create_patch_created_event(sender, instance, created, raw, **kwargs):
 
     def create_event(patch):
         return Event.objects.create(
+            category=Event.CATEGORY_PATCH_CREATED,
             project=patch.project,
-            patch=patch,
-            category=Event.CATEGORY_PATCH_CREATED)
+            patch=patch)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or new items
+    if raw or not created:
         return
 
     create_event(instance)
 
 
 @receiver(pre_save, sender=Patch)
-def create_patch_state_changed_event(sender, instance, **kwargs):
+def create_patch_state_changed_event(sender, instance, raw, **kwargs):
 
     def create_event(patch, before, after):
         return Event.objects.create(
+            category=Event.CATEGORY_PATCH_STATE_CHANGED,
             project=patch.project,
             patch=patch,
-            category=Event.CATEGORY_PATCH_STATE_CHANGED,
             previous_state=before,
             current_state=after)
 
-    # only trigger on updated items
-    if not instance.pk:
+    # don't trigger for items loaded from fixtures or new items
+    if raw or not instance.pk:
         return
 
     orig_patch = Patch.objects.get(pk=instance.pk)
@@ -123,18 +125,18 @@ def create_patch_state_changed_event(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=Patch)
-def create_patch_delegated_event(sender, instance, **kwargs):
+def create_patch_delegated_event(sender, instance, raw, **kwargs):
 
     def create_event(patch, before, after):
         return Event.objects.create(
+            category=Event.CATEGORY_PATCH_DELEGATED,
             project=patch.project,
             patch=patch,
-            category=Event.CATEGORY_PATCH_DELEGATED,
             previous_delegate=before,
             current_delegate=after)
 
-    # only trigger on updated items
-    if not instance.pk:
+    # don't trigger for items loaded from fixtures or new items
+    if raw or not instance.pk:
         return
 
     orig_patch = Patch.objects.get(pk=instance.pk)
@@ -146,17 +148,18 @@ def create_patch_delegated_event(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=SeriesPatch)
-def create_patch_completed_event(sender, instance, created, **kwargs):
+def create_patch_completed_event(sender, instance, created, raw, **kwargs):
     """Create patch completed event for patches with series."""
 
     def create_event(patch, series):
         return Event.objects.create(
+            category=Event.CATEGORY_PATCH_COMPLETED,
             project=patch.project,
             patch=patch,
-            series=series,
-            category=Event.CATEGORY_PATCH_COMPLETED)
+            series=series)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or existing items
+    if raw or not created:
         return
 
     # if dependencies not met, don't raise event. There's also no point raising
@@ -181,40 +184,42 @@ def create_patch_completed_event(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Check)
-def create_check_created_event(sender, instance, created, **kwargs):
+def create_check_created_event(sender, instance, created, raw, **kwargs):
 
     def create_event(check):
         # TODO(stephenfin): It might make sense to add a 'project' field to
         # 'check' to prevent lookups here and in the REST API
         return Event.objects.create(
+            category=Event.CATEGORY_CHECK_CREATED,
             project=check.patch.project,
             patch=check.patch,
-            created_check=check,
-            category=Event.CATEGORY_CHECK_CREATED)
+            created_check=check)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or existing items
+    if raw or not created:
         return
 
     create_event(instance)
 
 
 @receiver(post_save, sender=Series)
-def create_series_created_event(sender, instance, created, **kwargs):
+def create_series_created_event(sender, instance, created, raw, **kwargs):
 
     def create_event(series):
         return Event.objects.create(
+            category=Event.CATEGORY_SERIES_CREATED,
             project=series.project,
-            series=series,
-            category=Event.CATEGORY_SERIES_CREATED)
+            series=series)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or existing items
+    if raw or not created:
         return
 
     create_event(instance)
 
 
 @receiver(post_save, sender=SeriesPatch)
-def create_series_completed_event(sender, instance, created, **kwargs):
+def create_series_completed_event(sender, instance, created, raw, **kwargs):
 
     # NOTE(stephenfin): We subscribe to the SeriesPatch.post_save signal
     # instead of Series.m2m_changed to minimize the amount of times this is
@@ -230,11 +235,12 @@ def create_series_completed_event(sender, instance, created, **kwargs):
 
     def create_event(series):
         return Event.objects.create(
+            category=Event.CATEGORY_SERIES_COMPLETED,
             project=series.project,
-            series=series,
-            category=Event.CATEGORY_SERIES_COMPLETED)
+            series=series)
 
-    if not created:
+    # don't trigger for items loaded from fixtures or existing items
+    if raw or not created:
         return
 
     if instance.series.received_all:

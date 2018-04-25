@@ -17,34 +17,26 @@ configured in the project administration page. This can usually be found at:
 In this section there are the following fields:
 
 User
-
   The patchwork user that should be autodelegated to the patch
 
 Priority
-
   The priority of the rule relative to other patches. Higher values indicate
   higher priority. If two rules have the same priority, ordering will be based
   on the path.
 
 Path
-
   A path in `fnmatch`__ format. The fnmatch library allows for limited, Unix
   shell-style wildcarding. Filenames are extracted from patch lines beginning
-  with ``---`` or ``+++``. Note that for projects using Git or Mercurial, the
-  tools these VCS provide for producing patches are prefixed with `a` or `b`.
-  You should account for this in your path. For example, to match the path
-  `patchwork/views` (relative to the top of a Git repo) your pattern should
-  be::
+  with ``---`` or ``+++``.
 
-      ?/patchwork/views/*
+  You can simply use a bare path::
 
-  It is also possible to use relative paths, such as::
+      patchwork/views/about.py
+
+  Or it is also possible to use relative paths, such as::
 
       */manage.py
 
-  For projects using other VCSs like Subversion can simply use a bare path::
-
-      patchwork/views/*
 
 Rules are configured by setting the above fields and saving the rules. These
 rules will be applied at patch parse time.

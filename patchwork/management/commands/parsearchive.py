@@ -19,7 +19,6 @@
 
 import logging
 import mailbox
-from optparse import make_option
 import os
 import sys
 
@@ -35,23 +34,14 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Parse an mbox archive file and store any patches/comments found.'
 
-    if django.VERSION < (1, 8):
-        args = '<infile>'
-        option_list = BaseCommand.option_list + (
-            make_option(
-                '--list-id',
-                help='mailing list ID. If not supplied, this will be '
-                'extracted from the mail headers.'),
-        )
-    else:
-        def add_arguments(self, parser):
-            parser.add_argument(
-                'infile',
-                help='input mbox filename')
-            parser.add_argument(
-                '--list-id',
-                help='mailing list ID. If not supplied, this will be '
-                'extracted from the mail headers.')
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'infile',
+            help='input mbox filename')
+        parser.add_argument(
+            '--list-id',
+            help='mailing list ID. If not supplied, this will be '
+            'extracted from the mail headers.')
 
     def handle(self, *args, **options):
         results = {
@@ -71,9 +61,9 @@ class Command(BaseCommand):
 
         # assume if <infile> is a directory, then we're passing a maildir
         if os.path.isfile(path):
-            mbox = mailbox.mbox(path)
+            mbox = mailbox.mbox(path, create=False)
         else:
-            mbox = mailbox.Maildir(path)
+            mbox = mailbox.Maildir(path, create=False)
 
         count = len(mbox)
 

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    `Django 1.11 <https://docs.djangoproject.com/en/1.11/releases/1.11/>`_ is
+    now supported.

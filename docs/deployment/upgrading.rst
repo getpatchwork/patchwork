@@ -3,9 +3,9 @@ Upgrading
 
 This document provides some general tips and tricks that one can use when
 upgrading an existing, production installation of Patchwork. If you are
-interested in the specific changes between each release, refer to the
-`UPGRADING` document instead. If this is your first time installing Patchwork,
-refer to the :doc:`installation` instead.
+interested in the specific changes between each release, refer to
+:doc:`/releases/index` instead. If this is your first time installing
+Patchwork, refer to the :doc:`installation` instead.
 
 Before You Start
 ----------------
@@ -21,7 +21,7 @@ will provide an easier, if slower, upgrade process.
 Identify Changed Scripts, Requirements, etc.
 --------------------------------------------
 
-The `CHANGELOG` document provides a comprehensive listing of all
+:doc:`/releases/index` provides a comprehensive listing of all
 backwards-incompatible changes that occur between releases of Patchwork.
 Examples of such changes include:
 
@@ -42,7 +42,7 @@ dependencies, e.g. newer versions of Django. It is important that you
 understand these requirements and can fulfil them. This is particularly true
 for users relying on distro-provided packages, who may have to deal with older
 versions of a package or may be missing a package altogether (though we try to
-avoid this). Such changes are usually listed in the `UPGRADING` document, but
+avoid this). Such changes are usually listed in the :doc:`/releases/index`, but
 you can also diff the `requirements.txt` files in each release for comparison.
 
 Collect Static Files
@@ -59,94 +59,14 @@ management commands:
 Upgrade Your Database
 ---------------------
 
-Migrations of the database can be tricky. Prior to `v1.0.0`__, database
-migrations were provided by way of manual, SQL migration scripts. After this
-release, Patchwork moved to support `Django migrations`__.  If you are
-upgrading from `v1.0.0` or later, it is likely that you can rely entirely on
-the later to bring your database up-to-date. This can be done like so:
+New versions of Patchwork may provide a number of schema and/or data migrations
+which must be applied before starting the instance. To do this, run the
+*migrate* management command:
 
 .. code-block:: shell
 
    $ ./manage.py migrate
 
-However, there are a number of scenarios in which you may need to fall back to
-the provided SQL migrations or provide your own:
+For more information on migrations, refer to `the Django documentation`__.
 
-* You are using Django < 1.6
-
-  Patchwork supports Django 1.6. However, Django Migrations was added in 1.7
-  and is `not available for previous versions`__. As such, you must continue to
-  use manual migrations or upgrade your version of Django. For many of the
-  migrations, this can be done automatically:
-
-  .. code-block:: shell
-
-     $ ./manage.py sqlmigrate patchwork 0003_add_check_model
-
-  However, this only works for schema migrations. For data migrations,
-  however, this will fail. In this cases, these migrations will need to be
-  handwritten.
-
-* You are using Django > 1.6, but upgrading from Patchwork < 1.0.0
-
-  Patchwork only started providing migrations in `v1.0.0`. SQL migrations are
-  provided for versions prior to this and must be applied to get the database
-  to the "initial" state that Django migrations expects.
-
-* You have diverged from upstream Patchwork
-
-  If you have applied custom patches that change the database models, the
-  database in an "inconsistent state" and the provided migrations will likely
-  fail to apply.
-
-Steps to handle the latter two of these are described below.
-
-__ https://github.com/getpatchwork/patchwork/releases/tag/v1.0.0
-__ https://docs.djangoproject.com/en/1.8/topics/migrations/
-__ http://blog.allenap.me/2015/05/south-south-2-and-django-migrations.html
-
-Upgrading a pre-v1.0.0 Patchwork instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The process for this type of upgrade is quite simple: upgrade using manual SQL
-upgrades until better options become available. As such, you should apply all
-unapplied SQL migrations that are not duplicated by Django migrations.  Once
-such duplication occurs, rely on the Django migrations only and continue to do
-so going forward.
-
-Upgrading a "diverged" Patchwork instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This type of upgrade is a little trickier. There are two options you can take:
-
-1. Bring your Patchwork instance back in sync with upstream
-
-2. Provide your own migrations
-
-The former option is particularly suitable if you decide to upstream your
-change or decide it's not valuable enough to retain. This will require either
-reworking any migrations that exist prior to your feature being upstreamed, or
-deleting any added database fields and tables, respectively. In both cases,
-manually, hand-written SQL migrations will be required to get the databse into
-a consistent state (remember: **backup**!). Once this is done, you can resume
-using the upstream-provided migrations, ensuring any Django migrations that you
-may have skipped are not applied again:
-
-.. code-block:: shell
-
-   $ ./manage.py migrate 000x-abc --fake  # when 000x-abc is last "skippable"
-
-It's worth adding that with the databases now back in sync it should be
-possible to return to using upstream code rather than maintaining a fork.
-
-The latter option is best chosen if you wish to retain the aforementioned fork.
-How you do this depends on the extensiveness of your changes, but getting the
-latest version of Patchwork, deleting the provided migrations, applying any
-patches you may have and regenerating the migrations seems like the best
-option.
-
-.. note::
-
-   To prevent the latter case above from occurring, we'd ask that you submit
-   any patches you may have to the upstream Patchwork so that the wider
-   community can benefit from this new functionality.
+__ https://docs.djangoproject.com/en/1.11/topics/migrations/

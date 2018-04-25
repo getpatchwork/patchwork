@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% load person %}
+{% load static %}
+
+{% block title %}Event List{% endblock %}
+{% block patch_active %}active{% endblock %}
+
+{% block body %}
+
+<p>Due to a currently undiagnosed issue with django-rest-framework, the browsable API is very CPU intensive and has been disabled. The JSON output is:</p>
+
+<pre>
+{{data}}
+</pre>
+
+{% endblock %}

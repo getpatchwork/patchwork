@@ -1,0 +1,6 @@
+---
+api:
+  - |
+    Cover letters embedded in other responses now provide an mbox link, which
+    can be used to download the cover letter and associated metadata (tags) in
+    mbox format.

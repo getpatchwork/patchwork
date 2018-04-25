@@ -7,6 +7,7 @@ python:
   - 2.7
   - 3.4
   - 3.5
+  - 3.6
 
 addons:
   postgresql: "9.6"
@@ -29,7 +30,6 @@ before_script:
 
 install:
   - pip install tox-travis
-  - pip install codecov
 
 script:
   - tox

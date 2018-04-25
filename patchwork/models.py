@@ -29,16 +29,25 @@ import re
 import django
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 
 from patchwork.compat import is_authenticated
+from patchwork.compat import reverse
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
 
 if settings.ENABLE_REST_API:
     from rest_framework.authtoken.models import Token
+
+
+def validate_regex_compiles(regex_string):
+    try:
+        re.compile(regex_string)
+    except Exception:
+        raise ValidationError('Invalid regular expression entered!')
 
 
 @python_2_unicode_compatible
@@ -70,8 +79,16 @@ class Project(models.Model):
 
     linkname = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
-    listid = models.CharField(max_length=255, unique=True)
+    listid = models.CharField(max_length=255)
     listemail = models.CharField(max_length=200)
+    subject_match = models.CharField(
+        max_length=64, blank=True, default='',
+        validators=[validate_regex_compiles], help_text='Regex to match the '
+        'subject against if only part of emails sent to the list belongs to '
+        'this project. Will be used with IGNORECASE and MULTILINE flags. If '
+        'rules for more projects match the first one returned from DB is '
+        'chosen; empty field serves as a default for every email which has no '
+        'other match.')
 
     # url metadata
 
@@ -99,6 +116,7 @@ class Project(models.Model):
         return self.name
 
     class Meta:
+        unique_together = (('listid', 'subject_match'),)
         ordering = ['linkname']
 
 
@@ -223,12 +241,16 @@ class State(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     pattern = models.CharField(
-        max_length=50, help_text='A simple regex to match the tag in the'
-        ' content of a message. Will be used with MULTILINE and IGNORECASE'
-        ' flags. eg. ^Acked-by:')
+        max_length=50, validators=[validate_regex_compiles],
+        help_text='A simple regex to match the tag in the content of a '
+        'message. Will be used with MULTILINE and IGNORECASE flags. eg. '
+        '^Acked-by:')
     abbrev = models.CharField(
         max_length=2, unique=True, help_text='Short (one-or-two letter)'
         ' abbreviation for the tag, used in table column headers')
+    show_column = models.BooleanField(help_text='Show a column displaying this'
+                                      ' tag\'s count in the patch list view',
+                                      default=True)
 
     @property
     def attr_name(self):
@@ -304,7 +326,7 @@ class EmailMixin(models.Model):
     # email metadata
 
     msgid = models.CharField(max_length=255)
-    date = models.DateTimeField(default=datetime.datetime.now)
+    date = models.DateTimeField(default=datetime.datetime.utcnow)
     headers = models.TextField(blank=True)
 
     # content
@@ -313,7 +335,7 @@ class EmailMixin(models.Model):
     content = models.TextField(null=True, blank=True)
 
     response_re = re.compile(
-        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by: .*$',
+        r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by:.*$',
         re.M | re.I)
 
     @property
@@ -323,6 +345,14 @@ class EmailMixin(models.Model):
 
         return ''.join([match.group(0) + '\n' for match in
                         self.response_re.finditer(self.content)])
+
+    def save(self, *args, **kwargs):
+        # Modifying a submission via admin interface changes '\n' newlines in
+        # message content to '\r\n'. We need to fix them to avoid problems,
+        # especially as git complains about malformed patches when PW runs
+        # on PY2
+        self.content = self.content.replace('\r\n', '\n')
+        super(EmailMixin, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True
@@ -382,9 +412,8 @@ class SeriesMixin(object):
 
 class CoverLetter(SeriesMixin, Submission):
 
-    @models.permalink
     def get_mbox_url(self):
-        return ('cover-mbox', (), {'cover_id': self.id})
+        return reverse('cover-mbox', kwargs={'cover_id': self.id})
 
 
 @python_2_unicode_compatible
@@ -403,6 +432,10 @@ class Patch(SeriesMixin, Submission):
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True)
+
+    # duplicate project from submission in subclass so we can count the
+    # patches in a project without needing to do a JOIN.
+    patch_project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     objects = PatchManager()
 
@@ -548,13 +581,11 @@ class Patch(SeriesMixin, Submission):
 
         return counts
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('patch-detail', (), {'patch_id': self.id})
+        return reverse('patch-detail', kwargs={'patch_id': self.id})
 
-    @models.permalink
     def get_mbox_url(self):
-        return ('patch-mbox', (), {'patch_id': self.id})
+        return reverse('patch-mbox', kwargs={'patch_id': self.id})
 
     def __str__(self):
         return self.name
@@ -574,12 +605,8 @@ class Comment(EmailMixin, models.Model):
 
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
-        # NOTE(stephenfin): Mitigate an issue with Python 3.4 + Django 1.6
-        try:
-            if hasattr(self.submission, 'patch'):
-                self.submission.patch.refresh_tag_counts()
-        except Patch.DoesNotExist:
-            pass
+        if hasattr(self.submission, 'patch'):
+            self.submission.patch.refresh_tag_counts()
 
     def delete(self, *args, **kwargs):
         super(Comment, self).delete(*args, **kwargs)
@@ -698,9 +725,8 @@ class Series(FilenameMixin, models.Model):
                                           patch=patch,
                                           number=number)
 
-    @models.permalink
     def get_mbox_url(self):
-        return ('series-mbox', (), {'series_id': self.id})
+        return reverse('series-mbox', kwargs={'series_id': self.id})
 
     def __str__(self):
         return self.name if self.name else 'Untitled series #%d' % self.id
@@ -752,7 +778,9 @@ class SeriesReference(models.Model):
 
 
 class Bundle(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,
+                              related_name='bundles',
+                              related_query_name='bundle')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=False, blank=False)
     patches = models.ManyToManyField(Patch, through='BundlePatch')
@@ -776,17 +804,17 @@ class Bundle(models.Model):
         return BundlePatch.objects.create(bundle=self, patch=patch,
                                           order=max_order + 1)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('bundle-detail', (), {
+        return reverse('bundle-detail', kwargs={
             'username': self.owner.username,
             'bundlename': self.name,
         })
 
-    @models.permalink
     def get_mbox_url(self):
-        return ('bundle-mbox', (), {'bundlename': self.name,
-                                    'username': self.owner.username})
+        return reverse('bundle-mbox', kwargs={
+            'bundlename': self.name,
+            'username': self.owner.username
+        })
 
     class Meta:
         unique_together = [('owner', 'name')]
@@ -824,7 +852,7 @@ class Check(models.Model):
 
     patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(default=datetime.datetime.now)
+    date = models.DateTimeField(default=datetime.datetime.utcnow)
 
     state = models.SmallIntegerField(
         choices=STATE_CHOICES, default=STATE_PENDING,
@@ -896,7 +924,7 @@ class Event(models.Model):
         db_index=True,
         help_text='The category of the event.')
     date = models.DateTimeField(
-        default=datetime.datetime.now,
+        default=datetime.datetime.utcnow,
         help_text='The time this event was created.')
 
     # event object
@@ -961,7 +989,7 @@ class EmailConfirmation(models.Model):
     email = models.CharField(max_length=200)
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     key = HashField()
-    date = models.DateTimeField(default=datetime.datetime.now)
+    date = models.DateTimeField(default=datetime.datetime.utcnow)
     active = models.BooleanField(default=True)
 
     def deactivate(self):
@@ -969,7 +997,7 @@ class EmailConfirmation(models.Model):
         self.save()
 
     def is_valid(self):
-        return self.date + self.validity > datetime.datetime.now()
+        return self.date + self.validity > datetime.datetime.utcnow()
 
     def save(self, *args, **kwargs):
         limit = 1 << 32
@@ -995,10 +1023,5 @@ class EmailOptout(models.Model):
 class PatchChangeNotification(models.Model):
     patch = models.OneToOneField(Patch, primary_key=True,
                                  on_delete=models.CASCADE)
-    last_modified = models.DateTimeField(default=datetime.datetime.now)
+    last_modified = models.DateTimeField(default=datetime.datetime.utcnow)
     orig_state = models.ForeignKey(State, on_delete=models.CASCADE)
-
-
-if django.VERSION < (1, 7):
-    # We don't have support for AppConfig in Django 1.6.x
-    import patchwork.signals  # noqa

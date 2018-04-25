@@ -17,40 +17,36 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django_filters import FilterSet
 from django_filters import IsoDateTimeFilter
 from django_filters import ModelChoiceFilter
 from django.forms import ModelChoiceField
 
-from patchwork.compat import LOOKUP_FIELD
 from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import CoverLetter
 from patchwork.models import Event
 from patchwork.models import Patch
+from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import State
 
 
-class TimestampMixin(FilterSet):
+# custom fields, filters
 
-    # TODO(stephenfin): These should filter on a 'updated_at' field instead
-    before = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'lt'})
-    since = IsoDateTimeFilter(name='date', **{LOOKUP_FIELD: 'gte'})
+class ModelMultiChoiceField(ModelChoiceField):
 
-
-class ProjectChoiceField(ModelChoiceField):
+    def _get_filters(self, value):
+        raise NotImplementedError
 
     def to_python(self, value):
         if value in self.empty_values:
             return None
 
-        try:
-            filters = {'pk': int(value)}
-        except ValueError:
-            filters = {'linkname__iexact': value}
+        filters = self._get_filters(value)
 
         try:
             value = self.queryset.get(**filters)
@@ -60,29 +56,32 @@ class ProjectChoiceField(ModelChoiceField):
         return value
 
 
+class ProjectChoiceField(ModelMultiChoiceField):
+
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'linkname__iexact': value}
+
+
 class ProjectFilter(ModelChoiceFilter):
 
     field_class = ProjectChoiceField
 
 
-class ProjectMixin(FilterSet):
+class PersonChoiceField(ModelMultiChoiceField):
 
-    project = ProjectFilter(to_field_name='linkname',
-                            queryset=Project.objects.all())
-
-
-class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
-
-    class Meta:
-        model = Series
-        fields = ('submitter', 'project')
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'email__iexact': value}
 
 
-class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
+class PersonFilter(ModelChoiceFilter):
 
-    class Meta:
-        model = CoverLetter
-        fields = ('project', 'series', 'submitter')
+    field_class = PersonChoiceField
 
 
 class StateChoiceField(ModelChoiceField):
@@ -110,9 +109,57 @@ class StateFilter(ModelChoiceFilter):
     field_class = StateChoiceField
 
 
+class UserChoiceField(ModelMultiChoiceField):
+
+    def _get_filters(self, value):
+        try:
+            return {'pk': int(value)}
+        except ValueError:
+            return {'username__iexact': value}
+
+
+class UserFilter(ModelChoiceFilter):
+
+    field_class = UserChoiceField
+
+
+# filter sets
+
+class TimestampMixin(FilterSet):
+
+    # TODO(stephenfin): These should filter on a 'updated_at' field instead
+    before = IsoDateTimeFilter(name='date', lookup_expr='lt')
+    since = IsoDateTimeFilter(name='date', lookup_expr='gte')
+
+
+class ProjectMixin(FilterSet):
+
+    project = ProjectFilter(to_field_name='linkname',
+                            queryset=Project.objects.all())
+
+
+class SeriesFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
+
+    class Meta:
+        model = Series
+        fields = ('submitter', 'project')
+
+
+class CoverLetterFilter(ProjectMixin, TimestampMixin, FilterSet):
+
+    submitter = PersonFilter(queryset=Person.objects.all())
+
+    class Meta:
+        model = CoverLetter
+        fields = ('project', 'series', 'submitter')
+
+
 class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
 
     state = StateFilter(queryset=State.objects.all())
+    submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
         model = Patch
@@ -121,6 +168,8 @@ class PatchFilter(ProjectMixin, TimestampMixin, FilterSet):
 
 
 class CheckFilter(TimestampMixin, FilterSet):
+
+    user = UserFilter(queryset=User.objects.all())
 
     class Meta:
         model = Check
@@ -135,6 +184,8 @@ class EventFilter(ProjectMixin, TimestampMixin, FilterSet):
 
 
 class BundleFilter(ProjectMixin, FilterSet):
+
+    owner = UserFilter(queryset=User.objects.all())
 
     class Meta:
         model = Bundle

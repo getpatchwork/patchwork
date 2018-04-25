@@ -129,6 +129,14 @@ def sanitise_header(header_contents, header_name=None):
                              header_name=header_name,
                              continuation_ws='\t')
 
+    try:
+        header.encode()
+    except (HeaderParseError, IndexError):
+        # despite our best efforts, the header is stuffed
+        # HeaderParseError: some very weird multi-line headers
+        # IndexError: bug, thrown by make_header(decode_header(' ')).encode()
+        return None
+
     return header
 
 
@@ -150,17 +158,30 @@ def clean_header(header):
     return normalise_space(header_str)
 
 
-def find_project_by_id(list_id):
-    """Find a `project` object with given `list_id`."""
-    project = None
-    try:
-        project = Project.objects.get(listid=list_id)
-    except Project.DoesNotExist:
-        pass
-    return project
+def find_project_by_id_and_subject(list_id, subject):
+    """Find a `project` object based on `list_id` and subject match.
+    Since empty `subject_match` field matches everything, project with
+    given `list_id` and empty `subject_match` field serves as a default
+    (in case it exists) if no other match is found.
+    """
+    projects = Project.objects.filter(listid=list_id)
+    default = None
+    for project in projects:
+        if not project.subject_match:
+            default = project
+        elif re.search(project.subject_match, subject,
+                       re.MULTILINE | re.IGNORECASE):
+            return project
+
+    return default
 
 
-def find_project_by_header(mail):
+def find_project(mail, list_id=None):
+    clean_subject = clean_header(mail.get('Subject', ''))
+
+    if list_id:
+        return find_project_by_id_and_subject(list_id, clean_subject)
+
     project = None
     listid_res = [re.compile(r'.*<([^>]+)>.*', re.S),
                   re.compile(r'^([\S]+)$', re.S)]
@@ -181,9 +202,13 @@ def find_project_by_header(mail):
 
             listid = match.group(1)
 
-            project = find_project_by_id(listid)
+            project = find_project_by_id_and_subject(listid, clean_subject)
             if project:
                 break
+
+    if not project:
+        logger.debug("Could not find a valid project for given list-id and "
+                     "subject.")
 
     return project
 
@@ -228,9 +253,16 @@ def _find_series_by_references(project, mail):
                 msgid=ref[:255], series__project=project).series
         except SeriesReference.DoesNotExist:
             continue
+        except SeriesReference.MultipleObjectsReturned:
+            # FIXME: Open bug: this can happen when we're processing
+            # messages in parallel. Pick the first and log.
+            logger.error("Multiple SeriesReferences for %s in project %s!" %
+                         (ref[:255], project.name))
+            return SeriesReference.objects.filter(
+                msgid=ref[:255], series__project=project).first().series
 
 
-def _find_series_by_markers(project, mail):
+def _find_series_by_markers(project, mail, author):
     """Find a patch's series using series markers and sender.
 
     Identify suitable series for a patch using a combination of the
@@ -251,7 +283,6 @@ def _find_series_by_markers(project, mail):
     still won't help us if someone spams the mailing list with
     duplicate series but that's a tricky situation for anyone to parse.
     """
-    author = find_author(mail)
 
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
@@ -271,7 +302,7 @@ def _find_series_by_markers(project, mail):
         return
 
 
-def find_series(project, mail):
+def find_series(project, mail, author):
     """Find a series, if any, for a given patch.
 
     Args:
@@ -286,10 +317,10 @@ def find_series(project, mail):
     if series:
         return series
 
-    return _find_series_by_markers(project, mail)
+    return _find_series_by_markers(project, mail, author)
 
 
-def find_author(mail):
+def get_or_create_author(mail):
     from_header = clean_header(mail.get('From'))
 
     if not from_header:
@@ -330,12 +361,17 @@ def find_author(mail):
     if name is not None:
         name = name.strip()[:255]
 
-    try:
-        person = Person.objects.get(email__iexact=email)
-        if name:  # use the latest provided name
-            person.name = name
-    except Person.DoesNotExist:
-        person = Person(name=name, email=email)
+    # this correctly handles the case where we lose the race to create
+    # the person and another process beats us to it. (If the record
+    # does not exist, g_o_c invokes _create_object_from_params which
+    # catches the IntegrityError and repeats the SELECT.)
+    person = Person.objects.get_or_create(email__iexact=email,
+                                          defaults={'name': name,
+                                                    'email': email})[0]
+
+    if name and name != person.name:  # use the latest provided name
+        person.name = name
+        person.save()
 
     return person
 
@@ -425,7 +461,12 @@ def parse_series_marker(subject_prefixes):
         (x, n) if markers found, else (None, None)
     """
 
-    regex = re.compile(r'^([0-9]+)(?:/| of )([0-9]+)$')
+    # Allow for there to be stuff before the number. This allows for
+    # e.g. "PATCH1/8" which we have seen in the wild. To allow
+    # e.g. PATCH100/123 to work, make the pre-number match
+    # non-greedy. To allow really pathological cases like v2PATCH12/15
+    # to work, allow it to match everthing (don't exclude numbers).
+    regex = re.compile(r'.*?([0-9]+)(?:/| of )([0-9]+)$')
     m = _find_matching_prefix(subject_prefixes, regex)
     if m:
         return (int(m.group(1)), int(m.group(2)))
@@ -666,7 +707,11 @@ def clean_content(content):
     """Remove cruft from the email message.
 
     Catch signature (-- ) and list footer (_____) cruft.
+
+    Change to Unix line endings (the Python 3 email module does this for us,
+    but not Python 2).
     """
+    content = content.replace('\r\n', '\n')
     sig_re = re.compile(r'^(-- |_+)\n.*', re.S | re.M)
     content = sig_re.sub('', content)
 
@@ -830,7 +875,7 @@ def parse_pull_request(content):
     git_re = re.compile(r'^The following changes since commit.*' +
                         r'^are available in the git repository at:\n'
                         r'^\s*([\S]+://[^\n]+)$',
-                        re.DOTALL | re.MULTILINE)
+                        re.DOTALL | re.MULTILINE | re.IGNORECASE)
     match = git_re.search(content)
     if match:
         return match.group(1)
@@ -911,10 +956,7 @@ def parse_mail(mail, list_id=None):
         logger.debug("Ignoring email due to 'ignore' hint")
         return
 
-    if list_id:
-        project = find_project_by_id(list_id)
-    else:
-        project = find_project_by_header(mail)
+    project = find_project(mail, list_id)
 
     if project is None:
         logger.error('Failed to find a project for email')
@@ -927,7 +969,6 @@ def parse_mail(mail, list_id=None):
         raise ValueError("Broken 'Message-Id' header")
     msgid = msgid[:255]
 
-    author = find_author(mail)
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
     is_comment = subject_check(subject)
@@ -953,18 +994,33 @@ def parse_mail(mail, list_id=None):
 
     if not is_comment and (diff or pull_url):  # patches or pull requests
         # we delay the saving until we know we have a patch.
-        author.save()
+        author = get_or_create_author(mail)
 
         delegate = find_delegate_by_header(mail)
         if not delegate and diff:
             filenames = find_filenames(diff)
             delegate = find_delegate_by_filename(project, filenames)
 
+        patch = Patch.objects.create(
+            msgid=msgid,
+            project=project,
+            patch_project=project,
+            name=name[:255],
+            date=date,
+            headers=headers,
+            submitter=author,
+            content=message,
+            diff=diff,
+            pull_url=pull_url,
+            delegate=delegate,
+            state=find_state(mail))
+        logger.debug('Patch saved')
+
         # if we don't have a series marker, we will never have an existing
         # series to match against.
         series = None
         if n:
-            series = find_series(project, mail)
+            series = find_series(project, mail, author)
         else:
             x = n = 1
 
@@ -999,21 +1055,9 @@ def parse_mail(mail, list_id=None):
                                                 series__project=project)
                 except SeriesReference.DoesNotExist:
                     SeriesReference.objects.create(series=series, msgid=ref)
-
-        patch = Patch(
-            msgid=msgid,
-            project=project,
-            name=name[:255],
-            date=date,
-            headers=headers,
-            submitter=author,
-            content=message,
-            diff=diff,
-            pull_url=pull_url,
-            delegate=delegate,
-            state=find_state(mail))
-        patch.save()
-        logger.debug('Patch saved')
+                except SeriesReference.MultipleObjectsReturned:
+                    logger.error("Multiple SeriesReferences for %s"
+                                 " in project %s!" % (ref, project.name))
 
         # add to a series if we have found one, and we have a numbered
         # patch. Don't add unnumbered patches (for example diffs sent
@@ -1041,7 +1085,7 @@ def parse_mail(mail, list_id=None):
                 is_cover_letter = True
 
         if is_cover_letter:
-            author.save()
+            author = get_or_create_author(mail)
 
             # we don't use 'find_series' here as a cover letter will
             # always be the first item in a thread, thus the references
@@ -1052,6 +1096,11 @@ def parse_mail(mail, list_id=None):
                     msgid=msgid, series__project=project).series
             except SeriesReference.DoesNotExist:
                 series = None
+            except SeriesReference.MultipleObjectsReturned:
+                logger.error("Multiple SeriesReferences for %s"
+                             " in project %s!" % (msgid, project.name))
+                series = SeriesReference.objects.filter(
+                    msgid=msgid, series__project=project).first().series
 
             if not series:
                 series = Series(project=project,
@@ -1064,8 +1113,12 @@ def parse_mail(mail, list_id=None):
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
                 # series
-                SeriesReference.objects.get_or_create(series=series,
-                                                      msgid=msgid)
+                try:
+                    SeriesReference.objects.get_or_create(series=series,
+                                                          msgid=msgid)
+                except SeriesReference.MultipleObjectsReturned:
+                    logger.error("Multiple SeriesReferences for %s"
+                                 " in project %s!" % (msgid, project.name))
 
             cover_letter = CoverLetter(
                 msgid=msgid,
@@ -1089,7 +1142,7 @@ def parse_mail(mail, list_id=None):
     if not submission:
         return
 
-    author.save()
+    author = get_or_create_author(mail)
 
     comment = Comment(
         submission=submission,

@@ -66,6 +66,44 @@ class PaginatorTest(TestCase):
             self.assertEqual(response.context['page'].object_list[0].id,
                              self.patches[-page].id)
 
+    def test_navigation(self):
+        self.client.login(username=self.user.username,
+                          password=self.user.username)
+        for page_num in range(1, 11):
+            response = self._get_patches({'page': page_num})
+
+            page = response.context['page']
+            leading = page.paginator.leading_set
+            adjacent = page.paginator.adjacent_set
+            trailing = page.paginator.trailing_set
+
+            # if there is a prev page, it should be:
+            if page.has_previous():
+                self.assertEqual(page.previous_page_number(),
+                                 page_num - 1)
+                # ... either in the adjacent set or in the trailing set
+                if adjacent is not None:
+                    self.assertIn(page_num - 1, adjacent)
+                else:
+                    self.assertIn(page_num - 1, trailing)
+
+            # if there is a next page, it should be:
+            if page.has_next():
+                self.assertEqual(page.next_page_number(),
+                                 page_num + 1)
+                # ... either in the adjacent set or in the leading set
+                if adjacent is not None:
+                    self.assertIn(page_num + 1, adjacent)
+                else:
+                    self.assertIn(page_num + 1, leading)
+
+            # no page number should appear more than once
+            for x in adjacent:
+                self.assertNotIn(x, leading)
+                self.assertNotIn(x, trailing)
+            for x in leading:
+                self.assertNotIn(x, trailing)
+
     def test_page_invalid(self):
         self.client.login(username=self.user.username,
                           password=self.user.username)

@@ -71,10 +71,10 @@ def bundle_list(request, project_id=None):
                 bundle.delete()
 
     if project_id is None:
-        bundles = Bundle.objects.filter(owner=request.user)
+        bundles = request.user.bundles.all()
     else:
         project = get_object_or_404(Project, linkname=project_id)
-        bundles = Bundle.objects.filter(owner=request.user, project=project)
+        bundles = request.user.bundles.filter(project=project)
 
     for bundle in bundles:
         bundle.delete_form = DeleteBundleForm(auto_id=False,

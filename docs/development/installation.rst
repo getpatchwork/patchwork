@@ -70,7 +70,7 @@ To run specific tox targets or tests, pass arguments to the above:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --quick-tox -e py27-django17 \
+   $ docker-compose run --rm web --quick-tox -e py27-django18 \
        patchwork.tests.test_bundles
 
 To run all tests, including Selenium UI interaction tests, using only the
@@ -96,8 +96,25 @@ run:
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -e PW_TEST_DB_HOST=db -e DISPLAY patchwork_web bash
 
-To reset the database before any of these commands, add `--reset` to the
-command line after `web` and before any other arguments.
+To reset the database before any of these commands, add ``--reset`` to the
+command line after ``web`` and before any other arguments. Conversely, to
+backup the database at any stage, run:
+
+.. code-block:: shell
+
+    $ docker exec DATABASECONTAINER /usr/bin/mysqldump -u DATABASEUSER \
+        --password=DATABASEPASSWORD DATABASE > backup.sql
+
+where ``DATABASECONTAINER`` is found by ``docker ps -a`` and the other settings
+are the same as those defined in ``patchwork/settings/dev.py``. To restore this
+again, run:
+
+.. code-block:: shell
+
+    $ docker-compose run --rm web python manage.py dbshell
+    mysql> use DATABASE;
+    mysql> set autocommit=0; source backup.sql; commit;
+    mysql> exit;
 
 Any local edits to the project files made locally are immediately visible to
 the Docker container, and so should be picked up by the Django auto-reloader.
@@ -163,29 +180,10 @@ For more information on Docker itself, please refer to the `docker`_ and
 .. _docker: https://docs.docker.com/compose/install/
 .. _docker-compose: https://docs.docker.com/engine/installation/linux/
 
-Vagrant-Based Installation
---------------------------
-
-Patchwork provides a Vagrant-based environment as an alternative to Docker.
-Like Docker, Vagrant can be used to quickly configure Patchwork in a
-development environment. To configure Patchwork using Vagrant:
-
-1. Install `**Vagrant** <vagrant>`_
-
-2. Run `vagrant up` from the project directory:
-
-   .. code-block:: shell
-
-      $ cd patchwork
-      $ vagrant up
-
-Once stacked, follow the on-screen instructions. For more information on
-Vagrant itself, refer to the `Vagrant documentation <vagrant>`_.
-
 Manual Installation
 -------------------
 
-Manual installation can be used where use of Docker or Vagrant is not possible
+Manual installation can be used where use of Docker is not possible
 or desired.
 
 Install Required Packages

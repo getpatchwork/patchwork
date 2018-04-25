@@ -3,6 +3,9 @@ Overview
 
 The key concepts or models of Patchwork are outlined below.
 
+.. contents::
+
+
 Projects
 --------
 
@@ -13,11 +16,13 @@ possible to have multiple projects in the same list using the subject as
 filter. Patches, cover letters, and series are all associated with a single
 project.
 
+
 People
 ------
 
 People are anyone who has submitted a patch, cover letter, or comment to a
 Patchwork instance.
+
 
 Users
 -----
@@ -43,6 +48,7 @@ The operations that a maintainer can invoke include:
 - Change the state of a patch
 - Archive a patch
 - Delegate a patch, or be delegated a patch
+
 
 Submissions
 -----------
@@ -70,13 +76,15 @@ not only the various aspects of the cover letter itself, such as the name and
 body of the cover letter, but also various metadata associated with the email
 that the cover letter was parsed from.
 
+
 Comments
-~~~~~~~~
+--------
 
 Comments are replies to a submission - either a patch or a cover letter. Unlike
 a Mail User Agent (MUA) like Gmail, Patchwork does not thread comments.
 Instead, every comment is associated with either a patch or a cover letter, and
 organized by date.
+
 
 Patch Metadata
 --------------
@@ -115,20 +123,17 @@ or a comment on a patch. Patchwork extracts these tags at parse time and
 associates them with the patch. You add extra tags to an email by replying to
 the email. The following tags are available on a standard Patchwork install:
 
-Acked-by:
-
+``Acked-by:``
   For example::
 
       Acked-by: Stephen Finucane <stephen@that.guru>
 
-Tested-by:
-
+``Tested-by:``
   For example::
 
       Tested-by: Stephen Finucane <stephen@that.guru>
 
-Reviewed-by:
-
+``Reviewed-by:``
   For example::
 
       Reviewed-by: Stephen Finucane <stephen@that.guru>
@@ -138,7 +143,7 @@ project to project and Patchwork instance to Patchwork instance. The `kernel
 project documentation`__ provides an overview of the supported tags for the
 Linux kernel project.
 
-__ https://www.kernel.org/doc/Documentation/SubmittingPatches
+__ https://www.kernel.org/doc/html/latest/process/submitting-patches.html
 
 Checks
 ~~~~~~
@@ -147,25 +152,21 @@ Checks store the results of any tests executed (or executing) for a given
 patch. This is useful, for example, when using a continuous integration (CI)
 system to test patches. Checks have a number of fields associated with them:
 
-Context
-
+**Context**
   A label to discern check from the checks of other testing systems
 
-Description
-
+**Description**
   A brief, optional description of the check
 
-Target URL
-
+**Target URL**
   A target URL where a user can find information related to this check, such as
   test logs.
 
-State
+**State**
+  The state of the check. One of: ``pending``, ``success``, ``warning``,
+  ``fail``
 
-  The state of the check. One of: pending, success, warning, fail
-
-User
-
+**User**
   The user creating the check
 
 .. note::
@@ -177,6 +178,7 @@ User
 
    Provide information on building a CI system that reports check results back
    to Patchwork.
+
 
 Collections
 -----------
@@ -207,6 +209,7 @@ To-do Lists
 
 Patchwork users can store a to-do list of patches.
 
+
 Events
 ------
 
@@ -215,146 +218,112 @@ Events are raised whenever patches are created or modified.
 All events have a number of common properties, along with some event-specific
 properties:
 
-`category`
-
+``category``
   The type of event
 
-`project`
-
+``project``
   The project this event belongs to
 
-`date`
-
+``date``
   When this event was created
 
-.. note::
-
-   Checks can only be created and read through the Patchwork APIs. Refer to
-   `../api/index` for more information.
+``payload``
+  Additional information
 
 Cover Letter Created
 ~~~~~~~~~~~~~~~~~~~~
 
+:Category: ``cover-created``
+
 Sent when a cover letter is created.
 
-`category`
-
-  ``cover-created``
-
-`cover`
-
+``cover``
   Created cover letter
 
 Patch Created
 ~~~~~~~~~~~~~
 
+:Category: ``patch-created``
+
 Sent when a patch is created.
 
-`category`
-
-  ``patch-created``
-
-`patch`
-
+``patch``
   Created patch
 
 Patch Completed
 ~~~~~~~~~~~~~~~
 
+:Category: ``patch-completed``
+
 Sent when a patch in a series has its dependencies met, or when a patch that is
 not in a series is created (since that patch has no dependencies).
 
-`category`
-
-  ``patch-completed``
-
-`patch`
-
+``patch``
   Completed patch
 
-`series`
-
+``series``
   Series from which patch dependencies were extracted, if any
 
 Patch Delegated
 ~~~~~~~~~~~~~~~
 
+:Category: ``patch-delegated``
+
 Sent when a patch's delegate is changed.
 
-`category`
-
-  ``patch-delegated``
-
-`patch`
-
+``patch``
   Updated patch
 
-`previous`
-
+``previous``
   Previous delegate, if any
 
-`current`
-
+``current``
   Current delegate, if any
 
 Patch State Changed
 ~~~~~~~~~~~~~~~~~~~
 
+:Category: ``patch-state-changed``
+
 Sent when a patch's state is changed.
 
-`category`
-
-  ``patch-state-changed``
-
-`patch`
-
+``patch``
   Updated patch
 
-`previous`
-
+``previous``
   Previous state
 
-`current`
-
+``current``
   Current state
 
 Check Created
 ~~~~~~~~~~~~~
 
+:Category: ``check-created``
+
 Sent when a patch check is created.
 
-`category`
-
-  ``check-created``
-
-`check`
-
+``check``
   Created check
 
 Series Created
 ~~~~~~~~~~~~~~
 
+:Category: ``series-created``
+
 Sent when a series is created.
 
-`category`
-
-  ``series-created``
-
-`series`
-
+``series``
   Created series
 
 Series Completed
 ~~~~~~~~~~~~~~~~
 
+:Category: ``series-completed``
+
 Sent when a series is completed.
 
-`category`
-
-  ``series-completed``
-
-`series`
-
+``series``
   Completed series
 
 What's Not Exposed

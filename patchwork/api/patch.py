@@ -38,10 +38,6 @@ from patchwork.models import State
 from patchwork.parser import clean_subject
 
 
-def format_state_name(state):
-    return ' '.join(state.split('-'))
-
-
 class StateField(RelatedField):
     """Avoid the need for a state endpoint.
 
@@ -57,15 +53,18 @@ class StateField(RelatedField):
         'incorrect_type': _('Incorrect type. Expected string value, received '
                             '{data_type}.'),
     }
-    queryset = ''  # django 1.6, rest_framework 3.2 require this
+
+    @staticmethod
+    def format_state_name(state):
+        return ' '.join(state.split('-'))
 
     def to_internal_value(self, data):
         try:
-            data = format_state_name(data)
+            data = self.format_state_name(data)
             return self.get_queryset().get(name__iexact=data)
         except State.DoesNotExist:
             self.fail('invalid_choice', name=data, choices=', '.join([
-                format_state_name(x.name) for x in self.get_queryset()]))
+                self.format_state_name(x.name) for x in self.get_queryset()]))
         except (TypeError, ValueError):
             self.fail('incorrect_type', data_type=type(data).__name__)
 
@@ -124,8 +123,18 @@ class PatchDetailSerializer(PatchListSerializer):
     prefixes = SerializerMethodField()
 
     def get_headers(self, patch):
+        headers = {}
+
         if patch.headers:
-            return email.parser.Parser().parsestr(patch.headers, True)
+            parsed = email.parser.Parser().parsestr(patch.headers, True)
+            for key in parsed.keys():
+                headers[key] = parsed.get_all(key)
+                # Let's return a single string instead of a list if only one
+                # header with this key is present
+                if len(headers[key]) == 1:
+                    headers[key] = headers[key][0]
+
+        return headers
 
     def get_prefixes(self, instance):
         return clean_subject(instance.name)[1]
@@ -151,8 +160,6 @@ class PatchList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        # TODO(stephenfin): Does the defer here cause issues with Django 1.6
-        # (like /cover)?
         return Patch.objects.all()\
             .prefetch_related('series', 'check_set')\
             .select_related('project', 'state', 'submitter', 'delegate')\

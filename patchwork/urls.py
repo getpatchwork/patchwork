@@ -17,11 +17,13 @@
 # along with Patchwork; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import django
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from patchwork.compat import reverse_lazy
 from patchwork.views import about as about_views
 from patchwork.views import api as api_views
 from patchwork.views import bundle as bundle_views
@@ -85,32 +87,75 @@ urlpatterns = [
         name='user-link'),
     url(r'^user/unlink/(?P<person_id>[^/]+)/$', user_views.unlink,
         name='user-unlink'),
+]
 
-    # password change
-    url(r'^user/password-change/$', auth_views.password_change,
-        name='password_change'),
-    url(r'^user/password-change/done/$', auth_views.password_change_done,
-        name='password_change_done'),
-    url(r'^user/password-reset/$', auth_views.password_reset,
-        name='password_reset'),
-    url(r'^user/password-reset/mail-sent/$', auth_views.password_reset_done,
-        name='password_reset_done'),
-    url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
-        r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        auth_views.password_reset_confirm,
-        name='password_reset_confirm'),
-    url(r'^user/password-reset/complete/$',
-        auth_views.password_reset_complete,
-        name='password_reset_complete'),
+# password change
+if django.VERSION >= (1, 11):
+    urlpatterns += [
+        url(r'^user/password-change/$',
+            auth_views.PasswordChangeView.as_view(),
+            name='password_change'),
+        url(r'^user/password-change/done/$',
+            auth_views.PasswordChangeDoneView.as_view(),
+            name='password_change_done'),
+        url(r'^user/password-reset/$',
+            auth_views.PasswordResetView.as_view(),
+            name='password_reset'),
+        url(r'^user/password-reset/mail-sent/$',
+            auth_views.PasswordResetDoneView.as_view(),
+            name='password_reset_done'),
+        url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
+            r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+            auth_views.PasswordResetConfirmView.as_view(),
+            name='password_reset_confirm'),
+        url(r'^user/password-reset/complete/$',
+            auth_views.PasswordResetCompleteView.as_view(),
+            name='password_reset_complete'),
+    ]
+else:
+    urlpatterns += [
+        url(r'^user/password-change/$',
+            auth_views.password_change,
+            name='password_change'),
+        url(r'^user/password-change/done/$',
+            auth_views.password_change_done,
+            name='password_change_done'),
+        url(r'^user/password-reset/$',
+            auth_views.password_reset,
+            name='password_reset'),
+        url(r'^user/password-reset/mail-sent/$',
+            auth_views.password_reset_done,
+            name='password_reset_done'),
+        url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
+            r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+            auth_views.password_reset_confirm,
+            name='password_reset_confirm'),
+        url(r'^user/password-reset/complete/$',
+            auth_views.password_reset_complete,
+            name='password_reset_complete'),
+    ]
 
-    # login/logout
-    url(r'^user/login/$', auth_views.login,
-        {'template_name': 'patchwork/login.html'},
-        name='auth_login'),
-    url(r'^user/logout/$', auth_views.logout,
-        {'next_page': '/'},
-        name='auth_logout'),
+# login/logout
+if django.VERSION >= (1, 11):
+    urlpatterns += [
+        url(r'^user/login/$', auth_views.LoginView.as_view(
+            template_name='patchwork/login.html'),
+            name='auth_login'),
+        url(r'^user/logout/$', auth_views.LogoutView.as_view(
+            next_page=reverse_lazy('project-list')),
+            name='auth_logout'),
+    ]
+else:
+    urlpatterns += [
+        url(r'^user/login/$', auth_views.login,
+            {'template_name': 'patchwork/login.html'},
+            name='auth_login'),
+        url(r'^user/logout/$', auth_views.logout,
+            {'next_page': reverse_lazy('project-list')},
+            name='auth_logout'),
+    ]
 
+urlpatterns += [
     # registration
     url(r'^register/', user_views.register, name='user-register'),
 
@@ -143,7 +188,8 @@ urlpatterns = [
 ]
 
 if 'debug_toolbar' in settings.INSTALLED_APPS:
-    import debug_toolbar
+    import debug_toolbar  # noqa
+
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
@@ -165,16 +211,16 @@ if settings.ENABLE_REST_API:
         raise RuntimeError(
             'djangorestframework must be installed to enable the REST API.')
 
-    from patchwork.api import bundle as api_bundle_views
-    from patchwork.api import check as api_check_views
-    from patchwork.api import cover as api_cover_views
-    from patchwork.api import event as api_event_views
-    from patchwork.api import index as api_index_views
-    from patchwork.api import patch as api_patch_views
-    from patchwork.api import person as api_person_views
-    from patchwork.api import project as api_project_views
-    from patchwork.api import series as api_series_views
-    from patchwork.api import user as api_user_views
+    from patchwork.api import bundle as api_bundle_views  # noqa
+    from patchwork.api import check as api_check_views  # noqa
+    from patchwork.api import cover as api_cover_views  # noqa
+    from patchwork.api import event as api_event_views  # noqa
+    from patchwork.api import index as api_index_views  # noqa
+    from patchwork.api import patch as api_patch_views  # noqa
+    from patchwork.api import person as api_person_views  # noqa
+    from patchwork.api import project as api_project_views  # noqa
+    from patchwork.api import series as api_series_views  # noqa
+    from patchwork.api import user as api_user_views  # noqa
 
     api_patterns = [
         url(r'^$',
@@ -234,7 +280,7 @@ if settings.ENABLE_REST_API:
     ]
 
     urlpatterns += [
-        url(r'^api/(?:(?P<version>(1.0))/)?', include(api_patterns)),
+        url(r'^api/(?:(?P<version>(1.0|1.1))/)?', include(api_patterns)),
 
         # token change
         url(r'^user/generate-token/$', user_views.generate_token,

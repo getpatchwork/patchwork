@@ -34,13 +34,8 @@ _MIDDLEWARE_CLASSES = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
 ]
-
-if django.VERSION >= (1, 7):
-    _MIDDLEWARE_CLASSES += [
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    ]
-
 
 if django.VERSION >= (1, 10):
     MIDDLEWARE = _MIDDLEWARE_CLASSES
@@ -61,41 +56,26 @@ _TEMPLATE_DIRS = [
     os.path.join(ROOT_DIR, 'templates'),
 ]
 
-if django.VERSION >= (1, 8):
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': _TEMPLATE_DIRS,
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.i18n',
-                    'django.template.context_processors.media',
-                    'django.template.context_processors.static',
-                    'django.template.context_processors.tz',
-                    'django.contrib.messages.context_processors.messages',
-                    'patchwork.context_processors.site',
-                    'patchwork.context_processors.version',
-                ],
-            },
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': _TEMPLATE_DIRS,
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'patchwork.context_processors.site',
+                'patchwork.context_processors.version',
+            ],
         },
-    ]
-else:
-    TEMPLATE_DIRS = _TEMPLATE_DIRS
-    TEMPLATE_CONTEXT_PROCESSORS = [
-        'django.contrib.auth.context_processors.auth',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.static',
-        'django.core.context_processors.tz',
-        'django.contrib.messages.context_processors.messages',
-        'patchwork.context_processors.site',
-        'patchwork.context_processors.version',
-    ]
-
+    },
+]
 
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 

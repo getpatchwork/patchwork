@@ -19,12 +19,11 @@
 
 import email.parser
 
-import django
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.filters import CoverLetterFilter
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
@@ -32,7 +31,7 @@ from patchwork.api.embedded import SeriesSerializer
 from patchwork.models import CoverLetter
 
 
-class CoverLetterListSerializer(HyperlinkedModelSerializer):
+class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
@@ -48,6 +47,9 @@ class CoverLetterListSerializer(HyperlinkedModelSerializer):
         fields = ('id', 'url', 'project', 'msgid', 'date', 'name', 'submitter',
                   'mbox', 'series')
         read_only_fields = fields
+        versioned_fields = {
+            '1.1': ('mbox', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
         }
@@ -58,8 +60,18 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
     headers = SerializerMethodField()
 
     def get_headers(self, instance):
+        headers = {}
+
         if instance.headers:
-            return email.parser.Parser().parsestr(instance.headers, True)
+            parsed = email.parser.Parser().parsestr(instance.headers, True)
+            for key in parsed.keys():
+                headers[key] = parsed.get_all(key)
+                # Let's return a single string instead of a list if only one
+                # header with this key is present
+                if len(headers[key]) == 1:
+                    headers[key] = headers[key][0]
+
+        return headers
 
     class Meta:
         model = CoverLetter
@@ -78,15 +90,9 @@ class CoverLetterList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        qs = CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('project', 'submitter')
-
-        # FIXME(stephenfin): This causes issues with Django 1.6 for whatever
-        # reason. Suffer the performance hit on those versions.
-        if django.VERSION >= (1, 7):
-            qs.defer('content', 'headers')
-
-        return qs
+        return CoverLetter.objects.all().prefetch_related('series')\
+            .select_related('project', 'submitter')\
+            .defer('content', 'headers')
 
 
 class CoverLetterDetail(RetrieveAPIView):

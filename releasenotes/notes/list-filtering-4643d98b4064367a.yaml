@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Allow list filtering into multiple projects (and email dropping) based on
+    subject prefixes. Enable by specifying a regular expression which needs to
+    be matched in the subject on a per-project basis (field ``subject_match``).
+    Project with empty ``subject_match`` field (and matching ``list_id``)
+    serves as a default in case of no match.
+api:
+  - |
+    The ``/project`` endpoint now exposes a ``subject_match`` attribute.

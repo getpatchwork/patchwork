@@ -30,22 +30,20 @@ You may also need to install `tox`. If so, do this now:
 
 .. tip::
 
-   If you're using Docker or Vagrant-based installs, you may not need to
-   install `tox` locally. Instead, it will already be installed inside the
-   container/VM. For Docker, you can run `tox` like so:
+   If you're using Docker, you may not need to install `tox`
+   locally. Instead, it will already be installed inside the
+   container. For Docker, you can run `tox` like so:
 
    .. code-block:: shell
 
       $ docker-compose run web tox [ARGS...]
-
-   For Vagrant, SSH into the container and run `tox` as below.
 
 Assuming these requirements are met, actually testing Patchwork is quite easy
 to do. To start, you can show the default targets like so:
 
 .. code-block:: shell
 
-   $ tox --list
+   $ tox -l
 
 You'll see that this includes a number of targets to run unit tests against the
 different versions of Django supported, along with some other targets related
@@ -82,7 +80,7 @@ first install it:
 
 .. code-block:: shell
 
-   $ sudo pip install tox
+   $ sudo pip install reno
 
 Once installed, a new release note can be created using the ``reno new``
 command:
@@ -93,6 +91,20 @@ command:
 
 Modify the created file, removing any irrelevant sections, and include the
 modified file in your change.
+
+API
+---
+
+As discussed in :doc:`releasing`, the API is versioned differently from
+Patchwork itself. Should you make changes to the API, you need to ensure these
+only affect newer versions of the API. Refer to previous changes in the
+``patchwork/api`` directory and to the `Django REST Framework documentation`_
+for more information.
+
+.. important::
+
+    All API changes should be called out in :ref:`release notes
+    <release-notes>` using the ``api`` section.
 
 Submitting Changes
 ------------------
@@ -112,3 +124,4 @@ ensure:
 .. _reno: https://docs.openstack.org/developer/reno/
 .. _mailing list: https://ozlabs.org/mailman/listinfo/patchwork
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
+.. _Django REST Framework documentation: http://www.django-rest-framework.org/api-guide/versioning/

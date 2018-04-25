@@ -5,7 +5,7 @@
 # or upgrade to v2 and use the build-arg to override it.
 
 db:
-  image: postgres
+  image: postgres:9.6
   environment:
     - POSTGRES_PASSWORD=password
   volumes:

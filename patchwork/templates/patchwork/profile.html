@@ -140,6 +140,7 @@ address.</p>
   <th>Password:</th>
   <td><a href="{% url 'password_change' %}">Change password</a>
  </tr>
+{% if rest_api_enabled %}
  <tr>
   <th>API Token:</th>
   <td>
@@ -162,6 +163,7 @@ address.</p>
    </form>
   </td>
  </tr>
+{% endif %}
 </table>
 </div>
 
