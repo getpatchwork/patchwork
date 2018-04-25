@@ -1,0 +1,6 @@
+---
+api:
+  - |
+    Messages headers that use the same key, such as ``Received:`` are now
+    combined into a list. Previously only one of the values would be output.
+    This affects the ``/covers`` and ``/patches`` endpoints.
