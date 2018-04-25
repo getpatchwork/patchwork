@@ -34,7 +34,6 @@ from patchwork.filters import DelegateFilter
 from patchwork.forms import EmailForm
 from patchwork.forms import RegistrationForm
 from patchwork.forms import UserProfileForm
-from patchwork.models import Bundle
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout
 from patchwork.models import Person
