@@ -213,6 +213,7 @@ if settings.ENABLE_REST_API:
 
     from patchwork.api import bundle as api_bundle_views  # noqa
     from patchwork.api import check as api_check_views  # noqa
+    from patchwork.api import comment as api_comment_views  # noqa
     from patchwork.api import cover as api_cover_views  # noqa
     from patchwork.api import event as api_event_views  # noqa
     from patchwork.api import index as api_index_views  # noqa
@@ -279,8 +280,18 @@ if settings.ENABLE_REST_API:
             name='api-event-list'),
     ]
 
+    api_1_1_patterns = [
+        url(r'^patches/(?P<pk>[^/]+)/comments/$',
+            api_comment_views.CommentList.as_view(),
+            name='api-comment-list'),
+        url(r'^covers/(?P<pk>[^/]+)/comments/$',
+            api_comment_views.CommentList.as_view(),
+            name='api-comment-list'),
+    ]
+
     urlpatterns += [
         url(r'^api/(?:(?P<version>(1.0|1.1))/)?', include(api_patterns)),
+        url(r'^api/(?:(?P<version>1.1)/)?', include(api_1_1_patterns)),
 
         # token change
         url(r'^user/generate-token/$', user_views.generate_token,

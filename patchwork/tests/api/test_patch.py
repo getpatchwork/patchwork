@@ -46,10 +46,15 @@ class TestPatchAPI(APITestCase):
     fixtures = ['default_tags']
 
     @staticmethod
-    def api_url(item=None):
+    def api_url(item=None, version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
         if item is None:
-            return reverse('api-patch-list')
-        return reverse('api-patch-detail', args=[item])
+            return reverse('api-patch-list', kwargs=kwargs)
+        kwargs['pk'] = item
+        return reverse('api-patch-detail', kwargs=kwargs)
 
     def assertSerialized(self, patch_obj, patch_json):
         self.assertEqual(patch_obj.id, patch_json['id'])
@@ -138,6 +143,14 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch.content, resp.data['content'])
         self.assertEqual(patch.diff, resp.data['diff'])
         self.assertEqual(0, len(resp.data['tags']))
+
+        # test comments
+        resp = self.client.get(self.api_url(patch.id))
+        self.assertIn('comments', resp.data)
+
+        # test old version of API
+        resp = self.client.get(self.api_url(item=patch.id, version='1.0'))
+        self.assertNotIn('comments', resp.data)
 
     def test_create(self):
         """Ensure creations are rejected."""

@@ -613,6 +613,9 @@ class Comment(EmailMixin, models.Model):
         if hasattr(self.submission, 'patch'):
             self.submission.patch.refresh_tag_counts()
 
+    def is_editable(self, user):
+        return False
+
     class Meta:
         ordering = ['date']
         unique_together = [('msgid', 'submission')]

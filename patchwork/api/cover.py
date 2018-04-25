@@ -21,6 +21,7 @@ import email.parser
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
@@ -58,6 +59,11 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 class CoverLetterDetailSerializer(CoverLetterListSerializer):
 
     headers = SerializerMethodField()
+    comments = SerializerMethodField()
+
+    def get_comments(self, cover):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-comment-list', kwargs={'pk': cover.id}))
 
     def get_headers(self, instance):
         headers = {}
@@ -75,9 +81,13 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
 
     class Meta:
         model = CoverLetter
-        fields = CoverLetterListSerializer.Meta.fields + ('headers', 'content')
+        fields = CoverLetterListSerializer.Meta.fields + (
+            'headers', 'content', 'comments')
         read_only_fields = fields
         extra_kwargs = CoverLetterListSerializer.Meta.extra_kwargs
+        versioned_fields = {
+            '1.1': ('mbox', 'comments'),
+        }
 
 
 class CoverLetterList(ListAPIView):

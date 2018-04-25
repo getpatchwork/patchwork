@@ -24,9 +24,9 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
 from rest_framework.reverse import reverse
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import PatchFilter
 from patchwork.api.embedded import PersonSerializer
@@ -75,7 +75,7 @@ class StateField(RelatedField):
         return State.objects.all()
 
 
-class PatchListSerializer(HyperlinkedModelSerializer):
+class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     project = ProjectSerializer(read_only=True)
     state = StateField()
@@ -121,6 +121,11 @@ class PatchDetailSerializer(PatchListSerializer):
 
     headers = SerializerMethodField()
     prefixes = SerializerMethodField()
+    comments = SerializerMethodField()
+
+    def get_comments(self, patch):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-comment-list', kwargs={'pk': patch.id}))
 
     def get_headers(self, patch):
         headers = {}
@@ -142,10 +147,13 @@ class PatchDetailSerializer(PatchListSerializer):
     class Meta:
         model = Patch
         fields = PatchListSerializer.Meta.fields + (
-            'headers', 'content', 'diff', 'prefixes')
+            'headers', 'content', 'diff', 'prefixes', 'comments')
         read_only_fields = PatchListSerializer.Meta.read_only_fields + (
-            'headers', 'content', 'diff', 'prefixes')
+            'headers', 'content', 'diff', 'prefixes', 'comments')
         extra_kwargs = PatchListSerializer.Meta.extra_kwargs
+        versioned_fields = {
+            '1.1': ('comments', ),
+        }
 
 
 class PatchList(ListAPIView):

@@ -1,0 +1,8 @@
+---
+api:
+  - |
+    Links to related comments are now exposed when checking patch and cover
+    letter details. The comments themselves are then available via
+    ``/patches/{patchID}/comments`` and ``/covers/{coverID}/comments``
+    endpoints. Please note that comments are available only since API
+    version 1.1

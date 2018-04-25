@@ -50,7 +50,8 @@ class TestCoverLetterAPI(APITestCase):
 
         if item is None:
             return reverse('api-cover-list', kwargs=kwargs)
-        return reverse('api-cover-detail', args=[item], kwargs=kwargs)
+        kwargs['pk'] = item
+        return reverse('api-cover-detail', kwargs=kwargs)
 
     def assertSerialized(self, cover_obj, cover_json):
         self.assertEqual(cover_obj.id, cover_json['id'])
@@ -124,6 +125,14 @@ class TestCoverLetterAPI(APITestCase):
                                                         True)
         for key, value in parsed_headers.items():
             self.assertIn(value, resp.data['headers'][key])
+
+        # test comments
+        resp = self.client.get(self.api_url(cover_obj.id))
+        self.assertIn('comments', resp.data)
+
+        # test old version of API
+        resp = self.client.get(self.api_url(cover_obj.id, version='1.0'))
+        self.assertNotIn('comments', resp.data)
 
     def test_create_update_delete(self):
         user = create_maintainer()
