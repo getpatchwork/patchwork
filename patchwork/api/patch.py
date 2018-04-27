@@ -83,6 +83,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     delegate = UserSerializer()
     mbox = SerializerMethodField()
     series = SeriesSerializer(many=True, read_only=True)
+    comments = SerializerMethodField()
     check = SerializerMethodField()
     checks = SerializerMethodField()
     tags = SerializerMethodField()
@@ -91,10 +92,9 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         request = self.context.get('request')
         return request.build_absolute_uri(instance.get_mbox_url())
 
-    def get_tags(self, instance):
-        # TODO(stephenfin): Make tags performant, possibly by reworking the
-        # model
-        return {}
+    def get_comments(self, patch):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-comment-list', kwargs={'pk': patch.id}))
 
     def get_check(self, instance):
         return instance.combined_check_state
@@ -103,15 +103,23 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         return self.context.get('request').build_absolute_uri(
             reverse('api-check-list', kwargs={'patch_id': instance.id}))
 
+    def get_tags(self, instance):
+        # TODO(stephenfin): Make tags performant, possibly by reworking the
+        # model
+        return {}
+
     class Meta:
         model = Patch
         fields = ('id', 'url', 'project', 'msgid', 'date', 'name',
                   'commit_ref', 'pull_url', 'state', 'archived', 'hash',
-                  'submitter', 'delegate', 'mbox', 'series', 'check', 'checks',
-                  'tags')
+                  'submitter', 'delegate', 'mbox', 'series', 'comments',
+                  'check', 'checks', 'tags')
         read_only_fields = ('project', 'msgid', 'date', 'name', 'hash',
-                            'submitter', 'mbox', 'mbox', 'series', 'check',
-                            'checks', 'tags')
+                            'submitter', 'mbox', 'mbox', 'series', 'comments',
+                            'check', 'checks', 'tags')
+        versioned_fields = {
+            '1.1': ('comments', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
         }
@@ -121,11 +129,6 @@ class PatchDetailSerializer(PatchListSerializer):
 
     headers = SerializerMethodField()
     prefixes = SerializerMethodField()
-    comments = SerializerMethodField()
-
-    def get_comments(self, patch):
-        return self.context.get('request').build_absolute_uri(
-            reverse('api-comment-list', kwargs={'pk': patch.id}))
 
     def get_headers(self, patch):
         headers = {}
@@ -147,13 +150,11 @@ class PatchDetailSerializer(PatchListSerializer):
     class Meta:
         model = Patch
         fields = PatchListSerializer.Meta.fields + (
-            'headers', 'content', 'diff', 'prefixes', 'comments')
+            'headers', 'content', 'diff', 'prefixes')
         read_only_fields = PatchListSerializer.Meta.read_only_fields + (
-            'headers', 'content', 'diff', 'prefixes', 'comments')
+            'headers', 'content', 'diff', 'prefixes')
+        versioned_fields = PatchListSerializer.Meta.versioned_fields
         extra_kwargs = PatchListSerializer.Meta.extra_kwargs
-        versioned_fields = {
-            '1.1': ('comments', ),
-        }
 
 
 class PatchList(ListAPIView):

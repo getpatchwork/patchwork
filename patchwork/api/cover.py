@@ -38,18 +38,23 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
     submitter = PersonSerializer(read_only=True)
     mbox = SerializerMethodField()
     series = SeriesSerializer(many=True, read_only=True)
+    comments = SerializerMethodField()
 
     def get_mbox(self, instance):
         request = self.context.get('request')
         return request.build_absolute_uri(instance.get_mbox_url())
 
+    def get_comments(self, cover):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-comment-list', kwargs={'pk': cover.id}))
+
     class Meta:
         model = CoverLetter
         fields = ('id', 'url', 'project', 'msgid', 'date', 'name', 'submitter',
-                  'mbox', 'series')
+                  'mbox', 'series', 'comments')
         read_only_fields = fields
         versioned_fields = {
-            '1.1': ('mbox', ),
+            '1.1': ('mbox', 'comments'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
@@ -59,11 +64,6 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 class CoverLetterDetailSerializer(CoverLetterListSerializer):
 
     headers = SerializerMethodField()
-    comments = SerializerMethodField()
-
-    def get_comments(self, cover):
-        return self.context.get('request').build_absolute_uri(
-            reverse('api-comment-list', kwargs={'pk': cover.id}))
 
     def get_headers(self, instance):
         headers = {}
@@ -82,12 +82,10 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
     class Meta:
         model = CoverLetter
         fields = CoverLetterListSerializer.Meta.fields + (
-            'headers', 'content', 'comments')
+            'headers', 'content')
         read_only_fields = fields
         extra_kwargs = CoverLetterListSerializer.Meta.extra_kwargs
-        versioned_fields = {
-            '1.1': ('mbox', 'comments'),
-        }
+        versioned_fields = CoverLetterListSerializer.Meta.versioned_fields
 
 
 class CoverLetterList(ListAPIView):

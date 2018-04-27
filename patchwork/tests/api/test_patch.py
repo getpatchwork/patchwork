@@ -62,6 +62,7 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.msgid, patch_json['msgid'])
         self.assertEqual(patch_obj.state.slug, patch_json['state'])
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
+        self.assertIn('comments', patch_json)
 
         # nested fields
 
@@ -143,10 +144,6 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch.content, resp.data['content'])
         self.assertEqual(patch.diff, resp.data['diff'])
         self.assertEqual(0, len(resp.data['tags']))
-
-        # test comments
-        resp = self.client.get(self.api_url(patch.id))
-        self.assertIn('comments', resp.data)
 
         # test old version of API
         resp = self.client.get(self.api_url(item=patch.id, version='1.0'))

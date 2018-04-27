@@ -57,6 +57,7 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(cover_obj.id, cover_json['id'])
         self.assertEqual(cover_obj.name, cover_json['name'])
         self.assertIn(cover_obj.get_mbox_url(), cover_json['mbox'])
+        self.assertIn('comments', cover_json)
 
         # nested fields
 
@@ -125,10 +126,6 @@ class TestCoverLetterAPI(APITestCase):
                                                         True)
         for key, value in parsed_headers.items():
             self.assertIn(value, resp.data['headers'][key])
-
-        # test comments
-        resp = self.client.get(self.api_url(cover_obj.id))
-        self.assertIn('comments', resp.data)
 
         # test old version of API
         resp = self.client.get(self.api_url(cover_obj.id, version='1.0'))
