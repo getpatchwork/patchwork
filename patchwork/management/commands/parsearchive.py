@@ -22,7 +22,6 @@ import mailbox
 import os
 import sys
 
-import django
 from django.core.management.base import BaseCommand
 
 from patchwork import models
@@ -49,7 +48,6 @@ class Command(BaseCommand):
             models.CoverLetter: 0,
             models.Comment: 0,
         }
-        duplicates = 0
         dropped = 0
         errors = 0
 
@@ -92,8 +90,6 @@ class Command(BaseCommand):
                     results[type(obj)] += 1
                 else:
                     dropped += 1
-            except django.db.utils.IntegrityError:
-                duplicates += 1
             except ValueError:
                 # TODO(stephenfin): Perhaps we should store the broken patch
                 # somewhere for future reference?
@@ -108,7 +104,6 @@ class Command(BaseCommand):
             '  %(covers)4d cover letters\n'
             '  %(patches)4d patches\n'
             '  %(comments)4d comments\n'
-            '  %(duplicates)4d duplicates\n'
             '  %(dropped)4d dropped\n'
             '  %(errors)4d errors\n'
             'Total: %(new)s new entries' % {
@@ -116,9 +111,8 @@ class Command(BaseCommand):
                 'covers': results[models.CoverLetter],
                 'patches': results[models.Patch],
                 'comments': results[models.Comment],
-                'duplicates': duplicates,
                 'dropped': dropped,
                 'errors': errors,
-                'new': count - duplicates - dropped - errors,
+                'new': count - dropped - errors,
             })
         mbox.close()

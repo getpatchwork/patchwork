@@ -40,30 +40,27 @@ class ParsemailTest(TestCase):
 
     def test_missing_project_path(self):
         path = os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox')
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=path)
+        call_command('parsemail', infile=path)
 
-        self.assertEqual(exc.exception.code, 1)
+        count = models.Patch.objects.all().count()
+        self.assertEqual(count, 0)
 
     def test_missing_project_stdin(self):
         path = os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox')
         sys.stdin.close()
         sys.stdin = open(path)
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=None)
+        call_command('parsemail', infile=None)
 
         sys.stdin.close()
-        self.assertEqual(exc.exception.code, 1)
+        count = models.Patch.objects.all().count()
+        self.assertEqual(count, 0)
 
     def test_valid_path(self):
         project = utils.create_project()
         utils.create_state()
 
         path = os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox')
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=path, list_id=project.listid)
-
-        self.assertEqual(exc.exception.code, 0)
+        call_command('parsemail', infile=path, list_id=project.listid)
 
         count = models.Patch.objects.filter(project=project.id).count()
         self.assertEqual(count, 1)
@@ -75,12 +72,9 @@ class ParsemailTest(TestCase):
         path = os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox')
         sys.stdin.close()
         sys.stdin = open(path)
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=None,
-                         list_id=project.listid)
+        call_command('parsemail', infile=None, list_id=project.listid)
 
         sys.stdin.close()
-        self.assertEqual(exc.exception.code, 0)
 
         count = models.Patch.objects.filter(project=project.id).count()
         self.assertEqual(count, 1)
@@ -90,10 +84,7 @@ class ParsemailTest(TestCase):
         utils.create_state()
 
         path = os.path.join(TEST_MAIL_DIR, '0013-with-utf8-body.mbox')
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=path, list_id=project.listid)
-
-        self.assertEqual(exc.exception.code, 0)
+        call_command('parsemail', infile=path, list_id=project.listid)
 
         count = models.Patch.objects.filter(project=project.id).count()
         self.assertEqual(count, 1)
@@ -105,14 +96,29 @@ class ParsemailTest(TestCase):
         path = os.path.join(TEST_MAIL_DIR, '0013-with-utf8-body.mbox')
         sys.stdin.close()
         sys.stdin = open(path)
-        with self.assertRaises(SystemExit) as exc:
-            call_command('parsemail', infile=None,
-                         list_id=project.listid)
-
-        self.assertEqual(exc.exception.code, 0)
+        call_command('parsemail', infile=None, list_id=project.listid)
 
         count = models.Patch.objects.filter(project=project.id).count()
         self.assertEqual(count, 1)
+
+    def test_dup_mail(self):
+        project = utils.create_project()
+        utils.create_state()
+
+        path = os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox')
+        call_command('parsemail', infile=path, list_id=project.listid)
+
+        count = models.Patch.objects.filter(project=project.id).count()
+        self.assertEqual(count, 1)
+
+        # the parser should return None, not throwing an exception
+        # as this is a pretty normal part of life on a busy site
+        call_command('parsemail', infile=path, list_id=project.listid)
+
+        # this would be lovely but doesn't work because we caused an error in
+        # the transaction and we have no way to reset it
+        # count = models.Patch.objects.filter(project=project.id).count()
+        # self.assertEqual(count, 1)
 
 
 class ParsearchiveTest(TestCase):

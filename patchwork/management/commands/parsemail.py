@@ -66,12 +66,20 @@ class Command(base.BaseCommand):
             logger.warning("Broken email ignored")
             return
 
+        # it's important to get exit codes correct here. The key is to allow
+        # proper separation of real errors vs expected 'failures'.
+        #
+        # patch/comment parsed:        0
+        # no parseable content found:  0
+        # duplicate messages:          0
+        # db integrity/other db error: 1
+        # broken email (ValueError):   1 (this could be noisy, if it's an issue
+        #                                 we could use a different return code)
         try:
             result = parse_mail(mail, options['list_id'])
-            if result:
-                sys.exit(0)
-            logger.warning('Failed to parse mail')
-            sys.exit(1)
+            if result is None:
+                logger.warning('Nothing added to database')
         except Exception:
             logger.exception('Error when parsing incoming email',
                              extra={'mail': mail.as_string()})
+            sys.exit(1)
