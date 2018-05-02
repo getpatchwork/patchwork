@@ -6,8 +6,6 @@ services:
       - ./tools/docker/db/postdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=password
-      - PGUSER=postgres
-      - PGPASSWORD=password
 
   web:
     build:
@@ -29,3 +27,4 @@ services:
       - PW_TEST_DB_TYPE=postgres
       - PW_TEST_DB_USER=postgres
       - PW_TEST_DB_PASS=password
+      - PGPASSWORD=password
