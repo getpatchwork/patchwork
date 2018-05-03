@@ -46,7 +46,7 @@ class TestCoverComments(APITestCase):
             kwargs['version'] = version
         kwargs['pk'] = cover.id
 
-        return reverse('api-comment-list', kwargs=kwargs)
+        return reverse('api-cover-comment-list', kwargs=kwargs)
 
     def assertSerialized(self, comment_obj, comment_json):
         self.assertEqual(comment_obj.id, comment_json['id'])
@@ -85,7 +85,7 @@ class TestPatchComments(APITestCase):
             kwargs['version'] = version
         kwargs['pk'] = patch.id
 
-        return reverse('api-comment-list', kwargs=kwargs)
+        return reverse('api-patch-comment-list', kwargs=kwargs)
 
     def assertSerialized(self, comment_obj, comment_json):
         self.assertEqual(comment_obj.id, comment_json['id'])
