@@ -99,6 +99,8 @@ def _submission_to_mbox(submission):
 
     orig_headers = HeaderParser().parsestr(str(submission.headers))
     for key, val in orig_headers.items():
+        if key == 'Content-Transfer-Encoding':
+            continue
         mail[key] = val
 
     if 'Date' not in mail:
