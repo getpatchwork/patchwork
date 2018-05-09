@@ -4,6 +4,7 @@ Overview
 The key concepts or models of Patchwork are outlined below.
 
 .. contents::
+   :local:
 
 
 Projects
