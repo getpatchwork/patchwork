@@ -25,6 +25,11 @@ where `patchwork.example.com` refers to the URL of your Patchwork instance.
    The REST API was introduced in Patchwork v2.0. Users of earlier Patchwork
    versions should instead refer to :doc:`XML-RPC API <xmlrpc>` documentation.
 
+.. versionchanged:: 2.1
+
+   The API version was bumped to v1.1 in Patchwork v2.1. The older v1.0 API is
+   still supported. For more information, refer to :ref:`rest-api-versions`.
+
 Getting Started
 ---------------
 
@@ -103,6 +108,9 @@ changes breaking your application:
 
     GET /api/1.1 HTTP/1.1
 
+Older API versions will be deprecated and removed over time. For more
+information, refer to :ref:`rest-api-versions`.
+
 Schema
 ------
 
@@ -158,6 +166,11 @@ parameters should be passed as form-encoded data:
 
     $ curl -X PATCH -F 'state=under-review' \
       'https://patchwork.example.com/api/patches/123'
+
+.. versionchanged:: 2.1
+
+   API version 1.1 allows filters to be specified multiple times. Prior to
+   this, only the last value for a given filter key would be used.
 
 Authentication
 --------------
@@ -221,6 +234,22 @@ The possible ``rel`` values are:
      - The link relation for the first page of results.
    * - ``prev``
      - The link relation for the immediate previous page of results.
+
+.. _rest-api-versions:
+
+Supported Versions
+------------------
+
+.. csv-table::
+   :header: "API Version", "Since", "Supported?"
+
+   1.0, 2.0, ✓
+   1.1, 2.1, ✓
+
+Further information about this and more can typically be found in
+:doc:`the release notes </releases/index>`.
+
+.. Links
 
 .. _curl: https://curl.haxx.se/
 .. _requests: http://docs.python-requests.org/en/master/
