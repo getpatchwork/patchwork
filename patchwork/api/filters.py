@@ -24,6 +24,7 @@ from django_filters.rest_framework import FilterSet
 from django_filters import IsoDateTimeFilter
 from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
+from django.forms.widgets import MultipleHiddenInput
 
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -200,10 +201,17 @@ class CheckFilterSet(TimestampMixin, FilterSet):
 
 class EventFilterSet(TimestampMixin, FilterSet):
 
-    project = ProjectFilter(queryset=Project.objects.all())
-    series = BaseFilter(queryset=Series.objects.all())
-    patch = BaseFilter(queryset=Patch.objects.all())
-    cover = BaseFilter(queryset=CoverLetter.objects.all())
+    # NOTE(stephenfin): We disable the select-based HTML widgets for these
+    # filters as the resulting query is _huge_
+    # TODO(stephenfin): We should really use an AJAX widget of some form here
+    project = ProjectFilter(queryset=Project.objects.all(),
+                            widget=MultipleHiddenInput)
+    series = BaseFilter(queryset=Series.objects.all(),
+                        widget=MultipleHiddenInput)
+    patch = BaseFilter(queryset=Patch.objects.all(),
+                       widget=MultipleHiddenInput)
+    cover = BaseFilter(queryset=CoverLetter.objects.all(),
+                       widget=MultipleHiddenInput)
 
     class Meta:
         model = Event
