@@ -168,7 +168,10 @@ class SeriesFilterSet(TimestampMixin, FilterSet):
 class CoverLetterFilterSet(TimestampMixin, FilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
-    series = BaseFilter(queryset=Project.objects.all())
+    # NOTE(stephenfin): We disable the select-based HTML widgets for these
+    # filters as the resulting query is _huge_
+    series = BaseFilter(queryset=Project.objects.all(),
+                        widget=MultipleHiddenInput)
     submitter = PersonFilter(queryset=Person.objects.all())
 
     class Meta:
@@ -179,7 +182,10 @@ class CoverLetterFilterSet(TimestampMixin, FilterSet):
 class PatchFilterSet(TimestampMixin, FilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
-    series = BaseFilter(queryset=Series.objects.all())
+    # NOTE(stephenfin): We disable the select-based HTML widgets for these
+    # filters as the resulting query is _huge_
+    series = BaseFilter(queryset=Series.objects.all(),
+                        widget=MultipleHiddenInput)
     submitter = PersonFilter(queryset=Person.objects.all())
     delegate = UserFilter(queryset=User.objects.all())
     state = StateFilter(queryset=State.objects.all())
