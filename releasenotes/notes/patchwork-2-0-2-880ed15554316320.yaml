@@ -1,0 +1,21 @@
+---
+fixes:
+  - |
+    Resolve some issues caused by parallel parsing of series.
+  - |
+    Poorly formatted email headers are now handled correctly.
+  - |
+    Patches with CRLF newlines are now parsed correctly and these line endings
+    are stripped when saving patches.
+  - |
+    Resolved some issues with pagination.
+  - |
+    Emails from *git-pull-request* v2.14.3+ are now handled correctly.
+  - |
+    Token generation from the web UI is now disabled if the REST API is
+    disabled. This was causing an exception.
+  - |
+    Non-breaking spaces in tags are now handled correctly.
+  - |
+    Patches with no space before the series marker, such as ``PATCH1/8``, are
+    now parsed correctly.
