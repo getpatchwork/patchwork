@@ -19,7 +19,7 @@
 
 from patchwork.version import get_latest_version
 
-VERSION = (2, 1, 0, 'rc', 1)
+VERSION = (2, 1, 0, 'rc', 2)
 
 __version__ = get_latest_version(VERSION)
 
