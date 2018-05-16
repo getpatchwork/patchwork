@@ -31,14 +31,18 @@ cscope.*
 *~
 \#*\#
 
+*.sql
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.venv/
 .coverage
 .coverage.*
 
 # Django stuff
 *.log
+/*.json
 
 # Sphinx stuff
 /docs/_build
@@ -52,3 +56,6 @@ htmlcov/
 
 # Patchwork configuration files
 patchwork/settings/production.py
+
+# docker-compose configuration files
+/.env
