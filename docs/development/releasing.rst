@@ -43,20 +43,25 @@ These version numbers are exposed via the API and it's possible to request a
 specific version in the URL. Refer to the `API Guide <../api/rest>` for more
 information.
 
+
 Release Cycle
 -------------
 
 There is no cadence for releases: they are made available as necessary.
 
+
 Supported Versions
 ------------------
 
-Typically all development should occur on `master`. While we will backport
+Typically all development should occur on ``master``. While we will backport
 bugfixes and security updates, we will not backport any new features. This is
 to ensure stability for users of these versions of Patchwork.
 
+
 Release Checklist
 -----------------
+
+The follow steps apply to all releases:
 
 * Documentation has been updated with latest release version
 
@@ -73,22 +78,29 @@ Release Checklist
 * A `GitHub Release`__, with text corresponding to an abbreviated form of the
   release notes for that cycle, has been created
 
-The following only apply to full releases, or those where the `MAJOR` or
-`MINOR` number is incremented:
+* An email describing the release and top-level overview of the changes has
+  been sent to the mailing list. Refer to the emails for `Patchwork v2.0.0`__
+  and `Patchwork v2.0.1`__ for examples.
 
-* A new branch called `stable/MAJOR.MINOR` has been created from the tagged
+The following only apply to full releases, or those where the **MAJOR** or
+**MINOR** number is incremented:
+
+* A new branch called ``stable/MAJOR.MINOR`` has been created from the tagged
   commit
 
 Once released, bump the version found in ``patchwork/__init__.py`` once again.
 
 __ https://git-scm.com/book/en/v2/Git-Basics-Tagging
 __ https://github.com/getpatchwork/patchwork/releases/new
+__ https://lists.ozlabs.org/pipermail/patchwork/2017-August/004549.html
+__ https://lists.ozlabs.org/pipermail/patchwork/2017-December/004683.html
+
 
 Backporting
 -----------
 
 We will occasionally backport bugfixes and security updates. When backporting a
-patch, said patch should first be merged into `master`. Once merged, you can
+patch, said patch should first be merged into ``master``. Once merged, you can
 backport by cherry-picking commits, using the ``-x`` flag for posterity:
 
 .. code-block:: shell
@@ -101,5 +113,5 @@ when committing::
    Conflicts
            patchwork/bin/pwclient
 
-When enough patches have been backported, you should release a new `PATCH`
+When enough patches have been backported, you should release a new **PATCH**
 release.

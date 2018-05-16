@@ -12,6 +12,9 @@ To begin, you should clone Patchwork:
 
    $ git clone git://github.com/getpatchwork/patchwork.git
 
+
+.. _installation-docker:
+
 Docker-Based Installation
 -------------------------
 

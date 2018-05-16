@@ -19,24 +19,26 @@ Testing
 -------
 
 Patchwork includes a `tox`_ script to automate testing. This requires a
-functional database and some Python requirements like `tox`. Refer to
+functional database and some Python requirements like *tox*. Refer to
 :doc:`installation` for information on how to configure these.
 
-You may also need to install `tox`. If so, do this now:
+You may also need to install *tox*. If so, do this now:
 
 .. code-block:: shell
 
-   $ sudo pip install tox
+   $ pip install --user tox
 
 .. tip::
 
-   If you're using Docker, you may not need to install `tox`
+   If you're using Docker, you may not need to install *tox*
    locally. Instead, it will already be installed inside the
-   container. For Docker, you can run `tox` like so:
+   container. For Docker, you can run *tox* like so:
 
    .. code-block:: shell
 
-      $ docker-compose run web tox [ARGS...]
+      $ docker-compose run --rm web tox [ARGS...]
+
+   For more information, refer to :ref:`installation-docker`.
 
 Assuming these requirements are met, actually testing Patchwork is quite easy
 to do. To start, you can show the default targets like so:
@@ -70,17 +72,18 @@ this:
 
    $ tox
 
+
 .. _release-notes:
 
 Release Notes
 -------------
 
-Patchwork uses `reno`_ for release note management. To use `reno`, you must
+Patchwork uses `reno`_ for release note management. To use *reno*, you must
 first install it:
 
 .. code-block:: shell
 
-   $ sudo pip install reno
+   $ pip install --user reno
 
 Once installed, a new release note can be created using the ``reno new``
 command:
@@ -91,6 +94,7 @@ command:
 
 Modify the created file, removing any irrelevant sections, and include the
 modified file in your change.
+
 
 API
 ---
@@ -106,13 +110,21 @@ for more information.
     All API changes should be called out in :ref:`release notes
     <release-notes>` using the ``api`` section.
 
+
+Reporting Issues
+----------------
+
+You can report issues to the :ref:`mailing list <mailing-lists>` or the `GitHub
+issue tracker`_.
+
+
 Submitting Changes
 ------------------
 
-All patches should be sent to the `mailing list`_. When doing so, please abide
-by the `QEMU guidelines`_ on contributing or submitting patches. This covers
-both the initial submission and any follow up to the patches. In particular,
-ensure:
+All patches should be sent to the :ref:`mailing list <mailing-lists>`. You must
+be subscribed to the list in order to submit patches. Please abide by the `QEMU
+guidelines`_ on contributing or submitting patches. This covers both the
+initial submission and any follow up to the patches. In particular, ensure:
 
 * :ref:`All tests pass <testing>`
 
@@ -120,8 +132,25 @@ ensure:
 
 * :ref:`A release note is included <release-notes>`
 
+Patches should ideally be submitted using the *git send-email* tool.
+
+
+.. _mailing-lists:
+
+Mailing Lists
+-------------
+
+Patchwork uses a single mailing list for development, questions and
+announcements.
+
+    patchwork@lists.ozlabs.org
+
+Further information about the Patchwork mailing list is available can be found on
+`lists.ozlabs.org`_.
+
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _reno: https://docs.openstack.org/developer/reno/
-.. _mailing list: https://ozlabs.org/mailman/listinfo/patchwork
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
 .. _Django REST Framework documentation: http://www.django-rest-framework.org/api-guide/versioning/
+.. _GitHub issue tracker: https://github.com/getpatchwork/patchwork
+.. _lists.ozlabs.org: https://lists.ozlabs.org/listinfo/patchwork
