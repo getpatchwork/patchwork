@@ -30,8 +30,6 @@ extensions = ['sphinx.ext.todo', 'reno.sphinxext']
 
 if has_rtd_theme:
     html_theme = 'sphinx_rtd_theme'
-    # TODO(stephenfin): Remove this once we use v0.2.5
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = []
@@ -47,8 +45,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Patchwork'
-copyright = u'2017, Stephen Finucane'
-author = u'Stephen Finucane'
+copyright = u'2018, Patchwork Developers'
+author = u'Patchwork Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
