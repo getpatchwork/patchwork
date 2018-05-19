@@ -194,13 +194,11 @@ $(document).ready(function() {
     </a>
    </td>
    <td>
-    {% with patch.series.all.0 as series %}
-     {% if series %}
-     <a href="?series={{series.id}}">
-      {{ series|truncatechars:100 }}
-     </a>
-     {% endif %}
-    {% endwith %}
+    {% if patch.series %}
+    <a href="?series={{patch.series.id}}">
+     {{ patch.series|truncatechars:100 }}
+    </a>
+    {% endif %}
    </td>
    <td class="text-nowrap">{{ patch|patch_tags }}</td>
    <td class="text-nowrap">{{ patch|patch_checks }}</td>

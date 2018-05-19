@@ -15,7 +15,6 @@ from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import PatchChangeNotification
 from patchwork.models import Series
-from patchwork.models import SeriesPatch
 
 
 @receiver(pre_save, sender=Patch)
@@ -133,39 +132,46 @@ def create_patch_delegated_event(sender, instance, raw, **kwargs):
     create_event(instance, orig_patch.delegate, instance.delegate)
 
 
-@receiver(post_save, sender=SeriesPatch)
-def create_patch_completed_event(sender, instance, created, raw, **kwargs):
-    """Create patch completed event for patches with series."""
+@receiver(pre_save, sender=Patch)
+def create_patch_completed_event(sender, instance, raw, **kwargs):
 
-    def create_event(patch, series):
+    def create_event(patch):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_COMPLETED,
             project=patch.project,
             patch=patch,
-            series=series)
+            series=patch.series)
 
-    # don't trigger for items loaded from fixtures or existing items
-    if raw or not created:
+    # don't trigger for items loaded from fixtures, new items or items that
+    # (still) don't have a series
+    if raw or not instance.pk or not instance.series:
+        return
+
+    orig_patch = Patch.objects.get(pk=instance.pk)
+
+    # we don't currently allow users to change a series, though this might
+    # change in the future. However, we handle that here nonetheless
+    if orig_patch.series == instance.series:
         return
 
     # if dependencies not met, don't raise event. There's also no point raising
     # events for successors since they'll have the same issue
-    predecessors = SeriesPatch.objects.filter(
+    predecessors = Patch.objects.filter(
         series=instance.series, number__lt=instance.number)
     if predecessors.count() != instance.number - 1:
         return
 
-    create_event(instance.patch, instance.series)
+    create_event(instance)
 
     # if this satisfies dependencies for successor patch, raise events for
     # those
     count = instance.number + 1
-    for successor in SeriesPatch.objects.filter(
+    for successor in Patch.objects.order_by('number').filter(
             series=instance.series, number__gt=instance.number):
         if successor.number != count:
             break
 
-        create_event(successor.patch, successor.series)
+        create_event(successor)
         count += 1
 
 
@@ -204,14 +210,8 @@ def create_series_created_event(sender, instance, created, raw, **kwargs):
     create_event(instance)
 
 
-@receiver(post_save, sender=SeriesPatch)
+@receiver(post_save, sender=Patch)
 def create_series_completed_event(sender, instance, created, raw, **kwargs):
-
-    # NOTE(stephenfin): We subscribe to the SeriesPatch.post_save signal
-    # instead of Series.m2m_changed to minimize the amount of times this is
-    # fired. The m2m_changed signal doesn't support a 'changed' parameter,
-    # which we could use to quick skip the signal when a patch is merely
-    # updated instead of added to the series.
 
     # NOTE(stephenfin): It's actually possible for this event to be fired
     # multiple times for a given series. To trigger this case, you would need
@@ -229,5 +229,5 @@ def create_series_completed_event(sender, instance, created, raw, **kwargs):
     if raw or not created:
         return
 
-    if instance.series.received_all:
+    if instance.series and instance.series.received_all:
         create_event(instance.series)

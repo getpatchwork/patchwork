@@ -19,7 +19,6 @@ from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
-from patchwork.models import SeriesPatch
 from patchwork.models import SeriesReference
 from patchwork.models import State
 from patchwork.tests import TEST_PATCH_DIR
@@ -228,17 +227,24 @@ def create_series(**kwargs):
 
 
 def create_series_patch(**kwargs):
-    """Create 'SeriesPatch' object."""
+    """Create 'Patch' object and associate with a series."""
+    # TODO(stephenfin): Remove this and all callers
     num = 1 if 'series' not in kwargs else kwargs['series'].patches.count() + 1
+    if 'number' in kwargs:
+        num = kwargs['number']
 
-    values = {
-        'series': create_series() if 'series' not in kwargs else None,
-        'number': num,
-        'patch': create_patch() if 'patch' not in kwargs else None,
-    }
-    values.update(**kwargs)
+    series = create_series() if 'series' not in kwargs else kwargs['series']
+    patch = create_patch() if 'patch' not in kwargs else kwargs['patch']
 
-    return SeriesPatch.objects.create(**values)
+    series.add_patch(patch, num)
+
+    class SeriesPatch(object):
+        """Simple wrapper to avoid needing to update all tests at once."""
+        def __init__(self, series, patch):
+            self.series = series
+            self.patch = patch
+
+    return SeriesPatch(series=series, patch=patch)
 
 
 def create_series_reference(**kwargs):

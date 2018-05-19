@@ -15,22 +15,9 @@
    class="btn btn-default" role="button" title="Download cover mbox"
    >mbox</a>
   {% endif %}
-  {% if all_series|length == 1 %}
-  {% with all_series|first as series %}
-  <a href="{% url 'series-mbox' series_id=series.id %}"
+  {% if submission.series %}
+  <a href="{% url 'series-mbox' series_id=submission.series.id %}"
    class="btn btn-default" role="button"
    title="Download patch mbox with dependencies">series</a>
-  {% endwith %}
-  {% elif all_series|length > 1 %}
-  <button type="button" class="btn btn-default dropdown-toggle"
-   data-toggle="dropdown">
-   series <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu">
-  {% for series in all_series %}
-   <li><a href="{% url 'series-mbox' series_id=series.id %}"
-    >{{ series }}</a></li>
-  {% endfor %}
-  </ul>
   {% endif %}
 </div>

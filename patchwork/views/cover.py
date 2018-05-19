@@ -36,7 +36,6 @@ def cover_detail(request, cover_id):
     comments = comments.only('submitter', 'date', 'id', 'content',
                              'submission')
     context['comments'] = comments
-    context['all_series'] = cover.series.all().order_by('-date')
 
     return render(request, 'patchwork/submission.html', context)
 

@@ -105,7 +105,6 @@ def patch_detail(request, patch_id):
                              'submission')
 
     context['comments'] = comments
-    context['all_series'] = patch.series.all().order_by('-date')
     context['checks'] = patch.check_set.all().select_related('user')
     context['submission'] = patch
     context['patchform'] = form
@@ -132,7 +131,7 @@ def patch_mbox(request, patch_id):
 
     response = HttpResponse(content_type='text/plain')
     if series_id:
-        if not patch.series.count():
+        if not patch.series:
             raise Http404('Patch does not have an associated series. This is '
                           'because the patch was processed with an older '
                           'version of Patchwork. It is not possible to '

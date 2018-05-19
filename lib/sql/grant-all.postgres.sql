@@ -27,7 +27,6 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_person,
 	patchwork_project,
 	patchwork_series,
-	patchwork_seriespatch,
 	patchwork_seriesreference,
 	patchwork_state,
 	patchwork_submission,
@@ -56,7 +55,6 @@ GRANT SELECT, UPDATE ON
 	patchwork_person_id_seq,
 	patchwork_project_id_seq,
 	patchwork_series_id_seq,
-	patchwork_seriespatch_id_seq,
 	patchwork_seriesreference_id_seq,
 	patchwork_state_id_seq,
 	patchwork_tag_id_seq,
@@ -70,7 +68,6 @@ GRANT INSERT, SELECT ON
 	patchwork_comment,
 	patchwork_coverletter,
 	patchwork_event
-	patchwork_seriespatch,
 	patchwork_seriesreference,
 	patchwork_submission,
 TO "nobody";
@@ -93,7 +90,6 @@ GRANT UPDATE, SELECT ON
 	patchwork_patchtag_id_seq,
 	patchwork_person_id_seq,
 	patchwork_series_id_seq,
-	patchwork_seriespatch_id_seq,
 	patchwork_seriesreference_id_seq,
 TO "nobody";
 

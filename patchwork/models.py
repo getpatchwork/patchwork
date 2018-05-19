@@ -407,6 +407,15 @@ class Patch(Submission):
     # patches in a project without needing to do a JOIN.
     patch_project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
+    # series metadata
+
+    series = models.ForeignKey(
+        'Series', null=True, blank=True, on_delete=models.CASCADE,
+        related_name='patches', related_query_name='patch')
+    number = models.PositiveSmallIntegerField(
+        default=None, null=True,
+        help_text='The number assigned to this patch in the series')
+
     objects = PatchManager()
 
     @staticmethod
@@ -563,6 +572,7 @@ class Patch(Submission):
     class Meta:
         verbose_name_plural = 'Patches'
         base_manager_name = 'objects'
+        unique_together = [('series', 'number')]
 
         indexes = [
             # This is a covering index for the /list/ query
@@ -606,19 +616,16 @@ class Comment(EmailMixin, models.Model):
 
 @python_2_unicode_compatible
 class Series(FilenameMixin, models.Model):
-    """An collection of patches."""
+    """A collection of patches."""
 
     # parent
     project = models.ForeignKey(Project, related_name='series', null=True,
                                 blank=True, on_delete=models.CASCADE)
 
     # content
-    cover_letter = models.ForeignKey(CoverLetter,
-                                     related_name='series',
-                                     null=True, blank=True,
-                                     on_delete=models.CASCADE)
-    patches = models.ManyToManyField(Patch, through='SeriesPatch',
-                                     related_name='series')
+    cover_letter = models.OneToOneField(CoverLetter, related_name='series',
+                                        null=True,
+                                        on_delete=models.CASCADE)
 
     # metadata
     name = models.CharField(max_length=255, blank=True, null=True,
@@ -684,9 +691,8 @@ class Series(FilenameMixin, models.Model):
             self.name = self._format_name(cover)
         else:
             try:
-                name = SeriesPatch.objects.get(series=self,
-                                               number=1).patch.name
-            except SeriesPatch.DoesNotExist:
+                name = Patch.objects.get(series=self, number=1).name
+            except Patch.DoesNotExist:
                 name = None
 
             if self.name == name:
@@ -696,20 +702,16 @@ class Series(FilenameMixin, models.Model):
 
     def add_patch(self, patch, number):
         """Add a patch to the series."""
-        # see if the patch is already in this series
-        if SeriesPatch.objects.filter(series=self, patch=patch).count():
-            # TODO(stephenfin): We may wish to raise an exception here in the
-            # future
-            return
-
         # both user defined names and cover letter-based names take precedence
         if not self.name and number == 1:
             self.name = patch.name  # keep the prefixes for patch-based names
             self.save()
 
-        return SeriesPatch.objects.create(series=self,
-                                          patch=patch,
-                                          number=number)
+        patch.series = self
+        patch.number = number
+        patch.save()
+
+        return patch
 
     def get_absolute_url(self):
         # TODO(stephenfin): We really need a proper series view
@@ -725,26 +727,6 @@ class Series(FilenameMixin, models.Model):
 
     class Meta:
         verbose_name_plural = 'Series'
-
-
-@python_2_unicode_compatible
-class SeriesPatch(models.Model):
-    """A patch in a series.
-
-    Patches can belong to many series. This allows for things like
-    auto-completion of partial series.
-    """
-    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
-    series = models.ForeignKey(Series, on_delete=models.CASCADE)
-    number = models.PositiveSmallIntegerField(
-        help_text='The number assigned to this patch in the series')
-
-    def __str__(self):
-        return self.patch.name
-
-    class Meta:
-        unique_together = [('series', 'patch'), ('series', 'number')]
-        ordering = ['number']
 
 
 @python_2_unicode_compatible

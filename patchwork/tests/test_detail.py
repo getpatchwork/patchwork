@@ -9,7 +9,6 @@ from django.urls import reverse
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch
-from patchwork.tests.utils import create_series
 
 
 class CoverLetterViewTest(TestCase):
@@ -34,21 +33,6 @@ class PatchViewTest(TestCase):
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
-
-    def test_series_dropdown(self):
-        patch = create_patch()
-        series = [create_series() for x in range(5)]
-
-        for series_ in series:
-            series_.add_patch(patch, 1)
-
-        response = self.client.get(
-            reverse('patch-detail', kwargs={'patch_id': patch.id}))
-
-        for series_ in series:
-            self.assertContains(
-                response,
-                reverse('series-mbox', kwargs={'series_id': series_.id}))
 
 
 class CommentRedirectTest(TestCase):

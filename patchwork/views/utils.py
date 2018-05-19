@@ -18,7 +18,6 @@ from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
-from patchwork.models import Series
 
 if settings.ENABLE_REST_API:
     from rest_framework.authtoken.models import Token
@@ -128,26 +127,22 @@ def series_patch_to_mbox(patch, series_id):
     Returns:
         A string for the mbox file.
     """
-    if series_id == '*':
-        series = patch.series.order_by('-date').first()
-    else:
+    if series_id != '*':
         try:
             series_id = int(series_id)
         except ValueError:
             raise Http404('Expected integer series value or *. Received: %r' %
                           series_id)
 
-        try:
-            series = patch.series.get(id=series_id)
-        except Series.DoesNotExist:
+        if patch.series.id != series_id:
             raise Http404('Patch does not belong to series %d' % series_id)
 
     mbox = []
 
     # get the series-ified patch
-    number = series.seriespatch_set.get(patch=patch).number
-    for dep in series.seriespatch_set.filter(number__lt=number):
-        mbox.append(patch_to_mbox(dep.patch))
+    for dep in patch.series.patches.filter(
+            number__lt=patch.number).order_by('number'):
+        mbox.append(patch_to_mbox(dep))
 
     mbox.append(patch_to_mbox(patch))
 
@@ -165,7 +160,7 @@ def series_to_mbox(series):
     """
     mbox = []
 
-    for dep in series.seriespatch_set.all():
+    for dep in series.patches.all().order_by('number'):
         mbox.append(patch_to_mbox(dep.patch))
 
     return '\n'.join(mbox)

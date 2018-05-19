@@ -24,7 +24,7 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
     mbox = SerializerMethodField()
-    series = SeriesSerializer(many=True, read_only=True)
+    series = SeriesSerializer(read_only=True)
     comments = SerializerMethodField()
 
     def get_web_url(self, instance):
@@ -38,6 +38,15 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
     def get_comments(self, cover):
         return self.context.get('request').build_absolute_uri(
             reverse('api-cover-comment-list', kwargs={'pk': cover.id}))
+
+    def to_representation(self, instance):
+        # NOTE(stephenfin): This is here to ensure our API looks the same even
+        # after we changed the series-patch relationship from M:N to 1:N. It
+        # will be removed in API v2
+        data = super(CoverLetterListSerializer, self).to_representation(
+            instance)
+        data['series'] = [data['series']]
+        return data
 
     class Meta:
         model = CoverLetter
@@ -89,8 +98,8 @@ class CoverLetterList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        return CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('project', 'submitter')\
+        return CoverLetter.objects.all()\
+            .select_related('project', 'submitter', 'series')\
             .defer('content', 'headers')
 
 
@@ -100,5 +109,5 @@ class CoverLetterDetail(RetrieveAPIView):
     serializer_class = CoverLetterDetailSerializer
 
     def get_queryset(self):
-        return CoverLetter.objects.all().prefetch_related('series')\
-            .select_related('project', 'submitter')
+        return CoverLetter.objects.all()\
+            .select_related('project', 'submitter', 'series')

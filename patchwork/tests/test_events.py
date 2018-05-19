@@ -34,8 +34,8 @@ class PatchCreateTest(_BaseTestCase):
         """No series, so patch dependencies implicitly exist."""
         patch = utils.create_patch()
 
-        # This should raise both the CATEGORY_PATCH_CREATED and
-        # CATEGORY_PATCH_COMPLETED events as there are no specific dependencies
+        # This should raise the CATEGORY_PATCH_CREATED event only as there is
+        # no series
         events = _get_events(patch=patch)
         self.assertEqual(events.count(), 1)
         self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
@@ -56,6 +56,13 @@ class PatchCreateTest(_BaseTestCase):
         self.assertEqual(events[1].project, series_patch.patch.project)
         self.assertEventFields(events[0])
         self.assertEventFields(events[1])
+
+        # This shouldn't be affected by another update to the patch
+        series_patch.patch.commit_ref = 'aac76f0b0f8dd657ff07bb'
+        series_patch.patch.save()
+
+        events = _get_events(patch=series_patch.patch)
+        self.assertEqual(events.count(), 2)
 
     def test_patch_dependencies_out_of_order(self):
         series = utils.create_series()

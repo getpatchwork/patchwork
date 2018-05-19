@@ -64,25 +64,13 @@ function toggle_div(link_id, headers_id)
    </div>
   </td>
  </tr>
-{% if all_series %}
+{% if submission.series %}
  <tr>
   <th>Series</th>
   <td>
-   <div class="patchrelations">
-    <ul>
-     {% for series in all_series %}
-     <li>
-      {% if forloop.first %}
-       {{ series }}
-      {% else %}
-       <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ series.id }}">
-       {{ series }}
-       </a>
-      {% endif %}
-     </li>
-    {% endfor %}
-    </ul>
-   </div>
+   <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
+    {{ submission.series }}
+   </a>
   </td>
  </tr>
  <tr>
@@ -92,9 +80,8 @@ function toggle_div(link_id, headers_id)
       href="javascript:toggle_div('togglepatchrelations', 'patchrelations')"
    >show</a>
    <div id="patchrelations" class="patchrelations" style="display:none;">
-    {% for series in all_series %}
     <ul>
-    {% with series.cover_letter as cover %}
+    {% with submission.series.cover_letter as cover %}
      <li>
      {% if cover %}
       {% if cover == submission %}
@@ -107,7 +94,7 @@ function toggle_div(link_id, headers_id)
      {% endif %}
      </li>
     {% endwith %}
-    {% for sibling in series.patches.all %}
+    {% for sibling in submission.series.patches.all %}
      <li>
       {% if sibling == submission %}
        {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
@@ -119,7 +106,6 @@ function toggle_div(link_id, headers_id)
      </li>
     {% endfor %}
     </ul>
-    {% endfor %}
    </div>
   </td>
  </tr>
