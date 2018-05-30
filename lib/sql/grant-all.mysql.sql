@@ -7,6 +7,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON auth_permission TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_user TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_user_groups TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON auth_user_user_permissions TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON authtoken_token TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON django_admin_log TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON django_content_type TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON django_session TO 'www-data'@localhost;
@@ -19,6 +20,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_coverletter TO 'www-data'@loca
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_delegationrule TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailconfirmation TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_event TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchtag TO 'www-data'@localhost;
