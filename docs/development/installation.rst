@@ -4,7 +4,7 @@ Installation
 This document describes the necessary steps to configure Patchwork in a
 development environment. If you are interested in deploying Patchwork in a
 production environment, refer to `the deployment guide
-<../deployment/installation>`__ instead.
+</deployment/installation>`__ instead.
 
 To begin, you should clone Patchwork:
 

@@ -4,12 +4,13 @@ Installation
 This document describes the necessary steps to configure Patchwork in a
 production environment. This requires a significantly "harder" deployment than
 the one used for development. If you are interested in developing Patchwork,
-refer to the :doc:`development guide <../development/installation>` instead.
+refer to the :doc:`development guide </development/installation>` instead.
 
 This document describes a single-node installation of Patchwork, which will
 handle the database, server, and application. It is possible to split this into
 multiple servers, which would provide additional scalability and availability,
 but this is is out of scope for this document.
+
 
 Deployment Guides, Provisioning Tools and Platform-as-a-Service
 ---------------------------------------------------------------
@@ -36,53 +37,58 @@ available to find one that best suits your requirements. The only issue here
 will likely be the handling of incoming mail - something which many of these
 providers don't support. We address this in the appropriate section below.
 
+
 Requirements
 ------------
 
-For the purpose of this guide, we will assume an *Ubuntu 16.04 host*: commands,
-package names and/or package versions will likely change if using a different
-distro or release. Similarly, usage of different package versions to the ones
-suggested may require slightly different configuration. For example, this guide
-describes configuration with *Python 3* and using Python 2 will require
-different packages and some minor changes to configuration files.
+For the purpose of this guide, we will assume an **Ubuntu 18.04** host:
+commands, package names and/or package versions will likely change if using a
+different distro or release. Similarly, usage of different package versions to
+the ones suggested may require slightly different configuration. For example,
+this guide describes configuration with **Python 3** and using Python 2 will
+require different packages and some minor changes to configuration files.
 
-Before beginning, you should update this system:
+Before beginning, you should update and restart this system:
 
 .. code-block:: shell
 
-   $ sudo apt-get update
-   $ sudo apt-get upgrade
+   $ sudo apt-get update -y
+   $ sudo apt-get upgrade -y
+   $ sudo reboot
 
-We also need to configure some environment variables to ease deployment:
+Once rebooted, we need to configure some environment variables. These will be
+used to ease deployment:
 
 ``DATABASE_NAME=patchwork``
-
   Name of the database. We'll name this after the application itself.
 
 ``DATABASE_USER=www-data``
-
   Username that the Patchwork web application will access the database with. We
-  will use ``www-data``, for reasons described below.
+  will use ``www-data``, for reasons described later in this guide.
 
 ``DATABASE_PASS=``
-
   Password that the Patchwork web application will access the database with. As
-  we're going to use ident authentication (more on this later), this will be
+  we're going to use *peer* authentication (more on this later), this will be
   unset.
 
 ``DATABASE_HOST=``
-
   IP or hostname of the database host. As we're hosting the application on the
-  same host as the database and hoping to use ident authentication, this will
+  same host as the database and hoping to use *peer* authentication, this will
   be unset.
 
 ``DATABASE_PORT=``
-
   Port of the database host. As we're hosting the application on the same host
   as the database and using the default configuration, this will be unset.
 
+Export each of these. For example:
+
+.. code-block:: shell
+
+   $ export DATABASE_NAME=patchwork
+
 The remainder of the requirements are listed as we install and configure the
 various components required.
+
 
 Database
 --------
@@ -100,14 +106,14 @@ Configure Database
 ~~~~~~~~~~~~~~~~~~
 
 We need to create a database for the system using the database name above. In
-addition, we need to add accounts for two system users, the web user (the user
-that the web server runs as) and the mail user (the user that the mail server
-runs as). On Ubuntu these are ``www-data`` and ``nobody``, respectively.
-PostgreSQL supports ident-based authentication, which uses the standard UNIX
+addition, we need to add database users for two system users, the web user (the
+user that the web server runs as) and the mail user (the user that the mail
+server runs as). On Ubuntu these are ``www-data`` and ``nobody``, respectively.
+PostgreSQL supports `peer`__ authentication, which uses the standard UNIX
 authentication method as a backend. This means no database-specific passwords
 need to be configured.
 
-PostgreSQL created a user account called ``postgres``; you will need to run
+PostgreSQL created a system user called ``postgres``; you will need to run
 commands as this user.
 
 .. code-block:: shell
@@ -120,16 +126,8 @@ We will also need to apply permissions to the tables in this database but
 seeing as the tables haven't actually been created yet this will have to be
 done later.
 
-Finally, we should enable ``trust`` authentication. This will allow us to use
-the local ``www-data`` user without having to set a password for a daemon
-account. Replace the following line in
-``/etc/postgresql/9.6/main/pg_hba.conf``::
+__ https://www.postgresql.org/docs/10/static/auth-methods.html#AUTH-PEER
 
-    local   all             all                                     ident
-
-with::
-
-    local   all             all                                     trust
 
 Patchwork
 ---------
@@ -141,14 +139,14 @@ The first requirement is Patchwork itself. It can be downloaded like so:
 
 .. code-block:: shell
 
-   $ wget https://github.com/getpatchwork/patchwork/archive/v2.0.0.tar.gz
+   $ wget https://github.com/getpatchwork/patchwork/archive/v2.1.0.tar.gz
 
-We will install this under `/opt`, though this is only a suggestion:
+We will install this under ``/opt``, though this is only a suggestion:
 
 .. code-block:: shell
 
-   $ tar -xvzf v2.0.0.tar.gz
-   $ sudo mv v2.0.0 /opt/patchwork
+   $ tar -xvzf v2.1.0.tar.gz
+   $ sudo mv v2.1.0 /opt/patchwork
 
 .. important::
 
@@ -156,7 +154,7 @@ We will install this under `/opt`, though this is only a suggestion:
    web server's document root as this risks the possibility that people may be
    able to view your code over the Web. This is a security risk.
 
-__ https://docs.djangoproject.com/en/dev/intro/tutorial01/#creating-a-project
+   __ https://docs.djangoproject.com/en/1.11/intro/tutorial01/#creating-a-project
 
 Next we require Python. If not already installed, then you should do so now.
 Patchwork supports both Python 2.7 and Python 3.3+, though we're going to use
@@ -180,7 +178,7 @@ this also:
    The `pkgs.org <https://pkgs.org/>`__ website provides a great reference for
    identifying the name of these dependencies.
 
-You can also install requirements using `pip`. If using this method, you can
+You can also install requirements using *pip*. If using this method, you can
 install requirements like so:
 
 .. code-block:: shell
@@ -206,48 +204,28 @@ Alternatively, you can override the ``DJANGO_SETTINGS_MODULE`` environment
 variable and provide a completely custom settings file.
 
 The provided ``production.example.py`` settings file is configured to read
-configuration from environment variables. We're not actually going to use this
-here, preferring to hard code settings instead. If you wish to use environment
-variables, you should export each setting using the appropriate name, e.g.
-``DJANGO_SECRET_KEY``, ``DATABASE_NAME``, ``EMAIL_HOST``, etc.
+configuration from environment variables. This suits container-based
+deployments quite well but for the all-in-one deployment we're configuring
+here, hardcoded settings makes more sense. If you wish to use environment
+variables, you should export each setting using the appropriate name, such as
+``DJANGO_SECRET_KEY``, ``DATABASE_NAME`` or ``EMAIL_HOST``, instead of
+modifying the ``production.py`` file as we've done below.
 
-.. important::
-
-   You should not include shell variables in settings but rather hardcoded
-   values. These settings files are evaluated in Python - not a shell. Load any
-   required environment variables using ``os.environ``.
-
-__ https://docs.djangoproject.com/en/1.8/ref/settings/
+__ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 Databases
 ^^^^^^^^^
 
-As described previously, we're going to modify the ``production.py`` settings
-file we created earlier to hard code our settings. Replace the ``DATABASE``
-setting with the below to use the database configuration we're described in the
-introduction:
+We already defined most of the configuration necessary for this in the intro.
+As a reminder, these were:
 
-.. code-block:: python
+- ``DATABASE_NAME``
+- ``DATABASE_USER``
+- ``DATABASE_PASSWORD``
+- ``DATABASE_HOST``
+- ``DATABASE_PORT``
 
-   DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.postgresql_psycopg2',
-           'NAME': 'patchwork',
-           'USER': 'www-data',
-           'PASSWORD': '',
-           'HOST': '',
-           'PORT': '',
-           'TEST': {
-               'CHARSET': 'utf8',
-           },
-       },
-   }
-
-.. note::
-
-  `TEST/CHARSET` is used when creating tables for the test suite.  Without it,
-  tests checking for the correct handling of non-ASCII characters fail. It is
-  not necessary if you don't plan to run tests, however.
+Configure the ``DATABASE`` setting in ``production.py`` accordingly.
 
 Static Files
 ^^^^^^^^^^^^
@@ -260,19 +238,33 @@ location that these files will be stored in. We will install these under
 
    $ sudo mkdir -p /var/www/patchwork
 
-You can configure this by overriding the ``STATIC_ROOT`` variable with the
-below:
+You can configure this by configuring the ``STATIC_ROOT`` setting in
+``production.py``.
 
-.. code-block:: shell
+.. code-block:: python
 
    STATIC_ROOT = '/var/www/patchwork'
+
+Secret Key
+^^^^^^^^^^
+
+The ``SECRET_KEY`` setting is necessary for Django to generate signed data.
+This should be a random value and kept secret. You can generate and a value for
+``SECRET_KEY`` with the following Python code:
+
+.. code-block:: python
+
+   import string, random
+   chars = string.ascii_letters + string.digits + string.punctuation
+   print(repr("".join([random.choice(chars) for i in range(0,50)])))
+
+Once again, store this in ``production.py``.
 
 Other Options
 ^^^^^^^^^^^^^
 
-Finally, the following settings need to be configured and the appropriate
-setting overridden. The purpose of many of these variables is described in
-:doc:`configuration`.
+There are many other settings that may be configured, many of which are
+described in :doc:`configuration`.
 
 * ``SECRET_KEY``
 * ``ADMINS``
@@ -281,44 +273,42 @@ setting overridden. The purpose of many of these variables is described in
 * ``DEFAULT_FROM_EMAIL``
 * ``NOTIFICATION_FROM_EMAIL``
 
-You can generate the ``SECRET_KEY`` with the following Python code:
-
-.. code-block:: python
-
-   import string, random
-   chars = string.ascii_letters + string.digits + string.punctuation
-   print(repr("".join([random.choice(chars) for i in range(0,50)])))
-
-If you wish to enable the XML-RPC API, you should add the following:
+These are not configurable using environment variables and must be configured
+directly in the ``production.py`` settings file instead. For example, if you
+wish to enable the XML-RPC API, you should add the following:
 
 .. code-block:: python
 
    ENABLE_XMLRPC = True
 
-Finally, should you wish to disable the REST API, you should add the following:
+Similarly, should you wish to disable the REST API, you should add the
+following:
 
 .. code-block:: python
 
    ENABLE_REST_API = False
 
+For more information, refer to :doc:`configuration`.
+
 Final Steps
 ~~~~~~~~~~~
 
 Once done, we should be able to check that all requirements are met using the
-``check`` command of the ``manage.py`` executable:
+``check`` command of the ``manage.py`` executable. This must be run as the
+``www-data`` user:
 
 .. code-block:: shell
 
-    $ python3 manage.py check
+   $ sudo -u www-data python3 manage.py check
 
 We should also take this opportunity to both configure the database and static
 files:
 
 .. code-block:: shell
 
-   $ python3 manage.py migrate
+   $ sudo -u www-data python3 manage.py migrate
    $ sudo python3 manage.py collectstatic
-   $ python3 manage.py loaddata default_tags default_states
+   $ sudo -u www-data python3 manage.py loaddata default_tags default_states
 
 .. note::
 
@@ -327,7 +317,8 @@ files:
 
 Finally, it may be helpful to start the development server quickly to ensure
 you can see *something*. For this to function, you will need to add the
-``ALLOWED_HOSTS`` and ``DEBUG`` settings to your settings file.
+``ALLOWED_HOSTS`` and ``DEBUG`` settings to the ``production.py`` settings
+file:
 
 .. code-block:: python
 
@@ -338,11 +329,12 @@ Now, run the server.
 
 .. code-block:: shell
 
-   $ python3 manage.py runserver 0.0.0.0:8000
+   $ sudo -u www-data python3 manage.py runserver 0.0.0.0:8000
 
 Browse this instance at ``http://[your_server_ip]:8000``. If everything is
 working, kill the development server using :kbd:`Control-c` and remove
 ``ALLOWED_HOSTS`` and ``DEBUG``.
+
 
 Reverse Proxy and WSGI HTTP Servers
 -----------------------------------
@@ -350,11 +342,13 @@ Reverse Proxy and WSGI HTTP Servers
 Install Packages
 ~~~~~~~~~~~~~~~~
 
-We will use `nginx` and `uWSGI` to deploy Patchwork, acting as reverse proxy
+We will use *nginx* and *uWSGI* to deploy Patchwork, acting as reverse proxy
 server and WSGI HTTP server respectively. Other options are available, such as
-`Apache` with the `mod_wsgi` module, or `nginx` with the `Gunicorn` WSGI HTTP
+*Apache* with the *mod_wsgi* module, or *nginx* with the *Gunicorn* WSGI HTTP
 server. While we don't document these, sample configuration files for the
-former case are provided in `lib/apache2/`.
+former case are provided in ``lib/apache2/``.
+
+Let's start by installing *nginx* and *uWSGI*:
 
 .. code-block:: shell
 
@@ -363,16 +357,18 @@ former case are provided in `lib/apache2/`.
 Configure nginx and uWSGI
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Configuration files for `nginx` and `uWSGI` are provided in the `lib`
+Configuration files for *nginx* and *uWSGI* are provided in the ``lib``
 subdirectory of the Patchwork source code. These can be modified as necessary,
 but for now we will simply copy them.
 
-First, let's load the provided configuration for `nginx`:
+First, let's load the provided configuration for *nginx* and disable the
+default configuration:
 
 .. code-block:: shell
 
    $ sudo cp /opt/patchwork/lib/nginx/patchwork.conf \
        /etc/nginx/sites-available/
+   $ sudo unlink /etc/nginx/sites-enabled/default
 
 If you wish to modify this configuration, now is the time to do so. Once done,
 validate and enable your configuration:
@@ -383,15 +379,7 @@ validate and enable your configuration:
        /etc/nginx/sites-enabled/patchwork.conf
    $ sudo nginx -t
 
-If you see a "duplicate default server" error message, You may need to disable
-the ``default`` application at this point:
-
-.. code-block:: shell
-
-   $ sudo unlink /etc/nginx/sites-enabled/default
-   $ sudo nginx -t
-
-Now, use the provided configuration for `uWSGI`:
+Now, use the provided configuration for *uWSGI*:
 
 .. code-block:: shell
 
@@ -402,21 +390,36 @@ Now, use the provided configuration for `uWSGI`:
 .. note::
 
    We created the ``/etc/uwsgi`` directory above because we're going to run
-   `uWSGI` in `emperor mode`__. This has benefits for multi-app deployments.
+   *uWSGI* in `emperor mode`__. This has benefits for multi-app deployments.
 
 __ https://uwsgi-docs.readthedocs.io/en/latest/Emperor.html
+
+Configure Patchwork
+~~~~~~~~~~~~~~~~~~~
+
+For `security reasons`__, Django requires you to configure the
+``ALLOWED_HOSTS`` setting, which is a "list of strings representing the
+host/domain names that this Django site can serve". To do this, configure the
+setting in the ``production.py`` setting file using the hostname(s) and/or IP
+address(es) from which you will be serving this domain. For example:
+
+.. code-block:: python
+
+   ALLOWED_HOSTS = ('.example.com', )
+
+__ https://docs.djangoproject.com/en/1.11/ref/settings/#allowed-hosts
 
 Create systemd Unit File
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-As things stand, `uWSGI` will need to be started manually every time the system
+As things stand, *uWSGI* will need to be started manually every time the system
 boots, in addition to any time it may fail. We can automate this process using
-`systemd`. To this end a `systemd unit file`__ should be created to start
-`uWSGI` at boot:
+*systemd*. To this end a `systemd unit file`__ should be created to start
+*uWSGI* at boot:
 
 .. code-block:: shell
 
-   $ sudo cat << EOF > /etc/systemd/system/uwsgi.service
+   $ sudo tee /etc/systemd/system/uwsgi.service > /dev/null << EOF
    [Unit]
    Description=uWSGI Emperor service
 
@@ -447,7 +450,7 @@ __ https://uwsgi-docs.readthedocs.io/en/latest/Systemd.html
 Final Steps
 ~~~~~~~~~~~
 
-Start the `uWSGI` service we created above:
+Start the *uWSGI* service we created above:
 
 .. code-block:: shell
 
@@ -455,7 +458,7 @@ Start the `uWSGI` service we created above:
    $ sudo systemctl status uwsgi
    $ sudo systemctl enable uwsgi
 
-Next up, restart the `nginx` service:
+Next up, restart the *nginx* service:
 
 .. code-block:: shell
 
@@ -465,10 +468,10 @@ Next up, restart the `nginx` service:
 
 Finally, browse to the instance using your browser of choice. You may wish to
 take this opportunity to setup your projects and configure your website address
-(in the Sites section of the admin console, found at `/admin`).
+(in the Sites section of the admin console, found at ``/admin``).
 
-If there are issues with the instance, you can check the logs for `nginx` and
-`uWSGI`. There are a couple of commands listed below which can help:
+If there are issues with the instance, you can check the logs for *nginx* and
+*uWSGI*. There are a couple of commands listed below which can help:
 
 - ``sudo systemctl status uwsgi``, ``sudo systemctl status nginx``
 
@@ -476,17 +479,17 @@ If there are issues with the instance, you can check the logs for `nginx` and
 
 - ``sudo cat /var/log/nginx/error.log``
 
-  To check for issues with `nginx`
+  To check for issues with *nginx*
 
 - ``sudo cat /var/log/patchwork.log``
 
-  To check for issues with `uWSGI`. This is the default log location set by the
-  ``daemonize``  setting in the `uWSGI` configuration file.
+  To check for issues with *uWSGI*. This is the default log location set by the
+  ``daemonize``  setting in the *uWSGI* configuration file.
 
 Django administrative console
 -----------------------------
 
-In order to access the administrative console at `/admin`, you need at least
+In order to access the administrative console at ``/admin``, you need at least
 one user account to be registered and configured as a super user or staff
 account to access the Django administrative console.  This can be achieved by
 doing the following:
@@ -498,7 +501,7 @@ doing the following:
 Once the administrative console is accessible, you would want to configure your
 different sites and their corresponding domain names, which is required for the
 different emails sent by Patchwork (registration, password recovery) as well as
-the sample `pwclientrc` files provided by your project's page.
+the sample ``pwclientrc`` files provided by your project's page.
 
 .. _deployment-parsemail:
 
@@ -516,18 +519,18 @@ IMAP/POP3
 The easiest option for getting mail into Patchwork is to use an existing email
 address in combination with a mail retriever like `getmail`__, which will
 download mails from your inbox and pass them to Patchwork for processing.
-getmail is easy to set up and configure: to begin, you need to install it:
+*getmail* is easy to set up and configure: to begin, you need to install it:
 
 .. code-block:: shell
 
-   $ sudo apt-get install -y getmail4
+   $ sudo apt-get install -y getmail
 
 Once installed, you should configure it, substituting your own configuration
 details where required below:
 
 .. code-block:: shell
 
-   $ sudo cat << EOF > /etc/getmail/user@example.com/getmailrc
+   $ sudo tee /etc/getmail/use@example.com/getmailrc > /dev/null << EOF
    [retriever]
    type = SimpleIMAPSSLRetriever
    server = imap.example.com
@@ -551,18 +554,18 @@ details where required below:
    received = false
    EOF
 
-Validate that this works as expected by starting `getmail`:
+Validate that this works as expected by starting *getmail*:
 
 .. code-block:: shell
 
    $ getmail --getmaildir=/etc/getmail/user@example.com --idle INBOX
 
-If everything works as expected, you can create a `systemd` script to ensure
+If everything works as expected, you can create a *systemd* script to ensure
 this starts on boot:
 
 .. code-block:: shell
 
-   $ sudo cat << EOF > /etc/systemd/system/getmail.service
+   $ sudo tee /etc/systemd/system/getmail.service > /dev/null << EOF
    [Unit]
    Description=Getmail for user@example.com
 
@@ -594,12 +597,12 @@ don't cover setting up Postfix here (it's complicated and there are many guides
 already available), Patchwork does include a script to take received mails and
 create the relevant entries in Patchwork for you. To use this, you should
 configure your system to forward all emails to a given localpart (the bit
-before the `@`) to this script. Using the `patchwork` localpart (e.g.
-`patchwork@example.com`) you can do this like so:
+before the ``@``) to this script. Using the ``patchwork`` localpart (e.g.
+``patchwork@example.com``) you can do this like so:
 
 .. code-block:: shell
 
-   $ sudo cat << EOF > /etc/aliases
+   $ sudo tee -a /etc/aliases > /dev/null << EOF
    patchwork: "|/opt/patchwork/patchwork/bin/parsemail.sh"
    EOF
 
@@ -609,16 +612,15 @@ they can be loaded as seen below:
 
 .. code-block:: shell
 
-   $ sudo -u postgres createuser nobody
-   $ sudo -u postgre psql -f \
+   $ sudo -u postgres psql -f \
        /opt/patchwork/lib/sql/grant-all.postgres.sql patchwork
 
 .. note::
 
-   This assumes your Postfix process is running as the `nobody` user.  If this
-   is not correct (use of `postfix` user is also common), you should change
-   both the username in the `createuser` command above and substitute the
-   username in the `grant-all-postgres.sql` script with the appropriate
+   This assumes your Postfix process is running as the ``nobody`` user.  If
+   this is not correct (use of ``postfix`` user is also common), you should
+   change both the username in the ``createuser`` command above and substitute
+   the username in the ``grant-all-postgres.sql`` script with the appropriate
    alternative.
 
 __ http://www.postfix.org/
@@ -637,25 +639,27 @@ services can be more than to get email into Patchwork.
 You can also create such as service yourself using a PaaS provider that
 supports incoming mail and writing a little web app.
 
+
 .. _deployment-vcs:
 
 (Optional) Configure your VCS to Automatically Update Patches
 -------------------------------------------------------------
 
-The `tools` directory of the Patchwork distribution contains a file named
-`post-receive.hook` which is a sample Git hook that can be used to
-automatically update patches to the `Accepted` state when corresponding
-commits are pushed via Git.
+The ``tools`` directory of the Patchwork distribution contains a file named
+``post-receive.hook`` which is a sample Git hook that can be used to
+automatically update patches to the *Accepted* state when corresponding commits
+are pushed via Git.
 
-To install this hook, simply copy it to the `.git/hooks` directory on your
-server, name it `post-receive`, and make it executable.
+To install this hook, simply copy it to the ``.git/hooks`` directory on your
+server, name it ``post-receive``, and make it executable.
 
-This sample hook has support to update patches to different states depending
-on which branch is being pushed to. See the `STATE_MAP` setting in that file.
+This sample hook has support to update patches to different states depending on
+which branch is being pushed to. See the ``STATE_MAP`` setting in that file.
 
 If you are using a system other than Git, you can likely write a similar hook
-using `pwclient` to update patch state. If you do write one, please contribute
-it.
+using ``pwclient`` to update patch state. If you do write one, please
+contribute it.
+
 
 .. _deployment-cron:
 
@@ -674,4 +678,4 @@ to your crontab::
 
    The frequency should be the same as the ``NOTIFICATION_DELAY_MINUTES``
    setting, which defaults to 10 minutes. Refer to the :doc:`configuration
-   guide <configuration>` for mor information.
+   guide <configuration>` for more information.
