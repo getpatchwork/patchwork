@@ -4,9 +4,9 @@
 {% load project %}
 {% load static %}
 
-{% include "patchwork/filters.html" %}
+{% include "patchwork/partials/filters.html" %}
 
-{% include "patchwork/pagination.html" %}
+{% include "patchwork/partials/pagination.html" %}
 
 {% if order.editable %}
 <table class="patchlist">
@@ -218,7 +218,7 @@ $(document).ready(function() {
 </table>
 
 {% if page.paginator.count %}
-{% include "patchwork/pagination.html" %}
+{% include "patchwork/partials/pagination.html" %}
 
 <div class="patchforms" id="patchforms">
 
