@@ -23,7 +23,7 @@ BIN_DIR=$(dirname "$0")
 PATCHWORK_BASE=$(readlink -e "$BIN_DIR/../..")
 
 if [ -z "$PW_PYTHON" ]; then
-    PW_PYTHON=python2
+    PW_PYTHON=python
 fi
 
 if [ -z "$DJANGO_SETTINGS_MODULE" ]; then

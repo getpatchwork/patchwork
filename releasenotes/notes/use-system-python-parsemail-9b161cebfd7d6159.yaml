@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``parsemail.sh`` and ``parsemail-batch.sh`` scripts, found in
+    ``patchwork/bin``, will now default to using ``python`` rather than
+    ``python2`` for calling ``manage.py``. This resolves an issue when
+    Patchwork is deployed with a virtualenv.
