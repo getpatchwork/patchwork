@@ -35,7 +35,7 @@ def settings(request):
         'form': form,
     }
 
-    return render(request, 'patchwork/mail-form.html', context)
+    return render(request, 'patchwork/mail.html', context)
 
 
 def optout_confirm(request, conf):

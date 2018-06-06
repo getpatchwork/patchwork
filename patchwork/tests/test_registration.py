@@ -42,7 +42,7 @@ class RegistrationTest(TestCase):
     def test_registration_form(self):
         response = self.client.get('/register/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'patchwork/registration_form.html')
+        self.assertTemplateUsed(response, 'patchwork/registration.html')
 
     def test_blank_fields(self):
         for field in ['username', 'email', 'password']:

@@ -33,14 +33,14 @@ class MailSettingsTest(TestCase):
     def test_post_empty(self):
         response = self.client.post(reverse('mail-settings'), {'email': ''})
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'patchwork/mail-form.html')
+        self.assertTemplateUsed(response, 'patchwork/mail.html')
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
 
     def test_post_invalid(self):
         response = self.client.post(reverse('mail-settings'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'patchwork/mail-form.html')
+        self.assertTemplateUsed(response, 'patchwork/mail.html')
         self.assertFormError(response, 'form', 'email', error_strings['email'])
 
     def test_post_optin(self):

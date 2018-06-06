@@ -69,7 +69,7 @@ def register(request):
 
     context['form'] = form
 
-    return render(request, 'patchwork/registration_form.html', context)
+    return render(request, 'patchwork/registration.html', context)
 
 
 def register_confirm(request, conf):
