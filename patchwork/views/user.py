@@ -52,11 +52,13 @@ def register(request):
             conf.save()
 
             # send email
-            subject = 'Patchwork account confirmation'
+            subject = render_to_string(
+                'patchwork/mails/activation-subject.txt')
             message = render_to_string(
-                'patchwork/activation_email.txt',
+                'patchwork/mails/activation.txt',
                 {'site': Site.objects.get_current(), 'confirmation': conf})
 
+            # TODO(stephenfin): Should this be surrounded by a try-except?
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                       [conf.email])
 
@@ -136,10 +138,12 @@ def link(request):
 
             context['confirmation'] = conf
 
+            subject = 'Patchwork email address confirmation',
+            message = render_to_string('patchwork/mails/user-link.txt',
+                                       context, request=request)
             try:
-                send_mail('Patchwork email address confirmation',
-                          render_to_string('patchwork/user-link.mail',
-                                           context, request=request),
+                send_mail(subject,
+                          message,
                           settings.DEFAULT_FROM_EMAIL,
                           [form.cleaned_data['email']])
             except smtplib.SMTPException:

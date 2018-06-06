@@ -69,7 +69,7 @@ def optin_confirm(request, conf):
 
 def _optinout(request, action, description):
     context = {}
-    mail_template = 'patchwork/%s-request.mail' % action
+    mail_template = 'patchwork/mails/%s-request.txt' % action
     html_template = 'patchwork/%s-request.html' % action
 
     if request.method != 'POST':

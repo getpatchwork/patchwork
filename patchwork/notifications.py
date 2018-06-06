@@ -63,10 +63,11 @@ def send_notifications():
         }
 
         subject = render_to_string(
-            'patchwork/patch-change-notification-subject.text',
+            'patchwork/mails/patch-change-notification-subject.txt',
             context).strip()
-        content = render_to_string('patchwork/patch-change-notification.mail',
-                                   context)
+        content = render_to_string(
+            'patchwork/mails/patch-change-notification.txt',
+            context)
 
         message = EmailMessage(subject=subject, body=content,
                                from_email=settings.NOTIFICATION_FROM_EMAIL,
