@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    If a patch was processed by Patchwork before series support was added, it
+    will not have a series associated with it. As a result, it is not possible
+    to extract the dependencies for that patch from the series. This was not
+    previously handled correctly. A 404 is now raised if this occurs.
