@@ -139,6 +139,11 @@ def patch_mbox(request, patch_id):
 
     response = HttpResponse(content_type='text/plain')
     if series_id:
+        if not patch.series.count():
+            raise Http404('Patch does not have an associated series. This is '
+                          'because the patch was processed with an older '
+                          'version of Patchwork. It is not possible to '
+                          'provide dependencies for this patch.')
         response.write(series_patch_to_mbox(patch, series_id))
     else:
         response.write(patch_to_mbox(patch))
