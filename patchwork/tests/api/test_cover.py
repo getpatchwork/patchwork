@@ -57,6 +57,7 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(cover_obj.id, cover_json['id'])
         self.assertEqual(cover_obj.name, cover_json['name'])
         self.assertIn(cover_obj.get_mbox_url(), cover_json['mbox'])
+        self.assertIn(cover_obj.get_absolute_url(), cover_json['web_url'])
         self.assertIn('comments', cover_json)
 
         # nested fields
@@ -104,11 +105,15 @@ class TestCoverLetterAPI(APITestCase):
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
-        # test old version of API
+    def test_list_version_1_0(self):
+        create_cover()
+
         resp = self.client.get(self.api_url(version='1.0'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
+        self.assertIn('url', resp.data[0])
         self.assertNotIn('mbox', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0])
 
     def test_detail(self):
         """Validate we can get a specific cover letter."""
@@ -127,8 +132,12 @@ class TestCoverLetterAPI(APITestCase):
         for key, value in parsed_headers.items():
             self.assertIn(value, resp.data['headers'][key])
 
-        # test old version of API
-        resp = self.client.get(self.api_url(cover_obj.id, version='1.0'))
+    def test_detail_version_1_0(self):
+        cover = create_cover()
+
+        resp = self.client.get(self.api_url(cover.id, version='1.0'))
+        self.assertIn('url', resp.data)
+        self.assertNotIn('web_url', resp.data)
         self.assertNotIn('comments', resp.data)
 
     def test_create_update_delete(self):

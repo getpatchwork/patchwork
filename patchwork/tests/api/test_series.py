@@ -62,6 +62,7 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(series_obj.received_total,
                          series_json['received_total'])
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
+        self.assertIn(series_obj.get_absolute_url(), series_json['web_url'])
 
         # nested fields
 
@@ -119,6 +120,16 @@ class TestSeriesAPI(APITestCase):
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_old_version(self):
+        """Validate that newer fields are dropped for older API versions."""
+        create_series()
+
+        resp = self.client.get(self.api_url(version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('url', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0])
+
     def test_detail(self):
         """Validate we can get a specific series."""
         cover = create_cover()
@@ -128,6 +139,13 @@ class TestSeriesAPI(APITestCase):
         resp = self.client.get(self.api_url(series.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(series, resp.data)
+
+    def test_detail_version_1_0(self):
+        series = create_series()
+
+        resp = self.client.get(self.api_url(series.id, version='1.0'))
+        self.assertIn('url', resp.data)
+        self.assertNotIn('web_url', resp.data)
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""

@@ -32,7 +32,7 @@ from patchwork import models
 
 
 class MboxMixin(BaseHyperlinkedModelSerializer):
-    """Embed an link to the mbox URL.
+    """Embed a link to the mbox URL.
 
     This field is just way too useful to leave out of even the embedded
     serialization.
@@ -45,12 +45,25 @@ class MboxMixin(BaseHyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_mbox_url())
 
 
-class BundleSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
+class WebURLMixin(BaseHyperlinkedModelSerializer):
+    """Embed a link to the web URL."""
+
+    web_url = SerializerMethodField()
+
+    def get_web_url(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_absolute_url())
+
+
+class BundleSerializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Bundle
-        fields = ('id', 'url', 'name', 'mbox')
+        fields = ('id', 'url', 'web_url', 'name', 'mbox')
         read_only_fields = fields
+        versioned_field = {
+            '1.1': ('web_url', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-bundle-detail'},
         }
@@ -75,26 +88,30 @@ class CheckSerializer(BaseHyperlinkedModelSerializer):
         }
 
 
-class CoverLetterSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
+class CoverLetterSerializer(MboxMixin, WebURLMixin,
+                            BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.CoverLetter
-        fields = ('id', 'url', 'msgid', 'date', 'name', 'mbox')
+        fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
         read_only_fields = fields
         versioned_field = {
-            '1.1': ('mbox', ),
+            '1.1': ('web_url', 'mbox', ),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
         }
 
 
-class PatchSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
+class PatchSerializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Patch
-        fields = ('id', 'url', 'msgid', 'date', 'name', 'mbox')
+        fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
         read_only_fields = fields
+        versioned_field = {
+            '1.1': ('web_url', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
         }
@@ -127,12 +144,16 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
         }
 
 
-class SeriesSerializer(MboxMixin, BaseHyperlinkedModelSerializer):
+class SeriesSerializer(MboxMixin, WebURLMixin,
+                       BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = models.Series
         fields = ('id', 'url', 'date', 'name', 'version', 'mbox')
         read_only_fields = fields
+        versioned_field = {
+            '1.1': ('web_url', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
         }

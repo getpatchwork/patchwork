@@ -30,9 +30,14 @@ from patchwork.models import Comment
 
 class CommentListSerializer(BaseHyperlinkedModelSerializer):
 
+    web_url = SerializerMethodField()
     subject = SerializerMethodField()
     headers = SerializerMethodField()
     submitter = PersonSerializer(read_only=True)
+
+    def get_web_url(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_absolute_url())
 
     def get_subject(self, comment):
         return email.parser.Parser().parsestr(comment.headers,
@@ -54,9 +59,12 @@ class CommentListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'msgid', 'date', 'subject', 'submitter', 'content',
-                  'headers')
+        fields = ('id', 'web_url', 'msgid', 'date', 'subject', 'submitter',
+                  'content', 'headers')
         read_only_fields = fields
+        versioned_fields = {
+            '1.1': ('web_url', ),
+        }
 
 
 class CommentList(ListAPIView):

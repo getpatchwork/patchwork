@@ -41,16 +41,22 @@ class TestBundleAPI(APITestCase):
     fixtures = ['default_tags']
 
     @staticmethod
-    def api_url(item=None):
+    def api_url(item=None, version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
         if item is None:
-            return reverse('api-bundle-list')
-        return reverse('api-bundle-detail', args=[item])
+            return reverse('api-bundle-list', kwargs=kwargs)
+        kwargs['pk'] = item
+        return reverse('api-bundle-detail', kwargs=kwargs)
 
     def assertSerialized(self, bundle_obj, bundle_json):
         self.assertEqual(bundle_obj.id, bundle_json['id'])
         self.assertEqual(bundle_obj.name, bundle_json['name'])
         self.assertEqual(bundle_obj.public, bundle_json['public'])
         self.assertIn(bundle_obj.get_mbox_url(), bundle_json['mbox'])
+        self.assertIn(bundle_obj.get_absolute_url(), bundle_json['web_url'])
 
         # nested fields
 
@@ -109,6 +115,16 @@ class TestBundleAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'owner': 'otheruser'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_version_1_0(self):
+        """Validate that newer fields are dropped for older API versions."""
+        create_bundle(public=True)
+
+        resp = self.client.get(self.api_url(version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('url', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0])
+
     def test_detail(self):
         """Validate we can get a specific bundle."""
         bundle = create_bundle(public=True)
@@ -116,6 +132,13 @@ class TestBundleAPI(APITestCase):
         resp = self.client.get(self.api_url(bundle.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(bundle, resp.data)
+
+    def test_detail_version_1_0(self):
+        bundle = create_bundle(public=True)
+
+        resp = self.client.get(self.api_url(bundle.id, version='1.0'))
+        self.assertIn('url', resp.data)
+        self.assertNotIn('web_url', resp.data)
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""

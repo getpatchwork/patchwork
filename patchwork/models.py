@@ -412,6 +412,9 @@ class SeriesMixin(object):
 
 class CoverLetter(SeriesMixin, Submission):
 
+    def get_absolute_url(self):
+        return reverse('cover-detail', kwargs={'cover_id': self.id})
+
     def get_mbox_url(self):
         return reverse('cover-mbox', kwargs={'cover_id': self.id})
 
@@ -603,6 +606,9 @@ class Comment(EmailMixin, models.Model):
                                    related_query_name='comment',
                                    on_delete=models.CASCADE)
 
+    def get_absolute_url(self):
+        return reverse('comment-redirect', kwargs={'comment_id': self.id})
+
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
         if hasattr(self.submission, 'patch'):
@@ -727,6 +733,12 @@ class Series(FilenameMixin, models.Model):
         return SeriesPatch.objects.create(series=self,
                                           patch=patch,
                                           number=number)
+
+    def get_absolute_url(self):
+        # TODO(stephenfin): We really need a proper series view
+        return reverse('patch-list',
+                       kwargs={'project_id': self.project.linkname}) + (
+            '?series=%d' % self.id)
 
     def get_mbox_url(self):
         return reverse('series-mbox', kwargs={'series_id': self.id})

@@ -62,6 +62,7 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.msgid, patch_json['msgid'])
         self.assertEqual(patch_obj.state.slug, patch_json['state'])
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
+        self.assertIn(patch_obj.get_absolute_url(), patch_json['web_url'])
         self.assertIn('comments', patch_json)
 
         # nested fields
@@ -137,6 +138,15 @@ class TestPatchAPI(APITestCase):
                                                 ('state', 'new')])
         self.assertEqual(2, len(resp.data))
 
+    def test_list_version_1_0(self):
+        create_patch()
+
+        resp = self.client.get(self.api_url(version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('url', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0])
+
     def test_detail(self):
         """Validate we can get a specific patch."""
         patch = create_patch(
@@ -158,8 +168,12 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch.diff, resp.data['diff'])
         self.assertEqual(0, len(resp.data['tags']))
 
-        # test old version of API
+    def test_detail_version_1_0(self):
+        patch = create_patch()
+
         resp = self.client.get(self.api_url(item=patch.id, version='1.0'))
+        self.assertIn('url', resp.data)
+        self.assertNotIn('web_url', resp.data)
         self.assertNotIn('comments', resp.data)
 
     def test_create(self):

@@ -77,6 +77,7 @@ class StateField(RelatedField):
 
 class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
+    web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     state = StateField()
     submitter = PersonSerializer(read_only=True)
@@ -87,6 +88,10 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     check = SerializerMethodField()
     checks = SerializerMethodField()
     tags = SerializerMethodField()
+
+    def get_web_url(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_absolute_url())
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -110,15 +115,15 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Patch
-        fields = ('id', 'url', 'project', 'msgid', 'date', 'name',
+        fields = ('id', 'url', 'web_url', 'project', 'msgid', 'date', 'name',
                   'commit_ref', 'pull_url', 'state', 'archived', 'hash',
                   'submitter', 'delegate', 'mbox', 'series', 'comments',
                   'check', 'checks', 'tags')
-        read_only_fields = ('project', 'msgid', 'date', 'name', 'hash',
-                            'submitter', 'mbox', 'mbox', 'series', 'comments',
+        read_only_fields = ('web_url', 'project', 'msgid', 'date', 'name',
+                            'hash', 'submitter', 'mbox', 'series', 'comments',
                             'check', 'checks', 'tags')
         versioned_fields = {
-            '1.1': ('comments', ),
+            '1.1': ('comments', 'web_url'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},

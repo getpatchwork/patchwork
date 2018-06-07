@@ -34,11 +34,16 @@ from patchwork.models import CoverLetter
 
 class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 
+    web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
     mbox = SerializerMethodField()
     series = SeriesSerializer(many=True, read_only=True)
     comments = SerializerMethodField()
+
+    def get_web_url(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_absolute_url())
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -50,11 +55,11 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = CoverLetter
-        fields = ('id', 'url', 'project', 'msgid', 'date', 'name', 'submitter',
-                  'mbox', 'series', 'comments')
+        fields = ('id', 'url', 'web_url', 'project', 'msgid', 'date', 'name',
+                  'submitter', 'mbox', 'series', 'comments')
         read_only_fields = fields
         versioned_fields = {
-            '1.1': ('mbox', 'comments'),
+            '1.1': ('web_url', 'mbox', 'comments'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},

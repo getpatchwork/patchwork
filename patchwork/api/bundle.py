@@ -20,9 +20,9 @@
 from django.db.models import Q
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import BundleFilterSet
 from patchwork.api.embedded import PatchSerializer
@@ -32,12 +32,17 @@ from patchwork.compat import is_authenticated
 from patchwork.models import Bundle
 
 
-class BundleSerializer(HyperlinkedModelSerializer):
+class BundleSerializer(BaseHyperlinkedModelSerializer):
 
+    web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     mbox = SerializerMethodField()
     owner = UserSerializer(read_only=True)
     patches = PatchSerializer(many=True, read_only=True)
+
+    def get_web_url(self, instance):
+        request = self.context.get('request')
+        return request.build_absolute_uri(instance.get_absolute_url())
 
     def get_mbox(self, instance):
         request = self.context.get('request')
@@ -45,9 +50,12 @@ class BundleSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Bundle
-        fields = ('id', 'url', 'project', 'name', 'owner', 'patches',
-                  'public', 'mbox')
+        fields = ('id', 'url', 'web_url', 'project', 'name', 'owner',
+                  'patches', 'public', 'mbox')
         read_only_fields = ('owner', 'patches', 'mbox')
+        versioned_fields = {
+            '1.1': ('web_url', ),
+        }
         extra_kwargs = {
             'url': {'view_name': 'api-bundle-detail'},
         }
