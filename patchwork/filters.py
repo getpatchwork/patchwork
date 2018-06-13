@@ -340,7 +340,9 @@ class ArchiveFilter(Filter):
         return self.description_map[self.archive_state]
 
     def key(self):
-        if not self.archive_state:
+        # NOTE(stephenfin): this is a shortcut to ensure we don't both
+        # including the 'archive' querystring filter for the default case
+        if self.archive_state is False:
             return None
         return self.param_map[self.archive_state]
 
