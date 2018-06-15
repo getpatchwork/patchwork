@@ -305,9 +305,10 @@ def action_get(rpc, patch_id):
         sys.exit(1)
 
     base_fname = fname = os.path.basename(patch['filename'])
+    fname += '.patch'
     i = 0
     while os.path.exists(fname):
-        fname = "%s.%d" % (base_fname, i)
+        fname = "%s.%d.patch" % (base_fname, i)
         i += 1
 
     with io.open(fname, 'w', encoding='utf-8') as f:

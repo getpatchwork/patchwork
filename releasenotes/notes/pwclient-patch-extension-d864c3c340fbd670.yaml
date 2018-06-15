@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``pwclient get`` command will now download patches with a ``.patch``
+    extension.
