@@ -1,0 +1,49 @@
+From stephenfinucane@hotmail.com Wed Jun 20 13:35:48 2018
+From: Stephen Finucane <stephenfinucane@hotmail.com>
+To: "stephen@that.guru" <stephen@that.guru>
+Subject: Re: [PATCH] parsemail: ignore html part of multi-part comments
+Date: Wed, 20 Jun 2018 13:35:37 +0000
+Message-ID: <DB5PR03MB18774049A0E62D211988EC8CA3770@DB5PR03MB1877.eurprd03.prod.outlook.com>
+References: <20180620122142.9917-1-yuri.volchkov@gmail.com>
+In-Reply-To: <20180620122142.9917-1-yuri.volchkov@gmail.com>
+Content-Type: multipart/alternative;
+	boundary="_000_DB5PR03MB18774049A0E62D211988EC8CA3770DB5PR03MB1877eurp_"
+MIME-Version: 1.0
+
+
+--_000_DB5PR03MB18774049A0E62D211988EC8CA3770DB5PR03MB1877eurp_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+Yup, this looks sensible to me. Replying from Outlook's awful HTML editor to get
+a sample comment to test with.
+
+Stephen
+
+
+--_000_DB5PR03MB18774049A0E62D211988EC8CA3770DB5PR03MB1877eurp_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css" style="display:none;"> P {margin-top:0;margin-bottom:0;} </style>
+</head>
+<body dir="ltr">
+<div style="font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+Yup, this looks sensible to me. Replying from Outlook's awful HTML editor to get a sample comment to test with.</div>
+<div style="font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div style="font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+Stephen<br>
+</div>
+<div style="font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+</body>
+</html>
+
+--_000_DB5PR03MB18774049A0E62D211988EC8CA3770DB5PR03MB1877eurp_--
+
