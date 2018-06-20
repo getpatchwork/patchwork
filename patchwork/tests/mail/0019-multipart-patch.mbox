@@ -1,0 +1,55 @@
+From yuri.volchkov@gmail.com Wed Jun 20 12:22:05 2018
+From: Yuri Volchkov <yuri.volchkov@gmail.com>
+To: patchwork@lists.ozlabs.org
+Cc: stephen@that.guru
+Subject: [PATCH] parsemail: ignore html part of multi-part comments
+Date: Wed, 20 Jun 2018 14:21:42 +0200
+Message-Id: <20180620122142.9917-1-yuri.volchkov@gmail.com>
+Content-Type: multipart/alternative; boundary="000000000000f93f23056f12c80c"
+
+
+--000000000000f93f23056f12c80c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Currently an html-protection present only for patch-emails. If a
+multi-part comment-email arrives, it messes up patchwork. In my case,
+the symptom was a non intended 'Signed-off-by' in the downloaded
+patches, with html-like junk.
+
+This patch makes parsemail skip all parts of comment which are not
+text/plain.
+
+Of course, this will drop html-only emails completely. But they can
+not be parsed anyways.
+
+Signed-off-by: Yuri Volchkov <yuri.volchkov@gmail.com>
+---
+ patchwork/parser.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/patchwork/parser.py b/patchwork/parser.py
+index 8f9af811..b1fb7b9c 100644
+--- a/patchwork/parser.py
++++ b/patchwork/parser.py
+@@ -576,9 +576,11 @@ def find_comment_content(mail):
+     """Extract content from a mail."""
+     commentbuf = ''
+
+-    for payload, _ in _find_content(mail):
++    for payload, subtype in _find_content(mail):
+         if not payload:
+             continue
++        if subtype != 'plain':
++            continue
+
+         commentbuf += payload.strip() + '\n'
+
+--000000000000f93f23056f12c80c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Currently an html-protection present only for patch-emails. If a<br>multi-part comment-email arrives, it messes up patchwork. In my case,<br>the symptom was a non intended &#39;Signed-off-by&#39; in the downloaded<br>patches, with html-like junk.<br><br>This patch makes parsemail skip all parts of comment which are not<br>text/plain.<br><br>Of course, this will drop html-only emails completely. But they can<br>not be parsed anyways.<br><br>Signed-off-by: Yuri Volchkov &lt;<a href="mailto:yuri.volchkov@gmail.com">yuri.volchkov@gmail.com</a>&gt;<br>---<br> patchwork/parser.py | 4 +++-<br> 1 file changed, 3 insertions(+), 1 deletion(-)<br><br>diff --git a/patchwork/parser.py b/patchwork/parser.py<br>index 8f9af811..b1fb7b9c 100644<br>--- a/patchwork/parser.py<br>+++ b/patchwork/parser.py<br>@@ -576,9 +576,11 @@ def find_comment_content(mail):<br>     &quot;&quot;&quot;Extract content from a mail.&quot;&quot;&quot;<br>     commentbuf = &#39;&#39;<br> <br>-    for payload, _ in _find_content(mail):<br>+    for payload, subtype in _find_content(mail):<br>         if not payload:<br>             continue<br>+        if subtype != &#39;plain&#39;:<br>+            continue<br> <br>         commentbuf += payload.strip() + &#39;\n&#39;<br> <br>-- <br>2.17.1<br></div>
+
+--000000000000f93f23056f12c80c--
+

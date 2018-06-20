@@ -36,6 +36,7 @@ from patchwork.models import State
 from patchwork.parser import clean_subject
 from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
+from patchwork.parser import find_comment_content
 from patchwork.parser import find_project
 from patchwork.parser import find_series
 from patchwork.parser import parse_mail as _parse_mail
@@ -632,6 +633,14 @@ class PatchParseTest(PatchTest):
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
 
+    def test_html_multipart(self):
+        """Validate parsing a mail with multiple parts."""
+        diff, message = self._find_content('0019-multipart-patch.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+        self.assertFalse('<div' in diff)
+        self.assertFalse('<div' in message)
+
 
 class EncodingParseTest(TestCase):
     """Test parsing of patches with different encoding issues."""
@@ -660,6 +669,23 @@ class EncodingParseTest(TestCase):
     def test_invalid_utf8_headers(self):
         """Validate behaviour when invalid encoded UTF-8 is in headers."""
         self._test_encoded_patch_parse('0015-with-invalid-utf8-headers.mbox')
+
+
+class CommentParseTest(TestCase):
+    """Test parsing of different comment formats."""
+
+    @staticmethod
+    def _find_content(mbox_filename):
+        mail = read_mail(mbox_filename)
+        _, message = find_comment_content(mail)
+
+        return message
+
+    def test_html_multipart(self):
+        """Validate parsing a mail with multiple parts."""
+        message = self._find_content('0020-multipart-comment.mbox')
+        self.assertTrue(message is not None)
+        self.assertFalse('<div' in message)
 
 
 class DelegateRequestTest(TestCase):
