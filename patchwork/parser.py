@@ -576,8 +576,11 @@ def find_comment_content(mail):
     """Extract content from a mail."""
     commentbuf = ''
 
-    for payload, _ in _find_content(mail):
+    for payload, subtype in _find_content(mail):
         if not payload:
+            continue
+
+        if subtype != 'plain':
             continue
 
         commentbuf += payload.strip() + '\n'
