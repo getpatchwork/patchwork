@@ -21,8 +21,8 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.test.client import Client
 from django.test import TestCase
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.models import EmailConfirmation, Person
 from patchwork.tests.utils import create_user
 

@@ -24,8 +24,8 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.filters import DelegateFilter
 from patchwork.forms import BundleForm
 from patchwork.forms import DeleteBundleForm

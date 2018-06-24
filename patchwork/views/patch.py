@@ -24,9 +24,8 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.urls import reverse
 
-from patchwork.compat import reverse
-from patchwork.compat import is_authenticated
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Bundle
@@ -43,7 +42,7 @@ def patch_list(request, project_id):
     context = generic_list(request, project, 'patch-list',
                            view_args={'project_id': project.linkname})
 
-    if is_authenticated(request.user):
+    if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
 
     return render(request, 'patchwork/list.html', context)
@@ -70,7 +69,7 @@ def patch_detail(request, patch_id):
 
     if editable:
         form = PatchForm(instance=patch)
-    if is_authenticated(request.user):
+    if request.user.is_authenticated:
         createbundleform = CreateBundleForm()
 
     if request.method == 'POST':
@@ -111,7 +110,7 @@ def patch_detail(request, patch_id):
                 form.save()
                 messages.success(request, 'Patch updated')
 
-    if is_authenticated(request.user):
+    if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
 
     context['submission'] = patch

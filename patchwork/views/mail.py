@@ -24,8 +24,8 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.forms import EmailForm
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout

@@ -21,8 +21,7 @@
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import render
-
-from patchwork.compat import reverse
+from django.urls import reverse
 
 
 def about(request):

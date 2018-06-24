@@ -20,9 +20,9 @@
 import unittest
 
 from django.conf import settings
+from django.urls import NoReverseMatch
+from django.urls import reverse
 
-from patchwork.compat import NoReverseMatch
-from patchwork.compat import reverse
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch

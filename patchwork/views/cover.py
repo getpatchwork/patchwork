@@ -22,8 +22,8 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.models import CoverLetter
 from patchwork.models import Submission
 from patchwork.views.utils import cover_to_mbox

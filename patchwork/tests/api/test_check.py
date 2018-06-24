@@ -20,8 +20,8 @@
 import unittest
 
 from django.conf import settings
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.models import Check
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_patch

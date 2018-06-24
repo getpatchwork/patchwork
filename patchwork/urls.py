@@ -22,8 +22,8 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
-from patchwork.compat import reverse_lazy
 from patchwork.views import about as about_views
 from patchwork.views import api as api_views
 from patchwork.views import bundle as bundle_views

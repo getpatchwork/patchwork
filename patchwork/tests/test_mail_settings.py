@@ -21,8 +21,8 @@ import re
 
 from django.core import mail
 from django.test import TestCase
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.models import EmailOptout
 from patchwork.models import EmailConfirmation
 from patchwork.tests.utils import create_person

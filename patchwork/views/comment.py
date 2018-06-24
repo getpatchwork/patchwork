@@ -19,8 +19,8 @@
 
 from django import http
 from django import shortcuts
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork import models
 
 

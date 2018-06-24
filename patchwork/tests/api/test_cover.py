@@ -21,8 +21,8 @@ import email.parser
 import unittest
 
 from django.conf import settings
+from django.urls import reverse
 
-from patchwork.compat import reverse
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_person

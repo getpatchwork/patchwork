@@ -35,11 +35,11 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 from django.utils import six
 from django.utils.six.moves import xmlrpc_client
 from django.utils.six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
 
-from patchwork.compat import reverse
 from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import Person

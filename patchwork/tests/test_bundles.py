@@ -25,12 +25,12 @@ import unittest
 
 from django.conf import settings
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils import six
 from django.utils.six.moves import range
 from django.utils.six.moves import zip
 
-from patchwork.compat import reverse
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.tests.utils import create_bundle

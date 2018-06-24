@@ -20,10 +20,10 @@
 from __future__ import absolute_import
 
 from django import template
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from patchwork.compat import reverse
 from patchwork.filters import SubmitterFilter
 
 

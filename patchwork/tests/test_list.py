@@ -23,9 +23,9 @@ from datetime import datetime as dt
 import re
 
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.six.moves import zip
 
-from patchwork.compat import reverse
 from patchwork.models import Patch
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_person
