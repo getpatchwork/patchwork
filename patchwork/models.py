@@ -26,7 +26,6 @@ import datetime
 import random
 import re
 
-import django
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -309,10 +308,6 @@ class PatchQuerySet(models.query.QuerySet):
 
 
 class PatchManager(models.Manager):
-    use_for_related_fields = True
-    # NOTE(stephenfin): This is necessary to silence a warning with Django >=
-    # 1.10. Remove when 1.10 is the minimum supported version.
-    silence_use_for_related_fields_deprecation = True
 
     def get_queryset(self):
         return PatchQuerySet(self.model, using=self.db)
@@ -595,8 +590,7 @@ class Patch(SeriesMixin, Submission):
 
     class Meta:
         verbose_name_plural = 'Patches'
-        if django.VERSION >= (1, 10):
-            base_manager_name = 'objects'
+        base_manager_name = 'objects'
 
 
 class Comment(EmailMixin, models.Model):

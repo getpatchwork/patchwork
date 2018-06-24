@@ -18,10 +18,9 @@ class Migration(migrations.Migration):
         ),
     ]
 
-    if django.VERSION >= (1, 10):
-        operations += [
-            migrations.AlterModelOptions(
-                name='patch',
-                options={'base_manager_name': 'objects', 'verbose_name_plural': 'Patches'},
-            ),
-        ]
+    operations += [
+        migrations.AlterModelOptions(
+            name='patch',
+            options={'base_manager_name': 'objects', 'verbose_name_plural': 'Patches'},
+        ),
+    ]

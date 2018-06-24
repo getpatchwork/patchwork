@@ -9,13 +9,11 @@ Design based on:
 
 from __future__ import absolute_import
 
-import django
-
 from .base import *  # noqa
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
 #
 
 
@@ -47,11 +45,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#auth
+# https://docs.djangoproject.com/en/1.11/ref/settings/#auth
 #
 
 # Use a faster, though less secure, password hasher for faster tests
-# https://docs.djangoproject.com/es/1.9/topics/testing/overview/#password-hashing
+# https://docs.djangoproject.com/es/1.11/topics/testing/overview/#password-hashing
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 #
@@ -67,14 +65,9 @@ INSTALLED_APPS += [
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # This should go first in the middleware classes
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = [
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ] + MIDDLEWARE
-else:
-    MIDDLEWARE_CLASSES = [
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ] + MIDDLEWARE_CLASSES
+MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+] + MIDDLEWARE
 
 INTERNAL_IPS = [
     '127.0.0.1', '::1',

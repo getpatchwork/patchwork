@@ -4,14 +4,12 @@ Base settings for patchwork project.
 
 import os
 
-import django
-
 ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         os.pardir, os.pardir)
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
 #
 
 INSTALLED_APPS = [
@@ -26,7 +24,7 @@ INSTALLED_APPS = [
     'patchwork',
 ]
 
-_MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -36,11 +34,6 @@ _MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
 ]
-
-if django.VERSION >= (1, 10):
-    MIDDLEWARE = _MIDDLEWARE_CLASSES
-else:
-    MIDDLEWARE_CLASSES = _MIDDLEWARE_CLASSES
 
 TIME_ZONE = 'Australia/Canberra'
 
@@ -83,7 +76,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#auth
+# https://docs.djangoproject.com/en/1.11/ref/settings/#auth
 #
 
 LOGIN_URL = 'auth_login'
@@ -93,7 +86,7 @@ LOGIN_REDIRECT_URL = 'user-profile'
 
 #
 # Sites settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#sites
+# https://docs.djangoproject.com/en/1.11/ref/settings/#sites
 #
 
 SITE_ID = 1
@@ -101,7 +94,7 @@ SITE_ID = 1
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/1.8/ref/settings/#static-files
+# https://docs.djangoproject.com/en/1.11/ref/settings/#static-files
 #
 
 STATIC_URL = '/static/'
