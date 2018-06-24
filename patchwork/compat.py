@@ -41,6 +41,22 @@ if settings.ENABLE_REST_API:
         from rest_framework.filters import DjangoFilterBackend  # noqa
 
 
+# NAME_FIELD
+#
+# The django-filter library renamed 'Filter.name' to 'Filter.field_name' in
+# 1.1.
+#
+# https://django-filter.readthedocs.io/en/master/guide/migration.html#migrating-to-2-0
+
+if settings.ENABLE_REST_API:
+    import django_filters  # noqa
+
+    if django_filters.VERSION >= (1, 1):
+        NAME_FIELD = 'field_name'
+    else:
+        NAME_FIELD = 'name'
+
+
 # reverse, reverse_lazy
 #
 # The reverse and reverse_lazy functions have been moved to django.urls in

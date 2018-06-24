@@ -26,6 +26,7 @@ from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
 from django.forms.widgets import MultipleHiddenInput
 
+from patchwork.compat import NAME_FIELD
 from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import CoverLetter
@@ -151,8 +152,8 @@ class UserFilter(ModelMultipleChoiceFilter):
 class TimestampMixin(FilterSet):
 
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
-    before = IsoDateTimeFilter(name='date', lookup_expr='lt')
-    since = IsoDateTimeFilter(name='date', lookup_expr='gte')
+    before = IsoDateTimeFilter(lookup_expr='lt', **{NAME_FIELD: 'date'})
+    since = IsoDateTimeFilter(lookup_expr='gte', **{NAME_FIELD: 'date'})
 
 
 class SeriesFilterSet(TimestampMixin, FilterSet):

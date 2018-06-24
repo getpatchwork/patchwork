@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    `django-filter 1.1
+    <https://github.com/carltongibson/django-filter/releases/tag/1.1.0>`_ is
+    now supported.
