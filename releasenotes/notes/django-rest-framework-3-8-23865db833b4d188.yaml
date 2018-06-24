@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    `Django REST Framework 3.8
+    <http://www.django-rest-framework.org/topics/release-notes/#380/>`_ is now
+    supported.
