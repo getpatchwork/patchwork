@@ -69,9 +69,10 @@ fi
 for x in /tmp/requirements-*.txt; do
     if ! cmp $x ~/patchwork/$(basename $x); then
         echo "A requirements file has changed."
-        echo "Please rebuild the patchwork image:"
+        echo "You may need to rebuild the patchwork image:"
         echo "    docker-compose build web"
-        exit 1
+        echo ""
+        diff -u $x ~/patchwork/$(basename $x)
     fi
 done
 
