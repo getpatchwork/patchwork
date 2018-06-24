@@ -486,7 +486,7 @@ def parse_version(subject, subject_prefixes):
     Returns:
         version if found, else 1
     """
-    regex = re.compile('^[vV](\d+)$')
+    regex = re.compile(r'^[vV](\d+)$')
     m = _find_matching_prefix(subject_prefixes, regex)
     if m:
         return int(m.group(1))
