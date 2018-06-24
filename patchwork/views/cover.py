@@ -21,7 +21,7 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.urls import reverse
 
 from patchwork.models import CoverLetter
@@ -45,7 +45,7 @@ def cover_detail(request, cover_id):
         'project': cover.project,
     }
 
-    return render_to_response('patchwork/submission.html', context)
+    return render(request, 'patchwork/submission.html', context)
 
 
 def cover_mbox(request, cover_id):
