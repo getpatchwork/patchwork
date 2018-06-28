@@ -745,7 +745,7 @@ def parse_patch(content):
     # state specified the line we just saw, and what to expect next
     state = 0
     # 0: text
-    # 1: suspected patch header (diff, ====, Index:)
+    # 1: suspected patch header (diff, Index:)
     # 2: patch header line 1 (---)
     # 3: patch header line 2 (+++)
     # 4: patch hunk header line (@@ line)
@@ -753,7 +753,7 @@ def parse_patch(content):
     # 6: patch meta header (rename from/rename to)
     #
     # valid transitions:
-    #  0 -> 1 (diff, ===, Index:)
+    #  0 -> 1 (diff, Index:)
     #  0 -> 2 (---)
     #  1 -> 2 (---)
     #  2 -> 3 (+++)
@@ -776,7 +776,7 @@ def parse_patch(content):
         line += '\n'
 
         if state == 0:
-            if line.startswith('diff ') or line.startswith('===') \
+            if line.startswith('diff ') \
                     or line.startswith('Index: '):
                 state = 1
                 buf += line
