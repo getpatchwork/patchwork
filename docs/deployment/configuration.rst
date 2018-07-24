@@ -88,7 +88,13 @@ Enable the :doc:`REST API <../api/rest>`.
 The number of items to include in REST API responses by default. This can be
 overridden by the ``per_page`` parameter for some endpoints.
 
-.. versionadded:: 2.0
+``MAX_REST_RESULTS_PER_PAGE``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The maximum number of items that can be requested in a REST API request using
+the ``per_page`` parameter.
+
+.. versionadded:: 2.2
 
 ``COMPAT_REDIR``
 ~~~~~~~~~~~~~~~~
