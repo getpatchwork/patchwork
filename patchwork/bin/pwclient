@@ -327,8 +327,8 @@ def action_apply(rpc, patch_id, apply_cmd=None):
         print('Applying patch #%d to current directory' % patch_id)
         apply_cmd = ['patch', '-p1']
     else:
-        print('Applying patch #%d using %s' %
-              (patch_id, repr(' '.join(apply_cmd))))
+        print('Applying patch #%d using "%s"' %
+              (patch_id, ' '.join(apply_cmd)))
 
     print('Description: %s' % patch['name'])
     s = rpc.patch_get_mbox(patch_id)
