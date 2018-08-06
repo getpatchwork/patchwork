@@ -27,6 +27,11 @@ env:
 matrix:
   include:
     - addons:
+        mariadb: '10.3'
+      env:
+        - PW_TEST_DB_TYPE=mysql
+        - PW_TEST_DB_USER=root
+    - addons:
         postgresql: "10"
         apt:
           packages:
