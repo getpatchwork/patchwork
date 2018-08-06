@@ -22,15 +22,63 @@ env:
     - PW_TEST_DB_TYPE=mysql PW_TEST_DB_USER=root
   global:
     - PW_TEST_DB_PASS=""
+    - PW_TEST_DB_HOST="localhost"
+
+matrix:
+  include:
+    - addons:
+        postgresql: "10"
+        apt:
+          packages:
+          - postgresql-10
+          - postgresql-client-10
+      env:
+        - PGPORT=5433
+        - PW_TEST_DB_HOST=""
+        - PW_TEST_DB_PORT=5433
+        - PW_TEST_DB_TYPE=postgres
+        - PW_TEST_DB_USER=travis
+      python: 3.6
+      sudo: true
+      before_install:
+        - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
+    - env:
+        - PGPORT=5433
+        - PW_TEST_DB_HOST=""
+        - PW_TEST_DB_PORT=5433
+        - PW_TEST_DB_TYPE=postgres
+        - PW_TEST_DB_USER=travis
+      python: 3.6
+      dist: trusty
+      addons:
+        postgresql: "11"
+        apt:
+          sources:
+          - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg 11'
+            key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
+          packages:
+          - postgresql-11
+          - postgresql-client-11
+      sudo: true
+      before_install:
+        - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
+
 
 before_script:
-  - mysql -e 'create database patchwork character set utf8;'
-  - psql -c "create database patchwork with ENCODING = 'UTF8';" -U postgres
+  - if [[ $PW_TEST_DB_TYPE == mysql ]]; then mysql -e 'create database patchwork character set utf8;'; fi
+  - if [[ $PW_TEST_DB_TYPE == postgres ]]; then psql -c "create database patchwork with ENCODING = 'UTF8';" -U $PW_TEST_DB_USER; fi
 
 install:
   - pip install tox-travis
 
 script:
+  - >
+    if [[ $PW_TEST_DB_TYPE == mysql ]];
+    then
+      mysql -e 'SELECT VERSION(), CURRENT_USER();' -u $PW_TEST_DB_USER patchwork;
+    else
+      psql -c "SELECT VERSION(), CURRENT_USER, current_database()" -U $PW_TEST_DB_USER patchwork;
+    fi
   - tox
   - tox -e coverage
 

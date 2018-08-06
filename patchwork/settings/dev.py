@@ -41,6 +41,7 @@ DATABASES = {
 
 if os.getenv('PW_TEST_DB_TYPE', None) == 'postgres':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+    DATABASES['default']['HOST'] = os.getenv('PW_TEST_DB_HOST', '')
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
