@@ -19,6 +19,7 @@
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
 
 from patchwork.filters import Filters
 from patchwork.forms import MultiplePatchForm
@@ -26,6 +27,8 @@ from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.models import Patch
 from patchwork.models import Project
+from patchwork.models import Check
+from patchwork.models import Series
 from patchwork.paginator import Paginator
 
 
@@ -290,7 +293,11 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
                            'name', 'date')
 
     # we also need checks and series
-    patches = patches.prefetch_related('check_set', 'series')
+    patches = patches.prefetch_related(
+        Prefetch('check_set', queryset=Check.objects.only(
+            'context', 'user_id', 'patch_id', 'state', 'date')))
+    patches = patches.prefetch_related(
+        Prefetch('series', queryset=Series.objects.only('name')))
 
     paginator = Paginator(request, patches)
 
