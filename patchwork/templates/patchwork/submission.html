@@ -218,7 +218,7 @@ function toggle_div(link_id, headers_id)
  >{{ submission.pull_url }}</a>
 {% endif %}
 
-{% if submission.checks %}
+{% if checks %}
 <h2>Checks</h2>
 <table class="checks">
 <tr>
@@ -226,7 +226,7 @@ function toggle_div(link_id, headers_id)
   <th>Check</th>
   <th>Description</th>
 </tr>
-{% for check in submission.checks %}
+{% for check in checks %}
 <tr>
   <td>{{ check.user }}/{{ check.context }}</td>
   <td>
