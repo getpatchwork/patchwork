@@ -591,6 +591,13 @@ class Patch(SeriesMixin, Submission):
         verbose_name_plural = 'Patches'
         base_manager_name = 'objects'
 
+        indexes = [
+            # This is a covering index for the /list/ query
+            models.Index(fields=['archived', 'patch_project', 'state',
+                                 'delegate'],
+                         name='patch_list_covering_idx'),
+        ]
+
 
 class Comment(EmailMixin, models.Model):
     # parent
