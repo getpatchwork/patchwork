@@ -533,7 +533,7 @@ class Patch(SeriesMixin, Submission):
 
         for check in self.check_set.all():
             ctx = check.context
-            user = check.user
+            user = check.user_id
 
             if user in unique and ctx in unique[user]:
                 # recheck condition - ignore the older result
