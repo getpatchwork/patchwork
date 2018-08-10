@@ -45,6 +45,12 @@ def cover_detail(request, cover_id):
         'project': cover.project,
     }
 
+    comments = cover.comments.all()
+    comments = comments.select_related('submitter')
+    comments = comments.only('submitter', 'date', 'id', 'content',
+                             'submission')
+    context['comments'] = comments
+
     return render(request, 'patchwork/submission.html', context)
 
 

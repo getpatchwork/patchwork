@@ -113,6 +113,12 @@ def patch_detail(request, patch_id):
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
 
+    comments = patch.comments.all()
+    comments = comments.select_related('submitter')
+    comments = comments.only('submitter', 'date', 'id', 'content',
+                             'submission')
+
+    context['comments'] = comments
     context['submission'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
