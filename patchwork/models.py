@@ -740,7 +740,6 @@ class Series(FilenameMixin, models.Model):
         return self.name if self.name else 'Untitled series #%d' % self.id
 
     class Meta:
-        ordering = ('date',)
         verbose_name_plural = 'Series'
 
 
