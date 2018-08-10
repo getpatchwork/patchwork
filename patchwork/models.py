@@ -383,6 +383,14 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
     class Meta:
         ordering = ['date']
         unique_together = [('msgid', 'project')]
+        indexes = [
+            # This is a covering index for the /list/ query
+            # Like what we have for Patch, but used for displaying what we want
+            # rather than for working out the count (of course, this all
+            # depends on the SQL optimiser of your db engine)
+            models.Index(fields=['date', 'project', 'submitter', 'name'],
+                         name='submission_covering_idx'),
+        ]
 
 
 class SeriesMixin(object):
