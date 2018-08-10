@@ -70,7 +70,7 @@ def project_detail(request, project_id):
     context = {
         'project': project,
         'maintainers': User.objects.filter(
-            profile__maintainer_projects=project),
+            profile__maintainer_projects=project).select_related('profile'),
         'n_patches': n_patches[False] if False in n_patches else 0,
         'n_archived_patches': n_patches[True] if True in n_patches else 0,
         'enable_xmlrpc': settings.ENABLE_XMLRPC,
