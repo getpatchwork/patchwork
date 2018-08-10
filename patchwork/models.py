@@ -618,6 +618,10 @@ class Comment(EmailMixin, models.Model):
     class Meta:
         ordering = ['date']
         unique_together = [('msgid', 'submission')]
+        indexes = [
+            models.Index(name='submission_date_idx',
+                         fields=['submission', 'date'])
+        ]
 
 
 @python_2_unicode_compatible
