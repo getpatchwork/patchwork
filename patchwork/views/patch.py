@@ -119,6 +119,7 @@ def patch_detail(request, patch_id):
                              'submission')
 
     context['comments'] = comments
+    context['all_series'] = patch.series.all().order_by('-date')
     context['submission'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
