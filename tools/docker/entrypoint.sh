@@ -57,21 +57,26 @@ reset_data() {
 # check if patchwork is mounted. Checking if we exist is a
 # very good start!
 if [ ! -f ~patchwork/patchwork/tools/docker/entrypoint.sh ]; then
-    echo "The patchwork directory doesn't seem to be mounted!"
-    echo "Are you using docker-compose?"
-    echo "If so, you may need to create an SELinux rule. Refer to the"
-    echo "development installation documentation for more information."
-    echo "If not, you need -v PATH_TO_PATCHWORK:/home/patchwork/patchwork"
+    cat << EOF
+The patchwork directory doesn't seem to be mounted!
+
+Are you using docker-compose? If so, you may need to create an SELinux rule.
+Refer to the development installation documentation for more information.
+If not, you need -v PATH_TO_PATCHWORK:/home/patchwork/patchwork
+EOF
     exit 1
 fi
 
 # check if we need to rebuild because requirements changed
 for x in /tmp/requirements-*.txt; do
     if ! cmp $x ~/patchwork/$(basename $x); then
-        echo "A requirements file has changed."
-        echo "You may need to rebuild the patchwork image:"
-        echo "    docker-compose build web"
-        echo ""
+        cat << EOF
+A requirements file has changed.
+
+You may need to rebuild the patchwork image:
+
+    docker-compose build web
+EOF
         diff -u $x ~/patchwork/$(basename $x)
     fi
 done
