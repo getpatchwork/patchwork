@@ -51,6 +51,8 @@ def register(request):
                                      email=user.email)
             conf.save()
 
+            context['confirmation'] = conf
+
             # send email
             subject = render_to_string(
                 'patchwork/mails/activation-subject.txt')
@@ -58,12 +60,13 @@ def register(request):
                 'patchwork/mails/activation.txt',
                 {'site': Site.objects.get_current(), 'confirmation': conf})
 
-            # TODO(stephenfin): Should this be surrounded by a try-except?
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
-                      [conf.email])
-
-            # setting 'confirmation' in the template indicates success
-            context['confirmation'] = conf
+            try:
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
+                          [conf.email])
+            except smtplib.SMTPException:
+                context['confirmation'] = None
+                context['error'] = ('An error occurred during registration. '
+                                    'Please try again later')
     else:
         form = RegistrationForm()
 
