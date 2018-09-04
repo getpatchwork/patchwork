@@ -87,75 +87,36 @@ urlpatterns = [
         name='user-link'),
     url(r'^user/unlink/(?P<person_id>[^/]+)/$', user_views.unlink,
         name='user-unlink'),
-]
 
-# password change
-if django.VERSION >= (1, 11):
-    urlpatterns += [
-        url(r'^user/password-change/$',
-            auth_views.PasswordChangeView.as_view(),
-            name='password_change'),
-        url(r'^user/password-change/done/$',
-            auth_views.PasswordChangeDoneView.as_view(),
-            name='password_change_done'),
-        url(r'^user/password-reset/$',
-            auth_views.PasswordResetView.as_view(),
-            name='password_reset'),
-        url(r'^user/password-reset/mail-sent/$',
-            auth_views.PasswordResetDoneView.as_view(),
-            name='password_reset_done'),
-        url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
-            r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-            auth_views.PasswordResetConfirmView.as_view(),
-            name='password_reset_confirm'),
-        url(r'^user/password-reset/complete/$',
-            auth_views.PasswordResetCompleteView.as_view(),
-            name='password_reset_complete'),
-    ]
-else:
-    urlpatterns += [
-        url(r'^user/password-change/$',
-            auth_views.password_change,
-            name='password_change'),
-        url(r'^user/password-change/done/$',
-            auth_views.password_change_done,
-            name='password_change_done'),
-        url(r'^user/password-reset/$',
-            auth_views.password_reset,
-            name='password_reset'),
-        url(r'^user/password-reset/mail-sent/$',
-            auth_views.password_reset_done,
-            name='password_reset_done'),
-        url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
-            r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-            auth_views.password_reset_confirm,
-            name='password_reset_confirm'),
-        url(r'^user/password-reset/complete/$',
-            auth_views.password_reset_complete,
-            name='password_reset_complete'),
-    ]
+    # password change
+    url(r'^user/password-change/$',
+        auth_views.PasswordChangeView.as_view(),
+        name='password_change'),
+    url(r'^user/password-change/done/$',
+        auth_views.PasswordChangeDoneView.as_view(),
+        name='password_change_done'),
+    url(r'^user/password-reset/$',
+        auth_views.PasswordResetView.as_view(),
+        name='password_reset'),
+    url(r'^user/password-reset/mail-sent/$',
+        auth_views.PasswordResetDoneView.as_view(),
+        name='password_reset_done'),
+    url(r'^user/password-reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
+        r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        auth_views.PasswordResetConfirmView.as_view(),
+        name='password_reset_confirm'),
+    url(r'^user/password-reset/complete/$',
+        auth_views.PasswordResetCompleteView.as_view(),
+        name='password_reset_complete'),
 
-# login/logout
-if django.VERSION >= (1, 11):
-    urlpatterns += [
-        url(r'^user/login/$', auth_views.LoginView.as_view(
-            template_name='patchwork/login.html'),
-            name='auth_login'),
-        url(r'^user/logout/$', auth_views.LogoutView.as_view(
-            next_page=reverse_lazy('project-list')),
-            name='auth_logout'),
-    ]
-else:
-    urlpatterns += [
-        url(r'^user/login/$', auth_views.login,
-            {'template_name': 'patchwork/login.html'},
-            name='auth_login'),
-        url(r'^user/logout/$', auth_views.logout,
-            {'next_page': reverse_lazy('project-list')},
-            name='auth_logout'),
-    ]
+    # login/logout
+    url(r'^user/login/$', auth_views.LoginView.as_view(
+        template_name='patchwork/login.html'),
+        name='auth_login'),
+    url(r'^user/logout/$', auth_views.LogoutView.as_view(
+        next_page=reverse_lazy('project-list')),
+        name='auth_logout'),
 
-urlpatterns += [
     # registration
     url(r'^register/', user_views.register, name='user-register'),
 
