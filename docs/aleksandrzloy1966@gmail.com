@@ -12,6 +12,7 @@ to the patch page too. The project's maintainer can then scan through the list
 of patches, marking each with a certain state, such as Accepted, Rejected or
 Under Review. Old patches can be sent to the archive or deleted.
 
+
 Currently, Patchwork is being used for a number of open-source projects, mostly
 subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
