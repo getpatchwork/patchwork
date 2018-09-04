@@ -57,11 +57,6 @@ def patch_checks(patch):
         ' '.join([str(counts[state]) for state in required])))
 
 
-@register.filter(name='state_class')
-def state_class(state):
-    return '-'.join(state.split())
-
-
 @register.filter
 @stringfilter
 def msgid(value):
