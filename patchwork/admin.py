@@ -149,19 +149,6 @@ class SeriesAdmin(admin.ModelAdmin):
 admin.site.register(Series, SeriesAdmin)
 
 
-class SeriesInline(admin.StackedInline):
-    model = Series
-    readonly_fields = ('date', 'submitter', 'version', 'total',
-                       'received_total', 'received_all')
-    ordering = ('-date', )
-    show_change_link = True
-    extra = 0
-
-    def received_all(self, series):
-        return series.received_all
-    received_all.boolean = True
-
-
 class SeriesReferenceAdmin(admin.ModelAdmin):
     model = SeriesReference
 
