@@ -393,26 +393,7 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
         ]
 
 
-class SeriesMixin(object):
-
-    @property
-    def latest_series(self):
-        """Get the latest series this is a member of.
-
-        Return the last series that (ordered by date) that this
-        submission is a member of.
-
-        .. warning::
-          Be judicious in your use of this. For example, do not use it
-          in list templates as doing so will result in a new query for
-          each item in the list.
-        """
-        # NOTE(stephenfin): We don't use 'latest()' here, as this can raise an
-        # exception if no series exist
-        return self.series.order_by('-date').first()
-
-
-class CoverLetter(SeriesMixin, Submission):
+class CoverLetter(Submission):
 
     def get_absolute_url(self):
         return reverse('cover-detail', kwargs={'cover_id': self.id})
@@ -422,7 +403,7 @@ class CoverLetter(SeriesMixin, Submission):
 
 
 @python_2_unicode_compatible
-class Patch(SeriesMixin, Submission):
+class Patch(Submission):
     # patch metadata
 
     diff = models.TextField(null=True, blank=True)

@@ -87,7 +87,7 @@ class _BaseTestCase(TestCase):
 
             patches_ = patches[start_idx:end_idx]
             for patch in patches_:
-                self.assertEqual(patch.latest_series, series[idx])
+                self.assertEqual(patch.series.first(), series[idx])
 
             start_idx = end_idx
 
@@ -531,7 +531,7 @@ class SeriesTotalTest(_BaseTestCase):
         self.assertSerialized(patches, [1])
         self.assertSerialized(covers, [1])
 
-        series = patches[0].latest_series
+        series = patches[0].series.first()
         self.assertFalse(series.received_all)
 
     def test_complete(self):
@@ -551,7 +551,7 @@ class SeriesTotalTest(_BaseTestCase):
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [2])
 
-        series = patches[0].latest_series
+        series = patches[0].series.first()
         self.assertTrue(series.received_all)
 
     def test_extra_patches(self):
@@ -572,7 +572,7 @@ class SeriesTotalTest(_BaseTestCase):
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [3])
 
-        series = patches[0].latest_series
+        series = patches[0].series.first()
         self.assertTrue(series.received_all)
 
 
@@ -657,13 +657,13 @@ class SeriesNameTestCase(TestCase):
 
         cover = self._parse_mail(mbox[0])
         cover_name = self._format_name(cover)
-        self.assertEqual(cover.latest_series.name, cover_name)
+        self.assertEqual(cover.series.first().name, cover_name)
 
         self._parse_mail(mbox[1])
-        self.assertEqual(cover.latest_series.name, cover_name)
+        self.assertEqual(cover.series.first().name, cover_name)
 
         self._parse_mail(mbox[2])
-        self.assertEqual(cover.latest_series.name, cover_name)
+        self.assertEqual(cover.series.first().name, cover_name)
 
         mbox.close()
 
@@ -681,7 +681,7 @@ class SeriesNameTestCase(TestCase):
         mbox = self._get_mbox('base-no-cover-letter.mbox')
 
         patch = self._parse_mail(mbox[0])
-        series = patch.latest_series
+        series = patch.series.first()
         self.assertEqual(series.name, patch.name)
 
         self._parse_mail(mbox[1])
@@ -705,13 +705,13 @@ class SeriesNameTestCase(TestCase):
         mbox = self._get_mbox('base-out-of-order.mbox')
 
         patch = self._parse_mail(mbox[0])
-        self.assertIsNone(patch.latest_series.name)
+        self.assertIsNone(patch.series.first().name)
 
         patch = self._parse_mail(mbox[1])
-        self.assertEqual(patch.latest_series.name, patch.name)
+        self.assertEqual(patch.series.first().name, patch.name)
 
         cover = self._parse_mail(mbox[2])
-        self.assertEqual(cover.latest_series.name, self._format_name(cover))
+        self.assertEqual(cover.series.first().name, self._format_name(cover))
 
         mbox.close()
 
@@ -730,7 +730,7 @@ class SeriesNameTestCase(TestCase):
         """
         mbox = self._get_mbox('base-out-of-order.mbox')
 
-        series = self._parse_mail(mbox[0]).latest_series
+        series = self._parse_mail(mbox[0]).series.first()
         self.assertIsNone(series.name)
 
         series_name = 'My custom series name'

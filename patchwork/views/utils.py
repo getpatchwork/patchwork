@@ -143,7 +143,7 @@ def series_patch_to_mbox(patch, series_id):
         A string for the mbox file.
     """
     if series_id == '*':
-        series = patch.latest_series
+        series = patch.series.order_by('-date').first()
     else:
         try:
             series_id = int(series_id)
