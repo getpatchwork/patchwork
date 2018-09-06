@@ -149,6 +149,12 @@ def create_patch(**kwargs):
     """Create 'Patch' object."""
     num = Patch.objects.count()
 
+    # NOTE(stephenfin): Even though we could simply pass 'series' into the
+    # constructor, we don't as that's not what we do in the parser and not what
+    # our signal handlers (for events) expect
+    series = kwargs.pop('series', None)
+    number = kwargs.pop('number', None)
+
     values = {
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'delegate': None,
@@ -161,15 +167,30 @@ def create_patch(**kwargs):
         'diff': SAMPLE_DIFF,
     }
     values.update(kwargs)
+
     if 'patch_project' not in values:
         values['patch_project'] = values['project']
 
-    return Patch.objects.create(**values)
+    patch = Patch.objects.create(**values)
+
+    if series:
+        number = number or series.patches.count() + 1
+        series.add_patch(patch, number)
+
+    return patch
 
 
 def create_cover(**kwargs):
     """Create 'CoverLetter' object."""
     num = CoverLetter.objects.count()
+
+    # NOTE(stephenfin): Despite first appearances, passing 'series' to the
+    # 'create' function doesn't actually cause the relationship to be created.
+    # This is probably a bug in Django. However, it's convenient to do so we
+    # emulate that here. For more info, see [1].
+    #
+    # [1] https://stackoverflow.com/q/43119575/
+    series = kwargs.pop('series', None)
 
     values = {
         'submitter': create_person() if 'person' not in kwargs else None,
@@ -181,7 +202,12 @@ def create_cover(**kwargs):
     }
     values.update(kwargs)
 
-    return CoverLetter.objects.create(**values)
+    cover = CoverLetter.objects.create(**values)
+
+    if series:
+        series.add_cover_letter(cover)
+
+    return cover
 
 
 def create_comment(**kwargs):
@@ -224,27 +250,6 @@ def create_series(**kwargs):
     values.update(**kwargs)
 
     return Series.objects.create(**values)
-
-
-def create_series_patch(**kwargs):
-    """Create 'Patch' object and associate with a series."""
-    # TODO(stephenfin): Remove this and all callers
-    num = 1 if 'series' not in kwargs else kwargs['series'].patches.count() + 1
-    if 'number' in kwargs:
-        num = kwargs['number']
-
-    series = create_series() if 'series' not in kwargs else kwargs['series']
-    patch = create_patch() if 'patch' not in kwargs else kwargs['patch']
-
-    series.add_patch(patch, num)
-
-    class SeriesPatch(object):
-        """Simple wrapper to avoid needing to update all tests at once."""
-        def __init__(self, series, patch):
-            self.series = series
-            self.patch = patch
-
-    return SeriesPatch(series=series, patch=patch)
 
 
 def create_series_reference(**kwargs):

@@ -44,45 +44,46 @@ class PatchCreateTest(_BaseTestCase):
 
     def test_patch_dependencies_present_series(self):
         """Patch dependencies already exist."""
-        series_patch = utils.create_series_patch()
+        series = utils.create_series()
+        patch = utils.create_patch(series=series)
 
         # This should raise both the CATEGORY_PATCH_CREATED and
         # CATEGORY_PATCH_COMPLETED events
-        events = _get_events(patch=series_patch.patch)
+        events = _get_events(patch=patch)
         self.assertEqual(events.count(), 2)
         self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
-        self.assertEqual(events[0].project, series_patch.patch.project)
+        self.assertEqual(events[0].project, patch.project)
         self.assertEqual(events[1].category, Event.CATEGORY_PATCH_COMPLETED)
-        self.assertEqual(events[1].project, series_patch.patch.project)
+        self.assertEqual(events[1].project, patch.project)
         self.assertEventFields(events[0])
         self.assertEventFields(events[1])
 
         # This shouldn't be affected by another update to the patch
-        series_patch.patch.commit_ref = 'aac76f0b0f8dd657ff07bb'
-        series_patch.patch.save()
+        patch.commit_ref = 'aac76f0b0f8dd657ff07bb32df369705696d4831'
+        patch.save()
 
-        events = _get_events(patch=series_patch.patch)
+        events = _get_events(patch=patch)
         self.assertEqual(events.count(), 2)
 
     def test_patch_dependencies_out_of_order(self):
         series = utils.create_series()
-        series_patch_3 = utils.create_series_patch(series=series, number=3)
-        series_patch_2 = utils.create_series_patch(series=series, number=2)
+        patch_3 = utils.create_patch(series=series, number=3)
+        patch_2 = utils.create_patch(series=series, number=2)
 
         # This should only raise the CATEGORY_PATCH_CREATED event for
         # both patches as they are both missing dependencies
-        for series_patch in [series_patch_2, series_patch_3]:
-            events = _get_events(patch=series_patch.patch)
+        for patch in [patch_2, patch_3]:
+            events = _get_events(patch=patch)
             self.assertEqual(events.count(), 1)
             self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
             self.assertEventFields(events[0])
 
-        series_patch_1 = utils.create_series_patch(series=series, number=1)
+        patch_1 = utils.create_patch(series=series, number=1)
 
         # We should now see the CATEGORY_PATCH_COMPLETED event for all patches
         # as the dependencies for all have been met
-        for series_patch in [series_patch_1, series_patch_2, series_patch_3]:
-            events = _get_events(patch=series_patch.patch)
+        for patch in [patch_1, patch_2, patch_3]:
+            events = _get_events(patch=patch)
             self.assertEqual(events.count(), 2)
             self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
             self.assertEqual(events[1].category,
@@ -91,11 +92,12 @@ class PatchCreateTest(_BaseTestCase):
             self.assertEventFields(events[1])
 
     def test_patch_dependencies_missing(self):
-        series_patch = utils.create_series_patch(number=2)
+        series = utils.create_series()
+        patch = utils.create_patch(series=series, number=2)
 
         # This should only raise the CATEGORY_PATCH_CREATED event as
         # there is a missing dependency (patch 1)
-        events = _get_events(patch=series_patch.patch)
+        events = _get_events(patch=patch)
         self.assertEqual(events.count(), 1)
         self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
         self.assertEventFields(events[0])

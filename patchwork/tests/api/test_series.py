@@ -10,10 +10,10 @@ from django.urls import reverse
 
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
-from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
-from patchwork.tests.utils import create_series_patch
 from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
@@ -69,10 +69,9 @@ class TestSeriesAPI(APITestCase):
 
         project_obj = create_project(linkname='myproject')
         person_obj = create_person(email='test@example.com')
-        cover_obj = create_cover()
         series_obj = create_series(project=project_obj, submitter=person_obj)
-        series_obj.add_cover_letter(cover_obj)
-        create_series_patch(series=series_obj)
+        create_cover(series=series_obj)
+        create_patch(series=series_obj)
 
         # anonymous users
         resp = self.client.get(self.api_url())
@@ -118,9 +117,8 @@ class TestSeriesAPI(APITestCase):
 
     def test_detail(self):
         """Validate we can get a specific series."""
-        cover = create_cover()
         series = create_series()
-        series.add_cover_letter(cover)
+        create_cover(series=series)
 
         resp = self.client.get(self.api_url(series.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
