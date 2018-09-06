@@ -17,6 +17,7 @@ from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_patch
 from patchwork.tests.utils import create_user
 
@@ -197,15 +198,39 @@ class MboxCommentPostcriptUnchangedTest(TestCase):
 
 class MboxSeriesDependencies(TestCase):
 
-    def test_patch_with_dependencies(self):
+    @staticmethod
+    def _create_patches():
         patch_a = create_series_patch()
         patch_b = create_series_patch(series=patch_a.series)
+
+        return patch_a.series, patch_a, patch_b
+
+    def test_patch_with_wildcard_series(self):
+        _, patch_a, patch_b = self._create_patches()
 
         response = self.client.get('%s?series=*' % reverse(
             'patch-mbox', args=[patch_b.patch.id]))
 
         self.assertContains(response, patch_a.patch.content)
         self.assertContains(response, patch_b.patch.content)
+
+    def test_patch_with_numeric_series(self):
+        series, patch_a, patch_b = self._create_patches()
+
+        response = self.client.get('%s?series=%d' % (
+            reverse('patch-mbox', args=[patch_b.patch.id]), series.id))
+
+        self.assertContains(response, patch_a.patch.content)
+        self.assertContains(response, patch_b.patch.content)
+
+    def test_patch_with_invalid_series(self):
+        series, patch_a, patch_b = self._create_patches()
+
+        for value in ('foo', str(series.id + 1)):
+            response = self.client.get('%s?series=%s' % (
+                reverse('patch-mbox', args=[patch_b.patch.id]), value))
+
+            self.assertEqual(response.status_code, 404)
 
     def test_legacy_patch(self):
         """Validate a patch with non-existent dependencies raises a 404."""
@@ -216,3 +241,16 @@ class MboxSeriesDependencies(TestCase):
             'patch-mbox', args=[patch.id]))
 
         self.assertEqual(response.status_code, 404)
+
+
+class MboxSeries(TestCase):
+
+    def test_series(self):
+        series = create_series()
+        patch_a = create_series_patch(series=series)
+        patch_b = create_series_patch(series=series)
+
+        response = self.client.get(reverse('series-mbox', args=[series.id]))
+
+        self.assertContains(response, patch_a.patch.content)
+        self.assertContains(response, patch_b.patch.content)
