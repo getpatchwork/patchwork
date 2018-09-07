@@ -138,7 +138,7 @@ def link(request):
 
             context['confirmation'] = conf
 
-            subject = 'Patchwork email address confirmation',
+            subject = render_to_string('patchwork/mails/user-link-subject.txt')
             message = render_to_string('patchwork/mails/user-link.txt',
                                        context, request=request)
             try:

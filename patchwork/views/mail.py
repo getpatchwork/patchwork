@@ -67,9 +67,10 @@ def optin_confirm(request, conf):
     return render(request, 'patchwork/optin.html', context)
 
 
-def _optinout(request, action, description):
+def _optinout(request, action):
     context = {}
     mail_template = 'patchwork/mails/%s-request.txt' % action
+    mail_subject_template = 'patchwork/mails/%s-request-subject.txt' % action
     html_template = 'patchwork/%s-request.html' % action
 
     if request.method != 'POST':
@@ -77,8 +78,8 @@ def _optinout(request, action, description):
 
     form = EmailForm(data=request.POST)
     if not form.is_valid():
-        context['error'] = ('There was an error in the %s form. Please '
-                            'review the form and re-submit.' % description)
+        context['error'] = ('There was an error in the form. Please review '
+                            'and re-submit.')
         context['form'] = form
         return render(request, html_template, context)
 
@@ -95,11 +96,13 @@ def _optinout(request, action, description):
     conf.save()
 
     context['confirmation'] = conf
-    mail = render_to_string(mail_template, context, request=request)
+
+    subject = render_to_string(mail_subject_template)
+    message = render_to_string(mail_template, context, request=request)
 
     try:
-        send_mail('Patchwork %s confirmation' % description, mail,
-                  conf_settings.DEFAULT_FROM_EMAIL, [email])
+        send_mail(subject, message, conf_settings.DEFAULT_FROM_EMAIL, [email])
+        # TODO(stephenfin): This is unnecessary and can be removed
         context['email_sent'] = True
     except smtplib.SMTPException:
         context['error'] = ('An error occurred during confirmation . '
@@ -110,8 +113,8 @@ def _optinout(request, action, description):
 
 
 def optout(request):
-    return _optinout(request, 'optout', 'opt-out')
+    return _optinout(request, 'optout')
 
 
 def optin(request):
-    return _optinout(request, 'optin', 'opt-in')
+    return _optinout(request, 'optin')
