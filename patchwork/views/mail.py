@@ -84,8 +84,8 @@ def _optinout(request, action):
         return render(request, html_template, context)
 
     email = form.cleaned_data['email']
-    if action == 'optin' and \
-            EmailOptout.objects.filter(email=email).count() == 0:
+    if action == 'optin' and EmailOptout.objects.filter(
+            email=email).count() == 0:
         context['error'] = ("The email address %s is not on the patchwork "
                             "opt-out list, so you don't need to opt back in" %
                             email)
@@ -102,9 +102,8 @@ def _optinout(request, action):
 
     try:
         send_mail(subject, message, conf_settings.DEFAULT_FROM_EMAIL, [email])
-        # TODO(stephenfin): This is unnecessary and can be removed
-        context['email_sent'] = True
     except smtplib.SMTPException:
+        context['confirmation'] = None
         context['error'] = ('An error occurred during confirmation . '
                             'Please try again later.')
         context['admins'] = conf_settings.ADMINS

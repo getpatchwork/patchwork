@@ -95,7 +95,7 @@ class OptoutRequestTest(TestCase):
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
         self.assertTrue(response.context['error'])
-        self.assertNotIn('email_sent', response.context)
+        self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_post_non_email(self):
@@ -103,7 +103,7 @@ class OptoutRequestTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
-        self.assertNotIn('email_sent', response.context)
+        self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
 
@@ -176,7 +176,7 @@ class OptinRequestTest(TestCase):
         self.assertFormError(response, 'form', 'email',
                              'This field is required.')
         self.assertTrue(response.context['error'])
-        self.assertNotIn('email_sent', response.context)
+        self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_post_non_email(self):
@@ -184,7 +184,7 @@ class OptinRequestTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'email', error_strings['email'])
         self.assertTrue(response.context['error'])
-        self.assertNotIn('email_sent', response.context)
+        self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
 
 

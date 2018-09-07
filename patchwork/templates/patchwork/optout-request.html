@@ -4,7 +4,7 @@
 {% block heading %}Opt-out{% endblock %}
 
 {% block body %}
-{% if email_sent %}
+{% if confirmation %}
 <p><strong>Opt-out confirmation email sent</strong></p>
 <p>An opt-out confirmation mail has been sent to
 <strong>{{confirmation.email}}</strong>, containing a link. Please click on
