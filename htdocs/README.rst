@@ -4,29 +4,28 @@ Static Assets
 This directory contains the static assets used by Patchwork. Many of these are
 third-party, though there are some are custom assets in there.
 
+
 .. _css:
 
 css
 ---
 
 ``bootstrap.min.css``
-
   CSS for the `Bootstrap` library.
 
   Refer to the :ref:`js` section below for more information on `Bootstrap`.
 
 ``selectize.bootstrap3.css``
-
   CSS for the `Selectize` library.
 
   Refer to the :ref:`js` section below for more information on `Selectize`.
 
 ``style.css``
-
   Custom, Patchwork styling. Mostly a collection of overrides for default
   Bootstrap styles.
 
   Part of Patchwork.
+
 
 .. _fonts:
 
@@ -34,7 +33,6 @@ fonts
 -----
 
 ``glyphicons-halflings-regular.*``
-
   Library of precisely prepared monochromatic icons and symbols, created with
   an emphasis to simplicity and easy orientation. Provided as part of the
   Bootstrap library.
@@ -42,13 +40,13 @@ fonts
   These are in multiple formats to support different browsers/environments.
   Refer to the :ref:`js` section below for more information on Bootstrap.
 
+
 .. _js:
 
 js
 --
 
 ``bootstrap.js``
-
   The most popular HTML, CSS, and JavaScript framework for developing
   responsive, mobile first projects on the web.
 
@@ -59,14 +57,12 @@ js
   :Version: 3.2.0
 
 ``bundle.js``
-
   Utility functions for bundle patch list manipulation (re-ordering patches,
   etc.)
 
   Part of Patchwork.
 
 ``clipboard.min.js``
-
   Modern copy to clipboard. No Flash. Just 3kb gzipped
 
   This is used to allow us to "click to copy" various elements in the UI.
@@ -76,7 +72,6 @@ js
   :Version: 1.7.1
 
 ``jquery.js``
-
   jQuery is a fast, small, and feature-rich JavaScript library. It makes things
   like HTML document traversal and manipulation, event handling, animation, and
   Ajax much simpler with an easy-to-use API that works across a multitude of
@@ -91,7 +86,6 @@ js
   :Version: 1.10.1
 
 ``jquery.checkboxes.js``
-
   A jQuery plugin that gives you nice powers over your checkboxes.
 
   This is used to allow shift-select of checkboxes on the patch list page.
@@ -101,7 +95,6 @@ js
   :Version: 1.0.6
 
 ``jquery.stickytableheaders.js``
-
   A jQuery plugin that makes large tables more usable by having the table
   header stick to the top of the screen when scrolling.
 
@@ -112,7 +105,6 @@ js
   :Version: 0.1.19
 
 ``jquery.tablednd.js``
-
   jQuery plug-in to drag and drop rows in HTML tables.
 
   This is used by the bundle patch list to allow us to control the order of the
@@ -123,7 +115,6 @@ js
   :Version: ???
 
 ``js.cookie.min.js``
-
   Library used to handle cookies.
 
   This is used to get the ``csrftoken`` cookie for AJAX requests in JavaScript.
@@ -132,7 +123,6 @@ js
   :Version: 3.0.0
 
 ``selectize.min.js``
-
   Selectize is the hybrid of a ``textbox`` and ``<select>`` box. It's jQuery
   based and it has autocomplete and native-feeling keyboard navigation; useful
   for tagging, contact lists, etc.
