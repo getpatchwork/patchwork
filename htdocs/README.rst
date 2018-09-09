@@ -83,7 +83,7 @@ js
 
   :Website: https://jquery.com/
   :GitHub: https://github.com/jquery/jquery
-  :Version: 1.10.1
+  :Version: 3.6.0
 
 ``jquery.checkboxes.js``
   A jQuery plugin that gives you nice powers over your checkboxes.
@@ -92,7 +92,7 @@ js
 
   :Website: http://rmariuzzo.github.io/checkboxes.js
   :GitHub: https://github.com/rmariuzzo/checkboxes.js
-  :Version: 1.0.6
+  :Version: 1.2.2
 
 ``jquery.stickytableheaders.js``
   A jQuery plugin that makes large tables more usable by having the table
@@ -102,7 +102,7 @@ js
   scroll.
 
   :GitHub: https://github.com/jmosbech/StickyTableHeaders
-  :Version: 0.1.19
+  :Version: 0.1.24
 
 ``jquery.tablednd.js``
   jQuery plug-in to drag and drop rows in HTML tables.
@@ -111,8 +111,8 @@ js
   patches in said bundle.
 
   :Website: http://www.isocra.com/2008/02/table-drag-and-drop-jquery-plugin/
-  :GitHub: jQuery plug-in to drag and drop rows in HTML tables
-  :Version: ???
+  :GitHub: https://github.com/isocra/TableDnD
+  :Version: 1.0.5
 
 ``js.cookie.min.js``
   Library used to handle cookies.
@@ -134,4 +134,4 @@ js
 
   :Website: https://selectize.github.io/selectize.js/
   :GitHub: https://github.com/selectize/selectize.js
-  :Version: 0.11.2
+  :Version: 0.13.5

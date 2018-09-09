@@ -36,6 +36,8 @@
 $(document).ready(function() {
     $('#patchlist').stickyTableHeaders();
 
+    $('#patchlist').checkboxes('range', true);
+
     $('#check-all').change(function(e) {
         if(this.checked) {
             $('#patchlist > tbody').checkboxes('check');
