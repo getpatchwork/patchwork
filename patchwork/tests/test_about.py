@@ -41,9 +41,6 @@ class AboutViewTest(TestCase):
             self.assertTrue(response.context['enabled_apis']['xmlrpc'])
 
     def test_rest(self):
-        # TODO(stephenfin): There appears to be a bug in Django 1.10.x under
-        # Python 3.5, meaning we can't use 'override_settings' here or we cause
-        # the REST API tests to fail. We should investigate this.
         with self.settings(ENABLE_REST_API=False):
             response = self.client.get(reverse('about'))
             self.assertFalse(response.context['enabled_apis']['rest'])
