@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    The performance of various pages has been improved with the addition of
+    some database indexes and optimization of some queries.
