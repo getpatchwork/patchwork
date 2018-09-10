@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    Django 1.8, 1.9 and 1.10 are no longer supported. These are no longer
+    supported upstream and most distributions provide a newer version.
+  - |
+    djangorestframework 3.4 and 3.5 are no longer supported. These were only
+    used with Django 1.8 to 1.10 and are not compatible with any version
+    now supported by Patchwork.
