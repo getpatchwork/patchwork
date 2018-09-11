@@ -1034,12 +1034,12 @@ def parse_mail(mail, list_id=None):
         # - there is an existing series, but it already has a patch with this
         #   number in it
         if not series or Patch.objects.filter(series=series, number=x).count():
-            series = Series(project=project,
-                            date=date,
-                            submitter=author,
-                            version=version,
-                            total=n)
-            series.save()
+            series = Series.objects.create(
+                project=project,
+                date=date,
+                submitter=author,
+                version=version,
+                total=n)
 
             # NOTE(stephenfin) We must save references for series. We
             # do this to handle the case where a later patch is
@@ -1109,12 +1109,12 @@ def parse_mail(mail, list_id=None):
                     msgid=msgid, series__project=project).first().series
 
             if not series:
-                series = Series(project=project,
-                                date=date,
-                                submitter=author,
-                                version=version,
-                                total=n)
-                series.save()
+                series = Series.objects.create(
+                    project=project,
+                    date=date,
+                    submitter=author,
+                    version=version,
+                    total=n)
 
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
