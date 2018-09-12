@@ -89,6 +89,7 @@ class PatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'state', 'date',
                     'archived', 'is_pull_request')
     list_filter = ('project', 'state', 'archived')
+    list_select_related = ('submitter', 'project', 'state')
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
@@ -128,6 +129,10 @@ class SeriesAdmin(admin.ModelAdmin):
     def received_all(self, series):
         return series.received_all
     received_all.boolean = True
+
+    def get_queryset(self, request):
+        qs = super(SeriesAdmin, self).get_queryset(request)
+        return qs.prefetch_related('patches',)
 
 
 admin.site.register(Series, SeriesAdmin)
