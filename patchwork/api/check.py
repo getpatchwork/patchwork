@@ -83,7 +83,8 @@ class CheckMixin(object):
     filter_class = CheckFilterSet
 
     def get_queryset(self):
-        return Check.objects.prefetch_related('patch', 'user')
+        patch_id = self.kwargs['patch_id']
+        return Check.objects.prefetch_related('user').filter(patch=patch_id)
 
 
 class CheckListCreate(CheckMixin, ListCreateAPIView):
