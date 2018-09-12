@@ -40,9 +40,9 @@ class TestCheckAPI(APITestCase):
         self.user = create_maintainer(project)
         self.patch = create_patch(project=project)
 
-    def _create_check(self):
+    def _create_check(self, patch=None):
         values = {
-            'patch': self.patch,
+            'patch': patch if patch else self.patch,
             'user': self.user,
         }
         return create_check(**values)
@@ -62,6 +62,7 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(0, len(resp.data))
 
         check_obj = self._create_check()
+        self._create_check(create_patch())  # second, unrelated patch
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
