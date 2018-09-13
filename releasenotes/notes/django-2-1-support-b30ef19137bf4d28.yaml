@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    `Django 2.1 <https://docs.djangoproject.com/en/dev/releases/2.1/>`_ is now
+    supported. This requires Python 3.
