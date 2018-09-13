@@ -58,3 +58,6 @@ patchwork/settings/production.py
 
 # django-dbbackup files
 /.backups
+
+# Makefile state files
+/.state
