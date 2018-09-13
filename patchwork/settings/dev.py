@@ -14,6 +14,11 @@ try:
 except ImportError:
     dbbackup = None
 
+try:
+    import debug_toolbar
+except ImportError:
+    debug_toolbar = None
+
 #
 # Core settings
 # https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
@@ -61,21 +66,22 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 # django-debug-toolbar
 
-INSTALLED_APPS += [
-    'debug_toolbar'
-]
+if debug_toolbar:
+    INSTALLED_APPS += [
+        'debug_toolbar'
+    ]
 
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # This should go first in the middleware classes
-MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-] + MIDDLEWARE
+    MIDDLEWARE = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ] + MIDDLEWARE
 
-INTERNAL_IPS = [
-    '127.0.0.1', '::1',
-    '172.18.0.1'
-]
+    INTERNAL_IPS = [
+        '127.0.0.1', '::1',
+        '172.18.0.1'
+    ]
 
 # django-dbbackup
 
