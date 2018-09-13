@@ -9,6 +9,11 @@ Design based on:
 
 from .base import *  # noqa
 
+try:
+    import dbbackup
+except ImportError:
+    dbbackup = None
+
 #
 # Core settings
 # https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
@@ -72,6 +77,14 @@ INTERNAL_IPS = [
     '172.18.0.1'
 ]
 
+# django-dbbackup
+
+if dbbackup:
+    INSTALLED_APPS += [
+        'dbbackup',
+    ]
+
+    DBBACKUP_STORAGE_OPTIONS = {'location': '.backups'}
 
 #
 # Patchwork settings

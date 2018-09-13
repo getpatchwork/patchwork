@@ -54,3 +54,6 @@ patchwork/settings/production.py
 
 # docker-compose configuration files
 /.env
+
+# django-dbbackup files
+/.backups
