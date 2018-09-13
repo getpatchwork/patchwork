@@ -153,7 +153,7 @@ class PatchList(ListAPIView):
 
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchListSerializer
-    filter_class = PatchFilterSet
+    filter_class = filterset_class = PatchFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'project', 'date', 'state', 'archived',
                        'submitter', 'check')

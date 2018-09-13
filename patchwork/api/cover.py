@@ -83,7 +83,7 @@ class CoverLetterList(ListAPIView):
     """List cover letters."""
 
     serializer_class = CoverLetterListSerializer
-    filter_class = CoverLetterFilterSet
+    filter_class = filterset_class = CoverLetterFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter')
     ordering = 'id'

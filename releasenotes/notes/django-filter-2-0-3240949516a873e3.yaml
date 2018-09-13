@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    `django-filter 2.0
+    <https://github.com/carltongibson/django-filter/releases/tag/2.0.0>`_ is
+    now supported. This requires Python 3.

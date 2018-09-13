@@ -66,7 +66,7 @@ class CheckSerializer(HyperlinkedModelSerializer):
 class CheckMixin(object):
 
     serializer_class = CheckSerializer
-    filter_class = CheckFilterSet
+    filter_class = filterset_class = CheckFilterSet
 
     def get_queryset(self):
         patch_id = self.kwargs['patch_id']

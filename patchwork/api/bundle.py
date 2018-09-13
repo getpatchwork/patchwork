@@ -66,7 +66,7 @@ class BundleMixin(object):
 class BundleList(BundleMixin, ListAPIView):
     """List bundles."""
 
-    filter_class = BundleFilterSet
+    filter_class = filterset_class = BundleFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'owner')
     ordering = 'id'

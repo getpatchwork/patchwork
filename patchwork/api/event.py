@@ -75,7 +75,7 @@ class EventList(ListAPIView):
     """List events."""
 
     serializer_class = EventSerializer
-    filter_class = EventFilterSet
+    filter_class = filterset_class = EventFilterSet
     page_size_query_param = None  # fixed page size
     ordering_fields = ()
     ordering = '-date'

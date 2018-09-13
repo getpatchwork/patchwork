@@ -62,7 +62,7 @@ class SeriesMixin(object):
 class SeriesList(SeriesMixin, ListAPIView):
     """List series."""
 
-    filter_class = SeriesFilterSet
+    filter_class = filterset_class = SeriesFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter', 'received_all')
     ordering = 'id'

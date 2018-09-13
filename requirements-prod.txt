@@ -1,6 +1,7 @@
 Django==2.0.8; python_version >= '3.4'
 Django==1.11.15; python_version < '3.0'
 djangorestframework==3.8.2
-django-filter==1.1.0
+django-filter==2.0.0; python_version >= '3.4'
+django-filter==1.1.0; python_version < '3.0'  # pyup: ignore
 psycopg2-binary==2.7.5
 sqlparse==0.2.4
