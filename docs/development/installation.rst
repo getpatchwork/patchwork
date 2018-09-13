@@ -111,9 +111,9 @@ For more information on Docker itself, please refer to the `docker`_ and
 
       $ chcon -RT svirt_sandbox_file_t $PATCHWORK_DIR
 
-   where `$PATCHWORK_DIR` is the absolute patch to the `patchwork` folder
-   created when you cloned the repo. For more information, see `man docker
-   run`.
+   where ``$PATCHWORK_DIR`` is the absolute patch to the ``patchwork`` folder
+   created when you cloned the repo. For more information, see ``man docker
+   run``.
 
 .. note::
 
@@ -121,8 +121,9 @@ For more information on Docker itself, please refer to the `docker`_ and
 
      ERROR: Couldn't connect to the Docker daemon at http+docker://localunixsocket - is it running?
 
-   ensure you have correctly installed Docker, added your user to the `docker`
-   group, and started the daemon, per the `docker documentation <docker>`_.
+   ensure you have correctly installed Docker, added your user to the
+   ``docker`` group, and started the daemon, per the `docker documentation
+   <docker>`_.
 
 .. note::
 
@@ -161,9 +162,9 @@ Python Requirements
 ^^^^^^^^^^^^^^^^^^^
 
 To develop Python-based software you first need Python. Patchwork supports both
-Python 2.7 and Python 3.3+. One of these will be installed by default on many
-installations, though they can also be installed manually using the `python` or
-`python3` packages.
+Python 2.7 and Python 3.4+. One of these will be installed by default on many
+installations, though they can also be installed manually using the ``python``
+or ``python3`` packages.
 
 It's a good idea to use `virtual environments`__ to develop Python software.
 Virtual environments are "instances" of your system Python without any of the
@@ -171,13 +172,13 @@ additional Python packages installed. They are useful to develop and possibly
 deploy Patchwork against a "well known" set of dependencies, but they can also
 be used to test Patchwork against several versions of Django.
 
-If you do not have `virtualenv` installed then you should install it now. This
-can be installed using the `python-virtualenv` or `python3-virtualenv`
-packages. Alternatively you can install these using `pip`.
+If you do not have ``virtualenv`` installed then you should install it now. This
+can be installed using the ``python-virtualenv`` or ``python3-virtualenv``
+packages. Alternatively you can install these using ``pip``.
 
-It is also helpful to install `tox` which is used for running tests in
-Patchwork. This can be installed using the `python-tox` or `python3-tox`
-packages, or via `pip`.
+It is also helpful to install ``tox`` which is used for running tests in
+Patchwork. This can be installed using the ``python-tox`` or ``python3-tox``
+packages, or via ``pip``.
 
 __ https://virtualenv.readthedocs.io/en/latest/
 
@@ -186,9 +187,9 @@ Database Requirements
 
 If not already installed, you may need to install an RDBMS. You can use either
 MariaDB/MySQL or PostgreSQL for this purpose. You should also install the
-development headers, known as `libmysqlclient-dev` or `libpq-dev` respectively
-on Debian-based Debian-based distros like Ubuntu and `mysql-devel` or
-`postgresql-devel` on RHEL-based distros.
+development headers, known as ``libmysqlclient-dev`` or ``libpq-dev``
+respectively on Debian-based Debian-based distros like Ubuntu and
+``mysql-devel`` or ``postgresql-devel`` on RHEL-based distros.
 
 .. note::
 
@@ -205,7 +206,7 @@ on Debian-based Debian-based distros like Ubuntu and `mysql-devel` or
    supported`__. You will find some tests provided by Patchwork fail and some
    patches you develop may fail in production due to these differences.
 
-__ https://docs.djangoproject.com/en/1.8/ref/databases/
+__ https://docs.djangoproject.com/en/1.11/ref/databases/
 __ https://www.sqlite.org/faq.html#q18
 
 Example Installation
@@ -219,15 +220,15 @@ An example for installing all these packages and the MySQL RDBMS on Ubuntu
    $ sudo apt-get install python python-pip python-dev python-virtualenv \
        python-tox mysql-server libmysqlclient-dev
 
-If you have an existing MariaDB/MySQL installation and have installed `pip`
-already/are using Python 3.4+ then you can install all packages using `pip`:
+If you have an existing MariaDB/MySQL installation and have installed ``pip``
+already/are using Python 3.4+ then you can install all packages using ``pip``:
 
 .. code-block:: shell
 
    $ sudo pip install virtualenv tox
 
-If you wish to use Python 3 then simply replace `python` with `python3` in the
-above command.
+If you wish to use Python 3 then simply replace ``python`` with ``python3`` in
+the above command.
 
 Configure Virtual Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,20 +251,17 @@ virtual environment. This can be done like so:
 .. note::
 
    If you installed a Python 3.x-based virtual environment package, adjust the
-   executable indicated above as necessary, e.g. `virtualenv-3.4`.
+   executable indicated above as necessary, e.g. ``virtualenv-3.4``.
 
 Now install the packages. Patchwork provides three requirements files.
 
-`requirements-dev.txt`
-
+``requirements-dev.txt``
   Packages required to configure a development environment
 
-`requirements-prod.txt`
-
+``requirements-prod.txt``
   Packages required for deploying Patchwork in production
 
-`requirements-test.txt`
-
+``requirements-test.txt``
   Packages required to run tests
 
 We're going to install the first of these, which can be done like so:
@@ -292,7 +290,7 @@ To begin, export your database credentials as follows:
    (.venv)$ db_pass=password
 
 Now, create the database. If this is your first time configuring the database,
-you must create a `patchwork` user (or similar) along with the database
+you must create a ``patchwork`` user (or similar) along with the database
 instance itself. The commands below will do this, dropping existing databases
 if necessary:
 
@@ -307,30 +305,31 @@ if necessary:
 
 .. note::
 
-   The `patchwork` username and `password` password are the defaults expected
-   by the provided `dev` settings files. If using something different,
-   export the `PW_TEST_DB_USER` and `PW_TEST_DB_PASS` variables described in
-   the :ref:`Environment Variables <dev-envvar>` section below.  Alternatively,
-   you can create your own settings file with these variables hardcoded and
-   change the value of `DJANGO_SETTINGS_MODULE` as described below.
+   The ``patchwork`` username and ``password`` password are the defaults
+   expected by the provided ``dev`` settings files. If using something
+   different, export the ``PW_TEST_DB_USER`` and ``PW_TEST_DB_PASS`` variables
+   described in the :ref:`Environment Variables <dev-envvar>` section below.
+   Alternatively, you can create your own settings file with these variables
+   hardcoded and change the value of ``DJANGO_SETTINGS_MODULE`` as described
+   below.
 
 Load Initial Data
 ~~~~~~~~~~~~~~~~~
 
 Before continuing, we need to tell Django where it can find our configuration.
-Patchwork provides a default development `settings.py` file for this purpose.
-To use this, export the `DJANGO_SETTINGS_MODULE` environment variable as
+Patchwork provides a default development ``settings.py`` file for this purpose.
+To use this, export the ``DJANGO_SETTINGS_MODULE`` environment variable as
 described below:
 
 .. code-block:: shell
 
    (.venv)$ export DJANGO_SETTINGS_MODULE=patchwork.settings.dev
 
-Alternatively you can provide your own `settings.py` file and provide the path
+Alternatively you can provide your own ``settings.py`` file and provide the path
 to that instead.
 
 Once done, we need to create the tables in the database. This can be done using
-the `migrate` command of the `manage.py` executable:
+the ``migrate`` command of the ``manage.py`` executable:
 
 .. code-block:: shell
 
@@ -339,27 +338,24 @@ the `migrate` command of the `manage.py` executable:
 Next, you should load the initial fixtures into Patchwork. These initial
 fixtures provide.
 
-`default_tags.xml`
+``default_tags.xml``
+  The tags that Patchwork will extract from mails. For example: ``Acked-By``,
+  ``Reviewed-By``
 
-  The tags that Patchwork will extract from mails. For example: `Acked-By`,
-  `Reviewed-By`
+``default_states.xml``
+  The states that a patch can be in. For example: ``Accepted``, ``Rejected``
 
-`default_states.xml`
-
-  The states that a patch can be in. For example: `Accepted`, `Rejected`
-
-`default_projects.xml`
-
+``default_projects.xml``
   A default project that you can then upload patches for
 
-These can be loaded using the `loaddata` command:
+These can be loaded using the ``loaddata`` command:
 
 .. code-block:: shell
 
    (.venv)$ ./manage.py loaddata default_tags default_states default_projects
 
 You should also take the opportunity to create a "superuser". You can do this
-using the aptly-named `createsuperuser` command:
+using the aptly-named ``createsuperuser`` command:
 
 .. code-block:: shell
 
@@ -372,7 +368,7 @@ Import Mailing List Archives
 Regardless of your installation method of choice, you will probably want to
 load some real emails into the system.  This can be done manually, however it's
 generally much easier to download an archive from a Mailman instance and load
-these using the `parsearchive` command. You can do this like so:
+these using the ``parsearchive`` command. You can do this like so:
 
 .. code-block:: shell
 
@@ -382,14 +378,14 @@ these using the `parsearchive` command. You can do this like so:
    (.venv)$ mm_url=$mm_host/private/patchwork.mbox/patchwork.mbox
    (.venv)$ curl -F username=$mm_user -F password=$mm_pass -k -O $mm_url
 
-where `mm_user` and `mm_pass` are the username and password you have registered
-with on the Mailman instance found at `mm_host`.
+where ``mm_user`` and ``mm_pass`` are the username and password you have
+registered with on the Mailman instance found at ``mm_host``.
 
 .. note::
 
    We provide instructions for downloading archives from the Patchwork mailing
    list, but almost any instance of Mailman will allow downloading of archives
-   as seen above; simply change the `pw_url` variable defined. You can find
+   as seen above; simply change the ``pw_url`` variable defined. You can find
    more informations about this `here`__.
 
 Load these archives into Patchwork. Depending on the size of the downloaded
@@ -407,7 +403,7 @@ browser of choice:
 
    (.venv)$ ./manage.py runserver 0.0.0.0:8000
 
-Once finished, you can kill the server (`Ctrl` + `C`) and exit the virtual
+Once finished, you can kill the server (:kbd:`Ctrl+C`) and exit the virtual
 environment:
 
 .. code-block:: shell
@@ -415,7 +411,7 @@ environment:
    (.venv)$ deactivate
    $
 
-Should you wish to re-enter this environment, simply source the `activate`
+Should you wish to re-enter this environment, simply source the ``activate``
 script again.
 
 __ http://blog.behnel.de/posts/indexp118.html
@@ -425,9 +421,9 @@ Django Debug Toolbar
 --------------------
 
 Patchwork installs and enables the 'Django Debug Toolbar' by default. However,
-by default this is only displayed if you are developing on localhost. If
+by default this is only displayed if you are developing on ``localhost``. If
 developing on a different machine, you should configure an SSH tunnel such
-that, for example, `localhost:8000` points to `[DEV_MACHINE_IP]:8000`.
+that, for example, ``localhost:8000`` points to ``[DEV_MACHINE_IP]:8000``.
 
 
 .. _dev-envvar:
@@ -436,20 +432,16 @@ Environment Variables
 ---------------------
 
 The following environment variables are available to configure settings when
-using the provided `dev` settings file.
+using the provided ``dev`` settings file.
 
-`PW_TEST_DB_NAME=patchwork`
-
+``PW_TEST_DB_NAME=patchwork``
   Name of the database
 
-`PW_TEST_DB_USER=patchwork`
-
+``PW_TEST_DB_USER=patchwork``
   Username to access the database with
 
-`PW_TEST_DB_PASS=password`
-
+``PW_TEST_DB_PASS=password``
   Password to access the database with<
 
-`PW_TEST_DB_TYPE=mysql`
-
-  Type of database to use. Options: 'mysql', 'postgres'
+``PW_TEST_DB_TYPE=mysql``
+  Type of database to use. Options: ``mysql``, ``postgres``
