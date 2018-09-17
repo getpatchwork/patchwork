@@ -20,8 +20,6 @@
 # Patchwork XMLRPC interface
 #
 
-from __future__ import absolute_import
-
 import base64
 # NOTE(stephenfin) six does not seem to support this
 try:
