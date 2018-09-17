@@ -4,13 +4,25 @@ Contributing
 Coding Standards
 ----------------
 
-**Follow PEP8**. All code is currently PEP8 compliant and it should stay this
-way.
+**Follow PEP8**. All code is currently `PEP 8`_ compliant and it should stay
+this way.
+
+All code must be licensed using `GPL v2.0 or later`_ and must have a `SPDX
+License Identifier`_ stating this. A copyright line should be included on new
+files and may be added for significant changes to existing files.
+
+.. code-block:: python
+
+   # Patchwork - automated patch tracking system
+   # Copyright (C) 2000 Jane Doe <jane.doe@example.com>
+   # Copyright (C) 2001 Joe Bloggs <joebloggs@example.com>
+   #
+   # SPDX-License-Identifier: GPL-2.0-or-later
 
 Changes that fix semantic issues will be generally be happily received, but
 please keep such changes separate from functional changes.
 
-`pep8` targets are provided via tox. Refer to the :ref:`testing` section
+``pep8`` targets are provided via tox. Refer to the :ref:`testing` section
 below for more information on usage of this tool.
 
 .. _testing:
@@ -148,6 +160,9 @@ announcements.
 Further information about the Patchwork mailing list is available can be found on
 `lists.ozlabs.org`_.
 
+.. _PEP 8: https://pep8.org/
+.. _GPL v2.0 or later: https://spdx.org/licenses/GPL-2.0-or-later.html
+.. _SPDX License Identifier: https://spdx.org/using-spdx-license-identifier
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _reno: https://docs.openstack.org/developer/reno/
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
