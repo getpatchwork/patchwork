@@ -11,6 +11,7 @@ from django.core.management import base
 from django.utils import six
 
 from patchwork.parser import parse_mail
+from patchwork.parser import DuplicateMailError
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,10 @@ class Command(base.BaseCommand):
             result = parse_mail(mail, options['list_id'])
             if result is None:
                 logger.warning('Nothing added to database')
-        except Exception:
-            logger.exception('Error when parsing incoming email',
+        except DuplicateMailError as exc:
+            logger.warning('Duplicate mail for message ID %s', exc.msgid)
+        except (ValueError, Exception) as exc:
+            logger.exception('Error when parsing incoming email: %s',
+                             exc.message,
                              extra={'mail': mail.as_string()})
             sys.exit(1)

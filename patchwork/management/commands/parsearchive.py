@@ -12,6 +12,7 @@ from django.core.management.base import BaseCommand
 
 from patchwork import models
 from patchwork.parser import parse_mail
+from patchwork.parser import DuplicateMailError
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ class Command(BaseCommand):
             models.CoverLetter: 0,
             models.Comment: 0,
         }
+        duplicates = 0
         dropped = 0
         errors = 0
 
@@ -90,10 +92,13 @@ class Command(BaseCommand):
                     results[type(obj)] += 1
                 else:
                     dropped += 1
-            except ValueError:
-                # TODO(stephenfin): Perhaps we should store the broken patch
-                # somewhere for future reference?
+            except DuplicateMailError as exc:
+                duplicates += 1
+                logger.warning('Duplicate mail for message ID %s', exc.msgid)
+            except (ValueError, Exception) as exc:
                 errors += 1
+                logger.warning('Invalid mail: %s', exc.message,
+                               extra={'mail': mail.as_string()})
 
             if verbosity < 3 and (i % 10) == 0:
                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
@@ -109,6 +114,7 @@ class Command(BaseCommand):
             '  %(covers)4d cover letters\n'
             '  %(patches)4d patches\n'
             '  %(comments)4d comments\n'
+            '  %(duplicates)4d duplicates\n'
             '  %(dropped)4d dropped\n'
             '  %(errors)4d errors\n'
             'Total: %(new)s new entries' % {
@@ -116,7 +122,8 @@ class Command(BaseCommand):
                 'covers': results[models.CoverLetter],
                 'patches': results[models.Patch],
                 'comments': results[models.Comment],
+                'duplicates': duplicates,
                 'dropped': dropped,
                 'errors': errors,
-                'new': count - dropped - errors,
+                'new': count - duplicates - dropped - errors,
             })
