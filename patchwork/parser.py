@@ -950,7 +950,7 @@ def parse_mail(mail, list_id=None):
 
     hint = clean_header(mail.get('X-Patchwork-Hint', ''))
     if hint and hint.lower() == 'ignore':
-        logger.debug("Ignoring email due to 'ignore' hint")
+        logger.info("Ignoring email due to 'ignore' hint")
         return
 
     project = find_project(mail, list_id)

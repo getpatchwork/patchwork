@@ -177,17 +177,17 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
         'patchwork.parser': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
         'patchwork.management.commands': {
             'handlers': ['console', 'mail_admins'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': True,
         },
     },

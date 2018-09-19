@@ -37,10 +37,24 @@ class Command(BaseCommand):
         dropped = 0
         errors = 0
 
+        verbosity = int(options['verbosity'])
+        if not verbosity:
+            level = logging.CRITICAL
+        elif verbosity == 1:
+            level = logging.ERROR
+        elif verbosity == 2:
+            level = logging.INFO
+        else:  # verbosity == 3
+            level = logging.DEBUG
+
+        if level:
+            logger.setLevel(level)
+            logging.getLogger('patchwork.parser').setLevel(level)
+
         # TODO(stephenfin): Support passing via stdin
         path = args and args[0] or options['infile']
         if not os.path.exists(path):
-            self.stdout.write('Invalid path: %s' % path)
+            logger.error('Invalid path: %s', path)
             sys.exit(1)
 
         # assume if <infile> is a directory, then we're passing a maildir
@@ -65,7 +79,7 @@ class Command(BaseCommand):
             for m in mbox:
                 pass
         except AttributeError:
-            logger.warning('Broken mbox/Maildir, aborting')
+            logger.error('Broken mbox/Maildir, aborting')
             return
 
         logger.info('Parsing %d mails', count)
@@ -81,9 +95,14 @@ class Command(BaseCommand):
                 # somewhere for future reference?
                 errors += 1
 
-            if (i % 10) == 0:
+            if verbosity < 3 and (i % 10) == 0:
                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
                 self.stdout.flush()
+
+        mbox.close()
+
+        if not verbosity:
+            return
 
         self.stdout.write(
             'Processed %(total)d messages -->\n'
@@ -101,4 +120,3 @@ class Command(BaseCommand):
                 'errors': errors,
                 'new': count - dropped - errors,
             })
-        mbox.close()
