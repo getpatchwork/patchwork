@@ -41,7 +41,6 @@ htmlcov/
 
 # Django stuff
 *.log
-/*.json
 
 # Sphinx stuff
 /docs/_build
