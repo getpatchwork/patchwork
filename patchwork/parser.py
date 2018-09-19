@@ -64,6 +64,12 @@ EXTENDED_HEADER_LINES = (
 logger = logging.getLogger(__name__)
 
 
+class DuplicateMailError(Exception):
+
+    def __init__(self, msgid):
+        self.msgid = msgid
+
+
 def normalise_space(value):
     whitespace_re = re.compile(r'\s+')
     return whitespace_re.sub(' ', value).strip()
@@ -1036,8 +1042,7 @@ def parse_mail(mail, list_id=None):
                 state=find_state(mail))
             logger.debug('Patch saved')
         except IntegrityError:
-            logger.error("Duplicate mail for message ID %s" % msgid)
-            return None
+            raise DuplicateMailError(msgid=msgid)
 
         # if we don't have a series marker, we will never have an existing
         # series to match against.
@@ -1143,15 +1148,18 @@ def parse_mail(mail, list_id=None):
                     logger.error("Multiple SeriesReferences for %s"
                                  " in project %s!" % (msgid, project.name))
 
-            cover_letter = CoverLetter(
-                msgid=msgid,
-                project=project,
-                name=name[:255],
-                date=date,
-                headers=headers,
-                submitter=author,
-                content=message)
-            cover_letter.save()
+            try:
+                cover_letter = CoverLetter.objects.create(
+                    msgid=msgid,
+                    project=project,
+                    name=name[:255],
+                    date=date,
+                    headers=headers,
+                    submitter=author,
+                    content=message)
+            except IntegrityError:
+                raise DuplicateMailError(msgid=msgid)
+
             logger.debug('Cover letter saved')
 
             series.add_cover_letter(cover_letter)
@@ -1167,14 +1175,18 @@ def parse_mail(mail, list_id=None):
 
     author = get_or_create_author(mail)
 
-    comment = Comment(
-        submission=submission,
-        msgid=msgid,
-        date=date,
-        headers=headers,
-        submitter=author,
-        content=message)
-    comment.save()
+
+    try:
+        comment = Comment.objects.create(
+            submission=submission,
+            msgid=msgid,
+            date=date,
+            headers=headers,
+            submitter=author,
+            content=message)
+    except IntegrityError:
+        raise DuplicateMailError(msgid=msgid)
+
     logger.debug('Comment saved')
 
     return comment
