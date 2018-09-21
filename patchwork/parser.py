@@ -1175,7 +1175,6 @@ def parse_mail(mail, list_id=None):
 
     author = get_or_create_author(mail)
 
-
     try:
         comment = Comment.objects.create(
             submission=submission,

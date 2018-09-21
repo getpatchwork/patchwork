@@ -193,7 +193,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'patchwork.management.commands': {
+        'patchwork.management.commands.parsemail': {
             'handlers': ['console', 'mail_admins'],
             'level': 'INFO',
             'propagate': True,
