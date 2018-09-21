@@ -1,5 +1,5 @@
-Django==2.0.8; python_version >= '3.4'
-Django==1.11.15; python_version < '3.0'
+Django==2.1.1; python_version >= '3.4'
+Django==2.1.1; python_version < '3.0'
 djangorestframework==3.8.2
 django-filter==1.1.0
 psycopg2-binary==2.7.5
