@@ -185,7 +185,7 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False,
         },
-        'patchwork.management.commands': {
+        'patchwork.management.commands.parsemail': {
             'handlers': ['console', 'mail_admins'],
             'level': 'WARNING',
             'propagate': True,
