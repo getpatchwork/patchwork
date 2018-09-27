@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import collections
+
 from django.contrib.auth.models import User
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -443,7 +445,7 @@ class Filters:
         self.project = project
 
     def filter_conditions(self):
-        kwargs = {}
+        kwargs = collections.OrderedDict()
         for f in self._filters:
             if f.applied:
                 kwargs.update(f.kwargs())
@@ -456,11 +458,11 @@ class Filters:
         return queryset.filter(**kwargs)
 
     def params(self):
-        return [(f.param, f.key()) for f in self._filters
-                if f.key() is not None]
+        return collections.OrderedDict([
+            (f.param, f.key()) for f in self._filters if f.key() is not None])
 
     def querystring(self, remove=None):
-        params = dict(self.params())
+        params = self.params()
 
         for (k, v) in self.values.items():
             if k not in params:
@@ -481,7 +483,8 @@ class Filters:
         return self.querystring(filter)
 
     def applied_filters(self):
-        return [x for x in self._filters if x.applied]
+        return collections.OrderedDict([
+            (x.param, x) for x in self._filters if x.applied])
 
     def available_filters(self):
         return self._filters

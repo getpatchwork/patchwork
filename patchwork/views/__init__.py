@@ -190,7 +190,7 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
 
         value = data.get(param, None)
         if value:
-            params.append((param, value))
+            params['param'] = value
 
     data = {}
     if request.method == 'GET':
