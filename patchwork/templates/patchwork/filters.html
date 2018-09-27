@@ -130,7 +130,7 @@ $(document).ready(function() {
  <div id="filtersummary">
   <a href="javascript:filter_click()">Show patches with</a>:
  {% if filters.applied_filters %}
-  {% for filter in filters.applied_filters %}
+  {% for filter in filters.applied_filters.values %}
    {{ filter.name }} = <strong>{{ filter.condition }}</strong>
     {% if not filter.forced %}
      <a class="filter-action"
