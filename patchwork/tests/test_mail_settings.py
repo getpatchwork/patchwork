@@ -86,7 +86,7 @@ class OptoutRequestTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [email])
-        self.assertEqual(msg.subject, 'Patchwork opt-out confirmation')
+        self.assertEqual(msg.subject, 'Patchwork opt-out request')
         self.assertIn(reverse('confirm', kwargs={'key': conf.key}), msg.body)
 
     def test_post_empty(self):
@@ -167,7 +167,7 @@ class OptinRequestTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         msg = mail.outbox[0]
         self.assertEqual(msg.to, [self.email])
-        self.assertEqual(msg.subject, 'Patchwork opt-in confirmation')
+        self.assertEqual(msg.subject, 'Patchwork opt-in request')
         self.assertIn(reverse('confirm', kwargs={'key': conf.key}), msg.body)
 
     def test_post_empty(self):

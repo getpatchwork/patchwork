@@ -1,1 +1,1 @@
-Patchwork opt-out confirmation
+Patchwork opt-out request
