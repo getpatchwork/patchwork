@@ -228,8 +228,10 @@ def todo_list(request, project_id):
                            filter_settings=filter_settings,
                            patches=patches)
 
-    context['action_required_states'] = \
-        State.objects.filter(action_required=True).all()
+    context['bundles'] = request.user.bundles.all()
+    context['action_required_states'] = State.objects.filter(
+        action_required=True).all()
+
     return render(request, 'patchwork/todo-list.html', context)
 
 
