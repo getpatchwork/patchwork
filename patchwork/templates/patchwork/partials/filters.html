@@ -143,12 +143,14 @@ $(document).ready(function() {
  <div id="filterform" style="padding-top: 1em; display: none">
   <form class="form-horizontal" method="get">
    {% for filter in filters.available_filters %}
+   {% if not filter.forced %}
    <div class="form-group">
     <label class="col-sm-2 control-label">{{ filter.name }}</label>
     <div class="col-sm-5">
       {{ filter.form }}
     </div>
    </div>
+   {% endif %}
    {% endfor %}
    <div class="form-group">
     <div class="col-sm-offset-2 col-sm-5">
