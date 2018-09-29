@@ -77,7 +77,7 @@ def bundle_list(request, project_id=None):
 def bundle_detail(request, username, bundlename):
     bundle = get_object_or_404(Bundle, owner__username=username,
                                name=bundlename)
-    filter_settings = [(DelegateFilter, DelegateFilter.AnyDelegate)]
+    filter_settings = [(DelegateFilter, DelegateFilter.ANY_DELEGATE)]
 
     is_owner = request.user == bundle.owner
 

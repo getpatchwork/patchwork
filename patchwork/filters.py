@@ -17,25 +17,42 @@ from patchwork.models import State
 
 
 class Filter(object):
+    #: The 'name' of the filter, to be displayed in the filter UI.
+    name = None
+    #: The querystring parameter to filter on.
+    param = None
 
     def __init__(self, filters):
         self.filters = filters
         self.applied = False
-        self.forced = False
 
-    def name(self):
-        """The 'name' of the filter, to be displayed in the filter UI"""
-        return self.name
-
+    @property
     def condition(self):
         """The current condition of the filter, to be displayed in the
            filter UI"""
-        return self.key
+        raise NotImplementedError
 
+    @property
     def key(self):
         """The key for this filter, to appear in the querystring. A key of
            None will remove the param=key pair from the querystring."""
-        return None
+        raise NotImplementedError
+
+    @key.setter
+    def key(self, key):
+        raise NotImplementedError
+
+    @property
+    def url_without_me(self):
+        return self.filters.querystring_without_filter(self)
+
+    @property
+    def kwargs(self):
+        raise NotImplementedError
+
+    @property
+    def form(self):
+        raise NotImplementedError
 
     def set_status(self, *kwargs):
         """Views can call this to force a specific filter status. For example,
@@ -43,42 +60,37 @@ class Filter(object):
            that user's delegated patches"""
         pass
 
-    def _set_key(self, key):
-        raise NotImplementedError
-
     def parse(self, values):
         if self.param not in values:
             return
-        self._set_key(values[self.param])
-
-    def url_without_me(self):
-        return self.filters.querystring_without_filter(self)
-
-    def form_function(self):
-        return 'function(form) { return "unimplemented" }'
-
-    def form(self):
-        if self.forced:
-            return mark_safe('<input type="hidden" value="%s">%s' % (
-                self.param, self.condition()))
-        return self._form()
-
-    def kwargs(self):
-        return {}
+        self.key = values[self.param]
 
     def __str__(self):
-        return '%s: %s' % (self.name, self.kwargs())
+        return '%s: %s' % (self.name, self.kwargs)
 
 
 class SeriesFilter(Filter):
-    param = 'series'
     name = 'Series'
+    param = 'series'
 
     def __init__(self, filters):
         super(SeriesFilter, self).__init__(filters)
         self.series = None
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        if self.series:
+            return self.series.name
+        return ''
+
+    @property
+    def key(self):
+        if self.series:
+            return self.series.id
+        return
+
+    @key.setter
+    def key(self, key):
         self.series = None
 
         key = key.strip()
@@ -92,36 +104,43 @@ class SeriesFilter(Filter):
 
         self.applied = True
 
+    @property
     def kwargs(self):
         if self.series:
             return {'series': self.series}
         return {}
 
-    def condition(self):
-        if self.series:
-            return self.series.name
-        return ''
-
-    def _form(self):
+    @property
+    def form(self):
         return mark_safe(('<input type="text" name="series" ' +
                           'id="series_input" class="form-control">'))
 
-    def key(self):
-        if self.series:
-            return self.series.id
-        return
-
 
 class SubmitterFilter(Filter):
+    name = 'Submitter'
     param = 'submitter'
 
     def __init__(self, filters):
         super(SubmitterFilter, self).__init__(filters)
-        self.name = 'Submitter'
         self.person = None
         self.person_match = None
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        if self.person:
+            return self.person.name
+        elif self.person_match:
+            return self.person_match
+        return ''
+
+    @property
+    def key(self):
+        if self.person:
+            return self.person.id
+        return self.person_match
+
+    @key.setter
+    def key(self, key):
         self.person = None
         self.person_match = None
 
@@ -144,6 +163,7 @@ class SubmitterFilter(Filter):
         self.person_match = key
         self.applied = True
 
+    @property
     def kwargs(self):
         if self.person:
             user = self.person.user
@@ -156,35 +176,41 @@ class SubmitterFilter(Filter):
 
         return {}
 
-    def condition(self):
-        if self.person:
-            return self.person.name
-        elif self.person_match:
-            return self.person_match
-        return ''
-
-    def _form(self):
+    @property
+    def form(self):
         return mark_safe(('<input type="text" name="submitter" ' +
                           'id="submitter_input" class="form-control">'))
 
-    def key(self):
-        if self.person:
-            return self.person.id
-        return self.person_match
-
 
 class StateFilter(Filter):
+    name = 'State'
     param = 'state'
     any_key = '*'
     action_req_str = 'Action Required'
 
     def __init__(self, filters):
         super(StateFilter, self).__init__(filters)
-        self.name = 'State'
         self.state = None
+        # The state filter is enabled by default (to hide patches that don't
+        # require action)
         self.applied = True
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        if self.state:
+            return self.state.name
+        return self.action_req_str
+
+    @property
+    def key(self):
+        if self.state is not None:
+            return self.state.id
+        if not self.applied:
+            return '*'
+        return None
+
+    @key.setter
+    def key(self, key):
         self.state = None
 
         if key == self.any_key:
@@ -198,27 +224,25 @@ class StateFilter(Filter):
 
         self.applied = True
 
+    @property
+    def url_without_me(self):
+        # Because the filter is enabled by default, we need to add something to
+        # the querystring if we disable it
+        qs = self.filters.querystring_without_filter(self)
+        if qs != '?':
+            qs += '&'
+        return qs + '%s=%s' % (self.param, self.any_key)
+
+    @property
     def kwargs(self):
         if self.state is not None:
             return {'state': self.state}
-        else:
-            return {'state__in':
-                    State.objects.filter(action_required=True)
-                    .values('pk').query}
 
-    def condition(self):
-        if self.state:
-            return self.state.name
-        return self.action_req_str
+        return {'state__in': State.objects.filter(
+            action_required=True).values('pk').query}
 
-    def key(self):
-        if self.state is not None:
-            return self.state.id
-        if not self.applied:
-            return '*'
-        return None
-
-    def _form(self):
+    @property
+    def form(self):
         out = '<select name="%s" class="form-control">' % self.param
 
         selected = ''
@@ -242,26 +266,25 @@ class StateFilter(Filter):
         out += '</select>'
         return mark_safe(out)
 
-    def form_function(self):
-        return 'function(form) { return form.x.value }'
-
-    def url_without_me(self):
-        qs = self.filters.querystring_without_filter(self)
-        if qs != '?':
-            qs += '&'
-        return qs + '%s=%s' % (self.param, self.any_key)
-
 
 class SearchFilter(Filter):
+    name = 'Search'
     param = 'q'
 
     def __init__(self, filters):
         super(SearchFilter, self).__init__(filters)
-        self.name = 'Search'
-        self.param = 'q'
         self.search = None
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        return self.search
+
+    @property
+    def key(self):
+        return self.search
+
+    @key.setter
+    def key(self, key):
         key = key.strip()
         if not key:
             return
@@ -269,46 +292,53 @@ class SearchFilter(Filter):
         self.search = key
         self.applied = True
 
+    @property
     def kwargs(self):
         return {'name__icontains': self.search}
 
-    def condition(self):
-        return self.search
-
-    def key(self):
-        return self.search
-
-    def _form(self):
+    @property
+    def form(self):
         value = ''
         if self.search:
             value = escape(self.search)
         return mark_safe('<input name="%s" class="form-control" value="%s">' %
                          (self.param, value))
 
-    def form_function(self):
-        return mark_safe('function(form) { return form.x.value }')
-
 
 class ArchiveFilter(Filter):
+    name = 'Archived'
     param = 'archive'
+    param_map = {
+        True: 'true',
+        False: '',
+        None: 'both'
+    }
+    description_map = {
+        True: 'Yes',
+        False: 'No',
+        None: 'Both'
+    }
 
     def __init__(self, filters):
         super(ArchiveFilter, self).__init__(filters)
-        self.name = 'Archived'
         self.archive_state = False
+        # The archive filter is enabled by default (to hide archived patches)
         self.applied = True
-        self.param_map = {
-            True: 'true',
-            False: '',
-            None: 'both'
-        }
-        self.description_map = {
-            True: 'Yes',
-            False: 'No',
-            None: 'Both'
-        }
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        return self.description_map[self.archive_state]
+
+    @property
+    def key(self):
+        # NOTE(stephenfin): this is a shortcut to ensure we don't both
+        # including the 'archive' querystring filter for the default case
+        if self.archive_state is False:
+            return None
+        return self.param_map[self.archive_state]
+
+    @key.setter
+    def key(self, key):
         self.archive_state = False
         self.applied = True
         for (k, v) in self.param_map.items():
@@ -317,22 +347,23 @@ class ArchiveFilter(Filter):
         if self.archive_state is None:
             self.applied = False
 
+    @property
+    def url_without_me(self):
+        # As with StateFilter, because this filter is enabled by default,
+        # disabling it will actually add something to the querystring
+        qs = self.filters.querystring_without_filter(self)
+        if qs != '?':
+            qs += '&'
+        return qs + 'archive=both'
+
+    @property
     def kwargs(self):
         if self.archive_state is None:
             return {}
         return {'archived': self.archive_state}
 
-    def condition(self):
-        return self.description_map[self.archive_state]
-
-    def key(self):
-        # NOTE(stephenfin): this is a shortcut to ensure we don't both
-        # including the 'archive' querystring filter for the default case
-        if self.archive_state is False:
-            return None
-        return self.param_map[self.archive_state]
-
-    def _form(self):
+    @property
+    def form(self):
         s = ''
         for b in [False, True, None]:
             label = self.description_map[b]
@@ -350,24 +381,34 @@ class ArchiveFilter(Filter):
                  }
         return mark_safe(s)
 
-    def url_without_me(self):
-        qs = self.filters.querystring_without_filter(self)
-        if qs != '?':
-            qs += '&'
-        return qs + 'archive=both'
-
 
 class DelegateFilter(Filter):
+    name = 'Delegate'
     param = 'delegate'
-    AnyDelegate = 1
+    ANY_DELEGATE = object()
 
     def __init__(self, filters):
         super(DelegateFilter, self).__init__(filters)
-        self.name = 'Delegate'
         self.delegate = None
         self.delegate_match = None
+        self.forced = False
 
-    def _set_key(self, key):
+    @property
+    def condition(self):
+        if self.delegate:
+            return str(self.delegate)
+        elif self.delegate_match:
+            return self.delegate_match
+        return ''
+
+    @property
+    def key(self):
+        if self.delegate:
+            return self.delegate.id
+        return self.delegate_match
+
+    @key.setter
+    def key(self, key):
         self.delegate = None
         self.delegate_match = None
 
@@ -390,79 +431,81 @@ class DelegateFilter(Filter):
         self.delegate_match = key
         self.applied = True
 
+    @property
     def kwargs(self):
         if self.delegate:
             return {'delegate': self.delegate}
 
         if self.delegate_match:
             return {'delegate__username__icontains': self.delegate_match}
+
         return {}
 
-    def condition(self):
-        if self.delegate:
-            return str(self.delegate)
-        elif self.delegate_match:
-            return self.delegate_match
-        return ''
+    @property
+    def form(self):
+        if self.forced:
+            return mark_safe('<input type="hidden" value="%s">%s' % (
+                self.param, self.condition))
 
-    def _form(self):
         return mark_safe('<input type="text" name="delegate" '
                          'id="delegate_input" class="form-control">')
-
-    def key(self):
-        if self.delegate:
-            return self.delegate.id
-        return self.delegate_match
 
     def set_status(self, *args, **kwargs):
         if 'delegate' in kwargs:
             self.applied = self.forced = True
             self.delegate = kwargs['delegate']
-        if self.AnyDelegate in args:
+
+        if self.ANY_DELEGATE in args:
             self.applied = False
             self.forced = True
 
 
-filterclasses = [SeriesFilter,
-                 SubmitterFilter,
-                 StateFilter,
-                 SearchFilter,
-                 ArchiveFilter,
-                 DelegateFilter]
+FILTERS = [
+    SeriesFilter,
+    SubmitterFilter,
+    StateFilter,
+    SearchFilter,
+    ArchiveFilter,
+    DelegateFilter
+]
 
 
 class Filters:
 
     def __init__(self, request):
-        self._filters = [c(self) for c in filterclasses]
+        self._filters = [c(self) for c in FILTERS]
         self.values = request.GET
-        self.project = None
 
         for f in self._filters:
             f.parse(self.values)
 
-    def set_project(self, project):
-        self.project = project
+    @property
+    def params(self):
+        return collections.OrderedDict([
+            (f.param, f.key) for f in self._filters if f.key is not None])
 
-    def filter_conditions(self):
+    @property
+    def applied_filters(self):
+        return collections.OrderedDict([
+            (x.param, x) for x in self._filters if x.applied])
+
+    @property
+    def available_filters(self):
+        return self._filters
+
+    def apply(self, queryset):
         kwargs = collections.OrderedDict()
         for f in self._filters:
             if f.applied:
-                kwargs.update(f.kwargs())
-        return kwargs
+                kwargs.update(f.kwargs)
 
-    def apply(self, queryset):
-        kwargs = self.filter_conditions()
         if not kwargs:
             return queryset
+
         return queryset.filter(**kwargs)
 
-    def params(self):
-        return collections.OrderedDict([
-            (f.param, f.key()) for f in self._filters if f.key() is not None])
-
     def querystring(self, remove=None):
-        params = self.params()
+        params = self.params
 
         for (k, v) in self.values.items():
             if k not in params:
@@ -481,13 +524,6 @@ class Filters:
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)
-
-    def applied_filters(self):
-        return collections.OrderedDict([
-            (x.param, x) for x in self._filters if x.applied])
-
-    def available_filters(self):
-        return self._filters
 
     def set_status(self, filterclass, *args, **kwargs):
         for f in self._filters:

@@ -180,7 +180,7 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
 
     # pagination
 
-    params = filters.params()
+    params = filters.params
     for param in ['order', 'page']:
         data = {}
         if request.method == 'GET':

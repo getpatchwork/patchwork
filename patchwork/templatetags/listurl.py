@@ -10,13 +10,13 @@ from django.urls import NoReverseMatch
 from django.utils.encoding import smart_str
 from django.utils.html import escape
 
-from patchwork.filters import filterclasses
+from patchwork.filters import FILTERS
 
 
 register = template.Library()
 
 # params to preserve across views
-list_params = [c.param for c in filterclasses] + ['order', 'page']
+list_params = [c.param for c in FILTERS] + ['order', 'page']
 
 
 class ListURLNode(template.defaulttags.URLNode):
