@@ -41,9 +41,9 @@ $(document).ready(function() {
 
     $('#check-all').change(function(e) {
         if(this.checked) {
-            $('#patchlist').checkboxes('check');
+            $('#patchlist > tbody').checkboxes('check');
         } else {
-            $('#patchlist').checkboxes('uncheck');
+            $('#patchlist > tbody').checkboxes('uncheck');
         }
         e.preventDefault();
     });
