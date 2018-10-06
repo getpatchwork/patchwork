@@ -2,4 +2,4 @@
 features:
   - |
     `Django 2.0 <https://docs.djangoproject.com/en/2.0/releases/2.0/>`_ is now
-    supported.
+    supported. This requires Python 3.
