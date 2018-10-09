@@ -64,6 +64,18 @@ To access the SQL command-line client, run:
 
    $ docker-compose run --rm web python manage.py dbshell
 
+To backup the database, run:
+
+.. code-block:: shell
+
+   $ docker-compose run --rm web python manage.py dbbackup
+
+Likewise, to restore an older version of the database, run:
+
+.. code-block:: shell
+
+   $ docker-compose run --rm -web python manage.py dbrestore
+
 To run unit tests against the system Python packages, run:
 
 .. code-block:: shell
@@ -77,24 +89,11 @@ To run unit tests for multiple versions using ``tox``, run:
    $ docker-compose run --rm web tox
 
 To reset the database before any of these commands, add ``--reset`` to the
-command line after ``web`` and before any other arguments. Conversely, to
-backup the database at any stage, run:
+command line after ``web`` and before any other arguments:
 
 .. code-block:: shell
 
-   $ docker exec DATABASECONTAINER /usr/bin/mysqldump -u DATABASEUSER \
-       --password=DATABASEPASSWORD DATABASE > backup.sql
-
-where ``DATABASECONTAINER`` is found by ``docker ps -a`` and the other settings
-are the same as those defined in ``patchwork/settings/dev.py``. To restore this
-again, run:
-
-.. code-block:: shell
-
-    $ docker-compose run --rm web python manage.py dbshell
-    mysql> use DATABASE;
-    mysql> set autocommit=0; source backup.sql; commit;
-    mysql> exit;
+   $ docker-compose run --rm web --reset tox
 
 Any local edits to the project files made locally are immediately visible to
 the Docker container, and so should be picked up by the Django auto-reloader.
@@ -420,10 +419,41 @@ __ http://blog.behnel.de/posts/indexp118.html
 Django Debug Toolbar
 --------------------
 
-Patchwork installs and enables the 'Django Debug Toolbar' by default. However,
-by default this is only displayed if you are developing on ``localhost``. If
-developing on a different machine, you should configure an SSH tunnel such
-that, for example, ``localhost:8000`` points to ``[DEV_MACHINE_IP]:8000``.
+Patchwork installs and enables the 'Django Debug Toolbar' application by
+default when using development settings and requirements. This provides a
+configurable set of panels that display various debug information about the
+current request/response and, when clicked, display more details about the
+panel's content.
+
+.. important::
+
+   By default, the toolbar is only displayed if you are developing on
+   ``localhost``. If developing on a different machine, you should configure
+   an SSH tunnel such that, for example, ``localhost:8000`` points to
+   ``[DEV_MACHINE_IP]:8000``.
+
+For more information, refer to the `documentation`__.
+
+__ https://django-debug-toolbar.readthedocs.io/en/stable/
+
+
+.. _dev-dbbackup:
+
+Django Database Backup
+----------------------
+
+Patchwork installs and enables the 'Django Database Backup' application by
+default when using development settings and requirements. This provides the
+following management commands, which can be useful for hacking on Patchwork:
+
+- ``dbbackup``
+- ``dbrestore``
+- ``mediabackup``
+- ``mediarestore``
+
+For more information, refer to the `documentation`__.
+
+__ https://django-dbbackup.readthedocs.io/en/stable/
 
 
 .. _dev-envvar:
