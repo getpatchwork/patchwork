@@ -208,8 +208,7 @@ class TestPatchAPI(APITestCase):
             'state': state.name, 'delegate': user.id})
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
-        # TODO(stephenfin): This is currently broken due to #216
-        # self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
+        self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
 
     def test_update_invalid(self):
         """Ensure we handle invalid Patch updates."""
@@ -229,10 +228,9 @@ class TestPatchAPI(APITestCase):
         user_b = create_user()
         resp = self.client.patch(self.api_url(patch.id),
                                  {'delegate': user_b.id})
-        # TODO(stephenfin): This is currently broken due to #216
-        # self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
-        # self.assertContains(resp, "User '%s' is not a maintainer" % user_b,
-        #                     status_code=status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+        self.assertContains(resp, "User '%s' is not a maintainer" % user_b,
+                            status_code=status.HTTP_400_BAD_REQUEST)
 
     def test_delete(self):
         """Ensure deletions are always rejected."""
