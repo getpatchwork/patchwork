@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    An issue that prevented updating of delegates using the REST API is
+    resolved. (`#216 <https://github.com/getpatchwork/patchwork/issues/216>`__)
