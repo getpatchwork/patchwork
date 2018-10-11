@@ -218,12 +218,15 @@ class TestPatchAPI(APITestCase):
         # maintainer
         user = create_maintainer(project)
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(patch.id), {'state': state.name})
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        resp = self.client.patch(self.api_url(patch.id), {
+            'state': state.name, 'delegate': user.id})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
+        # TODO(stephenfin): This is currently broken due to #216
+        # self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
 
     def test_update_invalid(self):
-        """Ensure we handle invalid Patch states."""
+        """Ensure we handle invalid Patch updates."""
         project = create_project()
         state = create_state()
         patch = create_patch(project=project, state=state)
@@ -235,6 +238,15 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertContains(resp, 'Expected one of: %s.' % state.name,
                             status_code=status.HTTP_400_BAD_REQUEST)
+
+        # invalid delegate
+        user_b = create_user()
+        resp = self.client.patch(self.api_url(patch.id),
+                                 {'delegate': user_b.id})
+        # TODO(stephenfin): This is currently broken due to #216
+        # self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+        # self.assertContains(resp, "User '%s' is not a maintainer" % user_b,
+        #                     status_code=status.HTTP_400_BAD_REQUEST)
 
     def test_delete(self):
         """Ensure deletions are always rejected."""

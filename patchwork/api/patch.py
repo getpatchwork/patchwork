@@ -25,6 +25,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import ValidationError
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -112,6 +113,14 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         # TODO(stephenfin): Make tags performant, possibly by reworking the
         # model
         return {}
+
+    def validate_delegate(self, value):
+        """Check that the delgate is a maintainer of the patch's project."""
+        if not self.instance.project.maintainer_project.filter(
+                id=value.id).exists():
+            raise ValidationError("User '%s' is not a maintainer for project "
+                                  "'%s'" % (value, self.instance.project))
+        return value
 
     class Meta:
         model = Patch
