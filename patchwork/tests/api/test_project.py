@@ -129,7 +129,7 @@ class TestProjectAPI(APITestCase):
     def test_update(self):
         """Ensure updates can be performed by maintainers."""
         project = create_project()
-        data = {'linkname': 'TEST'}
+        data = {'web_url': 'TEST'}
 
         # an anonymous user
         resp = self.client.patch(self.api_url(project.id), data)
@@ -146,6 +146,15 @@ class TestProjectAPI(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(resp.data['web_url'], 'TEST')
+
+        # ...with the exception of some read-only fields
+        resp = self.client.patch(self.api_url(project.id), {
+            'link_name': 'test'})
+        # NOTE(stephenfin): This actually returns HTTP 200 due to
+        # https://github.com/encode/django-rest-framework/issues/1655
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertNotEqual(resp.data['link_name'], 'test')
 
     def test_delete(self):
         """Ensure deletions are rejected."""

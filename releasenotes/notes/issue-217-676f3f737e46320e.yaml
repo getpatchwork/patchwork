@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    A project's ``list_email``, ``list_id`` and ``link_name`` fields can no
+    longer be updated via the REST API. This is a superuser-only operation
+    that, for now, should only be done via the admin interface.
+    (`#217 <https://github.com/getpatchwork/patchwork/issues/217>`__)
