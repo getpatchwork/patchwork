@@ -30,9 +30,9 @@ from patchwork.models import Project
 
 class ProjectSerializer(BaseHyperlinkedModelSerializer):
 
-    link_name = CharField(max_length=255, source='linkname')
-    list_id = CharField(max_length=255, source='listid')
-    list_email = CharField(max_length=200, source='listemail')
+    link_name = CharField(max_length=255, source='linkname', read_only=True)
+    list_id = CharField(max_length=255, source='listid', read_only=True)
+    list_email = CharField(max_length=200, source='listemail', read_only=True)
     maintainers = UserProfileSerializer(many=True, read_only=True,
                                         source='maintainer_project')
 
@@ -41,7 +41,8 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
         fields = ('id', 'url', 'name', 'link_name', 'list_id', 'list_email',
                   'web_url', 'scm_url', 'webscm_url', 'maintainers',
                   'subject_match')
-        read_only_fields = ('name', 'maintainers', 'subject_match')
+        read_only_fields = ('name', 'link_name', 'list_id', 'list_email',
+                            'maintainers', 'subject_match')
         versioned_fields = {
             '1.1': ('subject_match', ),
         }
