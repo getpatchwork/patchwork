@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    An issue that resulted in checks for all patches being listed for each
+    patch is resolved.
+    (`#203 <https://github.com/getpatchwork/patchwork/issues/203>`__)

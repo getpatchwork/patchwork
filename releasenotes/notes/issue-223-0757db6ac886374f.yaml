@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    It's now possible to assign patches to existing bundles from a user's TODO
+    page.
+    (`#213 <https://github.com/getpatchwork/patchwork/issues/213>`__)
