@@ -224,6 +224,13 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
 
+        # (who can unset fields too)
+        # we need to send as JSON due to https://stackoverflow.com/q/30677216/
+        resp = self.client.patch(self.api_url(patch.id), {'delegate': None},
+                                 format='json')
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertIsNone(Patch.objects.get(id=patch.id).delegate)
+
     def test_update_invalid(self):
         """Ensure we handle invalid Patch updates."""
         project = create_project()

@@ -82,7 +82,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     project = ProjectSerializer(read_only=True)
     state = StateField()
     submitter = PersonSerializer(read_only=True)
-    delegate = UserSerializer()
+    delegate = UserSerializer(allow_null=True)
     mbox = SerializerMethodField()
     series = SeriesSerializer(many=True, read_only=True)
     comments = SerializerMethodField()
@@ -116,6 +116,9 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     def validate_delegate(self, value):
         """Check that the delgate is a maintainer of the patch's project."""
+        if not value:
+            return value
+
         if not self.instance.project.maintainer_project.filter(
                 id=value.id).exists():
             raise ValidationError("User '%s' is not a maintainer for project "
