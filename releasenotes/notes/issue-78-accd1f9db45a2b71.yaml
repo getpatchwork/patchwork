@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The delegate and submitter fields will remain populated when moving
+    between different pages or changing filters.
+    (`#78 <https://github.com/getpatchwork/patchwork/issues/78>`__)
