@@ -2,5 +2,5 @@
 upgrade:
   - |
     `Django REST Framework 3.8
-    <http://www.django-rest-framework.org/topics/release-notes/#380/>`_ is now
+    <https://www.django-rest-framework.org/community/3.8-announcement/>`_ is now
     supported.
