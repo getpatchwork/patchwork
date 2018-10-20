@@ -74,6 +74,15 @@ class ProjectList(ProjectMixin, ListAPIView):
 
 
 class ProjectDetail(ProjectMixin, RetrieveUpdateAPIView):
-    """Show a project."""
+    """
+    get:
+    Show a project.
+
+    patch:
+    Update a project.
+
+    put:
+    Update a project.
+    """
 
     pass

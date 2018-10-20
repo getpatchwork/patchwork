@@ -188,8 +188,16 @@ class PatchList(ListAPIView):
 
 
 class PatchDetail(RetrieveUpdateAPIView):
-    """Show a patch."""
+    """
+    get:
+    Show a patch.
 
+    patch:
+    Update a patch.
+
+    put:
+    Update a patch.
+    """
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchDetailSerializer
 

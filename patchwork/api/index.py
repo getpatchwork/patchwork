@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 class IndexView(APIView):
 
     def get(self, request, *args, **kwargs):
+        """List API resources."""
         return Response({
             'projects': reverse('api-project-list', request=request),
             'users': reverse('api-user-list', request=request),

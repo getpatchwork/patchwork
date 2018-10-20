@@ -74,7 +74,13 @@ class CheckMixin(object):
 
 
 class CheckListCreate(CheckMixin, ListCreateAPIView):
-    """List or create checks."""
+    """
+    get:
+    List checks.
+
+    post:
+    Create a check.
+    """
 
     lookup_url_kwarg = 'patch_id'
     ordering = 'id'

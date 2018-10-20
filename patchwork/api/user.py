@@ -48,6 +48,15 @@ class UserList(UserMixin, ListAPIView):
 
 
 class UserDetail(UserMixin, RetrieveUpdateAPIView):
-    """Show a user."""
+    """
+    get:
+    Show a user.
+
+    patch:
+    Update a user.
+
+    put:
+    Update a user.
+    """
 
     pass
