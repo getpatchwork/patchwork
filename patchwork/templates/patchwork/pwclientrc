@@ -8,8 +8,8 @@
 # default={{ project.linkname }}
 
 [{{ project.linkname }}]
-url= {{scheme}}://{{site.domain}}{% url 'xmlrpc' %}
+url = {{ scheme }}://{{ site.domain }}{% url 'xmlrpc' %}
 {% if user.is_authenticated %}
-username: {{ user.username }}
-password: <add your patchwork password here>
+username = {{ user.username }}
+password = <add your patchwork password here>
 {% endif %}
