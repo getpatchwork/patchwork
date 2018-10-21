@@ -2,8 +2,8 @@
 Patchwork
 =========
 
-.. image:: https://requires.io/github/getpatchwork/patchwork/requirements.svg?branch=master
-   :target: https://requires.io/github/getpatchwork/patchwork/requirements/?branch=master
+.. image:: https://pyup.io/repos/github/getpatchwork/patchwork/shield.svg
+   :target: https://pyup.io/repos/github/getpatchwork/patchwork/
    :alt: Requirements Status
 
 .. image:: https://codecov.io/gh/getpatchwork/patchwork/branch/master/graph/badge.svg
