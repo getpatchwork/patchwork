@@ -26,11 +26,3 @@ def pwclientrc(request, project_id):
     response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
 
     return response
-
-
-def pwclient(request):
-    response = render(request, 'patchwork/pwclient',
-                      content_type='text/x-python')
-    response['Content-Disposition'] = 'attachment; filename=pwclient'
-
-    return response

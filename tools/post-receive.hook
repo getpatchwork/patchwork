@@ -30,14 +30,14 @@ get_patchwork_hash() {
 
 get_patch_id() {
     local id
-    id=$($PW_DIR/bin/pwclient info -h "$1" 2>/dev/null \
-         | sed -rne 's,- id[[:space:]]*: ,,p')
+    id=$(pwclient info -h "$1" 2>/dev/null | \
+         sed -rne 's,- id[[:space:]]*: ,,p')
     echo "$id"
     test -n "$id"
 }
 
 set_patch_state() {
-    $PW_DIR/bin/pwclient update -s "$2" -c "$3" "$1" 2>&1
+    pwclient update -s "$2" -c "$3" "$1" 2>&1
 }
 
 update_patches() {

@@ -16,5 +16,5 @@ fi
 git rev-list --reverse "$@" |
 while read -r commit; do
     hash=$(git diff "$commit~..$commit" | python "$PW_DIR/hasher.py")
-    "$PW_DIR/bin/pwclient" update -s Accepted -c "$commit" -h "$hash"
+    pwclient update -s Accepted -c "$commit" -h "$hash"
 done

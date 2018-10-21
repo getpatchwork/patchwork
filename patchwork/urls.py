@@ -143,8 +143,6 @@ if 'debug_toolbar' in settings.INSTALLED_APPS:
 if settings.ENABLE_XMLRPC:
     urlpatterns += [
         url(r'xmlrpc/$', xmlrpc_views.xmlrpc, name='xmlrpc'),
-        url(r'^pwclient/$', pwclient_views.pwclient,
-            name='pwclient'),
         url(r'^project/(?P<project_id>[^/]+)/pwclientrc/$',
             pwclient_views.pwclientrc,
             name='pwclientrc'),

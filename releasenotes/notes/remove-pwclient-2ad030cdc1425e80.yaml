@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    ``pwclient`` is no longer packaged with Patchwork. Instead, it is developed
+    as a separate project on `GitHub`__ and available from `PyPI`__.
+
+    __ https://github.com/getpatchwork/pwclient
+    __ https://pypi.org/project/pwclient/

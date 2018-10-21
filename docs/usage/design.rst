@@ -19,5 +19,5 @@ metadata.
 Not everyone uses git for kernel development, and not everyone uses git for
 Patchwork-tracked projects.
 
-It's still possible to hook other programs into Patchwork, using the pwclient
-command-line client for Patchwork, or directly to the XML RPC interface.
+It's still possible to hook other programs into Patchwork, using various
+:doc:`clients </usage/clients>` or the :doc:`APIs </api/index>` directly.

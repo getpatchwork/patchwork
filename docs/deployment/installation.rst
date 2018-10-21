@@ -657,8 +657,8 @@ This sample hook has support to update patches to different states depending on
 which branch is being pushed to. See the ``STATE_MAP`` setting in that file.
 
 If you are using a system other than Git, you can likely write a similar hook
-using ``pwclient`` to update patch state. If you do write one, please
-contribute it.
+using the :doc:`APIs </api/index>` or :doc:`API clients </usage/clients>` to to
+update patch state. If you do write one, please contribute it.
 
 
 .. _deployment-cron:
