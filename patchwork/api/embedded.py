@@ -201,7 +201,8 @@ class SeriesSerializer(SerializedRelatedField):
 
         class Meta:
             model = models.Series
-            fields = ('id', 'url', 'date', 'name', 'version', 'mbox')
+            fields = ('id', 'url', 'web_url', 'date', 'name', 'version',
+                      'mbox')
             read_only_fields = fields
             versioned_field = {
                 '1.1': ('web_url', ),
