@@ -373,6 +373,42 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - patches
+  /api/patches/{id}/comments/:
+    get:
+      description: List comments
+      operationId: patch_comments_list
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - comments
   /api/people/:
     get:
       description: List people.
