@@ -1,0 +1,74 @@
+openapi: '3.0.0'
+info:
+  title: Patchwork API
+  description: |
+    Patchwork is a web-based patch tracking system designed to facilitate the
+    contribution and management of contributions to an open-source project.
+  contact:
+    email: patchwork@lists.ozlabs.org
+  license:
+    name: GPL v2 License
+    url: https://www.gnu.org/licenses/gpl-2.0.html
+  version: '1.1'
+paths:
+  /api/:
+    get:
+      description: List API resources.
+      operationId: api_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Index'
+      tags:
+      - api
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    apiKeyAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Index:
+      type: object
+      properties:
+        bundles:
+          title: Bundles URL
+          type: string
+          format: uri
+          readOnly: true
+        covers:
+          title: Covers URL
+          type: string
+          format: uri
+          readOnly: true
+        events:
+          title: Events URL
+          type: string
+          format: uri
+          readOnly: true
+        patches:
+          title: Patches URL
+          type: string
+          format: uri
+          readOnly: true
+        people:
+          title: People URL
+          type: string
+          format: uri
+          readOnly: true
+        projects:
+          title: Projects URL
+          type: string
+          format: uri
+          readOnly: true
+        users:
+          title: Users URL
+          type: string
+          format: uri
+          readOnly: true
