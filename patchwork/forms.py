@@ -29,7 +29,7 @@ class RegistrationForm(forms.Form):
             User.objects.get(username__iexact=value)
         except User.DoesNotExist:
             return self.cleaned_data['username']
-        raise forms.ValidationError('This username is already taken. ' +
+        raise forms.ValidationError('This username is already taken. '
                                     'Please choose another.')
 
     def clean_email(self):
@@ -38,7 +38,7 @@ class RegistrationForm(forms.Form):
             user = User.objects.get(email__iexact=value)
         except User.DoesNotExist:
             return self.cleaned_data['email']
-        raise forms.ValidationError('This email address is already in use ' +
+        raise forms.ValidationError('This email address is already in use '
                                     'for the account "%s".\n' % user.username)
 
     def clean(self):

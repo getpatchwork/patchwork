@@ -867,7 +867,7 @@ def parse_patch(content):
 
 
 def parse_pull_request(content):
-    git_re = re.compile(r'^The following changes since commit.*' +
+    git_re = re.compile(r'^The following changes since commit.*'
                         r'^are available in the git repository at:\n'
                         r'^\s*([\S]+://[^\n]+)$',
                         re.DOTALL | re.MULTILINE | re.IGNORECASE)

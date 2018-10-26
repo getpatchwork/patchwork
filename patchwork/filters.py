@@ -112,8 +112,8 @@ class SeriesFilter(Filter):
 
     @property
     def form(self):
-        return mark_safe(('<input type="text" name="series" ' +
-                          'id="series_input" class="form-control">'))
+        return mark_safe('<input type="text" name="series" '
+                         'id="series_input" class="form-control">')
 
 
 class SubmitterFilter(Filter):
@@ -178,8 +178,8 @@ class SubmitterFilter(Filter):
 
     @property
     def form(self):
-        return mark_safe(('<input type="text" name="submitter" ' +
-                          'id="submitter_input" class="form-control">'))
+        return mark_safe('<input type="text" name="submitter" '
+                         'id="submitter_input" class="form-control">')
 
 
 class StateFilter(Filter):

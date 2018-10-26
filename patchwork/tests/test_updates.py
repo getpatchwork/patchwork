@@ -97,7 +97,7 @@ class MultipleUpdateTest(TestCase):
         new_states = [Patch.objects.get(pk=p.pk).state for p in self.patches]
         self.assertEqual(new_states, orig_states)
         self.assertFormError(response, 'patchform', 'state',
-                             'Select a valid choice. That choice is not one ' +
+                             'Select a valid choice. That choice is not one '
                              'of the available choices.')
 
     def _test_delegate_change(self, delegate_str):
