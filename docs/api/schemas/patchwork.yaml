@@ -93,6 +93,76 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - bundles
+  /api/covers/:
+    get:
+      description: List cover letters.
+      operationId: covers_list
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/BeforeFilter'
+      - $ref: '#/components/parameters/SinceFilter'
+      - in: query
+        name: project
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: series
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: submitter
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoverLetterList'
+      tags:
+      - covers
+  /api/covers/{id}/:
+    get:
+      description: Show a cover letter.
+      operationId: covers_read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverLetterDetail'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - covers
   /api/people/:
     get:
       description: List people.
@@ -488,6 +558,20 @@ components:
         description: A search term.
         title: Search
         type: string
+    BeforeFilter:
+      in: query
+      name: before
+      schema:
+        description: ''
+        title: ''
+        type: string
+    SinceFilter:
+      in: query
+      name: since
+      schema:
+        description: ''
+        title: ''
+        type: string
   headers:
     Link:
       description: |
@@ -607,6 +691,78 @@ components:
           type: string
           format: uri
           readOnly: true
+    CoverLetterList:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        project:
+          $ref: '#/components/schemas/ProjectEmbedded'
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        submitter:
+          type: object
+          title: Submitter
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/PersonEmbedded'
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeriesEmbedded'
+          readOnly: true
+        comments:
+          title: Comments
+          type: string
+          format: uri
+          readOnly: true
+    CoverLetterDetail:
+      allOf:
+      - $ref: '#/components/schemas/CoverLetterList'
+      - properties:
+          headers:
+            title: Headers
+            type: array
+            items:
+              type: string
+            readOnly: true
+          content:
+            title: Content
+            type: string
+            readOnly: true
+            minLength: 1
     Person:
       type: object
       properties:
@@ -776,6 +932,29 @@ components:
           type: string
           format: uri
           readOnly: true
+    PersonEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+        email:
+          title: Email
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
     ProjectEmbedded:
       type: object
       properties:
@@ -830,6 +1009,46 @@ components:
           format: uri
           readOnly: true
           maxLength: 2000
+    SeriesEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          title: Name
+          description: An optional name to associate with the series, e.g. "John's PCI
+            series".
+          type: string
+          readOnly: true
+          maxLength: 255
+          nullable: true
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        version:
+          title: Version
+          description: Version of series as indicated by the subject prefix(es)
+          type: integer
+          readOnly: true
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
     UserEmbedded:
       type: object
       properties:
