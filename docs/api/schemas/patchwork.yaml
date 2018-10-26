@@ -163,6 +163,180 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - covers
+  /api/patches/:
+    get:
+      description: List patches.
+      operationId: patches_list
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/BeforeFilter'
+      - $ref: '#/components/parameters/SinceFilter'
+      - in: query
+        name: project
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: series
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: submitter
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: delegate
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: state
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: archived
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatchList'
+      tags:
+      - patches
+  /api/patches/{id}/:
+    get:
+      description: Show a patch.
+      operationId: patches_read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      tags:
+      - patches
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchDetail'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      description: Update a patch (partial).
+      operationId: patches_partial_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Patch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchDetail'
+        '400':
+          description: 'Invalid Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPatchUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - patches
+    put:
+      description: Update a patch.
+      operationId: patches_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Patch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchDetail'
+        '400':
+          description: 'Invalid Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPatchUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - patches
   /api/people/:
     get:
       description: List people.
@@ -582,6 +756,18 @@ components:
       schema:
         type: string
   requestBodies:
+    Patch:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PatchUpdate'
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/PatchUpdate'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/PatchUpdate'
     Project:
       required: true
       content:
@@ -763,6 +949,165 @@ components:
             type: string
             readOnly: true
             minLength: 1
+    PatchList:
+      required:
+        - state
+        - delegate
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        project:
+          $ref: '#/components/schemas/ProjectEmbedded'
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        commit_ref:
+          title: Commit ref
+          type: string
+          maxLength: 255
+          nullable: true
+        pull_url:
+          title: Pull URL
+          type: string
+          format: uri
+          maxLength: 255
+          nullable: true
+        state:
+          title: State
+          type: string
+        archived:
+          title: Archived
+          type: boolean
+        hash:
+          title: Hash
+          type: string
+          readOnly: true
+          minLength: 1
+        submitter:
+          type: object
+          title: Submitter
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/PersonEmbedded'
+        delegate:
+          type: object
+          title: Delegate
+          nullable: true
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/UserEmbedded'
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeriesEmbedded'
+          readOnly: true
+        comments:
+          title: Comments
+          type: string
+          format: uri
+          readOnly: true
+        check:
+          title: Check
+          type: string
+          readOnly: true
+          enum:
+          - pending
+          - success
+          - warning
+          - fail
+        checks:
+          title: Checks
+          type: string
+          format: uri
+          readOnly: true
+        tags:
+          title: Tags
+          type: array
+          items:
+            type: string
+          readOnly: true
+    PatchDetail:
+      allOf:
+      - $ref: '#/components/schemas/PatchList'
+      - properties:
+          headers:
+            title: Headers
+            type: array
+            items:
+              type: string
+            readOnly: true
+          content:
+            title: Content
+            type: string
+            readOnly: true
+            minLength: 1
+          diff:
+            title: Diff
+            type: string
+            readOnly: true
+            minLength: 1
+          prefixes:
+            title: Prefixes
+            type: array
+            items:
+              type: string
+            readOnly: true
+    PatchUpdate:
+      type: object
+      properties:
+        commit_ref:
+          title: Commit ref
+          type: string
+          maxLength: 255
+          nullable: true
+        pull_url:
+          title: Pull URL
+          type: string
+          format: uri
+          maxLength: 255
+          nullable: true
+        state:
+          title: State
+          type: string
+        archived:
+          title: Archived
+          type: boolean
+        delegate:
+          title: Delegate
+          type: integer
+          nullable: true
     Person:
       type: object
       properties:
@@ -1088,6 +1433,25 @@ components:
       properties:
         detail:
           title: Detail
+          type: string
+          readOnly: true
+    ErrorPatchUpdate:
+      type: object
+      properties:
+        state:
+          title: State
+          type: string
+          readOnly: true
+        delegate:
+          title: Delegate
+          type: string
+          readOnly: true
+        commit_ref:
+          title: Commit ref
+          type: string
+          readOnly: true
+        archived:
+          title: Archived
           type: string
           readOnly: true
     ErrorProjectUpdate:
