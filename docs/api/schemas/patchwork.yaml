@@ -25,6 +25,74 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
       - api
+  /api/bundles/:
+    get:
+      description: List bundles.
+      operationId: bundles_list
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      - in: query
+        name: project
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: owner
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: public
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bundle'
+      tags:
+      - bundles
+  /api/bundles/{id}/:
+    get:
+      description: Show a bundle.
+      operationId: bundles_read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - bundles
   /api/people/:
     get:
       description: List people.
@@ -493,6 +561,52 @@ components:
           type: string
           format: uri
           readOnly: true
+    Bundle:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        project:
+          $ref: '#/components/schemas/ProjectEmbedded'
+        name:
+          title: Name
+          type: string
+          minLength: 1
+          maxLength: 50
+        owner:
+          type: object
+          title: Owner
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/UserEmbedded'
+        patches:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchEmbedded'
+          readOnly: true
+          uniqueItems: true
+        public:
+          title: Public
+          type: boolean
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
     Person:
       type: object
       properties:
@@ -520,7 +634,9 @@ components:
           maxLength: 255
         user:
           type: object
+          title: User
           nullable: true
+          readOnly: true
           allOf:
           - $ref: '#/components/schemas/UserEmbedded'
     Project:
@@ -623,6 +739,97 @@ components:
           format: email
           readOnly: true
           minLength: 1
+    PatchEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
+    ProjectEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+        link_name:
+          title: Link name
+          type: string
+          readOnly: true
+          maxLength: 255
+          minLength: 1
+        list_id:
+          title: List ID
+          type: string
+          readOnly: true
+          maxLength: 255
+          minLength: 1
+        list_email:
+          title: List email
+          type: string
+          format: email
+          readOnly: true
+          maxLength: 200
+          minLength: 1
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 2000
+        scm_url:
+          title: SCM URL
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 2000
+        webscm_url:
+          title: WebSCM URL
+          type: string
+          format: uri
+          readOnly: true
+          maxLength: 2000
     UserEmbedded:
       type: object
       properties:
