@@ -163,6 +163,42 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - covers
+  /api/covers/{id}/comments/:
+    get:
+      description: List comments
+      operationId: cover_comments_list
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - comments
   /api/patches/:
     get:
       description: List patches.
@@ -940,6 +976,49 @@ components:
           title: Mbox
           type: string
           format: uri
+          readOnly: true
+    Comment:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        subject:
+          title: Subject
+          type: string
+          readOnly: true
+        submitter:
+          type: object
+          title: Submitter
+          allOf:
+          - $ref: '#/components/schemas/PersonEmbedded'
+        content:
+          title: Content
+          type: string
+          readOnly: true
+          minLength: 1
+        headers:
+          title: Headers
+          type: array
+          items:
+            type: string
           readOnly: true
     CoverLetterList:
       type: object
