@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    API resources with embedded series were not showing the ``web_url`` value
+    for these series. This is now shown.
