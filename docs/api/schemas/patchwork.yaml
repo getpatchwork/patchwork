@@ -409,6 +409,139 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - comments
+  /api/patches/{patch_id}/checks/:
+    get:
+      description: List checks.
+      operationId: checks_list
+      parameters:
+      - in: path
+        name: patch_id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/BeforeFilter'
+      - $ref: '#/components/parameters/SinceFilter'
+      - in: query
+        name: user
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: state
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: context
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Check'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - checks
+    post:
+      description: Create a check.
+      operationId: checks_create
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: patch_id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Check'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Check'
+        '400':
+          description: 'Invalid Request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCheckCreate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - checks
+  /api/patches/{patch_id}/checks/{check_id}/:
+    get:
+      description: Show a check.
+      operationId: checks_read
+      parameters:
+      - in: path
+        name: patch_id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: path
+        name: check_id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Check'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - checks
   /api/people/:
     get:
       description: List people.
@@ -892,6 +1025,18 @@ components:
       schema:
         type: string
   requestBodies:
+    Check:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CheckCreate'
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/CheckCreate'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/CheckCreate'
     Patch:
       required: true
       content:
@@ -1013,6 +1158,86 @@ components:
           type: string
           format: uri
           readOnly: true
+    Check:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: Url
+          type: string
+          format: uri
+          readOnly: true
+        user:
+          $ref: '#/components/schemas/UserEmbedded'
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        state:
+          title: State
+          description: The state of the check.
+          type: string
+          enum:
+          - pending
+          - success
+          - warning
+          - fail
+        target_url:
+          title: Target URL
+          description: The target URL to associate with this check. This should be specific
+            to the patch.
+          type: string
+          format: uri
+          maxLength: 200
+          nullable: true
+        context:
+          title: Context
+          description: A label to discern check from checks of other testing systems.
+          type: string
+          pattern: ^[-a-zA-Z0-9_]+$
+          minLength: 1
+          maxLength: 255
+        description:
+          title: Description
+          description: A brief description of the check.
+          type: string
+          nullable: true
+    CheckCreate:
+      type: object
+      properties:
+        state:
+          title: State
+          description: The state of the check.
+          type: string
+          enum:
+          - pending
+          - success
+          - warning
+          - fail
+        target_url:
+          title: Target URL
+          description: The target URL to associate with this check. This should be specific
+            to the patch.
+          type: string
+          format: uri
+          maxLength: 200
+          nullable: true
+        context:
+          title: Context
+          description: A label to discern check from checks of other testing systems.
+          type: string
+          pattern: ^[-a-zA-Z0-9_]+$
+          minLength: 1
+          maxLength: 255
+        description:
+          title: Description
+          description: A brief description of the check.
+          type: string
+          nullable: true
     Comment:
       type: object
       properties:
@@ -1716,6 +1941,25 @@ components:
       properties:
         detail:
           title: Detail
+          type: string
+          readOnly: true
+    ErrorCheckCreate:
+      type: object
+      properties:
+        state:
+          title: State
+          type: string
+          readOnly: true
+        target_url:
+          title: Target URL
+          type: string
+          readOnly: true
+        context:
+          title: Context
+          type: string
+          readOnly: true
+        description:
+          title: Description
           type: string
           readOnly: true
     ErrorPatchUpdate:
