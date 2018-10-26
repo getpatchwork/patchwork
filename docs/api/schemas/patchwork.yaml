@@ -25,6 +25,160 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
       - api
+  /api/users/:
+    get:
+      description: List users.
+      operationId: users_list
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - users
+  /api/users/{id}/:
+    get:
+      description: Show a user.
+      operationId: users_read
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: A unique integer value identifying this user.
+          title: ID
+          type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - users
+    patch:
+      description: Update a user (partial).
+      operationId: users_partial_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: A unique integer value identifying this user.
+          title: ID
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUserUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - users
+    put:
+      description: Update a user.
+      operationId: users_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: A unique integer value identifying this user.
+          title: ID
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUserUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - users
 components:
   securitySchemes:
     basicAuth:
@@ -33,6 +187,57 @@ components:
     apiKeyAuth:
       type: http
       scheme: bearer
+  parameters:
+    Page:
+      in: query
+      name: page
+      schema:
+        description: A page number within the paginated result set.
+        title: Page
+        type: integer
+    PageSize:
+      in: query
+      name: per_page
+      schema:
+        description: Number of results to return per page.
+        title: Page size
+        type: integer
+    Order:
+      in: query
+      name: order
+      schema:
+        description: Which field to use when ordering the results.
+        title: Ordering
+        type: string
+    Search:
+      in: query
+      name: q
+      schema:
+        description: A search term.
+        title: Search
+        type: string
+  headers:
+    Link:
+      description: |
+        Links to related resources, in the format defined by
+        [RFC 5988](https://tools.ietf.org/html/rfc5988#section-5).
+        This will include a link with relation type `next` to the
+        next page, if there is a next page.
+      schema:
+        type: string
+  requestBodies:
+    User:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/User'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/User'
   schemas:
     Index:
       type: object
@@ -71,4 +276,54 @@ components:
           title: Users URL
           type: string
           format: uri
+          readOnly: true
+    User:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          title: Username
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 150
+        first_name:
+          title: First name
+          type: string
+          maxLength: 30
+        last_name:
+          title: Last name
+          type: string
+          maxLength: 150
+        email:
+          title: Email address
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
+    Error:
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: string
+          readOnly: true
+    ErrorUserUpdate:
+      type: object
+      properties:
+        first_name:
+          title: First name
+          type: string
+          readOnly: true
+        last_name:
+          title: First name
+          type: string
           readOnly: true
