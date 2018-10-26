@@ -25,6 +25,74 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
       - api
+  /api/people/:
+    get:
+      description: List people.
+      operationId: people_list
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - people
+  /api/people/{id}/:
+    get:
+      description: Show a person.
+      operationId: people_read
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - people
   /api/users/:
     get:
       description: List users.
@@ -277,6 +345,36 @@ components:
           type: string
           format: uri
           readOnly: true
+    Person:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        email:
+          title: Email
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        user:
+          type: object
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/UserEmbedded'
     User:
       type: object
       properties:
@@ -303,6 +401,40 @@ components:
           title: Last name
           type: string
           maxLength: 150
+        email:
+          title: Email address
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
+    UserEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        username:
+          title: Username
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 150
+        first_name:
+          title: First name
+          type: string
+          maxLength: 30
+          readOnly: true
+        last_name:
+          title: Last name
+          type: string
+          maxLength: 150
+          readOnly: true
         email:
           title: Email address
           type: string
