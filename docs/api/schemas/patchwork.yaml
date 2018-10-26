@@ -541,6 +541,70 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - projects
+  /api/series/:
+    get:
+      description: List series.
+      operationId: series_list
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      - $ref: '#/components/parameters/BeforeFilter'
+      - $ref: '#/components/parameters/SinceFilter'
+      - in: query
+        name: submitter
+        schema:
+          description: ''
+          title: ''
+          type: string
+      - in: query
+        name: project
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Series'
+      tags:
+      - series
+  /api/series/{id}/:
+    get:
+      description: Show a series.
+      operationId: series_read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - series
   /api/users/:
     get:
       description: List users.
@@ -1208,6 +1272,73 @@ components:
           type: string
           readOnly: true
           maxLength: 64
+    Series:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        project:
+          $ref: '#/components/schemas/ProjectEmbedded'
+        name:
+          title: Name
+          description: An optional name to associate with the series, e.g. "John's PCI
+            series".
+          type: string
+          maxLength: 255
+          nullable: true
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        submitter:
+          type: object
+          title: Submitter
+          readOnly: true
+          allOf:
+          - $ref: '#/components/schemas/PersonEmbedded'
+        version:
+          title: Version
+          description: Version of series as indicated by the subject prefix(es)
+          type: integer
+        total:
+          title: Total
+          description: Number of patches in series as indicated by the subject prefix(es)
+          type: integer
+          readOnly: true
+        received_total:
+          title: Received total
+          type: integer
+          readOnly: true
+        received_all:
+          title: Received all
+          type: boolean
+          readOnly: true
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
+        cover_letter:
+          $ref: '#/components/schemas/CoverLetterEmbedded'
+        patches:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchEmbedded'
+          readOnly: true
+          uniqueItems: true
     User:
       type: object
       properties:
@@ -1240,6 +1371,43 @@ components:
           format: email
           readOnly: true
           minLength: 1
+    CoverLetterEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+        mbox:
+          title: Mbox
+          type: string
+          format: uri
+          readOnly: true
     PatchEmbedded:
       type: object
       properties:
