@@ -93,6 +93,142 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - people
+  /api/projects/:
+    get:
+      description: List projects.
+      operationId: projects_list
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Order'
+      - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: ''
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+      tags:
+      - projects
+  /api/projects/{id}/:
+    get:
+      description: Show a project.
+      operationId: projects_read
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - projects
+    patch:
+      description: Update a project (partial).
+      operationId: projects_partial_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Project'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorProjectUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - projects
+    put:
+      description: Update a project.
+      operationId: projects_update
+      security:
+      - basicAuth: []
+      - apiKeyAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          description: ''
+          title: ''
+          type: string
+      requestBody:
+        $ref: '#/components/requestBodies/Project'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorProjectUpdate'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - projects
   /api/users/:
     get:
       description: List users.
@@ -294,6 +430,18 @@ components:
       schema:
         type: string
   requestBodies:
+    Project:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Project'
+        multipart/form-data:
+          schema:
+            $ref: '#/components/schemas/Project'
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/Project'
     User:
       required: true
       content:
@@ -375,6 +523,74 @@ components:
           nullable: true
           allOf:
           - $ref: '#/components/schemas/UserEmbedded'
+    Project:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        link_name:
+          title: Link name
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        list_id:
+          title: List ID
+          type: string
+          readOnly: true
+          minLength: 1
+          maxLength: 255
+        list_email:
+          title: List email
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
+          maxLength: 200
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          maxLength: 2000
+        scm_url:
+          title: SCM URL
+          type: string
+          format: uri
+          maxLength: 2000
+        webscm_url:
+          title: Web SCM URL
+          type: string
+          format: uri
+          maxLength: 2000
+        maintainers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmbedded'
+          readOnly: true
+          uniqueItems: true
+        subject_match:
+          title: Subject match
+          description: Regex to match the subject against if only part of emails
+            sent to the list belongs to this project. Will be used with
+            IGNORECASE and MULTILINE flags. If rules for more projects match the
+            first one returned from DB is chosen; empty field serves as a
+            default for every email which has no other match.
+          type: string
+          readOnly: true
+          maxLength: 64
     User:
       type: object
       properties:
@@ -447,6 +663,24 @@ components:
         detail:
           title: Detail
           type: string
+          readOnly: true
+    ErrorProjectUpdate:
+      type: object
+      properties:
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+        scm_url:
+          title: SCM URL
+          type: string
+          format: uri
+          readOnly: true
+        webscm_url:
+          title: Web SCM URL
+          type: string
+          format: uri
           readOnly: true
     ErrorUserUpdate:
       type: object
