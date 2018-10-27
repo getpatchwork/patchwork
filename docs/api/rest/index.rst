@@ -12,6 +12,8 @@ exposed by the API, refer to the web browsable API. This can be found at:
 
 where `patchwork.example.com` refers to the URL of your Patchwork instance.
 
+If all you want is reference guides, skip straight to :ref:`rest-api-schemas`.
+
 .. important::
 
    The REST API can be enabled/disabled by the administrator: it may not be
@@ -264,6 +266,18 @@ Supported Versions
 
 Further information about this and more can typically be found in
 :doc:`the release notes </releases/index>`.
+
+.. _rest-api-schemas:
+
+Schemas
+-------
+
+Auto-generated schema documentation is provided below.
+
+.. toctree::
+
+   /api/rest/schemas/v1.0
+   /api/rest/schemas/v1.1
 
 .. Links
 
