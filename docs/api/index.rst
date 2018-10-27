@@ -10,5 +10,5 @@ release.
 .. toctree::
    :maxdepth: 2
 
-   /api/rest
+   /api/rest/index
    /api/xmlrpc

@@ -23,7 +23,8 @@ where `patchwork.example.com` refers to the URL of your Patchwork instance.
 .. versionadded:: 2.0
 
    The REST API was introduced in Patchwork v2.0. Users of earlier Patchwork
-   versions should instead refer to :doc:`XML-RPC API <xmlrpc>` documentation.
+   versions should instead refer to :doc:`XML-RPC API </api/xmlrpc>`
+   documentation.
 
 .. versionchanged:: 2.1
 
@@ -81,14 +82,14 @@ well-supported. To repeat the above example using `requests`:, run
 
 Tools like `curl` and libraries like `requests` can be used to build anything
 from small utilities to full-fledged clients targeting the REST API. For an
-overview of existing API clients, refer to :doc:`../usage/clients`.
+overview of existing API clients, refer to :doc:`/usage/clients`.
 
 .. tip::
 
     While you can do a lot with existing installations, it's possible that you
     might not have access to all resources or may not wish to modify any
     existing resources. In this case, it might be better to :doc:`deploy your
-    own instance of Patchwork locally <../development/installation>` and
+    own instance of Patchwork locally </development/installation>` and
     experiment with that instead.
 
 Versioning

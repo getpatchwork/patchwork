@@ -17,7 +17,7 @@ and modify information about patches, projects and more.
 .. deprecated:: 2.0
 
     The XML-RPC API is a legacy API and has been deprecated in favour of the
-    :doc:`REST API <rest>`. It will be removed in Patchwork 3.0.
+    :doc:`REST API <rest/index>`. It will be removed in Patchwork 3.0.
 
 Getting Started
 ---------------

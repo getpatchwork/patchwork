@@ -78,7 +78,7 @@ Enable the :doc:`XML-RPC API <../api/xmlrpc>`.
 ``ENABLE_REST_API``
 ~~~~~~~~~~~~~~~~~~~
 
-Enable the :doc:`REST API <../api/rest>`.
+Enable the :doc:`REST API <../api/rest/index>`.
 
 .. versionadded:: 2.0
 
