@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Showing checks for a non-existant patch was returning an empty response
+    instead of a HTTP 404. Similarly, attempting to create a new check against
+    this patch would result in a HTTP 5xx error instead of a HTTP 404. Both
+    issues are now resolved.

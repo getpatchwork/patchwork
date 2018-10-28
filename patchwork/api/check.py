@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveAPIView
@@ -70,6 +72,10 @@ class CheckMixin(object):
 
     def get_queryset(self):
         patch_id = self.kwargs['patch_id']
+
+        if not Patch.objects.filter(pk=self.kwargs['patch_id']).exists():
+            raise Http404
+
         return Check.objects.prefetch_related('user').filter(patch=patch_id)
 
 
@@ -86,7 +92,7 @@ class CheckListCreate(CheckMixin, ListCreateAPIView):
     ordering = 'id'
 
     def create(self, request, patch_id, *args, **kwargs):
-        p = Patch.objects.get(id=patch_id)
+        p = get_object_or_404(Patch, id=patch_id)
         if not p.is_editable(request.user):
             raise PermissionDenied()
         request.patch = p
