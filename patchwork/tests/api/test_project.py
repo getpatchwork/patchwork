@@ -9,6 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from patchwork.models import Project
+from patchwork.tests.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
@@ -33,7 +34,8 @@ class TestProjectAPI(APITestCase):
 
         if item is None:
             return reverse('api-project-list', kwargs=kwargs)
-        return reverse('api-project-detail', args=[item], kwargs=kwargs)
+        kwargs['pk'] = item
+        return reverse('api-project-detail', kwargs=kwargs)
 
     def assertSerialized(self, project_obj, project_json):
         self.assertEqual(project_obj.id, project_json['id'])
@@ -48,66 +50,92 @@ class TestProjectAPI(APITestCase):
         self.assertEqual(len(project_json['maintainers']),
                          project_obj.maintainer_project.all().count())
 
-    def test_list(self):
-        """Validate we can list the default test project."""
+    def test_list_empty(self):
+        """List projects when none are present."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_anonymous(self):
+        """List projects as anonymous user."""
         project = create_project()
 
-        # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(project, resp.data[0])
 
-        # maintainer
+    @utils.store_samples('project-list')
+    def test_list_authenticated(self):
+        """List projects as an authenticated user."""
+        project = create_project()
         user = create_maintainer(project)
+
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(project, resp.data[0])
 
-        # test old version of API
+    @utils.store_samples('project-list-1.0')
+    def test_list_version_1_0(self):
+        """List projects using API v1.0.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        create_project()
+
         resp = self.client.get(self.api_url(version='1.0'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertNotIn('subject_match', resp.data[0])
 
-    def test_detail(self):
-        """Validate we can get a specific project."""
-        project = create_project()
+    @utils.store_samples('project-detail')
+    def test_detail_by_id(self):
+        """Show project using ID lookup.
 
-        resp = self.client.get(self.api_url(project.id))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(project.name, resp.data['name'])
-
-        # make sure we can look up by linkname
-        resp = self.client.get(self.api_url(resp.data['link_name']))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertSerialized(project, resp.data)
-
-    def test_get_by_id(self):
-        """Validate that it's possible to filter by pk."""
+        Validate that it's possible to filter by pk.
+        """
         project = create_project()
 
         resp = self.client.get(self.api_url(project.pk))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
 
-    def test_get_by_linkname(self):
-        """Validate that it's possible to filter by linkname."""
+    def test_detail_by_linkname(self):
+        """Show project using linkname lookup.
+
+        Validate that it's possible to filter by linkname.
+        """
         project = create_project(linkname='project', name='Sample project')
 
         resp = self.client.get(self.api_url('project'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
 
-    def test_get_by_numeric_linkname(self):
-        """Validate we try to do the right thing for numeric linkname"""
+    def test_detail_by_numeric_linkname(self):
+        """Show project using numeric linkname lookup.
+
+        Validate we try to do the right thing for numeric linkname.
+        """
         project = create_project(linkname='12345')
 
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
+
+    @utils.store_samples('project-detail-1.0')
+    def test_detail_version_1_0(self):
+        """Show project using API v1.0.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        project = create_project()
+
+        resp = self.client.get(self.api_url(project.pk, version='1.0'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertIn('name', resp.data)
+        self.assertNotIn('subject_match', resp.data)
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -126,8 +154,11 @@ class TestProjectAPI(APITestCase):
         resp = self.client.post(self.api_url(), data)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-    def test_update(self):
-        """Ensure updates can be performed by maintainers."""
+    def test_update_anonymous(self):
+        """Update project as anonymous user.
+
+        Ensure updates can only be performed by maintainers.
+        """
         project = create_project()
         data = {'web_url': 'TEST'}
 
@@ -135,20 +166,41 @@ class TestProjectAPI(APITestCase):
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-        # a normal user
+    @utils.store_samples('project-update-error-forbidden')
+    def test_update_non_maintainer(self):
+        """Update project as normal user.
+
+        Ensure updates can only be performed by maintainers.
+        """
+        project = create_project()
+        data = {'web_url': 'TEST'}
+
         user = create_user()
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-        # a maintainer
+    @utils.store_samples('project-update')
+    def test_update_maintainer(self):
+        """Update project as maintainer.
+
+        Ensure updates can only be performed by maintainers.
+        """
+        project = create_project()
+        data = {'web_url': 'TEST'}
+
         user = create_maintainer(project)
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(resp.data['web_url'], 'TEST')
 
-        # ...with the exception of some read-only fields
+    def test_update_readonly_field(self):
+        """Update read-only fields."""
+        project = create_project()
+
+        user = create_maintainer(project)
+        self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), {
             'link_name': 'test'})
         # NOTE(stephenfin): This actually returns HTTP 200 due to
