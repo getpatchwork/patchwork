@@ -90,6 +90,12 @@ class TestCheckAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'user': 'otheruser'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_invalid_patch(self):
+        """Ensure we get a 404 for a non-existent patch."""
+        resp = self.client.get(
+            reverse('api-check-list', kwargs={'patch_id': '99999'}))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
     def test_detail(self):
         """Validate we can get a specific check."""
         check = self._create_check()
@@ -112,12 +118,21 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(1, Check.objects.all().count())
         self.assertSerialized(Check.objects.first(), resp.data)
 
+    def test_create_no_permissions(self):
+        """Ensure creations are rejected by standard users."""
+        check = {
+            'state': 'success',
+            'target_url': 'http://t.co',
+            'description': 'description',
+            'context': 'context',
+        }
+
         user = create_user()
         self.client.force_authenticate(user=user)
         resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
-    def test_create_invalid(self):
+    def test_create_invalid_state(self):
         """Ensure we handle invalid check states."""
         check = {
             'state': 'this-is-not-a-valid-state',
@@ -130,6 +145,20 @@ class TestCheckAPI(APITestCase):
         resp = self.client.post(self.api_url(), check)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())
+
+    def test_create_invalid_patch(self):
+        """Ensure we handle non-existent patches."""
+        check = {
+            'state': 'success',
+            'target_url': 'http://t.co',
+            'description': 'description',
+            'context': 'context',
+        }
+
+        self.client.force_authenticate(user=self.user)
+        resp = self.client.post(
+            reverse('api-check-list', kwargs={'patch_id': '99999'}), check)
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     def test_update_delete(self):
         """Ensure updates and deletes aren't allowed"""
