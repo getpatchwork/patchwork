@@ -8,6 +8,7 @@ import unittest
 from django.conf import settings
 from django.urls import reverse
 
+from patchwork.tests.api import utils
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
@@ -61,53 +62,77 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(series_obj.patches.count(),
                          len(series_json['patches']))
 
-    def test_list(self):
-        """Validate we can list series."""
+    def test_list_empty(self):
+        """List series when none are present."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
+    def _create_series(self):
         project_obj = create_project(linkname='myproject')
         person_obj = create_person(email='test@example.com')
         series_obj = create_series(project=project_obj, submitter=person_obj)
         create_cover(series=series_obj)
         create_patch(series=series_obj)
 
-        # anonymous users
+        return series_obj
+
+    def test_list_anonymous(self):
+        """List patches as anonymous user."""
+        series = self._create_series()
+
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         series_rsp = resp.data[0]
-        self.assertSerialized(series_obj, series_rsp)
+        self.assertSerialized(series, series_rsp)
 
-        # authenticated user
+    @utils.store_samples('series-list')
+    def test_list_authenticated(self):
+        """List series as an authenticated user."""
+        series = self._create_series()
         user = create_user()
+
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         series_rsp = resp.data[0]
-        self.assertSerialized(series_obj, series_rsp)
+        self.assertSerialized(series, series_rsp)
 
-        # test filtering by project
+    def test_list_filter_project(self):
+        """Filter series by project."""
+        series = self._create_series()
+
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
-        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+        self.assertEqual([series.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
         self.assertEqual(0, len(resp.data))
 
-        # test filtering by owner, both ID and email
-        resp = self.client.get(self.api_url(), {'submitter': person_obj.id})
-        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+    def test_list_filter_owner(self):
+        """Filter series by owner."""
+        series = self._create_series()
+        submitter = series.submitter
+
+        resp = self.client.get(self.api_url(), {'submitter': submitter.id})
+        self.assertEqual([series.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.com'})
-        self.assertEqual([series_obj.id], [x['id'] for x in resp.data])
+        self.assertEqual([series.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
-    def test_list_old_version(self):
-        """Validate that newer fields are dropped for older API versions."""
-        create_series()
+    @utils.store_samples('series-list-1-0')
+    def test_list_version_1_0(self):
+        """List patches using API v1.0.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        self._create_series()
 
         resp = self.client.get(self.api_url(version='1.0'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -115,17 +140,19 @@ class TestSeriesAPI(APITestCase):
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
 
+    @utils.store_samples('series-detail')
     def test_detail(self):
-        """Validate we can get a specific series."""
-        series = create_series()
-        create_cover(series=series)
+        """Show series."""
+        series = self._create_series()
 
         resp = self.client.get(self.api_url(series.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(series, resp.data)
 
+    @utils.store_samples('series-detail-1-0')
     def test_detail_version_1_0(self):
-        series = create_series()
+        """Show series using API v1.0."""
+        series = self._create_series()
 
         resp = self.client.get(self.api_url(series.id, version='1.0'))
         self.assertIn('url', resp.data)
