@@ -9,6 +9,7 @@ from django.conf import settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
 
+from patchwork.tests.api import utils
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch
@@ -40,26 +41,32 @@ class TestCoverComments(APITestCase):
                          comment_json['submitter']['id'])
         self.assertIn(SAMPLE_CONTENT, comment_json['content'])
 
-    def test_list(self):
-        cover_obj = create_cover()
-        resp = self.client.get(self.api_url(cover_obj))
+    def test_list_empty(self):
+        """List cover letter comments when none are present."""
+        cover = create_cover()
+        resp = self.client.get(self.api_url(cover))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        comment_obj = create_comment(submission=cover_obj)
-        resp = self.client.get(self.api_url(cover_obj))
+    @utils.store_samples('cover-comment-list')
+    def test_list(self):
+        """List cover letter comments."""
+        cover = create_cover()
+        comment = create_comment(submission=cover)
+
+        resp = self.client.get(self.api_url(cover))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(comment_obj, resp.data[0])
+        self.assertSerialized(comment, resp.data[0])
 
-        create_comment(submission=cover_obj)
-        resp = self.client.get(self.api_url(cover_obj))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(2, len(resp.data))
+    def test_list_version_1_0(self):
+        """List cover letter comments using API v1.0."""
+        cover = create_cover()
+        create_comment(submission=cover)
 
         # check we can't access comments using the old version of the API
         with self.assertRaises(NoReverseMatch):
-            self.client.get(self.api_url(cover_obj, version='1.0'))
+            self.client.get(self.api_url(cover, version='1.0'))
 
     def test_list_invalid_cover(self):
         """Ensure we get a 404 for a non-existent cover letter."""
@@ -85,26 +92,32 @@ class TestPatchComments(APITestCase):
                          comment_json['submitter']['id'])
         self.assertIn(SAMPLE_CONTENT, comment_json['content'])
 
-    def test_list(self):
-        patch_obj = create_patch()
-        resp = self.client.get(self.api_url(patch_obj))
+    def test_list_empty(self):
+        """List patch comments when none are present."""
+        patch = create_patch()
+        resp = self.client.get(self.api_url(patch))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        comment_obj = create_comment(submission=patch_obj)
-        resp = self.client.get(self.api_url(patch_obj))
+    @utils.store_samples('patch-comment-list')
+    def test_list(self):
+        """List patch comments."""
+        patch = create_patch()
+        comment = create_comment(submission=patch)
+
+        resp = self.client.get(self.api_url(patch))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(comment_obj, resp.data[0])
+        self.assertSerialized(comment, resp.data[0])
 
-        create_comment(submission=patch_obj)
-        resp = self.client.get(self.api_url(patch_obj))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(2, len(resp.data))
+    def test_list_version_1_0(self):
+        """List patch comments using API v1.0."""
+        patch = create_patch()
+        create_comment(submission=patch)
 
         # check we can't access comments using the old version of the API
         with self.assertRaises(NoReverseMatch):
-            self.client.get(self.api_url(patch_obj, version='1.0'))
+            self.client.get(self.api_url(patch, version='1.0'))
 
     def test_list_invalid_patch(self):
         """Ensure we get a 404 for a non-existent patch."""
