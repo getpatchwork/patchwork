@@ -61,6 +61,12 @@ class TestCoverComments(APITestCase):
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url(cover_obj, version='1.0'))
 
+    def test_list_invalid_cover(self):
+        """Ensure we get a 404 for a non-existent cover letter."""
+        resp = self.client.get(
+            reverse('api-cover-comment-list', kwargs={'pk': '99999'}))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestPatchComments(APITestCase):
@@ -99,3 +105,9 @@ class TestPatchComments(APITestCase):
         # check we can't access comments using the old version of the API
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url(patch_obj, version='1.0'))
+
+    def test_list_invalid_patch(self):
+        """Ensure we get a 404 for a non-existent patch."""
+        resp = self.client.get(
+            reverse('api-patch-comment-list', kwargs={'pk': '99999'}))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)

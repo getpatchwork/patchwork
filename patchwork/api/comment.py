@@ -5,6 +5,7 @@
 
 import email.parser
 
+from django.http import Http404
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import SerializerMethodField
 
@@ -12,6 +13,7 @@ from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.embedded import PersonSerializer
 from patchwork.models import Comment
+from patchwork.models import Submission
 
 
 class CommentListSerializer(BaseHyperlinkedModelSerializer):
@@ -64,6 +66,9 @@ class CommentList(ListAPIView):
     lookup_url_kwarg = 'pk'
 
     def get_queryset(self):
+        if not Submission.objects.filter(pk=self.kwargs['pk']).exists():
+            raise Http404
+
         return Comment.objects.filter(
             submission=self.kwargs['pk']
         ).select_related('submitter')

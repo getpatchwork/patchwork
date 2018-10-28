@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Showing comments for a non-existant patch or cover letter was returning an
+    empty response instead of a HTTP 404. This issue is resolved for both
+    resources.
