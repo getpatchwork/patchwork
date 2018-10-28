@@ -9,6 +9,7 @@ import unittest
 from django.conf import settings
 from django.urls import reverse
 
+from patchwork.tests.api import utils
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_person
@@ -51,46 +52,62 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(cover_obj.submitter.id,
                          cover_json['submitter']['id'])
 
-    def test_list(self):
-        """Validate we can list cover letters."""
+    def test_list_empty(self):
+        """List cover letters when none are present."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-        person_obj = create_person(email='test@example.com')
-        project_obj = create_project(linkname='myproject')
-        cover_obj = create_cover(project=project_obj, submitter=person_obj)
+    def test_list_anonymous(self):
+        """List cover letter as anonymous user."""
+        cover = create_cover()
 
-        # anonymous user
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(cover_obj, resp.data[0])
+        self.assertSerialized(cover, resp.data[0])
 
-        # authenticated user
+    @utils.store_samples('cover-list')
+    def test_list_authenticated(self):
+        """List cover letters as an authenticated user."""
+        cover = create_cover()
         user = create_user()
+
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
-        self.assertSerialized(cover_obj, resp.data[0])
+        self.assertSerialized(cover, resp.data[0])
 
-        # test filtering by project
-        resp = self.client.get(self.api_url(), {'project': 'myproject'})
-        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+    def test_list_filter_project(self):
+        """Filter cover letters by project."""
+        cover = create_cover()
+        project = cover.project
+
+        resp = self.client.get(self.api_url(), {'project': project.linkname})
+        self.assertEqual([cover.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_filter_submitter(self):
+        """Filter cover letter by submitter."""
+        cover = create_cover()
+        submitter = cover.submitter
+
         # test filtering by submitter, both ID and email
-        resp = self.client.get(self.api_url(), {'submitter': person_obj.id})
-        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+        resp = self.client.get(self.api_url(), {'submitter': submitter.id})
+        self.assertEqual([cover.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.com'})
-        self.assertEqual([cover_obj.id], [x['id'] for x in resp.data])
+            'submitter': submitter.email})
+        self.assertEqual([cover.id], [x['id'] for x in resp.data])
+
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
+    @utils.store_samples('cover-list-1-0')
     def test_list_version_1_0(self):
         create_cover()
 
@@ -101,6 +118,7 @@ class TestCoverLetterAPI(APITestCase):
         self.assertNotIn('mbox', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
 
+    @utils.store_samples('cover-detail')
     def test_detail(self):
         """Validate we can get a specific cover letter."""
         cover_obj = create_cover(
@@ -118,6 +136,7 @@ class TestCoverLetterAPI(APITestCase):
         for key, value in parsed_headers.items():
             self.assertIn(value, resp.data['headers'][key])
 
+    @utils.store_samples('cover-detail-1-0')
     def test_detail_version_1_0(self):
         cover = create_cover()
 
