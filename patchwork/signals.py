@@ -210,8 +210,8 @@ def create_series_created_event(sender, instance, created, raw, **kwargs):
     create_event(instance)
 
 
-@receiver(post_save, sender=Patch)
-def create_series_completed_event(sender, instance, created, raw, **kwargs):
+@receiver(pre_save, sender=Patch)
+def create_series_completed_event(sender, instance, raw, **kwargs):
 
     # NOTE(stephenfin): It's actually possible for this event to be fired
     # multiple times for a given series. To trigger this case, you would need
@@ -225,9 +225,20 @@ def create_series_completed_event(sender, instance, created, raw, **kwargs):
             project=series.project,
             series=series)
 
-    # don't trigger for items loaded from fixtures or existing items
-    if raw or not created:
+    # don't trigger for items loaded from fixtures, new items or items that
+    # (still) don't have a series
+    if raw or not instance.pk or not instance.series:
         return
 
-    if instance.series and instance.series.received_all:
+    orig_patch = Patch.objects.get(pk=instance.pk)
+
+    # we don't currently allow users to change a series (though this might
+    # change in the future) meaning if the patch already had a series, there's
+    # nothing to notify about
+    if orig_patch.series:
+        return
+
+    # we can't use "series.received_all" here since we haven't actually saved
+    # the instance yet so we duplicate that logic here but with an offset
+    if (instance.series.received_total + 1) >= instance.series.total:
         create_event(instance.series)

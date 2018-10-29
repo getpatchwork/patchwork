@@ -86,9 +86,7 @@ class TestEventAPI(APITestCase):
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        # FIXME(stephenfin): This should actually return 8 events but
-        # 'series-completed' events are not currently being generated
-        self.assertEqual(7, len(resp.data), [x['category'] for x in resp.data])
+        self.assertEqual(8, len(resp.data), [x['category'] for x in resp.data])
         for event_rsp in resp.data:
             event_obj = events.get(category=event_rsp['category'])
             self.assertSerialized(event_obj, event_rsp)
@@ -101,9 +99,7 @@ class TestEventAPI(APITestCase):
 
         resp = self.client.get(self.api_url(), {'project': project.pk})
         # All but one event belongs to the same project
-        # FIXME(stephenfin): This should actually return 8 events but
-        # 'series-completed' events are not currently being generated
-        self.assertEqual(7, len(resp.data))
+        self.assertEqual(8, len(resp.data))
 
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
         self.assertEqual(0, len(resp.data))
@@ -153,9 +149,7 @@ class TestEventAPI(APITestCase):
         resp = self.client.get(self.api_url(), {'series': series.pk})
         # There should be three - series-created, patch-completed and
         # series-completed
-        # FIXME(stephenfin): This should actually return 3 events but
-        # 'series-completed' events are not currently being generated
-        self.assertEqual(2, len(resp.data))
+        self.assertEqual(3, len(resp.data))
 
         resp = self.client.get(self.api_url(), {'series': 999999})
         self.assertEqual(0, len(resp.data))
