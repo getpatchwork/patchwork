@@ -273,17 +273,16 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
 
     # but we will need to follow the state and submitter relations for
     # rendering the list template
-    patches = patches.select_related('state', 'submitter', 'delegate')
+    patches = patches.select_related('state', 'submitter', 'delegate',
+                                     'series')
 
     patches = patches.only('state', 'submitter', 'delegate', 'project',
-                           'name', 'date')
+                           'series__name', 'name', 'date')
 
     # we also need checks and series
     patches = patches.prefetch_related(
         Prefetch('check_set', queryset=Check.objects.only(
             'context', 'user_id', 'patch_id', 'state', 'date')))
-    patches = patches.prefetch_related(
-        Prefetch('series', queryset=Series.objects.only('name')))
 
     paginator = Paginator(request, patches)
 
