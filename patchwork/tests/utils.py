@@ -155,6 +155,11 @@ def create_patch(**kwargs):
     series = kwargs.pop('series', None)
     number = kwargs.pop('number', None)
 
+    # NOTE(stephenfin): We overwrite the provided project, if there is one, to
+    # maintain some degree of sanity
+    if series:
+        kwargs['project'] = series.project
+
     values = {
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'delegate': None,
@@ -191,6 +196,11 @@ def create_cover(**kwargs):
     #
     # [1] https://stackoverflow.com/q/43119575/
     series = kwargs.pop('series', None)
+
+    # NOTE(stephenfin): We overwrite the provided project, if there is one, to
+    # maintain some degree of sanity
+    if series:
+        kwargs['project'] = series.project
 
     values = {
         'submitter': create_person() if 'person' not in kwargs else None,

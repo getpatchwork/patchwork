@@ -1,0 +1,169 @@
+# Patchwork - automated patch tracking system
+# Copyright (C) 2018 Stephen Finucane <stephen@that.guru>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+import unittest
+
+from django.conf import settings
+from django.urls import reverse
+
+from patchwork.models import Event
+from patchwork.tests.utils import create_check
+from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_series
+from patchwork.tests.utils import create_state
+
+if settings.ENABLE_REST_API:
+    from rest_framework import status
+    from rest_framework.test import APITestCase
+else:
+    # stub out APITestCase
+    from django.test import TestCase
+    APITestCase = TestCase  # noqa
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestEventAPI(APITestCase):
+
+    @staticmethod
+    def api_url(version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
+        return reverse('api-event-list', kwargs=kwargs)
+
+    def assertSerialized(self, event_obj, event_json):
+        self.assertEqual(event_obj.id, event_json['id'])
+        self.assertEqual(event_obj.category, event_json['category'])
+
+        # nested fields
+
+        self.assertEqual(event_obj.project.id,
+                         event_json['project']['id'])
+
+        # TODO(stephenfin): Check other fields
+
+    def test_list_empty(self):
+        """List events when none are present."""
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(0, len(resp.data))
+
+    def _create_events(self):
+        """Create sample events.
+
+        This one's a bit weird. While we could generate event models ourselves,
+        it seems wiser to test the event machinery as many times as possible.
+        As a result, we actually create a load of *other* objects, which will
+        raise signals and trigger the remainder.
+        """
+        # series-created
+        series = create_series()
+        # patch-created, patch-completed, series-completed
+        patch = create_patch(series=series)
+        # cover-created
+        create_cover(series=series)
+        # check-created
+        create_check(patch=patch)
+        # patch-delegated, patch-state-changed
+        user = create_maintainer(project=patch.project)
+        state = create_state()
+        patch.delegate = user
+        patch.state = state
+        patch.save()
+
+        return Event.objects.all()
+
+    def test_list(self):
+        """List events."""
+        events = self._create_events()
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        # FIXME(stephenfin): This should actually return 8 events but
+        # 'series-completed' events are not currently being generated
+        self.assertEqual(7, len(resp.data), [x['category'] for x in resp.data])
+        for event_rsp in resp.data:
+            event_obj = events.get(category=event_rsp['category'])
+            self.assertSerialized(event_obj, event_rsp)
+
+    def test_list_filter_project(self):
+        """Filter events by project."""
+        events = self._create_events()
+        project = events[0].project
+        create_series()  # create series in a random project
+
+        resp = self.client.get(self.api_url(), {'project': project.pk})
+        # All but one event belongs to the same project
+        # FIXME(stephenfin): This should actually return 8 events but
+        # 'series-completed' events are not currently being generated
+        self.assertEqual(7, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_category(self):
+        """Filter events by category."""
+        events = self._create_events()
+
+        resp = self.client.get(self.api_url(),
+                               {'category': events[0].category})
+        # There should only be one
+        self.assertEqual(1, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'category': 'foo-bar'})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_patch(self):
+        """Filter events by patch."""
+        events = self._create_events()
+
+        patch = events.get(category='patch-created').patch
+        resp = self.client.get(self.api_url(), {'patch': patch.pk})
+        # There should be five - patch-created, patch-completed, check-created,
+        # patch-state-changed and patch-delegated
+        self.assertEqual(5, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'patch': 999999})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_cover(self):
+        """Filter events by cover."""
+        events = self._create_events()
+
+        cover = events.get(category='cover-created').cover
+        resp = self.client.get(self.api_url(), {'cover': cover.pk})
+        # There should only be one - cover-created
+        self.assertEqual(1, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'cover': 999999})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_series(self):
+        """Filter events by series."""
+        events = self._create_events()
+
+        series = events.get(category='series-created').series
+        resp = self.client.get(self.api_url(), {'series': series.pk})
+        # There should be three - series-created, patch-completed and
+        # series-completed
+        # FIXME(stephenfin): This should actually return 3 events but
+        # 'series-completed' events are not currently being generated
+        self.assertEqual(2, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'series': 999999})
+        self.assertEqual(0, len(resp.data))
+
+    def test_create(self):
+        """Ensure creates aren't allowed"""
+        user = create_maintainer()
+        user.is_superuser = True
+        user.save()
+
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(self.api_url(), {'category': 'patch-created'})
+        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
