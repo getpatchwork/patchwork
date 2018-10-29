@@ -9,6 +9,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from patchwork.models import Event
+from patchwork.tests.api import utils
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
@@ -78,6 +79,7 @@ class TestEventAPI(APITestCase):
 
         return Event.objects.all()
 
+    @utils.store_samples('event-list')
     def test_list(self):
         """List events."""
         events = self._create_events()
