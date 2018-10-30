@@ -10,7 +10,7 @@ python:
   - 3.6
 
 addons:
-  postgresql: "9.6"
+  postgresql: 9.6
 
 services:
   - mysql
@@ -27,12 +27,12 @@ env:
 matrix:
   include:
     - addons:
-        mariadb: '10.3'
+        mariadb: 10.3
       env:
         - PW_TEST_DB_TYPE=mysql
         - PW_TEST_DB_USER=root
     - addons:
-        postgresql: "10"
+        postgresql: 10
         apt:
           packages:
           - postgresql-10
@@ -49,7 +49,7 @@ matrix:
         - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
 
 before_script:
-  - if [[ $PW_TEST_DB_TYPE == mysql ]]; then mysql -e 'create database patchwork character set utf8;'; fi
+  - if [[ $PW_TEST_DB_TYPE == mysql ]]; then mysql -e "create database patchwork character set utf8;"; fi
   - if [[ $PW_TEST_DB_TYPE == postgres ]]; then psql -c "create database patchwork with ENCODING = 'UTF8';" -U $PW_TEST_DB_USER; fi
 
 install:
@@ -59,7 +59,7 @@ script:
   - >
     if [[ $PW_TEST_DB_TYPE == mysql ]];
     then
-      mysql -e 'SELECT VERSION(), CURRENT_USER();' -u $PW_TEST_DB_USER patchwork;
+      mysql -e "SELECT VERSION(), CURRENT_USER();" -u $PW_TEST_DB_USER patchwork;
     else
       psql -c "SELECT VERSION(), CURRENT_USER, current_database()" -U $PW_TEST_DB_USER patchwork;
     fi
