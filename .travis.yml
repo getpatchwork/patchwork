@@ -47,27 +47,6 @@ matrix:
       sudo: true
       before_install:
         - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
-    - env:
-        - PGPORT=5433
-        - PW_TEST_DB_HOST=""
-        - PW_TEST_DB_PORT=5433
-        - PW_TEST_DB_TYPE=postgres
-        - PW_TEST_DB_USER=travis
-      python: 3.6
-      dist: trusty
-      addons:
-        postgresql: "11"
-        apt:
-          sources:
-          - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg 11'
-            key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
-          packages:
-          - postgresql-11
-          - postgresql-client-11
-      sudo: true
-      before_install:
-        - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
-
 
 before_script:
   - if [[ $PW_TEST_DB_TYPE == mysql ]]; then mysql -e 'create database patchwork character set utf8;'; fi
