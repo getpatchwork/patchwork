@@ -45,9 +45,9 @@ Requirements
 
 - Django (1.11 - 2.0)
 
-- Django REST Framework (3.6 - 3.8)
+- Django REST Framework (3.6 - 3.9)
 
-- Django Filters (1.0 - 1.1)
+- Django Filters (1.0 - 2.0)
 
 Development Installation
 ------------------------
