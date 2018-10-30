@@ -14,7 +14,6 @@ from patchwork.models import BundlePatch
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.models import Check
-from patchwork.models import Series
 from patchwork.paginator import Paginator
 
 
