@@ -88,7 +88,7 @@ admin.site.register(CoverLetter, SubmissionAdmin)
 class PatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'state', 'date',
                     'archived', 'is_pull_request')
-    list_filter = ('project', 'state', 'archived')
+    list_filter = ('project', 'submitter', 'state', 'archived')
     list_select_related = ('submitter', 'project', 'state')
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
@@ -119,8 +119,10 @@ class PatchInline(admin.StackedInline):
 
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'submitter', 'version', 'total',
+    list_display = ('name', 'submitter', 'project', 'date', 'version', 'total',
                     'received_total', 'received_all')
+    list_filter = ('project', 'submitter')
+    list_select_related = ('submitter', 'project')
     readonly_fields = ('received_total', 'received_all')
     search_fields = ('submitter_name', 'submitter_email')
     exclude = ('patches', )
