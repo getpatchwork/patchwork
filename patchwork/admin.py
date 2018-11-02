@@ -6,6 +6,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -134,7 +135,8 @@ class SeriesAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(SeriesAdmin, self).get_queryset(request)
-        return qs.prefetch_related('patches',)
+        return qs.prefetch_related(Prefetch(
+            'patches', Patch.objects.only('series',)))
 
 
 admin.site.register(Series, SeriesAdmin)
