@@ -212,6 +212,7 @@ class UserProfile(models.Model):
 def _user_saved_callback(sender, created, instance, **kwargs):
     try:
         profile = instance.profile
+        profile.user = instance
     except UserProfile.DoesNotExist:
         profile = UserProfile(user=instance)
     profile.save()

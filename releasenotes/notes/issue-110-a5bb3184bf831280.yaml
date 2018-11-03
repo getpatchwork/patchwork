@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Assigning maintained projects when creating a new user in the admin page
+    was causing an error. This is now resolved.
