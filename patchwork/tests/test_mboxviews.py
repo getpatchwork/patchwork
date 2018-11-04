@@ -125,6 +125,21 @@ class MboxHeaderTest(TestCase):
         header = 'List-Id: Patchwork development <patchwork.lists.ozlabs.org>'
         self._test_header_passthrough(header)
 
+    def _test_header_dropped(self, header):
+        patch = create_patch(headers=header + '\n')
+        response = self.client.get(reverse('patch-mbox', args=[patch.id]))
+        self.assertNotContains(response, header)
+
+    def test_header_dropped_content_transfer_encoding(self):
+        """Validate dropping of 'Content-Transfer-Encoding' header."""
+        header = 'Content-Transfer-Encoding: quoted-printable'
+        self._test_header_dropped(header)
+
+    def test_header_dropped_content_type_multipart_signed(self):
+        """Validate dropping of 'Content-Type=multipart/signed' header."""
+        header = 'Content-Type: multipart/signed'
+        self._test_header_dropped(header)
+
     def test_patchwork_id_header(self):
         """Validate inclusion of generated 'X-Patchwork-Id' header."""
         patch = create_patch()
