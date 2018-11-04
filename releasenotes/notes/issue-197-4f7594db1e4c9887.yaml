@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Long headers can be wrapped using CRLF followed by WSP (whitespace). This
+    whitespace was not being stripped, resulting in errant whitespace being
+    saved for the patch subject. This is resolved though existing patches and
+    cover letters will need to be updated manually.
