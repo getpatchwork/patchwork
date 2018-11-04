@@ -84,7 +84,13 @@ def _submission_to_mbox(submission):
 
     orig_headers = HeaderParser().parsestr(str(submission.headers))
     for key, val in orig_headers.items():
+        # we set this ourselves
         if key == 'Content-Transfer-Encoding':
+            continue
+        # we don't save GPG signatures described in RFC1847 [1] so this
+        # Content-Type value is invalid
+        # [1] https://tools.ietf.org/html/rfc1847
+        if key == 'Content-Type' and val == 'multipart/signed':
             continue
         mail[key] = val
 
