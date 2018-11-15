@@ -12,21 +12,14 @@ from django.urls import reverse
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_maintainer
-from patchwork.tests.utils import create_person
-from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
     from rest_framework import status
-    from rest_framework.test import APITestCase
-else:
-    # stub out APITestCase
-    from django.test import TestCase
-    APITestCase = TestCase  # noqa
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestCoverLetterAPI(APITestCase):
+class TestCoverLetterAPI(utils.APITestCase):
     fixtures = ['default_tags']
 
     @staticmethod

@@ -7,7 +7,19 @@ import functools
 import json
 import os
 
-# docs/examples
+from django.conf import settings
+from django.test import testcases
+
+from patchwork.tests.api import validator
+
+if settings.ENABLE_REST_API:
+    from rest_framework.test import APIClient as BaseAPIClient
+    from rest_framework.test import APIRequestFactory
+else:
+    from django.test import Client as BaseAPIClient
+
+
+# docs/api/samples
 OUT_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir,
     os.pardir, 'docs', 'api', 'samples')
@@ -91,3 +103,55 @@ def store_samples(filename):
         return wrapper
 
     return inner
+
+
+class APIClient(BaseAPIClient):
+
+    def __init__(self, *args, **kwargs):
+        super(APIClient, self).__init__(*args, **kwargs)
+        self.factory = APIRequestFactory()
+
+    def get(self, path, data=None, follow=False, **extra):
+        request = self.factory.get(
+            path, data=data, SERVER_NAME='example.com', **extra)
+        response = super(APIClient, self).get(
+            path, data=data, follow=follow, SERVER_NAME='example.com', **extra)
+        validator.validate_data(path, request, response)
+        return response
+
+    def post(self, path, data=None, format=None, content_type=None,
+             follow=False, **extra):
+        request = self.factory.post(
+            path, data=data, format='json', content_type=content_type,
+            SERVER_NAME='example.com', **extra)
+        response = super(APIClient, self).post(
+            path, data=data, format='json', content_type=content_type,
+            follow=follow, SERVER_NAME='example.com', **extra)
+        validator.validate_data(path, request, response)
+        return response
+
+    def put(self, path, data=None, format=None, content_type=None,
+            follow=False, **extra):
+        request = self.factory.put(
+            path, data=data, format='json', content_type=content_type,
+            SERVER_NAME='example.com', **extra)
+        response = super(APIClient, self).put(
+            path, data=data, format='json', content_type=content_type,
+            follow=follow, SERVER_NAME='example.com', **extra)
+        validator.validate_data(path, request, response)
+        return response
+
+    def patch(self, path, data=None, format=None, content_type=None,
+              follow=False, **extra):
+        request = self.factory.patch(
+            path, data=data, format='json', content_type=content_type,
+            SERVER_NAME='example.com', **extra)
+        response = super(APIClient, self).patch(
+            path, data=data, format='json', content_type=content_type,
+            follow=follow, SERVER_NAME='example.com', **extra)
+        validator.validate_data(path, request, response)
+        return response
+
+
+class APITestCase(testcases.TestCase):
+    client_class = APIClient

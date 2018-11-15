@@ -14,15 +14,10 @@ from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
     from rest_framework import status
-    from rest_framework.test import APITestCase
-else:
-    # stub out APITestCase
-    from django.test import TestCase
-    APITestCase = TestCase  # noqa
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestUserAPI(APITestCase):
+class TestUserAPI(utils.APITestCase):
 
     @staticmethod
     def api_url(item=None):

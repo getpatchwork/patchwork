@@ -17,15 +17,10 @@ from patchwork.tests.utils import SAMPLE_CONTENT
 
 if settings.ENABLE_REST_API:
     from rest_framework import status
-    from rest_framework.test import APITestCase
-else:
-    # stub out APITestCase
-    from django.test import TestCase
-    APITestCase = TestCase  # noqa
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestCoverComments(APITestCase):
+class TestCoverComments(utils.APITestCase):
     @staticmethod
     def api_url(cover, version=None):
         kwargs = {}
@@ -76,7 +71,7 @@ class TestCoverComments(APITestCase):
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestPatchComments(APITestCase):
+class TestPatchComments(utils.APITestCase):
     @staticmethod
     def api_url(patch, version=None):
         kwargs = {}

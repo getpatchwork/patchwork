@@ -19,15 +19,10 @@ from patchwork.tests.utils import create_state
 
 if settings.ENABLE_REST_API:
     from rest_framework import status
-    from rest_framework.test import APITestCase
-else:
-    # stub out APITestCase
-    from django.test import TestCase
-    APITestCase = TestCase  # noqa
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestEventAPI(APITestCase):
+class TestEventAPI(utils.APITestCase):
 
     @staticmethod
     def api_url(version=None):
