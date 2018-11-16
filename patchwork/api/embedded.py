@@ -81,22 +81,6 @@ class WebURLMixin(BaseHyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_absolute_url())
 
 
-class BundleSerializer(SerializedRelatedField):
-
-    class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
-        class Meta:
-            model = models.Bundle
-            fields = ('id', 'url', 'web_url', 'name', 'mbox')
-            read_only_fields = fields
-            versioned_fields = {
-                '1.1': ('web_url', ),
-            }
-            extra_kwargs = {
-                'url': {'view_name': 'api-bundle-detail'},
-            }
-
-
 class CheckSerializer(SerializedRelatedField):
 
     class _Serializer(BaseHyperlinkedModelSerializer):
