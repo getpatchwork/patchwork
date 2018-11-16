@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fields added in API v1.1 are now consistently excluded when requesting API
+    v1.0, as was intended.

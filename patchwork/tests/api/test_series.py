@@ -122,13 +122,19 @@ class TestSeriesAPI(APITestCase):
 
     def test_list_old_version(self):
         """Validate that newer fields are dropped for older API versions."""
-        create_series()
+        cover_obj = create_cover()
+        series_obj = create_series()
+        series_obj.add_cover_letter(cover_obj)
+        create_series_patch(series=series_obj)
 
         resp = self.client.get(self.api_url(version='1.0'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0]['cover_letter'])
+        self.assertNotIn('mbox', resp.data[0]['cover_letter'])
+        self.assertNotIn('web_url', resp.data[0]['patches'][0])
 
     def test_detail(self):
         """Validate we can get a specific series."""
@@ -141,11 +147,17 @@ class TestSeriesAPI(APITestCase):
         self.assertSerialized(series, resp.data)
 
     def test_detail_version_1_0(self):
-        series = create_series()
+        cover_obj = create_cover()
+        series_obj = create_series()
+        series_obj.add_cover_letter(cover_obj)
+        create_series_patch(series=series_obj)
 
-        resp = self.client.get(self.api_url(series.id, version='1.0'))
+        resp = self.client.get(self.api_url(series_obj.id, version='1.0'))
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
+        self.assertNotIn('web_url', resp.data['cover_letter'])
+        self.assertNotIn('mbox', resp.data['cover_letter'])
+        self.assertNotIn('web_url', resp.data['patches'][0])
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""
