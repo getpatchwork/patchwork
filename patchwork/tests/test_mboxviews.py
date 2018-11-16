@@ -250,7 +250,7 @@ class MboxSeriesDependencies(TestCase):
     def test_legacy_patch(self):
         """Validate a patch with non-existent dependencies raises a 404."""
         # we're explicitly creating a patch without a series
-        patch = create_patch()
+        patch = create_patch(series=None)
 
         response = self.client.get('%s?series=*' % reverse(
             'patch-mbox', args=[patch.id]))

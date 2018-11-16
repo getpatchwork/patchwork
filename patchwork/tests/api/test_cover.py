@@ -52,6 +52,13 @@ class TestCoverLetterAPI(APITestCase):
         self.assertEqual(cover_obj.submitter.id,
                          cover_json['submitter']['id'])
 
+        if hasattr(cover_obj, 'series'):
+            self.assertEqual(1, len(cover_json['series']))
+            self.assertEqual(cover_obj.series.id,
+                             cover_json['series'][0]['id'])
+        else:
+            self.assertEqual([], cover_json['series'])
+
     def test_list_empty(self):
         """List cover letters when none are present."""
         resp = self.client.get(self.api_url())
@@ -60,7 +67,9 @@ class TestCoverLetterAPI(APITestCase):
 
     def test_list_anonymous(self):
         """List cover letter as anonymous user."""
-        cover = create_cover()
+        # we specifically set series to None to test code that handles legacy
+        # cover letters created before series existed
+        cover = create_cover(series=None)
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)

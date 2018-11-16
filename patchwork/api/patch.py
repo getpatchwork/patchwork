@@ -116,7 +116,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         # after we changed the series-patch relationship from M:N to 1:N. It
         # will be removed in API v2
         data = super(PatchListSerializer, self).to_representation(instance)
-        data['series'] = [data['series']]
+        data['series'] = [data['series']] if data['series'] else []
         return data
 
     class Meta:

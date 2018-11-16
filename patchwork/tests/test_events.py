@@ -32,7 +32,7 @@ class PatchCreatedTest(_BaseTestCase):
 
     def test_patch_created(self):
         """No series, so patch dependencies implicitly exist."""
-        patch = utils.create_patch()
+        patch = utils.create_patch(series=None)
 
         # This should raise the CATEGORY_PATCH_CREATED event only as there is
         # no series
@@ -106,7 +106,8 @@ class PatchCreatedTest(_BaseTestCase):
 class PatchChangedTest(_BaseTestCase):
 
     def test_patch_state_changed(self):
-        patch = utils.create_patch()
+        # purposefully setting series to None to minimize additional events
+        patch = utils.create_patch(series=None)
         old_state = patch.state
         new_state = utils.create_state()
 
@@ -123,7 +124,8 @@ class PatchChangedTest(_BaseTestCase):
                                current_state=new_state)
 
     def test_patch_delegated(self):
-        patch = utils.create_patch()
+        # purposefully setting series to None to minimize additional events
+        patch = utils.create_patch(series=None)
         delegate_a = utils.create_user()
 
         # None -> Delegate A

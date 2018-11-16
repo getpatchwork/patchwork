@@ -152,8 +152,15 @@ def create_patch(**kwargs):
     # NOTE(stephenfin): Even though we could simply pass 'series' into the
     # constructor, we don't as that's not what we do in the parser and not what
     # our signal handlers (for events) expect
-    series = kwargs.pop('series', None)
-    number = kwargs.pop('number', None)
+    if 'series' in kwargs:
+        series = kwargs.pop('series')
+    else:
+        series = create_series(project=kwargs.pop('project', create_project()))
+
+    if 'number' in kwargs:
+        number = kwargs.pop('number', None)
+    elif series:
+        number = series.patches.count() + 1
 
     # NOTE(stephenfin): We overwrite the provided project, if there is one, to
     # maintain some degree of sanity
@@ -195,7 +202,10 @@ def create_cover(**kwargs):
     # emulate that here. For more info, see [1].
     #
     # [1] https://stackoverflow.com/q/43119575/
-    series = kwargs.pop('series', None)
+    if 'series' in kwargs:
+        series = kwargs.pop('series')
+    else:
+        series = create_series(project=kwargs.pop('project', create_project()))
 
     # NOTE(stephenfin): We overwrite the provided project, if there is one, to
     # maintain some degree of sanity

@@ -45,7 +45,7 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
         # will be removed in API v2
         data = super(CoverLetterListSerializer, self).to_representation(
             instance)
-        data['series'] = [data['series']]
+        data['series'] = [data['series']] if data['series'] else []
         return data
 
     class Meta:

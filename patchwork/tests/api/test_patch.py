@@ -59,24 +59,33 @@ class TestPatchAPI(APITestCase):
         self.assertEqual(patch_obj.project.id,
                          patch_json['project']['id'])
 
+        if patch_obj.series:
+            self.assertEqual(1, len(patch_json['series']))
+            self.assertEqual(patch_obj.series.id,
+                             patch_json['series'][0]['id'])
+        else:
+            self.assertEqual([], patch_json['series'])
+
     def test_list_empty(self):
         """List patches when none are present."""
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
 
-    def _create_patch(self):
+    def _create_patch(self, **kwargs):
         person_obj = create_person(email='test@example.com')
         project_obj = create_project(linkname='myproject')
         state_obj = create_state(name='Under Review')
         patch_obj = create_patch(state=state_obj, project=project_obj,
-                                 submitter=person_obj)
+                                 submitter=person_obj, **kwargs)
 
         return patch_obj
 
     def test_list_anonymous(self):
         """List patches as anonymous user."""
-        patch = self._create_patch()
+        # we specifically set series to None to test code that handles legacy
+        # patches created before series existed
+        patch = self._create_patch(series=None)
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
