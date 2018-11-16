@@ -89,7 +89,7 @@ class BundleSerializer(SerializedRelatedField):
             model = models.Bundle
             fields = ('id', 'url', 'web_url', 'name', 'mbox')
             read_only_fields = fields
-            versioned_field = {
+            versioned_fields = {
                 '1.1': ('web_url', ),
             }
             extra_kwargs = {
@@ -126,7 +126,7 @@ class CoverLetterSerializer(SerializedRelatedField):
             model = models.CoverLetter
             fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
             read_only_fields = fields
-            versioned_field = {
+            versioned_fields = {
                 '1.1': ('web_url', 'mbox', ),
             }
             extra_kwargs = {
@@ -142,7 +142,7 @@ class PatchSerializer(SerializedRelatedField):
             model = models.Patch
             fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
             read_only_fields = fields
-            versioned_field = {
+            versioned_fields = {
                 '1.1': ('web_url', ),
             }
             extra_kwargs = {
@@ -190,7 +190,7 @@ class SeriesSerializer(SerializedRelatedField):
             fields = ('id', 'url', 'web_url', 'date', 'name', 'version',
                       'mbox')
             read_only_fields = fields
-            versioned_field = {
+            versioned_fields = {
                 '1.1': ('web_url', ),
             }
             extra_kwargs = {

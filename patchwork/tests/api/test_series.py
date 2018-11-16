@@ -139,6 +139,9 @@ class TestSeriesAPI(APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+        self.assertNotIn('web_url', resp.data[0]['cover_letter'])
+        self.assertNotIn('mbox', resp.data[0]['cover_letter'])
+        self.assertNotIn('web_url', resp.data[0]['patches'][0])
 
     @utils.store_samples('series-detail')
     def test_detail(self):
@@ -157,6 +160,9 @@ class TestSeriesAPI(APITestCase):
         resp = self.client.get(self.api_url(series.id, version='1.0'))
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
+        self.assertNotIn('web_url', resp.data['cover_letter'])
+        self.assertNotIn('mbox', resp.data['cover_letter'])
+        self.assertNotIn('web_url', resp.data['patches'][0])
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""
