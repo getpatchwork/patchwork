@@ -57,6 +57,7 @@ def create_project(**kwargs):
         'linkname': 'test-project-%d' % num,
         'name': 'Test Project %d' % num,
         'listid': 'test%d.example.com' % num,
+        'listemail': 'test%d@example.com' % num,
         'subject_match': '',
     }
     values.update(kwargs)
