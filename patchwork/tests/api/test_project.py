@@ -160,7 +160,7 @@ class TestProjectAPI(APITestCase):
         Ensure updates can only be performed by maintainers.
         """
         project = create_project()
-        data = {'web_url': 'TEST'}
+        data = {'web_url': 'https://example.com/test'}
 
         # an anonymous user
         resp = self.client.patch(self.api_url(project.id), data)
@@ -173,7 +173,7 @@ class TestProjectAPI(APITestCase):
         Ensure updates can only be performed by maintainers.
         """
         project = create_project()
-        data = {'web_url': 'TEST'}
+        data = {'web_url': 'https://example.com/test'}
 
         user = create_user()
         self.client.force_authenticate(user=user)
@@ -187,13 +187,13 @@ class TestProjectAPI(APITestCase):
         Ensure updates can only be performed by maintainers.
         """
         project = create_project()
-        data = {'web_url': 'TEST'}
+        data = {'web_url': 'https://example.com/test'}
 
         user = create_maintainer(project)
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(resp.data['web_url'], 'TEST')
+        self.assertEqual(resp.data['web_url'], 'https://example.com/test')
 
     def test_update_readonly_field(self):
         """Update read-only fields."""
