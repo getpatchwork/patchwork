@@ -203,7 +203,7 @@ class TestPatchAPI(APITestCase):
         """Ensure creations are rejected."""
         project = create_project()
         patch = {
-            'project': project,
+            'project': project.id,
             'submitter': create_person().id,
             'msgid': make_msgid(),
             'name': 'test-create-patch',
