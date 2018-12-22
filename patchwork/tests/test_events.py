@@ -42,7 +42,7 @@ class _BaseTestCase(TestCase):
                 self.assertIsNone(field)
 
 
-class PatchCreateTest(_BaseTestCase):
+class PatchCreatedTest(_BaseTestCase):
 
     def test_patch_created(self):
         """No series, so patch dependencies implicitly exist."""
@@ -170,7 +170,7 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEventFields(events[3], previous_delegate=delegate_b)
 
 
-class CheckCreateTest(_BaseTestCase):
+class CheckCreatedTest(_BaseTestCase):
 
     def test_check_created(self):
         check = utils.create_check()
@@ -181,7 +181,7 @@ class CheckCreateTest(_BaseTestCase):
         self.assertEventFields(events[0])
 
 
-class CoverCreateTest(_BaseTestCase):
+class CoverCreatedTest(_BaseTestCase):
 
     def test_cover_created(self):
         cover = utils.create_cover()
@@ -192,7 +192,7 @@ class CoverCreateTest(_BaseTestCase):
         self.assertEventFields(events[0])
 
 
-class SeriesCreateTest(_BaseTestCase):
+class SeriesCreatedTest(_BaseTestCase):
 
     def test_series_created(self):
         series = utils.create_series()
@@ -201,3 +201,28 @@ class SeriesCreateTest(_BaseTestCase):
         self.assertEqual(events[0].category, Event.CATEGORY_SERIES_CREATED)
         self.assertEqual(events[0].project, series.project)
         self.assertEventFields(events[0])
+
+
+class SeriesChangedTest(_BaseTestCase):
+
+    def test_series_completed(self):
+        """Validate 'series-completed' events."""
+        series = utils.create_series(total=2)
+
+        # the series has no patches associated with it so it's not yet complete
+        events = _get_events(series=series)
+        self.assertNotIn(Event.CATEGORY_SERIES_COMPLETED,
+                         [x.category for x in events])
+
+        # create the second of two patches in the series; series is still not
+        # complete
+        utils.create_series_patch(series=series, number=2)
+        events = _get_events(series=series)
+        self.assertNotIn(Event.CATEGORY_SERIES_COMPLETED,
+                         [x.category for x in events])
+
+        # now create the first patch, which will "complete" the series
+        utils.create_series_patch(series=series, number=1)
+        events = _get_events(series=series)
+        self.assertIn(Event.CATEGORY_SERIES_COMPLETED,
+                      [x.category for x in events])
