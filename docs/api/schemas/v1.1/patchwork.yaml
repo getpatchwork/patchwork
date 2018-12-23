@@ -38,22 +38,25 @@ paths:
       - $ref: '#/components/parameters/Search'
       - in: query
         name: project
-        description: ''
+        description: 'An ID or linkname of a project to filter bundles by.'
         schema:
           title: ''
           type: string
       - in: query
         name: owner
-        description: ''
+        description: 'An ID or username of a user to filter bundles by.'
         schema:
           title: ''
           type: string
       - in: query
         name: public
-        description: ''
+        description: 'Show only public (`true`) or private (`false`) bundles.'
         schema:
           title: ''
           type: string
+          enum:
+            - 'true'
+            - 'false'
       responses:
         '200':
           description: ''
@@ -76,10 +79,10 @@ paths:
       - in: path
         name: id
         required: true
-        description: ''
+        description: 'A unique integer value identifying this bundle.'
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -108,19 +111,19 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
-        description: ''
+        description: 'An ID or linkname of a project to filter cover letters by.'
         schema:
           title: ''
           type: string
       - in: query
         name: series
-        description: ''
+        description: 'An ID of a series to filter cover letters by.'
         schema:
           title: ''
           type: string
       - in: query
         name: submitter
-        description: ''
+        description: 'An ID or email address of a person to filter cover letters by.'
         schema:
           title: ''
           type: string
@@ -145,11 +148,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this cover letter.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -172,11 +175,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying the parent cover letter.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       - $ref: '#/components/parameters/Page'
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Order'
@@ -214,13 +217,13 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
-        description: ''
+        description: 'An ID or linkname of a project to filter events by.'
         schema:
           title: ''
           type: string
       - in: query
         name: category
-        description: ''
+        description: 'An event category to filter events by.'
         schema:
           title: ''
           type: string
@@ -235,22 +238,22 @@ paths:
             - series-completed
       - in: query
         name: series
-        description: ''
+        description: 'An ID of a series to filter events by.'
         schema:
           title: ''
-          type: string
+          type: integer
       - in: query
         name: patch
-        description: ''
+        description: 'An ID of a patch to filter events by.'
         schema:
           title: ''
-          type: string
+          type: integer
       - in: query
         name: cover
-        description: ''
+        description: 'An ID of a cover letter to filter events by.'
         schema:
           title: ''
-          type: string
+          type: integer
       responses:
         '200':
           description: ''
@@ -297,40 +300,43 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
-        description: ''
+        description: 'An ID or linkname of a project to filter patches by.'
         schema:
           title: ''
           type: string
       - in: query
         name: series
-        description: ''
+        description: 'An ID of a series to filter patches by.'
         schema:
           title: ''
-          type: string
+          type: integer
       - in: query
         name: submitter
-        description: ''
+        description: 'An ID or email address of a person to filter patches by.'
         schema:
           title: ''
           type: string
       - in: query
         name: delegate
-        description: ''
+        description: 'An ID or username of a user to filter patches by.'
         schema:
           title: ''
           type: string
       - in: query
         name: state
-        description: ''
+        description: 'A slug representation of a state to filter patches by.'
         schema:
           title: ''
           type: string
       - in: query
         name: archived
-        description: ''
+        description: 'Show only archived (`true`) or non-archived (`false`) patches.'
         schema:
           title: ''
           type: string
+          enum:
+            - 'true'
+            - 'false'
       responses:
         '200':
           description: ''
@@ -352,11 +358,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -381,11 +387,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -424,11 +430,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -465,11 +471,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying the parent patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       - $ref: '#/components/parameters/Page'
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Order'
@@ -501,11 +507,11 @@ paths:
       parameters:
       - in: path
         name: patch_id
-        description: ''
+        description: 'A unique integer value identifying the parent patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: Patch ID
+          type: integer
       - $ref: '#/components/parameters/Page'
       - $ref: '#/components/parameters/PageSize'
       - $ref: '#/components/parameters/Order'
@@ -514,19 +520,24 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: user
-        description: ''
+        description: 'An ID or username of a user to filter checks by.'
         schema:
           title: ''
           type: string
       - in: query
         name: state
-        description: ''
+        description: 'A check state to filter checks by.'
         schema:
           title: ''
           type: string
+          enum:
+            - pending
+            - success
+            - warning
+            - fail
       - in: query
         name: context
-        description: ''
+        description: 'A check context to filter checks by.'
         schema:
           title: ''
           type: string
@@ -559,11 +570,11 @@ paths:
       parameters:
       - in: path
         name: patch_id
-        description: ''
+        description: 'A unique integer value identifying the parent patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: Patch ID
+          type: integer
       requestBody:
         $ref: '#/components/requestBodies/Check'
       responses:
@@ -600,18 +611,18 @@ paths:
       parameters:
       - in: path
         name: patch_id
-        description: ''
+        description: 'A unique integer value identifying the parent patch.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: Patch ID
+          type: integer
       - in: path
         name: check_id
-        description: ''
+        description: 'A unique integer value identifying this check.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: Check ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -669,11 +680,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this person.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -725,11 +736,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this project.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -754,11 +765,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this project.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -797,11 +808,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this project.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -844,13 +855,13 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: submitter
-        description: ''
+        description: 'An ID or email address of a person to filter series by.'
         schema:
           title: ''
           type: string
       - in: query
         name: project
-        description: ''
+        description: 'An ID or linkname of a project to filter series by.'
         schema:
           title: ''
           type: string
@@ -875,11 +886,11 @@ paths:
       parameters:
       - in: path
         name: id
-        description: ''
+        description: 'A unique integer value identifying this series.'
         required: true
         schema:
-          title: ''
-          type: string
+          title: ID
+          type: integer
       responses:
         '200':
           description: ''
@@ -937,7 +948,7 @@ paths:
       parameters:
       - in: path
         name: id
-        description: A unique integer value identifying this user.
+        description: 'A unique integer value identifying this user.'
         required: true
         schema:
           title: ID
@@ -972,7 +983,7 @@ paths:
       parameters:
       - in: path
         name: id
-        description: A unique integer value identifying this user.
+        description: 'A unique integer value identifying this user.'
         required: true
         schema:
           title: ID
@@ -1015,7 +1026,7 @@ paths:
       parameters:
       - in: path
         name: id
-        description: A unique integer value identifying this user.
+        description: 'A unique integer value identifying this user.'
         required: true
         schema:
           title: ID
@@ -1061,42 +1072,42 @@ components:
     Page:
       in: query
       name: page
-      description: A page number within the paginated result set.
+      description: 'A page number within the paginated result set.'
       schema:
         title: Page
         type: integer
     PageSize:
       in: query
       name: per_page
-      description: Number of results to return per page.
+      description: 'Number of results to return per page.'
       schema:
         title: Page size
         type: integer
     Order:
       in: query
       name: order
-      description: Which field to use when ordering the results.
+      description: 'Which field to use when ordering the results.'
       schema:
         title: Ordering
         type: string
     Search:
       in: query
       name: q
-      description: A search term.
+      description: 'A search term.'
       schema:
         title: Search
         type: string
     BeforeFilter:
       in: query
       name: before
-      description: ''
+      description: 'Latest date-time to retrieve results for.'
       schema:
         title: ''
         type: string
     SinceFilter:
       in: query
       name: since
-      description: ''
+      description: 'Earliest date-time to retrieve results for.'
       schema:
         title: ''
         type: string
