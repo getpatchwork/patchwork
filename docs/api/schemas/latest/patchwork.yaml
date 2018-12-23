@@ -38,20 +38,20 @@ paths:
       - $ref: '#/components/parameters/Search'
       - in: query
         name: project
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: owner
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: public
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -76,8 +76,8 @@ paths:
       - in: path
         name: id
         required: true
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -108,20 +108,20 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: series
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: submitter
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -145,9 +145,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -172,9 +172,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       - $ref: '#/components/parameters/Page'
@@ -214,14 +214,14 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: category
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
           enum:
@@ -235,20 +235,20 @@ paths:
             - series-completed
       - in: query
         name: series
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: patch
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: cover
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -297,38 +297,38 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: project
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: series
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: submitter
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: delegate
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: state
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: archived
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -352,13 +352,11 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
-      tags:
-      - patches
       responses:
         '200':
           description: ''
@@ -372,6 +370,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+      - patches
     patch:
       description: Update a patch (partial).
       operationId: patches_partial_update
@@ -381,9 +381,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       requestBody:
@@ -424,9 +424,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       requestBody:
@@ -465,9 +465,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       - $ref: '#/components/parameters/Page'
@@ -501,9 +501,9 @@ paths:
       parameters:
       - in: path
         name: patch_id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       - $ref: '#/components/parameters/Page'
@@ -514,20 +514,20 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: user
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: state
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: context
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -559,9 +559,9 @@ paths:
       parameters:
       - in: path
         name: patch_id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       requestBody:
@@ -600,16 +600,16 @@ paths:
       parameters:
       - in: path
         name: patch_id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       - in: path
         name: check_id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -669,9 +669,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -725,9 +725,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -754,9 +754,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       requestBody:
@@ -797,9 +797,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       requestBody:
@@ -844,14 +844,14 @@ paths:
       - $ref: '#/components/parameters/SinceFilter'
       - in: query
         name: submitter
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       - in: query
         name: project
+        description: ''
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -875,9 +875,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: ''
         required: true
         schema:
-          description: ''
           title: ''
           type: string
       responses:
@@ -937,9 +937,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: A unique integer value identifying this user.
         required: true
         schema:
-          description: A unique integer value identifying this user.
           title: ID
           type: integer
       responses:
@@ -972,9 +972,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: A unique integer value identifying this user.
         required: true
         schema:
-          description: A unique integer value identifying this user.
           title: ID
           type: integer
       requestBody:
@@ -1015,9 +1015,9 @@ paths:
       parameters:
       - in: path
         name: id
+        description: A unique integer value identifying this user.
         required: true
         schema:
-          description: A unique integer value identifying this user.
           title: ID
           type: integer
       requestBody:
@@ -1061,43 +1061,43 @@ components:
     Page:
       in: query
       name: page
+      description: A page number within the paginated result set.
       schema:
-        description: A page number within the paginated result set.
         title: Page
         type: integer
     PageSize:
       in: query
       name: per_page
+      description: Number of results to return per page.
       schema:
-        description: Number of results to return per page.
         title: Page size
         type: integer
     Order:
       in: query
       name: order
+      description: Which field to use when ordering the results.
       schema:
-        description: Which field to use when ordering the results.
         title: Ordering
         type: string
     Search:
       in: query
       name: q
+      description: A search term.
       schema:
-        description: A search term.
         title: Search
         type: string
     BeforeFilter:
       in: query
       name: before
+      description: ''
       schema:
-        description: ''
         title: ''
         type: string
     SinceFilter:
       in: query
       name: since
+      description: ''
       schema:
-        description: ''
         title: ''
         type: string
   headers:
