@@ -30,6 +30,7 @@ def generate_schema():
         with open(os.path.join(version_dir, 'patchwork.yaml'), 'wb') as fh:
             template.stream(version=version, version_str=version_str,
                             version_url=version_url).dump(fh, encoding='utf-8')
+            fh.write('\n')
 
 
 if __name__ == '__main__':
