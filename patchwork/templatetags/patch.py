@@ -36,9 +36,29 @@ def patch_checks(patch):
     titles = ['Success', 'Warning', 'Fail']
     counts = patch.check_count
 
+    check_elements = []
+    use_color = True
+    for state in required[::-1]:
+        if counts[state]:
+            if use_color:
+                use_color = False
+                color = dict(Check.STATE_CHOICES).get(state)
+            else:
+                color = ''
+            count = str(counts[state])
+        else:
+            color = ''
+            count = '-'
+
+        check_elements.append(
+            '<span class="patchlistchecks {}">{}</span>'.format(
+                color, count))
+
+    check_elements.reverse()
+
     return mark_safe('<span title="%s">%s</span>' % (
         ' / '.join(titles),
-        ' '.join([str(counts[state]) for state in required])))
+        ''.join(check_elements)))
 
 
 @register.filter

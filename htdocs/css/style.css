@@ -236,6 +236,26 @@ table.patchmeta tr th, table.patchmeta tr td {
 	text-decoration: underline;
 }
 
+.patchlistchecks {
+	display: inline-block;
+	border-radius: 7px;
+	min-width: 0.9em;
+	padding: 0 2px;
+	text-align: center;
+}
+
+.patchlistchecks.success {
+	background-color: #82ca9d;
+}
+
+.patchlistchecks.warning {
+	background-color: #ffc95e;
+}
+
+.patchlistchecks.fail {
+	background-color: #ff5555;
+}
+
 .checks .state {
 	font-weight: bold;
 	color: #ddd;
