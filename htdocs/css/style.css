@@ -92,7 +92,7 @@ dl dt {
     border: 1px solid #cccccc;
     border-radius: 4px;
     padding: 5px 20px;
-    margin: 15px 0;
+    margin: 0 0 15px 0;
 }
 
 a.filter-action {
@@ -454,7 +454,7 @@ table.vertical {
 .table-extra-condensed > thead > tr > td,
 .table-extra-condensed > tbody > tr > td,
 .table-extra-condensed > tfoot > tr > td {
-	padding: 2px;
+	padding: 1px 0.5em 1px 0.5em;
 	vertical-align: middle;
 }
 
