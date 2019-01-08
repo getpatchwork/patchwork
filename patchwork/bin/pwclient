@@ -275,6 +275,12 @@ def action_states(rpc):
 
 def action_info(rpc, patch_id):
     patch = rpc.patch_get(patch_id)
+
+    if patch == {}:
+        sys.stderr.write("Error getting information on patch ID %d\n" %
+                         patch_id)
+        sys.exit(1)
+
     s = "Information for patch id %d" % (patch_id)
     print(s)
     print('-' * len(s))
