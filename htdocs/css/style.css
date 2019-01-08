@@ -95,6 +95,10 @@ dl dt {
     margin: 0 0 15px 0;
 }
 
+.filters .checkbox-inline input {
+	margin-right: 6px;
+}
+
 a.filter-action {
     color: black;
 }
