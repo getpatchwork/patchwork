@@ -198,7 +198,7 @@ authentication) or with a token (token authentication). The latter is
 recommended.
 
 To authenticate with token authentication, you must first obtain a token. This
-can be done from your profile, e.g. https://patchwork.example.com/profile.
+can be done from your profile, e.g. https://patchwork.example.com/user.
 Once you have a token, run:
 
 .. code-block:: shell
