@@ -583,6 +583,11 @@ class PatchParseTest(PatchTest):
         self.assertEqual(diff.count("\nrename to "), 2)
         self.assertEqual(diff.count('\n-a\n+b'), 1)
 
+    def test_git_new_empty_file(self):
+        diff, message = self._find_content('0021-git-empty-new-file.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+
     def test_cvs_format(self):
         diff, message = self._find_content('0007-cvs-format-diff.mbox')
         self.assertTrue(diff.startswith('Index'))

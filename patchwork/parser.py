@@ -742,7 +742,7 @@ def parse_patch(content):
     # 3: patch header line 2 (+++)
     # 4: patch hunk header line (@@ line)
     # 5: patch hunk content
-    # 6: patch meta header (rename from/rename to)
+    # 6: patch meta header (rename from/rename to/new file/index)
     #
     # valid transitions:
     #  0 -> 1 (diff, Index:)
@@ -752,7 +752,7 @@ def parse_patch(content):
     #  3 -> 4 (@@ line)
     #  4 -> 5 (patch content)
     #  5 -> 1 (run out of lines from @@-specifed count)
-    #  1 -> 6 (rename from / rename to)
+    #  1 -> 6 (rename from / rename to / new file / index)
     #  6 -> 2 (---)
     #  6 -> 1 (other text)
     #
@@ -782,7 +782,8 @@ def parse_patch(content):
             if line.startswith('--- '):
                 state = 2
 
-            if line.startswith(('rename from ', 'rename to ')):
+            if line.startswith(('rename from ', 'rename to ',
+                                'new file mode ', 'index ')):
                 state = 6
         elif state == 2:
             if line.startswith('+++ '):
@@ -843,7 +844,8 @@ def parse_patch(content):
             else:
                 state = 5
         elif state == 6:
-            if line.startswith(('rename to ', 'rename from ')):
+            if line.startswith(('rename to ', 'rename from ',
+                                'new file mode ', 'index ')):
                 patchbuf += buf + line
                 buf = ''
             elif line.startswith('--- '):
