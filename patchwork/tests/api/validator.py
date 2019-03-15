@@ -226,7 +226,7 @@ def _load_spec(version):
                              'patchwork.yaml')
 
     with open(spec_path, 'r') as fh:
-        data = yaml.load(fh)
+        data = yaml.load(fh, Loader=yaml.SafeLoader)
 
     _LOADED_SPECS[version] = openapi_core.create_spec(data)
 
