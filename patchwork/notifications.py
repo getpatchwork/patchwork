@@ -96,7 +96,8 @@ def expire_notifications():
     EmailConfirmation.objects.filter(q).delete()
 
     # remove inactive users with no pending confirmation
-    pending_confs = EmailConfirmation.objects.values('user')
+    pending_confs = (EmailConfirmation.objects
+                     .filter(user__isnull=False).values('user'))
     users = User.objects.filter(is_active=False).exclude(id__in=pending_confs)
 
     # delete users
