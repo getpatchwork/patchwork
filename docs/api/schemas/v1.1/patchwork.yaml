@@ -1316,6 +1316,8 @@ components:
           nullable: true
     CheckCreate:
       type: object
+      required:
+       - state
       properties:
         state:
           title: State

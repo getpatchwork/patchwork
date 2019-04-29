@@ -151,6 +151,23 @@ class TestCheckAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())
 
+    @utils.store_samples('check-create-error-missing-state')
+    def test_create_missing_state(self):
+        """Create a check using invalid values.
+
+        Ensure we handle the state being absent.
+        """
+        check = {
+            'target_url': 'http://t.co',
+            'description': 'description',
+            'context': 'context',
+        }
+
+        self.client.force_authenticate(user=self.user)
+        resp = self.client.post(self.api_url(), check)
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+        self.assertEqual(0, Check.objects.all().count())
+
     @utils.store_samples('check-create-error-not-found')
     def test_create_invalid_patch(self):
         """Ensure we handle non-existent patches."""
