@@ -1,6 +1,6 @@
 Django==2.1.7; python_version >= '3.4'
 Django==1.11.20; python_version < '3.0'  # pyup: ignore
-djangorestframework==3.9.2
+djangorestframework==3.9.3
 django-filter==2.1.0; python_version >= '3.4'
 django-filter==1.1.0; python_version < '3.0'  # pyup: ignore
 psycopg2-binary==2.8.2
