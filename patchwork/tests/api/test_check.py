@@ -18,6 +18,10 @@ from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
     from rest_framework import status
+    from rest_framework.test import APITestCase as BaseAPITestCase
+else:
+    # stub out APITestCase
+    from django.test import TestCase as BaseAPITestCase
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -174,3 +178,66 @@ class TestCheckAPI(utils.APITestCase):
 
         resp = self.client.delete(self.api_url(check))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+
+@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+class TestCheckAPIMultipart(BaseAPITestCase):
+    """Test a minimal subset of functionality where the data is passed as
+    multipart form data rather than as a JSON blob.
+
+    We focus on the POST path exclusively and only on state validation:
+    everything else should be handled in the JSON tests.
+
+    This is required due to the difference in handling JSON vs form-data in
+    CheckSerializer's run_validation().
+    """
+    fixtures = ['default_tags']
+
+    def setUp(self):
+        super(TestCheckAPIMultipart, self).setUp()
+        project = create_project()
+        self.user = create_maintainer(project)
+        self.patch = create_patch(project=project)
+
+    def assertSerialized(self, check_obj, check_json):
+        self.assertEqual(check_obj.id, check_json['id'])
+        self.assertEqual(check_obj.get_state_display(), check_json['state'])
+        self.assertEqual(check_obj.target_url, check_json['target_url'])
+        self.assertEqual(check_obj.context, check_json['context'])
+        self.assertEqual(check_obj.description, check_json['description'])
+        self.assertEqual(check_obj.user.id, check_json['user']['id'])
+
+    def _test_create(self, user, state='success'):
+        check = {
+            'target_url': 'http://t.co',
+            'description': 'description',
+            'context': 'context',
+        }
+        if state is not None:
+            check['state'] = state
+
+        self.client.force_authenticate(user=user)
+        return self.client.post(
+            reverse('api-check-list', args=[self.patch.id]),
+            check)
+
+    def test_creates(self):
+        """Create a set of checks.
+        """
+        resp = self._test_create(user=self.user)
+        self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
+        self.assertEqual(1, Check.objects.all().count())
+        self.assertSerialized(Check.objects.last(), resp.data)
+
+        resp = self._test_create(user=self.user, state='pending')
+        self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
+        self.assertEqual(2, Check.objects.all().count())
+        self.assertSerialized(Check.objects.last(), resp.data)
+
+        # you can also use the numeric ID of the state, the API explorer does
+        resp = self._test_create(user=self.user, state=2)
+        self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
+        self.assertEqual(3, Check.objects.all().count())
+        # we check against the string version
+        resp.data['state'] = 'warning'
+        self.assertSerialized(Check.objects.last(), resp.data)
