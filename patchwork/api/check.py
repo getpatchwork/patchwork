@@ -26,6 +26,7 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import CurrentUserDefault
 from rest_framework.serializers import HiddenField
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ValidationError
 
 from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
@@ -50,6 +51,9 @@ class CheckSerializer(HyperlinkedModelSerializer):
     user = UserSerializer(default=CurrentUserDefault())
 
     def run_validation(self, data):
+        if 'state' not in data or data['state'] == '':
+            raise ValidationError({'state': ["A check must have a state."]})
+
         for val, label in Check.STATE_CHOICES:
             if label != data['state']:
                 continue
