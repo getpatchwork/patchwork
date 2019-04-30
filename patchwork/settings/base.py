@@ -220,6 +220,7 @@ ENABLE_XMLRPC = False
 ENABLE_REST_API = True
 
 REST_RESULTS_PER_PAGE = 30
+MAX_REST_RESULTS_PER_PAGE = 250
 
 # Set to True to enable redirections or URLs from previous versions
 # of patchwork
