@@ -50,7 +50,12 @@ class CheckSerializer(HyperlinkedModelSerializer):
 
     def run_validation(self, data):
         for val, label in Check.STATE_CHOICES:
-            if label == data['state']:
+            if label != data['state']:
+                continue
+
+            if isinstance(data, dict):  # json request
+                data['state'] = val
+            else:  # form-data request
                 # NOTE(stephenfin): 'data' is essentially 'request.POST', which
                 # is immutable by default. However, there's no good reason for
                 # this to be this way [1], so temporarily unset that mutability
@@ -61,7 +66,8 @@ class CheckSerializer(HyperlinkedModelSerializer):
                 data._mutable = True  # noqa
                 data['state'] = val
                 data._mutable = mutable  # noqa
-                break
+
+            break
         return super(CheckSerializer, self).run_validation(data)
 
     def to_representation(self, instance):
