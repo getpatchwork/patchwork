@@ -67,6 +67,7 @@ class TestCheckAPI(APITestCase):
         self.assertEqual(check_obj.target_url, check_json['target_url'])
         self.assertEqual(check_obj.context, check_json['context'])
         self.assertEqual(check_obj.description, check_json['description'])
+        self.assertEqual(check_obj.user.id, check_json['user']['id'])
 
     def test_list(self):
         """Validate we can list checks on a patch."""

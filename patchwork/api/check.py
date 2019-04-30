@@ -46,7 +46,7 @@ class CheckSerializer(HyperlinkedModelSerializer):
 
     url = CheckHyperlinkedIdentityField('api-check-detail')
     patch = HiddenField(default=CurrentPatchDefault())
-    user = UserSerializer(read_only=True, default=CurrentUserDefault())
+    user = UserSerializer(default=CurrentUserDefault())
 
     def run_validation(self, data):
         for val, label in Check.STATE_CHOICES:
