@@ -19,6 +19,7 @@
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.http.request import QueryDict
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveAPIView
@@ -53,9 +54,7 @@ class CheckSerializer(HyperlinkedModelSerializer):
             if label != data['state']:
                 continue
 
-            if isinstance(data, dict):  # json request
-                data['state'] = val
-            else:  # form-data request
+            if isinstance(data, QueryDict):  # form-data request
                 # NOTE(stephenfin): 'data' is essentially 'request.POST', which
                 # is immutable by default. However, there's no good reason for
                 # this to be this way [1], so temporarily unset that mutability
@@ -66,6 +65,8 @@ class CheckSerializer(HyperlinkedModelSerializer):
                 data._mutable = True  # noqa
                 data['state'] = val
                 data._mutable = mutable  # noqa
+            else:  # json request
+                data['state'] = val
 
             break
         return super(CheckSerializer, self).run_validation(data)
