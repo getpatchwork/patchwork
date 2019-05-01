@@ -15,11 +15,21 @@ ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
+
 # System
 # trusty and findutils is for python3.4; xenial is for python3.5
 # TODO(stephenfin): Are curl, unzip required?
-COPY tools/docker/trusty.list /etc/apt/sources.list.d/trusty.list
-COPY tools/docker/xenial.list /etc/apt/sources.list.d/xenial.list
+COPY tools/docker/*.list /etc/apt/sources.list.d/
+
+RUN cd /etc/apt/sources.list.d; \
+    echo $(uname -m) > /tmp/arch; \
+    if [ $(cat /tmp/arch) != 'x86_64' ] && grep -q -v "i.86" /tmp/arch; then \
+        mv trusty-ports.list trusty.list; \
+        mv xenial-ports.list xenial.list; \
+    else \
+        rm *-ports.list; \
+    fi
+
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends --allow-downgrades \
     python-dev python-pip python-setuptools python-wheel \

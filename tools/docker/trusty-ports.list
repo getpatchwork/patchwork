@@ -1,0 +1,3 @@
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty main
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty-security main

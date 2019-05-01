@@ -1,0 +1,3 @@
+deb http://ports.ubuntu.com/ubuntu-ports/ xenial main
+deb http://ports.ubuntu.com/ubuntu-ports/ xenial-updates main
+deb http://ports.ubuntu.com/ubuntu-ports/ xenial-security main
