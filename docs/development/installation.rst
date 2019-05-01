@@ -37,6 +37,10 @@ configure Patchwork using Docker:
 
       $ docker-compose build
 
+   To use Postgres instead of MySQL, give the ``-f docker-compose-pg.yml``
+   argument to ``docker-compose``.  This is required on non-x86 architectures
+   as the MySQL Docker images do not have multiarch support.
+
 #. Run ``docker-compose up``:
 
    .. code-block:: shell
