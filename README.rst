@@ -61,11 +61,16 @@ environment. To install Patchwork:
 
        $ git clone https://github.com/getpatchwork/patchwork.git
 
-3. Build the images. This will download over 200MB from the internet::
+3. Create a ``.env`` file in the root directory of the project and store your
+   ``UID`` attribute there::
+
+       $ cd patchwork && echo "UID=$UID" > .env
+
+4. Build the images. This will download over 200MB from the internet::
 
        $ docker-compose build
 
-4. Run `docker-compose up`::
+5. Run `docker-compose up`::
 
        $ docker-compose up
 
