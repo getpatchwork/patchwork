@@ -760,7 +760,7 @@ def parse_patch(content):
     #  3 -> 4 (@@ line)
     #  4 -> 5 (patch content)
     #  5 -> 1 (run out of lines from @@-specifed count)
-    #  1 -> 6 (rename from / rename to / new file / index)
+    #  1 -> 6 (extended header lines)
     #  6 -> 2 (---)
     #  6 -> 1 (other text)
     #
@@ -790,7 +790,15 @@ def parse_patch(content):
             if line.startswith('--- '):
                 state = 2
 
-            if line.startswith(('rename from ', 'rename to ',
+            # extended header lines
+            # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
+            if line.startswith(('old mode ', 'new mode ',
+                                'deleted file mode ',
+                                'new file mode ',
+                                'copy from ', 'copy to ',
+                                'rename from ', 'rename to ',
+                                'similarity index ',
+                                'dissimilarity index ',
                                 'new file mode ', 'index ')):
                 state = 6
         elif state == 2:
