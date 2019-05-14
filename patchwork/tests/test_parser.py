@@ -852,7 +852,7 @@ class SubjectTest(TestCase):
         self.assertEqual(clean_subject("[PATCH] meep \n meep"),
                          ('meep meep', []))
         self.assertEqual(clean_subject("[PATCH] meep,\n meep"),
-                         ('meep,meep', []))
+                         ('meep, meep', []))
         self.assertEqual(clean_subject('[PATCH RFC] meep'),
                          ('[RFC] meep', ['RFC']))
         self.assertEqual(clean_subject('[PATCH,RFC] meep'),
