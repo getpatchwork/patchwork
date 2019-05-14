@@ -47,7 +47,6 @@ class DuplicateMailError(Exception):
 
 
 def normalise_space(value):
-    value = ''.join(re.split(r'\n\s+', value))
     whitespace_re = re.compile(r'\s+')
     return whitespace_re.sub(' ', value).strip()
 

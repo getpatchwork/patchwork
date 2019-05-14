@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    `#197`__ was the result of a issue with OzLabs instance and not Patchwork
+    itself, and the fix included actually ended up corrupting subjects for
+    everyone. It has now been reverted.
+
+    __ https://github.com/getpatchwork/patchwork/issues/197
