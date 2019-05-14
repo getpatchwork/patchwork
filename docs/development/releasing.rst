@@ -115,3 +115,30 @@ when committing::
 
 When enough patches have been backported, you should release a new **PATCH**
 release.
+
+Backport criteria
+~~~~~~~~~~~~~~~~~
+
+We consider bug fixes and security updates to the Patchwork code itself valid
+for backporting, along with fixes to documentation and developer tooling. We do
+not, however, consider the following backportable:
+
+Features
+  Backporting features is complicated and introduces instability in what is
+  supposed to be stable release. If new features are required, users should
+  update their Patchwork version.
+
+API changes
+  Except for bug fixes that resolve 5xx-class errors or fix security issues.
+  This also applies to API versions.
+
+Requirement changes
+  Requirements on a stable branch are provided as a "snapshot in time" and, as
+  with features, should not change so as to prevent instability being introduced
+  in a stable branch. In addition, stable requirements are not a mechanism to
+  alert users to security vulnerabilities and should not be considered as such.
+  Users of stable branches should either rely on distro-provided dependencies,
+  which generally maintain a snapshot-in-time fork of packages and selectively
+  backport fixes to them, or manage dependencies manually. In cases, where using
+  a distro-provided package necessitates minor changes to the Patchwork code,
+  these can be discussed on a case-by-case basis.
