@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    In the past, Patchwork used to support filtering patches that weren't
+    delegated to anyone. This feature was removed in v1.1.0, as part of a patch
+    designed to support delegation to anyone. However, that feature didn't scale
+    and was later removed. The ability to delegate to anyone is now itself
+    re-introduced.
