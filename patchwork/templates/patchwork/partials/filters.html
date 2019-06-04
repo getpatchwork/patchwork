@@ -76,44 +76,6 @@ $(document).ready(function() {
             });
         }
     });
-
-    $('#delegate_input').selectize({
-        plugins: ['enter_key_submit'],
-        maxItems: 1,
-        persist: false,
-        onInitialize: function() {
-            this.on('submit', function() {
-                if (!this.items.length)
-                    this.$input.val(this.lastValue);
-                this.$input.closest('form').submit();
-            }, this);
-        },
-{% if "delegate" in filters.applied_filters %}
-{% with delegate_filter=filters.applied_filters.delegate %}
-        options: [
-            {
-                value: "{{ delegate_filter.key }}",
-                text: "{{ delegate_filter.condition }}",
-            },
-        ],
-        items: ["{{ delegate_filter.key }}"],
-{% endwith %}
-{% endif %}
-        load: function(query, callback) {
-            req = $.ajax({
-                url: "{% url 'api-delegates' %}",
-                data: {q: query, l: 10},
-                error: function() {
-                    callback();
-                },
-                success: function(res) {
-                    callback($.map(res, function (obj) {
-                        return {value: obj.pk, text: obj.name};
-                    }));
-                }
-            });
-        }
-    });
 });
 </script>
 

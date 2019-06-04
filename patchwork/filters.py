@@ -385,6 +385,7 @@ class ArchiveFilter(Filter):
 class DelegateFilter(Filter):
     name = 'Delegate'
     param = 'delegate'
+    no_delegate_str = 'Nobody'
     ANY_DELEGATE = object()
 
     def __init__(self, filters):
@@ -416,6 +417,11 @@ class DelegateFilter(Filter):
         if not key:
             return
 
+        if key == self.no_delegate_str:
+            self.delegate_match = key
+            self.applied = True
+            return
+
         try:
             self.delegate = User.objects.get(id=int(key))
         except (ValueError, User.DoesNotExist):
@@ -436,6 +442,9 @@ class DelegateFilter(Filter):
         if self.delegate:
             return {'delegate': self.delegate}
 
+        if self.delegate_match == self.no_delegate_str:
+            return {'delegate__username__isnull': True}
+
         if self.delegate_match:
             return {'delegate__username__icontains': self.delegate_match}
 
@@ -447,8 +456,31 @@ class DelegateFilter(Filter):
             return mark_safe('<input type="hidden" value="%s">%s' % (
                 self.param, self.condition))
 
-        return mark_safe('<input type="text" name="delegate" '
-                         'id="delegate_input" class="form-control">')
+        delegates = User.objects.filter(
+            profile__maintainer_projects__isnull=False)
+
+        out = '<select name="delegate" class="form-control">'
+
+        selected = ''
+        if not self.applied:
+            selected = 'selected'
+        out += '<option %s value="">------</option>' % selected
+
+        selected = ''
+        if self.applied and self.delegate is None:
+            selected = 'selected'
+        out += '<option %s value="%s">%s</option>' % (
+            selected, self.no_delegate_str, self.no_delegate_str)
+
+        for delegate in delegates:
+            selected = ''
+            if delegate == self.delegate:
+                selected = ' selected'
+
+            out += '<option %s value="%s">%s</option>' % (
+                selected, delegate.id, delegate.username)
+        out += '</select>'
+        return mark_safe(out)
 
     def set_status(self, *args, **kwargs):
         if 'delegate' in kwargs:
