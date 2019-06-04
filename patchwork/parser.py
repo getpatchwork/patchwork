@@ -851,7 +851,15 @@ def parse_patch(content):
             else:
                 state = 5
         elif state == 6:
-            if line.startswith(('rename to ', 'rename from ',
+            # extended header lines
+            # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
+            if line.startswith(('old mode ', 'new mode ',
+                                'deleted file mode ',
+                                'new file mode ',
+                                'copy from ', 'copy to ',
+                                'rename from ', 'rename to ',
+                                'similarity index ',
+                                'dissimilarity index ',
                                 'new file mode ', 'index ')):
                 patchbuf += buf + line
                 buf = ''
