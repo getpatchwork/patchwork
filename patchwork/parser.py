@@ -37,6 +37,15 @@ list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
 SERIES_DELAY_INTERVAL = 10
 
+# @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
+EXTENDED_HEADER_LINES = (
+    'old mode ', 'new mode ',
+    'deleted file mode ', 'new file mode ',
+    'copy from ', 'copy to ',
+    'rename from ', 'rename to ',
+    'similarity index ', 'dissimilarity index ',
+    'new file mode ', 'index ')
+
 logger = logging.getLogger(__name__)
 
 
@@ -780,17 +789,7 @@ def parse_patch(content):
             buf += line
             if line.startswith('--- '):
                 state = 2
-
-            # extended header lines
-            # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
-            if line.startswith(('old mode ', 'new mode ',
-                                'deleted file mode ',
-                                'new file mode ',
-                                'copy from ', 'copy to ',
-                                'rename from ', 'rename to ',
-                                'similarity index ',
-                                'dissimilarity index ',
-                                'new file mode ', 'index ')):
+            if line.startswith(EXTENDED_HEADER_LINES):
                 state = 6
         elif state == 2:
             if line.startswith('+++ '):
@@ -851,16 +850,7 @@ def parse_patch(content):
             else:
                 state = 5
         elif state == 6:
-            # extended header lines
-            # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
-            if line.startswith(('old mode ', 'new mode ',
-                                'deleted file mode ',
-                                'new file mode ',
-                                'copy from ', 'copy to ',
-                                'rename from ', 'rename to ',
-                                'similarity index ',
-                                'dissimilarity index ',
-                                'new file mode ', 'index ')):
+            if line.startswith(EXTENDED_HEADER_LINES):
                 patchbuf += buf + line
                 buf = ''
             elif line.startswith('--- '):
