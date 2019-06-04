@@ -1,0 +1,23 @@
+From linux-kbuild  Sun Apr 07 23:09:09 2019
+From: Petr Vorel <pvorel@suse.cz>
+Date: Sun, 07 Apr 2019 23:09:09 +0000
+To: linux-kbuild
+Subject: [PATCH 1/1] kconfig: Make nconf-cfg.sh executable
+Message-Id: <20190407230909.20668-1-pvorel@suse.cz>
+X-MARC-Message: https://marc.info/?l=linux-kbuild&m=155467856208923
+
+Although it's not required for the build *conf-cfg.sh scripts to be
+executable (they're run by CONFIG_SHELL), let's be consistent with other
+scripts.
+
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+---
+ scripts/kconfig/nconf-cfg.sh | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 scripts/kconfig/nconf-cfg.sh
+
+diff --git a/scripts/kconfig/nconf-cfg.sh b/scripts/kconfig/nconf-cfg.sh
+old mode 100644
+new mode 100755
+-- 
+2.20.1

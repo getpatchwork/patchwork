@@ -602,6 +602,11 @@ class PatchParseTest(PatchTest):
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
 
+    def test_git_mode_change(self):
+        diff, message = self._find_content('0022-git-mode-change.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+
     def test_cvs_format(self):
         diff, message = self._find_content('0007-cvs-format-diff.mbox')
         self.assertTrue(diff.startswith('Index'))
