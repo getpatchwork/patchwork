@@ -67,8 +67,7 @@ The follow steps apply to all releases:
 
 * Documentation references latest supported version of Django
 
-* 'alpha' tag has been removed from ``__version__`` in
-  ``patchwork/__init__.py``
+* 'alpha' tag has been removed from the version in in ``version.txt``
 
 * Commit has been tagged with an `annotated tag`__. The tag should take the
   form `v[MAJOR].[MINOR].[PATCH]`, e.g. `v2.0.1`. The message should read::
@@ -88,7 +87,7 @@ The following only apply to full releases, or those where the **MAJOR** or
 * A new branch called ``stable/MAJOR.MINOR`` has been created from the tagged
   commit
 
-Once released, bump the version found in ``patchwork/__init__.py`` once again.
+Once released, bump the version found in ``version.txt`` once again.
 
 __ https://git-scm.com/book/en/v2/Git-Basics-Tagging
 __ https://github.com/getpatchwork/patchwork/releases/new

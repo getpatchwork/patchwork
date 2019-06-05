@@ -10,21 +10,21 @@ import os
 ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 
 
-def get_latest_version(version):
+def get_latest_version():
     """Returns the most recent version available.
 
     This is either the hard-coded version or, if using Git, the version
     per the most recent Git tag.
     """
-    git_version = format_git_version(get_raw_git_version())
-    str_version = format_version(version)
+    git_version = format_git_version(get_git_version())
+    str_version = format_str_version(get_str_version())
 
     return git_version or str_version
 
 
-def format_version(version):
+def format_str_version(version):
     """Format version tuple."""
-    return '.'.join(
+    return 'v' + '.'.join(
         [
             '.'.join([str(x) for x in version[:3]]),
             '-'.join([str(x) for x in version[3:]]),
@@ -41,7 +41,15 @@ def format_git_version(version):
         return version
 
 
-def get_raw_git_version():
+def get_str_version():
+    """Retrieve the version from version.txt."""
+    with open(os.path.join(ROOT_DIR, 'version.txt')) as fh:
+        version = fh.readline().strip()
+
+    return version.split('.')
+
+
+def get_git_version():
     """Returns the raw git version via 'git-describe'."""
     try:
         git_version = subprocess.check_output(

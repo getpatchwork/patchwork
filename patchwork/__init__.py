@@ -3,8 +3,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+from patchwork.version import get_str_version
 from patchwork.version import get_latest_version
 
-VERSION = (3, 2, 0, 'alpha', 0)
+VERSION = get_str_version()
 
-__version__ = get_latest_version(VERSION)
+__version__ = get_latest_version()
