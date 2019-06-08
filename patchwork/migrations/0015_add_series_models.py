@@ -62,6 +62,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='seriespatch',
-            unique_together=set([('series', 'number'), ('series', 'patch')]),
+            unique_together=set([('series', 'patch'), ('series', 'number')]),
         ),
     ]
