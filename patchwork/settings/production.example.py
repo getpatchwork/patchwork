@@ -42,7 +42,8 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 NOTIFICATION_FROM_EMAIL = DEFAULT_FROM_EMAIL
 
 ADMINS = (
-    ('Jeremy Kerr', 'jk@ozlabs.org'),
+    # Add administrator contact details in the form:
+    # ('Jeremy Kerr', 'jk@ozlabs.org'),
 )
 
 # Database

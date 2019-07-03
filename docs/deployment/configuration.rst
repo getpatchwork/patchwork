@@ -38,6 +38,19 @@ Patchwork-specific Settings
 Patchwork utilizes a number of Patchwork-only settings in addition to the
 `Django`__ and `Django REST Framework`__ settings.
 
+__ https://docs.djangoproject.com/en/1.8/ref/settings/
+__ http://www.django-rest-framework.org/api-guide/settings/
+
+``ADMINS_HIDE``
+~~~~~~~~~~~~~~~
+
+If True, the details in `ADMINS`__ will be hidden from the *About* page
+(``/about``).
+
+.. versionadded:: 2.2
+
+__ https://docs.djangoproject.com/en/2.2/ref/settings/#admins
+
 ``DEFAULT_ITEMS_PER_PAGE``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -112,5 +125,3 @@ Force use of ``https://`` links instead of guessing the scheme based on current
 access. This is useful if SSL protocol is terminated upstream of the server
 (e.g. at the load balancer)
 
-__ https://docs.djangoproject.com/en/1.8/ref/settings/
-__ http://www.django-rest-framework.org/api-guide/settings/

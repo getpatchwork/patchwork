@@ -16,6 +16,7 @@ def about(request):
             'rest': settings.ENABLE_REST_API,
             'xmlrpc': settings.ENABLE_XMLRPC,
         },
+        'admins': () if settings.ADMINS_HIDE else settings.ADMINS,
     }
 
     return render(request, 'patchwork/about.html', context)

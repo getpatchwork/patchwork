@@ -24,6 +24,9 @@ except ImportError:
 # https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
 #
 
+ADMINS = (
+    ('Joe Bloggs', 'jbloggs@example.com'),
+)
 
 ALLOWED_HOSTS = ['*']
 

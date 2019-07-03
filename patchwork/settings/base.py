@@ -227,3 +227,6 @@ COMPAT_REDIR = True
 # the scheme based on current access. This is useful if SSL protocol
 # is terminated upstream of the server (e.g. at the load balancer)
 FORCE_HTTPS_LINKS = False
+
+# Set to True to hide admin details from the about page (/about)
+ADMINS_HIDE = False
