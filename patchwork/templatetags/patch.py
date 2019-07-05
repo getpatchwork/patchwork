@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 
 from django import template
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
 
@@ -65,4 +66,4 @@ def state_class(state):
 @register.filter
 @stringfilter
 def msgid(value):
-    return mark_safe(value.strip('<>'))
+    return escape(value.strip('<>'))
