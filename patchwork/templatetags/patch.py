@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django import template
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
 
@@ -64,4 +65,4 @@ def patch_checks(patch):
 @register.filter
 @stringfilter
 def msgid(value):
-    return mark_safe(value.strip('<>'))
+    return escape(value.strip('<>'))

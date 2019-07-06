@@ -34,6 +34,23 @@ class PatchViewTest(TestCase):
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
 
+    def test_escaping(self):
+        # Warning: this test doesn't guarantee anything - it only tests some
+        # fields
+        unescaped_string = 'blah<b>TEST</b>blah'
+        patch = create_patch()
+        patch.diff = unescaped_string
+        patch.commit_ref = unescaped_string
+        patch.pull_url = unescaped_string
+        patch.name = unescaped_string
+        patch.msgid = unescaped_string
+        patch.headers = unescaped_string
+        patch.content = unescaped_string
+        patch.save()
+        requested_url = reverse('patch-detail', kwargs={'patch_id': patch.id})
+        response = self.client.get(requested_url)
+        self.assertNotIn('<b>TEST</b>'.encode('utf-8'), response.content)
+
 
 class CommentRedirectTest(TestCase):
 

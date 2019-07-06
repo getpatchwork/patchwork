@@ -26,6 +26,21 @@
     </ul>
   </div>
 
+  {% if admins %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Administrators</h3>
+    </div>
+    <ul class="list-group">
+      {% for admin in admins %}
+      <li class="list-group-item">
+        <a href="mailto:{{ admin.1 }}">{{ admin.0 }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   <div class="panel panel-default">
     <div class="panel-heading">
       <h3 class="panel-title">API Status</h3>
