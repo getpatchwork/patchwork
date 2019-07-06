@@ -67,6 +67,8 @@ EOF
     exit 1
 fi
 
+set +e
+
 # check if we need to rebuild because requirements changed
 for x in /tmp/requirements-*.txt; do
     if ! cmp $x ~/patchwork/$(basename $x); then
@@ -80,6 +82,8 @@ EOF
         diff -u $x ~/patchwork/$(basename $x)
     fi
 done
+
+set -e
 
 # check if db is connected
 if ! test_db_connection; then
