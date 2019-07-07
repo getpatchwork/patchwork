@@ -347,7 +347,9 @@ class EmailMixin(models.Model):
         # message content to '\r\n'. We need to fix them to avoid problems,
         # especially as git complains about malformed patches when PW runs
         # on PY2
-        self.content = self.content.replace('\r\n', '\n')
+        if self.content:
+            self.content = self.content.replace('\r\n', '\n')
+
         super(EmailMixin, self).save(*args, **kwargs)
 
     class Meta:
