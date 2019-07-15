@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Exporting patchwork projects as mbox files and optionally compressing them
+    is now possible with the ``./manage exportproject`` management command.

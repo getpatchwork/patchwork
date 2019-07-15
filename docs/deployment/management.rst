@@ -46,6 +46,28 @@ request them and is helpful to expire unused users created by spambots. For
 more information on integration of this script, refer to the :ref:`deployment
 installation guide <deployment-cron>`.
 
+dumparchive
+~~~~~~~~~~~
+
+.. program:: manage.py dumparchive
+
+Export Patchwork projects as tarball of mbox files.
+
+.. code-block:: shell
+
+   ./manage.py dumparchive [-c | --compress] [PROJECT [PROJECT...]]
+
+This is mostly useful for exporting the patch dataset of a Patchwork project
+for use with other programs.
+
+.. option:: -c, --compress
+
+   compress generated archive.
+
+.. option:: PROJECT
+
+   list ID of project(s) to export. Export all projects if none specified.
+
 parsearchive
 ~~~~~~~~~~~~
 
@@ -123,7 +145,7 @@ Update the tag (Ack/Review/Test) counts on existing patches.
 
 .. code-block:: shell
 
-  ./manage.py retag [<patch_id>...]
+   ./manage.py retag [<patch_id>...]
 
 Patchwork extracts :ref:`tags <overview-tags>` from each patch it receives. By
 default, three tags are extracted, but it's possible to change this on a
