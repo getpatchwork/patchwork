@@ -1,7 +1,7 @@
 Django==2.2.3; python_version >= '3.4'
 Django==1.11.22; python_version < '3.0'  # pyup: ignore
 djangorestframework==3.9.2
-django-filter==2.1.0; python_version >= '3.4'
+django-filter==2.2.0; python_version >= '3.4'
 django-filter==1.1.0; python_version < '3.0'  # pyup: ignore
 django-debug-toolbar==1.11
 django-dbbackup==3.2.0
