@@ -11,6 +11,7 @@ from django.test import TestCase
 from patchwork import models
 from patchwork import parser
 from patchwork.tests import utils
+from patchwork.views.utils import patch_to_mbox
 
 
 TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
@@ -266,6 +267,16 @@ class BaseSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
+
+    def test_multiple_content_types(self):
+        """Test what happens when a patch and comment have different
+        Content-Type headers."""
+
+        _, patches, _ = self._parse_mbox(
+            'bugs-multiple-content-types.mbox', [0, 1, 1])
+
+        patch = patches[0]
+        self.assertEqual(patch_to_mbox(patch).count('Content-Type:'), 1)
 
 
 class RevisedSeriesTest(_BaseTestCase):
