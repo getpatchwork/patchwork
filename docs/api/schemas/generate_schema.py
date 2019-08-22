@@ -5,8 +5,8 @@ import os
 import jinja2
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-VERSIONS = [(1, 0), (1, 1), None]
-LATEST_VERSION = (1, 1)
+VERSIONS = [(1, 0), (1, 1), (1, 2), None]
+LATEST_VERSION = (1, 2)
 
 
 def generate_schema():

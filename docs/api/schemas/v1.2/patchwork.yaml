@@ -14,7 +14,7 @@ info:
     url: https://www.gnu.org/licenses/gpl-2.0.html
   version: '1.2'
 paths:
-  /api/:
+  /api/1.2/:
     get:
       description: List API resources.
       operationId: api_list
@@ -28,7 +28,7 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
         - api
-  /api/bundles/:
+  /api/1.2/bundles/:
     get:
       description: List bundles.
       operationId: bundles_list
@@ -72,7 +72,7 @@ paths:
                   $ref: '#/components/schemas/Bundle'
       tags:
         - bundles
-  /api/bundles/{id}/:
+  /api/1.2/bundles/{id}/:
     get:
       description: Show a bundle.
       operationId: bundles_read
@@ -99,7 +99,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - bundles
-  /api/covers/:
+  /api/1.2/covers/:
     get:
       description: List cover letters.
       operationId: covers_list
@@ -144,7 +144,7 @@ paths:
                   $ref: '#/components/schemas/CoverLetterList'
       tags:
         - covers
-  /api/covers/{id}/:
+  /api/1.2/covers/{id}/:
     get:
       description: Show a cover letter.
       operationId: covers_read
@@ -171,7 +171,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - covers
-  /api/covers/{id}/comments/:
+  /api/1.2/covers/{id}/comments/:
     get:
       description: List comments
       operationId: cover_comments_list
@@ -208,7 +208,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/events/:
+  /api/1.2/events/:
     get:
       description: List events.
       operationId: events_list
@@ -295,7 +295,7 @@ paths:
                         '#/components/schemas/EventSeriesCompleted'
       tags:
         - events
-  /api/patches/:
+  /api/1.2/patches/:
     get:
       description: List patches.
       operationId: patches_list
@@ -361,7 +361,7 @@ paths:
                   $ref: '#/components/schemas/PatchList'
       tags:
         - patches
-  /api/patches/{id}/:
+  /api/1.2/patches/{id}/:
     get:
       description: Show a patch.
       operationId: patches_read
@@ -474,7 +474,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - patches
-  /api/patches/{id}/comments/:
+  /api/1.2/patches/{id}/comments/:
     get:
       description: List comments
       operationId: patch_comments_list
@@ -510,7 +510,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/patches/{patch_id}/checks/:
+  /api/1.2/patches/{patch_id}/checks/:
     get:
       description: List checks.
       operationId: checks_list
@@ -614,7 +614,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/patches/{patch_id}/checks/{check_id}/:
+  /api/1.2/patches/{patch_id}/checks/{check_id}/:
     get:
       description: Show a check.
       operationId: checks_read
@@ -648,7 +648,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/people/:
+  /api/1.2/people/:
     get:
       description: List people.
       operationId: people_list
@@ -680,7 +680,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/people/{id}/:
+  /api/1.2/people/{id}/:
     get:
       description: Show a person.
       operationId: people_read
@@ -716,7 +716,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/projects/:
+  /api/1.2/projects/:
     get:
       description: List projects.
       operationId: projects_list
@@ -739,7 +739,7 @@ paths:
                   $ref: '#/components/schemas/Project'
       tags:
         - projects
-  /api/projects/{id}/:
+  /api/1.2/projects/{id}/:
     get:
       description: Show a project.
       operationId: projects_read
@@ -852,7 +852,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - projects
-  /api/series/:
+  /api/1.2/series/:
     get:
       description: List series.
       operationId: series_list
@@ -889,7 +889,7 @@ paths:
                   $ref: '#/components/schemas/Series'
       tags:
         - series
-  /api/series/{id}/:
+  /api/1.2/series/{id}/:
     get:
       description: Show a series.
       operationId: series_read
@@ -916,7 +916,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
-  /api/users/:
+  /api/1.2/users/:
     get:
       description: List users.
       operationId: users_list
@@ -948,7 +948,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - users
-  /api/users/{id}/:
+  /api/1.2/users/{id}/:
     get:
       description: Show a user.
       operationId: users_read

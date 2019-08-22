@@ -33,6 +33,11 @@ If all you want is reference guides, skip straight to :ref:`rest-api-schemas`.
    The API version was bumped to v1.1 in Patchwork v2.1. The older v1.0 API is
    still supported. For more information, refer to :ref:`rest-api-versions`.
 
+.. versionchanged:: 2.2
+
+   The API version was bumped to v1.2 in Patchwork v2.2. The older APIs are
+   still supported. For more information, refer to :ref:`rest-api-versions`.
+
 Getting Started
 ---------------
 
@@ -98,7 +103,7 @@ Versioning
 ----------
 
 By default, all requests will receive the latest version of the API: currently
-``1.1``:
+``1.2``:
 
 .. code-block:: http
 
@@ -109,7 +114,7 @@ changes breaking your application:
 
 .. code-block:: http
 
-    GET /api/1.1 HTTP/1.1
+    GET /api/1.2 HTTP/1.1
 
 Older API versions will be deprecated and removed over time. For more
 information, refer to :ref:`rest-api-versions`.
@@ -263,6 +268,7 @@ Supported Versions
 
    1.0, 2.0, ✓
    1.1, 2.1, ✓
+   1.2, 2.2, ✓
 
 Further information about this and more can typically be found in
 :doc:`the release notes </releases/index>`.
@@ -278,6 +284,7 @@ Auto-generated schema documentation is provided below.
 
    /api/rest/schemas/v1.0
    /api/rest/schemas/v1.1
+   /api/rest/schemas/v1.2
 
 .. Links
 
