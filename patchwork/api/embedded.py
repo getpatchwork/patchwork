@@ -108,10 +108,12 @@ class CoverLetterSerializer(SerializedRelatedField):
 
         class Meta:
             model = models.CoverLetter
-            fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
+            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
+                      'date', 'name', 'mbox')
             read_only_fields = fields
             versioned_fields = {
                 '1.1': ('web_url', 'mbox', ),
+                '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-cover-detail'},
@@ -124,10 +126,12 @@ class PatchSerializer(SerializedRelatedField):
 
         class Meta:
             model = models.Patch
-            fields = ('id', 'url', 'web_url', 'msgid', 'date', 'name', 'mbox')
+            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
+                      'date', 'name', 'mbox')
             read_only_fields = fields
             versioned_fields = {
                 '1.1': ('web_url', ),
+                '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-patch-detail'},
@@ -158,10 +162,14 @@ class ProjectSerializer(SerializedRelatedField):
         class Meta:
             model = models.Project
             fields = ('id', 'url', 'name', 'link_name', 'list_id',
-                      'list_email', 'web_url', 'scm_url', 'webscm_url')
+                      'list_email', 'web_url', 'scm_url', 'webscm_url',
+                      'list_archive_url', 'list_archive_url_format')
             read_only_fields = fields
             extra_kwargs = {
                 'url': {'view_name': 'api-project-detail'},
+            }
+            versioned_fields = {
+                '1.2': ('list_archive_url', 'list_archive_url_format'),
             }
 
 

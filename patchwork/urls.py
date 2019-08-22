@@ -234,8 +234,8 @@ if settings.ENABLE_REST_API:
     ]
 
     urlpatterns += [
-        url(r'^api/(?:(?P<version>(1.0|1.1))/)?', include(api_patterns)),
-        url(r'^api/(?:(?P<version>1.1)/)?', include(api_1_1_patterns)),
+        url(r'^api/(?:(?P<version>(1.0|1.1|1.2))/)?', include(api_patterns)),
+        url(r'^api/(?:(?P<version>(1.1|1.2))/)?', include(api_1_1_patterns)),
 
         # token change
         url(r'^user/generate-token/$', user_views.generate_token,

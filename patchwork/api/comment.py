@@ -47,11 +47,12 @@ class CommentListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', 'web_url', 'msgid', 'date', 'subject', 'submitter',
-                  'content', 'headers')
+        fields = ('id', 'web_url', 'msgid', 'list_archive_url', 'date',
+                  'subject', 'submitter', 'content', 'headers')
         read_only_fields = fields
         versioned_fields = {
             '1.1': ('web_url', ),
+            '1.2': ('list_archive_url',),
         }
 
 

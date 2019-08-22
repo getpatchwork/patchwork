@@ -121,15 +121,16 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Patch
-        fields = ('id', 'url', 'web_url', 'project', 'msgid', 'date', 'name',
-                  'commit_ref', 'pull_url', 'state', 'archived', 'hash',
-                  'submitter', 'delegate', 'mbox', 'series', 'comments',
-                  'check', 'checks', 'tags')
-        read_only_fields = ('web_url', 'project', 'msgid', 'date', 'name',
-                            'hash', 'submitter', 'mbox', 'series', 'comments',
-                            'check', 'checks', 'tags')
+        fields = ('id', 'url', 'web_url', 'project', 'msgid',
+                  'list_archive_url', 'date', 'name', 'commit_ref', 'pull_url',
+                  'state', 'archived', 'hash', 'submitter', 'delegate', 'mbox',
+                  'series', 'comments', 'check', 'checks', 'tags')
+        read_only_fields = ('web_url', 'project', 'msgid', 'list_archive_url',
+                            'date', 'name', 'hash', 'submitter', 'mbox',
+                            'series', 'comments', 'check', 'checks', 'tags')
         versioned_fields = {
             '1.1': ('comments', 'web_url'),
+            '1.2': ('list_archive_url',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},

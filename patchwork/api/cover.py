@@ -50,11 +50,13 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = CoverLetter
-        fields = ('id', 'url', 'web_url', 'project', 'msgid', 'date', 'name',
-                  'submitter', 'mbox', 'series', 'comments')
+        fields = ('id', 'url', 'web_url', 'project', 'msgid',
+                  'list_archive_url', 'date', 'name', 'submitter', 'mbox',
+                  'series', 'comments')
         read_only_fields = fields
         versioned_fields = {
             '1.1': ('web_url', 'mbox', 'comments'),
+            '1.2': ('list_archive_url',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
