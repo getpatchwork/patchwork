@@ -78,6 +78,10 @@ class Project(models.Model):
     scm_url = models.CharField(max_length=2000, blank=True)
     webscm_url = models.CharField(max_length=2000, blank=True)
     list_archive_url = models.CharField(max_length=2000, blank=True)
+    list_archive_url_format = models.CharField(
+        max_length=2000, blank=True,
+        help_text="URL format for the list archive's Message-ID redirector. "
+        "{} will be replaced by the Message-ID.")
 
     # configuration options
 
@@ -358,6 +362,15 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
 
     name = models.CharField(max_length=255)
 
+    @property
+    def list_archive_url(self):
+        if not self.project.list_archive_url_format:
+            return None
+        if not self.msgid:
+            return None
+        return self.project.list_archive_url_format.format(
+            self.msgid.strip('<>'))
+
     # patchwork metadata
 
     def is_editable(self, user):
@@ -590,6 +603,15 @@ class Comment(EmailMixin, models.Model):
     submission = models.ForeignKey(Submission, related_name='comments',
                                    related_query_name='comment',
                                    on_delete=models.CASCADE)
+
+    @property
+    def list_archive_url(self):
+        if not self.submission.project.list_archive_url_format:
+            return None
+        if not self.msgid:
+            return None
+        return self.project.list_archive_url_format.format(
+            self.msgid.strip('<>'))
 
     def get_absolute_url(self):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})
