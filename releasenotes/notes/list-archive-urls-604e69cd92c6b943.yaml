@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    Add a field to Project to store a link to the project's mailing list
+    archive, and display that on the project info page.
+  - |
+    Add a field to Project to store a URL format for a Message-ID redirector
+    for the project's mailing list archive, and display a link to the email
+    thread for each patch.
+api:
+  - |
+    The API version has been updated to v1.2.
+  - |
+    Projects now expose the ``list_archive_url`` and
+    ``list_archive_url_format`` attributes.
+  - |
+    Patches, comments and cover letters now expose a ``list_archive_url``
+    attribute.
