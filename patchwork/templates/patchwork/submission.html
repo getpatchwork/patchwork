@@ -34,7 +34,11 @@ function toggle_div(link_id, headers_id)
 <table class="patchmeta">
  <tr>
   <th>Message ID</th>
+  {% if submission.list_archive_url %}
+  <td>{{ submission.msgid|msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
+  {% else %}
   <td>{{ submission.msgid|msgid }}</td>
+  {% endif %}
  </tr>
 {% if submission.state %}
  <tr>
