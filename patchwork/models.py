@@ -77,6 +77,7 @@ class Project(models.Model):
     web_url = models.CharField(max_length=2000, blank=True)
     scm_url = models.CharField(max_length=2000, blank=True)
     webscm_url = models.CharField(max_length=2000, blank=True)
+    list_archive_url = models.CharField(max_length=2000, blank=True)
 
     # configuration options
 

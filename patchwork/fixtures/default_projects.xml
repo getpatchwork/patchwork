@@ -5,5 +5,6 @@
     <field type="CharField" name="name">Patchwork</field>
     <field type="CharField" name="listid">patchwork.ozlabs.org</field>
     <field type="CharField" name="listemail">patchwork@lists.ozlabs.org</field>
+    <field type="CharField" name="list_archive_url">https://lists.ozlabs.org/pipermail/patchwork/</field>
   </object>
 </django-objects>

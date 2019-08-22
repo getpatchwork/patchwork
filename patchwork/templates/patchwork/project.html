@@ -15,6 +15,12 @@
   <th>List address</th>
   <td>{{project.listemail}}</td>
  </tr>
+{% if project.list_archive_url %}
+ <tr>
+  <th>List archive</th>
+  <td><a href="{{ project.list_archive_url }}">{{ project.list_archive_url }}</a></td>
+ </tr>
+{% endif %}
  <tr>
   <th>Maintainer{{maintainers|length|pluralize}}</th>
   <td>
