@@ -27,12 +27,13 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
         fields = ('id', 'url', 'name', 'link_name', 'list_id', 'list_email',
                   'web_url', 'scm_url', 'webscm_url', 'maintainers',
                   'subject_match', 'list_archive_url',
-                  'list_archive_url_format')
+                  'list_archive_url_format', 'commit_url_format')
         read_only_fields = ('name', 'link_name', 'list_id', 'list_email',
                             'maintainers', 'subject_match')
         versioned_fields = {
             '1.1': ('subject_match', ),
-            '1.2': ('list_archive_url', 'list_archive_url_format'),
+            '1.2': ('list_archive_url', 'list_archive_url_format',
+                    'commit_url_format'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-project-detail'},
@@ -71,7 +72,7 @@ class ProjectList(ProjectMixin, ListAPIView):
 
     search_fields = ('link_name', 'list_id', 'list_email', 'web_url',
                      'scm_url', 'webscm_url', 'list_archive_url',
-                     'list_archive_url_format')
+                     'list_archive_url_format', 'commit_url_format')
     ordering_fields = ('id', 'name', 'link_name', 'list_id')
     ordering = 'id'
 

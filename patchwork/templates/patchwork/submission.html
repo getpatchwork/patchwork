@@ -49,7 +49,7 @@ function toggle_div(link_id, headers_id)
 {% if submission.commit_ref %}
  <tr>
   <th>Commit</th>
-  <td>{{ submission.commit_ref }}</td>
+  <td>{{ submission|patch_commit_display }}</td>
  </tr>
 {% endif %}
 {% if submission.delegate %}

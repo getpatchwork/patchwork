@@ -82,6 +82,11 @@ class Project(models.Model):
         max_length=2000, blank=True,
         help_text="URL format for the list archive's Message-ID redirector. "
         "{} will be replaced by the Message-ID.")
+    commit_url_format = models.CharField(
+        max_length=2000,
+        blank=True,
+        help_text='URL format for a particular commit. '
+        '{} will be replaced by the commit SHA.')
 
     # configuration options
 

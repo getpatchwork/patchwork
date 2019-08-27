@@ -66,3 +66,15 @@ def patch_checks(patch):
 @stringfilter
 def msgid(value):
     return escape(value.strip('<>'))
+
+
+@register.filter(name='patch_commit_display')
+def patch_commit_display(patch):
+    commit = patch.commit_ref
+    fmt = patch.project.commit_url_format
+
+    if not fmt:
+        return escape(commit)
+
+    return mark_safe('<a href="%s">%s</a>' % (escape(fmt.format(commit)),
+                                              escape(commit)))

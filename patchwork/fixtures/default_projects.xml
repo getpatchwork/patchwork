@@ -7,5 +7,6 @@
     <field type="CharField" name="listemail">patchwork@lists.ozlabs.org</field>
     <field type="CharField" name="list_archive_url">https://lists.ozlabs.org/pipermail/patchwork/</field>
     <field type="CharField" name="list_archive_url_format">http://mid.mail-archive.com/{}</field>
+    <field type="CharField" name="commit_url_format">https://github.com/torvalds/linux/commit/{}</field>
   </object>
 </django-objects>

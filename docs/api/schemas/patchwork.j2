@@ -1917,6 +1917,9 @@ components:
           description: >
             URL format for the list archive's Message-ID redirector. {} will be
             replaced by the Message-ID.
+        commit_url_format:
+          title: Web SCM URL format for a particular commit
+          type: string
 {% endif %}
     Series:
       type: object
@@ -2253,6 +2256,10 @@ components:
           description: >
             URL format for the list archive's Message-ID redirector. {} will be
             replaced by the Message-ID.
+        commit_url_format:
+          title: Web SCM URL format for a particular commit
+          type: string
+          readOnly: true
 {% endif %}
     SeriesEmbedded:
       type: object
