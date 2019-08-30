@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import unittest
+from xmlrpc import client as xmlrpc_client
 
 from django.conf import settings
 from django.test import LiveServerTestCase
 from django.urls import reverse
-from django.utils.six.moves import xmlrpc_client
 
 from patchwork.tests import utils
 

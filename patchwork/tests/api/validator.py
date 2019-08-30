@@ -9,7 +9,6 @@ import re
 import django
 from django.urls import resolve
 from django.urls.resolvers import get_resolver
-from django.utils import six
 import openapi_core
 from openapi_core.schema.schemas.models import Format
 from openapi_core.wrappers.base import BaseOpenAPIResponse
@@ -39,7 +38,7 @@ class RegexValidator(object):
         self.regex = re.compile(regex, re.IGNORECASE)
 
     def __call__(self, value):
-        if not isinstance(value, six.text_type):
+        if not isinstance(value, str):
             return False
 
         if not value:
@@ -49,16 +48,16 @@ class RegexValidator(object):
 
 
 CUSTOM_FORMATTERS = {
-    'uri': Format(six.text_type, RegexValidator(
+    'uri': Format(str, RegexValidator(
         r'^(?:http|ftp)s?://'
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # noqa
         r'localhost|'
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
         r'(?::\d+)?'
         r'(?:/?|[/?]\S+)$')),
-    'iso8601': Format(six.text_type, RegexValidator(
+    'iso8601': Format(str, RegexValidator(
         r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}$')),
-    'email': Format(six.text_type, RegexValidator(
+    'email': Format(str, RegexValidator(
         r'[^@]+@[^@]+\.[^@]+')),
 }
 

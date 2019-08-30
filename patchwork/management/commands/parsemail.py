@@ -8,7 +8,6 @@ import logging
 import sys
 
 from django.core.management import base
-from django.utils import six
 
 from patchwork.parser import parse_mail
 from patchwork.parser import DuplicateMailError
@@ -37,18 +36,11 @@ class Command(base.BaseCommand):
         try:
             if infile:
                 logger.info('Parsing mail loaded by filename')
-                if six.PY3:
-                    with open(infile, 'rb') as file_:
-                        mail = email.message_from_binary_file(file_)
-                else:
-                    with open(infile) as file_:
-                        mail = email.message_from_file(file_)
+                with open(infile, 'rb') as file_:
+                    mail = email.message_from_binary_file(file_)
             else:
                 logger.info('Parsing mail loaded from stdin')
-                if six.PY3:
-                    mail = email.message_from_binary_file(sys.stdin.buffer)
-                else:
-                    mail = email.message_from_file(sys.stdin)
+                mail = email.message_from_binary_file(sys.stdin.buffer)
         except AttributeError:
             logger.warning("Broken email ignored")
             return

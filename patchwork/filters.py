@@ -4,12 +4,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import collections
+from urllib.parse import quote
 
 from django.contrib.auth.models import User
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils import six
-from django.utils.six.moves.urllib.parse import quote
 
 from patchwork.models import Person
 from patchwork.models import Series
@@ -547,8 +546,9 @@ class Filters:
             del params[remove.param]
 
         def sanitise(s):
-            if not isinstance(s, six.string_types):
-                s = six.text_type(s)
+            # TODO: should this be unconditional?
+            if not isinstance(s, str):
+                s = str(s)
             return quote(s.encode('utf-8'))
 
         return '?' + '&'.join(['%s=%s' % (sanitise(k), sanitise(v))

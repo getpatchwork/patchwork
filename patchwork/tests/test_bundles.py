@@ -11,9 +11,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.http import urlencode
-from django.utils import six
-from django.utils.six.moves import range
-from django.utils.six.moves import zip
 
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
@@ -117,14 +114,14 @@ class BundleMboxTest(BundleTestBase):
     def test_empty_bundle(self):
         response = self.client.get(bundle_mbox_url(self.bundle))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, six.b(''))
+        self.assertEqual(response.content, b'')
 
     def test_non_empty_bundle(self):
         self.bundle.append_patch(self.patches[0])
 
         response = self.client.get(bundle_mbox_url(self.bundle))
         self.assertEqual(response.status_code, 200)
-        self.assertNotEqual(response.content, six.b(''))
+        self.assertNotEqual(response.content, b'')
 
 
 class BundleUpdateTest(BundleTestBase):

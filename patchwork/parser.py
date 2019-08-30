@@ -17,7 +17,6 @@ import re
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.db import transaction
-from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import CoverLetter
@@ -87,20 +86,13 @@ def sanitise_header(header_contents, header_name=None):
         # (e.g. base64 decoding) We probably can't recover, so:
         return None
 
-    # We have some Py2/Py3 issues here.
+    # We have some issues here.
     #
-    # Firstly, the email parser (before we get here)
-    # Python 3: headers with weird chars are email.header.Header
-    #           class, others as str
-    # Python 2: every header is an str
+    # Firstly, in the email parser (before we get here) headers with weird
+    # chars are email.header.Header class, others as str
     #
-    # Secondly, the behaviour of decode_header:
-    # Python 3: weird headers are labelled as unknown-8bit
-    # Python 2: weird headers are not labelled differently
-    #
-    # Lastly, aking matters worse, in Python2, unknown-8bit doesn't
-    # seem to be supported as an input to make_header, so not only do
-    # we have to detect dodgy headers, we have to fix them ourselves.
+    # Secondly, the behaviour of decode_header: weird headers are labelled
+    # as unknown-8bit
     #
     # We solve this by catching any Unicode errors, and then manually
     # handling any interesting headers.
@@ -109,33 +101,22 @@ def sanitise_header(header_contents, header_name=None):
         header = make_header(value,
                              header_name=header_name,
                              continuation_ws='\t')
-    except (UnicodeDecodeError, LookupError, ValueError, TypeError):
+    except (UnicodeDecodeError, LookupError, ValueError):
         #  - a part cannot be encoded as ascii. (UnicodeDecodeError), or
         #  - we don't have a codec matching the hint (LookupError)
-        #  - the codec has a null byte (Py3 ValueError/Py2 TypeError)
+        #  - the codec has a null byte (ValueError)
         # Find out which part and fix it somehow.
         #
-        # We get here under Py2 when there's non-7-bit chars in header,
-        # or under Py2 or Py3 where decoding with the coding hint fails.
+        # We get here under where decoding with the coding hint fails.
 
         new_value = []
 
-        for (part, coding) in value:
+        for (part, _) in value:
             # We have random bytes that aren't properly coded.
             # If we had a coding hint, it failed to help.
-            if six.PY3:
-                # python3 - force coding to unknown-8bit
-                new_value += [(part, 'unknown-8bit')]
-            else:
-                # python2 - no support in make_header for unknown-8bit
-                # We should do unknown-8bit coding ourselves.
-                # For now, we're just going to replace any dubious
-                # chars with ?.
-                #
-                # TODO: replace it with a proper QP unknown-8bit codec.
-                new_value += [(part.decode('ascii', errors='replace')
-                               .encode('ascii', errors='replace'),
-                               None)]
+
+            # python3 - force coding to unknown-8bit
+            new_value += [(part, 'unknown-8bit')]
 
         header = make_header(new_value,
                              header_name=header_name,
@@ -160,7 +141,7 @@ def clean_header(header):
     if sane_header is None:
         return None
 
-    header_str = six.text_type(sane_header)
+    header_str = str(sane_header)
 
     return normalise_space(header_str)
 
@@ -588,7 +569,7 @@ def _find_content(mail):
         payload = part.get_payload(decode=True)
         subtype = part.get_content_subtype()
 
-        if not isinstance(payload, six.text_type):
+        if not isinstance(payload, str):
             charset = part.get_content_charset()
 
             # Check that we have a charset that we understand. Otherwise,
@@ -608,7 +589,7 @@ def _find_content(mail):
 
             for cset in try_charsets:
                 try:
-                    new_payload = six.text_type(payload, cset)
+                    new_payload = payload.decode(cset)
                     break
                 except UnicodeDecodeError:
                     new_payload = None

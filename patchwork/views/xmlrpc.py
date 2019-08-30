@@ -4,11 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import base64
-# NOTE(stephenfin) six does not seem to support this
-try:
-    from DocXMLRPCServer import XMLRPCDocGenerator
-except ImportError:
-    from xmlrpc.server import XMLRPCDocGenerator
+from xmlrpc.server import XMLRPCDocGenerator
 import sys
 
 from django.contrib.auth import authenticate
@@ -17,9 +13,8 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from django.utils import six
-from django.utils.six.moves import xmlrpc_client
-from django.utils.six.moves.xmlrpc_server import SimpleXMLRPCDispatcher
+from xmlrpc import client as xmlrpc_client
+from xmlrpc.server import SimpleXMLRPCDispatcher
 
 from patchwork.models import Check
 from patchwork.models import Patch
@@ -97,18 +92,18 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
 
     def _marshaled_dispatch(self, request):
         try:
-            params, method = six.moves.xmlrpc_client.loads(request.body)
+            params, method = xmlrpc_client.loads(request.body)
 
             response = self._dispatch(request, method, params)
             # wrap response in a singleton tuple
             response = (response,)
             response = self.dumps(response, methodresponse=1)
-        except six.moves.xmlrpc_client.Fault as fault:
+        except xmlrpc_client.Fault as fault:
             response = self.dumps(fault)
         except Exception:  # noqa
             # report exception back to server
             response = self.dumps(
-                six.moves.xmlrpc_client.Fault(
+                xmlrpc_client.Fault(
                     1, '%s:%s' % (sys.exc_info()[0], sys.exc_info()[1])),
             )
 
@@ -217,7 +212,7 @@ def person_to_dict(obj):
         'id': obj.id,
         'email': obj.email,
         'name': name,
-        'user': six.text_type(obj.user).encode('utf-8'),
+        'user': str(obj.user).encode('utf-8'),
     }
 
 
@@ -254,18 +249,18 @@ def patch_to_dict(obj):
     """
     return {
         'id': obj.id,
-        'date': six.text_type(obj.date).encode('utf-8'),
+        'date': str(obj.date).encode('utf-8'),
         'filename': obj.filename,
         'msgid': obj.msgid,
         'name': obj.name,
-        'project': six.text_type(obj.project).encode('utf-8'),
+        'project': str(obj.project).encode('utf-8'),
         'project_id': obj.project_id,
-        'state': six.text_type(obj.state).encode('utf-8'),
+        'state': str(obj.state).encode('utf-8'),
         'state_id': obj.state_id,
         'archived': obj.archived,
-        'submitter': six.text_type(obj.submitter).encode('utf-8'),
+        'submitter': str(obj.submitter).encode('utf-8'),
         'submitter_id': obj.submitter_id,
-        'delegate': six.text_type(obj.delegate).encode('utf-8'),
+        'delegate': str(obj.delegate).encode('utf-8'),
         'delegate_id': obj.delegate_id or 0,
         'commit_ref': obj.commit_ref or '',
         'hash': obj.hash or '',
@@ -300,10 +295,10 @@ def check_to_dict(obj):
     object which is OK to send to the client."""
     return {
         'id': obj.id,
-        'date': six.text_type(obj.date).encode('utf-8'),
-        'patch': six.text_type(obj.patch).encode('utf-8'),
+        'date': str(obj.date).encode('utf-8'),
+        'patch': str(obj.patch).encode('utf-8'),
         'patch_id': obj.patch_id,
-        'user': six.text_type(obj.user).encode('utf-8'),
+        'user': str(obj.user).encode('utf-8'),
         'user_id': obj.user_id,
         'state': obj.get_state_display(),
         'target_url': obj.target_url,

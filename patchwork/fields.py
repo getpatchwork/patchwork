@@ -7,7 +7,6 @@
 import hashlib
 
 from django.db import models
-from django.utils import six
 
 
 class HashField(models.CharField):
@@ -19,7 +18,8 @@ class HashField(models.CharField):
         super(HashField, self).__init__(*args, **kwargs)
 
     def construct(self, value):
-        if isinstance(value, six.text_type):
+        # TODO: should this be unconditional?
+        if isinstance(value, str):
             value = value.encode('utf-8')
         return hashlib.sha1(value)
 

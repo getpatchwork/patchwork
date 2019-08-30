@@ -7,7 +7,6 @@ import json
 
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.six.moves import range
 
 from patchwork.tests.utils import create_person
 

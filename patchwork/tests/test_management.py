@@ -5,9 +5,9 @@
 
 import os
 import sys
+from io import StringIO
 
 from django.core.management import call_command
-from django.utils.six import StringIO
 from django.test import TestCase
 
 from patchwork import models

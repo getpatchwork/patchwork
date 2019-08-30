@@ -14,7 +14,6 @@ import re
 
 from django.conf import settings
 from django.http import Http404
-from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
@@ -110,10 +109,7 @@ def _submission_to_mbox(submission):
         mail['Date'] = email.utils.formatdate(utc_timestamp)
 
     # NOTE(stephenfin) http://stackoverflow.com/a/28584090/613428
-    if six.PY3:
-        mail = mail.as_bytes(True).decode()
-    else:
-        mail = mail.as_string(True)
+    mail = mail.as_bytes(True).decode()
 
     return mail
 

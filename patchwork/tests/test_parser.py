@@ -14,7 +14,6 @@ import unittest
 
 from django.test import TestCase
 from django.test import TransactionTestCase
-from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
@@ -44,12 +43,8 @@ from patchwork.tests.utils import SAMPLE_DIFF
 
 
 def load_mail(file_path):
-    if six.PY3:
-        with open(file_path, 'rb') as f:
-            mail = email.message_from_binary_file(f)
-    else:
-        with open(file_path) as f:
-            mail = email.message_from_file(f)
+    with open(file_path, 'rb') as f:
+        mail = email.message_from_binary_file(f)
     return mail
 
 
@@ -588,19 +583,6 @@ class PatchParseTest(PatchTest):
 
     def test_git_pull_request(self):
         self._test_pull_request_parse('0001-git-pull-request.mbox')
-
-    @unittest.skipIf(six.PY3, 'Breaks only on Python 2')
-    def test_git_pull_request_crlf_newlines(self):
-        # verify that we haven't munged the file
-        crlf_file = os.path.join(TEST_MAIL_DIR,
-                                 '0018-git-pull-request-crlf-newlines.mbox')
-        with open(crlf_file) as f:
-            message = f.read()
-            self.assertIn('\r\n', message)
-
-        # verify the file works
-        self._test_pull_request_parse(
-            '0018-git-pull-request-crlf-newlines.mbox')
 
     def test_git_pull_wrapped_request(self):
         self._test_pull_request_parse('0002-git-pull-request-wrapped.mbox')
