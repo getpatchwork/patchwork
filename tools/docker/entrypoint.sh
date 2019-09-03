@@ -22,7 +22,7 @@ test_database() {
 }
 
 reset_data_mysql() {
-    mysql -u$db_user -p$db_pass -h $PW_TEST_DB_HOST << EOF
+    mysql -uroot -ppassword -h $PW_TEST_DB_HOST << EOF
 DROP DATABASE IF EXISTS patchwork;
 CREATE DATABASE patchwork CHARACTER SET utf8;
 GRANT ALL ON patchwork.* TO 'patchwork' IDENTIFIED BY 'password';

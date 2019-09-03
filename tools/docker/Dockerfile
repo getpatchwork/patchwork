@@ -8,9 +8,6 @@ RUN [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }
 
 ENV PROJECT_HOME /home/patchwork/patchwork
 
-ENV db_user root
-ENV db_pass password
-
 ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
