@@ -1,54 +1,59 @@
 FROM ubuntu:18.04
 
 ARG UID
-ARG TZ="Australia/Canberra"
+
+# make sure the user has configured the '.env' file and quick fail if not
 
 RUN echo $UID
 RUN [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }
 
-ENV PROJECT_HOME /home/patchwork/patchwork
-
-ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
+ARG TZ="Australia/Canberra"
+ENV LANG="C.UTF-8"
+ENV LC_ALL="C.UTF-8"
+ENV PATH="/opt/pyenv/shims:/opt/pyenv/bin:$PATH"
+ENV PYENV_ROOT="/opt/pyenv"
+ENV PYENV_SHELL="bash"
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
+ENV PROJECT_HOME /home/patchwork/patchwork
+ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 
-
-# System
-# xenial is for python3.5
-# TODO(stephenfin): Are curl, unzip required?
-COPY tools/docker/*.list /etc/apt/sources.list.d/
-
-RUN cd /etc/apt/sources.list.d; \
-    echo $(uname -m) > /tmp/arch; \
-    if [ $(cat /tmp/arch) != 'x86_64' ] && grep -q -v "i.86" /tmp/arch; then \
-        mv xenial-ports.list xenial.list; \
-    else \
-        rm *-ports.list; \
-    fi
-
-RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends --allow-downgrades \
-    python-dev python-pip python-setuptools python-wheel \
-    python3.5-dev python3-pip python3-setuptools python3-wheel \
-    python3.6-dev \
-    libmysqlclient-dev mysql-client curl unzip build-essential \
-    git postgresql-client tzdata libpq-dev
-
-# User
 RUN useradd --uid=$UID --create-home patchwork
-
-# Timezone
 RUN rm /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
-# Python requirements.
-# If you update requirements, you should rebuild the container.
-# entrypoint.sh will prompt you to do this.
-# we install both Python 2 and Python 3 versions so you can use either
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    libbz2-dev \
+    libffi-dev \
+    libmysqlclient-dev \
+    libpq-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl1.0-dev \
+    mysql-client \
+    postgresql-client \
+    tzdata \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash && \
+    git clone https://github.com/momo-lab/xxenv-latest $PYENV_ROOT/plugins/xxenv-latest && \
+    pyenv update
+
+RUN pyenv latest install 2.7 && \
+    pyenv latest install 3.5 && \
+    pyenv latest install 3.6 && \
+    pyenv latest install 3.7
+
+RUN pyenv global $(pyenv versions --bare | tac)
+
 COPY requirements-*.txt /tmp/
-RUN pip3 install virtualenv tox && \
-    pip3 install -r /tmp/requirements-dev.txt
-RUN pip2 install virtualenv tox && \
-    pip2 install -r /tmp/requirements-dev.txt
+RUN pip install tox tox-pyenv && \
+    pip install -r /tmp/requirements-dev.txt
+
 # we deliberately leave the requirements files in tmp so we can
 # ping the user in entrypoint.sh if the change them!
 

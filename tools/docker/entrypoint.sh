@@ -46,10 +46,10 @@ reset_data() {
     fi
 
     # load initial data
-    python3 $PROJECT_HOME/manage.py migrate #> /dev/null
-    python3 $PROJECT_HOME/manage.py loaddata default_tags #> /dev/null
-    python3 $PROJECT_HOME/manage.py loaddata default_states #> /dev/null
-    python3 $PROJECT_HOME/manage.py loaddata default_projects #> /dev/null
+    python manage.py migrate #> /dev/null
+    python manage.py loaddata default_tags #> /dev/null
+    python manage.py loaddata default_states #> /dev/null
+    python manage.py loaddata default_projects #> /dev/null
 }
 
 # the script begins!
@@ -126,7 +126,7 @@ elif [ "$1" == "--shell" ]; then
     exec bash
 elif [ "$1" == "--test" ] || [ "$1" == "--quick-test" ]; then
     shift
-    python3 manage.py test $@
+    python manage.py test $@
 elif [ "$1" == "--tox" ] || [ "$1" == "--quick-tox" ]; then
     shift
     tox $@
