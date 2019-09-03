@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    `Python 3.7 <https://www.python.org/downloads/release/python-370/>`_ is now
+    supported.
+upgrade:
+  - |
+    Python 3.4 is no longer supported. This is no longer supported upstream and
+    most distributions provide a newer version.

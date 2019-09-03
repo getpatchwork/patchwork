@@ -5,9 +5,9 @@ sudo: false
 
 python:
   - 2.7
-  - 3.4
   - 3.5
   - 3.6
+  - 3.7
 
 addons:
   postgresql: 9.6
@@ -43,7 +43,7 @@ matrix:
         - PW_TEST_DB_PORT=5433
         - PW_TEST_DB_TYPE=postgres
         - PW_TEST_DB_USER=travis
-      python: 3.6
+      python: 3.7
       sudo: true
       before_install:
         - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"

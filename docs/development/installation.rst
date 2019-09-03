@@ -165,7 +165,7 @@ Python Requirements
 ^^^^^^^^^^^^^^^^^^^
 
 To develop Python-based software you first need Python. Patchwork supports both
-Python 2.7 and Python 3.4+. One of these will be installed by default on many
+Python 2.7 and Python 3.5+. One of these will be installed by default on many
 installations, though they can also be installed manually using the ``python``
 or ``python3`` packages.
 
@@ -224,7 +224,7 @@ An example for installing all these packages and the MySQL RDBMS on Ubuntu
        python-tox mysql-server libmysqlclient-dev
 
 If you have an existing MariaDB/MySQL installation and have installed ``pip``
-already/are using Python 3.4+ then you can install all packages using ``pip``:
+already/are using Python 3.5+ then you can install all packages using ``pip``:
 
 .. code-block:: shell
 
@@ -254,7 +254,7 @@ virtual environment. This can be done like so:
 .. note::
 
    If you installed a Python 3.x-based virtual environment package, adjust the
-   executable indicated above as necessary, e.g. ``virtualenv-3.4``.
+   executable indicated above as necessary, e.g. ``virtualenv-3.7``.
 
 Now install the packages. Patchwork provides three requirements files.
 

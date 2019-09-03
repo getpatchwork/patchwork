@@ -17,14 +17,13 @@ ENV PYTHONUNBUFFERED 1
 
 
 # System
-# trusty and findutils is for python3.4; xenial is for python3.5
+# xenial is for python3.5
 # TODO(stephenfin): Are curl, unzip required?
 COPY tools/docker/*.list /etc/apt/sources.list.d/
 
 RUN cd /etc/apt/sources.list.d; \
     echo $(uname -m) > /tmp/arch; \
     if [ $(cat /tmp/arch) != 'x86_64' ] && grep -q -v "i.86" /tmp/arch; then \
-        mv trusty-ports.list trusty.list; \
         mv xenial-ports.list xenial.list; \
     else \
         rm *-ports.list; \
@@ -34,7 +33,7 @@ RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends --allow-downgrades \
     python-dev python-pip python-setuptools python-wheel \
     python3.5-dev python3-pip python3-setuptools python3-wheel \
-    python3.4-dev findutils=4.4.2-7 python3.6-dev \
+    python3.6-dev \
     libmysqlclient-dev mysql-client curl unzip build-essential \
     git postgresql-client tzdata libpq-dev
 
