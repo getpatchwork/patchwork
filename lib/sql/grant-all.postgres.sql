@@ -18,7 +18,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_check,
 	patchwork_comment,
 	patchwork_coverletter,
-	patchwork_delegationrule
+	patchwork_delegationrule,
 	patchwork_emailconfirmation,
 	patchwork_emailoptout,
 	patchwork_patch,
@@ -32,7 +32,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_submission,
 	patchwork_tag,
 	patchwork_userprofile,
-	patchwork_userprofile_maintainer_projects,
+	patchwork_userprofile_maintainer_projects
 TO "www-data";
 GRANT SELECT, UPDATE ON
 	auth_group_id_seq,
@@ -48,7 +48,7 @@ GRANT SELECT, UPDATE ON
 	patchwork_bundlepatch_id_seq,
 	patchwork_check_id_seq,
 	patchwork_comment_id_seq,
-	patchwork_delegationrule_id_seq
+	patchwork_delegationrule_id_seq,
 	patchwork_emailconfirmation_id_seq,
 	patchwork_patch_id_seq,
 	patchwork_patchtag_id_seq,
@@ -59,7 +59,7 @@ GRANT SELECT, UPDATE ON
 	patchwork_state_id_seq,
 	patchwork_tag_id_seq,
 	patchwork_userprofile_id_seq,
-	patchwork_userprofile_maintainer_projects_id_seq,
+	patchwork_userprofile_maintainer_projects_id_seq
 TO "www-data";
 
 -- allow the mail user (in this case, 'nobody') to add submissions (patches,
@@ -67,30 +67,30 @@ TO "www-data";
 GRANT INSERT, SELECT ON
 	patchwork_comment,
 	patchwork_coverletter,
-	patchwork_event
+	patchwork_event,
 	patchwork_seriesreference,
-	patchwork_submission,
+	patchwork_submission
 TO "nobody";
 GRANT INSERT, SELECT, UPDATE, DELETE ON
 	patchwork_patch,
 	patchwork_patchtag,
-	patchwork_person
-	patchwork_series,
+	patchwork_person,
+	patchwork_series
 TO "nobody";
 GRANT SELECT ON
-	patchwork_delegationrule
+	patchwork_delegationrule,
 	patchwork_project,
 	patchwork_state,
-	patchwork_tag,
+	patchwork_tag
 TO "nobody";
 GRANT UPDATE, SELECT ON
 	patchwork_comment_id_seq,
-	patchwork_event_id_seq
+	patchwork_event_id_seq,
 	patchwork_patch_id_seq,
 	patchwork_patchtag_id_seq,
 	patchwork_person_id_seq,
 	patchwork_series_id_seq,
-	patchwork_seriesreference_id_seq,
+	patchwork_seriesreference_id_seq
 TO "nobody";
 
 COMMIT;
