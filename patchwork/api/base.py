@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from distutils.version import StrictVersion
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -12,6 +11,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.serializers import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer
+
+from patchwork.api import utils
 
 
 class LinkHeaderPagination(PageNumberPagination):
@@ -90,17 +91,10 @@ class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
             instance)
 
         request = self.context.get('request')
-        if not request or not request.version:
-            # without version information, we have to assume the latest
-            return data
-
-        requested_version = StrictVersion(request.version)
-
         for version in getattr(self.Meta, 'versioned_fields', {}):
             # if the user has requested a version lower that than in which the
             # field was added, we drop it
-            required_version = StrictVersion(version)
-            if required_version > requested_version:
+            if not utils.has_version(request, version):
                 for field in self.Meta.versioned_fields[version]:
                     data.pop(field)
 
