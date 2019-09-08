@@ -8,9 +8,11 @@ import unittest
 from django.conf import settings
 from django.urls import reverse
 
+from patchwork.models import Bundle
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_bundle
 from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
 
@@ -42,12 +44,15 @@ class TestBundleAPI(utils.APITestCase):
 
         # nested fields
 
-        self.assertEqual(bundle_obj.patches.count(),
-                         len(bundle_json['patches']))
         self.assertEqual(bundle_obj.owner.id,
                          bundle_json['owner']['id'])
         self.assertEqual(bundle_obj.project.id,
                          bundle_json['project']['id'])
+        self.assertEqual(bundle_obj.patches.count(),
+                         len(bundle_json['patches']))
+        for patch_obj, patch_json in zip(
+                bundle_obj.patches.all(), bundle_json['patches']):
+            self.assertEqual(patch_obj.id, patch_json['id'])
 
     def test_list_empty(self):
         """List bundles when none are present."""
@@ -179,18 +184,152 @@ class TestBundleAPI(utils.APITestCase):
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
 
-    def test_create_update_delete(self):
-        """Ensure creates, updates and deletes aren't allowed"""
+    def _test_create_update(self, authenticate=True):
+        user = create_user()
+        project = create_project()
+        patch_a = create_patch(project=project)
+        patch_b = create_patch(project=project)
+
+        if authenticate:
+            self.client.force_authenticate(user=user)
+
+        return user, project, patch_a, patch_b
+
+    @utils.store_samples('bundle-create-error-forbidden')
+    def test_create_anonymous(self):
+        """Create a bundle when not signed in.
+
+        Ensure creations can only be performed by signed in users.
+        """
+        user, project, patch_a, patch_b = self._test_create_update(
+            authenticate=False)
+        bundle = {
+            'name': 'test-bundle',
+            'public': True,
+            'patches': [patch_a.id, patch_b.id],
+        }
+
+        resp = self.client.post(self.api_url(), bundle)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
+
+    @utils.store_samples('bundle-create')
+    def test_create(self):
+        """Validate we can create a new bundle."""
+        user, project, patch_a, patch_b = self._test_create_update()
+        bundle = {
+            'name': 'test-bundle',
+            'public': True,
+            'patches': [patch_a.id, patch_b.id],
+        }
+
+        resp = self.client.post(self.api_url(), bundle)
+        self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
+        self.assertEqual(1, Bundle.objects.all().count())
+        self.assertSerialized(Bundle.objects.first(), resp.data)
+
+    @utils.store_samples('bundle-create-invalid-patch')
+    def test_create_no_patches(self):
+        """Create a bundle with no patches.
+
+        Ensure such requests are rejected.
+        """
+        user, project, _, _ = self._test_create_update()
+        bundle = {
+            'name': 'test-bundle',
+            'public': True,
+            'patches': [],
+        }
+
+        resp = self.client.post(self.api_url(), bundle)
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+
+    def test_create_invalid_patch(self):
+        """Create a bundle with patches that belong to another project.
+
+        Ensure such requests are rejected.
+        """
+        user, project, patch_a, patch_b = self._test_create_update()
+        patch_c = create_patch()
+        bundle = {
+            'name': 'test-bundle',
+            'public': True,
+            'patches': [patch_a.id, patch_b.id, patch_c.id],
+        }
+
+        resp = self.client.post(self.api_url(), bundle)
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
+
+    @utils.store_samples('bundle-update-not-found')
+    def test_update_anonymous(self):
+        """Update an existing bundle when not signed in.
+
+        Ensure updates can only be performed by signed in users.
+        """
+        user, project, patch_a, patch_b = self._test_create_update(
+            authenticate=False)
+        bundle = create_bundle(owner=user, project=project)
+
+        resp = self.client.patch(self.api_url(bundle.id), {
+            'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]})
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    @utils.store_samples('bundle-update')
+    def test_update(self):
+        """Validate we can update an existing bundle."""
+        user, project, patch_a, patch_b = self._test_create_update()
+        bundle = create_bundle(owner=user, project=project)
+
+        self.assertEqual(1, Bundle.objects.all().count())
+        self.assertEqual(0, len(Bundle.objects.first().patches.all()))
+
+        resp = self.client.patch(self.api_url(bundle.id), {
+            'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]
+        })
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(2, len(resp.data['patches']))
+        self.assertEqual('hello-bundle', resp.data['name'])
+        self.assertEqual(1, Bundle.objects.all().count())
+        self.assertEqual(2, len(Bundle.objects.first().patches.all()))
+        self.assertEqual('hello-bundle', Bundle.objects.first().name)
+
+    @utils.store_samples('bundle-delete-not-found')
+    def test_delete_anonymous(self):
+        """Delete a bundle when not signed in.
+
+        Ensure deletions can only be performed when signed in.
+        """
+        user, project, patch_a, patch_b = self._test_create_update(
+            authenticate=False)
+        bundle = create_bundle(owner=user, project=project)
+
+        resp = self.client.delete(self.api_url(bundle.id))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    @utils.store_samples('bundle-delete')
+    def test_delete(self):
+        """Validate we can delete an existing bundle."""
+        user = create_user()
+        bundle = create_bundle(owner=user)
+
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.delete(self.api_url(bundle.id))
+        self.assertEqual(status.HTTP_204_NO_CONTENT, resp.status_code)
+        self.assertEqual(0, Bundle.objects.all().count())
+
+    def test_create_update_delete_version_1_1(self):
+        """Ensure creates, updates and deletes aren't allowed with old API."""
         user = create_maintainer()
         user.is_superuser = True
         user.save()
         self.client.force_authenticate(user=user)
 
-        resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
+        resp = self.client.post(self.api_url(version='1.1'), {'name': 'test'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-        resp = self.client.patch(self.api_url(user.id), {'email': 'foo@f.com'})
+        resp = self.client.patch(self.api_url(1, version='1.1'),
+                                 {'name': 'test'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-        resp = self.client.delete(self.api_url(1))
+        resp = self.client.delete(self.api_url(1, version='1.1'))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

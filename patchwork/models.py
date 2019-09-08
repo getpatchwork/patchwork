@@ -804,6 +804,11 @@ class Bundle(models.Model):
     patches = models.ManyToManyField(Patch, through='BundlePatch')
     public = models.BooleanField(default=False)
 
+    def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+        return user == self.owner
+
     def ordered_patches(self):
         return self.patches.order_by('bundlepatch__order')
 
@@ -821,6 +826,12 @@ class Bundle(models.Model):
 
         return BundlePatch.objects.create(bundle=self, patch=patch,
                                           order=max_order + 1)
+
+    def overwrite_patches(self, patches):
+        BundlePatch.objects.filter(bundle=self).delete()
+
+        for patch in patches:
+            self.append_patch(patch)
 
     def get_absolute_url(self):
         return reverse('bundle-detail', kwargs={

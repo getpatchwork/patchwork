@@ -1,0 +1,4 @@
+---
+api:
+  - |
+    Bundles can now be created, updated and deleted via the REST API.

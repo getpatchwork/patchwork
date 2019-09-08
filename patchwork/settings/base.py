@@ -138,6 +138,7 @@ REST_FRAMEWORK = {
     ),
     'SEARCH_PARAM': 'q',
     'ORDERING_PARAM': 'order',
+    'NON_FIELD_ERRORS_KEY': 'detail',
 }
 
 #
