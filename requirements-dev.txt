@@ -1,10 +1,10 @@
-Django==2.2.5; python_version >= '3.5'
-Django==1.11.24; python_version < '3.0'  # pyup: ignore
-djangorestframework==3.10.3; python_version >= '3.5'
-djangorestframework==3.9.4; python_version < '3.0'  # pyup: ignore
-django-filter==2.2.0; python_version >= '3.5'
-django-filter==1.1.0; python_version < '3.0'  # pyup: ignore
-django-debug-toolbar==2.0; python_version >= '3.5'  # pyup: ignore
-django-debug-toolbar==1.11; python_version < '3.0'  # pyup: ignore
-django-dbbackup==3.2.0
+Django~=2.2; python_version >= '3.5'
+Django~=1.11; python_version < '3.0'  # pyup: ignore
+djangorestframework~=3.10; python_version >= '3.5'
+djangorestframework~=3.9; python_version < '3.0'  # pyup: ignore
+django-filter~=2.2; python_version >= '3.5'
+django-filter~=1.1; python_version < '3.0'  # pyup: ignore
+django-debug-toolbar~=2.0; python_version >= '3.5'  # pyup: ignore
+django-debug-toolbar~=1.11; python_version < '3.0'  # pyup: ignore
+django-dbbackup~=3.2
 -r requirements-test.txt
