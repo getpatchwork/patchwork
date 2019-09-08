@@ -9,6 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid
 import os
+import sys
 import unittest
 
 from django.test import TestCase
@@ -981,7 +982,8 @@ class WeirdMailTest(TransactionTestCase):
         except ValueError:
             pass
 
-    @unittest.skipIf(six.PY2, 'Breaks only on Python 3')
+    @unittest.skipUnless((3, 0) <= sys.version_info < (3, 7),
+                         'Breaks only on Python 3.0 - 3.6')
     def test_early_fail(self):
         file_path = os.path.join(TEST_FUZZ_DIR, 'earlyfail.mbox')
         with self.assertRaises(AttributeError):
