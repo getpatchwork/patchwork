@@ -5,6 +5,7 @@
 
 import mailbox
 import os
+import unittest
 
 from django.test import TestCase
 
@@ -172,6 +173,7 @@ class BaseSeriesTest(_BaseTestCase):
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
 
+    @unittest.expectedFailure
     def test_duplicated(self):
         """Series received on multiple mailing lists.
 
