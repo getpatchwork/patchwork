@@ -33,20 +33,10 @@ matrix:
         - PW_TEST_DB_USER=root
     - addons:
         postgresql: 10
-        apt:
-          packages:
-          - postgresql-10
-          - postgresql-client-10
       env:
-        - PGPORT=5433
-        - PW_TEST_DB_HOST=""
-        - PW_TEST_DB_PORT=5433
         - PW_TEST_DB_TYPE=postgres
-        - PW_TEST_DB_USER=travis
+        - PW_TEST_DB_USER=postgres
       python: 3.7
-      sudo: true
-      before_install:
-        - sudo -u postgres psql -c "grant ALL on DATABASE postgres to travis WITH GRANT OPTION;"
 
 before_script:
   - if [[ $PW_TEST_DB_TYPE == mysql ]]; then mysql -e "create database patchwork character set utf8;"; fi
