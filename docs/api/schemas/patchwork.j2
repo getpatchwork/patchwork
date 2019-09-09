@@ -1233,7 +1233,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -1360,7 +1360,7 @@ components:
           title: ID
           type: integer
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -1417,7 +1417,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -1456,7 +1456,7 @@ components:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/PersonEmbedded'
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         mbox:
           title: Mbox
           type: string
@@ -1468,7 +1468,7 @@ components:
           items:
             $ref: '#/components/schemas/SeriesEmbedded'
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         comments:
           title: Comments
           type: string
@@ -1643,7 +1643,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -1721,7 +1721,7 @@ components:
           items:
             $ref: '#/components/schemas/SeriesEmbedded'
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         comments:
           title: Comments
           type: string
@@ -1888,7 +1888,7 @@ components:
             $ref: '#/components/schemas/UserEmbedded'
           readOnly: true
           uniqueItems: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         subject_match:
           title: Subject match
           description: >
@@ -1933,7 +1933,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -2083,7 +2083,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -2129,7 +2129,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
@@ -2273,7 +2273,7 @@ components:
           type: string
           format: uri
           readOnly: true
-{% if version > (1, 0) %}
+{% if version >= (1, 1) %}
         web_url:
           title: Web URL
           type: string
