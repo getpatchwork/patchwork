@@ -1,4 +1,4 @@
-Django~=2.2; python_version >= '3.5'
+Django==2.2.5; python_version >= '3.5'
 Django~=1.11; python_version < '3.0'  # pyup: ignore
 djangorestframework~=3.10; python_version >= '3.5'
 djangorestframework~=3.9; python_version < '3.0'  # pyup: ignore
