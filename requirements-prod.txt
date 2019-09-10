@@ -1,8 +1,8 @@
-Django~=2.2; python_version >= '3.5'
-Django~=1.11; python_version < '3.0'  # pyup: ignore
-djangorestframework~=3.10; python_version >= '3.5'
-djangorestframework~=3.9; python_version < '3.0'  # pyup: ignore
-django-filter~=2.2; python_version >= '3.5'
-django-filter~=1.1; python_version < '3.0'  # pyup: ignore
-psycopg2-binary~=2.8
-sqlparse~=0.3
+Django~=2.2.0; python_version >= '3.5'
+Django~=1.11.0; python_version < '3.0'  # pyup: ignore
+djangorestframework~=3.10.0; python_version >= '3.5'
+djangorestframework~=3.9.0; python_version < '3.0'  # pyup: ignore
+django-filter~=2.2.0; python_version >= '3.5'
+django-filter~=1.1.0; python_version < '3.0'  # pyup: ignore
+psycopg2-binary~=2.8.0
+sqlparse~=0.3.0
