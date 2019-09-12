@@ -15,10 +15,9 @@ def comment(request, comment_id):
                                              id=comment_id).submission
     if models.Patch.objects.filter(id=submission.id).exists():
         url = 'patch-detail'
-        key = 'patch_id'
     else:
         url = 'cover-detail'
-        key = 'cover_id'
 
     return http.HttpResponseRedirect('%s#%s' % (
-        reverse(url, kwargs={key: submission.id}), comment_id))
+        reverse(url, kwargs={'project_id': submission.project.linkname,
+                             'msgid': submission.url_msgid}), comment_id))

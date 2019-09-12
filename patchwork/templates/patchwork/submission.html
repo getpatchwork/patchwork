@@ -35,9 +35,9 @@ function toggle_div(link_id, headers_id)
  <tr>
   <th>Message ID</th>
   {% if submission.list_archive_url %}
-  <td>{{ submission.msgid|msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
+  <td>{{ submission.url_msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
   {% else %}
-  <td>{{ submission.msgid|msgid }}</td>
+  <td>{{ submission.url_msgid }}</td>
   {% endif %}
  </tr>
 {% if submission.state %}
@@ -91,7 +91,7 @@ function toggle_div(link_id, headers_id)
       {% if cover == submission %}
        {{ cover.name|default:"[no subject]"|truncatechars:100 }}
       {% else %}
-      <a href="{% url 'cover-detail' cover_id=cover.id %}">
+      <a href="{% url 'cover-detail' project_id=project.linkname msgid=cover.url_msgid %}">
        {{ cover.name|default:"[no subject]"|truncatechars:100 }}
       </a>
       {% endif %}
@@ -103,7 +103,7 @@ function toggle_div(link_id, headers_id)
       {% if sibling == submission %}
        {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
       {% else %}
-      <a href="{% url 'patch-detail' patch_id=sibling.id %}">
+      <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
        {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
       </a>
       {% endif %}

@@ -189,7 +189,7 @@ $(document).ready(function() {
    </td>
    {% endif %}
    <td>
-    <a href="{% url 'patch-detail' patch_id=patch.id %}">
+    <a href="{% url 'patch-detail' project_id=project.linkname msgid=patch.url_msgid %}">
      {{ patch.name|default:"[no subject]"|truncatechars:100 }}
     </a>
    </td>

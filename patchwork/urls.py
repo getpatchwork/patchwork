@@ -38,18 +38,41 @@ urlpatterns = [
         name='project-detail'),
 
     # patch views
-    url(r'^patch/(?P<patch_id>\d+)/$', patch_views.patch_detail,
-        name='patch-detail'),
-    url(r'^patch/(?P<patch_id>\d+)/raw/$', patch_views.patch_raw,
-        name='patch-raw'),
-    url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.patch_mbox,
-        name='patch-mbox'),
+    # NOTE(dja): Per the RFC, msgids can contain slashes. There doesn't seem
+    # to be an easy way to tell Django to urlencode the slash when generating
+    # URLs, so instead we must use a permissive regex (.+ rather than [^/]+).
+    # This also means we need to put the raw and mbox URLs first, otherwise the
+    # patch-detail regex will just greedily grab those parts into a massive and
+    # wrong msgid.
+    #
+    # This does mean that message-ids that end in '/raw/' or '/mbox/' will not
+    # work, but it is RECOMMENDED by the RFC that the right hand side of the @
+    # contains a domain, so I think breaking on messages that have "domains"
+    # ending in /raw/ or /mbox/ is good enough.
+    url(r'^project/(?P<project_id>[^/]+)/patch/(?P<msgid>.+)/raw/$',
+        patch_views.patch_raw, name='patch-raw'),
+    url(r'^project/(?P<project_id>[^/]+)/patch/(?P<msgid>.+)/mbox/$',
+        patch_views.patch_mbox, name='patch-mbox'),
+    url(r'^project/(?P<project_id>[^/]+)/patch/(?P<msgid>.+)/$',
+        patch_views.patch_detail, name='patch-detail'),
+    # ... old-style /patch/N/* urls
+    url(r'^patch/(?P<patch_id>\d+)/raw/$', patch_views.patch_raw_by_id,
+        name='patch-raw-redirect'),
+    url(r'^patch/(?P<patch_id>\d+)/mbox/$', patch_views.patch_mbox_by_id,
+        name='patch-mbox-redirect'),
+    url(r'^patch/(?P<patch_id>\d+)/$', patch_views.patch_by_id,
+        name='patch-id-redirect'),
 
     # cover views
-    url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover_detail,
-        name='cover-detail'),
-    url(r'^cover/(?P<cover_id>\d+)/mbox/$', cover_views.cover_mbox,
-        name='cover-mbox'),
+    url(r'^project/(?P<project_id>[^/]+)/cover/(?P<msgid>.+)/mbox/$',
+        cover_views.cover_mbox, name='cover-mbox'),
+    url(r'^project/(?P<project_id>[^/]+)/cover/(?P<msgid>.+)/$',
+        cover_views.cover_detail, name='cover-detail'),
+    # ... old-style /cover/N/* urls
+    url(r'^cover/(?P<cover_id>\d+)/mbox/$', cover_views.cover_mbox_by_id,
+        name='cover-mbox-redirect'),
+    url(r'^cover/(?P<cover_id>\d+)/$', cover_views.cover_by_id,
+        name='cover-id-redirect'),
 
     # comment views
     url(r'^comment/(?P<comment_id>\d+)/$', comment_views.comment,

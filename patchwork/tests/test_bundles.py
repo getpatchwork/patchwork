@@ -457,7 +457,9 @@ class BundleCreateFromPatchTest(BundleTestBase):
                   'action': 'createbundle'}
 
         response = self.client.post(
-            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
+            reverse('patch-detail',
+                    kwargs={'project_id': patch.project.linkname,
+                            'msgid': patch.url_msgid}), params)
 
         self.assertContains(response,
                             'Bundle %s created' % newbundlename)
@@ -474,7 +476,9 @@ class BundleCreateFromPatchTest(BundleTestBase):
                   'action': 'createbundle'}
 
         response = self.client.post(
-            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
+            reverse('patch-detail',
+                    kwargs={'project_id': patch.project.linkname,
+                            'msgid': patch.url_msgid}), params)
 
         self.assertContains(
             response,
@@ -585,7 +589,9 @@ class BundleAddFromPatchTest(BundleTestBase):
                   'bundle_id': self.bundle.id}
 
         response = self.client.post(
-            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
+            reverse('patch-detail',
+                    kwargs={'project_id': patch.project.linkname,
+                            'msgid': patch.url_msgid}), params)
 
         self.assertContains(
             response,
@@ -602,7 +608,9 @@ class BundleAddFromPatchTest(BundleTestBase):
                   'bundle_id': self.bundle.id}
 
         response = self.client.post(
-            reverse('patch-detail', kwargs={'patch_id': patch.id}), params)
+            reverse('patch-detail',
+                    kwargs={'project_id': patch.project.linkname,
+                            'msgid': patch.url_msgid}), params)
 
         self.assertContains(
             response,

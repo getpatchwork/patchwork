@@ -7,7 +7,6 @@
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.template.defaultfilters import stringfilter
 
 from patchwork.models import Check
 
@@ -60,12 +59,6 @@ def patch_checks(patch):
     return mark_safe('<span title="%s">%s</span>' % (
         ' / '.join(titles),
         ''.join(check_elements)))
-
-
-@register.filter
-@stringfilter
-def msgid(value):
-    return escape(value.strip('<>'))
 
 
 @register.filter(name='patch_commit_display')

@@ -19,16 +19,21 @@ class UTF8PatchViewTest(TestCase):
 
     def test_patch_view(self):
         response = self.client.get(reverse(
-            'patch-detail', args=[self.patch.id]))
+            'patch-detail', args=[self.patch.project.linkname,
+                                  self.patch.url_msgid]))
         self.assertContains(response, self.patch.name)
 
     def test_mbox_view(self):
-        response = self.client.get(reverse('patch-mbox', args=[self.patch.id]))
+        response = self.client.get(
+            reverse('patch-mbox', args=[self.patch.project.linkname,
+                                        self.patch.url_msgid]))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.patch.diff in response.content.decode('utf-8'))
 
     def test_raw_view(self):
-        response = self.client.get(reverse('patch-raw', args=[self.patch.id]))
+        response = self.client.get(reverse('patch-raw',
+                                           args=[self.patch.project.linkname,
+                                                 self.patch.url_msgid]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), self.patch.diff)
 

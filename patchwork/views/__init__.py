@@ -276,7 +276,7 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
                                      'series')
 
     patches = patches.only('state', 'submitter', 'delegate', 'project',
-                           'series__name', 'name', 'date')
+                           'series__name', 'name', 'date', 'msgid')
 
     # we also need checks and series
     patches = patches.prefetch_related(

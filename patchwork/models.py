@@ -335,6 +335,14 @@ class EmailMixin(models.Model):
         return ''.join([match.group(0) + '\n' for match in
                         self.response_re.finditer(self.content)])
 
+    @property
+    def url_msgid(self):
+        """A trimmed messageid, suitable for inclusion in URLs"""
+        if settings.DEBUG:
+            assert self.msgid[0] == '<' and self.msgid[-1] == '>'
+
+        return self.msgid.strip('<>')
+
     def save(self, *args, **kwargs):
         # Modifying a submission via admin interface changes '\n' newlines in
         # message content to '\r\n'. We need to fix them to avoid problems,
@@ -374,7 +382,7 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
         if not self.msgid:
             return None
         return self.project.list_archive_url_format.format(
-            self.msgid.strip('<>'))
+            self.url_msgid)
 
     # patchwork metadata
 
@@ -400,10 +408,14 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
 class CoverLetter(Submission):
 
     def get_absolute_url(self):
-        return reverse('cover-detail', kwargs={'cover_id': self.id})
+        return reverse('cover-detail',
+                       kwargs={'project_id': self.project.linkname,
+                               'msgid': self.url_msgid})
 
     def get_mbox_url(self):
-        return reverse('cover-mbox', kwargs={'cover_id': self.id})
+        return reverse('cover-mbox',
+                       kwargs={'project_id': self.project.linkname,
+                               'msgid': self.url_msgid})
 
 
 @python_2_unicode_compatible
@@ -581,10 +593,14 @@ class Patch(Submission):
         return counts
 
     def get_absolute_url(self):
-        return reverse('patch-detail', kwargs={'patch_id': self.id})
+        return reverse('patch-detail',
+                       kwargs={'project_id': self.project.linkname,
+                               'msgid': self.url_msgid})
 
     def get_mbox_url(self):
-        return reverse('patch-mbox', kwargs={'patch_id': self.id})
+        return reverse('patch-mbox',
+                       kwargs={'project_id': self.project.linkname,
+                               'msgid': self.url_msgid})
 
     def __str__(self):
         return self.name
@@ -616,7 +632,7 @@ class Comment(EmailMixin, models.Model):
         if not self.msgid:
             return None
         return self.project.list_archive_url_format.format(
-            self.msgid.strip('<>'))
+            self.url_msgid)
 
     def get_absolute_url(self):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})

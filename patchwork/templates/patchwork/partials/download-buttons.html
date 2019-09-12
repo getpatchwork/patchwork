@@ -4,14 +4,14 @@
       {{ submission.id }}
   </button>
   {% if submission.diff %}
-  <a href="{% url 'patch-raw' patch_id=submission.id %}"
+  <a href="{% url 'patch-raw' project_id=project.linkname msgid=submission.url_msgid %}"
    class="btn btn-default" role="button" title="Download patch diff"
    >diff</a>
-  <a href="{% url 'patch-mbox' patch_id=submission.id %}"
+  <a href="{% url 'patch-mbox' project_id=project.linkname msgid=submission.url_msgid %}"
    class="btn btn-default" role="button" title="Download patch mbox"
    >mbox</a>
   {% else %}
-  <a href="{% url 'cover-mbox' cover_id=submission.id %}"
+  <a href="{% url 'cover-mbox' project_id=project.linkname msgid=submission.url_msgid %}"
    class="btn btn-default" role="button" title="Download cover mbox"
    >mbox</a>
   {% endif %}

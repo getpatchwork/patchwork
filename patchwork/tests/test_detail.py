@@ -14,10 +14,38 @@ from patchwork.tests.utils import create_patch
 class CoverLetterViewTest(TestCase):
 
     def test_redirect(self):
-        patch_id = create_patch().id
+        patch = create_patch()
 
-        requested_url = reverse('cover-detail', kwargs={'cover_id': patch_id})
-        redirect_url = reverse('patch-detail', kwargs={'patch_id': patch_id})
+        requested_url = reverse('cover-detail',
+                                kwargs={'project_id': patch.project.linkname,
+                                        'msgid': patch.url_msgid})
+        redirect_url = reverse('patch-detail',
+                               kwargs={'project_id': patch.project.linkname,
+                                       'msgid': patch.url_msgid})
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_old_detail_url(self):
+        cover = create_cover()
+
+        requested_url = reverse('cover-id-redirect',
+                                kwargs={'cover_id': cover.id})
+        redirect_url = reverse('cover-detail',
+                               kwargs={'project_id': cover.project.linkname,
+                                       'msgid': cover.url_msgid})
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_old_mbox_url(self):
+        cover = create_cover()
+
+        requested_url = reverse('cover-mbox-redirect',
+                                kwargs={'cover_id': cover.id})
+        redirect_url = reverse('cover-mbox',
+                               kwargs={'project_id': cover.project.linkname,
+                                       'msgid': cover.url_msgid})
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -26,10 +54,50 @@ class CoverLetterViewTest(TestCase):
 class PatchViewTest(TestCase):
 
     def test_redirect(self):
-        cover_id = create_cover().id
+        cover = create_cover()
 
-        requested_url = reverse('patch-detail', kwargs={'patch_id': cover_id})
-        redirect_url = reverse('cover-detail', kwargs={'cover_id': cover_id})
+        requested_url = reverse('patch-detail',
+                                kwargs={'project_id': cover.project.linkname,
+                                        'msgid': cover.url_msgid})
+        redirect_url = reverse('cover-detail',
+                               kwargs={'project_id': cover.project.linkname,
+                                       'msgid': cover.url_msgid})
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_old_detail_url(self):
+        patch = create_patch()
+
+        requested_url = reverse('patch-id-redirect',
+                                kwargs={'patch_id': patch.id})
+        redirect_url = reverse('patch-detail',
+                               kwargs={'project_id': patch.project.linkname,
+                                       'msgid': patch.url_msgid})
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_old_mbox_url(self):
+        patch = create_patch()
+
+        requested_url = reverse('patch-mbox-redirect',
+                                kwargs={'patch_id': patch.id})
+        redirect_url = reverse('patch-mbox',
+                               kwargs={'project_id': patch.project.linkname,
+                                       'msgid': patch.url_msgid})
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)
+
+    def test_old_raw_url(self):
+        patch = create_patch()
+
+        requested_url = reverse('patch-raw-redirect',
+                                kwargs={'patch_id': patch.id})
+        redirect_url = reverse('patch-raw',
+                               kwargs={'project_id': patch.project.linkname,
+                                       'msgid': patch.url_msgid})
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -43,24 +111,28 @@ class PatchViewTest(TestCase):
         patch.commit_ref = unescaped_string
         patch.pull_url = unescaped_string
         patch.name = unescaped_string
-        patch.msgid = unescaped_string
+        patch.msgid = '<' + unescaped_string + '>'
         patch.headers = unescaped_string
         patch.content = unescaped_string
         patch.save()
-        requested_url = reverse('patch-detail', kwargs={'patch_id': patch.id})
+        requested_url = reverse('patch-detail',
+                                kwargs={'project_id': patch.project.linkname,
+                                        'msgid': patch.url_msgid})
         response = self.client.get(requested_url)
         self.assertNotIn('<b>TEST</b>'.encode('utf-8'), response.content)
 
 
 class CommentRedirectTest(TestCase):
 
-    def _test_redirect(self, submission, submission_url, submission_id):
+    def _test_redirect(self, submission, submission_url):
         comment_id = create_comment(submission=submission).id
 
         requested_url = reverse('comment-redirect',
                                 kwargs={'comment_id': comment_id})
         redirect_url = '%s#%d' % (
-            reverse(submission_url, kwargs={submission_id: submission.id}),
+            reverse(submission_url,
+                    kwargs={'project_id': submission.project.linkname,
+                            'msgid': submission.url_msgid}),
             comment_id)
 
         response = self.client.get(requested_url)
@@ -68,8 +140,8 @@ class CommentRedirectTest(TestCase):
 
     def test_patch_redirect(self):
         patch = create_patch()
-        self._test_redirect(patch, 'patch-detail', 'patch_id')
+        self._test_redirect(patch, 'patch-detail')
 
     def test_cover_redirect(self):
         cover = create_cover()
-        self._test_redirect(cover, 'cover-detail', 'cover_id')
+        self._test_redirect(cover, 'cover-detail')

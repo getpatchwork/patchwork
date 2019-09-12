@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The URL schema now uses message IDs, rather than patch IDs, by
+    default. Old URLs will redirect to the new URLs.
