@@ -70,6 +70,6 @@ class Command(base.BaseCommand):
             logger.warning('Duplicate mail for message ID %s', exc.msgid)
         except (ValueError, Exception) as exc:
             logger.exception('Error when parsing incoming email: %s',
-                             exc.message,
+                             repr(exc),
                              extra={'mail': mail.as_string()})
             sys.exit(1)

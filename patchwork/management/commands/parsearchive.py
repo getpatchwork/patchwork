@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 logger.warning('Duplicate mail for message ID %s', exc.msgid)
             except (ValueError, Exception) as exc:
                 errors += 1
-                logger.warning('Invalid mail: %s', exc.message)
+                logger.warning('Invalid mail: %s', repr(exc))
 
             if verbosity < 3 and (i % 10) == 0:
                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
