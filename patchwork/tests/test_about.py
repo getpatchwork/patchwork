@@ -3,19 +3,31 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import unittest
+
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
 
 class AboutViewTest(TestCase):
 
-    def test_redirects(self):
-        for view in ['help', 'help-about', 'help-pwclient']:
-            requested_url = reverse(view)
-            redirect_url = reverse('about')
+    def _test_redirect(self, view):
+        requested_url = reverse(view)
+        redirect_url = reverse('about')
 
-            response = self.client.get(requested_url)
-            self.assertRedirects(response, redirect_url, 301)
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url, 301)
+
+    def test_redirects(self):
+        for view in ['help', 'help-about']:
+            self._test_redirect(view)
+
+    @unittest.skipUnless(settings.ENABLE_XMLRPC,
+                         'requires xmlrpc interface (use the ENABLE_XMLRPC '
+                         'setting)')
+    def test_redirects_xmlrpc(self):
+        self._test_redirect('help-pwclient')
 
     def test_xmlrpc(self):
         with self.settings(ENABLE_XMLRPC=False):

@@ -42,6 +42,9 @@ class XMLRPCGenericTest(XMLRPCTest):
             self.rpc.patch_set(0, {})
 
 
+@unittest.skipUnless(settings.ENABLE_XMLRPC,
+                     'requires xmlrpc interface (use the ENABLE_XMLRPC '
+                     'setting)')
 class XMLRPCAuthenticatedTest(LiveServerTestCase):
 
     def setUp(self):
