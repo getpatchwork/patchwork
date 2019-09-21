@@ -284,6 +284,30 @@ class TestPatchAPI(utils.APITestCase):
         self.assertContains(resp, 'Expected one of: %s.' % state.name,
                             status_code=status.HTTP_400_BAD_REQUEST)
 
+    def test_update_legacy_delegate(self):
+        """Regression test for bug #313."""
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user_a = create_maintainer(project)
+
+        # create a user (User), then delete the associated UserProfile and save
+        # the user to ensure a new profile is generated
+        user_b = create_user()
+        self.assertEqual(user_b.id, user_b.profile.id)
+        user_b.profile.delete()
+        user_b.save()
+        user_b.profile.maintainer_projects.add(project)
+        user_b.profile.save()
+        self.assertNotEqual(user_b.id, user_b.profile.id)
+
+        self.client.force_authenticate(user=user_a)
+        resp = self.client.patch(self.api_url(patch.id),
+                                 {'delegate': user_b.id})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).state, state)
+        self.assertEqual(Patch.objects.get(id=patch.id).delegate, user_b)
+
     def test_update_invalid_delegate(self):
         """Update patch with invalid fields.
 
