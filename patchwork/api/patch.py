@@ -119,8 +119,8 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         if not value:
             return value
 
-        if not self.instance.project.maintainer_project.filter(
-                id=value.id).exists():
+        if not value.profile.maintainer_projects.only('id').filter(
+                id=self.instance.project.id).exists():
             raise ValidationError("User '%s' is not a maintainer for project "
                                   "'%s'" % (value, self.instance.project))
         return value
