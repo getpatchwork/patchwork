@@ -1,0 +1,20 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-executables-have-shebangs
+  - id: check-merge-conflict
+  - id: check-yaml
+  - id: end-of-file-fixer
+    exclude: (.*\.mbox)|(.*\.css)|(.*\.json)|(.*\.js)|(.*\.svg)|(.*/mails/.*-subject\.txt)
+  - id: flake8
+    exclude: ^patchwork/migrations
+  - id: trailing-whitespace
+    exclude: (.*\.mbox)|(.*\.svg)
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.1.7
+  hooks:
+  - id: remove-tabs
+    exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
+  - id: remove-crlf
+    exclude: (.*\.mbox)|(.*\.svg)
