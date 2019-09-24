@@ -23,8 +23,8 @@ from patchwork.models import SeriesReference
 from patchwork.models import State
 from patchwork.tests import TEST_PATCH_DIR
 
-SAMPLE_DIFF = """--- /dev/null	2011-01-01 00:00:00.000000000 +0800
-+++ a	2011-01-01 00:00:00.000000000 +0800
+SAMPLE_DIFF = """--- /dev/null\t2011-01-01 00:00:00.000000000 +0800
++++ a\t2011-01-01 00:00:00.000000000 +0800
 @@ -0,0 +1 @@
 +a
 """

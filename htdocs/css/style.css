@@ -1,91 +1,91 @@
 h2 {
-	font-size: 25px;
-	margin: 18px 0 18px 0;
+    font-size: 25px;
+    margin: 18px 0 18px 0;
 }
 
 h2 a, h2 span {
-	font-size: 14px;
-	padding-left: 5px;
-	font-weight: normal;
+    font-size: 14px;
+    padding-left: 5px;
+    font-weight: normal;
 }
 
 pre {
-	line-height: 110%;
-	background-color: white;
-	border-radius: 0;
+    line-height: 110%;
+    background-color: white;
+    border-radius: 0;
 }
 
 .floaty {
-	position: fixed;
-	left: 0.1em;
-	top: 17em;
+    position: fixed;
+    left: 0.1em;
+    top: 17em;
 }
 
 /* Bootstrap overrides */
 
 .navbar-inverse .navbar-brand > a {
-	color: white;
+    color: white;
 }
 
 .navbar-inverse .navbar-nav > li > a {
-	color: #999;
+    color: #999;
 }
 
 /* Bootstrap extensions */
 
 .navbar-subbrand {
-	float: left;
-	height: 50px;
-	padding: 15px 15px 15px 0;
-	font-size: 18px;
-	line-height: 20px;
+    float: left;
+    height: 50px;
+    padding: 15px 15px 15px 0;
+    font-size: 18px;
+    line-height: 20px;
 }
 
 .navbar-subbrand {
-	color: #999;
+    color: #999;
 }
 
 form {
-	padding: 0em;
-	margin: 0em;
+    padding: 0em;
+    margin: 0em;
 }
 
 table {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 img {
-	border: 0;
+    border: 0;
 }
 
 input {
-	border: thin solid #909090;
+    border: thin solid #909090;
 }
 
 dl dt {
-	margin-top: 0.8em;
+    margin-top: 0.8em;
 }
 
 #footer {
-	padding: 1em;
-	font-size: small;
-	text-align: center;
-	color: #909090;
+    padding: 1em;
+    font-size: small;
+    text-align: center;
+    color: #909090;
 }
 
 #footer a {
-	color: #909090;
+    color: #909090;
 }
 
 /* messages */
 #messages {
-	background: #e0e0f0;
-	margin: 0.5em 1em 0.0em 0.5em;
-	padding: 0.3em;
+    background: #e0e0f0;
+    margin: 0.5em 1em 0.0em 0.5em;
+    padding: 0.3em;
 }
 
 #messages .message {
-	color: green;
+    color: green;
 }
 
 .filters {
@@ -96,7 +96,7 @@ dl dt {
 }
 
 .filters .checkbox-inline input {
-	margin-right: 6px;
+    margin-right: 6px;
 }
 
 a.filter-action {
@@ -111,35 +111,35 @@ table.pw-list > thead {
 }
 
 a.colinactive, a.colactive {
-	color: black;
-	text-decoration: none;
+    color: black;
+    text-decoration: none;
 }
 
 a.colinactive:hover {
-	color: red;
+    color: red;
 }
 
 div.filters {
 }
 
 div.patchforms {
-	margin-top: 1em;
+    margin-top: 1em;
 }
 
 /* list order manipulation */
 
 table.patchlist tr.draghover {
-	background: #e8e8e8 !important;
+    background: #e8e8e8 !important;
 }
 
 .dragging {
-	border: thin solid black;
-	background: #e8e8e8 !important;
+    border: thin solid black;
+    background: #e8e8e8 !important;
 }
 
 input#reorder-cancel {
-	display: none;
-	color: #505050;
+    display: none;
+    color: #505050;
 }
 
 input#reorder-change {
@@ -147,228 +147,228 @@ input#reorder-change {
 
 /* list pagination */
 .paginator {
-	text-align: right;
-	clear: both;
+    text-align: right;
+    clear: both;
         margin: 8px 0 15px;
 }
 
 .paginator .prev-na,
 .paginator .next-na {
-	font-weight: normal;
-	color: #a0a0a0;
+    font-weight: normal;
+    color: #a0a0a0;
 }
 
 .paginator .prev a, .paginator .prev a:visited,
 .paginator .next a, .paginator .next a:visited {
-	font-weight: normal;
+    font-weight: normal;
 }
 
 .paginator .prev, .paginator .prev-na { margin-right:.5em; }
 .paginator .next, .paginator .next-na { margin-left:.5em; }
 
 .paginator .page a, .paginator .page a:visited, .paginator .curr {
-	font-weight: normal;
+    font-weight: normal;
         padding: 6px 12px;
 }
 .paginator .curr {
-	background-color: #eee;
+    background-color: #eee;
         border-radius: 4px;
-	color: #999;
-	font-weight:normal;
+    color: #999;
+    font-weight:normal;
 }
 
 .thumbnail {
-	min-height: 200px;
+    min-height: 200px;
 }
 
 /* patch view */
 table.patchmeta th {
-	text-align: left;
+    text-align: left;
 }
 
 table.patchmeta tr th, table.patchmeta tr td {
-	text-align: left;
-	padding: 1px 10px;
-	vertical-align: middle;
+    text-align: left;
+    padding: 1px 10px;
+    vertical-align: middle;
 }
 
 .patchrelations ul {
-	list-style-type: none;
-	padding: 0;
-	margin: 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
 .patchnav {
-	padding-left: 1em;
-	padding-top: 1em;
+    padding-left: 1em;
+    padding-top: 1em;
 }
 
 /* checks forms */
 /* TODO(stephenfin): Merge this with 'div.patchform' rules */
 .checks {
-	border: 1px solid gray;
-	margin: 0.5em 1em;
+    border: 1px solid gray;
+    margin: 0.5em 1em;
 }
 
 .checks th {
-	margin-top: 0em;
-	margin-left: -0.6em;
-	margin-right: -0.6em;
-	padding: 0.3em 0.3em 0.3em 0.6em;
-	background-color: #0A0A47;
-	color: white;
-	font-size: 100%;
-	font-weight: normal;
+    margin-top: 0em;
+    margin-left: -0.6em;
+    margin-right: -0.6em;
+    padding: 0.3em 0.3em 0.3em 0.6em;
+    background-color: #0A0A47;
+    color: white;
+    font-size: 100%;
+    font-weight: normal;
 }
 
 .checks td {
-	border-top: 1px solid gray;
-	padding: 10px 15px;
-	padding-left: 0.2em;
-	margin-top: 0em;
+    border-top: 1px solid gray;
+    padding: 10px 15px;
+    padding-left: 0.2em;
+    margin-top: 0em;
 }
 
 .checks td a {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .checks td a:visited {
-	color: #786FB4;
+    color: #786FB4;
 }
 
 .checks a:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 .patchlistchecks {
-	display: inline-block;
-	border-radius: 7px;
-	min-width: 0.9em;
-	padding: 0 2px;
-	text-align: center;
+    display: inline-block;
+    border-radius: 7px;
+    min-width: 0.9em;
+    padding: 0 2px;
+    text-align: center;
 }
 
 .patchlistchecks.success {
-	background-color: #82ca9d;
+    background-color: #82ca9d;
 }
 
 .patchlistchecks.warning {
-	background-color: #ffc95e;
+    background-color: #ffc95e;
 }
 
 .patchlistchecks.fail {
-	background-color: #ff5555;
+    background-color: #ff5555;
 }
 
 .checks .state {
-	font-weight: bold;
-	color: #ddd;
+    font-weight: bold;
+    color: #ddd;
 }
 
 .checks .state.success {
-	color: #82ca9d;
+    color: #82ca9d;
 }
 
 .checks .state.warning {
-	color: #ffe59a;
+    color: #ffe59a;
 }
 
 .checks .state.fail {
-	color: #f7977a;
+    color: #f7977a;
 }
 
 .comment .meta {
-	background: #f0f0f0;
-	padding: 0.3em 0.5em;
+    background: #f0f0f0;
+    padding: 0.3em 0.5em;
 }
 
 .comment .content {
-	border: 0;
+    border: 0;
 }
 
 .patch .content {
-	padding: 1em;
+    padding: 1em;
 }
 
 .patch-pull-url {
-	font-family: "DejaVu Sans Mono", fixed;
+    font-family: "DejaVu Sans Mono", fixed;
 }
 
 .quote {
-	color: #007f00;
+    color: #007f00;
 }
 
-span.p_header	{ color: #2e8b57; font-weight: bold; }
-span.p_chunk	{ color: #a52a2a; font-weight: bold; }
-span.p_context	{ color: #a020f0; }
-span.p_add	{ color: #008b8b; }
-span.p_del	{ color: #6a5acd; }
-span.p_mod	{ color: #0000ff; }
+span.p_header    { color: #2e8b57; font-weight: bold; }
+span.p_chunk    { color: #a52a2a; font-weight: bold; }
+span.p_context    { color: #a020f0; }
+span.p_add    { color: #008b8b; }
+span.p_del    { color: #6a5acd; }
+span.p_mod    { color: #0000ff; }
 
 .acked-by {
-	color: #2d4566;
+    color: #2d4566;
 
 }
 
 .nacked-by {
-	color: #2d4566;
+    color: #2d4566;
 
 }
 
 .signed-off-by {
-	color: #672d45;
-	font-weight: bold;
+    color: #672d45;
+    font-weight: bold;
 }
 
 .from {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 /* bundles */
 table.bundlelist {
-	margin-top: 2em;
-	margin-bottom: 4em;
-	margin-left: auto;
-	margin-right: auto;
-	border: thin solid black;
+    margin-top: 2em;
+    margin-bottom: 4em;
+    margin-left: auto;
+    margin-right: auto;
+    border: thin solid black;
 }
 
 table.bundlelist th {
-	padding-left: 2em;
-	padding-right: 2em;
-	background: #eeeeee;
-	border-bottom: thin solid black;
+    padding-left: 2em;
+    padding-right: 2em;
+    background: #eeeeee;
+    border-bottom: thin solid black;
 }
 
 table.bundlelist td
 {
-	padding-left: 2em;
-	padding-right: 2em;
+    padding-left: 2em;
+    padding-right: 2em;
 }
 
 /* forms that appear for a patch */
 div.patchform {
-	border: thin solid #080808;
-	padding-left: 0.6em;
-	padding-right: 0.6em;
-	float: left;
-	margin: 0.5em 5em 0.5em 10px;
+    border: thin solid #080808;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+    float: left;
+    margin: 0.5em 5em 0.5em 10px;
 }
 
 div.patchform h3 {
-	margin-top: 0em;
-	margin-left: -0.6em;
-	margin-right: -0.6em;
-	padding: 0.3em 0.3em 0.3em 0.6em;
-	background-color: #222;
-	color: #999;
-	font-size: 100%;
+    margin-top: 0em;
+    margin-left: -0.6em;
+    margin-right: -0.6em;
+    padding: 0.3em 0.3em 0.3em 0.6em;
+    background-color: #222;
+    color: #999;
+    font-size: 100%;
 }
 
 div.patchform ul {
-	list-style-type: none;
-	padding-left: 0.2em;
-	margin-top: 0em;
+    list-style-type: none;
+    padding-left: 0.2em;
+    margin-top: 0em;
 }
 
 /* forms */
@@ -376,79 +376,79 @@ table.form {
 }
 
 span.help_text {
-	font-size: 80%;
+    font-size: 80%;
 }
 
 
 table.form td {
-	padding: 0.6em;
-	vertical-align: top;
+    padding: 0.6em;
+    vertical-align: top;
 }
 
 table.form th.headerrow {
-	background: #222;
-	color: #999;
-	font-weight: bold;
-	text-align: center;
+    background: #222;
+    color: #999;
+    font-weight: bold;
+    text-align: center;
 }
 
 table.form th {
-	text-align: left;
-	vertical-align: top;
-	padding-top: 0.6em;
+    text-align: left;
+    vertical-align: top;
+    padding-top: 0.6em;
 }
 
 table.form td.form-help {
-	font-size: smaller;
-	padding-bottom: 1em;
-	padding-top: 0em;
+    font-size: smaller;
+    padding-bottom: 1em;
+    padding-top: 0em;
 }
 
 table.form tr td.submitrow {
-	border-bottom: 0.2em solid #222;
-	color: #333;
-	text-align: center;
+    border-bottom: 0.2em solid #222;
+    color: #333;
+    text-align: center;
 }
 
 table.registerform, table.passwordform {
-	margin-left: auto;
-	margin-right: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 table.loginform {
-	margin-left: auto;
-	margin-right: auto;
-	width: 30em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30em;
 }
 
 /* form errors */
 .errorlist {
-	color: red;
-	list-style-type: none;
-	padding-left: 0.2em;
-	margin: 0em;
+    color: red;
+    list-style-type: none;
+    padding-left: 0.2em;
+    margin: 0em;
 }
 .error {
-	color: red;
+    color: red;
 }
 
 /* generic table with header columns on the left */
 table.horizontal {
-	border-collapse: collapse;
-	border: thin solid #e8e8e8;
+    border-collapse: collapse;
+    border: thin solid #e8e8e8;
 }
 
 table.horizontal th {
-	text-align: left;
+    text-align: left;
 }
 
 table.horizontal td, table.horizontal th {
-	padding: 0.5em 1em;
-	border: thin solid #e8e8e8;
+    padding: 0.5em 1em;
+    border: thin solid #e8e8e8;
 }
 
 /* generic table with header row */
 table.vertical {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 /* per suggestions here: https://github.com/twbs/bootstrap/issues/12238 */
@@ -458,53 +458,53 @@ table.vertical {
 .table-extra-condensed > thead > tr > td,
 .table-extra-condensed > tbody > tr > td,
 .table-extra-condensed > tfoot > tr > td {
-	padding: 1px 0.5em 1px 0.5em;
-	vertical-align: middle;
+    padding: 1px 0.5em 1px 0.5em;
+    vertical-align: middle;
 }
 
 table.vertical th {
-	background: #222;
-	color: #999;
-	font-weight: bold;
-	text-align: center;
+    background: #222;
+    color: #999;
+    font-weight: bold;
+    text-align: center;
 }
 
 table.vertical th, table.vertical td {
-	padding: 0.2em 0.8em;
-	border: thin solid #e8e8e8;
+    padding: 0.2em 0.8em;
+    border: thin solid #e8e8e8;
 }
 
 td.numberformat {
-	text-align: right;
+    text-align: right;
 }
 
 /* boxes */
 div.box {
-	border: thin solid #080808;
-	margin: 1em;
-	padding: 0.5em;
+    border: thin solid #080808;
+    margin: 1em;
+    padding: 0.5em;
 }
 
 div.box h2 {
-	background: #222;
-	color: #999;
-	margin: -0.5em -0.5em 1em; -0.5em;
-	padding: 0.3em 0.3em 0.3em 0.6em;
-	font-size: 100%;
+    background: #222;
+    color: #999;
+    margin: -0.5em -0.5em 1em; -0.5em;
+    padding: 0.3em 0.3em 0.3em 0.6em;
+    font-size: 100%;
 }
 
 div.box table.vertical {
-	margin-left: auto;
-	margin-right: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* columns */
 .leftcol {
-	float: left;
-	width: 49%;
+    float: left;
+    width: 49%;
 }
 
 .rightcol {
-	float: right;
-	width: 49%;
+    float: right;
+    width: 49%;
 }
