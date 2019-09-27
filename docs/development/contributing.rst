@@ -19,11 +19,29 @@ files and may be added for significant changes to existing files.
    #
    # SPDX-License-Identifier: GPL-2.0-or-later
 
-Changes that fix semantic issues will be generally be happily received, but
-please keep such changes separate from functional changes.
+Changes that fix semantic issues will be happily received, but please keep such
+changes separate from functional changes.
 
-``pep8`` targets are provided via tox. Refer to the :ref:`testing` section
-below for more information on usage of this tool.
+Patchwork uses the `pre-commit`_ framework to allow automated style checks when
+committing code. This is opt-in but avoids the need to manually run style
+checks on commits. Pre-commit can be installed and enabled like so:
+
+.. code-block:: shell
+
+   $ pip install --user pre-commit
+   $ pre-commit install --allow-missing-config
+
+Once installed, the various checks listed in ``.pre-commit-config.yaml`` will
+be run on changed files when committing. It is also possible to run the checks
+on all files manually:
+
+.. code-block:: shell
+
+   $ pre-commit run --all-files
+
+In addition to *pre-commit*, we provide *tox* targets for style checks. These
+are used by CI and can be useful if checking all files manually. Refer to the
+:ref:`testing` section below for more information on usage of this tool.
 
 .. _testing:
 
@@ -163,6 +181,7 @@ Further information about the Patchwork mailing list is available can be found o
 .. _PEP 8: https://pep8.org/
 .. _GPL v2.0 or later: https://spdx.org/licenses/GPL-2.0-or-later.html
 .. _SPDX License Identifier: https://spdx.org/using-spdx-license-identifier
+.. _pre-commit: https://pre-commit.com/
 .. _tox: https://tox.readthedocs.io/en/latest/
 .. _reno: https://docs.openstack.org/developer/reno/
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
