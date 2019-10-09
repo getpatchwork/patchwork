@@ -21,9 +21,15 @@ from .base import *  # noqa
 # You'll need to replace this to a random string. The following python code can
 # be used to generate a secret key:
 #
-#      import string, random
-#      chars = string.letters + string.digits + string.punctuation
-#      print repr("".join([random.choice(chars) for i in range(0,50)]))
+#      import string
+#      try:
+#          import secrets
+#      except ImportError:  # Python < 3.6
+#          import random
+#          secrets = random.SystemRandom()
+#
+#      chars = string.ascii_letters + string.digits + string.punctuation
+#      print("".join([secrets.choice(chars) for i in range(50)]))
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 

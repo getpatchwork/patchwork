@@ -254,9 +254,15 @@ This should be a random value and kept secret. You can generate and a value for
 
 .. code-block:: python
 
-   import string, random
+   import string
+   try:
+       import secrets
+   except ImportError:  # Python < 3.6
+       import random
+       secrets = random.SystemRandom()
+
    chars = string.ascii_letters + string.digits + string.punctuation
-   print(repr("".join([random.choice(chars) for i in range(0,50)])))
+   print("".join([secrets.choice(chars) for i in range(50)]))
 
 Once again, store this in ``production.py``.
 

@@ -10,4 +10,5 @@ sections:
   - [deprecations, Deprecation Notes]
   - [fixes, Bug Fixes]
   - [api, API Changes]
+  - [security, Security Notes]
   - [other, Other Notes]
