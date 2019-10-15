@@ -1,11 +1,13 @@
 FROM ubuntu:18.04
 
 ARG UID
+ARG GID
 
 # make sure the user has configured the '.env' file and quick fail if not
 
-RUN echo $UID
-RUN [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }
+RUN echo $UID; echo $GID; \
+    [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }; \
+    [ -n "$GID" ] || { echo "You must define GID in .env" 1>&2; exit 1; }
 
 ARG TZ="Australia/Canberra"
 ENV LANG="C.UTF-8"
@@ -18,8 +20,9 @@ ENV PYTHONUNBUFFERED 1
 ENV PROJECT_HOME /home/patchwork/patchwork
 ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 
-RUN useradd --uid=$UID --create-home patchwork
-RUN rm /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
+RUN groupadd --gid=$GID patchwork && \
+    useradd --uid=$UID --gid=$GID --create-home patchwork
+RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
