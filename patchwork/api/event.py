@@ -77,7 +77,7 @@ class EventList(ListAPIView):
     serializer_class = EventSerializer
     filter_class = filterset_class = EventFilterSet
     page_size_query_param = None  # fixed page size
-    ordering_fields = ()
+    ordering_fields = ('date',)
     ordering = '-date'
 
     def get_queryset(self):

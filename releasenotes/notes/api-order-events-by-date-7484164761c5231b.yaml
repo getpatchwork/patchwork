@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Allow ordering events from the events API by date. This can be done by
+    adding ``order=date`` or ``order=-date`` (the default) parameters.
