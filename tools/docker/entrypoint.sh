@@ -70,7 +70,7 @@ fi
 set +e
 
 # check if we need to rebuild because requirements changed
-for x in /tmp/requirements-*.txt; do
+for x in /opt/requirements-*.txt; do
     if ! cmp $x ~/patchwork/$(basename $x); then
         cat << EOF
 A requirements file has changed.
