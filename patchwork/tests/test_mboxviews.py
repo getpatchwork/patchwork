@@ -183,6 +183,27 @@ class MboxHeaderTest(TestCase):
                                         patch.url_msgid]))
         self.assertContains(response, from_email)
 
+    def test_dmarc_from_header(self):
+        """Validate 'From' header is rewritten correctly when DMARC-munged.
+
+        Test that when an email with a DMARC-munged From header is processed,
+        the From header will be unmunged and the munged address will be saved
+        as 'X-Patchwork-Original-From'.
+        """
+        orig_from_header = 'Person via List <list@example.com>'
+        rewritten_from_header = 'Person <person@example.com>'
+        project = create_project(listemail='list@example.com')
+        person = create_person(name='Person', email='person@example.com')
+        patch = create_patch(project=project,
+                             headers='From: ' + orig_from_header,
+                             submitter=person)
+        response = self.client.get(
+            reverse('patch-mbox', args=[patch.project.linkname,
+                                        patch.url_msgid]))
+        mail = email.message_from_string(response.content.decode())
+        self.assertEqual(mail['From'], rewritten_from_header)
+        self.assertEqual(mail['X-Patchwork-Original-From'], orig_from_header)
+
     def test_date_header(self):
         patch = create_patch()
         response = self.client.get(

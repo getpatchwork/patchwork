@@ -18,6 +18,7 @@ from django.utils import six
 
 from patchwork.models import Comment
 from patchwork.models import Patch
+from patchwork.parser import split_from_header
 
 if settings.ENABLE_REST_API:
     from rest_framework.authtoken.models import Token
@@ -92,6 +93,17 @@ def _submission_to_mbox(submission):
         # [1] https://tools.ietf.org/html/rfc1847
         if key == 'Content-Type' and val == 'multipart/signed':
             continue
+
+        if key == 'From':
+            name, addr = split_from_header(val)
+            if addr == submission.project.listemail:
+                # If From: is the list address (typically DMARC munging), then
+                # use the submitter details (which are cleaned up in the
+                # parser) in the From: field so that the patch author details
+                # are correct when applied with git am.
+                mail['X-Patchwork-Original-From'] = val
+                val = mail['X-Patchwork-Submitter']
+
         mail[key] = val
 
     if 'Date' not in mail:

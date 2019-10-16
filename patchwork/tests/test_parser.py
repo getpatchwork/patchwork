@@ -265,11 +265,23 @@ class SenderCorrelationTest(TestCase):
     """
 
     @staticmethod
-    def _create_email(from_header):
+    def _create_email(from_header, reply_tos=None, ccs=None,
+                      x_original_from=None):
         mail = 'Message-Id: %s\n' % make_msgid() + \
-               'From: %s\n' % from_header + \
-               'Subject: Tests\n\n'\
-               'test\n'
+               'From: %s\n' % from_header
+
+        if reply_tos:
+            mail += 'Reply-To: %s\n' % ', '.join(reply_tos)
+
+        if ccs:
+            mail += 'Cc: %s\n' % ', '.join(ccs)
+
+        if x_original_from:
+            mail += 'X-Original-From: %s\n' % x_original_from
+
+        mail += 'Subject: Tests\n\n'\
+            'test\n'
+
         return message_from_string(mail)
 
     def test_existing_sender(self):
@@ -308,6 +320,54 @@ class SenderCorrelationTest(TestCase):
 
         mail = self._create_email(sender.upper())
         person_b = get_or_create_author(mail)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+    def test_mailman_dmarc_munging(self):
+        project = create_project()
+        real_sender = 'Existing Sender <existing@example.com>'
+        munged_sender = 'Existing Sender via List <{}>'.format(
+            project.listemail)
+        other_email = 'Other Person <other@example.com>'
+
+        # Unmunged author
+        mail = self._create_email(real_sender)
+        person_a = get_or_create_author(mail, project)
+        person_a.save()
+
+        # Single Reply-To
+        mail = self._create_email(munged_sender, [real_sender])
+        person_b = get_or_create_author(mail, project)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+        # Single Cc
+        mail = self._create_email(munged_sender, [], [real_sender])
+        person_b = get_or_create_author(mail, project)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+        # Multiple Reply-Tos and Ccs
+        mail = self._create_email(munged_sender, [other_email, real_sender],
+                                  [other_email, other_email])
+        person_b = get_or_create_author(mail, project)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+    def test_google_dmarc_munging(self):
+        project = create_project()
+        real_sender = 'Existing Sender <existing@example.com>'
+        munged_sender = "'Existing Sender' via List <{}>".format(
+            project.listemail)
+
+        # Unmunged author
+        mail = self._create_email(real_sender)
+        person_a = get_or_create_author(mail, project)
+        person_a.save()
+
+        # X-Original-From header
+        mail = self._create_email(munged_sender, None, None, real_sender)
+        person_b = get_or_create_author(mail, project)
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 

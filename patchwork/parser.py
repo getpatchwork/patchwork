@@ -321,12 +321,7 @@ def find_series(project, mail, author):
     return _find_series_by_markers(project, mail, author)
 
 
-def get_or_create_author(mail):
-    from_header = clean_header(mail.get('From'))
-
-    if not from_header:
-        raise ValueError("Invalid 'From' header")
-
+def split_from_header(from_header):
     name, email = (None, None)
 
     # tuple of (regex, fn)
@@ -355,12 +350,74 @@ def get_or_create_author(mail):
             (name, email) = fn(match.groups())
             break
 
+    return (name, email)
+
+
+# Unmangle From addresses that have been mangled for DMARC purposes.
+#
+# To avoid triggering spam filters due to failed signature validation, many
+# mailing lists mangle the From header to change the From address to be the
+# address of the list, typically where the sender's domain has a strict
+# DMARC policy enabled.
+#
+# Unfortunately, there's no standardised way of preserving the original
+# From address.
+#
+# Google Groups adds an X-Original-From header. If present, we use that.
+#
+# Mailman preserves the original address by adding a Reply-To, except in the
+# case where the list is set to either reply to list, or reply to a specific
+# address, in which case the original From is added to Cc instead. These corner
+# cases are dumb, but we try and handle things as sensibly as possible by
+# looking for a name in Reply-To/Cc that matches From. It's inexact but should
+# be good enough for our purposes.
+def get_original_sender(mail, name, email):
+    if name and ' via ' in name:
+        # Mailman uses the format "<name> via <list>"
+        # Google Groups uses "'<name>' via <list>"
+        stripped_name = name[:name.rfind(' via ')].strip().strip("'")
+
+    original_from = clean_header(mail.get('X-Original-From', ''))
+    if original_from:
+        new_email = split_from_header(original_from)[1].strip()[:255]
+        return (stripped_name, new_email)
+
+    addrs = []
+    reply_to_headers = mail.get_all('Reply-To') or []
+    cc_headers = mail.get_all('Cc') or []
+    for header in reply_to_headers + cc_headers:
+        header = clean_header(header)
+        addrs = header.split(",")
+        for addr in addrs:
+            new_name, new_email = split_from_header(addr)
+            if new_name:
+                new_name = new_name.strip()[:255]
+            if new_email:
+                new_email = new_email.strip()[:255]
+            if new_name == stripped_name:
+                return (stripped_name, new_email)
+
+    # If we can't figure out the original sender, just keep it as is
+    return (name, email)
+
+
+def get_or_create_author(mail, project=None):
+    from_header = clean_header(mail.get('From'))
+
+    if not from_header:
+        raise ValueError("Invalid 'From' header")
+
+    name, email = split_from_header(from_header)
+
     if not email:
         raise ValueError("Invalid 'From' header")
 
     email = email.strip()[:255]
     if name is not None:
         name = name.strip()[:255]
+
+    if project and email.lower() == project.listemail.lower():
+        name, email = get_original_sender(mail, name, email)
 
     # this correctly handles the case where we lose the race to create
     # the person and another process beats us to it. (If the record
@@ -1004,7 +1061,7 @@ def parse_mail(mail, list_id=None):
 
     if not is_comment and (diff or pull_url):  # patches or pull requests
         # we delay the saving until we know we have a patch.
-        author = get_or_create_author(mail)
+        author = get_or_create_author(mail, project)
 
         delegate = find_delegate_by_header(mail)
         if not delegate and diff:
@@ -1099,7 +1156,7 @@ def parse_mail(mail, list_id=None):
                 is_cover_letter = True
 
         if is_cover_letter:
-            author = get_or_create_author(mail)
+            author = get_or_create_author(mail, project)
 
             # we don't use 'find_series' here as a cover letter will
             # always be the first item in a thread, thus the references
@@ -1159,7 +1216,7 @@ def parse_mail(mail, list_id=None):
     if not submission:
         return
 
-    author = get_or_create_author(mail)
+    author = get_or_create_author(mail, project)
 
     try:
         comment = Comment.objects.create(

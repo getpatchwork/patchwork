@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    To avoid triggering spam filters due to failed signature validation, many
+    mailing lists mangle the From header to change the From address to be the
+    address of the list, typically where the sender's domain has a strict DMARC
+    policy enabled. This leads to incorrect senders being recorded. We now try
+    to unmangle the From header using the X-Original-From or Reply-To headers,
+    as used by Google Groups and Mailman respectively.
