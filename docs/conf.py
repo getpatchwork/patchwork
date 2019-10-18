@@ -34,7 +34,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Patchwork'
-copyright = u'2018, Patchwork Developers'
+copyright = u'2018-2019, Patchwork Developers'
 author = u'Patchwork Developers'
 
 # The version info for the project you're documenting, acts as replacement for
