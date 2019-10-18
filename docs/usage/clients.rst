@@ -40,3 +40,16 @@ instructions, can be found in the `documentation`__ and the `GitHub repo`__.
 
 __ https://git-pw.readthedocs.io/
 __ https://github.com/getpatchwork/git-pw/
+
+
+snowpatch
+---------
+
+The :program:`snowpatch` application is a bridge between Patchwork and the
+Jenkins continuous integration automation server. It monitors the REST API
+for incoming patches, applies them on top of an existing git tree, triggers
+appropriate builds and test suites, and reports the results back to Patchwork.
+
+Find out more about :program:`snowpatch` at its `GitHub repo`__.
+
+__ https://github.com/ruscur/snowpatch
