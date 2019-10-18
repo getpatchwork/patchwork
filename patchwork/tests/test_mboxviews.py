@@ -153,8 +153,8 @@ class MboxHeaderTest(TestCase):
                                         patch.url_msgid]))
         self.assertContains(response, 'X-Patchwork-Delegate: %s' % user.email)
 
-    def test_patchwork_from_header(self):
-        """Validate inclusion of generated 'X-Patchwork-From' header."""
+    def test_patchwork_submitter_header(self):
+        """Validate inclusion of generated 'X-Patchwork-Submitter' header."""
         email = 'jon@doe.com'
         from_header = 'From: Jon Doe <%s>\n' % email
 
