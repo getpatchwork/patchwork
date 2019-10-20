@@ -1,5 +1,5 @@
 mysqlclient~=1.4.4
-psycopg2-binary~=2.8.0
+psycopg2-binary==2.8.4
 sqlparse~=0.3.0
 python-dateutil~=2.8.0
 openapi-core~=0.8.0
