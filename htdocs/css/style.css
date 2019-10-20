@@ -189,7 +189,7 @@ table.patchmeta th {
 table.patchmeta tr th, table.patchmeta tr td {
     text-align: left;
     padding: 1px 10px;
-    vertical-align: middle;
+    vertical-align: top;
 }
 
 .patchrelations ul {
