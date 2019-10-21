@@ -35,7 +35,12 @@ _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile(r'^(---|\+\+\+) (\S+)')
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
 
-SERIES_DELAY_INTERVAL = 10
+# How many minutes must pass since the first email of a series before we
+# say that subsequent mails are definitely not part of that same series?
+#
+# Only used when there are not proper references to determine the series
+# (such as when the mail is not threaded)
+SERIES_DELAY_INTERVAL = 20
 
 # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
 EXTENDED_HEADER_LINES = (
