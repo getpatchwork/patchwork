@@ -623,11 +623,11 @@ they can be loaded as seen below:
 
 .. note::
 
-   This assumes your Postfix process is running as the ``nobody`` user.  If
-   this is not correct (use of ``postfix`` user is also common), you should
-   change both the username in the ``createuser`` command above and substitute
-   the username in the ``grant-all-postgres.sql`` script with the appropriate
-   alternative.
+   This assumes that you are using the aliases(5) file that is owned by root,
+   and that Postfix's ``default_privs`` configuration is set as ``nobody``. If
+   this is not the case, you should change both the username in the ``createuser``
+   command above and substitute the username in the ``grant-all.postgres.sql``
+   script with the appropriate alternative.
 
 __ http://www.postfix.org/
 
