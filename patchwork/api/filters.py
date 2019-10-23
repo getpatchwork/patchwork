@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django_filters.rest_framework import FilterSet
+from django_filters import CharFilter
 from django_filters import IsoDateTimeFilter
 from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
@@ -176,11 +177,16 @@ class PatchFilterSet(TimestampMixin, FilterSet):
     submitter = PersonFilter(queryset=Person.objects.all())
     delegate = UserFilter(queryset=User.objects.all())
     state = StateFilter(queryset=State.objects.all())
+    hash = CharFilter(lookup_expr='iexact')
 
     class Meta:
         model = Patch
+        # NOTE(dja): ideally we want to version the hash field, but I cannot
+        # find a way to do that which is reliable and not extremely ugly.
+        # The best I can come up with is manually working with request.GET
+        # which seems to rather defeat the point of using django-filters.
         fields = ('project', 'series', 'submitter', 'delegate',
-                  'state', 'archived')
+                  'state', 'archived', 'hash')
 
 
 class CheckFilterSet(TimestampMixin, FilterSet):

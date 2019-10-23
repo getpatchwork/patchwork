@@ -468,6 +468,15 @@ paths:
             enum:
               - 'true'
               - 'false'
+{% if version >= (1, 2) %}
+        - in: query
+          name: hash
+          description: >
+            The patch hash as a case-insensitive hexadecimal string, to filter by.
+          schema:
+            title: ''
+            type: string
+{% endif %}
       responses:
         '200':
           description: ''

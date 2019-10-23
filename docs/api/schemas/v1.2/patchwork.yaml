@@ -463,6 +463,13 @@ paths:
             enum:
               - 'true'
               - 'false'
+        - in: query
+          name: hash
+          description: >
+            The patch hash as a case-insensitive hexadecimal string, to filter by.
+          schema:
+            title: ''
+            type: string
       responses:
         '200':
           description: ''

@@ -1,0 +1,5 @@
+---
+api:
+  - |
+    The REST API now supports filtering patches by their hashes, using the
+    ``hash`` query parameter.

@@ -22,6 +22,13 @@ from patchwork.tests.utils import create_user
 if settings.ENABLE_REST_API:
     from rest_framework import status
 
+# a diff different from the default, required to test hash filtering
+SAMPLE_DIFF = """--- /dev/null\t2019-01-01 00:00:00.000000000 +0800
++++ a\t2019-01-01 00:00:00.000000000 +0800
+@@ -0,0 +1 @@
++b
+"""
+
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestPatchAPI(utils.APITestCase):
@@ -150,6 +157,35 @@ class TestPatchAPI(utils.APITestCase):
 
         resp = self.client.get(self.api_url(), {
             'submitter': 'test@example.org'})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_hash(self):
+        """Filter patches by hash."""
+        patch = self._create_patch()
+        patch_new_diff = create_patch(state=patch.state, project=patch.project,
+                                      submitter=patch.submitter,
+                                      diff=SAMPLE_DIFF)
+
+        # check regular filtering
+        resp = self.client.get(self.api_url(), {'hash': patch.hash})
+        self.assertEqual([patch.id], [x['id'] for x in resp.data])
+
+        # 2 patches with identical diffs
+        patch_same_diff = create_patch(state=patch.state,
+                                       project=patch.project,
+                                       submitter=patch.submitter)
+        resp = self.client.get(self.api_url(), {'hash': patch.hash})
+        self.assertEqual([patch.id, patch_same_diff.id],
+                         [x['id'] for x in resp.data])
+
+        # case insensitive matching
+        resp = self.client.get(self.api_url(),
+                               {'hash': patch_new_diff.hash.upper()})
+        self.assertEqual([patch_new_diff.id], [x['id'] for x in resp.data])
+
+        # empty response if nothing matches
+        resp = self.client.get(self.api_url(), {
+            'hash': 'da638d0746a115000bf890fada1f02679aa282e8'})
         self.assertEqual(0, len(resp.data))
 
     @utils.store_samples('patch-list-1-0')
