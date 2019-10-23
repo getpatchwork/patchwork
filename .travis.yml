@@ -45,6 +45,7 @@ before_script:
 
 install:
   - pip install tox-travis
+  - pip install codecov
 
 script:
   - >
