@@ -10,10 +10,6 @@ Patchwork
    :target: https://codecov.io/gh/getpatchwork/patchwork
    :alt: Codecov
 
-.. image:: https://landscape.io/github/getpatchwork/patchwork/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/getpatchwork/patchwork/master
-   :alt: Code Health
-
 .. image:: https://travis-ci.org/getpatchwork/patchwork.svg?branch=master
    :target: https://travis-ci.org/getpatchwork/patchwork
    :alt: Build Status
