@@ -56,7 +56,6 @@ script:
       psql -c "SELECT VERSION(), CURRENT_USER, current_database()" -U $PW_TEST_DB_USER patchwork;
     fi
   - tox
-  - tox -e coverage
 
 after_success:
   - codecov
