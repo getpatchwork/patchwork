@@ -13,6 +13,7 @@ services:
       dockerfile: ./tools/docker/Dockerfile
       args:
         - UID
+        - GID
     depends_on:
       - db
     command: python3 manage.py runserver 0.0.0.0:8000
@@ -22,6 +23,7 @@ services:
       - "8000:8000"
     environment:
       - UID
+      - GID
       - PW_TEST_DB_HOST=db
       - PW_TEST_DB_PORT=5432
       - PW_TEST_DB_TYPE=postgres
