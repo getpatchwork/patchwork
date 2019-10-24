@@ -41,7 +41,7 @@ of community projects.
 Requirements
 ------------
 
-- Python (2.7, 3.5 - 3.7)
+- Python (2.7, 3.5 - 3.8)
 
 - Django (1.11 - 2.2)
 
