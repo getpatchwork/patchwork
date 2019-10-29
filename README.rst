@@ -37,13 +37,17 @@ of community projects.
 Requirements
 ------------
 
-- Python (2.7, 3.5 - 3.8)
+Patchwork requires reasonably recent versions of:
 
-- Django (1.11 - 2.2)
+- Python (2 or 3)
 
-- Django REST Framework (3.6 - 3.9)
+- Django
 
-- Django Filters (1.0 - 2.0)
+- Django REST Framework
+
+- Django Filters
+
+The precise versions supported are listed in the `release notes`_.
 
 Development Installation
 ------------------------
@@ -104,6 +108,7 @@ Contact
 
 For bug reports, patch submissions or other questions, use the `mailing list`_.
 
+.. _release notes: https://patchwork.readthedocs.io/en/latest/releases/
 .. _docker-compose: https://docs.docker.com/compose/install/
 .. _Docker: https://docs.docker.com/engine/installation/linux/
 .. _documentation: https://patchwork.readthedocs.io/
