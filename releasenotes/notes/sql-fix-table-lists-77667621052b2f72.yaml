@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    An sql error was fixed in `lib/sql/grant-all.postgres.sql`.
