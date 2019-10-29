@@ -52,7 +52,7 @@ The precise versions supported are listed in the `release notes`_.
 Development Installation
 ------------------------
 
-`Docker`_ is the recommended installation methods for a Patchwork development
+`Docker`_ is the recommended installation method for a Patchwork development
 environment. To install Patchwork:
 
 1. Install `Docker`_ and `docker-compose`_.
