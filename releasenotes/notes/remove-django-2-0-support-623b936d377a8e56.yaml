@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Django 2.0 is no longer supported. It is no longer supported upstream.
