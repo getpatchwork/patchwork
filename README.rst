@@ -58,11 +58,12 @@ environment. To install Patchwork:
        $ git clone https://github.com/getpatchwork/patchwork.git
 
 3. Create a ``.env`` file in the root directory of the project and store your
-   ``UID`` attribute there::
+   ``UID`` and ``GID`` attributes there::
 
-       $ cd patchwork && echo "UID=$UID" > .env
+       $ cd patchwork && printf "UID=$(id -u)\nGID=$(id -g)\n" > .env
 
-4. Build the images. This will download over 200MB from the internet::
+4. Build the images. This will download a number of packages from the internet,
+   and compile several versions of Python::
 
        $ docker-compose build
 
