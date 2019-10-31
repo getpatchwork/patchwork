@@ -27,9 +27,10 @@ function toggle_div(link_id, headers_id)
 }
 </script>
 
-<h1>{{ submission.name }}
-{% include "patchwork/partials/download-buttons.html" %}
-</h1>
+<div>
+  {% include "patchwork/partials/download-buttons.html" %}
+  <h1>{{ submission.name }}</h1>
+</div>
 
 <table class="patchmeta">
  <tr>
@@ -273,11 +274,10 @@ function toggle_div(link_id, headers_id)
 {% endfor %}
 
 {% if submission.diff %}
-<h2>
- Patch
- {% include "patchwork/partials/download-buttons.html" %}
-</h2>
-
+<div>
+  {% include "patchwork/partials/download-buttons.html" %}
+  <h2>Patch</h2>
+</div>
 <div id="patch" class="patch">
 <pre class="content">
 {{ submission|patchsyntax }}
