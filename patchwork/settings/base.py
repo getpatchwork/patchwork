@@ -36,9 +36,7 @@ MIDDLEWARE = [
 
 TIME_ZONE = 'Australia/Canberra'
 
-LANGUAGE_CODE = 'en-au'
-
-USE_I18N = True
+USE_I18N = False
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
