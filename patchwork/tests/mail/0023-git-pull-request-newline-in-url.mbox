@@ -1,0 +1,48 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+To: soc@kernel.org
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [GIT PULL] soc: updates for v5.5
+Message-ID: <294422a4-37b2-def5-5d32-8988f27c3a5b@gmail.com>
+Date: Mon, 11 Nov 2019 13:23:51 +0100
+
+Hi Olof and Arnd,
+
+Please have a look on the following updates of drivers/soc for v5.5
+
+Thanks a lot,
+Matthias
+
+---
+
+The following changes since commit 54ecb8f7028c5eb3d740bb82b0f1d90f2df63c5c:
+
+  Linux 5.4-rc1 (2019-09-30 10:35:40 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/matthias.bgg/linux.git/
+tags/v5.4-next-soc
+
+for you to fetch changes up to 662c9d55c5ccb37f3920ecab9720f2ebf2a6ca18:
+
+  soc: mediatek: Refactor bus protection control (2019-11-07 10:11:04 +0100)
+
+----------------------------------------------------------------
+refactor code of mtk-scpsys
+
+----------------------------------------------------------------
+Weiyi Lu (5):
+      soc: mediatek: Refactor polling timeout and documentation
+      soc: mediatek: Refactor regulator control
+      soc: mediatek: Refactor clock control
+      soc: mediatek: Refactor sram control
+      soc: mediatek: Refactor bus protection control
+
+ drivers/soc/mediatek/mtk-scpsys.c | 214 ++++++++++++++++++++++++++------------
+ 1 file changed, 146 insertions(+), 68 deletions(-)
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+

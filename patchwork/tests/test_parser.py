@@ -630,6 +630,15 @@ class PatchParseTest(PatchTest):
             diff.startswith('diff --git a/arch/x86/include/asm/smp.h'),
             diff)
 
+    def test_git_pull_newline_in_url(self):
+        diff, message = self._find_content(
+            '0023-git-pull-request-newline-in-url.mbox')
+        pull_url = parse_pull_request(message)
+        self.assertEqual(
+            'https://git.kernel.org/pub/scm/linux/kernel/git/matthias.bgg/'
+            'linux.git/ tags/v5.4-next-soc',
+            pull_url)
+
     def test_git_rename(self):
         diff, _ = self._find_content('0008-git-rename.mbox')
         self.assertTrue(diff is not None)
