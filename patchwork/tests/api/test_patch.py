@@ -188,6 +188,15 @@ class TestPatchAPI(utils.APITestCase):
             'hash': 'da638d0746a115000bf890fada1f02679aa282e8'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_filter_hash_version_1_1(self):
+        """Filter patches by hash using API v1.1."""
+        self._create_patch()
+
+        # we still see the patch since the hash field is ignored
+        resp = self.client.get(self.api_url(version='1.1'),
+                               {'hash': 'garbagevalue'})
+        self.assertEqual(1, len(resp.data))
+
     @utils.store_samples('patch-list-1-0')
     def test_list_version_1_0(self):
         """List patches using API v1.0."""

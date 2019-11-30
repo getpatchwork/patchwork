@@ -13,6 +13,7 @@ from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
 from django.forms.widgets import MultipleHiddenInput
 
+from patchwork.api import utils
 from patchwork.compat import NAME_FIELD
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -136,14 +137,32 @@ class UserFilter(ModelMultipleChoiceFilter):
 
 # filter sets
 
-class TimestampMixin(FilterSet):
+
+class BaseFilterSet(FilterSet):
+
+    @property
+    def form(self):
+        form = super(BaseFilterSet, self).form
+
+        for version in getattr(self.Meta, 'versioned_fields', {}):
+            if utils.has_version(self.request, version):
+                continue
+
+            for field in self.Meta.versioned_fields[version]:
+                if field in form.fields:
+                    del form.fields[field]
+
+        return form
+
+
+class TimestampMixin(BaseFilterSet):
 
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
     before = IsoDateTimeFilter(lookup_expr='lt', **{NAME_FIELD: 'date'})
     since = IsoDateTimeFilter(lookup_expr='gte', **{NAME_FIELD: 'date'})
 
 
-class SeriesFilterSet(TimestampMixin, FilterSet):
+class SeriesFilterSet(TimestampMixin, BaseFilterSet):
 
     submitter = PersonFilter(queryset=Person.objects.all())
     project = ProjectFilter(queryset=Project.objects.all())
@@ -153,7 +172,7 @@ class SeriesFilterSet(TimestampMixin, FilterSet):
         fields = ('submitter', 'project')
 
 
-class CoverLetterFilterSet(TimestampMixin, FilterSet):
+class CoverLetterFilterSet(TimestampMixin, BaseFilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
@@ -167,7 +186,7 @@ class CoverLetterFilterSet(TimestampMixin, FilterSet):
         fields = ('project', 'series', 'submitter')
 
 
-class PatchFilterSet(TimestampMixin, FilterSet):
+class PatchFilterSet(TimestampMixin, BaseFilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
@@ -187,9 +206,12 @@ class PatchFilterSet(TimestampMixin, FilterSet):
         # which seems to rather defeat the point of using django-filters.
         fields = ('project', 'series', 'submitter', 'delegate',
                   'state', 'archived', 'hash')
+        versioned_fields = {
+            '1.2': ('hash', ),
+        }
 
 
-class CheckFilterSet(TimestampMixin, FilterSet):
+class CheckFilterSet(TimestampMixin, BaseFilterSet):
 
     user = UserFilter(queryset=User.objects.all())
 
@@ -198,7 +220,7 @@ class CheckFilterSet(TimestampMixin, FilterSet):
         fields = ('user', 'state', 'context')
 
 
-class EventFilterSet(TimestampMixin, FilterSet):
+class EventFilterSet(TimestampMixin, BaseFilterSet):
 
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
@@ -217,7 +239,7 @@ class EventFilterSet(TimestampMixin, FilterSet):
         fields = ('project', 'category', 'series', 'patch', 'cover')
 
 
-class BundleFilterSet(FilterSet):
+class BundleFilterSet(BaseFilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all())
     owner = UserFilter(queryset=User.objects.all())
