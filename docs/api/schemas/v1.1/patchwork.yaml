@@ -216,7 +216,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/Order'
         - $ref: '#/components/parameters/Search'
         - $ref: '#/components/parameters/BeforeFilter'
         - $ref: '#/components/parameters/SinceFilter'

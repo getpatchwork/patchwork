@@ -336,7 +336,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
+{% if version >= (1, 2) %}
         - $ref: '#/components/parameters/Order'
+{% endif %}
         - $ref: '#/components/parameters/Search'
         - $ref: '#/components/parameters/BeforeFilter'
         - $ref: '#/components/parameters/SinceFilter'
