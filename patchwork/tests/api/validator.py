@@ -291,7 +291,8 @@ class DRFOpenAPIResponse(BaseOpenAPIResponse):
         return 'application/json'
 
 
-def validate_data(path, request, response):
+def validate_data(path, request, response, validate_request,
+                  validate_response):
     if response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED:
         return
 
@@ -300,18 +301,23 @@ def validate_data(path, request, response):
     response = DRFOpenAPIResponse(response)
 
     # request
-    validator = RequestValidator(spec, custom_formatters=CUSTOM_FORMATTERS)
-    result = validator.validate(request)
-    try:
-        result.raise_for_errors()
-    except OpenAPIMediaTypeError:
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-    except OpenAPIParameterError:
-        # TODO(stephenfin): In API v2.0, this should be an error. As things
-        # stand, we silently ignore these issues.
-        assert response.status_code == status.HTTP_200_OK
+    if validate_request:
+        validator = RequestValidator(
+            spec, custom_formatters=CUSTOM_FORMATTERS)
+        result = validator.validate(request)
+        try:
+            result.raise_for_errors()
+        except OpenAPIMediaTypeError:
+            if response.status_code != status.HTTP_400_BAD_REQUEST:
+                raise
+        except OpenAPIParameterError:
+            # TODO(stephenfin): In API v2.0, this should be an error. As things
+            # stand, we silently ignore these issues.
+            assert response.status_code == status.HTTP_200_OK
 
     # response
-    validator = ResponseValidator(spec, custom_formatters=CUSTOM_FORMATTERS)
-    result = validator.validate(request, response)
-    result.raise_for_errors()
+    if validate_response:
+        validator = ResponseValidator(
+            spec, custom_formatters=CUSTOM_FORMATTERS)
+        result = validator.validate(request, response)
+        result.raise_for_errors()
