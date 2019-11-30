@@ -1101,7 +1101,11 @@ paths:
           content:
             application/json:
               schema:
+{% if version >= (1, 2) %}
+                $ref: '#/components/schemas/UserDetail'
+{% else %}
                 $ref: '#/components/schemas/User'
+{% endif %}
         '403':
           description: Forbidden
           content:
@@ -1138,7 +1142,11 @@ paths:
           content:
             application/json:
               schema:
+{% if version >= (1, 2) %}
+                $ref: '#/components/schemas/UserDetail'
+{% else %}
                 $ref: '#/components/schemas/User'
+{% endif %}
         '400':
           description: Bad request
           content:
@@ -1181,7 +1189,11 @@ paths:
           content:
             application/json:
               schema:
+{% if version >= (1, 2) %}
+                $ref: '#/components/schemas/UserDetail'
+{% else %}
                 $ref: '#/components/schemas/User'
+{% endif %}
         '400':
           description: Bad request
           content:
@@ -1318,13 +1330,25 @@ components:
       content:
         application/json:
           schema:
+{% if version >= (1, 2) %}
+            $ref: '#/components/schemas/UserDetail'
+{% else %}
             $ref: '#/components/schemas/User'
+{% endif %}
         multipart/form-data:
           schema:
+{% if version >= (1, 2) %}
+            $ref: '#/components/schemas/UserDetail'
+{% else %}
             $ref: '#/components/schemas/User'
+{% endif %}
         application/x-www-form-urlencoded:
           schema:
+{% if version >= (1, 2) %}
+            $ref: '#/components/schemas/UserDetail'
+{% else %}
             $ref: '#/components/schemas/User'
+{% endif %}
   schemas:
     Index:
       type: object
@@ -2209,6 +2233,35 @@ components:
           format: email
           readOnly: true
           minLength: 1
+{% if version >= (1, 2) %}
+    UserDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            settings:
+              type: object
+              properties:
+                send_email:
+                  title: Send email
+                  description: >
+                    Whether Patchwork should send email on your behalf.
+                    Only present and configurable for your account.
+                  type: boolean
+                items_per_page:
+                  title: Items per page
+                  description: >
+                    Number of items to display per page (web UI).
+                    Only present and configurable for your account.
+                  type: integer
+                show_ids:
+                  title: Show IDs
+                  description:
+                    Show click-to-copy IDs in the list view (web UI).
+                    Only present and configurable for your account.
+                  type: boolean
+{% endif %}
     CheckEmbedded:
       type: object
       properties:

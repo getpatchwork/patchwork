@@ -1092,7 +1092,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserSelf'
         '403':
           description: Forbidden
           content:
@@ -1129,7 +1129,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserSelf'
         '400':
           description: Bad request
           content:
@@ -1172,7 +1172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserSelf'
         '400':
           description: Bad request
           content:
@@ -1307,13 +1307,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/User'
+            $ref: '#/components/schemas/UserSelf'
         multipart/form-data:
           schema:
-            $ref: '#/components/schemas/User'
+            $ref: '#/components/schemas/UserSelf'
         application/x-www-form-urlencoded:
           schema:
-            $ref: '#/components/schemas/User'
+            $ref: '#/components/schemas/UserSelf'
   schemas:
     Index:
       type: object
@@ -2165,6 +2165,33 @@ components:
           format: email
           readOnly: true
           minLength: 1
+    UserSelf:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            settings:
+              type: object
+              properties:
+                send_email:
+                  title: Send email
+                  description: >
+                    Whether Patchwork should send email on your behalf.
+                    Only present and configurable for your account.
+                  type: boolean
+                items_per_page:
+                  title: Items per page
+                  description: >
+                    Number of items to display per page (web UI).
+                    Only present and configurable for your account.
+                  type: integer
+                show_ids:
+                  title: Show IDs
+                  description:
+                    Show click-to-copy IDs in the list view (web UI).
+                    Only present and configurable for your account.
+                  type: boolean
     CheckEmbedded:
       type: object
       properties:
