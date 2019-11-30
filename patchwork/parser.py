@@ -167,7 +167,7 @@ def clean_header(header):
     # on Py2, we want to do unicode(), on Py3, str().
     # That gets us the decoded, un-wrapped header.
     if six.PY2:
-        header_str = unicode(sane_header)
+        header_str = unicode(sane_header)  # noqa
     else:
         header_str = str(sane_header)
 
@@ -890,13 +890,14 @@ def parse_patch(content):
 
 
 def parse_pull_request(content):
-    git_re = re.compile(r'^The following changes since commit.*' +
-                        r'^are available in the git repository at:\n'
-                        r'^\s*([\w+-]+(?:://|@)[\w/.@:~-]+[\s\\]*[\w/._-]*)\s*$',
-                        re.DOTALL | re.MULTILINE | re.IGNORECASE)
+    git_re = re.compile(
+        r'^The following changes since commit.*'
+        r'^are available in the git repository at:\n'
+        r'^\s*([\w+-]+(?:://|@)[\w/.@:~-]+[\s\\]*[\w/._-]*)\s*$',
+        re.DOTALL | re.MULTILINE | re.IGNORECASE)
     match = git_re.search(content)
     if match:
-        return re.sub('\s+', ' ', match.group(1)).strip()
+        return re.sub(r'\s+', ' ', match.group(1)).strip()
     return None
 
 
