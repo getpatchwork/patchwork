@@ -4,8 +4,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from datetime import datetime as dt
+import unittest
 import re
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.six.moves import zip
@@ -95,6 +97,14 @@ class PatchOrderTest(TestCase):
 
         self._test_sequence(response, test_fn)
 
+    # TODO(stephenfin): Looks like this has been resolved in Django 2.1 [1]? If
+    # not, it should be possible [2]
+    #
+    # [1] https://code.djangoproject.com/ticket/30248
+    # [2] https://michaelsoolee.com/case-insensitive-sorting-sqlite/
+    @unittest.skipIf('sqlite3' in settings.DATABASES['default']['ENGINE'],
+                     'The sqlite3 backend does not support case insensitive '
+                     'ordering')
     def test_submitter_order(self):
         url = reverse('patch-list',
                       kwargs={'project_id': self.project.linkname})
@@ -106,6 +116,9 @@ class PatchOrderTest(TestCase):
 
         self._test_sequence(response, test_fn)
 
+    @unittest.skipIf('sqlite3' in settings.DATABASES['default']['ENGINE'],
+                     'The sqlite3 backend does not support case insensitive '
+                     'ordering')
     def test_submitter_reverse_order(self):
         url = reverse('patch-list',
                       kwargs={'project_id': self.project.linkname})
