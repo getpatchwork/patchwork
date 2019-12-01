@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    The ``patch-delegated``, ``patch-state-changed`` and ``check-created``
+    events now have an ``actor`` associated with them - the user that updated
+    the patch or created the check. For other event types, this attribute is
+    present but unset.
+api:
+  - |
+    The ``/event`` API now exposes an ``actor`` attribute. It is possible to
+    filter events by this attribute.
