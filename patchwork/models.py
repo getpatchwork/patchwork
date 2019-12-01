@@ -955,6 +955,10 @@ class Event(models.Model):
     date = models.DateTimeField(
         default=datetime.datetime.utcnow,
         help_text='The time this event was created.')
+    actor = models.ForeignKey(
+        User, related_name='+', null=True, blank=True,
+        on_delete=models.SET_NULL,
+        help_text='The user that caused/created this event.')
 
     # event object
 
