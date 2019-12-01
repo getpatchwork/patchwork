@@ -421,17 +421,20 @@ class SeriesCorrelationTest(TestCase):
         msgids = [make_msgid()]
         project = create_project()
         series_v1 = create_series(project=project)
-        create_series_reference(msgid=msgids[0], series=series_v1)
+        create_series_reference(msgid=msgids[0], series=series_v1,
+                                project=project)
 
         # ...and three patches
         for i in range(3):
             msgids.append(make_msgid())
-            create_series_reference(msgid=msgids[-1], series=series_v1)
+            create_series_reference(msgid=msgids[-1], series=series_v1,
+                                    project=project)
 
         # now create a new series with "cover letter"
         msgids.append(make_msgid())
         series_v2 = create_series(project=project)
-        ref_v2 = create_series_reference(msgid=msgids[-1], series=series_v2)
+        ref_v2 = create_series_reference(msgid=msgids[-1], series=series_v2,
+                                         project=project)
 
         # ...and the "first patch" of this new series
         msgid = make_msgid()

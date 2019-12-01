@@ -79,7 +79,8 @@ class Project(models.Model):
     webscm_url = models.CharField(max_length=2000, blank=True)
     list_archive_url = models.CharField(max_length=2000, blank=True)
     list_archive_url_format = models.CharField(
-        max_length=2000, blank=True,
+        max_length=2000,
+        blank=True,
         help_text="URL format for the list archive's Message-ID redirector. "
         "{} will be replaced by the Message-ID.")
     commit_url_format = models.CharField(
@@ -785,6 +786,7 @@ class SeriesReference(models.Model):
     required to handle the case whereby one or more patches are
     received before the cover letter.
     """
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     series = models.ForeignKey(Series, related_name='references',
                                related_query_name='reference',
                                on_delete=models.CASCADE)
@@ -794,7 +796,7 @@ class SeriesReference(models.Model):
         return self.msgid
 
     class Meta:
-        unique_together = [('series', 'msgid')]
+        unique_together = [('project', 'msgid')]
 
 
 class Bundle(models.Model):

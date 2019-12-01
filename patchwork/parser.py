@@ -16,6 +16,7 @@ import re
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
+from django.db import transaction
 from django.utils import six
 
 from patchwork.models import Comment
@@ -256,16 +257,9 @@ def _find_series_by_references(project, mail):
     for ref in refs:
         try:
             return SeriesReference.objects.get(
-                msgid=ref[:255], series__project=project).series
+                msgid=ref[:255], project=project).series
         except SeriesReference.DoesNotExist:
             continue
-        except SeriesReference.MultipleObjectsReturned:
-            # FIXME: Open bug: this can happen when we're processing
-            # messages in parallel. Pick the first and log.
-            logger.error("Multiple SeriesReferences for %s in project %s!" %
-                         (ref[:255], project.name))
-            return SeriesReference.objects.filter(
-                msgid=ref[:255], series__project=project).first().series
 
 
 def _find_series_by_markers(project, mail, author):
@@ -1092,47 +1086,65 @@ def parse_mail(mail, list_id=None):
         except IntegrityError:
             raise DuplicateMailError(msgid=msgid)
 
-        # if we don't have a series marker, we will never have an existing
-        # series to match against.
-        series = None
-        if n:
-            series = find_series(project, mail, author)
+        for attempt in range(1, 11):  # arbitrary retry count
+            try:
+                with transaction.atomic():
+                    # if we don't have a series marker, we will never have an
+                    # existing series to match against.
+                    series = None
+                    if n:
+                        series = find_series(project, mail, author)
+                    else:
+                        x = n = 1
+
+                    # We will create a new series if:
+                    # - there is no existing series to assign this patch to, or
+                    # - there is an existing series, but it already has a patch
+                    #   with this number in it
+                    if not series or Patch.objects.filter(
+                            series=series, number=x).count():
+                        series = Series.objects.create(
+                            project=project,
+                            date=date,
+                            submitter=author,
+                            version=version,
+                            total=n)
+
+                        # NOTE(stephenfin) We must save references for series.
+                        # We do this to handle the case where a later patch is
+                        # received first. Without storing references, it would
+                        # not be possible to identify the relationship between
+                        # patches as the earlier patch does not reference the
+                        # later one.
+                        for ref in refs + [msgid]:
+                            ref = ref[:255]
+                            # we don't want duplicates
+                            try:
+                                # we could have a ref to a previous series.
+                                # (For example, a series sent in reply to
+                                # another series.) That should not create a
+                                # series ref for this series, so check for the
+                                # msg-id only, not the msg-id/series pair.
+                                SeriesReference.objects.get(
+                                    msgid=ref, project=project)
+                            except SeriesReference.DoesNotExist:
+                                SeriesReference.objects.create(
+                                    msgid=ref, project=project, series=series)
+                    break
+            except IntegrityError:
+                # we lost the race so go again
+                logger.warning('Conflict while saving series. This is '
+                               'probably because multiple patches belonging '
+                               'to the same series have been received at '
+                               'once. Trying again (attempt %02d/10)',
+                               attempt)
         else:
-            x = n = 1
-
-        # We will create a new series if:
-        # - there is no existing series to assign this patch to, or
-        # - there is an existing series, but it already has a patch with this
-        #   number in it
-        if not series or Patch.objects.filter(series=series, number=x).count():
-            series = Series.objects.create(
-                project=project,
-                date=date,
-                submitter=author,
-                version=version,
-                total=n)
-
-            # NOTE(stephenfin) We must save references for series. We
-            # do this to handle the case where a later patch is
-            # received first. Without storing references, it would not
-            # be possible to identify the relationship between patches
-            # as the earlier patch does not reference the later one.
-            for ref in refs + [msgid]:
-                ref = ref[:255]
-                # we don't want duplicates
-                try:
-                    # we could have a ref to a previous series. (For
-                    # example, a series sent in reply to another
-                    # series.) That should not create a series ref
-                    # for this series, so check for the msg-id only,
-                    # not the msg-id/series pair.
-                    SeriesReference.objects.get(msgid=ref,
-                                                series__project=project)
-                except SeriesReference.DoesNotExist:
-                    SeriesReference.objects.create(series=series, msgid=ref)
-                except SeriesReference.MultipleObjectsReturned:
-                    logger.error("Multiple SeriesReferences for %s"
-                                 " in project %s!" % (ref, project.name))
+            # we failed to save the series so return the series-less patch
+            logger.warning('Failed to save series. Your patch with message ID '
+                           '%s has been saved but this should not happen. '
+                           'Please report this as a bug and include logs',
+                           msgid)
+            return patch
 
         # add to a series if we have found one, and we have a numbered
         # patch. Don't add unnumbered patches (for example diffs sent
@@ -1170,14 +1182,9 @@ def parse_mail(mail, list_id=None):
             # message
             try:
                 series = SeriesReference.objects.get(
-                    msgid=msgid, series__project=project).series
+                    msgid=msgid, project=project).series
             except SeriesReference.DoesNotExist:
                 series = None
-            except SeriesReference.MultipleObjectsReturned:
-                logger.error("Multiple SeriesReferences for %s"
-                             " in project %s!" % (msgid, project.name))
-                series = SeriesReference.objects.filter(
-                    msgid=msgid, series__project=project).first().series
 
             if not series:
                 series = Series.objects.create(
@@ -1190,12 +1197,8 @@ def parse_mail(mail, list_id=None):
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
                 # series
-                try:
-                    SeriesReference.objects.get_or_create(series=series,
-                                                          msgid=msgid)
-                except SeriesReference.MultipleObjectsReturned:
-                    logger.error("Multiple SeriesReferences for %s"
-                                 " in project %s!" % (msgid, project.name))
+                SeriesReference.objects.create(
+                    msgid=msgid, project=project, series=series)
 
             try:
                 cover_letter = CoverLetter.objects.create(

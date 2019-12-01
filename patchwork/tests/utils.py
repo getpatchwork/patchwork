@@ -283,8 +283,12 @@ def create_series(**kwargs):
 
 def create_series_reference(**kwargs):
     """Create 'SeriesReference' object."""
+    project = kwargs.pop('project', create_project())
+    series = kwargs.pop('series', create_series(project=project))
+
     values = {
-        'series': create_series() if 'series' not in kwargs else None,
+        'series': series,
+        'project': project,
         'msgid': make_msgid(),
     }
     values.update(**kwargs)
