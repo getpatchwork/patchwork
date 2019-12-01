@@ -23,6 +23,7 @@ from patchwork.models import Event
 class EventSerializer(ModelSerializer):
 
     project = ProjectSerializer(read_only=True)
+    actor = UserSerializer()
     patch = PatchSerializer(read_only=True)
     series = SeriesSerializer(read_only=True)
     cover = CoverLetterSerializer(read_only=True)
@@ -50,7 +51,7 @@ class EventSerializer(ModelSerializer):
         data = super(EventSerializer, self).to_representation(instance)
         payload = OrderedDict()
         kept_fields = self._category_map[instance.category] + [
-            'id', 'category', 'project', 'date']
+            'id', 'category', 'project', 'date', 'actor']
 
         for field in [x for x in data]:
             if field not in kept_fields:
@@ -65,10 +66,13 @@ class EventSerializer(ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('id', 'category', 'project', 'date', 'patch', 'series',
-                  'cover', 'previous_state', 'current_state',
+        fields = ('id', 'category', 'project', 'date', 'actor', 'patch',
+                  'series', 'cover', 'previous_state', 'current_state',
                   'previous_delegate', 'current_delegate', 'created_check')
         read_only_fields = fields
+        versioned_fields = {
+            '1.2': ('actor', ),
+        }
 
 
 class EventList(ListAPIView):

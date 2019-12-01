@@ -1649,6 +1649,13 @@ components:
           type: string
           format: iso8601
           readOnly: true
+        actor:
+          type: object
+          title: Actor
+          description: The user that caused/created this event.
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/UserEmbedded'
         payload:
           type: object
     EventCoverCreated:

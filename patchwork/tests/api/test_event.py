@@ -35,11 +35,16 @@ class TestEventAPI(utils.APITestCase):
     def assertSerialized(self, event_obj, event_json):
         self.assertEqual(event_obj.id, event_json['id'])
         self.assertEqual(event_obj.category, event_json['category'])
+        if event_obj.actor is None:
+            self.assertIsNone(event_json['actor'])
 
         # nested fields
 
         self.assertEqual(event_obj.project.id,
                          event_json['project']['id'])
+        if event_obj.actor is not None:
+            self.assertEqual(event_obj.actor.id,
+                             event_json['actor']['id'])
 
         # TODO(stephenfin): Check other fields
 
@@ -66,10 +71,12 @@ class TestEventAPI(utils.APITestCase):
         # check-created
         create_check(patch=patch)
         # patch-delegated, patch-state-changed
+        actor = create_maintainer(project=patch.project)
         user = create_maintainer(project=patch.project)
         state = create_state()
         patch.delegate = user
         patch.state = state
+        self.assertTrue(patch.is_editable(actor))
         patch.save()
 
         return Event.objects.all()
@@ -148,6 +155,28 @@ class TestEventAPI(utils.APITestCase):
 
         resp = self.client.get(self.api_url(), {'series': 999999})
         self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_actor(self):
+        """Filter events by actor."""
+        events = self._create_events()
+
+        # The final two events (patch-delegated, patch-state-changed)
+        # have an actor set
+        actor = events[0].actor
+        resp = self.client.get(self.api_url(), {'actor': actor.pk})
+        self.assertEqual(2, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'actor': 'foo-bar'})
+        self.assertEqual(0, len(resp.data))
+
+    def test_list_filter_actor_version_1_1(self):
+        """Filter events by actor using API v1.1."""
+        events = self._create_events()
+
+        # we still see all the events since the actor field is ignored
+        resp = self.client.get(self.api_url(version='1.1'),
+                               {'actor': 'foo-bar'})
+        self.assertEqual(len(events), len(resp.data))
 
     def test_order_by_date_default(self):
         """Assert the default ordering is by date descending."""

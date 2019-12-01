@@ -236,7 +236,10 @@ class EventFilterSet(TimestampMixin, BaseFilterSet):
 
     class Meta:
         model = Event
-        fields = ('project', 'category', 'series', 'patch', 'cover')
+        fields = ('project', 'category', 'series', 'patch', 'cover', 'actor')
+        versioned_fields = {
+            '1.2': ('actor', ),
+        }
 
 
 class BundleFilterSet(BaseFilterSet):

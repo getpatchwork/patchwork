@@ -228,6 +228,9 @@ properties:
 ``date``
   When this event was created
 
+``actor``
+  The user, if any, that caused/created this event
+
 ``payload``
   Additional information
 
