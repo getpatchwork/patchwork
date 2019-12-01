@@ -5,7 +5,6 @@
 
 import mailbox
 import os
-import unittest
 
 from django.test import TestCase
 
@@ -63,6 +62,9 @@ class _BaseTestCase(TestCase):
         """
         series = models.Series.objects.all().order_by('date')
 
+        # sort this lists by series date so we don't have simple sorting issues
+        patches.sort(key=lambda x: x.series.date)
+
         # sanity checks
         self.assertEqual(series.count(), len(counts))
         self.assertEqual(sum(counts), len(patches))
@@ -73,8 +75,7 @@ class _BaseTestCase(TestCase):
         for idx, count in enumerate(counts):
             end_idx = start_idx + count
 
-            patches_ = patches[start_idx:end_idx]
-            for patch in patches_:
+            for patch in patches[start_idx:end_idx]:
                 self.assertEqual(patch.series, series[idx])
 
                 # TODO(stephenfin): Rework this function into two different
@@ -173,7 +174,6 @@ class BaseSeriesTest(_BaseTestCase):
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
 
-    @unittest.expectedFailure
     def test_duplicated(self):
         """Series received on multiple mailing lists.
 
@@ -518,6 +518,25 @@ class RevisedSeriesTest(_BaseTestCase):
             'bugs-nocover.mbox', [0, 4, 0])
 
         self.assertSerialized(patches, [2, 2])
+
+    def test_spamming(self):
+        """Series submitted multiple times to the mailing list in quick
+        succession.
+
+        Parse a series being submitted multiple times in quick succession,
+        which prevents our timeboxing from splitting the lists up. This should
+        result in multiple separate series.
+
+        Input:
+
+          - [PATCH v2 1/4] Rework tagging infrastructure
+          - [PATCH v2 1/4] Rework tagging infrastructure
+          - [PATCH v2 1/4] Rework tagging infrastructure
+        """
+        _, patches, _ = self._parse_mbox(
+            'bugs-spamming.mbox', [0, 3, 0])
+
+        self.assertSerialized(patches, [1, 1, 1])
 
 
 class SeriesTotalTest(_BaseTestCase):

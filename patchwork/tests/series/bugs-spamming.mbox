@@ -1,0 +1,1884 @@
+From vkabatov@redhat.com  Tue Sep 18 03:03:49 2018
+Return-Path: <vkabatov@redhat.com>
+Delivered-To: patchwork@lists.ozlabs.org
+From: vkabatov@redhat.com
+To: patchwork@lists.ozlabs.org
+Subject: [PATCH v2 1/4] Rework tagging infrastructure
+Date: Mon, 17 Sep 2018 19:01:53 +0200
+Message-Id: <20180917170156.23280-1-vkabatov@redhat.com>
+List-Id: Patchwork development <patchwork.lists.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/patchwork/>
+List-Post: <mailto:patchwork@lists.ozlabs.org>
+List-Help: <mailto:patchwork-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=subscribe>
+
+From: Veronika Kabatova <vkabatov@redhat.com>
+
+Solve #113 and #57 GitHub issues, keep track of tag origin to be able
+to add tags to comments in the API later.
+
+Use relations Tag-Patch and Tag-CoverLetter to avoid duplication of
+tags for each patch in series, and use `series` attribute of
+SubmissionTag as a notion of a tag which is related to each patch in the
+series (because it comes from cover letter or it's comments)
+
+Signed-off-by: Veronika Kabatova <vkabatov@redhat.com>
+---
+Rebased on top of 'Convert Series-Patch relationship to 1:N' series.
+
+Stephen, I split up the patch to separate out API, mbox and documentation
+changes as you suggested; and implemented your comments (simplified the
+migration in favor of running the retag comment, moved the tag retrieval from
+the API into a property in models.py, added comment and tag prefetching,
+increased the API version where needed, added wildcard to API filter and
+simplified it and some other minor things). The series-patch cleanup definitely
+helped with some cleanup, but let me know if there are other optimizations that
+would help with regards to DB performance.
+---
+ patchwork/management/commands/retag.py        |  15 +-
+ patchwork/migrations/0034_rework_tagging.py   |  66 +++++++
+ patchwork/models.py                           | 175 ++++++++----------
+ patchwork/templatetags/patch.py               |   3 +-
+ patchwork/tests/test_parser.py                |  18 +-
+ patchwork/tests/test_tags.py                  |  64 +++----
+ patchwork/views/__init__.py                   |   3 -
+ .../tagging-rework-9907e9dc3f835566.yaml      |  15 ++
+ 8 files changed, 202 insertions(+), 157 deletions(-)
+ create mode 100644 patchwork/migrations/0034_rework_tagging.py
+ create mode 100644 releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+
+diff --git a/patchwork/management/commands/retag.py b/patchwork/management/commands/retag.py
+index 8617ff41..95b2cc1f 100644
+--- a/patchwork/management/commands/retag.py
++++ b/patchwork/management/commands/retag.py
+@@ -19,15 +19,15 @@
+ 
+ from django.core.management.base import BaseCommand
+ 
+-from patchwork.models import Patch
++from patchwork.models import Submission
+ 
+ 
+ class Command(BaseCommand):
+-    help = 'Update the tag (Ack/Review/Test) counts on existing patches'
+-    args = '[<patch_id>...]'
++    help = 'Update tags on existing submissions and associated comments'
++    args = '[<submission_id>...]'
+ 
+     def handle(self, *args, **options):
+-        query = Patch.objects
++        query = Submission.objects.prefetch_related('comments')
+ 
+         if args:
+             query = query.filter(id__in=args)
+@@ -36,8 +36,11 @@ class Command(BaseCommand):
+ 
+         count = query.count()
+ 
+-        for i, patch in enumerate(query.iterator()):
+-            patch.refresh_tag_counts()
++        for i, submission in enumerate(query.iterator()):
++            submission.refresh_tags()
++            for comment in submission.comments.all():
++                comment.refresh_tags()
++
+             if (i % 10) == 0:
+                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
+                 self.stdout.flush()
+diff --git a/patchwork/migrations/0034_rework_tagging.py b/patchwork/migrations/0034_rework_tagging.py
+new file mode 100644
+index 00000000..580a4fd0
+--- /dev/null
++++ b/patchwork/migrations/0034_rework_tagging.py
+@@ -0,0 +1,66 @@
++# -*- coding: utf-8 -*-
++from __future__ import unicode_literals
++
++from django.db import migrations, models
++import django.db.models.deletion
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('patchwork', '0033_remove_patch_series_model'),
++    ]
++
++    operations = [
++        migrations.CreateModel(
++            name='SubmissionTag',
++            fields=[
++                ('id', models.AutoField(auto_created=True,
++                                        primary_key=True,
++                                        serialize=False,
++                                        verbose_name='ID')),
++                ('value', models.CharField(max_length=255)),
++                ('comment', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Comment',
++                    null=True
++                )),
++                ('submission', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Submission'
++                )),
++                ('tag', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Tag'
++                )),
++                ('series', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Series',
++                    null=True
++                )),
++            ],
++        ),
++        migrations.AlterUniqueTogether(
++            name='patchtag',
++            unique_together=set([]),
++        ),
++        migrations.RemoveField(model_name='patchtag', name='patch',),
++        migrations.RemoveField(model_name='patchtag', name='tag',),
++        migrations.RemoveField(model_name='patch', name='tags',),
++        migrations.DeleteModel(name='PatchTag',),
++        migrations.AddField(
++            model_name='submission',
++            name='tags',
++            field=models.ManyToManyField(
++                through='patchwork.SubmissionTag',
++                to='patchwork.Tag'
++            ),
++        ),
++        migrations.AlterUniqueTogether(
++            name='submissiontag',
++            unique_together=set([('submission',
++                                  'tag',
++                                  'value',
++                                  'comment')]),
++        ),
++    ]
+diff --git a/patchwork/models.py b/patchwork/models.py
+index 14eb74aa..5caf7641 100644
+--- a/patchwork/models.py
++++ b/patchwork/models.py
+@@ -20,8 +20,6 @@
+ 
+ from __future__ import absolute_import
+ 
+-from collections import Counter
+-from collections import OrderedDict
+ import datetime
+ import random
+ import re
+@@ -30,6 +28,7 @@ from django.conf import settings
+ from django.contrib.auth.models import User
+ from django.core.exceptions import ValidationError
+ from django.db import models
++from django.db.models import Q
+ from django.urls import reverse
+ from django.utils.encoding import python_2_unicode_compatible
+ from django.utils.functional import cached_property
+@@ -250,10 +249,6 @@ class Tag(models.Model):
+                                       ' tag\'s count in the patch list view',
+                                       default=True)
+ 
+-    @property
+-    def attr_name(self):
+-        return 'tag_%d_count' % self.id
+-
+     def __str__(self):
+         return self.name
+ 
+@@ -261,60 +256,21 @@ class Tag(models.Model):
+         ordering = ['abbrev']
+ 
+ 
+-class PatchTag(models.Model):
+-    patch = models.ForeignKey('Patch', on_delete=models.CASCADE)
++class SubmissionTag(models.Model):
++    submission = models.ForeignKey('Submission', on_delete=models.CASCADE)
+     tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
+-    count = models.IntegerField(default=1)
++    value = models.CharField(max_length=255)
++    comment = models.ForeignKey('Comment', null=True, on_delete=models.CASCADE)
++    series = models.ForeignKey('Series', null=True, on_delete=models.CASCADE)
+ 
+     class Meta:
+-        unique_together = [('patch', 'tag')]
++        unique_together = [('submission', 'tag', 'value', 'comment')]
+ 
+ 
+ def get_default_initial_patch_state():
+     return State.objects.get(ordering=0)
+ 
+ 
+-class PatchQuerySet(models.query.QuerySet):
+-
+-    def with_tag_counts(self, project=None):
+-        if project and not project.use_tags:
+-            return self
+-
+-        # We need the project's use_tags field loaded for Project.tags().
+-        # Using prefetch_related means we'll share the one instance of
+-        # Project, and share the project.tags cache between all patch.project
+-        # references.
+-        qs = self.prefetch_related('project')
+-        select = OrderedDict()
+-        select_params = []
+-
+-        # All projects have the same tags, so we're good to go here
+-        if project:
+-            tags = project.tags
+-        else:
+-            tags = Tag.objects.all()
+-
+-        for tag in tags:
+-            select[tag.attr_name] = (
+-                "coalesce("
+-                "(SELECT count FROM patchwork_patchtag"
+-                " WHERE patchwork_patchtag.patch_id="
+-                "patchwork_patch.submission_ptr_id"
+-                " AND patchwork_patchtag.tag_id=%s), 0)")
+-            select_params.append(tag.id)
+-
+-        return qs.extra(select=select, select_params=select_params)
+-
+-
+-class PatchManager(models.Manager):
+-
+-    def get_queryset(self):
+-        return PatchQuerySet(self.model, using=self.db)
+-
+-    def with_tag_counts(self, project):
+-        return self.get_queryset().with_tag_counts(project)
+-
+-
+ class EmailMixin(models.Model):
+     """Mixin for models with an email-origin."""
+     # email metadata
+@@ -340,6 +296,16 @@ class EmailMixin(models.Model):
+         return ''.join([match.group(0) + '\n' for match in
+                         self.response_re.finditer(self.content)])
+ 
++    def _extract_tags(self, tags):
++        found_tags = {}
++        if not self.content:
++            return found_tags
++
++        for tag in tags:
++            regex = re.compile(tag.pattern + r'\s*(.*)', re.M | re.I | re.U)
++            found_tags[tag] = regex.findall(self.content)
++        return found_tags
++
+     def save(self, *args, **kwargs):
+         # Modifying a submission via admin interface changes '\n' newlines in
+         # message content to '\r\n'. We need to fix them to avoid problems,
+@@ -371,6 +337,53 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
+     # submission metadata
+ 
+     name = models.CharField(max_length=255)
++    tags = models.ManyToManyField(Tag, through=SubmissionTag)
++
++    def add_tags(self, tag, values, comment=None):
++        if hasattr(self, 'patch'):
++            series = None
++        else:
++            series = self.coverletter.series
++        current_objs = SubmissionTag.objects.filter(submission=self,
++                                                    comment=comment,
++                                                    tag=tag,
++                                                    series=series)
++        if not values:
++            current_objs.delete()
++            return
++        # In case the origin is modified, delete tags that were removed
++        current_objs.exclude(value__in=values).delete()
++        values_to_add = set(values) - set(current_objs.values_list('value',
++                                                                   flat=True))
++        SubmissionTag.objects.bulk_create([SubmissionTag(
++            submission=self,
++            tag=tag,
++            value=value,
++            comment=comment,
++            series=series
++        ) for value in values_to_add])
++
++    def refresh_tags(self):
++        submission_tags = self._extract_tags(Tag.objects.all())
++        for tag in submission_tags:
++            self.add_tags(tag, submission_tags[tag])
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.project.tags:
++            if hasattr(self, 'patch'):
++                related_tags[tag] = SubmissionTag.objects.filter((
++                    Q(submission=self) | Q(series=self.series)
++                ) & Q(tag__name=tag.name)).values_list('value',
++                                                       flat=True).distinct()
++            else:
++                related_tags[tag] = SubmissionTag.objects.filter(
++                    Q(submission=self) & Q(tag__name=tag.name)
++                ).values_list('value', flat=True).distinct()
++
++        return related_tags
+ 
+     # patchwork metadata
+ 
+@@ -409,7 +422,6 @@ class Patch(Submission):
+     diff = models.TextField(null=True, blank=True)
+     commit_ref = models.CharField(max_length=255, null=True, blank=True)
+     pull_url = models.CharField(max_length=255, null=True, blank=True)
+-    tags = models.ManyToManyField(Tag, through=PatchTag)
+ 
+     # patchwork metadata
+ 
+@@ -432,40 +444,6 @@ class Patch(Submission):
+         default=None, null=True,
+         help_text='The number assigned to this patch in the series')
+ 
+-    objects = PatchManager()
+-
+-    @staticmethod
+-    def extract_tags(content, tags):
+-        counts = Counter()
+-
+-        for tag in tags:
+-            regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
+-            counts[tag] = len(regex.findall(content))
+-
+-        return counts
+-
+-    def _set_tag(self, tag, count):
+-        if count == 0:
+-            self.patchtag_set.filter(tag=tag).delete()
+-            return
+-        patchtag, _ = PatchTag.objects.get_or_create(patch=self, tag=tag)
+-        if patchtag.count != count:
+-            patchtag.count = count
+-            patchtag.save()
+-
+-    def refresh_tag_counts(self):
+-        tags = self.project.tags
+-        counter = Counter()
+-
+-        if self.content:
+-            counter += self.extract_tags(self.content, tags)
+-
+-        for comment in self.comments.all():
+-            counter = counter + self.extract_tags(comment.content, tags)
+-
+-        for tag in tags:
+-            self._set_tag(tag, counter[tag])
+-
+     def save(self, *args, **kwargs):
+         if not hasattr(self, 'state') or not self.state:
+             self.state = get_default_initial_patch_state()
+@@ -475,7 +453,7 @@ class Patch(Submission):
+ 
+         super(Patch, self).save(**kwargs)
+ 
+-        self.refresh_tag_counts()
++        self.refresh_tags()
+ 
+     def is_editable(self, user):
+         if not user.is_authenticated:
+@@ -610,13 +588,23 @@ class Comment(EmailMixin, models.Model):
+ 
+     def save(self, *args, **kwargs):
+         super(Comment, self).save(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        self.refresh_tags()
++
++    def refresh_tags(self):
++        comment_tags = self._extract_tags(Tag.objects.all())
++        for tag in comment_tags:
++            self.submission.add_tags(tag, comment_tags[tag], comment=self)
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.submission.project.tags:
++            related_tags[tag] = SubmissionTag.objects.filter(
++                comment=self, tag__name=tag.name
++            ).values_list('value', flat=True).distinct()
+ 
+-    def delete(self, *args, **kwargs):
+-        super(Comment, self).delete(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        return related_tags
+ 
+     def is_editable(self, user):
+         return False
+@@ -715,6 +703,7 @@ class Series(FilenameMixin, models.Model):
+                 self.name = self._format_name(cover)
+ 
+         self.save()
++        cover.refresh_tags()
+ 
+     def add_patch(self, patch, number):
+         """Add a patch to the series."""
+diff --git a/patchwork/templatetags/patch.py b/patchwork/templatetags/patch.py
+index 30ccc8e2..5be6b908 100644
+--- a/patchwork/templatetags/patch.py
++++ b/patchwork/templatetags/patch.py
+@@ -34,8 +34,9 @@ register = template.Library()
+ def patch_tags(patch):
+     counts = []
+     titles = []
++    all_tags = patch.all_tags
+     for tag in [t for t in patch.project.tags if t.show_column]:
+-        count = getattr(patch, tag.attr_name)
++        count = len(all_tags[tag])
+         titles.append('%d %s' % (count, tag.name))
+         if count == 0:
+             counts.append("-")
+diff --git a/patchwork/tests/test_parser.py b/patchwork/tests/test_parser.py
+index e99cf214..7fdceab3 100644
+--- a/patchwork/tests/test_parser.py
++++ b/patchwork/tests/test_parser.py
+@@ -802,12 +802,9 @@ class ParseInitialTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class ParseCommentTagsTest(PatchTest):
+@@ -830,12 +827,9 @@ class ParseCommentTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class SubjectTest(TestCase):
+diff --git a/patchwork/tests/test_tags.py b/patchwork/tests/test_tags.py
+index 4fd1bf23..f7a35f92 100644
+--- a/patchwork/tests/test_tags.py
++++ b/patchwork/tests/test_tags.py
+@@ -21,7 +21,7 @@ from django.test import TestCase
+ from django.test import TransactionTestCase
+ 
+ from patchwork.models import Patch
+-from patchwork.models import PatchTag
++from patchwork.models import SubmissionTag
+ from patchwork.models import Tag
+ from patchwork.tests.utils import create_comment
+ from patchwork.tests.utils import create_patch
+@@ -34,11 +34,14 @@ class ExtractTagsTest(TestCase):
+     name_email = 'test name <' + email + '>'
+ 
+     def assertTagsEqual(self, str, acks, reviews, tests):  # noqa
+-        counts = Patch.extract_tags(str, Tag.objects.all())
+-        self.assertEqual((acks, reviews, tests),
+-                         (counts[Tag.objects.get(name='Acked-by')],
+-                          counts[Tag.objects.get(name='Reviewed-by')],
+-                          counts[Tag.objects.get(name='Tested-by')]))
++        patch = create_patch(content=str)
++        extracted = patch._extract_tags(Tag.objects.all())
++        self.assertEqual(
++            (acks, reviews, tests),
++            (len(extracted.get(Tag.objects.get(name='Acked-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Reviewed-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Tested-by'), [])))
++        )
+ 
+     def test_empty(self):
+         self.assertTagsEqual('', 0, 0, 0)
+@@ -80,7 +83,7 @@ class ExtractTagsTest(TestCase):
+         self.assertTagsEqual('> Acked-by: %s\n' % self.name_email, 0, 0, 0)
+ 
+ 
+-class PatchTagsTest(TransactionTestCase):
++class SubmissionTagsTest(TransactionTestCase):
+ 
+     fixtures = ['default_tags']
+     ACK = 1
+@@ -95,16 +98,14 @@ class PatchTagsTest(TransactionTestCase):
+     def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+         patch = Patch.objects.get(pk=patch.pk)
+ 
+-        def count(name):
+-            try:
+-                return patch.patchtag_set.get(tag__name=name).count
+-            except PatchTag.DoesNotExist:
+-                return 0
++        def count(submission, name):
++            return SubmissionTag.objects.filter(submission=submission,
++                                                tag__name=name).count()
+ 
+         counts = (
+-            count(name='Acked-by'),
+-            count(name='Reviewed-by'),
+-            count(name='Tested-by'),
++            count(patch, name='Acked-by'),
++            count(patch, name='Reviewed-by'),
++            count(patch, name='Tested-by'),
+         )
+ 
+         self.assertEqual(counts, (acks, reviews, tests))
+@@ -118,7 +119,12 @@ class PatchTagsTest(TransactionTestCase):
+         if tagtype not in tags:
+             return ''
+ 
+-        return '%s-by: Test Tagger <tagger@example.com>\n' % tags[tagtype]
++        index = SubmissionTag.objects.filter(
++            tag__name=tags[tagtype] + '-by'
++        ).count()
++        return '%s-by: Test Taggeri%d <tagger@example.com>\n' % (
++            tags[tagtype], index + 1
++        )
+ 
+     def create_tag_comment(self, patch, tagtype=None):
+         comment = create_comment(
+@@ -179,29 +185,3 @@ class PatchTagsTest(TransactionTestCase):
+         c1.content += self.create_tag(self.REVIEW)
+         c1.save()
+         self.assertTagsEqual(self.patch, 1, 1, 0)
+-
+-
+-class PatchTagManagerTest(PatchTagsTest):
+-
+-    def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+-        tagattrs = {}
+-        for tag in Tag.objects.all():
+-            tagattrs[tag.name] = tag.attr_name
+-
+-        # force project.tags to be queried outside of the assertNumQueries
+-        patch.project.tags
+-
+-        # we should be able to do this with two queries: one for
+-        # the patch table lookup, and the prefetch_related for the
+-        # projects table.
+-        with self.assertNumQueries(2):
+-            patch = Patch.objects.with_tag_counts(project=patch.project) \
+-                .get(pk=patch.pk)
+-
+-            counts = (
+-                getattr(patch, tagattrs['Acked-by']),
+-                getattr(patch, tagattrs['Reviewed-by']),
+-                getattr(patch, tagattrs['Tested-by']),
+-            )
+-
+-        self.assertEqual(counts, (acks, reviews, tests))
+diff --git a/patchwork/views/__init__.py b/patchwork/views/__init__.py
+index 5942ded8..3ff4345c 100644
+--- a/patchwork/views/__init__.py
++++ b/patchwork/views/__init__.py
+@@ -274,9 +274,6 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
+     if patches is None:
+         patches = Patch.objects.filter(patch_project=project)
+ 
+-    # annotate with tag counts
+-    patches = patches.with_tag_counts(project)
+-
+     patches = context['filters'].apply(patches)
+     if not editable_order:
+         patches = order.apply(patches)
+diff --git a/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+new file mode 100644
+index 00000000..8a525532
+--- /dev/null
++++ b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+@@ -0,0 +1,15 @@
++---                                                                            
++features:                                                                      
++  - |                                                                          
++    Tagging is completely reworked. Instead of counts, real values are         
++    extracted. This fixes wrong counts when for example the same person        
++    accidentally sent the Acked-by email twice, since only a single same pair  
++    tagname-value can be assigned to a patch. Tags from cover letters are now  
++    counted towards each patch in the series.
++upgrade:                                                                       
++  - |                                                                          
++    The ``retag`` command (``python manage.py retag``) needs to be ran after   
++    the upgrade. The migration only takes care of the database structure, while
++    the actual tag data will be created by the command, to make the migration  
++    itself faster. Please note that this will take a lot of time and based on  
++    the size of the data in question, might be useful to run in batches.  
+-- 
+2.17.1
+
+
+From vkabatov@redhat.com  Tue Sep 18 03:03:49 2018
+Return-Path: <vkabatov@redhat.com>
+Delivered-To: patchwork@lists.ozlabs.org
+From: vkabatov@redhat.com
+To: patchwork@lists.ozlabs.org
+Subject: [PATCH v2 1/4] Rework tagging infrastructure
+Date: Mon, 17 Sep 2018 19:03:32 +0200
+Message-Id: <20180917170335.23838-1-vkabatov@redhat.com>
+Precedence: list
+List-Id: Patchwork development <patchwork.lists.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/patchwork/>
+List-Post: <mailto:patchwork@lists.ozlabs.org>
+List-Help: <mailto:patchwork-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=subscribe>
+
+From: Veronika Kabatova <vkabatov@redhat.com>
+
+Solve #113 and #57 GitHub issues, keep track of tag origin to be able
+to add tags to comments in the API later.
+
+Use relations Tag-Patch and Tag-CoverLetter to avoid duplication of
+tags for each patch in series, and use `series` attribute of
+SubmissionTag as a notion of a tag which is related to each patch in the
+series (because it comes from cover letter or it's comments)
+
+Signed-off-by: Veronika Kabatova <vkabatov@redhat.com>
+---
+Rebased on top of 'Convert Series-Patch relationship to 1:N' series.
+
+Stephen, I split up the patch to separate out API, mbox and documentation
+changes as you suggested; and implemented your comments (simplified the
+migration in favor of running the retag comment, moved the tag retrieval from
+the API into a property in models.py, added comment and tag prefetching,
+increased the API version where needed, added wildcard to API filter and
+simplified it and some other minor things). The series-patch cleanup definitely
+helped with some cleanup, but let me know if there are other optimizations that
+would help with regards to DB performance.
+---
+ patchwork/management/commands/retag.py        |  15 +-
+ patchwork/migrations/0034_rework_tagging.py   |  66 +++++++
+ patchwork/models.py                           | 175 ++++++++----------
+ patchwork/templatetags/patch.py               |   3 +-
+ patchwork/tests/test_parser.py                |  18 +-
+ patchwork/tests/test_tags.py                  |  64 +++----
+ patchwork/views/__init__.py                   |   3 -
+ .../tagging-rework-9907e9dc3f835566.yaml      |  15 ++
+ 8 files changed, 202 insertions(+), 157 deletions(-)
+ create mode 100644 patchwork/migrations/0034_rework_tagging.py
+ create mode 100644 releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+
+diff --git a/patchwork/management/commands/retag.py b/patchwork/management/commands/retag.py
+index 8617ff41..95b2cc1f 100644
+--- a/patchwork/management/commands/retag.py
++++ b/patchwork/management/commands/retag.py
+@@ -19,15 +19,15 @@
+ 
+ from django.core.management.base import BaseCommand
+ 
+-from patchwork.models import Patch
++from patchwork.models import Submission
+ 
+ 
+ class Command(BaseCommand):
+-    help = 'Update the tag (Ack/Review/Test) counts on existing patches'
+-    args = '[<patch_id>...]'
++    help = 'Update tags on existing submissions and associated comments'
++    args = '[<submission_id>...]'
+ 
+     def handle(self, *args, **options):
+-        query = Patch.objects
++        query = Submission.objects.prefetch_related('comments')
+ 
+         if args:
+             query = query.filter(id__in=args)
+@@ -36,8 +36,11 @@ class Command(BaseCommand):
+ 
+         count = query.count()
+ 
+-        for i, patch in enumerate(query.iterator()):
+-            patch.refresh_tag_counts()
++        for i, submission in enumerate(query.iterator()):
++            submission.refresh_tags()
++            for comment in submission.comments.all():
++                comment.refresh_tags()
++
+             if (i % 10) == 0:
+                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
+                 self.stdout.flush()
+diff --git a/patchwork/migrations/0034_rework_tagging.py b/patchwork/migrations/0034_rework_tagging.py
+new file mode 100644
+index 00000000..580a4fd0
+--- /dev/null
++++ b/patchwork/migrations/0034_rework_tagging.py
+@@ -0,0 +1,66 @@
++# -*- coding: utf-8 -*-
++from __future__ import unicode_literals
++
++from django.db import migrations, models
++import django.db.models.deletion
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('patchwork', '0033_remove_patch_series_model'),
++    ]
++
++    operations = [
++        migrations.CreateModel(
++            name='SubmissionTag',
++            fields=[
++                ('id', models.AutoField(auto_created=True,
++                                        primary_key=True,
++                                        serialize=False,
++                                        verbose_name='ID')),
++                ('value', models.CharField(max_length=255)),
++                ('comment', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Comment',
++                    null=True
++                )),
++                ('submission', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Submission'
++                )),
++                ('tag', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Tag'
++                )),
++                ('series', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Series',
++                    null=True
++                )),
++            ],
++        ),
++        migrations.AlterUniqueTogether(
++            name='patchtag',
++            unique_together=set([]),
++        ),
++        migrations.RemoveField(model_name='patchtag', name='patch',),
++        migrations.RemoveField(model_name='patchtag', name='tag',),
++        migrations.RemoveField(model_name='patch', name='tags',),
++        migrations.DeleteModel(name='PatchTag',),
++        migrations.AddField(
++            model_name='submission',
++            name='tags',
++            field=models.ManyToManyField(
++                through='patchwork.SubmissionTag',
++                to='patchwork.Tag'
++            ),
++        ),
++        migrations.AlterUniqueTogether(
++            name='submissiontag',
++            unique_together=set([('submission',
++                                  'tag',
++                                  'value',
++                                  'comment')]),
++        ),
++    ]
+diff --git a/patchwork/models.py b/patchwork/models.py
+index 14eb74aa..5caf7641 100644
+--- a/patchwork/models.py
++++ b/patchwork/models.py
+@@ -20,8 +20,6 @@
+ 
+ from __future__ import absolute_import
+ 
+-from collections import Counter
+-from collections import OrderedDict
+ import datetime
+ import random
+ import re
+@@ -30,6 +28,7 @@ from django.conf import settings
+ from django.contrib.auth.models import User
+ from django.core.exceptions import ValidationError
+ from django.db import models
++from django.db.models import Q
+ from django.urls import reverse
+ from django.utils.encoding import python_2_unicode_compatible
+ from django.utils.functional import cached_property
+@@ -250,10 +249,6 @@ class Tag(models.Model):
+                                       ' tag\'s count in the patch list view',
+                                       default=True)
+ 
+-    @property
+-    def attr_name(self):
+-        return 'tag_%d_count' % self.id
+-
+     def __str__(self):
+         return self.name
+ 
+@@ -261,60 +256,21 @@ class Tag(models.Model):
+         ordering = ['abbrev']
+ 
+ 
+-class PatchTag(models.Model):
+-    patch = models.ForeignKey('Patch', on_delete=models.CASCADE)
++class SubmissionTag(models.Model):
++    submission = models.ForeignKey('Submission', on_delete=models.CASCADE)
+     tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
+-    count = models.IntegerField(default=1)
++    value = models.CharField(max_length=255)
++    comment = models.ForeignKey('Comment', null=True, on_delete=models.CASCADE)
++    series = models.ForeignKey('Series', null=True, on_delete=models.CASCADE)
+ 
+     class Meta:
+-        unique_together = [('patch', 'tag')]
++        unique_together = [('submission', 'tag', 'value', 'comment')]
+ 
+ 
+ def get_default_initial_patch_state():
+     return State.objects.get(ordering=0)
+ 
+ 
+-class PatchQuerySet(models.query.QuerySet):
+-
+-    def with_tag_counts(self, project=None):
+-        if project and not project.use_tags:
+-            return self
+-
+-        # We need the project's use_tags field loaded for Project.tags().
+-        # Using prefetch_related means we'll share the one instance of
+-        # Project, and share the project.tags cache between all patch.project
+-        # references.
+-        qs = self.prefetch_related('project')
+-        select = OrderedDict()
+-        select_params = []
+-
+-        # All projects have the same tags, so we're good to go here
+-        if project:
+-            tags = project.tags
+-        else:
+-            tags = Tag.objects.all()
+-
+-        for tag in tags:
+-            select[tag.attr_name] = (
+-                "coalesce("
+-                "(SELECT count FROM patchwork_patchtag"
+-                " WHERE patchwork_patchtag.patch_id="
+-                "patchwork_patch.submission_ptr_id"
+-                " AND patchwork_patchtag.tag_id=%s), 0)")
+-            select_params.append(tag.id)
+-
+-        return qs.extra(select=select, select_params=select_params)
+-
+-
+-class PatchManager(models.Manager):
+-
+-    def get_queryset(self):
+-        return PatchQuerySet(self.model, using=self.db)
+-
+-    def with_tag_counts(self, project):
+-        return self.get_queryset().with_tag_counts(project)
+-
+-
+ class EmailMixin(models.Model):
+     """Mixin for models with an email-origin."""
+     # email metadata
+@@ -340,6 +296,16 @@ class EmailMixin(models.Model):
+         return ''.join([match.group(0) + '\n' for match in
+                         self.response_re.finditer(self.content)])
+ 
++    def _extract_tags(self, tags):
++        found_tags = {}
++        if not self.content:
++            return found_tags
++
++        for tag in tags:
++            regex = re.compile(tag.pattern + r'\s*(.*)', re.M | re.I | re.U)
++            found_tags[tag] = regex.findall(self.content)
++        return found_tags
++
+     def save(self, *args, **kwargs):
+         # Modifying a submission via admin interface changes '\n' newlines in
+         # message content to '\r\n'. We need to fix them to avoid problems,
+@@ -371,6 +337,53 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
+     # submission metadata
+ 
+     name = models.CharField(max_length=255)
++    tags = models.ManyToManyField(Tag, through=SubmissionTag)
++
++    def add_tags(self, tag, values, comment=None):
++        if hasattr(self, 'patch'):
++            series = None
++        else:
++            series = self.coverletter.series
++        current_objs = SubmissionTag.objects.filter(submission=self,
++                                                    comment=comment,
++                                                    tag=tag,
++                                                    series=series)
++        if not values:
++            current_objs.delete()
++            return
++        # In case the origin is modified, delete tags that were removed
++        current_objs.exclude(value__in=values).delete()
++        values_to_add = set(values) - set(current_objs.values_list('value',
++                                                                   flat=True))
++        SubmissionTag.objects.bulk_create([SubmissionTag(
++            submission=self,
++            tag=tag,
++            value=value,
++            comment=comment,
++            series=series
++        ) for value in values_to_add])
++
++    def refresh_tags(self):
++        submission_tags = self._extract_tags(Tag.objects.all())
++        for tag in submission_tags:
++            self.add_tags(tag, submission_tags[tag])
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.project.tags:
++            if hasattr(self, 'patch'):
++                related_tags[tag] = SubmissionTag.objects.filter((
++                    Q(submission=self) | Q(series=self.series)
++                ) & Q(tag__name=tag.name)).values_list('value',
++                                                       flat=True).distinct()
++            else:
++                related_tags[tag] = SubmissionTag.objects.filter(
++                    Q(submission=self) & Q(tag__name=tag.name)
++                ).values_list('value', flat=True).distinct()
++
++        return related_tags
+ 
+     # patchwork metadata
+ 
+@@ -409,7 +422,6 @@ class Patch(Submission):
+     diff = models.TextField(null=True, blank=True)
+     commit_ref = models.CharField(max_length=255, null=True, blank=True)
+     pull_url = models.CharField(max_length=255, null=True, blank=True)
+-    tags = models.ManyToManyField(Tag, through=PatchTag)
+ 
+     # patchwork metadata
+ 
+@@ -432,40 +444,6 @@ class Patch(Submission):
+         default=None, null=True,
+         help_text='The number assigned to this patch in the series')
+ 
+-    objects = PatchManager()
+-
+-    @staticmethod
+-    def extract_tags(content, tags):
+-        counts = Counter()
+-
+-        for tag in tags:
+-            regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
+-            counts[tag] = len(regex.findall(content))
+-
+-        return counts
+-
+-    def _set_tag(self, tag, count):
+-        if count == 0:
+-            self.patchtag_set.filter(tag=tag).delete()
+-            return
+-        patchtag, _ = PatchTag.objects.get_or_create(patch=self, tag=tag)
+-        if patchtag.count != count:
+-            patchtag.count = count
+-            patchtag.save()
+-
+-    def refresh_tag_counts(self):
+-        tags = self.project.tags
+-        counter = Counter()
+-
+-        if self.content:
+-            counter += self.extract_tags(self.content, tags)
+-
+-        for comment in self.comments.all():
+-            counter = counter + self.extract_tags(comment.content, tags)
+-
+-        for tag in tags:
+-            self._set_tag(tag, counter[tag])
+-
+     def save(self, *args, **kwargs):
+         if not hasattr(self, 'state') or not self.state:
+             self.state = get_default_initial_patch_state()
+@@ -475,7 +453,7 @@ class Patch(Submission):
+ 
+         super(Patch, self).save(**kwargs)
+ 
+-        self.refresh_tag_counts()
++        self.refresh_tags()
+ 
+     def is_editable(self, user):
+         if not user.is_authenticated:
+@@ -610,13 +588,23 @@ class Comment(EmailMixin, models.Model):
+ 
+     def save(self, *args, **kwargs):
+         super(Comment, self).save(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        self.refresh_tags()
++
++    def refresh_tags(self):
++        comment_tags = self._extract_tags(Tag.objects.all())
++        for tag in comment_tags:
++            self.submission.add_tags(tag, comment_tags[tag], comment=self)
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.submission.project.tags:
++            related_tags[tag] = SubmissionTag.objects.filter(
++                comment=self, tag__name=tag.name
++            ).values_list('value', flat=True).distinct()
+ 
+-    def delete(self, *args, **kwargs):
+-        super(Comment, self).delete(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        return related_tags
+ 
+     def is_editable(self, user):
+         return False
+@@ -715,6 +703,7 @@ class Series(FilenameMixin, models.Model):
+                 self.name = self._format_name(cover)
+ 
+         self.save()
++        cover.refresh_tags()
+ 
+     def add_patch(self, patch, number):
+         """Add a patch to the series."""
+diff --git a/patchwork/templatetags/patch.py b/patchwork/templatetags/patch.py
+index 30ccc8e2..5be6b908 100644
+--- a/patchwork/templatetags/patch.py
++++ b/patchwork/templatetags/patch.py
+@@ -34,8 +34,9 @@ register = template.Library()
+ def patch_tags(patch):
+     counts = []
+     titles = []
++    all_tags = patch.all_tags
+     for tag in [t for t in patch.project.tags if t.show_column]:
+-        count = getattr(patch, tag.attr_name)
++        count = len(all_tags[tag])
+         titles.append('%d %s' % (count, tag.name))
+         if count == 0:
+             counts.append("-")
+diff --git a/patchwork/tests/test_parser.py b/patchwork/tests/test_parser.py
+index e99cf214..7fdceab3 100644
+--- a/patchwork/tests/test_parser.py
++++ b/patchwork/tests/test_parser.py
+@@ -802,12 +802,9 @@ class ParseInitialTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class ParseCommentTagsTest(PatchTest):
+@@ -830,12 +827,9 @@ class ParseCommentTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class SubjectTest(TestCase):
+diff --git a/patchwork/tests/test_tags.py b/patchwork/tests/test_tags.py
+index 4fd1bf23..f7a35f92 100644
+--- a/patchwork/tests/test_tags.py
++++ b/patchwork/tests/test_tags.py
+@@ -21,7 +21,7 @@ from django.test import TestCase
+ from django.test import TransactionTestCase
+ 
+ from patchwork.models import Patch
+-from patchwork.models import PatchTag
++from patchwork.models import SubmissionTag
+ from patchwork.models import Tag
+ from patchwork.tests.utils import create_comment
+ from patchwork.tests.utils import create_patch
+@@ -34,11 +34,14 @@ class ExtractTagsTest(TestCase):
+     name_email = 'test name <' + email + '>'
+ 
+     def assertTagsEqual(self, str, acks, reviews, tests):  # noqa
+-        counts = Patch.extract_tags(str, Tag.objects.all())
+-        self.assertEqual((acks, reviews, tests),
+-                         (counts[Tag.objects.get(name='Acked-by')],
+-                          counts[Tag.objects.get(name='Reviewed-by')],
+-                          counts[Tag.objects.get(name='Tested-by')]))
++        patch = create_patch(content=str)
++        extracted = patch._extract_tags(Tag.objects.all())
++        self.assertEqual(
++            (acks, reviews, tests),
++            (len(extracted.get(Tag.objects.get(name='Acked-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Reviewed-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Tested-by'), [])))
++        )
+ 
+     def test_empty(self):
+         self.assertTagsEqual('', 0, 0, 0)
+@@ -80,7 +83,7 @@ class ExtractTagsTest(TestCase):
+         self.assertTagsEqual('> Acked-by: %s\n' % self.name_email, 0, 0, 0)
+ 
+ 
+-class PatchTagsTest(TransactionTestCase):
++class SubmissionTagsTest(TransactionTestCase):
+ 
+     fixtures = ['default_tags']
+     ACK = 1
+@@ -95,16 +98,14 @@ class PatchTagsTest(TransactionTestCase):
+     def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+         patch = Patch.objects.get(pk=patch.pk)
+ 
+-        def count(name):
+-            try:
+-                return patch.patchtag_set.get(tag__name=name).count
+-            except PatchTag.DoesNotExist:
+-                return 0
++        def count(submission, name):
++            return SubmissionTag.objects.filter(submission=submission,
++                                                tag__name=name).count()
+ 
+         counts = (
+-            count(name='Acked-by'),
+-            count(name='Reviewed-by'),
+-            count(name='Tested-by'),
++            count(patch, name='Acked-by'),
++            count(patch, name='Reviewed-by'),
++            count(patch, name='Tested-by'),
+         )
+ 
+         self.assertEqual(counts, (acks, reviews, tests))
+@@ -118,7 +119,12 @@ class PatchTagsTest(TransactionTestCase):
+         if tagtype not in tags:
+             return ''
+ 
+-        return '%s-by: Test Tagger <tagger@example.com>\n' % tags[tagtype]
++        index = SubmissionTag.objects.filter(
++            tag__name=tags[tagtype] + '-by'
++        ).count()
++        return '%s-by: Test Taggeri%d <tagger@example.com>\n' % (
++            tags[tagtype], index + 1
++        )
+ 
+     def create_tag_comment(self, patch, tagtype=None):
+         comment = create_comment(
+@@ -179,29 +185,3 @@ class PatchTagsTest(TransactionTestCase):
+         c1.content += self.create_tag(self.REVIEW)
+         c1.save()
+         self.assertTagsEqual(self.patch, 1, 1, 0)
+-
+-
+-class PatchTagManagerTest(PatchTagsTest):
+-
+-    def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+-        tagattrs = {}
+-        for tag in Tag.objects.all():
+-            tagattrs[tag.name] = tag.attr_name
+-
+-        # force project.tags to be queried outside of the assertNumQueries
+-        patch.project.tags
+-
+-        # we should be able to do this with two queries: one for
+-        # the patch table lookup, and the prefetch_related for the
+-        # projects table.
+-        with self.assertNumQueries(2):
+-            patch = Patch.objects.with_tag_counts(project=patch.project) \
+-                .get(pk=patch.pk)
+-
+-            counts = (
+-                getattr(patch, tagattrs['Acked-by']),
+-                getattr(patch, tagattrs['Reviewed-by']),
+-                getattr(patch, tagattrs['Tested-by']),
+-            )
+-
+-        self.assertEqual(counts, (acks, reviews, tests))
+diff --git a/patchwork/views/__init__.py b/patchwork/views/__init__.py
+index 5942ded8..3ff4345c 100644
+--- a/patchwork/views/__init__.py
++++ b/patchwork/views/__init__.py
+@@ -274,9 +274,6 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
+     if patches is None:
+         patches = Patch.objects.filter(patch_project=project)
+ 
+-    # annotate with tag counts
+-    patches = patches.with_tag_counts(project)
+-
+     patches = context['filters'].apply(patches)
+     if not editable_order:
+         patches = order.apply(patches)
+diff --git a/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+new file mode 100644
+index 00000000..8a525532
+--- /dev/null
++++ b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+@@ -0,0 +1,15 @@
++---                                                                            
++features:                                                                      
++  - |                                                                          
++    Tagging is completely reworked. Instead of counts, real values are         
++    extracted. This fixes wrong counts when for example the same person        
++    accidentally sent the Acked-by email twice, since only a single same pair  
++    tagname-value can be assigned to a patch. Tags from cover letters are now  
++    counted towards each patch in the series.
++upgrade:                                                                       
++  - |                                                                          
++    The ``retag`` command (``python manage.py retag``) needs to be ran after   
++    the upgrade. The migration only takes care of the database structure, while
++    the actual tag data will be created by the command, to make the migration  
++    itself faster. Please note that this will take a lot of time and based on  
++    the size of the data in question, might be useful to run in batches.  
+-- 
+2.17.1
+
+
+From vkabatov@redhat.com  Tue Sep 18 03:03:50 2018
+Return-Path: <vkabatov@redhat.com>
+Delivered-To: patchwork@lists.ozlabs.org
+From: vkabatov@redhat.com
+To: patchwork@lists.ozlabs.org
+Subject: [PATCH v2 1/4] Rework tagging infrastructure
+Date: Mon, 17 Sep 2018 18:59:24 +0200
+Message-Id: <20180917165927.22598-1-vkabatov@redhat.com>
+Precedence: list
+List-Id: Patchwork development <patchwork.lists.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/patchwork/>
+List-Post: <mailto:patchwork@lists.ozlabs.org>
+List-Help: <mailto:patchwork-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/patchwork>,
+ <mailto:patchwork-request@lists.ozlabs.org?subject=subscribe>
+
+From: Veronika Kabatova <vkabatov@redhat.com>
+
+Solve #113 and #57 GitHub issues, keep track of tag origin to be able
+to add tags to comments in the API later.
+
+Use relations Tag-Patch and Tag-CoverLetter to avoid duplication of
+tags for each patch in series, and use `series` attribute of
+SubmissionTag as a notion of a tag which is related to each patch in the
+series (because it comes from cover letter or it's comments)
+
+Signed-off-by: Veronika Kabatova <vkabatov@redhat.com>
+---
+Rebased on top of 'Convert Series-Patch relationship to 1:N' series.
+
+Stephen, I split up the patch to separate out API, mbox and documentation
+changes as you suggested; and implemented your comments (simplified the
+migration in favor of running the retag comment, moved the tag retrieval from
+the API into a property in models.py, added comment and tag prefetching,
+increased the API version where needed, added wildcard to API filter and
+simplified it and some other minor things). The series-patch cleanup definitely
+helped with some cleanup, but let me know if there are other optimizations that
+would help with regards to DB performance.
+---
+ patchwork/management/commands/retag.py        |  15 +-
+ patchwork/migrations/0034_rework_tagging.py   |  66 +++++++
+ patchwork/models.py                           | 175 ++++++++----------
+ patchwork/templatetags/patch.py               |   3 +-
+ patchwork/tests/test_parser.py                |  18 +-
+ patchwork/tests/test_tags.py                  |  64 +++----
+ patchwork/views/__init__.py                   |   3 -
+ .../tagging-rework-9907e9dc3f835566.yaml      |  15 ++
+ 8 files changed, 202 insertions(+), 157 deletions(-)
+ create mode 100644 patchwork/migrations/0034_rework_tagging.py
+ create mode 100644 releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+
+diff --git a/patchwork/management/commands/retag.py b/patchwork/management/commands/retag.py
+index 8617ff41..95b2cc1f 100644
+--- a/patchwork/management/commands/retag.py
++++ b/patchwork/management/commands/retag.py
+@@ -19,15 +19,15 @@
+ 
+ from django.core.management.base import BaseCommand
+ 
+-from patchwork.models import Patch
++from patchwork.models import Submission
+ 
+ 
+ class Command(BaseCommand):
+-    help = 'Update the tag (Ack/Review/Test) counts on existing patches'
+-    args = '[<patch_id>...]'
++    help = 'Update tags on existing submissions and associated comments'
++    args = '[<submission_id>...]'
+ 
+     def handle(self, *args, **options):
+-        query = Patch.objects
++        query = Submission.objects.prefetch_related('comments')
+ 
+         if args:
+             query = query.filter(id__in=args)
+@@ -36,8 +36,11 @@ class Command(BaseCommand):
+ 
+         count = query.count()
+ 
+-        for i, patch in enumerate(query.iterator()):
+-            patch.refresh_tag_counts()
++        for i, submission in enumerate(query.iterator()):
++            submission.refresh_tags()
++            for comment in submission.comments.all():
++                comment.refresh_tags()
++
+             if (i % 10) == 0:
+                 self.stdout.write('%06d/%06d\r' % (i, count), ending='')
+                 self.stdout.flush()
+diff --git a/patchwork/migrations/0034_rework_tagging.py b/patchwork/migrations/0034_rework_tagging.py
+new file mode 100644
+index 00000000..580a4fd0
+--- /dev/null
++++ b/patchwork/migrations/0034_rework_tagging.py
+@@ -0,0 +1,66 @@
++# -*- coding: utf-8 -*-
++from __future__ import unicode_literals
++
++from django.db import migrations, models
++import django.db.models.deletion
++
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('patchwork', '0033_remove_patch_series_model'),
++    ]
++
++    operations = [
++        migrations.CreateModel(
++            name='SubmissionTag',
++            fields=[
++                ('id', models.AutoField(auto_created=True,
++                                        primary_key=True,
++                                        serialize=False,
++                                        verbose_name='ID')),
++                ('value', models.CharField(max_length=255)),
++                ('comment', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Comment',
++                    null=True
++                )),
++                ('submission', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Submission'
++                )),
++                ('tag', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Tag'
++                )),
++                ('series', models.ForeignKey(
++                    on_delete=django.db.models.deletion.CASCADE,
++                    to='patchwork.Series',
++                    null=True
++                )),
++            ],
++        ),
++        migrations.AlterUniqueTogether(
++            name='patchtag',
++            unique_together=set([]),
++        ),
++        migrations.RemoveField(model_name='patchtag', name='patch',),
++        migrations.RemoveField(model_name='patchtag', name='tag',),
++        migrations.RemoveField(model_name='patch', name='tags',),
++        migrations.DeleteModel(name='PatchTag',),
++        migrations.AddField(
++            model_name='submission',
++            name='tags',
++            field=models.ManyToManyField(
++                through='patchwork.SubmissionTag',
++                to='patchwork.Tag'
++            ),
++        ),
++        migrations.AlterUniqueTogether(
++            name='submissiontag',
++            unique_together=set([('submission',
++                                  'tag',
++                                  'value',
++                                  'comment')]),
++        ),
++    ]
+diff --git a/patchwork/models.py b/patchwork/models.py
+index 14eb74aa..5caf7641 100644
+--- a/patchwork/models.py
++++ b/patchwork/models.py
+@@ -20,8 +20,6 @@
+ 
+ from __future__ import absolute_import
+ 
+-from collections import Counter
+-from collections import OrderedDict
+ import datetime
+ import random
+ import re
+@@ -30,6 +28,7 @@ from django.conf import settings
+ from django.contrib.auth.models import User
+ from django.core.exceptions import ValidationError
+ from django.db import models
++from django.db.models import Q
+ from django.urls import reverse
+ from django.utils.encoding import python_2_unicode_compatible
+ from django.utils.functional import cached_property
+@@ -250,10 +249,6 @@ class Tag(models.Model):
+                                       ' tag\'s count in the patch list view',
+                                       default=True)
+ 
+-    @property
+-    def attr_name(self):
+-        return 'tag_%d_count' % self.id
+-
+     def __str__(self):
+         return self.name
+ 
+@@ -261,60 +256,21 @@ class Tag(models.Model):
+         ordering = ['abbrev']
+ 
+ 
+-class PatchTag(models.Model):
+-    patch = models.ForeignKey('Patch', on_delete=models.CASCADE)
++class SubmissionTag(models.Model):
++    submission = models.ForeignKey('Submission', on_delete=models.CASCADE)
+     tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
+-    count = models.IntegerField(default=1)
++    value = models.CharField(max_length=255)
++    comment = models.ForeignKey('Comment', null=True, on_delete=models.CASCADE)
++    series = models.ForeignKey('Series', null=True, on_delete=models.CASCADE)
+ 
+     class Meta:
+-        unique_together = [('patch', 'tag')]
++        unique_together = [('submission', 'tag', 'value', 'comment')]
+ 
+ 
+ def get_default_initial_patch_state():
+     return State.objects.get(ordering=0)
+ 
+ 
+-class PatchQuerySet(models.query.QuerySet):
+-
+-    def with_tag_counts(self, project=None):
+-        if project and not project.use_tags:
+-            return self
+-
+-        # We need the project's use_tags field loaded for Project.tags().
+-        # Using prefetch_related means we'll share the one instance of
+-        # Project, and share the project.tags cache between all patch.project
+-        # references.
+-        qs = self.prefetch_related('project')
+-        select = OrderedDict()
+-        select_params = []
+-
+-        # All projects have the same tags, so we're good to go here
+-        if project:
+-            tags = project.tags
+-        else:
+-            tags = Tag.objects.all()
+-
+-        for tag in tags:
+-            select[tag.attr_name] = (
+-                "coalesce("
+-                "(SELECT count FROM patchwork_patchtag"
+-                " WHERE patchwork_patchtag.patch_id="
+-                "patchwork_patch.submission_ptr_id"
+-                " AND patchwork_patchtag.tag_id=%s), 0)")
+-            select_params.append(tag.id)
+-
+-        return qs.extra(select=select, select_params=select_params)
+-
+-
+-class PatchManager(models.Manager):
+-
+-    def get_queryset(self):
+-        return PatchQuerySet(self.model, using=self.db)
+-
+-    def with_tag_counts(self, project):
+-        return self.get_queryset().with_tag_counts(project)
+-
+-
+ class EmailMixin(models.Model):
+     """Mixin for models with an email-origin."""
+     # email metadata
+@@ -340,6 +296,16 @@ class EmailMixin(models.Model):
+         return ''.join([match.group(0) + '\n' for match in
+                         self.response_re.finditer(self.content)])
+ 
++    def _extract_tags(self, tags):
++        found_tags = {}
++        if not self.content:
++            return found_tags
++
++        for tag in tags:
++            regex = re.compile(tag.pattern + r'\s*(.*)', re.M | re.I | re.U)
++            found_tags[tag] = regex.findall(self.content)
++        return found_tags
++
+     def save(self, *args, **kwargs):
+         # Modifying a submission via admin interface changes '\n' newlines in
+         # message content to '\r\n'. We need to fix them to avoid problems,
+@@ -371,6 +337,53 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
+     # submission metadata
+ 
+     name = models.CharField(max_length=255)
++    tags = models.ManyToManyField(Tag, through=SubmissionTag)
++
++    def add_tags(self, tag, values, comment=None):
++        if hasattr(self, 'patch'):
++            series = None
++        else:
++            series = self.coverletter.series
++        current_objs = SubmissionTag.objects.filter(submission=self,
++                                                    comment=comment,
++                                                    tag=tag,
++                                                    series=series)
++        if not values:
++            current_objs.delete()
++            return
++        # In case the origin is modified, delete tags that were removed
++        current_objs.exclude(value__in=values).delete()
++        values_to_add = set(values) - set(current_objs.values_list('value',
++                                                                   flat=True))
++        SubmissionTag.objects.bulk_create([SubmissionTag(
++            submission=self,
++            tag=tag,
++            value=value,
++            comment=comment,
++            series=series
++        ) for value in values_to_add])
++
++    def refresh_tags(self):
++        submission_tags = self._extract_tags(Tag.objects.all())
++        for tag in submission_tags:
++            self.add_tags(tag, submission_tags[tag])
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.project.tags:
++            if hasattr(self, 'patch'):
++                related_tags[tag] = SubmissionTag.objects.filter((
++                    Q(submission=self) | Q(series=self.series)
++                ) & Q(tag__name=tag.name)).values_list('value',
++                                                       flat=True).distinct()
++            else:
++                related_tags[tag] = SubmissionTag.objects.filter(
++                    Q(submission=self) & Q(tag__name=tag.name)
++                ).values_list('value', flat=True).distinct()
++
++        return related_tags
+ 
+     # patchwork metadata
+ 
+@@ -409,7 +422,6 @@ class Patch(Submission):
+     diff = models.TextField(null=True, blank=True)
+     commit_ref = models.CharField(max_length=255, null=True, blank=True)
+     pull_url = models.CharField(max_length=255, null=True, blank=True)
+-    tags = models.ManyToManyField(Tag, through=PatchTag)
+ 
+     # patchwork metadata
+ 
+@@ -432,40 +444,6 @@ class Patch(Submission):
+         default=None, null=True,
+         help_text='The number assigned to this patch in the series')
+ 
+-    objects = PatchManager()
+-
+-    @staticmethod
+-    def extract_tags(content, tags):
+-        counts = Counter()
+-
+-        for tag in tags:
+-            regex = re.compile(tag.pattern, re.MULTILINE | re.IGNORECASE)
+-            counts[tag] = len(regex.findall(content))
+-
+-        return counts
+-
+-    def _set_tag(self, tag, count):
+-        if count == 0:
+-            self.patchtag_set.filter(tag=tag).delete()
+-            return
+-        patchtag, _ = PatchTag.objects.get_or_create(patch=self, tag=tag)
+-        if patchtag.count != count:
+-            patchtag.count = count
+-            patchtag.save()
+-
+-    def refresh_tag_counts(self):
+-        tags = self.project.tags
+-        counter = Counter()
+-
+-        if self.content:
+-            counter += self.extract_tags(self.content, tags)
+-
+-        for comment in self.comments.all():
+-            counter = counter + self.extract_tags(comment.content, tags)
+-
+-        for tag in tags:
+-            self._set_tag(tag, counter[tag])
+-
+     def save(self, *args, **kwargs):
+         if not hasattr(self, 'state') or not self.state:
+             self.state = get_default_initial_patch_state()
+@@ -475,7 +453,7 @@ class Patch(Submission):
+ 
+         super(Patch, self).save(**kwargs)
+ 
+-        self.refresh_tag_counts()
++        self.refresh_tags()
+ 
+     def is_editable(self, user):
+         if not user.is_authenticated:
+@@ -610,13 +588,23 @@ class Comment(EmailMixin, models.Model):
+ 
+     def save(self, *args, **kwargs):
+         super(Comment, self).save(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        self.refresh_tags()
++
++    def refresh_tags(self):
++        comment_tags = self._extract_tags(Tag.objects.all())
++        for tag in comment_tags:
++            self.submission.add_tags(tag, comment_tags[tag], comment=self)
++
++    @property
++    def all_tags(self):
++        related_tags = {}
++
++        for tag in self.submission.project.tags:
++            related_tags[tag] = SubmissionTag.objects.filter(
++                comment=self, tag__name=tag.name
++            ).values_list('value', flat=True).distinct()
+ 
+-    def delete(self, *args, **kwargs):
+-        super(Comment, self).delete(*args, **kwargs)
+-        if hasattr(self.submission, 'patch'):
+-            self.submission.patch.refresh_tag_counts()
++        return related_tags
+ 
+     def is_editable(self, user):
+         return False
+@@ -715,6 +703,7 @@ class Series(FilenameMixin, models.Model):
+                 self.name = self._format_name(cover)
+ 
+         self.save()
++        cover.refresh_tags()
+ 
+     def add_patch(self, patch, number):
+         """Add a patch to the series."""
+diff --git a/patchwork/templatetags/patch.py b/patchwork/templatetags/patch.py
+index 30ccc8e2..5be6b908 100644
+--- a/patchwork/templatetags/patch.py
++++ b/patchwork/templatetags/patch.py
+@@ -34,8 +34,9 @@ register = template.Library()
+ def patch_tags(patch):
+     counts = []
+     titles = []
++    all_tags = patch.all_tags
+     for tag in [t for t in patch.project.tags if t.show_column]:
+-        count = getattr(patch, tag.attr_name)
++        count = len(all_tags[tag])
+         titles.append('%d %s' % (count, tag.name))
+         if count == 0:
+             counts.append("-")
+diff --git a/patchwork/tests/test_parser.py b/patchwork/tests/test_parser.py
+index e99cf214..7fdceab3 100644
+--- a/patchwork/tests/test_parser.py
++++ b/patchwork/tests/test_parser.py
+@@ -802,12 +802,9 @@ class ParseInitialTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class ParseCommentTagsTest(PatchTest):
+@@ -830,12 +827,9 @@ class ParseCommentTagsTest(PatchTest):
+     def test_tags(self):
+         self.assertEqual(Patch.objects.count(), 1)
+         patch = Patch.objects.all()[0]
+-        self.assertEqual(patch.patchtag_set.filter(
+-            tag__name='Acked-by').count(), 0)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Reviewed-by').count, 1)
+-        self.assertEqual(patch.patchtag_set.get(
+-            tag__name='Tested-by').count, 1)
++        self.assertEqual(patch.tags.filter(name='Acked-by').count(), 0)
++        self.assertEqual(patch.tags.filter(name='Reviewed-by').count(), 1)
++        self.assertEqual(patch.tags.filter(name='Tested-by').count(), 1)
+ 
+ 
+ class SubjectTest(TestCase):
+diff --git a/patchwork/tests/test_tags.py b/patchwork/tests/test_tags.py
+index 4fd1bf23..f7a35f92 100644
+--- a/patchwork/tests/test_tags.py
++++ b/patchwork/tests/test_tags.py
+@@ -21,7 +21,7 @@ from django.test import TestCase
+ from django.test import TransactionTestCase
+ 
+ from patchwork.models import Patch
+-from patchwork.models import PatchTag
++from patchwork.models import SubmissionTag
+ from patchwork.models import Tag
+ from patchwork.tests.utils import create_comment
+ from patchwork.tests.utils import create_patch
+@@ -34,11 +34,14 @@ class ExtractTagsTest(TestCase):
+     name_email = 'test name <' + email + '>'
+ 
+     def assertTagsEqual(self, str, acks, reviews, tests):  # noqa
+-        counts = Patch.extract_tags(str, Tag.objects.all())
+-        self.assertEqual((acks, reviews, tests),
+-                         (counts[Tag.objects.get(name='Acked-by')],
+-                          counts[Tag.objects.get(name='Reviewed-by')],
+-                          counts[Tag.objects.get(name='Tested-by')]))
++        patch = create_patch(content=str)
++        extracted = patch._extract_tags(Tag.objects.all())
++        self.assertEqual(
++            (acks, reviews, tests),
++            (len(extracted.get(Tag.objects.get(name='Acked-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Reviewed-by'), [])),
++             len(extracted.get(Tag.objects.get(name='Tested-by'), [])))
++        )
+ 
+     def test_empty(self):
+         self.assertTagsEqual('', 0, 0, 0)
+@@ -80,7 +83,7 @@ class ExtractTagsTest(TestCase):
+         self.assertTagsEqual('> Acked-by: %s\n' % self.name_email, 0, 0, 0)
+ 
+ 
+-class PatchTagsTest(TransactionTestCase):
++class SubmissionTagsTest(TransactionTestCase):
+ 
+     fixtures = ['default_tags']
+     ACK = 1
+@@ -95,16 +98,14 @@ class PatchTagsTest(TransactionTestCase):
+     def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+         patch = Patch.objects.get(pk=patch.pk)
+ 
+-        def count(name):
+-            try:
+-                return patch.patchtag_set.get(tag__name=name).count
+-            except PatchTag.DoesNotExist:
+-                return 0
++        def count(submission, name):
++            return SubmissionTag.objects.filter(submission=submission,
++                                                tag__name=name).count()
+ 
+         counts = (
+-            count(name='Acked-by'),
+-            count(name='Reviewed-by'),
+-            count(name='Tested-by'),
++            count(patch, name='Acked-by'),
++            count(patch, name='Reviewed-by'),
++            count(patch, name='Tested-by'),
+         )
+ 
+         self.assertEqual(counts, (acks, reviews, tests))
+@@ -118,7 +119,12 @@ class PatchTagsTest(TransactionTestCase):
+         if tagtype not in tags:
+             return ''
+ 
+-        return '%s-by: Test Tagger <tagger@example.com>\n' % tags[tagtype]
++        index = SubmissionTag.objects.filter(
++            tag__name=tags[tagtype] + '-by'
++        ).count()
++        return '%s-by: Test Taggeri%d <tagger@example.com>\n' % (
++            tags[tagtype], index + 1
++        )
+ 
+     def create_tag_comment(self, patch, tagtype=None):
+         comment = create_comment(
+@@ -179,29 +185,3 @@ class PatchTagsTest(TransactionTestCase):
+         c1.content += self.create_tag(self.REVIEW)
+         c1.save()
+         self.assertTagsEqual(self.patch, 1, 1, 0)
+-
+-
+-class PatchTagManagerTest(PatchTagsTest):
+-
+-    def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
+-        tagattrs = {}
+-        for tag in Tag.objects.all():
+-            tagattrs[tag.name] = tag.attr_name
+-
+-        # force project.tags to be queried outside of the assertNumQueries
+-        patch.project.tags
+-
+-        # we should be able to do this with two queries: one for
+-        # the patch table lookup, and the prefetch_related for the
+-        # projects table.
+-        with self.assertNumQueries(2):
+-            patch = Patch.objects.with_tag_counts(project=patch.project) \
+-                .get(pk=patch.pk)
+-
+-            counts = (
+-                getattr(patch, tagattrs['Acked-by']),
+-                getattr(patch, tagattrs['Reviewed-by']),
+-                getattr(patch, tagattrs['Tested-by']),
+-            )
+-
+-        self.assertEqual(counts, (acks, reviews, tests))
+diff --git a/patchwork/views/__init__.py b/patchwork/views/__init__.py
+index 5942ded8..3ff4345c 100644
+--- a/patchwork/views/__init__.py
++++ b/patchwork/views/__init__.py
+@@ -274,9 +274,6 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
+     if patches is None:
+         patches = Patch.objects.filter(patch_project=project)
+ 
+-    # annotate with tag counts
+-    patches = patches.with_tag_counts(project)
+-
+     patches = context['filters'].apply(patches)
+     if not editable_order:
+         patches = order.apply(patches)
+diff --git a/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+new file mode 100644
+index 00000000..8a525532
+--- /dev/null
++++ b/releasenotes/notes/tagging-rework-9907e9dc3f835566.yaml
+@@ -0,0 +1,15 @@
++---                                                                            
++features:                                                                      
++  - |                                                                          
++    Tagging is completely reworked. Instead of counts, real values are         
++    extracted. This fixes wrong counts when for example the same person        
++    accidentally sent the Acked-by email twice, since only a single same pair  
++    tagname-value can be assigned to a patch. Tags from cover letters are now  
++    counted towards each patch in the series.
++upgrade:                                                                       
++  - |                                                                          
++    The ``retag`` command (``python manage.py retag``) needs to be ran after   
++    the upgrade. The migration only takes care of the database structure, while
++    the actual tag data will be created by the command, to make the migration  
++    itself faster. Please note that this will take a lot of time and based on  
++    the size of the data in question, might be useful to run in batches.  
+-- 
+2.17.1
+
+
+
