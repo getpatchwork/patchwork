@@ -110,8 +110,10 @@ class PatchChangedTest(_BaseTestCase):
         patch = utils.create_patch(series=None)
         old_state = patch.state
         new_state = utils.create_state()
+        actor = utils.create_maintainer(project=patch.project)
 
         patch.state = new_state
+        self.assertTrue(patch.is_editable(actor))
         patch.save()
 
         events = _get_events(patch=patch)
@@ -120,6 +122,7 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEqual(events[1].category,
                          Event.CATEGORY_PATCH_STATE_CHANGED)
         self.assertEqual(events[1].project, patch.project)
+        self.assertEqual(events[1].actor, actor)
         self.assertEventFields(events[1], previous_state=old_state,
                                current_state=new_state)
 
@@ -127,10 +130,12 @@ class PatchChangedTest(_BaseTestCase):
         # purposefully setting series to None to minimize additional events
         patch = utils.create_patch(series=None)
         delegate_a = utils.create_user()
+        actor = utils.create_maintainer(project=patch.project)
 
         # None -> Delegate A
 
         patch.delegate = delegate_a
+        self.assertTrue(patch.is_editable(actor))
         patch.save()
 
         events = _get_events(patch=patch)
@@ -139,6 +144,7 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEqual(events[1].category,
                          Event.CATEGORY_PATCH_DELEGATED)
         self.assertEqual(events[1].project, patch.project)
+        self.assertEqual(events[1].actor, actor)
         self.assertEventFields(events[1], current_delegate=delegate_a)
 
         delegate_b = utils.create_user()
@@ -175,6 +181,7 @@ class CheckCreatedTest(_BaseTestCase):
         self.assertEqual(events.count(), 1)
         self.assertEqual(events[0].category, Event.CATEGORY_CHECK_CREATED)
         self.assertEqual(events[0].project, check.patch.project)
+        self.assertEqual(events[0].actor, check.user)
         self.assertEventFields(events[0])
 
 

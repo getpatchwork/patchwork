@@ -93,6 +93,7 @@ def create_patch_state_changed_event(sender, instance, raw, **kwargs):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_STATE_CHANGED,
             project=patch.project,
+            actor=getattr(patch, '_edited_by', None),
             patch=patch,
             previous_state=before,
             current_state=after)
@@ -116,6 +117,7 @@ def create_patch_delegated_event(sender, instance, raw, **kwargs):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_DELEGATED,
             project=patch.project,
+            actor=getattr(patch, '_edited_by', None),
             patch=patch,
             previous_delegate=before,
             current_delegate=after)
@@ -184,6 +186,7 @@ def create_check_created_event(sender, instance, created, raw, **kwargs):
         return Event.objects.create(
             category=Event.CATEGORY_CHECK_CREATED,
             project=check.patch.project,
+            actor=check.user,
             patch=check.patch,
             created_check=check)
 

@@ -498,9 +498,13 @@ class Patch(Submission):
             return False
 
         if user in [self.submitter.user, self.delegate]:
+            self._edited_by = user
             return True
 
-        return self.project.is_editable(user)
+        if self.project.is_editable(user):
+            self._edited_by = user
+            return True
+        return False
 
     @property
     def combined_check_state(self):
