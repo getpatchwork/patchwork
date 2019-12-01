@@ -51,6 +51,13 @@ DATABASES = {
 if os.getenv('PW_TEST_DB_TYPE', None) == 'postgres':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
     DATABASES['default']['HOST'] = os.getenv('PW_TEST_DB_HOST', '')
+elif os.getenv('PW_TEST_DB_TYPE', None) == 'sqlite':
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
+    DATABASES['default']['NAME'] = '/dev/shm/patchwork.test.db.sqlite3'
+    del DATABASES['default']['HOST']
+    del DATABASES['default']['PORT']
+    del DATABASES['default']['USER']
+    del DATABASES['default']['PASSWORD']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
