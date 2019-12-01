@@ -400,8 +400,8 @@ class SeriesCorrelationTest(TestCase):
         email = self._create_email(msgid)
         project = create_project()
 
-        self.assertIsNone(find_series(project, email,
-                                      get_or_create_author(email)))
+        self.assertFalse(find_series(project, email,
+                                     get_or_create_author(email)))
 
     def test_first_reply(self):
         msgid_a = make_msgid()
@@ -413,7 +413,7 @@ class SeriesCorrelationTest(TestCase):
 
         series = find_series(ref.series.project, email,
                              get_or_create_author(email))
-        self.assertEqual(series, ref.series)
+        self.assertEqual(series.first(), ref.series)
 
     def test_nested_series(self):
         """Handle a series sent in-reply-to an existing series."""
@@ -443,7 +443,7 @@ class SeriesCorrelationTest(TestCase):
 
         # this should link to the second series - not the first
         self.assertEqual(len(msgids), 4 + 1)  # old series + new cover
-        self.assertEqual(series, ref_v2.series)
+        self.assertEqual(series.first(), ref_v2.series)
 
 
 class SubjectEncodingTest(TestCase):

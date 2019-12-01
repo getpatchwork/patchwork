@@ -61,6 +61,11 @@ class DuplicateMailError(Exception):
         self.msgid = msgid
 
 
+class DuplicateSeriesError(Exception):
+
+    pass
+
+
 def normalise_space(value):
     whitespace_re = re.compile(r'\s+')
     return whitespace_re.sub(' ', value).strip()
@@ -256,8 +261,10 @@ def _find_series_by_references(project, mail):
         refs = [h] + refs
     for ref in refs:
         try:
-            return SeriesReference.objects.get(
+            series = SeriesReference.objects.get(
                 msgid=ref[:255], project=project).series
+            # we want to return a queryset like '_find_series_by_markers'
+            return Series.objects.filter(id=series.id)
         except SeriesReference.DoesNotExist:
             continue
 
@@ -294,12 +301,9 @@ def _find_series_by_markers(project, mail, author):
     start_date = date - delta
     end_date = date + delta
 
-    try:
-        return Series.objects.get(
-            submitter=author, project=project, version=version, total=total,
-            date__range=[start_date, end_date])
-    except (Series.DoesNotExist, Series.MultipleObjectsReturned):
-        return
+    return Series.objects.filter(
+        submitter=author, project=project, version=version, total=total,
+        date__range=[start_date, end_date])
 
 
 def find_series(project, mail, author):
@@ -1094,6 +1098,23 @@ def parse_mail(mail, list_id=None):
                     series = None
                     if n:
                         series = find_series(project, mail, author)
+                        if len(series) > 1:
+                            # if this isn't our final attempt, go again
+                            if attempt != 10:
+                                raise DuplicateSeriesError()
+
+                            # if it is and we still haven't been able to save a
+                            # series, it's time to give up and just save yet
+                            # another duplicate - find the best possible match
+                            for series in series.order_by('-date'):
+                                if Patch.objects.filter(
+                                        series=series, number=x).count():
+                                    continue
+                                break
+                            else:
+                                series = None
+                        elif len(series) == 1:
+                            series = series.first()
                     else:
                         x = n = 1
 
@@ -1130,8 +1151,16 @@ def parse_mail(mail, list_id=None):
                             except SeriesReference.DoesNotExist:
                                 SeriesReference.objects.create(
                                     msgid=ref, project=project, series=series)
+
+                        # attempt to pull the series in again, raising an
+                        # exception if we lost the race when creating a series
+                        # and force us to go through this again
+                        if attempt != 10 and find_series(
+                                project, mail, author).count() > 1:
+                            raise DuplicateSeriesError()
+
                     break
-            except IntegrityError:
+            except (IntegrityError, DuplicateSeriesError):
                 # we lost the race so go again
                 logger.warning('Conflict while saving series. This is '
                                'probably because multiple patches belonging '
