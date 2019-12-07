@@ -192,7 +192,7 @@ table.patchmeta tr th, table.patchmeta tr td {
     vertical-align: top;
 }
 
-.patchrelations ul {
+.submissionlist ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
