@@ -8,6 +8,7 @@ from collections import OrderedDict
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import SlugRelatedField
 
 from patchwork.api.embedded import CheckSerializer
 from patchwork.api.embedded import CoverLetterSerializer
@@ -16,7 +17,6 @@ from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import EventFilterSet
-from patchwork.api.patch import StateField
 from patchwork.models import Event
 
 
@@ -27,8 +27,8 @@ class EventSerializer(ModelSerializer):
     patch = PatchSerializer(read_only=True)
     series = SeriesSerializer(read_only=True)
     cover = CoverLetterSerializer(read_only=True)
-    previous_state = StateField()
-    current_state = StateField()
+    previous_state = SlugRelatedField(slug_field='slug', read_only=True)
+    current_state = SlugRelatedField(slug_field='slug', read_only=True)
     previous_delegate = UserSerializer()
     current_delegate = UserSerializer()
     created_check = SerializerMethodField()

@@ -5,6 +5,7 @@
 
 import email.parser
 
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -28,10 +29,7 @@ from patchwork.parser import clean_subject
 class StateField(RelatedField):
     """Avoid the need for a state endpoint.
 
-    NOTE(stephenfin): This field will only function for State names consisting
-    of alphanumeric characters, underscores and single spaces. In Patchwork
-    2.0+, we should consider adding a slug field to the State object and make
-    use of the SlugRelatedField in DRF.
+    TODO(stephenfin): Consider switching to SlugRelatedField for the v2.0 API.
     """
     default_error_messages = {
         'required': _('This field is required.'),
@@ -41,19 +39,13 @@ class StateField(RelatedField):
                             '{data_type}.'),
     }
 
-    @staticmethod
-    def format_state_name(state):
-        return ' '.join(state.split('-'))
-
     def to_internal_value(self, data):
+        data = slugify(data.lower())
         try:
-            data = self.format_state_name(data)
-            return self.get_queryset().get(name__iexact=data)
+            return self.get_queryset().get(slug=data)
         except State.DoesNotExist:
             self.fail('invalid_choice', name=data, choices=', '.join([
-                self.format_state_name(x.name) for x in self.get_queryset()]))
-        except (TypeError, ValueError):
-            self.fail('incorrect_type', data_type=type(data).__name__)
+                x.slug for x in self.get_queryset()]))
 
     def to_representation(self, obj):
         return obj.slug

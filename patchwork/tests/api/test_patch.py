@@ -300,7 +300,7 @@ class TestPatchAPI(utils.APITestCase):
 
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(patch.id),
-                                 {'state': state.name, 'delegate': user.id})
+                                 {'state': state.slug, 'delegate': user.id})
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
@@ -326,7 +326,7 @@ class TestPatchAPI(utils.APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(patch.id), {'state': 'foobar'})
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
-        self.assertContains(resp, 'Expected one of: %s.' % state.name,
+        self.assertContains(resp, 'Expected one of: %s.' % state.slug,
                             status_code=status.HTTP_400_BAD_REQUEST)
 
     def test_update_legacy_delegate(self):

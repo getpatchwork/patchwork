@@ -131,6 +131,7 @@ def create_state(**kwargs):
 
     values = {
         'name': 'state_%d' % num,
+        'slug': 'state-%d' % num,
         'ordering': num,
         'action_required': True,
     }

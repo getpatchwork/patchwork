@@ -215,13 +215,11 @@ models.signals.post_save.connect(_user_saved_callback, sender=User)
 
 @python_2_unicode_compatible
 class State(models.Model):
-    name = models.CharField(max_length=100)
+    # Both of these fields should be unique
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
     ordering = models.IntegerField(unique=True)
     action_required = models.BooleanField(default=True)
-
-    @property
-    def slug(self):
-        return '-'.join(self.name.lower().split())
 
     def __str__(self):
         return self.name
