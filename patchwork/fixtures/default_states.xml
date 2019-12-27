@@ -4,61 +4,61 @@
   <!-- default states -->
   <object pk="1" model="patchwork.state">
     <field type="CharField" name="name">New</field>
-    <field type="SlugField" name="name">new</field>
+    <field type="SlugField" name="slug">new</field>
     <field type="IntegerField" name="ordering">0</field>
     <field type="BooleanField" name="action_required">True</field>
   </object>
   <object pk="2" model="patchwork.state">
     <field type="CharField" name="name">Under Review</field>
-    <field type="SlugField" name="name">under-review</field>
+    <field type="SlugField" name="slug">under-review</field>
     <field type="IntegerField" name="ordering">1</field>
     <field type="BooleanField" name="action_required">True</field>
   </object>
   <object pk="3" model="patchwork.state">
     <field type="CharField" name="name">Accepted</field>
-    <field type="SlugField" name="name">accepted</field>
+    <field type="SlugField" name="slug">accepted</field>
     <field type="IntegerField" name="ordering">2</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="4" model="patchwork.state">
     <field type="CharField" name="name">Rejected</field>
-    <field type="SlugField" name="name">rejected</field>
+    <field type="SlugField" name="slug">rejected</field>
     <field type="IntegerField" name="ordering">3</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="5" model="patchwork.state">
     <field type="CharField" name="name">RFC</field>
-    <field type="SlugField" name="name">rfc</field>
+    <field type="SlugField" name="slug">rfc</field>
     <field type="IntegerField" name="ordering">4</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="6" model="patchwork.state">
     <field type="CharField" name="name">Not Applicable</field>
-    <field type="SlugField" name="name">not-applicable</field>
+    <field type="SlugField" name="slug">not-applicable</field>
     <field type="IntegerField" name="ordering">5</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="7" model="patchwork.state">
     <field type="CharField" name="name">Changes Requested</field>
-    <field type="SlugField" name="name">changes-requested</field>
+    <field type="SlugField" name="slug">changes-requested</field>
     <field type="IntegerField" name="ordering">6</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="8" model="patchwork.state">
     <field type="CharField" name="name">Awaiting Upstream</field>
-    <field type="SlugField" name="name">awaiting-upstream</field>
+    <field type="SlugField" name="slug">awaiting-upstream</field>
     <field type="IntegerField" name="ordering">7</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="9" model="patchwork.state">
     <field type="CharField" name="name">Superseded</field>
-    <field type="SlugField" name="name">superseded</field>
+    <field type="SlugField" name="slug">superseded</field>
     <field type="IntegerField" name="ordering">8</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
   <object pk="10" model="patchwork.state">
     <field type="CharField" name="name">Deferred</field>
-    <field type="SlugField" name="name">deferred</field>
+    <field type="SlugField" name="slug">deferred</field>
     <field type="IntegerField" name="ordering">9</field>
     <field type="BooleanField" name="action_required">False</field>
   </object>
