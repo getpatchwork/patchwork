@@ -8,7 +8,7 @@ This guide provides an overview of how one can interact with the REST API. For
 detailed information on type and response format of the various resources
 exposed by the API, refer to the web browsable API. This can be found at:
 
-    https://patchwork.example.com/api/1.1/
+    https://patchwork.example.com/api/1.2/
 
 where `patchwork.example.com` refers to the URL of your Patchwork instance.
 
@@ -52,16 +52,16 @@ Patchwork instance hosted at `patchwork.example.com`, run:
 
 .. code-block:: shell
 
-    $ curl -s 'https://patchwork.example.com/api/1.1/' | python -m json.tool
+    $ curl -s 'https://patchwork.example.com/api/1.2/' | python -m json.tool
     {
-        "bundles": "https://patchwork.example.com/api/1.1/bundles/",
-        "covers": "https://patchwork.example.com/api/1.1/covers/",
-        "events": "https://patchwork.example.com/api/1.1/events/",
-        "patches": "https://patchwork.example.com/api/1.1/patches/",
-        "people": "https://patchwork.example.com/api/1.1/people/",
-        "projects": "https://patchwork.example.com/api/1.1/projects/",
-        "series": "https://patchwork.example.com/api/1.1/series/",
-        "users": "https://patchwork.example.com/api/1.1/users/"
+        "bundles": "https://patchwork.example.com/api/1.2/bundles/",
+        "covers": "https://patchwork.example.com/api/1.2/covers/",
+        "events": "https://patchwork.example.com/api/1.2/events/",
+        "patches": "https://patchwork.example.com/api/1.2/patches/",
+        "people": "https://patchwork.example.com/api/1.2/people/",
+        "projects": "https://patchwork.example.com/api/1.2/projects/",
+        "series": "https://patchwork.example.com/api/1.2/series/",
+        "users": "https://patchwork.example.com/api/1.2/users/"
     }
 
 
@@ -74,17 +74,17 @@ well-supported. To repeat the above example using `requests`:, run
     $ python
     >>> import json
     >>> import requests
-    >>> r = requests.get('https://patchwork.example.com/api/1.1/')
+    >>> r = requests.get('https://patchwork.example.com/api/1.2/')
     >>> print(json.dumps(r.json(), indent=2))
     {
-        "bundles": "https://patchwork.example.com/api/1.1/bundles/",
-        "covers": "https://patchwork.example.com/api/1.1/covers/",
-        "events": "https://patchwork.example.com/api/1.1/events/",
-        "patches": "https://patchwork.example.com/api/1.1/patches/",
-        "people": "https://patchwork.example.com/api/1.1/people/",
-        "projects": "https://patchwork.example.com/api/1.1/projects/",
-        "series": "https://patchwork.example.com/api/1.1/series/",
-        "users": "https://patchwork.example.com/api/1.1/users/"
+        "bundles": "https://patchwork.example.com/api/1.2/bundles/",
+        "covers": "https://patchwork.example.com/api/1.2/covers/",
+        "events": "https://patchwork.example.com/api/1.2/events/",
+        "patches": "https://patchwork.example.com/api/1.2/patches/",
+        "people": "https://patchwork.example.com/api/1.2/people/",
+        "projects": "https://patchwork.example.com/api/1.2/projects/",
+        "series": "https://patchwork.example.com/api/1.2/series/",
+        "users": "https://patchwork.example.com/api/1.2/users/"
     }
 
 Tools like `curl` and libraries like `requests` can be used to build anything
