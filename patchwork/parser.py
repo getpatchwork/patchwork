@@ -937,7 +937,7 @@ def parse_patch(content):
 def parse_pull_request(content):
     git_re = re.compile(
         r'^The following changes since commit.*'
-        r'^are available in the git repository at:\n'
+        r'^are available in the git repository at:\s*\n'
         r'^\s*([\w+-]+(?:://|@)[\w/.@:~-]+[\s\\]*[\w/._-]*)\s*$',
         re.DOTALL | re.MULTILINE | re.IGNORECASE)
     match = git_re.search(content)

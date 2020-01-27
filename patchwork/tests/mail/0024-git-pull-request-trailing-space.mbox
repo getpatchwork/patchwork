@@ -1,0 +1,60 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+To: Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>
+From: XXX XXX <xxx@example.com>
+Subject: [GIT PULL] DaVinci SoC updates for v5.6
+Message-ID: <043eb5b2-a302-4de6-a3e8-8238e49483b1@ti.com>
+Date: Tue, 14 Jan 2020 23:48:54 +0530
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+The following changes since commit e42617b825f8073569da76dc4510bfa019b1c35a:    
+                                                                                
+  Linux 5.5-rc1 (2019-12-08 14:57:55 -0800)                                     
+                                                                                
+are available in the Git repository at:                                         
+                                                                                
+  git://git.kernel.org/pub/scm/linux/kernel/git/nsekhar/linux-davinci.git tags/davinci-for-v5.6/soc
+                                                                                
+for you to fetch changes up to 5e06d19694a463a012c2589e29078196eb209448:        
+                                                                                
+  ARM: davinci: dm644x-evm: Add Fixed regulators needed for tlv320aic33 (2020-01-13 17:36:26 +0530)
+                                                                                
+----------------------------------------------------------------                
+DaVinci SoC updates for v5.6 include migrating DM365 SoC to use                 
+drivers/clocksource based driver for timer. This leads to removal               
+of machine specific timer driver.                                               
+                                                                                
+There are two patches adding missing fixed regulators for audio codecs          
+on DM365 and DM644x EVMs.                                                       
+                                                                                
+----------------------------------------------------------------                
+Bartosz Golaszewski (3):                                                        
+      clocksource: davinci: only enable clockevents once tim34 is initialized   
+      ARM: davinci: dm365: switch to using the clocksource driver               
+      ARM: davinci: remove legacy timer support                                 
+                                                                                
+Peter Ujfalusi (2):                                                             
+      ARM: davinci: dm365-evm: Add Fixed regulators needed for tlv320aic3101    
+      ARM: davinci: dm644x-evm: Add Fixed regulators needed for tlv320aic33     
+                                                                                
+ arch/arm/mach-davinci/Makefile              |   3 +-                           
+ arch/arm/mach-davinci/board-dm365-evm.c     |  20 ++                           
+ arch/arm/mach-davinci/board-dm644x-evm.c    |  20 ++                           
+ arch/arm/mach-davinci/devices-da8xx.c       |   1 -                            
+ arch/arm/mach-davinci/devices.c             |  19 --                           
+ arch/arm/mach-davinci/dm365.c               |  22 +-                           
+ arch/arm/mach-davinci/include/mach/common.h |  17 --                           
+ arch/arm/mach-davinci/include/mach/time.h   |  33 ---                          
+ arch/arm/mach-davinci/time.c                | 400 ---------------------------- 
+ drivers/clocksource/timer-davinci.c         |   8 +-                           
+ 10 files changed, 60 insertions(+), 483 deletions(-)                           
+ delete mode 100644 arch/arm/mach-davinci/include/mach/time.h                   
+ delete mode 100644 arch/arm/mach-davinci/time.c                                
+~                                                                                                                                                                                                         
+~                                                                                           
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+

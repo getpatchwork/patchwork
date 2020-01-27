@@ -642,6 +642,15 @@ class PatchParseTest(PatchTest):
             'linux.git/ tags/v5.4-next-soc',
             pull_url)
 
+    def test_git_pull_trailing_space(self):
+        diff, message = self._find_content(
+            '0024-git-pull-request-trailing-space.mbox')
+        pull_url = parse_pull_request(message)
+        self.assertEqual(
+            'git://git.kernel.org/pub/scm/linux/kernel/git/nsekhar/'
+            'linux-davinci.git tags/davinci-for-v5.6/soc',
+            pull_url)
+
     def test_git_rename(self):
         diff, _ = self._find_content('0008-git-rename.mbox')
         self.assertTrue(diff is not None)
