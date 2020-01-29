@@ -142,8 +142,7 @@ class TestSeriesAPI(utils.APITestCase):
         """Ensure we retrieve the embedded cover letter project once."""
         self._create_series()
 
-        # FIXME(stephenfin): This should result in 4 queries
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(4):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')

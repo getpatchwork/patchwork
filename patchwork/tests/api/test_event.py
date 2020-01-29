@@ -183,8 +183,7 @@ class TestEventAPI(utils.APITestCase):
         for _ in range(3):
             self._create_events()
 
-        # FIXME(stephenfin): This should result in 28 queries
-        with self.assertNumQueries(32):
+        with self.assertNumQueries(28):
             self.client.get(self.api_url())
 
     def test_order_by_date_default(self):

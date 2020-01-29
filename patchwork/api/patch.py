@@ -176,7 +176,7 @@ class PatchList(ListAPIView):
         return Patch.objects.all()\
             .prefetch_related('check_set')\
             .select_related('project', 'state', 'submitter', 'delegate',
-                            'series')\
+                            'series__project')\
             .defer('content', 'diff', 'headers')
 
 
