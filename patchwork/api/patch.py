@@ -187,8 +187,9 @@ class PatchList(ListAPIView):
 
     def get_queryset(self):
         return Patch.objects.all()\
-            .prefetch_related('series', 'check_set')\
-            .select_related('project', 'state', 'submitter', 'delegate')\
+            .prefetch_related('series', 'check_set', 'series__project')\
+            .select_related('project', 'state', 'submitter', 'delegate',
+                            )\
             .defer('content', 'diff', 'headers')
 
 
