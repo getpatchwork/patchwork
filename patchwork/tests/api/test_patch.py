@@ -14,8 +14,10 @@ from patchwork.models import Patch
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 
@@ -207,6 +209,15 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+
+    def test_list_bug_335(self):
+        """Ensure we retrieve the embedded series project once."""
+        series = create_series()
+        create_patches(5, series=series)
+
+        # FIXME(stephenfin): This should result in 3 queries
+        with self.assertNumQueries(8):
+            self.client.get(self.api_url())
 
     @utils.store_samples('patch-detail')
     def test_detail(self):

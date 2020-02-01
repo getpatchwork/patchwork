@@ -11,7 +11,9 @@ from django.urls import reverse
 
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_covers
 from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_user
 
 if settings.ENABLE_REST_API:
@@ -119,6 +121,15 @@ class TestCoverLetterAPI(utils.APITestCase):
         self.assertIn('url', resp.data[0])
         self.assertNotIn('mbox', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+
+    def test_list_bug_335(self):
+        """Ensure we retrieve the embedded series project once."""
+        series = create_series()
+        create_covers(5, series=series)
+
+        # FIXME(stephenfin): This should result in 2 queries
+        with self.assertNumQueries(3):
+            self.client.get(self.api_url())
 
     @utils.store_samples('cover-detail')
     def test_detail(self):

@@ -138,6 +138,14 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertNotIn('mbox', resp.data[0]['cover_letter'])
         self.assertNotIn('web_url', resp.data[0]['patches'][0])
 
+    def test_list_bug_335(self):
+        """Ensure we retrieve the embedded cover letter project once."""
+        self._create_series()
+
+        # FIXME(stephenfin): This should result in 4 queries
+        with self.assertNumQueries(5):
+            self.client.get(self.api_url())
+
     @utils.store_samples('series-detail')
     def test_detail(self):
         """Show series."""

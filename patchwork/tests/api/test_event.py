@@ -178,6 +178,15 @@ class TestEventAPI(utils.APITestCase):
                                {'actor': 'foo-bar'})
         self.assertEqual(len(events), len(resp.data))
 
+    def test_list_bug_335(self):
+        """Ensure we retrieve the embedded series project once."""
+        for _ in range(3):
+            self._create_events()
+
+        # FIXME(stephenfin): This should result in 28 queries
+        with self.assertNumQueries(32):
+            self.client.get(self.api_url())
+
     def test_order_by_date_default(self):
         """Assert the default ordering is by date descending."""
         self._create_events()
