@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     libreadline-dev \
     libsqlite3-dev \
-    libssl1.0-dev \
+    libssl-dev \
     mysql-client \
     postgresql-client \
     tzdata \
