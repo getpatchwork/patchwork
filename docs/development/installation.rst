@@ -25,11 +25,12 @@ configure Patchwork using Docker:
 #. Install `docker`_ and `docker-compose`_.
 
 #. Create a ``.env`` file in the root directory of the project and store your
-   ``UID`` attribute there.
+   ``UID`` and ``GID`` attribute there.
 
    .. code-block:: shell
 
       $ echo "UID=$UID" > .env
+      $ echo "GID=`id -g`" >> .env
 
 #. Build the images. This will download over 200MB from the internet:
 
