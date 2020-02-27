@@ -160,12 +160,7 @@ def clean_header(header):
     if sane_header is None:
         return None
 
-    # on Py2, we want to do unicode(), on Py3, str().
-    # That gets us the decoded, un-wrapped header.
-    if six.PY2:
-        header_str = unicode(sane_header)
-    else:
-        header_str = str(sane_header)
+    header_str = six.text_type(sane_header)
 
     return normalise_space(header_str)
 
