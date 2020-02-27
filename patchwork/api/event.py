@@ -42,6 +42,8 @@ class EventSerializer(ModelSerializer):
                                              'current_state'],
         Event.CATEGORY_PATCH_DELEGATED: ['patch', 'previous_delegate',
                                          'current_delegate'],
+        Event.CATEGORY_PATCH_RELATION_CHANGED: ['patch', 'previous_relation',
+                                                'current_relation'],
         Event.CATEGORY_CHECK_CREATED: ['patch', 'created_check'],
         Event.CATEGORY_SERIES_CREATED: ['series'],
         Event.CATEGORY_SERIES_COMPLETED: ['series'],
@@ -68,7 +70,8 @@ class EventSerializer(ModelSerializer):
         model = Event
         fields = ('id', 'category', 'project', 'date', 'actor', 'patch',
                   'series', 'cover', 'previous_state', 'current_state',
-                  'previous_delegate', 'current_delegate', 'created_check')
+                  'previous_delegate', 'current_delegate', 'created_check',
+                  'previous_relation', 'current_relation',)
         read_only_fields = fields
         versioned_fields = {
             '1.2': ('actor', ),

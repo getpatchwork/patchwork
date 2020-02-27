@@ -110,6 +110,43 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
   </td>
  </tr>
 {% endif %}
+{% if submission.related %}
+ <tr>
+  <th>Related</th>
+  <td>
+   <a id="togglerelated"
+      href="javascript:toggle_div('togglerelated', 'related')"
+   >show</a>
+   <div id="related" class="submissionlist" style="display:none;">
+    <ul>
+     {% for sibling in related_same_project %}
+      <li>
+       {% if sibling.id != submission.id %}
+        <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
+         {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+        </a>
+       {% endif %}
+      </li>
+     {% endfor %}
+     {% if related_different_project %}
+      <a id="togglerelatedoutside"
+         href="javascript:toggle_div('togglerelatedoutside', 'relatedoutside', 'show from other projects')"
+      >show from other projects</a>
+      <div id="relatedoutside" class="submissionlist" style="display:none;">
+       {% for sibling in related_outside %}
+        <li>
+         <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
+          {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+         </a> (in {{ sibling.project }})
+        </li>
+       {% endfor %}
+      </div>
+     {% endif %}
+    </ul>
+   </div>
+  </td>
+ </tr>
+{% endif %}
 </table>
 
 <div class="patchforms">

@@ -135,6 +135,30 @@ def create_patch_delegated_event(sender, instance, raw, **kwargs):
 
 
 @receiver(pre_save, sender=Patch)
+def create_patch_relation_changed_event(sender, instance, raw, **kwargs):
+
+    def create_event(patch, before, after):
+        return Event.objects.create(
+            category=Event.CATEGORY_PATCH_RELATION_CHANGED,
+            project=patch.project,
+            actor=getattr(patch, '_edited_by', None),
+            patch=patch,
+            previous_relation=before,
+            current_relation=after)
+
+    # don't trigger for items loaded from fixtures or new items
+    if raw or not instance.pk:
+        return
+
+    orig_patch = Patch.objects.get(pk=instance.pk)
+
+    if orig_patch.related == instance.related:
+        return
+
+    create_event(instance, orig_patch.related, instance.related)
+
+
+@receiver(pre_save, sender=Patch)
 def create_patch_completed_event(sender, instance, raw, **kwargs):
 
     def create_event(patch):

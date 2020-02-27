@@ -449,6 +449,12 @@ class Patch(Submission):
         default=None, null=True,
         help_text='The number assigned to this patch in the series')
 
+    # related patches metadata
+
+    related = models.ForeignKey(
+        'PatchRelation', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='patches', related_query_name='patch')
+
     objects = PatchManager()
 
     @staticmethod
@@ -866,6 +872,19 @@ class BundlePatch(models.Model):
 
 
 @python_2_unicode_compatible
+class PatchRelation(models.Model):
+
+    def __str__(self):
+        patches = self.patches.all()
+        if not patches:
+            return '<Empty>'
+        name = ', '.join(patch.name for patch in patches[:10])
+        if len(name) > 60:
+            name = name[:60] + '...'
+        return name
+
+
+@python_2_unicode_compatible
 class Check(models.Model):
 
     """Check for a patch.
@@ -930,6 +949,7 @@ class Event(models.Model):
     CATEGORY_PATCH_COMPLETED = 'patch-completed'
     CATEGORY_PATCH_STATE_CHANGED = 'patch-state-changed'
     CATEGORY_PATCH_DELEGATED = 'patch-delegated'
+    CATEGORY_PATCH_RELATION_CHANGED = 'patch-relation-changed'
     CATEGORY_CHECK_CREATED = 'check-created'
     CATEGORY_SERIES_CREATED = 'series-created'
     CATEGORY_SERIES_COMPLETED = 'series-completed'
@@ -939,6 +959,7 @@ class Event(models.Model):
         (CATEGORY_PATCH_COMPLETED, 'Patch Completed'),
         (CATEGORY_PATCH_STATE_CHANGED, 'Patch State Changed'),
         (CATEGORY_PATCH_DELEGATED, 'Patch Delegate Changed'),
+        (CATEGORY_PATCH_RELATION_CHANGED, 'Patch Relation Changed'),
         (CATEGORY_CHECK_CREATED, 'Check Created'),
         (CATEGORY_SERIES_CREATED, 'Series Created'),
         (CATEGORY_SERIES_COMPLETED, 'Series Completed'),
@@ -954,7 +975,7 @@ class Event(models.Model):
     # event metadata
 
     category = models.CharField(
-        max_length=20,
+        max_length=25,
         choices=CATEGORY_CHOICES,
         db_index=True,
         help_text='The category of the event.')
@@ -1000,6 +1021,15 @@ class Event(models.Model):
         on_delete=models.CASCADE)
     current_delegate = models.ForeignKey(
         User, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
+
+    # fields for 'patch-relation-changed-changed' events
+
+    previous_relation = models.ForeignKey(
+        PatchRelation, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
+    current_relation = models.ForeignKey(
+        PatchRelation, related_name='+', null=True, blank=True,
         on_delete=models.CASCADE)
 
     # fields or 'patch-check-created' events

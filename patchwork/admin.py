@@ -14,6 +14,7 @@ from patchwork.models import Comment
 from patchwork.models import CoverLetter
 from patchwork.models import DelegationRule
 from patchwork.models import Patch
+from patchwork.models import PatchRelation
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
@@ -174,3 +175,10 @@ class TagAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Tag, TagAdmin)
+
+
+class PatchRelationAdmin(admin.ModelAdmin):
+    model = PatchRelation
+
+
+admin.site.register(PatchRelation, PatchRelationAdmin)

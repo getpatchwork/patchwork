@@ -110,12 +110,26 @@ def patch_detail(request, project_id, msgid):
     comments = comments.only('submitter', 'date', 'id', 'content',
                              'submission')
 
+    if patch.related:
+        related_same_project = patch.related.patches.only(
+            'name', 'msgid', 'project', 'related')
+        # avoid a second trip out to the db for info we already have
+        related_different_project = [
+            related_patch for related_patch in related_same_project
+            if related_patch.project_id != patch.project_id
+        ]
+    else:
+        related_same_project = []
+        related_different_project = []
+
     context['comments'] = comments
     context['checks'] = patch.check_set.all().select_related('user')
     context['submission'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
     context['project'] = patch.project
+    context['related_same_project'] = related_same_project
+    context['related_different_project'] = related_different_project
 
     return render(request, 'patchwork/submission.html', context)
 
