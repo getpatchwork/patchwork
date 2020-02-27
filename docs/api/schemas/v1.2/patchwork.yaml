@@ -1092,7 +1092,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserSelf'
+                $ref: '#/components/schemas/UserDetail'
         '403':
           description: Forbidden
           content:
@@ -1129,7 +1129,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserSelf'
+                $ref: '#/components/schemas/UserDetail'
         '400':
           description: Bad request
           content:
@@ -1172,7 +1172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserSelf'
+                $ref: '#/components/schemas/UserDetail'
         '400':
           description: Bad request
           content:
@@ -1307,13 +1307,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/UserSelf'
+            $ref: '#/components/schemas/UserDetail'
         multipart/form-data:
           schema:
-            $ref: '#/components/schemas/UserSelf'
+            $ref: '#/components/schemas/UserDetail'
         application/x-www-form-urlencoded:
           schema:
-            $ref: '#/components/schemas/UserSelf'
+            $ref: '#/components/schemas/UserDetail'
   schemas:
     Index:
       type: object
@@ -2165,7 +2165,7 @@ components:
           format: email
           readOnly: true
           minLength: 1
-    UserSelf:
+    UserDetail:
       type: object
       allOf:
         - $ref: '#/components/schemas/User'
