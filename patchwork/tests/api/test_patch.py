@@ -215,7 +215,7 @@ class TestPatchAPI(utils.APITestCase):
         series = create_series()
         create_patches(5, series=series)
 
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             self.client.get(self.api_url())
 
     @utils.store_samples('patch-detail')

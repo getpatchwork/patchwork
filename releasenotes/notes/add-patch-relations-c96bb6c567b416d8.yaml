@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Patches can now be related to other patches (e.g. to cross-reference
+    revisions). Relations can be set via the REST API by maintainers
+    (currently only for patches of projects they maintain). Patches can
+    belong to at most one relation at a time.
+api:
+  - |
+    Relations are available via ``/patches/{patchID}/`` endpoint, in
+    the ``related`` field.

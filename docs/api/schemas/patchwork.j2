@@ -359,6 +359,9 @@ paths:
               - patch-created
               - patch-completed
               - patch-state-changed
+{% if version >= (1, 2) %}
+              - patch-relation-changed
+{% endif %}
               - patch-delegated
               - check-created
               - series-created
@@ -397,6 +400,9 @@ paths:
                     - $ref: '#/components/schemas/EventPatchCreated'
                     - $ref: '#/components/schemas/EventPatchCompleted'
                     - $ref: '#/components/schemas/EventPatchStateChanged'
+{% if version >= (1, 2) %}
+                    - $ref: '#/components/schemas/EventPatchRelationChanged'
+{% endif %}
                     - $ref: '#/components/schemas/EventPatchDelegated'
                     - $ref: '#/components/schemas/EventCheckCreated'
                     - $ref: '#/components/schemas/EventSeriesCreated'
@@ -410,6 +416,10 @@ paths:
                         '#/components/schemas/EventPatchCompleted'
                       patch-state-changed: >
                         '#/components/schemas/EventPatchStateChanged'
+{% if version >= (1, 2) %}
+                      patch-relation-changed: >
+                        '#/components/schemas/EventPatchRelationChanged'
+{% endif %}
                       patch-delegated: >
                         '#/components/schemas/EventPatchDelegated'
                       check-created: '#/components/schemas/EventCheckCreated'
@@ -561,6 +571,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+{% if version >= (1, 2) %}
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+{% endif %}
       tags:
         - patches
     put:
@@ -604,6 +622,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+{% if version >= (1, 2) %}
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+{% endif %}
       tags:
         - patches
   /api/{{ version_url }}patches/{id}/comments/:
@@ -1777,6 +1803,26 @@ components:
                 current_state:
                   title: Current state
                   type: string
+{% if version >= (1, 1) %}
+    EventPatchRelationChanged:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          properties:
+            category:
+              enum:
+                - patch-relation-changed
+            payload:
+              properties:
+                patch:
+                  $ref: '#/components/schemas/PatchEmbedded'
+                previous_relation:
+                  title: Previous relation
+                  type: string
+                current_relation:
+                  title: Current relation
+                  type: string
+{% endif %}
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -1955,6 +2001,13 @@ components:
           items:
             type: string
           readOnly: true
+{% if version >= (1, 2) %}
+        related:
+          title: Relations
+          type: array
+          items:
+            type: string
+{% endif %}
     PatchDetail:
       allOf:
         - $ref: '#/components/schemas/PatchList'
@@ -2005,6 +2058,13 @@ components:
           title: Delegate
           type: integer
           nullable: true
+{% if version >= (1, 2) %}
+        related:
+          title: Relations
+          type: array
+          items:
+            type: string
+{% endif %}
     Person:
       type: object
       properties:

@@ -352,6 +352,7 @@ paths:
               - patch-created
               - patch-completed
               - patch-state-changed
+              - patch-relation-changed
               - patch-delegated
               - check-created
               - series-created
@@ -390,6 +391,7 @@ paths:
                     - $ref: '#/components/schemas/EventPatchCreated'
                     - $ref: '#/components/schemas/EventPatchCompleted'
                     - $ref: '#/components/schemas/EventPatchStateChanged'
+                    - $ref: '#/components/schemas/EventPatchRelationChanged'
                     - $ref: '#/components/schemas/EventPatchDelegated'
                     - $ref: '#/components/schemas/EventCheckCreated'
                     - $ref: '#/components/schemas/EventSeriesCreated'
@@ -403,6 +405,8 @@ paths:
                         '#/components/schemas/EventPatchCompleted'
                       patch-state-changed: >
                         '#/components/schemas/EventPatchStateChanged'
+                      patch-relation-changed: >
+                        '#/components/schemas/EventPatchRelationChanged'
                       patch-delegated: >
                         '#/components/schemas/EventPatchDelegated'
                       check-created: '#/components/schemas/EventCheckCreated'
@@ -552,6 +556,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
         - patches
     put:
@@ -591,6 +601,12 @@ paths:
                 $ref: '#/components/schemas/Error'
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict
           content:
             application/json:
               schema:
@@ -1721,6 +1737,24 @@ components:
                 current_state:
                   title: Current state
                   type: string
+    EventPatchRelationChanged:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          properties:
+            category:
+              enum:
+                - patch-relation-changed
+            payload:
+              properties:
+                patch:
+                  $ref: '#/components/schemas/PatchEmbedded'
+                previous_relation:
+                  title: Previous relation
+                  type: string
+                current_relation:
+                  title: Current relation
+                  type: string
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -1893,6 +1927,11 @@ components:
           items:
             type: string
           readOnly: true
+        related:
+          title: Relations
+          type: array
+          items:
+            type: string
     PatchDetail:
       allOf:
         - $ref: '#/components/schemas/PatchList'
@@ -1943,6 +1982,11 @@ components:
           title: Delegate
           type: integer
           nullable: true
+        related:
+          title: Relations
+          type: array
+          items:
+            type: string
     Person:
       type: object
       properties:

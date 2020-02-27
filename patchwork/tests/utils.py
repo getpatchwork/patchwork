@@ -16,6 +16,7 @@ from patchwork.models import Check
 from patchwork.models import Comment
 from patchwork.models import CoverLetter
 from patchwork.models import Patch
+from patchwork.models import PatchRelation
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
@@ -352,3 +353,13 @@ def create_covers(count=1, **kwargs):
         kwargs (dict): Overrides for various cover letter fields
     """
     return _create_submissions(create_cover, count, **kwargs)
+
+
+def create_relation(count_patches=2, **kwargs):
+    relation = PatchRelation.objects.create()
+    values = {
+        'related': relation
+    }
+    values.update(kwargs)
+    create_patches(count_patches, **values)
+    return relation

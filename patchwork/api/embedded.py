@@ -14,6 +14,7 @@ from collections import OrderedDict
 from rest_framework.serializers import CharField
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import PrimaryKeyRelatedField
+from rest_framework.serializers import ValidationError
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import CheckHyperlinkedIdentityField
@@ -136,6 +137,30 @@ class PatchSerializer(SerializedRelatedField):
             extra_kwargs = {
                 'url': {'view_name': 'api-patch-detail'},
             }
+
+
+class PatchRelationSerializer(BaseHyperlinkedModelSerializer):
+    """Hide the PatchRelation model, just show the list"""
+    patches = PatchSerializer(many=True)
+
+    def to_internal_value(self, data):
+        if not isinstance(data, type([])):
+            raise ValidationError(
+                "Patch relations must be specified as a list of patch IDs"
+            )
+        result = super(PatchRelationSerializer, self).to_internal_value(
+            {'patches': data}
+        )
+        return result
+
+    def to_representation(self, instance):
+        data = super(PatchRelationSerializer, self).to_representation(instance)
+        data = data['patches']
+        return data
+
+    class Meta:
+        model = models.PatchRelation
+        fields = ('patches',)
 
 
 class PersonSerializer(SerializedRelatedField):

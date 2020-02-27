@@ -13,6 +13,7 @@ from rest_framework.serializers import SlugRelatedField
 from patchwork.api.embedded import CheckSerializer
 from patchwork.api.embedded import CoverLetterSerializer
 from patchwork.api.embedded import PatchSerializer
+from patchwork.api.embedded import PatchRelationSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
@@ -33,6 +34,8 @@ class EventSerializer(ModelSerializer):
     current_delegate = UserSerializer()
     created_check = SerializerMethodField()
     created_check = CheckSerializer()
+    previous_relation = PatchRelationSerializer(read_only=True)
+    current_relation = PatchRelationSerializer(read_only=True)
 
     _category_map = {
         Event.CATEGORY_COVER_CREATED: ['cover'],
