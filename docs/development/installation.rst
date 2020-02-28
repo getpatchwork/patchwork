@@ -397,8 +397,7 @@ archives this may take some time:
 
 .. code-block:: shell
 
-   (.venv)$ ./manage.py parsearchive --list-id=patchwork.ozlabs.org \
-      patchwork.mbox
+   (.venv)$ ./manage.py parsearchive patchwork.mbox
 
 Finally, run the server and browse to the IP address of your board using your
 browser of choice:
