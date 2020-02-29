@@ -18,7 +18,7 @@ from rest_framework import exceptions
 from patchwork.api import utils
 from patchwork.models import Bundle
 from patchwork.models import Check
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
 from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import Person
@@ -199,7 +199,7 @@ class CoverFilterSet(TimestampMixin, BaseFilterSet):
     msgid = CharFilter(method=msgid_filter)
 
     class Meta:
-        model = CoverLetter
+        model = Cover
         fields = ('project', 'series', 'submitter')
 
 
@@ -253,7 +253,7 @@ class EventFilterSet(TimestampMixin, BaseFilterSet):
     patch = BaseFilter(queryset=Patch.objects.all(),
                        widget=MultipleHiddenInput,
                        distinct=False)
-    cover = BaseFilter(queryset=CoverLetter.objects.all(),
+    cover = BaseFilter(queryset=Cover.objects.all(),
                        widget=MultipleHiddenInput,
                        distinct=False)
 

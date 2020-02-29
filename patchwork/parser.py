@@ -18,11 +18,12 @@ from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.db import transaction
 
-from patchwork.models import Comment
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import DelegationRule
 from patchwork.models import get_default_initial_patch_state
 from patchwork.models import Patch
+from patchwork.models import PatchComment
 from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
@@ -664,10 +665,12 @@ def find_submission_for_comment(project, refs):
 
         # see if we have comments that refer to a patch
         try:
-            comment = Comment.objects.get(submission__project=project,
-                                          msgid=ref)
+            comment = PatchComment.objects.get(
+                patch__project=project,
+                msgid=ref,
+            )
             return comment.submission
-        except Comment.MultipleObjectsReturned:
+        except PatchComment.MultipleObjectsReturned:
             # NOTE(stephenfin): This is a artifact of prior lack of support
             # for cover letters in Patchwork. Previously all replies to
             # patches were saved as comments. However, it's possible that
@@ -681,11 +684,36 @@ def find_submission_for_comment(project, refs):
             # apply the comment to the cover letter. Note that this only
             # happens when running 'parsearchive' or similar, so it should not
             # affect every day use in any way.
-            comments = Comment.objects.filter(submission__project=project,
-                                              msgid=ref)
+            comments = PatchComment.objects.filter(
+                patch__project=project,
+                msgid=ref,
+            )
             # The latter item will be the cover letter
             return comments.reverse()[0].submission
-        except Comment.DoesNotExist:
+        except PatchComment.DoesNotExist:
+            pass
+
+    return None
+
+
+def find_cover_for_comment(project, refs):
+    for ref in refs:
+        ref = ref[:255]
+        # first, check for a direct reply
+        try:
+            cover = Cover.objects.get(project=project, msgid=ref)
+            return cover
+        except Cover.DoesNotExist:
+            pass
+
+        # see if we have comments that refer to a patch
+        try:
+            comment = CoverComment.objects.get(
+                cover__project=project,
+                msgid=ref,
+            )
+            return comment.cover
+        except CoverComment.DoesNotExist:
             pass
 
     return None
@@ -1190,11 +1218,11 @@ def parse_mail(mail, list_id=None):
         if not is_comment:
             if not refs == []:
                 try:
-                    CoverLetter.objects.all().get(name=name)
-                except CoverLetter.DoesNotExist:
+                    Cover.objects.all().get(name=name)
+                except Cover.DoesNotExist:
                     # if no match, this is a new cover letter
                     is_cover_letter = True
-                except CoverLetter.MultipleObjectsReturned:
+                except Cover.MultipleObjectsReturned:
                     # if multiple cover letters are found, just ignore
                     pass
             else:
@@ -1228,10 +1256,10 @@ def parse_mail(mail, list_id=None):
                     msgid=msgid, project=project, series=series)
 
             with transaction.atomic():
-                if CoverLetter.objects.filter(project=project, msgid=msgid):
+                if Cover.objects.filter(project=project, msgid=msgid):
                     raise DuplicateMailError(msgid=msgid)
 
-                cover_letter = CoverLetter.objects.create(
+                cover_letter = Cover.objects.create(
                     msgid=msgid,
                     project=project,
                     name=name[:255],
@@ -1250,16 +1278,35 @@ def parse_mail(mail, list_id=None):
 
     # we only save comments if we have the parent email
     submission = find_submission_for_comment(project, refs)
-    if not submission:
+    if submission:
+        author = get_or_create_author(mail, project)
+
+        with transaction.atomic():
+            if PatchComment.objects.filter(patch=patch, msgid=msgid):
+                raise DuplicateMailError(msgid=msgid)
+            comment = PatchComment.objects.create(
+                patch=submission,
+                msgid=msgid,
+                date=date,
+                headers=headers,
+                submitter=author,
+                content=message)
+
+        logger.debug('Comment saved')
+
+        return comment
+
+    cover = find_cover_for_comment(project, refs)
+    if not cover:
         return
 
     author = get_or_create_author(mail, project)
 
     with transaction.atomic():
-        if Comment.objects.filter(submission=submission, msgid=msgid):
+        if CoverComment.objects.filter(cover=cover, msgid=msgid):
             raise DuplicateMailError(msgid=msgid)
-        comment = Comment.objects.create(
-            submission=submission,
+        comment = CoverComment.objects.create(
+            cover=cover,
             msgid=msgid,
             date=date,
             headers=headers,

@@ -15,7 +15,7 @@ from django.urls import reverse
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Bundle
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.views import generic_list
@@ -42,7 +42,7 @@ def patch_detail(request, project_id, msgid):
     try:
         patch = Patch.objects.get(project_id=project.id, msgid=db_msgid)
     except Patch.DoesNotExist:
-        covers = CoverLetter.objects.filter(
+        covers = Cover.objects.filter(
             project_id=project.id,
             msgid=db_msgid,
         )
@@ -109,8 +109,7 @@ def patch_detail(request, project_id, msgid):
 
     comments = patch.comments.all()
     comments = comments.select_related('submitter')
-    comments = comments.only('submitter', 'date', 'id', 'content',
-                             'submission')
+    comments = comments.only('submitter', 'date', 'id', 'content', 'patch')
 
     if patch.related:
         related_same_project = patch.related.patches.only(

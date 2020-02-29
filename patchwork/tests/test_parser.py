@@ -17,11 +17,11 @@ from django.test import TransactionTestCase
 from django.db.transaction import atomic
 from django.db import connection
 
-from patchwork.models import Comment
+from patchwork.models import Cover
 from patchwork.models import Patch
+from patchwork.models import PatchComment
 from patchwork.models import Person
 from patchwork.models import State
-from patchwork.models import CoverLetter
 from patchwork.parser import clean_subject
 from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
@@ -551,7 +551,7 @@ class MultipleProjectPatchCommentTest(MultipleProjectPatchTest):
             patch = Patch.objects.filter(project=project)[0]
             # we should see the reply comment only
             self.assertEqual(
-                Comment.objects.filter(submission=patch).count(), 1)
+                PatchComment.objects.filter(patch=patch).count(), 1)
 
 
 class ListIdHeaderTest(TestCase):
@@ -1157,7 +1157,7 @@ class DuplicateMailTest(TestCase):
         self._test_duplicate_mail(m2)
 
         self.assertEqual(Patch.objects.count(), 1)
-        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(PatchComment.objects.count(), 1)
 
     def test_duplicate_coverletter(self):
         m = create_email('test', listid=self.listid, msgid='1@example.com')
@@ -1166,4 +1166,4 @@ class DuplicateMailTest(TestCase):
 
         self._test_duplicate_mail(m)
 
-        self.assertEqual(CoverLetter.objects.count(), 1)
+        self.assertEqual(Cover.objects.count(), 1)

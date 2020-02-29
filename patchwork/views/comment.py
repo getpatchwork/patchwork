@@ -4,20 +4,41 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django import http
-from django import shortcuts
 from django.urls import reverse
 
 from patchwork import models
 
 
 def comment(request, comment_id):
-    submission = shortcuts.get_object_or_404(models.Comment,
-                                             id=comment_id).submission
-    if models.Patch.objects.filter(id=submission.id).exists():
-        url = 'patch-detail'
-    else:
-        url = 'cover-detail'
+    patch = None
+    cover = None
 
-    return http.HttpResponseRedirect('%s#%s' % (
-        reverse(url, kwargs={'project_id': submission.project.linkname,
-                             'msgid': submission.url_msgid}), comment_id))
+    try:
+        patch = models.PatchComment.objects.get(id=comment_id).patch
+    except models.PatchComment.DoesNotExist:
+        try:
+            cover = models.CoverComment.objects.get(id=comment_id).cover
+        except models.CoverComment.DoesNotExist:
+            pass
+
+    if not patch and not cover:
+        raise http.Http404('No comment matches the given query.')
+
+    if patch:
+        url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
+    else:  # cover
+        url = reverse(
+            'cover-detail',
+            kwargs={
+                'project_id': cover.project.linkname,
+                'msgid': cover.url_msgid,
+            },
+        )
+
+    return http.HttpResponseRedirect('%s#%s' % (url, comment_id))

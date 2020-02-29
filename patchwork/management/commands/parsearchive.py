@@ -32,8 +32,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         results = {
             models.Patch: 0,
-            models.CoverLetter: 0,
-            models.Comment: 0,
+            models.Cover: 0,
+            models.PatchComment: 0,
+            models.CoverComment: 0,
         }
         duplicates = 0
         dropped = 0
@@ -118,9 +119,11 @@ class Command(BaseCommand):
             '  %(errors)4d errors\n'
             'Total: %(new)s new entries' % {
                 'total': count,
-                'covers': results[models.CoverLetter],
+                'covers': results[models.Cover],
                 'patches': results[models.Patch],
-                'comments': results[models.Comment],
+                'comments': (
+                    results[models.CoverComment] + results[models.PatchComment]
+                ),
                 'duplicates': duplicates,
                 'dropped': dropped,
                 'errors': errors,

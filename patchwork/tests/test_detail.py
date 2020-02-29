@@ -6,9 +6,10 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_project
 
 
@@ -159,24 +160,32 @@ class PatchViewTest(TestCase):
 
 class CommentRedirectTest(TestCase):
 
-    def _test_redirect(self, submission, submission_url):
-        comment_id = create_comment(submission=submission).id
+    def test_patch_redirect(self):
+        patch = create_patch()
+        comment_id = create_patch_comment(patch=patch).id
 
         requested_url = reverse('comment-redirect',
                                 kwargs={'comment_id': comment_id})
         redirect_url = '%s#%d' % (
-            reverse(submission_url,
-                    kwargs={'project_id': submission.project.linkname,
-                            'msgid': submission.url_msgid}),
+            reverse('patch-detail',
+                    kwargs={'project_id': patch.project.linkname,
+                            'msgid': patch.url_msgid}),
             comment_id)
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
 
-    def test_patch_redirect(self):
-        patch = create_patch()
-        self._test_redirect(patch, 'patch-detail')
-
     def test_cover_redirect(self):
         cover = create_cover()
-        self._test_redirect(cover, 'cover-detail')
+        comment_id = create_cover_comment(cover=cover).id
+
+        requested_url = reverse('comment-redirect',
+                                kwargs={'comment_id': comment_id})
+        redirect_url = '%s#%d' % (
+            reverse('cover-detail',
+                    kwargs={'project_id': cover.project.linkname,
+                            'msgid': cover.url_msgid}),
+            comment_id)
+
+        response = self.client.get(requested_url)
+        self.assertRedirects(response, redirect_url)

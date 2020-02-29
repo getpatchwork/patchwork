@@ -13,9 +13,10 @@ from django.contrib.auth.models import User
 
 from patchwork.models import Bundle
 from patchwork.models import Check
-from patchwork.models import Comment
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import Patch
+from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
 from patchwork.models import Person
 from patchwork.models import Project
@@ -203,8 +204,8 @@ def create_patch(**kwargs):
 
 
 def create_cover(**kwargs):
-    """Create 'CoverLetter' object."""
-    num = CoverLetter.objects.count()
+    """Create 'Cover' object."""
+    num = Cover.objects.count()
 
     # NOTE(stephenfin): Despite first appearances, passing 'series' to the
     # 'create' function doesn't actually cause the relationship to be created.
@@ -232,7 +233,7 @@ def create_cover(**kwargs):
     }
     values.update(kwargs)
 
-    cover = CoverLetter.objects.create(**values)
+    cover = Cover.objects.create(**values)
 
     if series:
         series.add_cover_letter(cover)
@@ -240,17 +241,30 @@ def create_cover(**kwargs):
     return cover
 
 
-def create_comment(**kwargs):
-    """Create 'Comment' object."""
+def create_cover_comment(**kwargs):
+    """Create 'CoverComment' object."""
     values = {
         'submitter': create_person() if 'submitter' not in kwargs else None,
-        'submission': create_patch() if 'submission' not in kwargs else None,
+        'cover': create_cover() if 'cover' not in kwargs else None,
         'msgid': make_msgid(),
         'content': SAMPLE_CONTENT,
     }
     values.update(kwargs)
 
-    return Comment.objects.create(**values)
+    return CoverComment.objects.create(**values)
+
+
+def create_patch_comment(**kwargs):
+    """Create 'PatchComment' object."""
+    values = {
+        'submitter': create_person() if 'submitter' not in kwargs else None,
+        'patch': create_patch() if 'patch' not in kwargs else None,
+        'msgid': make_msgid(),
+        'content': SAMPLE_CONTENT,
+    }
+    values.update(kwargs)
+
+    return PatchComment.objects.create(**values)
 
 
 def create_check(**kwargs):

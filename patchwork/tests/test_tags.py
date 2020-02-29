@@ -9,8 +9,8 @@ from django.test import TransactionTestCase
 from patchwork.models import Patch
 from patchwork.models import PatchTag
 from patchwork.models import Tag
-from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 
 
 class ExtractTagsTest(TestCase):
@@ -107,8 +107,8 @@ class PatchTagsTest(TransactionTestCase):
         return '%s-by: Test Tagger <tagger@example.com>\n' % tags[tagtype]
 
     def create_tag_comment(self, patch, tagtype=None):
-        comment = create_comment(
-            submission=patch,
+        comment = create_patch_comment(
+            patch=patch,
             content=self.create_tag(tagtype))
         return comment
 

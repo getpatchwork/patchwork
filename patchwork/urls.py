@@ -249,10 +249,10 @@ if settings.ENABLE_REST_API:
 
     api_1_1_patterns = [
         url(r'^patches/(?P<pk>[^/]+)/comments/$',
-            api_comment_views.CommentList.as_view(),
+            api_comment_views.PatchCommentList.as_view(),
             name='api-patch-comment-list'),
         url(r'^covers/(?P<pk>[^/]+)/comments/$',
-            api_comment_views.CommentList.as_view(),
+            api_comment_views.CoverCommentList.as_view(),
             name='api-cover-comment-list'),
     ]
 

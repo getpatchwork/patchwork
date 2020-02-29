@@ -10,10 +10,11 @@ from django.db.models import Prefetch
 
 from patchwork.models import Bundle
 from patchwork.models import Check
-from patchwork.models import Comment
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import DelegationRule
 from patchwork.models import Patch
+from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
 from patchwork.models import Person
 from patchwork.models import Project
@@ -75,14 +76,14 @@ class StateAdmin(admin.ModelAdmin):
 admin.site.register(State, StateAdmin)
 
 
-class CoverLetterAdmin(admin.ModelAdmin):
+class CoverAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'date')
     list_filter = ('project', )
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
 
-admin.site.register(CoverLetter, CoverLetterAdmin)
+admin.site.register(Cover, CoverAdmin)
 
 
 class PatchAdmin(admin.ModelAdmin):
@@ -104,13 +105,22 @@ class PatchAdmin(admin.ModelAdmin):
 admin.site.register(Patch, PatchAdmin)
 
 
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ('submission', 'submitter', 'date')
-    search_fields = ('submission__name', 'submitter__name', 'submitter__email')
+class CoverCommentAdmin(admin.ModelAdmin):
+    list_display = ('cover', 'submitter', 'date')
+    search_fields = ('cover__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
 
-admin.site.register(Comment, CommentAdmin)
+admin.site.register(CoverComment, CoverCommentAdmin)
+
+
+class PatchCommentAdmin(admin.ModelAdmin):
+    list_display = ('patch', 'submitter', 'date')
+    search_fields = ('patch__name', 'submitter__name', 'submitter__email')
+    date_hierarchy = 'date'
+
+
+admin.site.register(PatchComment, PatchCommentAdmin)
 
 
 class PatchInline(admin.StackedInline):

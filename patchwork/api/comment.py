@@ -12,11 +12,13 @@ from rest_framework.serializers import SerializerMethodField
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.embedded import PersonSerializer
-from patchwork.models import Comment
+from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import Submission
+from patchwork.models import PatchComment
 
 
-class CommentListSerializer(BaseHyperlinkedModelSerializer):
+class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
 
     web_url = SerializerMethodField()
     subject = SerializerMethodField()
@@ -46,7 +48,6 @@ class CommentListSerializer(BaseHyperlinkedModelSerializer):
         return headers
 
     class Meta:
-        model = Comment
         fields = ('id', 'web_url', 'msgid', 'list_archive_url', 'date',
                   'subject', 'submitter', 'content', 'headers')
         read_only_fields = fields
@@ -56,11 +57,48 @@ class CommentListSerializer(BaseHyperlinkedModelSerializer):
         }
 
 
-class CommentList(ListAPIView):
+class CoverCommentListSerializer(BaseCommentListSerializer):
+
+    class Meta:
+        model = CoverComment
+        fields = BaseCommentListSerializer.Meta.fields
+        read_only_fields = fields
+        versioned_fields = BaseCommentListSerializer.Meta.versioned_fields
+
+
+class PatchCommentListSerializer(BaseCommentListSerializer):
+
+    class Meta:
+        model = PatchComment
+        fields = BaseCommentListSerializer.Meta.fields
+        read_only_fields = fields
+        versioned_fields = BaseCommentListSerializer.Meta.versioned_fields
+
+
+class CoverCommentList(ListAPIView):
+    """List cover comments"""
+
+    permission_classes = (PatchworkPermission,)
+    serializer_class = CoverCommentListSerializer
+    search_fields = ('subject',)
+    ordering_fields = ('id', 'subject', 'date', 'submitter')
+    ordering = 'id'
+    lookup_url_kwarg = 'pk'
+
+    def get_queryset(self):
+        if not Cover.objects.filter(pk=self.kwargs['pk']).exists():
+            raise Http404
+
+        return CoverComment.objects.filter(
+            cover=self.kwargs['pk']
+        ).select_related('submitter')
+
+
+class PatchCommentList(ListAPIView):
     """List comments"""
 
     permission_classes = (PatchworkPermission,)
-    serializer_class = CommentListSerializer
+    serializer_class = PatchCommentListSerializer
     search_fields = ('subject',)
     ordering_fields = ('id', 'subject', 'date', 'submitter')
     ordering = 'id'
@@ -70,6 +108,6 @@ class CommentList(ListAPIView):
         if not Submission.objects.filter(pk=self.kwargs['pk']).exists():
             raise Http404
 
-        return Comment.objects.filter(
-            submission=self.kwargs['pk']
+        return PatchComment.objects.filter(
+            patch=self.kwargs['pk']
         ).select_related('submitter')

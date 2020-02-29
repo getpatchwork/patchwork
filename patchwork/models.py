@@ -358,7 +358,7 @@ class FilenameMixin(object):
         return fname
 
 
-class Submission(FilenameMixin, EmailMixin, models.Model):
+class SubmissionMixin(models.Model):
     # parent
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -385,19 +385,10 @@ class Submission(FilenameMixin, EmailMixin, models.Model):
         return self.name
 
     class Meta:
-        ordering = ['date']
-        unique_together = [('msgid', 'project')]
-        indexes = [
-            # This is a covering index for the /list/ query
-            # Like what we have for Patch, but used for displaying what we want
-            # rather than for working out the count (of course, this all
-            # depends on the SQL optimiser of your db engine)
-            models.Index(fields=['date', 'project', 'submitter', 'name'],
-                         name='submission_covering_idx'),
-        ]
+        abstract = True
 
 
-class CoverLetter(Submission):
+class Cover(FilenameMixin, EmailMixin, SubmissionMixin):
 
     def get_absolute_url(self):
         return reverse('cover-detail',
@@ -408,6 +399,35 @@ class CoverLetter(Submission):
         return reverse('cover-mbox',
                        kwargs={'project_id': self.project.linkname,
                                'msgid': self.url_msgid})
+
+    class Meta:
+        ordering = ['date']
+        unique_together = [('msgid', 'project')]
+        indexes = [
+            # This is a covering index for the /list/ query
+            # Like what we have for Patch, but used for displaying what we want
+            # rather than for working out the count (of course, this all
+            # depends on the SQL optimiser of your DB engine)
+            models.Index(
+                fields=['date', 'project', 'submitter', 'name'],
+                name='cover_covering_idx',
+            ),
+        ]
+
+
+class Submission(SubmissionMixin, FilenameMixin, EmailMixin):
+
+    class Meta:
+        ordering = ['date']
+        unique_together = [('msgid', 'project')]
+        indexes = [
+            # This is a covering index for the /list/ query
+            # Like what we have for Patch, but used for displaying what we want
+            # rather than for working out the count (of course, this all
+            # depends on the SQL optimiser of your db engine)
+            models.Index(fields=['date', 'project', 'submitter', 'name'],
+                         name='submission_covering_idx'),
+        ]
 
 
 class Patch(Submission):
@@ -619,44 +639,79 @@ class Patch(Submission):
         ]
 
 
-class Comment(EmailMixin, models.Model):
-    # parent
+class CoverComment(EmailMixin, models.Model):
 
-    submission = models.ForeignKey(Submission, related_name='comments',
-                                   related_query_name='comment',
-                                   on_delete=models.CASCADE)
+    cover = models.ForeignKey(
+        Cover,
+        related_name='comments',
+        related_query_name='comment',
+        on_delete=models.CASCADE,
+    )
 
     @property
     def list_archive_url(self):
-        if not self.submission.project.list_archive_url_format:
+        if not self.cover.project.list_archive_url_format:
             return None
         if not self.msgid:
             return None
-        return self.project.list_archive_url_format.format(
-            self.url_msgid)
+        return self.project.list_archive_url_format.format(self.url_msgid)
 
     def get_absolute_url(self):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})
-
-    def save(self, *args, **kwargs):
-        super(Comment, self).save(*args, **kwargs)
-        if hasattr(self.submission, 'patch'):
-            self.submission.patch.refresh_tag_counts()
-
-    def delete(self, *args, **kwargs):
-        super(Comment, self).delete(*args, **kwargs)
-        if hasattr(self.submission, 'patch'):
-            self.submission.patch.refresh_tag_counts()
 
     def is_editable(self, user):
         return False
 
     class Meta:
         ordering = ['date']
-        unique_together = [('msgid', 'submission')]
+        unique_together = [('msgid', 'cover')]
         indexes = [
-            models.Index(name='submission_date_idx',
-                         fields=['submission', 'date'])
+            models.Index(name='cover_date_idx', fields=['cover', 'date']),
+        ]
+
+
+class PatchComment(EmailMixin, models.Model):
+    # parent
+
+    patch = models.ForeignKey(
+        Submission,
+        related_name='comments',
+        related_query_name='comment',
+        on_delete=models.CASCADE,
+    )
+
+    @property
+    def list_archive_url(self):
+        if not self.patch.project.list_archive_url_format:
+            return None
+        if not self.msgid:
+            return None
+        return self.patch.list_archive_url_format.format(
+            self.url_msgid)
+
+    def get_absolute_url(self):
+        return reverse('comment-redirect', kwargs={'comment_id': self.id})
+
+    def save(self, *args, **kwargs):
+        super(PatchComment, self).save(*args, **kwargs)
+        # TODO(stephenfin): Update this once patch is flattened
+        if hasattr(self.patch, 'patch'):
+            self.patch.patch.refresh_tag_counts()
+
+    def delete(self, *args, **kwargs):
+        super(PatchComment, self).delete(*args, **kwargs)
+        # TODO(stephenfin): Update this once patch is flattened
+        if hasattr(self.patch, 'patch'):
+            self.patch.patch.refresh_tag_counts()
+
+    def is_editable(self, user):
+        return False
+
+    class Meta:
+        ordering = ['date']
+        unique_together = [('msgid', 'patch')]
+        indexes = [
+            models.Index(name='patch_date_idx', fields=['patch', 'date']),
         ]
 
 
@@ -668,9 +723,12 @@ class Series(FilenameMixin, models.Model):
                                 blank=True, on_delete=models.CASCADE)
 
     # content
-    cover_letter = models.OneToOneField(CoverLetter, related_name='series',
-                                        null=True,
-                                        on_delete=models.CASCADE)
+    cover_letter = models.OneToOneField(
+        Cover,
+        related_name='series',
+        null=True,
+        on_delete=models.CASCADE
+    )
 
     # metadata
     name = models.CharField(max_length=255, blank=True, null=True,
@@ -987,7 +1045,7 @@ class Event(models.Model):
         on_delete=models.CASCADE,
         help_text='The series that this event was created for.')
     cover = models.ForeignKey(
-        CoverLetter, related_name='+', null=True, blank=True,
+        Cover, related_name='+', null=True, blank=True,
         on_delete=models.CASCADE,
         help_text='The cover letter that this event was created for.')
 

@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.urls import reverse
 
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.views.utils import cover_to_mbox
@@ -22,7 +22,7 @@ def cover_detail(request, project_id, msgid):
 
     # redirect to patches where necessary
     try:
-        cover = get_object_or_404(CoverLetter, project_id=project.id,
+        cover = get_object_or_404(Cover, project_id=project.id,
                                   msgid=db_msgid)
     except Http404 as exc:
         patches = Patch.objects.filter(
@@ -44,7 +44,7 @@ def cover_detail(request, project_id, msgid):
     comments = cover.comments.all()
     comments = comments.select_related('submitter')
     comments = comments.only('submitter', 'date', 'id', 'content',
-                             'submission')
+                             'cover')
     context['comments'] = comments
 
     return render(request, 'patchwork/submission.html', context)
@@ -53,7 +53,7 @@ def cover_detail(request, project_id, msgid):
 def cover_mbox(request, project_id, msgid):
     db_msgid = ('<%s>' % msgid)
     project = get_object_or_404(Project, linkname=project_id)
-    cover = get_object_or_404(CoverLetter, project_id=project.id,
+    cover = get_object_or_404(Cover, project_id=project.id,
                               msgid=db_msgid)
 
     response = HttpResponse(content_type='text/plain')
@@ -65,7 +65,7 @@ def cover_mbox(request, project_id, msgid):
 
 
 def cover_by_id(request, cover_id):
-    cover = get_object_or_404(CoverLetter, id=cover_id)
+    cover = get_object_or_404(Cover, id=cover_id)
 
     url = reverse('cover-detail', kwargs={'project_id': cover.project.linkname,
                                           'msgid': cover.url_msgid})
@@ -74,7 +74,7 @@ def cover_by_id(request, cover_id):
 
 
 def cover_mbox_by_id(request, cover_id):
-    cover = get_object_or_404(CoverLetter, id=cover_id)
+    cover = get_object_or_404(Cover, id=cover_id)
 
     url = reverse('cover-mbox', kwargs={'project_id': cover.project.linkname,
                                         'msgid': cover.url_msgid})

@@ -15,7 +15,7 @@ from patchwork.api.filters import CoverFilterSet
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
 
 
 class CoverListSerializer(BaseHyperlinkedModelSerializer):
@@ -49,7 +49,7 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
         return data
 
     class Meta:
-        model = CoverLetter
+        model = Cover
         fields = ('id', 'url', 'web_url', 'project', 'msgid',
                   'list_archive_url', 'date', 'name', 'submitter', 'mbox',
                   'series', 'comments')
@@ -82,7 +82,7 @@ class CoverDetailSerializer(CoverListSerializer):
         return headers
 
     class Meta:
-        model = CoverLetter
+        model = Cover
         fields = CoverListSerializer.Meta.fields + (
             'headers', 'content')
         read_only_fields = fields
@@ -100,7 +100,7 @@ class CoverList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        return CoverLetter.objects.all()\
+        return Cover.objects.all()\
             .prefetch_related('series__project')\
             .select_related('project', 'submitter', 'series')\
             .defer('content', 'headers')
@@ -112,5 +112,5 @@ class CoverDetail(RetrieveAPIView):
     serializer_class = CoverDetailSerializer
 
     def get_queryset(self):
-        return CoverLetter.objects.all()\
+        return Cover.objects.all()\
             .select_related('project', 'submitter', 'series')

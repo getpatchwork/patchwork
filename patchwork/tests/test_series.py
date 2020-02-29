@@ -35,7 +35,7 @@ class _BaseTestCase(TestCase):
         mbox = mailbox.mbox(os.path.join(TEST_SERIES_DIR, name), create=False)
         for msg in mbox:
             obj = parser.parse_mail(msg, project.listid)
-            if type(obj) == models.CoverLetter:
+            if type(obj) == models.Cover:
                 results[0].append(obj)
             elif type(obj) == models.Patch:
                 results[1].append(obj)

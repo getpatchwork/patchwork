@@ -10,9 +10,10 @@ from django.urls import NoReverseMatch
 from django.urls import reverse
 
 from patchwork.tests.api import utils
-from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import SAMPLE_CONTENT
 
 if settings.ENABLE_REST_API:
@@ -47,7 +48,7 @@ class TestCoverComments(utils.APITestCase):
     def test_list(self):
         """List cover letter comments."""
         cover = create_cover()
-        comment = create_comment(submission=cover)
+        comment = create_cover_comment(cover=cover)
 
         resp = self.client.get(self.api_url(cover))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -57,7 +58,7 @@ class TestCoverComments(utils.APITestCase):
     def test_list_version_1_0(self):
         """List cover letter comments using API v1.0."""
         cover = create_cover()
-        create_comment(submission=cover)
+        create_cover_comment(cover=cover)
 
         # check we can't access comments using the old version of the API
         with self.assertRaises(NoReverseMatch):
@@ -98,7 +99,7 @@ class TestPatchComments(utils.APITestCase):
     def test_list(self):
         """List patch comments."""
         patch = create_patch()
-        comment = create_comment(submission=patch)
+        comment = create_patch_comment(patch=patch)
 
         resp = self.client.get(self.api_url(patch))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -108,7 +109,7 @@ class TestPatchComments(utils.APITestCase):
     def test_list_version_1_0(self):
         """List patch comments using API v1.0."""
         patch = create_patch()
-        create_comment(submission=patch)
+        create_patch_comment(patch=patch)
 
         # check we can't access comments using the old version of the API
         with self.assertRaises(NoReverseMatch):

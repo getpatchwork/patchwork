@@ -15,8 +15,9 @@ import re
 from django.conf import settings
 from django.http import Http404
 
-from patchwork.models import Comment
+from patchwork.models import CoverComment
 from patchwork.models import Patch
+from patchwork.models import PatchComment
 from patchwork.parser import split_from_header
 
 if settings.ENABLE_REST_API:
@@ -34,12 +35,12 @@ class PatchMbox(MIMENonMultipart):
 
 
 def _submission_to_mbox(submission):
-    """Get an mbox representation of a single Submission.
+    """Get an mbox representation of a single submission.
 
-    Handles both Patch and CoverLetter objects.
+    Handles both Patch and Cover objects.
 
     Arguments:
-        submission: The Patch object to convert.
+        submission: The Patch or Cover object to convert.
 
     Returns:
         A string for the mbox file.
@@ -61,8 +62,12 @@ def _submission_to_mbox(submission):
         postscript = ''
 
     # TODO(stephenfin): Make this use the tags infrastructure
-    for comment in Comment.objects.filter(submission=submission):
-        body += comment.patch_responses
+    if is_patch:
+        for comment in PatchComment.objects.filter(patch=submission):
+            body += comment.patch_responses
+    else:
+        for comment in CoverComment.objects.filter(cover=submission):
+            body += comment.patch_responses
 
     if postscript:
         body += '---\n' + postscript + '\n'

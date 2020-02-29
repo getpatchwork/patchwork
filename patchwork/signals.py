@@ -10,7 +10,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from patchwork.models import Check
-from patchwork.models import CoverLetter
+from patchwork.models import Cover
 from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import PatchChangeNotification
@@ -54,7 +54,7 @@ def patch_change_callback(sender, instance, raw, **kwargs):
     notification.save()
 
 
-@receiver(post_save, sender=CoverLetter)
+@receiver(post_save, sender=Cover)
 def create_cover_created_event(sender, instance, created, raw, **kwargs):
 
     def create_event(cover):

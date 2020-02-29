@@ -13,8 +13,8 @@ import email
 from django.test import TestCase
 from django.urls import reverse
 
-from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_series
@@ -34,8 +34,8 @@ class MboxPatchResponseTest(TestCase):
             project=self.project,
             submitter=self.person,
             content='comment 1 text\nAcked-by: 1\n')
-        create_comment(
-            submission=patch,
+        create_patch_comment(
+            patch=patch,
             submitter=self.person,
             content='comment 2 text\nAcked-by: 2\n')
         response = self.client.get(
@@ -48,8 +48,8 @@ class MboxPatchResponseTest(TestCase):
             project=self.project,
             submitter=self.person,
             content='patch text\n')
-        create_comment(
-            submission=patch,
+        create_patch_comment(
+            patch=patch,
             submitter=self.person,
             content=u'comment\nAcked-by:\u00A0 foo')
         response = self.client.get(
@@ -71,8 +71,8 @@ class MboxPatchSplitResponseTest(TestCase):
             submitter=self.person,
             diff='',
             content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
-        self.comment = create_comment(
-            submission=self.patch,
+        self.comment = create_patch_comment(
+            patch=self.patch,
             submitter=self.person,
             content='comment 2 text\nAcked-by: 2\n')
 
