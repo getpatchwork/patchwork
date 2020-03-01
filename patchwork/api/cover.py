@@ -11,14 +11,14 @@ from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
-from patchwork.api.filters import CoverLetterFilterSet
+from patchwork.api.filters import CoverFilterSet
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.models import CoverLetter
 
 
-class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
+class CoverListSerializer(BaseHyperlinkedModelSerializer):
 
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
@@ -43,7 +43,7 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
         # NOTE(stephenfin): This is here to ensure our API looks the same even
         # after we changed the series-patch relationship from M:N to 1:N. It
         # will be removed in API v2
-        data = super(CoverLetterListSerializer, self).to_representation(
+        data = super(CoverListSerializer, self).to_representation(
             instance)
         data['series'] = [data['series']] if data['series'] else []
         return data
@@ -63,7 +63,7 @@ class CoverLetterListSerializer(BaseHyperlinkedModelSerializer):
         }
 
 
-class CoverLetterDetailSerializer(CoverLetterListSerializer):
+class CoverDetailSerializer(CoverListSerializer):
 
     headers = SerializerMethodField()
 
@@ -83,18 +83,18 @@ class CoverLetterDetailSerializer(CoverLetterListSerializer):
 
     class Meta:
         model = CoverLetter
-        fields = CoverLetterListSerializer.Meta.fields + (
+        fields = CoverListSerializer.Meta.fields + (
             'headers', 'content')
         read_only_fields = fields
-        extra_kwargs = CoverLetterListSerializer.Meta.extra_kwargs
-        versioned_fields = CoverLetterListSerializer.Meta.versioned_fields
+        extra_kwargs = CoverListSerializer.Meta.extra_kwargs
+        versioned_fields = CoverListSerializer.Meta.versioned_fields
 
 
-class CoverLetterList(ListAPIView):
+class CoverList(ListAPIView):
     """List cover letters."""
 
-    serializer_class = CoverLetterListSerializer
-    filter_class = filterset_class = CoverLetterFilterSet
+    serializer_class = CoverListSerializer
+    filter_class = filterset_class = CoverFilterSet
     search_fields = ('name',)
     ordering_fields = ('id', 'name', 'date', 'submitter')
     ordering = 'id'
@@ -106,10 +106,10 @@ class CoverLetterList(ListAPIView):
             .defer('content', 'headers')
 
 
-class CoverLetterDetail(RetrieveAPIView):
+class CoverDetail(RetrieveAPIView):
     """Show a cover letter."""
 
-    serializer_class = CoverLetterDetailSerializer
+    serializer_class = CoverDetailSerializer
 
     def get_queryset(self):
         return CoverLetter.objects.all()\

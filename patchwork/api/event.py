@@ -11,7 +11,7 @@ from rest_framework.serializers import SerializerMethodField
 from rest_framework.serializers import SlugRelatedField
 
 from patchwork.api.embedded import CheckSerializer
-from patchwork.api.embedded import CoverLetterSerializer
+from patchwork.api.embedded import CoverSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PatchRelationSerializer
 from patchwork.api.embedded import ProjectSerializer
@@ -27,7 +27,7 @@ class EventSerializer(ModelSerializer):
     actor = UserSerializer()
     patch = PatchSerializer(read_only=True)
     series = SeriesSerializer(read_only=True)
-    cover = CoverLetterSerializer(read_only=True)
+    cover = CoverSerializer(read_only=True)
     previous_state = SlugRelatedField(slug_field='slug', read_only=True)
     current_state = SlugRelatedField(slug_field='slug', read_only=True)
     previous_delegate = UserSerializer()

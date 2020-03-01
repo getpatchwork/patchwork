@@ -188,7 +188,7 @@ def msgid_filter(queryset, name, value):
     return queryset.filter(**{name: '<' + value + '>'})
 
 
-class CoverLetterFilterSet(TimestampMixin, BaseFilterSet):
+class CoverFilterSet(TimestampMixin, BaseFilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these

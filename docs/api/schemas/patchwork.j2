@@ -256,7 +256,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CoverLetterList'
+                  $ref: '#/components/schemas/CoverList'
       tags:
         - covers
   /api/{{ version_url }}covers/{id}/:
@@ -277,7 +277,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CoverLetterDetail'
+                $ref: '#/components/schemas/CoverDetail'
         '404':
           description: Not found
           content:
@@ -1586,7 +1586,7 @@ components:
               additionalProperties:
                 type: string
           readOnly: true
-    CoverLetterList:
+    CoverList:
       type: object
       properties:
         id:
@@ -1656,9 +1656,9 @@ components:
           format: uri
           readOnly: true
 {% endif %}
-    CoverLetterDetail:
+    CoverDetail:
       allOf:
-        - $ref: '#/components/schemas/CoverLetterList'
+        - $ref: '#/components/schemas/CoverList'
         - properties:
             headers:
               title: Headers
@@ -1720,7 +1720,7 @@ components:
             payload:
               properties:
                 cover:
-                  $ref: '#/components/schemas/CoverLetterEmbedded'
+                  $ref: '#/components/schemas/CoverEmbedded'
     EventPatchCreated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -2217,7 +2217,7 @@ components:
           format: uri
           readOnly: true
         cover_letter:
-          $ref: '#/components/schemas/CoverLetterEmbedded'
+          $ref: '#/components/schemas/CoverEmbedded'
         patches:
           title: Patches
           type: array
@@ -2332,7 +2332,7 @@ components:
           maxLength: 255
           minLength: 1
           readOnly: true
-    CoverLetterEmbedded:
+    CoverEmbedded:
       type: object
       properties:
         id:

@@ -21,7 +21,7 @@ if settings.ENABLE_REST_API:
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
-class TestCoverLetterAPI(utils.APITestCase):
+class TestCoverAPI(utils.APITestCase):
     fixtures = ['default_tags']
 
     @staticmethod

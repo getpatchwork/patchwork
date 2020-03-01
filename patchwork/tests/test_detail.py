@@ -12,7 +12,7 @@ from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_project
 
 
-class CoverLetterViewTest(TestCase):
+class CoverViewTest(TestCase):
 
     def test_redirect(self):
         patch = create_patch()

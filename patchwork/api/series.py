@@ -10,7 +10,7 @@ from rest_framework.serializers import SerializerMethodField
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.filters import SeriesFilterSet
-from patchwork.api.embedded import CoverLetterSerializer
+from patchwork.api.embedded import CoverSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
@@ -23,7 +23,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
     mbox = SerializerMethodField()
-    cover_letter = CoverLetterSerializer(read_only=True)
+    cover_letter = CoverSerializer(read_only=True)
     patches = PatchSerializer(read_only=True, many=True)
 
     def get_web_url(self, instance):

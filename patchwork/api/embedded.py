@@ -103,7 +103,7 @@ class CheckSerializer(SerializedRelatedField):
             }
 
 
-class CoverLetterSerializer(SerializedRelatedField):
+class CoverSerializer(SerializedRelatedField):
 
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
 
