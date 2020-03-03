@@ -164,7 +164,7 @@ class UserProfile(models.Model):
     @property
     def contributor_projects(self):
         submitters = Person.objects.filter(user=self.user)
-        return Project.objects.filter(id__in=Submission.objects.filter(
+        return Project.objects.filter(id__in=Patch.objects.filter(
             submitter__in=submitters).values('project_id').query)
 
     @property
@@ -285,8 +285,7 @@ class PatchQuerySet(models.query.QuerySet):
             select[tag.attr_name] = (
                 "coalesce("
                 "(SELECT count FROM patchwork_patchtag"
-                " WHERE patchwork_patchtag.patch_id="
-                "patchwork_patch.submission_ptr_id"
+                " WHERE patchwork_patchtag.patch_id=patchwork_patch.id"
                 " AND patchwork_patchtag.tag_id=%s), 0)")
             select_params.append(tag.id)
 
@@ -415,23 +414,7 @@ class Cover(FilenameMixin, EmailMixin, SubmissionMixin):
         ]
 
 
-class Submission(SubmissionMixin, FilenameMixin, EmailMixin):
-
-    class Meta:
-        ordering = ['date']
-        unique_together = [('msgid', 'project')]
-        indexes = [
-            # This is a covering index for the /list/ query
-            # Like what we have for Patch, but used for displaying what we want
-            # rather than for working out the count (of course, this all
-            # depends on the SQL optimiser of your db engine)
-            models.Index(fields=['date', 'project', 'submitter', 'name'],
-                         name='submission_covering_idx'),
-        ]
-
-
-class Patch(Submission):
-    # patch metadata
+class Patch(FilenameMixin, EmailMixin, SubmissionMixin):
 
     diff = models.TextField(null=True, blank=True)
     commit_ref = models.CharField(max_length=255, null=True, blank=True)
@@ -440,24 +423,31 @@ class Patch(Submission):
 
     # patchwork metadata
 
-    delegate = models.ForeignKey(User, blank=True, null=True,
-                                 on_delete=models.CASCADE)
+    delegate = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True)
 
-    # duplicate project from submission in subclass so we can count the
-    # patches in a project without needing to do a JOIN.
-    patch_project = models.ForeignKey(Project, on_delete=models.CASCADE)
-
     # series metadata
 
     series = models.ForeignKey(
-        'Series', null=True, blank=True, on_delete=models.CASCADE,
-        related_name='patches', related_query_name='patch')
+        'Series',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='patches',
+        related_query_name='patch',
+    )
     number = models.PositiveSmallIntegerField(
-        default=None, null=True,
-        help_text='The number assigned to this patch in the series')
+        default=None,
+        null=True,
+        help_text='The number assigned to this patch in the series',
+    )
 
     # related patches metadata
 
@@ -628,14 +618,23 @@ class Patch(Submission):
 
     class Meta:
         verbose_name_plural = 'Patches'
+        ordering = ['date']
         base_manager_name = 'objects'
-        unique_together = [('series', 'number')]
-
+        unique_together = [('msgid', 'project'), ('series', 'number')]
         indexes = [
             # This is a covering index for the /list/ query
-            models.Index(fields=['archived', 'patch_project', 'state',
-                                 'delegate'],
-                         name='patch_list_covering_idx'),
+            models.Index(
+                fields=[
+                    'archived',
+                    'state',
+                    'delegate',
+                    'date',
+                    'project',
+                    'submitter',
+                    'name',
+                ],
+                name='patch_covering_idx',
+            ),
         ]
 
 
@@ -674,7 +673,7 @@ class PatchComment(EmailMixin, models.Model):
     # parent
 
     patch = models.ForeignKey(
-        Submission,
+        Patch,
         related_name='comments',
         related_query_name='comment',
         on_delete=models.CASCADE,
@@ -694,15 +693,11 @@ class PatchComment(EmailMixin, models.Model):
 
     def save(self, *args, **kwargs):
         super(PatchComment, self).save(*args, **kwargs)
-        # TODO(stephenfin): Update this once patch is flattened
-        if hasattr(self.patch, 'patch'):
-            self.patch.patch.refresh_tag_counts()
+        self.patch.refresh_tag_counts()
 
     def delete(self, *args, **kwargs):
         super(PatchComment, self).delete(*args, **kwargs)
-        # TODO(stephenfin): Update this once patch is flattened
-        if hasattr(self.patch, 'patch'):
-            self.patch.patch.refresh_tag_counts()
+        self.patch.refresh_tag_counts()
 
     def is_editable(self, user):
         return False
@@ -744,10 +739,10 @@ class Series(FilenameMixin, models.Model):
 
     @staticmethod
     def _format_name(obj):
-        # The parser ensure 'Submission.name' will always take the form
-        # 'subject' or '[prefix_a,prefix_b,...] subject'. There will never be
-        # multiple prefixes (text inside brackets), thus, we don't need to
-        # account for multiple prefixes here.
+        # The parser ensure 'Cover.name' will always take the form 'subject' or
+        # '[prefix_a,prefix_b,...] subject'. There will never be multiple
+        # prefixes (text inside brackets), thus, we don't need to account for
+        # multiple prefixes here.
         prefix_re = re.compile(r'^\[([^\]]*)\]\s*(.*)$')
         match = prefix_re.match(obj.name)
         if match:
@@ -1133,7 +1128,10 @@ class EmailOptout(models.Model):
 
 
 class PatchChangeNotification(models.Model):
-    patch = models.OneToOneField(Patch, primary_key=True,
-                                 on_delete=models.CASCADE)
+    patch = models.OneToOneField(
+        Patch,
+        primary_key=True,
+        on_delete=models.CASCADE,
+    )
     last_modified = models.DateTimeField(default=datetime.datetime.utcnow)
     orig_state = models.ForeignKey(State, on_delete=models.CASCADE)

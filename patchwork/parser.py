@@ -29,7 +29,6 @@ from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import SeriesReference
 from patchwork.models import State
-from patchwork.models import Submission
 
 
 _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
@@ -653,14 +652,14 @@ def find_comment_content(mail):
     return None, commentbuf
 
 
-def find_submission_for_comment(project, refs):
+def find_patch_for_comment(project, refs):
     for ref in refs:
         ref = ref[:255]
         # first, check for a direct reply
         try:
-            submission = Submission.objects.get(project=project, msgid=ref)
-            return submission
-        except Submission.DoesNotExist:
+            patch = Patch.objects.get(project=project, msgid=ref)
+            return patch
+        except Patch.DoesNotExist:
             pass
 
         # see if we have comments that refer to a patch
@@ -1104,7 +1103,6 @@ def parse_mail(mail, list_id=None):
             patch = Patch.objects.create(
                 msgid=msgid,
                 project=project,
-                patch_project=project,
                 name=name[:255],
                 date=date,
                 headers=headers,
@@ -1277,15 +1275,15 @@ def parse_mail(mail, list_id=None):
     # comments
 
     # we only save comments if we have the parent email
-    submission = find_submission_for_comment(project, refs)
-    if submission:
+    patch = find_patch_for_comment(project, refs)
+    if patch:
         author = get_or_create_author(mail, project)
 
         with transaction.atomic():
             if PatchComment.objects.filter(patch=patch, msgid=msgid):
                 raise DuplicateMailError(msgid=msgid)
             comment = PatchComment.objects.create(
-                patch=submission,
+                patch=patch,
                 msgid=msgid,
                 date=date,
                 headers=headers,

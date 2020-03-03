@@ -179,8 +179,8 @@ def series_to_mbox(series):
     """
     mbox = []
 
-    for dep in series.patches.all().order_by('number'):
-        mbox.append(patch_to_mbox(dep.patch))
+    for patch in series.patches.all().order_by('number'):
+        mbox.append(patch_to_mbox(patch))
 
     return '\n'.join(mbox)
 

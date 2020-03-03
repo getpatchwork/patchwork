@@ -14,7 +14,7 @@ from patchwork.api.base import PatchworkPermission
 from patchwork.api.embedded import PersonSerializer
 from patchwork.models import Cover
 from patchwork.models import CoverComment
-from patchwork.models import Submission
+from patchwork.models import Patch
 from patchwork.models import PatchComment
 
 
@@ -105,7 +105,7 @@ class PatchCommentList(ListAPIView):
     lookup_url_kwarg = 'pk'
 
     def get_queryset(self):
-        if not Submission.objects.filter(pk=self.kwargs['pk']).exists():
+        if not Patch.objects.filter(pk=self.kwargs['pk']).exists():
             raise Http404
 
         return PatchComment.objects.filter(

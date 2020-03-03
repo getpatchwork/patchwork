@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     i + 1, len(projects), project.linkname))
 
                 with tempfile.NamedTemporaryFile(delete=False) as mbox:
-                    patches = Patch.objects.filter(patch_project=project)
+                    patches = Patch.objects.filter(project=project)
                     count = patches.count()
                     for j, patch in enumerate(patches):
                         if not (j % 10):

@@ -191,9 +191,6 @@ def create_patch(**kwargs):
     }
     values.update(kwargs)
 
-    if 'patch_project' not in values:
-        values['patch_project'] = values['project']
-
     patch = Patch.objects.create(**values)
 
     if series:
@@ -312,7 +309,7 @@ def create_series_reference(**kwargs):
 
 
 def _create_submissions(create_func, count=1, **kwargs):
-    """Create 'count' Submission-based objects.
+    """Create 'count' SubmissionMixin-based objects.
 
     Args:
         count (int): Number of patches to create

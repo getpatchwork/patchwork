@@ -268,9 +268,12 @@ class MboxSeriesDependencies(TestCase):
     def test_patch_with_wildcard_series(self):
         _, patch_a, patch_b = self._create_patches()
 
-        response = self.client.get('%s?series=*' % reverse(
-            'patch-mbox', args=[patch_b.patch.project.linkname,
-                                patch_b.patch.url_msgid]))
+        response = self.client.get(
+            '%s?series=*' % reverse(
+                'patch-mbox',
+                args=[patch_b.project.linkname, patch_b.url_msgid],
+            ),
+        )
 
         self.assertContains(response, patch_a.content)
         self.assertContains(response, patch_b.content)
@@ -279,9 +282,12 @@ class MboxSeriesDependencies(TestCase):
         series, patch_a, patch_b = self._create_patches()
 
         response = self.client.get('%s?series=%d' % (
-            reverse('patch-mbox', args=[patch_b.patch.project.linkname,
-                                        patch_b.patch.url_msgid]),
-            series.id))
+            reverse(
+                'patch-mbox',
+                args=[patch_b.project.linkname, patch_b.url_msgid],
+            ),
+            series.id,
+        ))
 
         self.assertContains(response, patch_a.content)
         self.assertContains(response, patch_b.content)
@@ -291,8 +297,12 @@ class MboxSeriesDependencies(TestCase):
 
         for value in ('foo', str(series.id + 1)):
             response = self.client.get('%s?series=%s' % (
-                reverse('patch-mbox', args=[patch_b.patch.project.linkname,
-                                            patch_b.patch.url_msgid]), value))
+                reverse(
+                    'patch-mbox',
+                    args=[patch_b.project.linkname, patch_b.url_msgid]
+                ),
+                value,
+            ))
 
             self.assertEqual(response.status_code, 404)
 
