@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    A bug that would result in patches from later series revisions being
+    included in earlier revisions has been resolved.

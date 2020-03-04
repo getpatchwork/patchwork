@@ -250,14 +250,32 @@ def _find_series_by_references(project, mail):
     Returns:
         The matching ``Series`` instance, if any
     """
+    subject = mail.get('Subject')
+    name, prefixes = clean_subject(subject, [project.linkname])
+    version = parse_version(name, prefixes)
+
     refs = find_references(mail)
     h = clean_header(mail.get('Message-Id'))
     if h:
         refs = [h] + refs
+
     for ref in refs:
         try:
             series = SeriesReference.objects.get(
                 msgid=ref[:255], project=project).series
+
+            if series.version != version:
+                # if the versions don't match, at least make sure these were
+                # sent around the same time
+                date = find_date(mail)
+                delta = datetime.timedelta(minutes=SERIES_DELAY_INTERVAL)
+                start_date = date - delta
+                end_date = date + delta
+
+                # ...and if they don't, this probably isn't our series
+                if start_date > series.date > end_date:
+                    continue
+
             # we want to return a queryset like '_find_series_by_markers'
             return Series.objects.filter(id=series.id)
         except SeriesReference.DoesNotExist:

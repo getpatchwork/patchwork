@@ -538,6 +538,23 @@ class RevisedSeriesTest(_BaseTestCase):
 
         self.assertSerialized(patches, [1, 1, 1])
 
+    def test_mixed_versions(self):
+        """Series with a revision sent in reply to an incompleted series.
+
+        Parse a series with two patches, one of which has been lost or
+        miscategorized, followed by a second revision of the missing patch.
+        None of the patches of the second revision should be included in the
+        first revision.
+
+          - [PATCH 1/2] test: Add some lorem ipsum
+            - [PATCH v2 2/2] test: Convert to Markdown
+        """
+        _, patches, _ = self._parse_mbox(
+            'bugs-mixed-versions.mbox', [0, 2, 0],
+        )
+
+        self.assertSerialized(patches, [1, 1])
+
 
 class SeriesTotalTest(_BaseTestCase):
 
