@@ -41,7 +41,7 @@ def patch_detail(request, project_id, msgid):
     # redirect to cover letters where necessary
     try:
         patch = Patch.objects.get(project_id=project.id, msgid=db_msgid)
-    except Patch.DoesNotExist as exc:
+    except Patch.DoesNotExist:
         submissions = Submission.objects.filter(project_id=project.id,
                                                 msgid=db_msgid)
         if submissions:
@@ -49,7 +49,7 @@ def patch_detail(request, project_id, msgid):
                 reverse('cover-detail',
                         kwargs={'project_id': project.linkname,
                                 'msgid': msgid}))
-        raise exc
+        raise Http404('Patch does not exist')
 
     editable = patch.is_editable(request.user)
     context = {
