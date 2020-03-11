@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Previously, attempting to retrieve a patch that did not exist would result
+    in a ``HTTP 500`` (Internal Server Error) being raised. This has been
+    corrected and a ``HTTP 404`` (Not Found) is now raised instead.
