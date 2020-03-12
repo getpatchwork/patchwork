@@ -9,6 +9,7 @@ from django.urls import reverse
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_project
 
 
 class CoverLetterViewTest(TestCase):
@@ -49,6 +50,23 @@ class CoverLetterViewTest(TestCase):
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
+
+    def test_invalid_project_id(self):
+        requested_url = reverse(
+            'cover-detail',
+            kwargs={'project_id': 'foo', 'msgid': 'bar'},
+        )
+        response = self.client.get(requested_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_cover_id(self):
+        project = create_project()
+        requested_url = reverse(
+            'cover-detail',
+            kwargs={'project_id': project.linkname, 'msgid': 'foo'},
+        )
+        response = self.client.get(requested_url)
+        self.assertEqual(response.status_code, 404)
 
 
 class PatchViewTest(TestCase):
@@ -120,6 +138,23 @@ class PatchViewTest(TestCase):
                                         'msgid': patch.url_msgid})
         response = self.client.get(requested_url)
         self.assertNotIn('<b>TEST</b>'.encode('utf-8'), response.content)
+
+    def test_invalid_project_id(self):
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={'project_id': 'foo', 'msgid': 'bar'},
+        )
+        response = self.client.get(requested_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_patch_id(self):
+        project = create_project()
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={'project_id': project.linkname, 'msgid': 'foo'},
+        )
+        response = self.client.get(requested_url)
+        self.assertEqual(response.status_code, 404)
 
 
 class CommentRedirectTest(TestCase):
