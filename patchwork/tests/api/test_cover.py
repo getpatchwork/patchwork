@@ -127,7 +127,7 @@ class TestCoverLetterAPI(utils.APITestCase):
         series = create_series()
         create_covers(5, series=series)
 
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(3):
             self.client.get(self.api_url())
 
     @utils.store_samples('cover-detail')

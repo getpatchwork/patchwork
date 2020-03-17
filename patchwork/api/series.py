@@ -56,8 +56,8 @@ class SeriesMixin(object):
 
     def get_queryset(self):
         return Series.objects.all()\
-            .prefetch_related('patches__project',)\
-            .select_related('submitter', 'cover_letter__project', 'project')
+            .prefetch_related('patches__project', 'cover_letter__project')\
+            .select_related('submitter', 'project')
 
 
 class SeriesList(SeriesMixin, ListAPIView):

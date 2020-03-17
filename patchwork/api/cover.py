@@ -101,7 +101,8 @@ class CoverLetterList(ListAPIView):
 
     def get_queryset(self):
         return CoverLetter.objects.all()\
-            .select_related('project', 'submitter', 'series__project')\
+            .prefetch_related('series__project')\
+            .select_related('project', 'submitter', 'series')\
             .defer('content', 'headers')
 
 

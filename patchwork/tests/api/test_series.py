@@ -139,10 +139,17 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertNotIn('web_url', resp.data[0]['patches'][0])
 
     def test_list_bug_335(self):
-        """Ensure we retrieve the embedded cover letter project once."""
-        self._create_series()
+        """Ensure we retrieve the embedded cover letter project in O(1)."""
+        project_obj = create_project(linkname='myproject')
+        person_obj = create_person(email='test@example.com')
+        for i in range(10):
+            series_obj = create_series(
+                project=project_obj, submitter=person_obj,
+            )
+            create_cover(series=series_obj)
+            create_patch(series=series_obj)
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(6):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
