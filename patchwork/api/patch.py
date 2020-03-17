@@ -288,10 +288,13 @@ class PatchList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
+        # TODO(dja): we need to revisit this after the patch migration, paying
+        # particular attention to cases with filtering
         return Patch.objects.all()\
-            .prefetch_related('check_set', 'related__patches__project')\
-            .select_related('project', 'state', 'submitter', 'delegate',
-                            'series__project')\
+            .prefetch_related(
+                'check_set', 'delegate', 'project', 'series__project',
+                'related__patches__project')\
+            .select_related('state', 'submitter', 'series')\
             .defer('content', 'diff', 'headers')
 
 

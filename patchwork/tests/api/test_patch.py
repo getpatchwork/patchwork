@@ -211,11 +211,11 @@ class TestPatchAPI(utils.APITestCase):
         self.assertNotIn('web_url', resp.data[0])
 
     def test_list_bug_335(self):
-        """Ensure we retrieve the embedded series project once."""
+        """Ensure we retrieve the embedded series project in O(1)."""
         series = create_series()
         create_patches(5, series=series)
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(7):
             self.client.get(self.api_url())
 
     @utils.store_samples('patch-detail')
