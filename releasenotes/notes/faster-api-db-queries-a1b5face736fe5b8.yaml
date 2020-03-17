@@ -1,0 +1,4 @@
+fixes:
+  - |
+    Queries to the REST API with filters are now significantly faster: slow
+    database queries were reworked.
