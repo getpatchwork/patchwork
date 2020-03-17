@@ -158,8 +158,8 @@ class TimestampMixin(FilterSet):
 
 class SeriesFilterSet(TimestampMixin, FilterSet):
 
-    submitter = PersonFilter(queryset=Person.objects.all())
-    project = ProjectFilter(queryset=Project.objects.all())
+    submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
+    project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
 
     class Meta:
         model = Series
@@ -168,12 +168,12 @@ class SeriesFilterSet(TimestampMixin, FilterSet):
 
 class CoverLetterFilterSet(TimestampMixin, FilterSet):
 
-    project = ProjectFilter(queryset=Project.objects.all())
+    project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
     series = BaseFilter(queryset=Project.objects.all(),
-                        widget=MultipleHiddenInput)
-    submitter = PersonFilter(queryset=Person.objects.all())
+                        widget=MultipleHiddenInput, distinct=False)
+    submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
 
     class Meta:
         model = CoverLetter
@@ -187,10 +187,10 @@ class PatchFilterSet(TimestampMixin, FilterSet):
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
     series = BaseFilter(queryset=Series.objects.all(),
-                        widget=MultipleHiddenInput)
-    submitter = PersonFilter(queryset=Person.objects.all())
-    delegate = UserFilter(queryset=User.objects.all())
-    state = StateFilter(queryset=State.objects.all())
+                        widget=MultipleHiddenInput, distinct=False)
+    submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
+    delegate = UserFilter(queryset=User.objects.all(), distinct=False)
+    state = StateFilter(queryset=State.objects.all(), distinct=False)
 
     class Meta:
         model = Patch
@@ -200,7 +200,7 @@ class PatchFilterSet(TimestampMixin, FilterSet):
 
 class CheckFilterSet(TimestampMixin, FilterSet):
 
-    user = UserFilter(queryset=User.objects.all())
+    user = UserFilter(queryset=User.objects.all(), distinct=False)
 
     class Meta:
         model = Check
@@ -213,13 +213,17 @@ class EventFilterSet(TimestampMixin, FilterSet):
     # filters as the resulting query is _huge_
     # TODO(stephenfin): We should really use an AJAX widget of some form here
     project = ProjectFilter(queryset=Project.objects.all(),
-                            widget=MultipleHiddenInput)
+                            widget=MultipleHiddenInput,
+                            distinct=False)
     series = BaseFilter(queryset=Series.objects.all(),
-                        widget=MultipleHiddenInput)
+                        widget=MultipleHiddenInput,
+                        distinct=False)
     patch = BaseFilter(queryset=Patch.objects.all(),
-                       widget=MultipleHiddenInput)
+                       widget=MultipleHiddenInput,
+                       distinct=False)
     cover = BaseFilter(queryset=CoverLetter.objects.all(),
-                       widget=MultipleHiddenInput)
+                       widget=MultipleHiddenInput,
+                       distinct=False)
 
     class Meta:
         model = Event
@@ -228,8 +232,8 @@ class EventFilterSet(TimestampMixin, FilterSet):
 
 class BundleFilterSet(FilterSet):
 
-    project = ProjectFilter(queryset=Project.objects.all())
-    owner = UserFilter(queryset=User.objects.all())
+    project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
+    owner = UserFilter(queryset=User.objects.all(), distinct=False)
 
     class Meta:
         model = Bundle
