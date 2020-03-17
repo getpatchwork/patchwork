@@ -182,7 +182,8 @@ class CoverLetterFilterSet(TimestampMixin, FilterSet):
 
 class PatchFilterSet(TimestampMixin, FilterSet):
 
-    project = ProjectFilter(queryset=Project.objects.all())
+    project = ProjectFilter(queryset=Project.objects.all(), distinct=False,
+                            name='patch_project')
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
     series = BaseFilter(queryset=Series.objects.all(),
