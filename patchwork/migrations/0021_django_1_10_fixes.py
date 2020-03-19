@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import django
 from django.db import migrations
 
 
@@ -21,6 +20,9 @@ class Migration(migrations.Migration):
     operations += [
         migrations.AlterModelOptions(
             name='patch',
-            options={'base_manager_name': 'objects', 'verbose_name_plural': 'Patches'},
+            options={
+                'base_manager_name': 'objects',
+                'verbose_name_plural': 'Patches',
+            },
         ),
     ]

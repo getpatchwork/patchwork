@@ -14,6 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='check',
             name='context',
-            field=models.SlugField(default=b'default', help_text=b'A label to discern check from checks of other testing systems.', max_length=255),
+            field=models.SlugField(
+                default=b'default',
+                help_text=b'A label to discern check from checks of other '
+                          b'testing systems.',
+                max_length=255,
+            ),
         ),
     ]

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-from django.db.models import Count
-import django.db.models.deletion
+from django.db import migrations
 
 
 class Migration(migrations.Migration):

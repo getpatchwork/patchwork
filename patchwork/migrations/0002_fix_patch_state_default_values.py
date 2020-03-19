@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='patch',
             name='state',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='patchwork.State', null=True),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='patchwork.State',
+                null=True,
+            ),
         ),
     ]

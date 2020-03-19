@@ -13,9 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name='patch',
-            old_name='content',
-            new_name='diff',
+            model_name='patch', old_name='content', new_name='diff',
         ),
         migrations.AddField(
             model_name='patch',
@@ -29,6 +27,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.CASCADE,
                 related_query_name=b'comment',
                 related_name='comments',
-                to='patchwork.Patch'),
+                to='patchwork.Patch',
+            ),
         ),
     ]

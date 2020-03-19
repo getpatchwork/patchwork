@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
                   archived=archived2, hash=hash2
                 FROM patchwork_patch WHERE
                   patchwork_submission.id = patchwork_patch.submission_ptr_id
-                '''
+                ''',
         ),
     ]

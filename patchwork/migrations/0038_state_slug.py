@@ -15,15 +15,17 @@ def validate_uniqueness(apps, schema_editor):
     State = apps.get_model('patchwork', 'State')
 
     total_count = State.objects.count()
-    slugs_count = len(set([
-        slugify(state.name) for state in State.objects.all()]))
+    slugs_count = len(
+        set([slugify(state.name) for state in State.objects.all()])
+    )
 
     if slugs_count != total_count:
         raise Exception(
             'You have non-unique States entries that need to be combined '
             'before you can run this migration. This migration must be done '
             'by hand. If you need assistance, please contact '
-            'patchwork@ozlabs.org')
+            'patchwork@ozlabs.org'
+        )
 
 
 def populate_slug_field(apps, schema_editor):
@@ -55,7 +57,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='state',
             name='slug',
-            field=models.SlugField(blank=True, max_length=100, null=True, unique=True),
+            field=models.SlugField(
+                blank=True, max_length=100, null=True, unique=True
+            ),
         ),
         # Populate the 'State.slug' field
         migrations.RunPython(populate_slug_field, migrations.RunPython.noop),

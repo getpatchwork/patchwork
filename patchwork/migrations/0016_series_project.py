@@ -46,7 +46,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='series',
             name='project',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='series', to='patchwork.Project'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='series',
+                to='patchwork.Project',
+            ),
         ),
         migrations.RunPython(forward, reverse, atomic=False),
         migrations.AlterField(
@@ -55,7 +61,6 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=255),
         ),
         migrations.AlterUniqueTogether(
-            name='seriesreference',
-            unique_together=set([('series', 'msgid')]),
+            name='seriesreference', unique_together=set([('series', 'msgid')]),
         ),
     ]

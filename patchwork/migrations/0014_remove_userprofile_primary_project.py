@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='userprofile',
-            name='primary_project',
+            model_name='userprofile', name='primary_project',
         ),
     ]

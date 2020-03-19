@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userprofile',
             name='maintainer_projects',
-            field=models.ManyToManyField(related_name='maintainer_project', to='patchwork.Project', blank=True),
+            field=models.ManyToManyField(
+                related_name='maintainer_project',
+                to='patchwork.Project',
+                blank=True,
+            ),
         ),
     ]
