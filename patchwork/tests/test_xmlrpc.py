@@ -177,6 +177,12 @@ class XMLRPCPatchTest(XMLRPCTest, XMLRPCFilterModelTestMixin):
         result = self.rpc.patch_get_by_hash(patch.hash)
         self.assertEqual(result['id'], patch.id)
 
+    def test_patch_get_by_project_hash(self):
+        patch = self.create_single()
+        result = self.rpc.patch_get_by_project_hash(patch.project.linkname,
+                                                    patch.hash)
+        self.assertEqual(result['id'], patch.id)
+
 
 class XMLRPCPersonTest(XMLRPCTest, XMLRPCModelTestMixin):
 
