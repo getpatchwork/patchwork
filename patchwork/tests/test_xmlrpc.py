@@ -183,6 +183,12 @@ class XMLRPCPatchTest(XMLRPCTest, XMLRPCFilterModelTestMixin):
                                                     patch.hash)
         self.assertEqual(result['id'], patch.id)
 
+    def test_patch_get_by_project_msgid(self):
+        patch = self.create_single()
+        result = self.rpc.patch_get_by_project_msgid(patch.project.linkname,
+                                                     patch.msgid[1:-1])
+        self.assertEqual(result['id'], patch.id)
+
 
 class XMLRPCPersonTest(XMLRPCTest, XMLRPCModelTestMixin):
 

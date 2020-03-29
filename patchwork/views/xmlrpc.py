@@ -638,6 +638,30 @@ def patch_get_by_project_hash(project, hash):
 
 
 @xmlrpc_method()
+def patch_get_by_project_msgid(project, msgid):
+    """Get a patch by its project and Message-ID.
+
+    Retrieve a patch matching a given project and Message-ID, if any
+    exists.
+
+    Args:
+        project (str): The project of the patch to retrieve.
+        msgid: The Message-ID if the patch to retrieve.
+
+    Returns:
+        The serialized patch matching both the project and the Message-ID,
+        if any, else an empty dict.
+    """
+    db_msgid = ('<%s>' % msgid)
+    try:
+        patch = Patch.objects.get(project__linkname=project,
+                                  msgid=db_msgid)
+        return patch_to_dict(patch)
+    except Patch.DoesNotExist:
+        return {}
+
+
+@xmlrpc_method()
 def patch_get_mbox(patch_id):
     """Get a patch by its ID in mbox format.
 
