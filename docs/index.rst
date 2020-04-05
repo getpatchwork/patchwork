@@ -58,6 +58,7 @@ of community projects.
    :caption: Release Notes
 
    releases/unreleased
+   releases/flannel
    releases/eolienne
    releases/dazzle
    releases/cashmere
