@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+import datetime
 
 from django.db import models, migrations
-import datetime
 from django.conf import settings
 import django.db.models.deletion
 

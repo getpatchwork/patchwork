@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
 import datetime
-import patchwork.models
-import django.db.models.deletion
+
 from django.conf import settings
+from django.db import models, migrations
+import django.db.models.deletion
+
+import patchwork.models
 
 
 class Migration(migrations.Migration):
