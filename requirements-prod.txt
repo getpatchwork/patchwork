@@ -1,4 +1,4 @@
-Django~=2.2.0
+Django==3.0.5
 djangorestframework~=3.11.0
 django-filter~=2.2.0
 psycopg2-binary~=2.8.0
