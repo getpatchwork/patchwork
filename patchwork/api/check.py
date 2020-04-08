@@ -6,6 +6,7 @@
 from django.http import Http404
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
+import rest_framework
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveAPIView
@@ -22,12 +23,22 @@ from patchwork.models import Check
 from patchwork.models import Patch
 
 
-class CurrentPatchDefault(object):
-    def set_context(self, serializer_field):
-        self.patch = serializer_field.context['request'].patch
+DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
 
-    def __call__(self):
-        return self.patch
+
+if DRF_VERSION > (3, 11):
+    class CurrentPatchDefault(object):
+        requires_context = True
+
+        def __call__(self, serializer_field):
+            return serializer_field.context['request'].patch
+else:
+    class CurrentPatchDefault(object):
+        def set_context(self, serializer_field):
+            self.patch = serializer_field.context['request'].patch
+
+        def __call__(self):
+            return self.patch
 
 
 class CheckSerializer(HyperlinkedModelSerializer):
