@@ -10,6 +10,7 @@ import unittest
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.http import urlencode
 
 from patchwork.models import Bundle
@@ -548,8 +549,8 @@ class BundleAddFromListTest(BundleTestBase):
                 'project_id': self.project.linkname}),
             params)
 
-        self.assertContains(response, 'Patch &#39;%s&#39; already in bundle'
-                            % patch.name, count=1, status_code=200)
+        expected = escape(f"Patch '{patch.name}' already in bundle")
+        self.assertContains(response, expected, count=1, status_code=200)
 
         self.assertEqual(count, self.bundle.patches.count())
 
@@ -570,11 +571,12 @@ class BundleAddFromListTest(BundleTestBase):
                 'project_id': self.project.linkname}),
             params)
 
-        self.assertContains(response, 'Patch &#39;%s&#39; already in bundle'
-                            % patch.name, count=1, status_code=200)
-        self.assertContains(response, 'Patch &#39;%s&#39; added to bundle'
-                            % self.patches[1].name, count=1,
-                            status_code=200)
+        for expected in (
+            escape(f"Patch '{patch.name}' already in bundle"),
+            escape(f"Patch '{self.patches[1].name}' added to bundle"),
+        ):
+            self.assertContains(response, expected, count=1, status_code=200)
+
         self.assertEqual(count + 1, self.bundle.patches.count())
 
 
