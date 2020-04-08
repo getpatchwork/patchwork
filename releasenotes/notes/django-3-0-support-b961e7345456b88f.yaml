@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    `Django 3.0 <https://docs.djangoproject.com/en/dev/releases/3.0/>`_ is
+    now supported.
