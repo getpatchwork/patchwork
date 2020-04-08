@@ -139,14 +139,14 @@ The first requirement is Patchwork itself. It can be downloaded like so:
 
 .. code-block:: shell
 
-   $ wget https://github.com/getpatchwork/patchwork/archive/v2.1.0.tar.gz
+   $ wget https://github.com/getpatchwork/patchwork/archive/v2.2.0.tar.gz
 
 We will install this under ``/opt``, though this is only a suggestion:
 
 .. code-block:: shell
 
-   $ tar -xvzf v2.1.0.tar.gz
-   $ sudo mv v2.1.0 /opt/patchwork
+   $ tar -xvzf v2.2.0.tar.gz
+   $ sudo mv v2.2.0 /opt/patchwork
 
 .. important::
 
