@@ -51,22 +51,14 @@ RUN pyenv latest install 2.7 && \
     pyenv latest install 3.6 && \
     pyenv latest install 3.7 && \
     pyenv latest install 3.8
+RUN pyenv global $(pyenv versions --bare | tac)
+
+RUN pip install tox tox-pyenv
 
 # we deliberately leave the requirements files in /opt so we can ping the user
 # in entrypoint.sh if they change
 COPY requirements-dev.txt requirements-test.txt /opt/
-
-# old python 2.7 deps
-RUN pyenv global $(pyenv versions --bare)
-
-RUN pip install tox tox-pyenv && \
-    pip install -r /opt/requirements-dev.txt
-
-# most recent python deps
-RUN pyenv global $(pyenv versions --bare | tac)
-
-RUN pip install tox tox-pyenv && \
-    pip install -r /opt/requirements-dev.txt
+RUN pip install -r /opt/requirements-dev.txt
 
 COPY tools/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
