@@ -165,10 +165,10 @@ These are detailed below.
 Python Requirements
 ^^^^^^^^^^^^^^^^^^^
 
-To develop Python-based software you first need Python. Patchwork supports both
-Python 2.7 and Python 3.5+. One of these will be installed by default on many
-installations, though they can also be installed manually using the ``python``
-or ``python3`` packages.
+To develop Python-based software you first need Python. Patchwork supports
+Python 3.6+. Python 3 will be installed by default on many installations,
+though a suitable version can usually be installed manually using the
+``python3`` package.
 
 It's a good idea to use `virtual environments`__ to develop Python software.
 Virtual environments are "instances" of your system Python without any of the
@@ -177,12 +177,12 @@ deploy Patchwork against a "well known" set of dependencies, but they can also
 be used to test Patchwork against several versions of Django.
 
 If you do not have ``virtualenv`` installed then you should install it now. This
-can be installed using the ``python-virtualenv`` or ``python3-virtualenv``
-packages. Alternatively you can install these using ``pip``.
+can be installed using the ``python3-virtualenv`` package. Alternatively you
+can install these using ``pip``.
 
 It is also helpful to install ``tox`` which is used for running tests in
-Patchwork. This can be installed using the ``python-tox`` or ``python3-tox``
-packages, or via ``pip``.
+Patchwork. This can be installed using the ``python3-tox`` package, or via
+``pip``.
 
 __ https://virtualenv.readthedocs.io/en/latest/
 
@@ -217,15 +217,15 @@ Example Installation
 ^^^^^^^^^^^^^^^^^^^^
 
 An example for installing all these packages and the MySQL RDBMS on Ubuntu
-15.04 is given below:
+20.04 is given below:
 
 .. code-block:: shell
 
-   $ sudo apt-get install python python-pip python-dev python-virtualenv \
-       python-tox mysql-server libmysqlclient-dev
+   $ sudo apt-get install python3 python3-pip python3-dev python3-virtualenv \
+       python3-tox mysql-server libmysqlclient-dev
 
-If you have an existing MariaDB/MySQL installation and have installed ``pip``
-already/are using Python 3.5+ then you can install all packages using ``pip``:
+If you have an existing MariaDB/MySQL installation then you can install all
+packages using ``pip``:
 
 .. code-block:: shell
 

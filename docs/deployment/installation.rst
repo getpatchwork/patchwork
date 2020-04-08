@@ -157,8 +157,7 @@ We will install this under ``/opt``, though this is only a suggestion:
    __ https://docs.djangoproject.com/en/2.2/intro/tutorial01/#creating-a-project
 
 Next we require Python. If not already installed, then you should do so now.
-Patchwork supports both Python 2.7 and Python 3.3+, though we're going to use
-the latter to ease future upgrades. Python 3 is installed by default, but you
+Patchwork supports Python 3.6+. Python 3 is installed by default, but you
 should validate this now:
 
 .. code-block:: shell
