@@ -6,15 +6,16 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django_filters import rest_framework
 from django_filters.rest_framework import FilterSet
 from django_filters import CharFilter
 from django_filters import IsoDateTimeFilter
 from django_filters import ModelMultipleChoiceFilter
 from django.forms import ModelMultipleChoiceField as BaseMultipleChoiceField
 from django.forms.widgets import MultipleHiddenInput
+from rest_framework import exceptions
 
 from patchwork.api import utils
-from patchwork.compat import NAME_FIELD
 from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import CoverLetter
@@ -24,6 +25,17 @@ from patchwork.models import Person
 from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import State
+
+
+# custom backend
+
+class DjangoFilterBackend(rest_framework.DjangoFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        try:
+            return super().filter_queryset(request, queryset, view)
+        except exceptions.ValidationError:
+            return queryset.none()
 
 
 # custom fields, filters
@@ -158,8 +170,8 @@ class BaseFilterSet(FilterSet):
 class TimestampMixin(BaseFilterSet):
 
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
-    before = IsoDateTimeFilter(lookup_expr='lt', **{NAME_FIELD: 'date'})
-    since = IsoDateTimeFilter(lookup_expr='gte', **{NAME_FIELD: 'date'})
+    before = IsoDateTimeFilter(lookup_expr='lt', field_name='date')
+    since = IsoDateTimeFilter(lookup_expr='gte', field_name='date')
 
 
 class SeriesFilterSet(TimestampMixin, BaseFilterSet):

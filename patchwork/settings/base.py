@@ -125,7 +125,7 @@ REST_FRAMEWORK = {
         'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
     'DEFAULT_FILTER_BACKENDS': (
-        'patchwork.compat.DjangoFilterBackend',
+        'patchwork.api.filters.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
