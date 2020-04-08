@@ -20,7 +20,6 @@ from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import SeriesReference
 from patchwork.models import State
-from patchwork.models import Submission
 from patchwork.models import Tag
 from patchwork.models import UserProfile
 
@@ -76,15 +75,14 @@ class StateAdmin(admin.ModelAdmin):
 admin.site.register(State, StateAdmin)
 
 
-class SubmissionAdmin(admin.ModelAdmin):
+class CoverLetterAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'date')
     list_filter = ('project', )
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
 
-admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(CoverLetter, SubmissionAdmin)
+admin.site.register(CoverLetter, CoverLetterAdmin)
 
 
 class PatchAdmin(admin.ModelAdmin):

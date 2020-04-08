@@ -11,8 +11,8 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from patchwork.models import CoverLetter
+from patchwork.models import Patch
 from patchwork.models import Project
-from patchwork.models import Submission
 from patchwork.views.utils import cover_to_mbox
 
 
@@ -25,9 +25,11 @@ def cover_detail(request, project_id, msgid):
         cover = get_object_or_404(CoverLetter, project_id=project.id,
                                   msgid=db_msgid)
     except Http404 as exc:
-        submissions = Submission.objects.filter(project_id=project.id,
-                                                msgid=db_msgid)
-        if submissions:
+        patches = Patch.objects.filter(
+            project_id=project.id,
+            msgid=db_msgid,
+        )
+        if patches:
             return HttpResponseRedirect(
                 reverse('patch-detail',
                         kwargs={'project_id': project.linkname,

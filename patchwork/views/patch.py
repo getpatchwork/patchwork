@@ -15,9 +15,9 @@ from django.urls import reverse
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Bundle
+from patchwork.models import CoverLetter
 from patchwork.models import Patch
 from patchwork.models import Project
-from patchwork.models import Submission
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
 from patchwork.views.utils import series_patch_to_mbox
@@ -42,9 +42,11 @@ def patch_detail(request, project_id, msgid):
     try:
         patch = Patch.objects.get(project_id=project.id, msgid=db_msgid)
     except Patch.DoesNotExist:
-        submissions = Submission.objects.filter(project_id=project.id,
-                                                msgid=db_msgid)
-        if submissions:
+        covers = CoverLetter.objects.filter(
+            project_id=project.id,
+            msgid=db_msgid,
+        )
+        if covers:
             return HttpResponseRedirect(
                 reverse('cover-detail',
                         kwargs={'project_id': project.linkname,
