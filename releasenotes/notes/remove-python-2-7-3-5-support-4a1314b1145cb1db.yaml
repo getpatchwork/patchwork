@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Python 2.7 and 3.5 are no longer supported. These are no longer supported
+    upstream and most distributions provide a newer version.
