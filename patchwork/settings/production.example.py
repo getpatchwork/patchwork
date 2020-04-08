@@ -13,7 +13,7 @@ from .base import *  # noqa
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
 #
 
 # Security
@@ -56,7 +56,7 @@ ADMINS = (
 #
 # If you're using a postgres database, connecting over a local unix-domain
 # socket, then the following setting should work for you. Otherwise,
-# see https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+# see https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -71,8 +71,8 @@ DATABASES = {
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#static-files
-# https://docs.djangoproject.com/en/1.11/ref/contrib/staticfiles/#manifeststaticfilesstorage
+# https://docs.djangoproject.com/en/2.2/ref/settings/#static-files
+# https://docs.djangoproject.com/en/2.2/ref/contrib/staticfiles/#manifeststaticfilesstorage
 #
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT', '/srv/patchwork/htdocs/static')

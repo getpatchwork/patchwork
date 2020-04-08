@@ -210,7 +210,7 @@ respectively on Debian-based Debian-based distros like Ubuntu and
    supported`__. You will find some tests provided by Patchwork fail and some
    patches you develop may fail in production due to these differences.
 
-__ https://docs.djangoproject.com/en/1.11/ref/databases/
+__ https://docs.djangoproject.com/en/2.2/ref/databases/
 __ https://www.sqlite.org/faq.html#q18
 
 Example Installation

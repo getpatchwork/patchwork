@@ -154,7 +154,7 @@ We will install this under ``/opt``, though this is only a suggestion:
    web server's document root as this risks the possibility that people may be
    able to view your code over the Web. This is a security risk.
 
-   __ https://docs.djangoproject.com/en/1.11/intro/tutorial01/#creating-a-project
+   __ https://docs.djangoproject.com/en/2.2/intro/tutorial01/#creating-a-project
 
 Next we require Python. If not already installed, then you should do so now.
 Patchwork supports both Python 2.7 and Python 3.3+, though we're going to use
@@ -211,7 +211,7 @@ variables, you should export each setting using the appropriate name, such as
 ``DJANGO_SECRET_KEY``, ``DATABASE_NAME`` or ``EMAIL_HOST``, instead of
 modifying the ``production.py`` file as we've done below.
 
-__ https://docs.djangoproject.com/en/1.11/ref/settings/
+__ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 Databases
 ^^^^^^^^^
@@ -413,7 +413,7 @@ address(es) from which you will be serving this domain. For example:
 
    ALLOWED_HOSTS = ('.example.com', )
 
-__ https://docs.djangoproject.com/en/1.11/ref/settings/#allowed-hosts
+__ https://docs.djangoproject.com/en/2.2/ref/settings/#allowed-hosts
 
 Create systemd Unit File
 ~~~~~~~~~~~~~~~~~~~~~~~~

@@ -9,7 +9,7 @@ ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
 #
 
 INSTALLED_APPS = [
@@ -73,7 +73,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth
+# https://docs.djangoproject.com/en/2.2/ref/settings/#auth
 #
 
 LOGIN_URL = 'auth_login'
@@ -83,7 +83,7 @@ LOGIN_REDIRECT_URL = 'user-profile'
 
 #
 # Sites settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#sites
+# https://docs.djangoproject.com/en/2.2/ref/settings/#sites
 #
 
 SITE_ID = 1
@@ -91,7 +91,7 @@ SITE_ID = 1
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/1.11/ref/settings/#static-files
+# https://docs.djangoproject.com/en/2.2/ref/settings/#static-files
 #
 
 STATIC_URL = '/static/'

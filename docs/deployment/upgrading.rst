@@ -69,4 +69,4 @@ which must be applied before starting the instance. To do this, run the
 
 For more information on migrations, refer to `the Django documentation`__.
 
-__ https://docs.djangoproject.com/en/1.11/topics/migrations/
+__ https://docs.djangoproject.com/en/2.2/topics/migrations/
