@@ -357,7 +357,7 @@ class FilenameMixin(object):
         return fname
 
 
-class SubmissionMixin(models.Model):
+class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
     # parent
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -387,7 +387,7 @@ class SubmissionMixin(models.Model):
         abstract = True
 
 
-class Cover(FilenameMixin, EmailMixin, SubmissionMixin):
+class Cover(SubmissionMixin):
 
     def get_absolute_url(self):
         return reverse('cover-detail',
@@ -414,7 +414,7 @@ class Cover(FilenameMixin, EmailMixin, SubmissionMixin):
         ]
 
 
-class Patch(FilenameMixin, EmailMixin, SubmissionMixin):
+class Patch(SubmissionMixin):
 
     diff = models.TextField(null=True, blank=True)
     commit_ref = models.CharField(max_length=255, null=True, blank=True)
