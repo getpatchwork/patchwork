@@ -44,9 +44,7 @@ Requirements
 For the purpose of this guide, we will assume an **Ubuntu 18.04** host:
 commands, package names and/or package versions will likely change if using a
 different distro or release. Similarly, usage of different package versions to
-the ones suggested may require slightly different configuration. For example,
-this guide describes configuration with **Python 3** and using Python 2 will
-require different packages and some minor changes to configuration files.
+the ones suggested may require slightly different configuration.
 
 Before beginning, you should update and restart this system:
 

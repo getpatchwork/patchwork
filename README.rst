@@ -39,7 +39,7 @@ Requirements
 
 Patchwork requires reasonably recent versions of:
 
-- Python (2 or 3)
+- Python 3
 
 - Django
 
