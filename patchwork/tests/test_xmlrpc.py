@@ -13,6 +13,12 @@ from django.urls import reverse
 from patchwork.tests import utils
 
 
+class ServerProxy(xmlrpc_client.ServerProxy):
+
+    def close(self):
+        self.__close()
+
+
 @unittest.skipUnless(settings.ENABLE_XMLRPC,
                      'requires xmlrpc interface (use the ENABLE_XMLRPC '
                      'setting)')
@@ -20,7 +26,10 @@ class XMLRPCTest(LiveServerTestCase):
 
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
-        self.rpc = xmlrpc_client.Server(self.url)
+        self.rpc = ServerProxy(self.url)
+
+    def tearDown(self):
+        self.rpc.close()
 
 
 class XMLRPCGenericTest(XMLRPCTest):
@@ -55,7 +64,10 @@ class XMLRPCAuthenticatedTest(LiveServerTestCase):
         self.user = utils.create_maintainer(self.project)
         self.url = ('http://%s:%s@' + self.url[7:]) % (self.user.username,
                                                        self.user.username)
-        self.rpc = xmlrpc_client.Server(self.url)
+        self.rpc = ServerProxy(self.url)
+
+    def tearDown(self):
+        self.rpc.close()
 
     def test_patch_set(self):
         patch = utils.create_patch(project=self.project)
