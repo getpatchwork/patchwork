@@ -7,13 +7,17 @@
 {% block body %}
 
 {% if error == 'inactive' %}
-<p>This confirmation has already been processed; you've probably visited this
-page before.</p>
+<p>
+  This confirmation has already been processed; you've probably visited this
+  page before.
+</p>
 {% endif %}
 
 {% if error == 'expired' %}
-<p>The confirmation has expired. If you'd still like to perform the
-{{conf.get_type_display}} process, you'll need to resubmit the request.</p>
+<p>
+  The confirmation has expired. If you'd still like to perform the
+  {{ conf.get_type_display }} process, you'll need to resubmit the request.
+</p>
 {% endif %}
 
 {% endblock %}

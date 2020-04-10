@@ -4,70 +4,76 @@
 {% block info_active %}active{% endblock %}
 
 {% block body %}
-<h1>About {{project.name}}</h1>
+<h1>About {{ project.name }}</h1>
 
 <table class="horizontal">
- <tr>
-  <th>Name</th>
-  <td>{{project.name}}
- </tr>
- <tr>
-  <th>List address</th>
-  <td>{{project.listemail}}</td>
- </tr>
+  <tr>
+    <th>Name</th>
+    <td>{{ project.name }}
+  </tr>
+  <tr>
+    <th>List address</th>
+    <td>{{ project.listemail }}</td>
+  </tr>
 {% if project.list_archive_url %}
- <tr>
-  <th>List archive</th>
-  <td><a href="{{ project.list_archive_url }}">{{ project.list_archive_url }}</a></td>
- </tr>
+  <tr>
+    <th>List archive</th>
+    <td><a href="{{ project.list_archive_url }}">{{ project.list_archive_url }}</a></td>
+  </tr>
 {% endif %}
- <tr>
-  <th>Maintainer{{maintainers|length|pluralize}}</th>
-  <td>
-   {% for maintainer in maintainers %}
-    {{ maintainer.profile.name }}
-     &lt;<a href="mailto:{{maintainer.email}}">{{maintainer.email}}</a>&gt;
-     <br />
-   {% endfor %}
-  </td>
- </tr>
- <tr>
-  <th>Patches </th>
-  <td>{{n_patches}} (+ {{n_archived_patches}} archived)</td>
- </tr>
+  <tr>
+    <th>Maintainer{{ maintainers|length|pluralize }}</th>
+    <td>
+      {% for maintainer in maintainers %}
+        {{ maintainer.profile.name }}
+          &lt;<a href="mailto:{{ maintainer.email }}">{{ maintainer.email }}</a>&gt;
+          <br />
+      {% endfor %}
+    </td>
+  </tr>
+  <tr>
+    <th>Patches </th>
+    <td>{{ n_patches }} (+ {{ n_archived_patches }} archived)</td>
+  </tr>
 {% if project.web_url %}
- <tr>
-  <th>Website</th>
-  <td><a href="{{project.web_url}}">{{project.web_url}}</a></td>
- </tr>
+  <tr>
+    <th>Website</th>
+    <td><a href="{{ project.web_url }}">{{ project.web_url }}</a></td>
+  </tr>
 {% endif %}
 {% if project.webscm_url %}
- <tr>
-  <th>Source Code Web Interface</th>
-  <td><a href="{{project.webscm_url}}">{{project.webscm_url}}</a></td>
- </tr>
+  <tr>
+    <th>Source Code Web Interface</th>
+    <td><a href="{{ project.webscm_url }}">{{ project.webscm_url }}</a></td>
+  </tr>
 {% endif %}
 {% if project.scm_url %}
- <tr>
-  <th>Source Code Manager URL</th>
-  <td><a href="{{project.scm_url}}">{{project.scm_url}}</a></td>
- </tr>
+  <tr>
+    <th>Source Code Manager URL</th>
+    <td><a href="{{ project.scm_url }}">{{ project.scm_url }}</a></td>
+  </tr>
 {% endif %}
 </table>
 
 {% if enable_xmlrpc %}
 <h2>pwclient</h2>
 
-<p><code>pwclient</code> is the command-line client for Patchwork. Currently,
-it provides access to some read-only features of Patchwork, such as downloading
-and applying patches.</p>
+<p>
+  <code>pwclient</code> is the command-line client for Patchwork. Currently,
+  it provides access to some read-only features of Patchwork, such as
+  downloading and applying patches.
+</p>
 
 <p>To use pwclient, you will need:</p>
 <ul>
- <li>The <a href="https://github.com/getpatchwork/pwclient">pwclient</a> program</li>
- <li>(optional) A <code><a href="{% url 'pwclientrc' project.linkname %}"
- >.pwclientrc</a></code> file for this project, which should be stored in your
- home directory.</li>
+  <li>
+    The <a href="https://github.com/getpatchwork/pwclient">pwclient</a>
+    program.
+  </li>
+  <li>
+    (Optional) A <code><a href="{% url 'pwclientrc' project.linkname %}">.pwclientrc</a></code>
+    file for this project, which should be stored in your home directory.
+  </li>
 </ul>
 {% endif %}
 {% endblock %}

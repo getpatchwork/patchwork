@@ -1,23 +1,27 @@
 <div class="btn-group pull-right">
   <button type="button" class="btn btn-default btn-copy"
-     data-clipboard-text="{{ submission.id }}" title="Copy to Clipboard">
-      {{ submission.id }}
+      data-clipboard-text="{{ submission.id }}" title="Copy to Clipboard">
+    {{ submission.id }}
   </button>
-  {% if submission.diff %}
+{% if submission.diff %}
   <a href="{% url 'patch-raw' project_id=project.linkname msgid=submission.url_msgid %}"
-   class="btn btn-default" role="button" title="Download patch diff"
-   >diff</a>
+      class="btn btn-default" role="button" title="Download patch diff">
+    diff
+  </a>
   <a href="{% url 'patch-mbox' project_id=project.linkname msgid=submission.url_msgid %}"
-   class="btn btn-default" role="button" title="Download patch mbox"
-   >mbox</a>
-  {% else %}
+      class="btn btn-default" role="button" title="Download patch mbox">
+    mbox
+  </a>
+{% else %}
   <a href="{% url 'cover-mbox' project_id=project.linkname msgid=submission.url_msgid %}"
-   class="btn btn-default" role="button" title="Download cover mbox"
-   >mbox</a>
-  {% endif %}
-  {% if submission.series %}
+      class="btn btn-default" role="button" title="Download cover mbox">
+    mbox
+  </a>
+{% endif %}
+{% if submission.series %}
   <a href="{% url 'series-mbox' series_id=submission.series.id %}"
-   class="btn btn-default" role="button"
-   title="Download patch mbox with dependencies">series</a>
-  {% endif %}
+      class="btn btn-default" role="button" title="Download patch mbox with dependencies">
+    series
+  </a>
+{% endif %}
 </div>

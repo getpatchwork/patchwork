@@ -14,26 +14,24 @@
 {% block body %}
 <form method="post">
 {% csrf_token %}
-<table class="form loginform">
- <tr>
-  <th colspan="2" class="headerrow">login</th>
- </tr>
- {% if error %}
-  <tr>
-   <td colspan="2">{{ error }}</td>
-  </tr>
- {% endif %}
- {{ form }}
- <tr>
-  <td class="submitrow">
-   <input type="submit" value="Login"/>
-  </td>
-  <td class="submitrow">
-   <a href="{% url 'password_reset' %}">
-     Forgot password?
-   </a>
-  </td>
- </tr>
-</table>
+  <table class="form loginform">
+    <tr>
+      <th colspan="2" class="headerrow">login</th>
+    </tr>
+{% if error %}
+    <tr>
+      <td colspan="2">{{ error }}</td>
+    </tr>
+{% endif %}
+{{ form }}
+    <tr>
+      <td class="submitrow">
+        <input type="submit" value="Login"/>
+      </td>
+      <td class="submitrow">
+        <a href="{% url 'password_reset' %}">Forgot password?</a>
+      </td>
+    </tr>
+  </table>
 </form>
 {% endblock %}

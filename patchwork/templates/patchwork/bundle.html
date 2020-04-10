@@ -4,37 +4,34 @@
 {% load static %}
 
 {% block headers %}
-  <script src="{% static "js/jquery.tablednd.js" %}"></script>
-  <script src="{% static "js/bundle.js" %}"></script>
+    <script src="{% static "js/jquery.tablednd.js" %}"></script>
+    <script src="{% static "js/bundle.js" %}"></script>
 {% endblock %}
-{% block title %}{{project.name}}{% endblock %}
+{% block title %}{{ project.name }}{% endblock %}
 
 {% block body %}
 <h1>Bundle</h1>
 
-<p>This bundle contains patches for the {{ bundle.project.linkname }}
-project.</p>
+<p>This bundle contains patches for the {{ bundle.project.linkname }} project.</p>
 
 <p><a href="{% url 'bundle-mbox' username=bundle.owner.username bundlename=bundle.name %}">Download bundle as mbox</a></p>
 
 {% if bundleform %}
 <form method="post">
- {% csrf_token %}
- <input type="hidden" name="form" value="bundle"/>
-<table class="form">
-
- <tr>
-  <th colspan="2" class="headerrow">Bundle settings</th>
- </tr>
-
+  {% csrf_token %}
+  <input type="hidden" name="form" value="bundle"/>
+  <table class="form">
+    <tr>
+      <th colspan="2" class="headerrow">Bundle settings</th>
+    </tr>
 {{ bundleform }}
- <tr>
-  <td colspan="2" class="submitrow">
-   <input type="submit" name="action" value="Update"/>
-   <input type="submit" name="action" value="Delete"/>
-  </td>
- </tr>
-</table>
+    <tr>
+      <td colspan="2" class="submitrow">
+        <input type="submit" name="action" value="Update"/>
+        <input type="submit" name="action" value="Delete"/>
+      </td>
+    </tr>
+  </table>
 </form>
 
 <div style="clear: both; padding: 1em;"></div>

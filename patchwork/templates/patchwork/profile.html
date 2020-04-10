@@ -6,169 +6,168 @@
 {% block body %}
 <h1>Your Profile</h1>
 
-<p>
 {% if user.profile.maintainer_projects.count %}
-Maintainer of
+<p>
+  Maintainer of
 {% for project in user.profile.maintainer_projects.all %}
-<a href="{% url 'patch-list' project_id=project.linkname %}"
->{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
+  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}.
+</p>
 {% endif %}
 
 {% if user.profile.contributor_projects.count %}
-Contributor to
+<p>
+  Contributor to
 {% for project in user.profile.contributor_projects.all %}
-<a href="{% url 'patch-list' project_id=project.linkname %}"
->{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
-{% endif %}
+  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}.
 </p>
+{% endif %}
 
 <div class="leftcol">
-<div class="box">
- <h2>Todo</h2>
+  <div class="box">
+    <h2>Todo</h2>
+    <p>
+      Your <a href="{% url 'user-todos' %}">todo list</a> contains patches that
+      have been delegated to you.
 {% if user.profile.n_todo_patches %}
- <p>Your <a href="{% url 'user-todos' %}">todo
-  list</a> contains {{ user.profile.n_todo_patches }}
-  patch{{ user.profile.n_todo_patches|pluralize:"es" }}.</p>
+      Your have {{ user.profile.n_todo_patches }}
+      patch{{ user.profile.n_todo_patches|pluralize:"es" }} in your todo list.
 {% else %}
- <p>Your todo list contains patches that have been delegated to you. You
-  have no items in your todo list at present.</p>
+      You have no patches in your todo list at present.
 {% endif %}
-</div>
+    </p>
+  </div>
 
-<div class="box">
-<h2>Linked email addresses</h2>
-<p>The following email addresses are associated with this Patchwork account.
-Adding alternative addresses allows Patchwork to group contributions that
-you have made under different addresses.</p>
-<p>The "notify?" column allows you to opt-in or -out of automated
-Patchwork notification emails. Setting it to "no" will disable automated
-notifications for that address.</p>
-<p>Adding a new email address will send a confirmation email to that
-address.</p>
-<table class="vertical">
- <tr>
-  <th>email</th>
-  <th>action</th>
-  <th>notify?</th>
- </tr>
+  <div class="box">
+    <h2>Linked email addresses</h2>
+    <p>
+      The following email addresses are associated with this Patchwork account.
+      Adding alternative addresses allows Patchwork to group contributions that
+      you have made under different addresses.
+    </p>
+    <p>
+      The "notify?" column allows you to opt-in or opt-out of automated
+      Patchwork notification emails. Setting it to "no" will disable automated
+      notifications for that address.
+    </p>
+    <p>
+      Adding a new email address will send a confirmation email to that address.
+    </p>
+    <table class="vertical">
+      <tr>
+        <th>email</th>
+        <th>action</th>
+        <th>notify?</th>
+      </tr>
 {% for email in linked_emails %}
- <tr>
-  <td>{{ email.email }}</td>
-  <td>
-  {% if user.email != email.email %}
-   <form action="{% url 'user-unlink' person_id=email.id %}"
-    method="post">
-    {% csrf_token %}
-    <input type="submit" value="Unlink"/>
-   </form>
-    {% endif %}
-  </td>
-  <td>
-   {% if email.is_optout %}
-   <form method="post" action="{% url 'mail-optin' %}">
-    No,
-     {% csrf_token %}
-     <input type="hidden" name="email" value="{{email.email}}"/>
-     <input type="submit" value="Opt-in"/>
-    </form>
-   {% else %}
-    <form method="post" action="{% url 'mail-optout' %}">
-    Yes,
-     {% csrf_token %}
-     <input type="hidden" name="email" value="{{email.email}}"/>
-     <input type="submit" value="Opt-out"/>
-    </form>
-   {% endif %}
-  </td>
- </tr>
+      <tr>
+        <td>{{ email.email }}</td>
+        <td>
+{% if user.email != email.email %}
+          <form action="{% url 'user-unlink' person_id=email.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Unlink"/>
+          </form>
+{% endif %}
+        </td>
+        <td>
+{% if email.is_optout %}
+          <form method="post" action="{% url 'mail-optin' %}">
+            {% csrf_token %}
+            No,
+            <input type="hidden" name="email" value="{{ email.email }}"/>
+            <input type="submit" value="Opt-in"/>
+          </form>
+{% else %}
+          <form method="post" action="{% url 'mail-optout' %}">
+            {% csrf_token %}
+            Yes,
+            <input type="hidden" name="email" value="{{ email.email }}"/>
+            <input type="submit" value="Opt-out"/>
+          </form>
+{% endif %}
+        </td>
+      </tr>
 {% endfor %}
- <tr>
-  <td colspan="3">
-   <form action="{% url 'user-link' %}" method="post">
-    {% csrf_token %}
-    {{ linkform.email }}
-    <input type="submit" value="Add"/>
-   </form>
-  </td>
- </tr>
-</table>
-</div>
+      <tr>
+        <td colspan="3">
+          <form action="{% url 'user-link' %}" method="post">
+            {% csrf_token %}
+            {{ linkform.email }}
+            <input type="submit" value="Add"/>
+          </form>
+        </td>
+      </tr>
+    </table>
+  </div>
 </div>
 
 <div class="rightcol">
-
-<div class="box">
-<h2>Bundles</h2>
-
+  <div class="box">
+    <h2>Bundles</h2>
 {% if bundles %}
-<p>You have the following bundle{{ bundles|length|pluralize }}:</p>
-<ul>
+    <p>You have the following bundle{{ bundles|length|pluralize }}:</p>
+    <ul>
 {% for bundle in bundles %}
- <li><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></li>
+      <li><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></li>
 {% endfor %}
-</ul>
-<p>Visit the <a href="{%url 'user-bundles' %}">bundles
- page</a> to manage your bundles.</p>
+    </ul>
+    <p>Visit the <a href="{%url 'user-bundles' %}">bundles page</a> to manage your bundles.</p>
 {% else %}
-<p>You have no bundles.</p>
+    <p>You have no bundles.</p>
 {% endif %}
-</div>
+  </div>
 
+  <div class="box">
+    <h2>Settings</h2>
 
-<div class="box">
-<h2>Settings</h2>
+    <form method="post">
+      {% csrf_token %}
+      <table class="form">
+        {{ profileform }}
+        <tr>
+          <td></td>
+          <td><input type="submit" value="Apply"/></td>
+        </tr>
+      </table>
+    </form>
+  </div>
 
-<form method="post">
- {% csrf_token %}
- <table class="form">
-{{ profileform }}
-  <tr>
-   <td></td>
-   <td>
-    <input type="submit" value="Apply"/>
-   </td>
-  </tr>
- </table>
-</form>
-</div>
+  <div class="box">
+    <h2>Authentication</h2>
 
-<div class="box">
-<h2>Authentication</h2>
-
-<table class="form">
- <tr>
-  <th>Password:</th>
-  <td><a href="{% url 'password_change' %}">Change password</a>
- </tr>
+    <table class="form">
+      <tr>
+        <th>Password:</th>
+        <td><a href="{% url 'password_change' %}">Change password</a>
+      </tr>
 {% if rest_api_enabled %}
- <tr>
-  <th>API Token:</th>
-  <td>
-   {% if api_token %}
-   <input id="token" style="width: 25em;" readonly value="{{ api_token }}">
-   <button type="button" class="btn-copy" title="Copy to clipboard"
-    data-clipboard-target="#token">Copy</button>
-   {% endif %}
-  </td>
- <tr>
-  <th></th>
-  <td>
-   <form method="post" action="{% url 'generate_token' %}">
-    {% csrf_token %}
-    {% if api_token %}
-    <input type="submit" value="Regenerate token"/>
-    {% else %}
-    <input type="submit" value="Generate token"/>
-    {% endif %}
-   </form>
-  </td>
- </tr>
+      <tr>
+        <th>API Token:</th>
+        <td>
+{% if api_token %}
+          <input id="token" style="width: 25em;" readonly value="{{ api_token }}">
+          <button type="button" class="btn-copy" title="Copy to clipboard" data-clipboard-target="#token">Copy</button>
 {% endif %}
-</table>
-</div>
-
+        </td>
+      <tr>
+        <th></th>
+        <td>
+          <form method="post" action="{% url 'generate_token' %}">
+            {% csrf_token %}
+{% if api_token %}
+            <input type="submit" value="Regenerate token"/>
+{% else %}
+            <input type="submit" value="Generate token"/>
+{% endif %}
+          </form>
+        </td>
+      </tr>
+{% endif %}
+    </table>
+  </div>
 </div>
 
 <p style="clear: both"></p>
-
 {% endblock %}
