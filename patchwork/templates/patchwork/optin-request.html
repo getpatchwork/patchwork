@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load admins %}
+
 {% block title %}Opt-in{% endblock %}
 {% block heading %}Opt-in{% endblock %}
 
@@ -40,11 +42,7 @@
 
 {% if error and admins %}
 <p>
-  If you are having trouble opting in, please email
-{% for admin in admins %}
-{% if admins|length > 1 and forloop.last %} or {% endif %}
-{{ admin.0 }} &lt;<a href="mailto:{{ admin.1 }}">{{ admin.1 }}</a>&gt;{% if admins|length > 2 and not forloop.last %}, {% endif %}
-{% endfor %}
+  If you are having trouble opting in, please email {% site_admins %}.
 </p>
 {% endif %}
 {% endif %}
