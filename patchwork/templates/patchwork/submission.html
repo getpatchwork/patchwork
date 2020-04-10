@@ -8,7 +8,7 @@
 {% load utils %}
 
 {% block headers %}
-  <script type="module" src="{% static "js/submission.js" %}"></script>
+    <script type="module" src="{% static "js/submission.js" %}"></script>
 {% endblock %}
 
 {% block title %}{{submission.name}}{% endblock %}
@@ -16,215 +16,207 @@
 {% block body %}
 
 <div>
-  {% include "patchwork/partials/download-buttons.html" %}
+{% include "patchwork/partials/download-buttons.html" %}
   <h1>{{ submission.name }}</h1>
 </div>
 
-<table
-  id="patch-meta"
-  class="patch-meta"
-  data-submission-type={{submission|verbose_name_plural|lower}}
-  data-submission-id={{submission.id}}
->
- <tr>
-  <th>Message ID</th>
-  {% if submission.list_archive_url %}
-  <td>{{ submission.url_msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
-  {% else %}
-  <td>{{ submission.url_msgid }}</td>
-  {% endif %}
- </tr>
+<table id="patch-meta" class="patch-meta" data-submission-type={{submission|verbose_name_plural|lower}} data-submission-id={{submission.id}}>
+  <tr>
+    <th>Message ID</th>
+{% if submission.list_archive_url %}
+    <td>{{ submission.url_msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
+{% else %}
+    <td>{{ submission.url_msgid }}</td>
+{% endif %}
+  </tr>
 {% if submission.state %}
- <tr>
-  <th>State</th>
-  <td>{{ submission.state.name }}{% if submission.archived %}, archived{% endif %}</td>
- </tr>
+  <tr>
+    <th>State</th>
+    <td>{{ submission.state.name }}{% if submission.archived %}, archived{% endif %}</td>
+  </tr>
 {% endif %}
 {% if submission.commit_ref %}
- <tr>
-  <th>Commit</th>
-  <td>{{ submission|patch_commit_display }}</td>
- </tr>
+  <tr>
+    <th>Commit</th>
+    <td>{{ submission|patch_commit_display }}</td>
+  </tr>
 {% endif %}
 {% if submission.delegate %}
- <tr>
-  <th>Delegated to:</th>
-  <td>{{ submission.delegate.profile.name }}</td>
- </tr>
+  <tr>
+    <th>Delegated to:</th>
+    <td>{{ submission.delegate.profile.name }}</td>
+  </tr>
 {% endif %}
- <tr>
-  <th>Headers</th>
-  <td>
-    <button id="toggle-patch-headers">show</button>
-    <div id="patch-headers" class="patch-headers" style="display:none;">
-      <pre>{{submission.headers}}</pre>
-    </div>
-  </td>
- </tr>
+  <tr>
+    <th>Headers</th>
+    <td>
+        <button id="toggle-patch-headers">show</button>
+        <div id="patch-headers" class="patch-headers" style="display:none;">
+            <pre>{{submission.headers}}</pre>
+        </div>
+    </td>
+  </tr>
 {% if submission.series %}
- <tr>
-  <th>Series</th>
-  <td>
-   <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
-    {{ submission.series.name }}
-   </a> |
-   <button id="toggle-patch-series">expand</button>
-   <div id="patch-series" class="submission-list" style="display:none;">
-    <ul>
-     {% with submission.series.cover_letter as cover %}
-      <li>
-      {% if cover %}
-       {% if cover == submission %}
-        {{ cover.name|default:"[no subject]"|truncatechars:100 }}
-       {% else %}
-       <a href="{% url 'cover-detail' project_id=project.linkname msgid=cover.url_msgid %}">
-        {{ cover.name|default:"[no subject]"|truncatechars:100 }}
-       </a>
-       {% endif %}
-      {% endif %}
-      </li>
-     {% endwith %}
-     {% for sibling in submission.series.patches.all %}
-      <li>
-       {% if sibling == submission %}
-        {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-       {% else %}
-       <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
-        {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-       </a>
-       {% endif %}
-      </li>
-     {% endfor %}
-    </ul>
-   </div>
-  </td>
- </tr>
+  <tr>
+    <th>Series</th>
+    <td>
+      <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
+        {{ submission.series.name }}
+      </a> |
+      <button id="toggle-patch-series">expand</button>
+      <div id="patch-series" class="submission-list" style="display:none;">
+        <ul>
+{% with submission.series.cover_letter as cover %}
+            <li>
+{% if cover %}
+{% if cover == submission %}
+                {{ cover.name|default:"[no subject]"|truncatechars:100 }}
+{% else %}
+              <a href="{% url 'cover-detail' project_id=project.linkname msgid=cover.url_msgid %}">
+                {{ cover.name|default:"[no subject]"|truncatechars:100 }}
+              </a>
+{% endif %}
+{% endif %}
+            </li>
+{% endwith %}
+{% for sibling in submission.series.patches.all %}
+            <li>
+{% if sibling == submission %}
+                {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+{% else %}
+              <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
+                {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+              </a>
+{% endif %}
+            </li>
+{% endfor %}
+        </ul>
+      </div>
+    </td>
+  </tr>
 {% endif %}
 {% if submission.related %}
- <tr>
-  <th>Related</th>
-  <td>
-   <button id="toggle-related">show</button>
-   <div id="related" class="submission-list" style="display:none;">
-    <ul>
-     {% for sibling in related_same_project %}
-      <li>
-       {% if sibling.id != submission.id %}
-        <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
-         {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-        </a>
-       {% endif %}
-      </li>
-     {% endfor %}
-     {% if related_different_project %}
-      <button id="toggle-related-outside">show from other projects</button>
-      <div id="related-outside" class="submission-list" style="display:none;">
-       {% for sibling in related_outside %}
-        <li>
-         <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
-          {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-         </a> (in {{ sibling.project }})
-        </li>
-       {% endfor %}
+  <tr>
+    <th>Related</th>
+    <td>
+      <button id="toggle-related">show</button>
+      <div id="related" class="submission-list" style="display:none;">
+        <ul>
+{% for sibling in related_same_project %}
+          <li>
+{% if sibling.id != submission.id %}
+            <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
+              {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+            </a>
+{% endif %}
+          </li>
+{% endfor %}
+{% if related_different_project %}
+          <button id="toggle-related-outside">show from other projects</button>
+          <div id="related-outside" class="submission-list" style="display:none;">
+{% for sibling in related_outside %}
+            <li>
+              <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
+                {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+              </a> (in {{ sibling.project }})
+            </li>
+{% endfor %}
+          </div>
+{% endif %}
+        </ul>
       </div>
-     {% endif %}
-    </ul>
-   </div>
-  </td>
- </tr>
+    </td>
+  </tr>
 {% endif %}
 </table>
 
 <div class="patchforms">
 {% if patchform %}
- <div class="patchform patchform-properties">
-  <h3>Patch Properties</h3>
-   <form method="post">
-    {% csrf_token %}
-    <table class="form">
-     <tr>
-      <th>Change state:</th>
-      <td>
-       {{ patchform.state }}
-       {{ patchform.state.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Delegate to:</th>
-      <td>
-       {{ patchform.delegate }}
-       {{ patchform.delegate.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Archived:</th>
-      <td>
-       {{ patchform.archived }}
-       {{ patchform.archived.errors }}
-      </td>
-     </tr>
-     <tr>
-      <td></td>
-      <td>
-       <input type="submit" value="Update">
-      </td>
-     </tr>
-    </table>
-  </form>
- </div>
+  <div class="patchform patchform-properties">
+    <h3>Patch Properties</h3>
+    <form method="post">
+      {% csrf_token %}
+      <table class="form">
+        <tr>
+          <th>Change state:</th>
+          <td>
+            {{ patchform.state }}
+            {{ patchform.state.errors }}
+          </td>
+        </tr>
+        <tr>
+          <th>Delegate to:</th>
+          <td>
+            {{ patchform.delegate }}
+            {{ patchform.delegate.errors }}
+          </td>
+        </tr>
+        <tr>
+          <th>Archived:</th>
+          <td>
+            {{ patchform.archived }}
+            {{ patchform.archived.errors }}
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="submit" value="Update">
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
 {% endif %}
 
 {% if createbundleform %}
- <div class="patchform patchform-bundle">
-  <h3>Bundling</h3>
-   <table class="form">
-    <tr>
-     <td>Create bundle:</td>
-     <td>
-       {% if createbundleform.non_field_errors %}
-       <dd class="errors">{{createbundleform.non_field_errors}}</dd>
-       {% endif %}
-      <form method="post">
-       {% csrf_token %}
-       <input type="hidden" name="action" value="createbundle"/>
-       {% if createbundleform.name.errors %}
-       <dd class="errors">{{createbundleform.name.errors}}</dd>
-       {% endif %}
-        {{ createbundleform.name }}
-       <input value="Create" type="submit"/>
-      </form>
-      </td>
-    </tr>
+  <div class="patchform patchform-bundle">
+    <h3>Bundling</h3>
+    <table class="form">
+      <tr>
+        <td>Create bundle:</td>
+        <td>
+{% if createbundleform.non_field_errors %}
+          <dd class="errors">{{createbundleform.non_field_errors}}</dd>
+{% endif %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="createbundle"/>
+{% if createbundleform.name.errors %}
+            <dd class="errors">{{createbundleform.name.errors}}</dd>
+{% endif %}
+            {{ createbundleform.name }}
+            <input value="Create" type="submit"/>
+          </form>
+        </td>
+      </tr>
 {% if bundles %}
-    <tr>
-     <td>Add to bundle:</td>
-     <td>
-      <form method="post">
-       {% csrf_token %}
-       <input type="hidden" name="action" value="addtobundle"/>
-       <select name="bundle_id"/>
-        {% for bundle in bundles %}
-         <option value="{{bundle.id}}">{{bundle.name}}</option>
-        {% endfor %}
-        </select>
-       <input value="Add" type="submit"/>
-      </form>
-     </td>
-    </tr>
+      <tr>
+        <td>Add to bundle:</td>
+        <td>
+          <form method="post">
+{% csrf_token %}
+            <input type="hidden" name="action" value="addtobundle"/>
+            <select name="bundle_id"/>
+{% for bundle in bundles %}
+              <option value="{{bundle.id}}">{{bundle.name}}</option>
+{% endfor %}
+            </select>
+            <input value="Add" type="submit"/>
+          </form>
+        </td>
+      </tr>
 {% endif %}
-   </table>
-
- </div>
+    </table>
+  </div>
 {% endif %}
-
- <div style="clear: both;">
- </div>
+  <div style="clear: both;">
+  </div>
 </div>
 
 {% if submission.pull_url %}
 <h2>Pull-request</h2>
-<a class="patch-pull-url" href="{{submission.pull_url}}"
- >{{ submission.pull_url }}</a>
+<a class="patch-pull-url" href="{{submission.pull_url}}">{{ submission.pull_url }}</a>
 {% endif %}
 
 {% if checks %}
@@ -239,19 +231,18 @@
 <tr>
   <td>{{ check.user }}/{{ check.context }}</td>
   <td>
-    <span title="Updated {{ check.date|naturaltime }}"
-        class="state {{ check.get_state_display }}">
+    <span title="Updated {{ check.date|naturaltime }}" class="state {{ check.get_state_display }}">
       {{ check.get_state_display }}
     </span>
   </td>
   <td>
-    {% if check.target_url %}
+{% if check.target_url %}
     <a href="{{ check.target_url }}">
-    {% endif %}
-      {{ check.description }}
-    {% if check.target_url %}
+{% endif %}
+    {{ check.description }}
+{% if check.target_url %}
     </a>
-    {% endif %}
+{% endif %}
   </td>
 </tr>
 {% endfor %}
@@ -285,67 +276,66 @@
     <span class="message-date">{{ item.date }} UTC |
       <a href="{% url 'comment-redirect' comment_id=item.id %}">#{{ forloop.counter }}</a>
     </span>
-    {% if item.addressed == None %}
-      <div class="comment-status-bar-action-required" data-comment-id={{item.id}}>
-    {% else %}
-      <div class="comment-status-bar-action-required hidden" data-comment-id={{item.id}}>
-    {% endif %}
-        {% if editable or comment_is_editable %}
-          <button class="comment-action-unaddressed text-warning" value="false">
-            <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-            Mark Action Required
-          </button>
-        {% endif %}
+{% if item.addressed == None %}
+    <div class="comment-status-bar-action-required" data-comment-id={{item.id}}>
+{% else %}
+    <div class="comment-status-bar-action-required hidden" data-comment-id={{item.id}}>
+{% endif %}
+{% if editable or comment_is_editable %}
+      <button class="comment-action-unaddressed text-warning" value="false">
+        <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+        Mark Action Required
+      </button>
+{% endif %}
+    </div>
+{% if item.addressed == True %}
+    <div class="comment-status-bar-addressed" data-comment-id={{item.id}}>
+{% else %}
+    <div class="comment-status-bar-addressed hidden" data-comment-id={{item.id}}>
+{% endif %}
+      <div class="comment-status-label text-success mx-3">
+        <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+        Addressed
       </div>
-    {% if item.addressed == True %}
-      <div class="comment-status-bar-addressed" data-comment-id={{item.id}}>
-    {% else %}
-      <div class="comment-status-bar-addressed hidden" data-comment-id={{item.id}}>
-    {% endif %}
-        <div class="comment-status-label text-success mx-3">
-          <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
-          Addressed
-        </div>
-        {% if editable or comment_is_editable %}
-          <button class="comment-action-unaddressed text-warning" value="false">
-            <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-            Mark Unaddressed
-          </button>
-        {% endif %}
+{% if editable or comment_is_editable %}
+      <button class="comment-action-unaddressed text-warning" value="false">
+        <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+        Mark Unaddressed
+      </button>
+{% endif %}
+    </div>
+{% if item.addressed == False %}
+    <div class="comment-status-bar-unaddressed" data-comment-id={{item.id}}>
+{% else %}
+    <div class="comment-status-bar-unaddressed hidden" data-comment-id={{item.id}}>
+{% endif %}
+      <div class="comment-status-label text-warning mx-3">
+        <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+        Unaddressed
       </div>
-    {% if item.addressed == False %}
-      <div class="comment-status-bar-unaddressed" data-comment-id={{item.id}}>
-    {% else %}
-      <div class="comment-status-bar-unaddressed hidden" data-comment-id={{item.id}}>
-    {% endif %}
-        <div class="comment-status-label text-warning mx-3">
-          <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
-          Unaddressed
-        </div>
-        {% if editable or comment_is_editable %}
-          <button class="comment-action-addressed text-success" value="true">
-            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
-            Mark Addressed
-          </button>
-        {% endif %}
-      </div>
+{% if editable or comment_is_editable %}
+      <button class="comment-action-addressed text-success" value="true">
+        <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+        Mark Addressed
+      </button>
+{% endif %}
+    </div>
   </div>
   <pre class="content">
-  {{ item|commentsyntax }}
+{{ item|commentsyntax }}
   </pre>
 </div>
 {% endfor %}
 
 {% if submission.diff %}
 <div>
-  {% include "patchwork/partials/download-buttons.html" %}
+{% include "patchwork/partials/download-buttons.html" %}
   <h2>Patch</h2>
 </div>
 <div id="patch" class="patch">
-<pre class="content">
+  <pre class="content">
 {{ submission|patchsyntax }}
-</pre>
+  </pre>
 </div>
 {% endif %}
-
 {% endblock %}

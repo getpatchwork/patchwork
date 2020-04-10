@@ -4,35 +4,34 @@
 {% block heading %}Mail settings{% endblock %}
 
 {% block body %}
-
-<p>You can configure Patchwork to send you mail on certain events,
-or block automated mail altogether. Enter your email address to
-view or change your email settings.</p>
+<p>
+  You can configure Patchwork to send you mail on certain events,
+  or block automated mail altogether. Enter your email address to
+  view or change your email settings.
+</p>
 
 <form method="post">
 {% csrf_token %}
 <table class="form registerform">
 {% if form.errors %}
- <tr>
-  <td colspan="2" class="error">
-   There was an error accessing your mail settings:
-  </td>
- </tr>
+  <tr>
+    <td colspan="2" class="error">
+      There was an error accessing your mail settings:
+    </td>
+  </tr>
 {% endif %}
- <tr>
-  <th>{{ form.email.label_tag }}</th>
-  <td>
-   {{form.email}}
-   {{form.email.errors}}
-  </td>
- </tr>
- <tr>
-  <td colspan="2" class="submitrow">
-   <input type="submit" value="Access mail settings"/>
-  </td>
- </tr>
+  <tr>
+    <th>{{ form.email.label_tag }}</th>
+    <td>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="submitrow">
+      <input type="submit" value="Access mail settings"/>
+    </td>
+  </tr>
 </table>
 </form>
-
-
 {% endblock %}

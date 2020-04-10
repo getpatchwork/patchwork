@@ -9,19 +9,19 @@
   <div class="col-sm-6 col-md-4">
     <div class="thumbnail">
       <div class="caption">
-        <h3>{{p.name}}</h3>
+        <h3>{{ p.name }}</h3>
         <p class="core-info">
-         <span>
-          <a href="{% url 'patch-list' project_id=p.linkname %}">
-           View patches
-          </a>
-        </span>
+          <span>
+            <a href="{% url 'patch-list' project_id=p.linkname %}">
+              View patches
+            </a>
+          </span>
         </p>
 {% if p.web_url %}
-      <p><a href="{{p.web_url}}">{{p.web_url}}</a></p>
+      <p><a href="{{ p.web_url }}">{{ p.web_url }}</a></p>
 {% endif %}
 {% if p.webscm_url %}
-      <p><a href="{{p.webscm_url}}">{{p.webscm_url}}</a></p>
+      <p><a href="{{ p.webscm_url }}">{{ p.webscm_url }}</a></p>
 {% endif %}
      </div>
    </div>

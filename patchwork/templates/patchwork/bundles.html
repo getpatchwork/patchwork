@@ -10,53 +10,55 @@
 
 {% if bundles %}
 <table class="bundlelist">
- <tr>
-  <th>Bundle</th>
-  <th>Project</th>
-  <th>Public</th>
-  <th>Patches</th>
-  <th>Download</th>
-  <th>Delete</th>
- </tr>
+  <tr>
+    <th>Bundle</th>
+    <th>Project</th>
+    <th>Public</th>
+    <th>Patches</th>
+    <th>Download</th>
+    <th>Delete</th>
+  </tr>
 {% for bundle in bundles %}
- <tr>
-  <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
-  <td>
-   <a href="{% url 'project-detail' project_id=bundle.project.linkname %}">
-    {{ bundle.project.linkname }}
-   </a>
-  </td>
-  <td style="text-align: center;">
-   {% if bundle.public %}
-    <span class="glyphicon glyphicon-ok"></span>
-   {% else %}
-    <span class="glyphicon glyphicon-remove"></span>
-   {% endif %}
-  </td>
-  <td style="text-align: right">{{ bundle.patches.count }}</td>
-  <td style="text-align: center;"><a href="{{ bundle.get_mbox_url }}"
-   ><span class="glyphicon glyphicon-download-alt"></span></a></td>
-  <td style="text-align: center;">
-   <form method="post"
-    onsubmit="return confirm_delete('bundle', '{{bundle.name|escapejs}}');">
-    {% csrf_token %}
-    {{ bundle.delete_form.as_p }}
-    <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
-     <span class="glyphicon glyphicon-remove"></span>
-    </button>
-   </form>
-  </td>
+  <tr>
+    <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
+    <td>
+      <a href="{% url 'project-detail' project_id=bundle.project.linkname %}">
+        {{ bundle.project.linkname }}
+      </a>
+    </td>
+    <td style="text-align: center;">
+      {% if bundle.public %}
+        <span class="glyphicon glyphicon-ok"></span>
+      {% else %}
+        <span class="glyphicon glyphicon-remove"></span>
+      {% endif %}
+    </td>
+    <td style="text-align: right">{{ bundle.patches.count }}</td>
+    <td style="text-align: center;"><a href="{{ bundle.get_mbox_url }}"
+      ><span class="glyphicon glyphicon-download-alt"></span></a></td>
+    <td style="text-align: center;">
+      <form method="post"
+        onsubmit="return confirm_delete('bundle', '{{ bundle.name|escapejs }}');">
+        {% csrf_token %}
+        {{ bundle.delete_form.as_p }}
+        <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+      </form>
+    </td>
 
- </tr>
+  </tr>
 {% endfor %}
 </table>
 {% endif %}
 
-<p>Bundles are groups of related patches. You can create bundles by
-selecting patches from a project, then using the 'create bundle' form
-to give your bundle a name. Each bundle can be public or private; public
-bundles are given a persistent URL, based you your username and the name
-of the bundle. Private bundles are only visible to you.</p>
+<p>
+  Bundles are groups of related patches. You can create bundles by
+  selecting patches from a project, then using the 'create bundle' form
+  to give your bundle a name. Each bundle can be public or private; public
+  bundles are given a persistent URL, based you your username and the name
+  of the bundle. Private bundles are only visible to you.
+</p>
 
 {% if not bundles %}
 <p>You have no bundles.</p>

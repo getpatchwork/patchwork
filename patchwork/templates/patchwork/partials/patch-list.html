@@ -5,33 +5,30 @@
 {% load static %}
 
 {% include "patchwork/partials/filters.html" %}
-
 {% include "patchwork/partials/pagination.html" %}
 
 {% if order.editable %}
 <table class="patchlist">
- <tr>
-  <td class="patchlistreorder">
-   <form method="post" id="reorderform">
-    {% csrf_token %}
-    <input type="hidden" name="form" value="reorderform"/>
-    <input type="hidden" name="order_start" value="0"/>
-    <span id="reorderhelp"></span>
-    <input id="reorder-cancel" type="button" value="Cancel"
-     onClick="order_cancel_click(this)"/>
-    <input id="reorder-change" type="button" value="Change order"
-     onClick="order_button_click(this)"/>
-    </form>
-  </td>
- </tr>
+  <tr>
+    <td class="patchlistreorder">
+      <form method="post" id="reorderform">
+        {% csrf_token %}
+        <input type="hidden" name="form" value="reorderform"/>
+        <input type="hidden" name="order_start" value="0"/>
+        <span id="reorderhelp"></span>
+        <input id="reorder-cancel" type="button" value="Cancel" onClick="order_cancel_click(this)"/>
+        <input id="reorder-change" type="button" value="Change order" onClick="order_button_click(this)"/>
+      </form>
+    </td>
+  </tr>
 </table>
 {% endif %}
 
 {% if page.paginator.long_page and user.is_authenticated %}
 <div class="floaty">
- <a title="jump to form" href="#patchforms">
-  <span style="font-size: 120%">&#9662;</span>
- </a>
+  <a title="jump to form" href="#patchforms">
+    <span style="font-size: 120%">&#9662;</span>
+  </a>
 </div>
 {% endif %}
 
@@ -51,252 +48,246 @@ $(document).ready(function() {
 </script>
 
 <form method="post">
-{% csrf_token %}
-<input type="hidden" name="form" value="patchlistform"/>
-<input type="hidden" name="project" value="{{project.id}}"/>
-<table id="patchlist" class="table table-hover table-extra-condensed table-striped pw-list"
-       data-toggle="checkboxes" data-range="true">
- <thead>
-  <tr>
-   {% if user.is_authenticated %}
-   <th style="text-align: center;">
-    <input type="checkbox" id="check-all"/>
-   </th>
-   {% endif %}
+  {% csrf_token %}
+  <input type="hidden" name="form" value="patchlistform"/>
+  <input type="hidden" name="project" value="{{project.id}}"/>
+  <table id="patchlist" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
+    <thead>
+      <tr>
+{% if user.is_authenticated %}
+        <th style="text-align: center;">
+         <input type="checkbox" id="check-all"/>
+        </th>
+{% endif %}
 
-   {% if user.is_authenticated and user.profile.show_ids %}
-   <th>
-     ID
-   </th>
-   {% endif %}
+{% if user.is_authenticated and user.profile.show_ids %}
+        <th>
+          ID
+        </th>
+{% endif %}
 
-   <th>
-    {% if order.name == "name" %}
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
-     </a>
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      Patch
-     </a>
-    {% else %}
-     {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
-     {% else %}
-     <span class="colinactive">Patch</span>
-     {% endif %}
-    {% endif %}
-   </th>
+        <th>
+{% if order.name == "name" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+           Patch
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+{% else %}
+          <span class="colinactive">Patch</span>
+{% endif %}
+{% endif %}
+        </th>
 
-   <th>
-    <span class="colinactive">Series</span>
-   </th>
+        <th>
+          <span class="colinactive">Series</span>
+        </th>
 
-   <th>
-    {% project_tags %}
-   </th>
+        <th>
+          {% project_tags %}
+        </th>
 
-   <th>
-    <span title="Success / Warning / Fail">S/W/F</span>
-   </th>
+        <th>
+          <span title="Success / Warning / Fail">S/W/F</span>
+        </th>
 
-   <th>
-    {% if order.name == "date" %}
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
-     </a>
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      Date
-     </a>
-    {% else %}
-     {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="date" %}">Date</a>
-     {% else %}
-     <span class="colinactive">Date</span>
-     {% endif %}
-    {% endif %}
-   </th>
+        <th>
+{% if order.name == "date" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            Date
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+{% else %}
+          <span class="colinactive">Date</span>
+{% endif %}
+{% endif %}
+        </th>
 
-   <th>
-    {% if order.name == "submitter" %}
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
-     </a>
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      Submitter
-     </a>
-    {% else %}
-     {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="submitter" %}">
-      Submitter
-     </a>
-     {% else %}
-     <span class="colinactive">Submitter</span>
-     {% endif %}
-    {% endif %}
-   </th>
+        <th>
+{% if order.name == "submitter" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            Submitter
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="submitter" %}">
+            Submitter
+          </a>
+{% else %}
+          <span class="colinactive">Submitter</span>
+{% endif %}
+{% endif %}
+        </th>
 
-   <th>
-    {% if order.name == "delegate" %}
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
-     </a>
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      Delegate
-     </a>
-    {% else %}
-     {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
-     {% else %}
-     <span class="colinactive">Delegate</span>
-     {% endif %}
-    {% endif %}
-   </th>
+        <th>
+{% if order.name == "delegate" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            Delegate
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+{% else %}
+          <span class="colinactive">Delegate</span>
+{% endif %}
+{% endif %}
+        </th>
 
-   <th>
-    {% if order.name == "state" %}
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
-     </a>
-     <a class="colactive" href="{% listurl order=order.reversed_name %}">
-      State
-     </a>
-    {% else %}
-     {% if not order.editable %}
-     <a class="colinactive" href="{% listurl order="state" %}">State</a>
-     {% else %}
-     <span class="colinactive">State</span>
-     {% endif %}
-    {% endif %}
-   </th>
+        <th>
+{% if order.name == "state" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            State
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="state" %}">State</a>
+{% else %}
+          <span class="colinactive">State</span>
+{% endif %}
+{% endif %}
+        </th>
 
-  </tr>
- </thead>
+      </tr>
+    </thead>
 
- <tbody>
- {% for patch in page.object_list %}
-  <tr id="patch_row:{{patch.id}}">
-   {% if user.is_authenticated %}
-   <td style="text-align: center;">
-    <input type="checkbox" name="patch_id:{{patch.id}}"/>
-   </td>
-   {% endif %}
-   {% if user.is_authenticated and user.profile.show_ids %}
-   <td>
-    <button type="button" class="btn btn-xs btn-copy"
-     data-clipboard-text="{{ patch.id }}" title="Copy to Clipboard">
-      {{ patch.id }}
-    </button>
-   </td>
-   {% endif %}
-   <td>
-    <a href="{% url 'patch-detail' project_id=project.linkname msgid=patch.url_msgid %}">
-     {{ patch.name|default:"[no subject]"|truncatechars:100 }}
-    </a>
-   </td>
-   <td>
-    {% if patch.series %}
-    <a href="?series={{patch.series.id}}">
-     {{ patch.series|truncatechars:100 }}
-    </a>
-    {% endif %}
-   </td>
-   <td class="text-nowrap">{{ patch|patch_tags }}</td>
-   <td class="text-nowrap">{{ patch|patch_checks }}</td>
-   <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
-   <td>{{ patch.submitter|personify:project }}</td>
-   <td>{{ patch.delegate.username }}</td>
-   <td>{{ patch.state }}</td>
-  </tr>
- {% empty %}
-  <tr>
-   <td colspan="8">No patches to display</td>
-  </tr>
- {% endfor %}
- </tbody>
-</table>
+    <tbody>
+{% for patch in page.object_list %}
+      <tr id="patch_row:{{patch.id}}">
+{% if user.is_authenticated %}
+        <td style="text-align: center;">
+          <input type="checkbox" name="patch_id:{{patch.id}}"/>
+        </td>
+{% endif %}
+{% if user.is_authenticated and user.profile.show_ids %}
+        <td>
+          <button type="button" class="btn btn-xs btn-copy" data-clipboard-text="{{ patch.id }}" title="Copy to Clipboard">
+            {{ patch.id }}
+          </button>
+        </td>
+{% endif %}
+        <td>
+          <a href="{% url 'patch-detail' project_id=project.linkname msgid=patch.url_msgid %}">
+            {{ patch.name|default:"[no subject]"|truncatechars:100 }}
+          </a>
+        </td>
+        <td>
+{% if patch.series %}
+          <a href="?series={{patch.series.id}}">
+            {{ patch.series|truncatechars:100 }}
+          </a>
+{% endif %}
+        </td>
+        <td class="text-nowrap">{{ patch|patch_tags }}</td>
+        <td class="text-nowrap">{{ patch|patch_checks }}</td>
+        <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
+        <td>{{ patch.submitter|personify:project }}</td>
+        <td>{{ patch.delegate.username }}</td>
+        <td>{{ patch.state }}</td>
+       </tr>
+{% empty %}
+      <tr>
+        <td colspan="8">No patches to display</td>
+      </tr>
+{% endfor %}
+    </tbody>
+  </table>
 
 {% if page.paginator.count %}
 {% include "patchwork/partials/pagination.html" %}
 
-<div class="patchforms" id="patchforms">
+  <div class="patchforms" id="patchforms">
 
 {% if patchform %}
- <div class="patchform patchform-properties">
-  <h3>Properties</h3>
-    <table class="form">
-     <tr>
-      <th>Change state:</th>
-      <td>
-       {{ patchform.state }}
-       {{ patchform.state.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Delegate to:</th>
-      <td>
-       {{ patchform.delegate }}
-       {{ patchform.delegate.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Archive:</th>
-      <td>
-       {{ patchform.archived }}
-       {{ patchform.archived.errors }}
-      </td>
-     </tr>
-     <tr>
-      <td></td>
-      <td>
-       <input type="submit" name="action" value="{{patchform.action}}"/>
-      </td>
-     </tr>
-    </table>
- </div>
-
+     <div class="patchform patchform-properties">
+       <h3>Properties</h3>
+       <table class="form">
+         <tr>
+           <th>Change state:</th>
+           <td>
+             {{ patchform.state }}
+             {{ patchform.state.errors }}
+           </td>
+         </tr>
+         <tr>
+           <th>Delegate to:</th>
+           <td>
+             {{ patchform.delegate }}
+             {{ patchform.delegate.errors }}
+           </td>
+         </tr>
+         <tr>
+           <th>Archive:</th>
+           <td>
+             {{ patchform.archived }}
+             {{ patchform.archived.errors }}
+           </td>
+         </tr>
+         <tr>
+           <td></td>
+           <td>
+             <input type="submit" name="action" value="{{patchform.action}}"/>
+           </td>
+         </tr>
+       </table>
+     </div>
 {% endif %}
 
 {% if user.is_authenticated %}
- <div class="patchform patchform-bundle">
-  <h3>Bundling</h3>
-   <table class="form">
-    <tr>
-     <td>Create bundle:</td>
-     <td>
-      <input type="text" name="bundle_name"/>
-      <input name="action" value="Create" type="submit"/>
-      </td>
-    </tr>
-  {% if bundles %}
-    <tr>
-     <td>Add to bundle:</td>
-     <td>
-       <select name="bundle_id">
-        {% for bundle in bundles %}
-         <option value="{{bundle.id}}">{{bundle.name}}</option>
-        {% endfor %}
-        </select>
-       <input name="action" value="Add" type="submit"/>
-     </td>
-    </tr>
-  {% endif %}
-  {% if bundle %}
-   <tr>
-     <td>Remove from bundle:</td>
-     <td>
-       <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
-       <input name="action" value="Remove" type="submit"/>
-     </td>
-    </tr>
-  {% endif %}
-  </table>
- </div>
+    <div class="patchform patchform-bundle">
+      <h3>Bundling</h3>
+      <table class="form">
+        <tr>
+         <td>Create bundle:</td>
+         <td>
+           <input type="text" name="bundle_name"/>
+           <input name="action" value="Create" type="submit"/>
+         </td>
+        </tr>
+{% if bundles %}
+        <tr>
+          <td>Add to bundle:</td>
+          <td>
+            <select name="bundle_id">
+{% for bundle in bundles %}
+              <option value="{{bundle.id}}">{{bundle.name}}</option>
+{% endfor %}
+            </select>
+            <input name="action" value="Add" type="submit"/>
+          </td>
+        </tr>
 {% endif %}
-
- <div style="clear: both;">
- </div>
-</div>
-
+{% if bundle %}
+        <tr>
+          <td>Remove from bundle:</td>
+          <td>
+            <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
+            <input name="action" value="Remove" type="submit"/>
+          </td>
+        </tr>
 {% endif %}
-
+      </table>
+    </div>
+{% endif %}
+    <div style="clear: both;">
+    </div>
+  </div>
+{% endif %}
 </form>

@@ -6,45 +6,53 @@
 {% block body %}
 {% if confirmation %}
 <p><strong>Opt-out confirmation email sent</strong></p>
-<p>An opt-out confirmation mail has been sent to
-<strong>{{confirmation.email}}</strong>, containing a link. Please click on
-that link to confirm your opt-out.</p>
+<p>
+  An opt-out confirmation mail has been sent to
+  <strong>{{ confirmation.email }}</strong>, containing a link. Please click on
+  that link to confirm your opt-out.
+</p>
 {% else %}
 {% if error %}
-<p class="error">{{error}}</p>
+<p class="error">{{ error }}</p>
 {% endif %}
 
 {% if form %}
-<p>This form allows you to opt-out of automated email from Patchwork.</p>
-<p>If you opt-out of email, Patchwork may still email you if you do certain
-actions yourself (such as create a new Patchwork account), but will not send
-you unsolicited email.</p>
-When you submit it, one email will be sent to your address with a link to click
-to finalise the opt-out. Patchwork does this to prevent someone opting you out
-without your consent.</p>
+<p>
+  This form allows you to opt-out of automated email from Patchwork.
+</p>
+<p>
+  If you opt-out of email, Patchwork may still email you if you do certain
+  actions yourself (such as create a new Patchwork account), but will not
+  send you unsolicited email.
+</p>
+<p>
+  When you submit it, one email will be sent to your address with a link to
+  click to finalise the opt-out. Patchwork does this to prevent someone
+  opting you out without your consent.
+</p>
 <form method="post" action="">
-{% csrf_token %}
-{{form.email.errors}}
-<div style="padding: 0.5em 1em 2em;">
-{{form.email.label_tag}}: {{form.email}}
-</div>
-<input type="submit" value="Send me an opt-out link">
+  {% csrf_token %}
+  {{ form.email.errors }}
+  <div style="padding: 0.5em 1em 2em;">
+    {{ form.email.label_tag }}: {{ form.email }}
+  </div>
+  <input type="submit" value="Send me an opt-out link">
 </form>
 {% endif %}
 
 {% if error and admins %}
-<p>If you are having trouble opting out, please email
+<p>
+  If you are having trouble opting out, please email
 {% for admin in admins %}
 {% if admins|length > 1 and forloop.last %} or {% endif %}
-{{admin.0}} &lt;<a href="mailto:{{admin.1}}">{{admin.1}}</a
->&gt;{% if admins|length > 2 and not forloop.last %}, {% endif %}
+{{ admin.0 }} &lt;<a href="mailto:{{ admin.1 }}">{{ admin.1 }}</a>&gt;{% if admins|length > 2 and not forloop.last %}, {% endif %}
 {% endfor %}
+</p>
 {% endif %}
 {% endif %}
 
 {% if user.is_authenticated %}
-<p>Return to your <a href="{% url 'user-profile' %}">user
-profile</a>.</p>
+<p>Return to your <a href="{% url 'user-profile' %}">user profile</a>.</p>
 {% endif %}
 
 {% endblock %}

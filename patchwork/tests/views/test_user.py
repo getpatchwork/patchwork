@@ -383,7 +383,7 @@ class UserProfileTest(_UserTestCase):
 
         response = self.client.get(reverse('user-profile'))
 
-        self.assertContains(response, 'contains 5')
+        self.assertContains(response, 'You have 5')
         self.assertContains(response, reverse('user-todos'))
 
     def test_user_profile_valid_post(self):

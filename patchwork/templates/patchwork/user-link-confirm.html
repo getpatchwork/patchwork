@@ -6,10 +6,13 @@
 {% block body %}
 
 {% if not errors %}
- <p>You have successfully linked the email address {{ person.email }} to
-  your Patchwork account</p>
+<p>
+  You have successfully linked the email address {{ person.email }} to
+  your Patchwork account
+</p>
 {% endif %}
-<p>Back to <a href="{% url 'user-profile' %}">your
- profile</a>.</p>
+<p>
+  Back to <a href="{% url 'user-profile' %}">your profile</a>.
+</p>
 
 {% endblock %}
