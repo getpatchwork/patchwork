@@ -18,6 +18,7 @@ register = template.Library()
 def patch_tags(patch):
     counts = []
     titles = []
+
     for tag in [t for t in patch.project.tags if t.show_column]:
         count = getattr(patch, tag.attr_name)
         titles.append('%d %s' % (count, tag.name))
@@ -25,9 +26,10 @@ def patch_tags(patch):
             counts.append("-")
         else:
             counts.append(str(count))
-    return mark_safe('<span title="%s">%s</span>' % (
-        ' / '.join(titles),
-        ' '.join(counts)))
+
+    return mark_safe(
+        '<span title="%s">%s</span>' % (' / '.join(titles), ' '.join(counts))
+    )
 
 
 @register.filter(name='patch_checks')
@@ -51,14 +53,15 @@ def patch_checks(patch):
             count = '-'
 
         check_elements.append(
-            '<span class="patchlistchecks {}">{}</span>'.format(
-                color, count))
+            f'<span class="patchlistchecks {color}">{count}</span>'
+        )
 
     check_elements.reverse()
 
-    return mark_safe('<span title="%s">%s</span>' % (
-        ' / '.join(titles),
-        ''.join(check_elements)))
+    return mark_safe(
+        '<span title="%s">%s</span>'
+        % (' / '.join(titles), ''.join(check_elements))
+    )
 
 
 @register.filter(name='patch_commit_display')
@@ -69,5 +72,6 @@ def patch_commit_display(patch):
     if not fmt:
         return escape(commit)
 
-    return mark_safe('<a href="%s">%s</a>' % (escape(fmt.format(commit)),
-                                              escape(commit)))
+    return mark_safe(
+        '<a href="%s">%s</a>' % (escape(fmt.format(commit)), escape(commit))
+    )

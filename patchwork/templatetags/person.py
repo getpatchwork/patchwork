@@ -22,9 +22,12 @@ def personify(person, project):
     else:
         linktext = escape(person.email)
 
-    url = reverse('patch-list',
-                  kwargs={'project_id': project.linkname})
+    url = reverse('patch-list', kwargs={'project_id': project.linkname})
     out = '<a href="%s?%s=%s">%s</a>' % (
-        url, SubmitterFilter.param, escape(person.id), linktext)
+        url,
+        SubmitterFilter.param,
+        escape(person.id),
+        linktext,
+    )
 
     return mark_safe(out)
