@@ -19,6 +19,11 @@ try:
 except ImportError:
     debug_toolbar = None
 
+try:
+    import corsheaders
+except ImportError:
+    corsheaders = None
+
 #
 # Core settings
 # https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
@@ -81,12 +86,12 @@ if debug_toolbar:
         'debug_toolbar'
     ]
 
-    DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-# This should go first in the middleware classes
+    # This should go as high as possible in the middleware classes
     MIDDLEWARE = [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
     INTERNAL_IPS = [
         '127.0.0.1', '::1',
@@ -101,6 +106,21 @@ if dbbackup:
     ]
 
     DBBACKUP_STORAGE_OPTIONS = {'location': '.backups'}
+
+# django-cors-headers
+
+if corsheaders:
+    INSTALLED_APPS += [
+        'corsheaders',
+    ]
+
+    # This should go as high as possible in the middleware classes
+    MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
+    ] + MIDDLEWARE
+
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_EXPOSE_HEADERS = ['Link']
 
 #
 # Patchwork settings
