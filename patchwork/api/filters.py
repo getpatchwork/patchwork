@@ -172,6 +172,10 @@ class SeriesFilterSet(TimestampMixin, BaseFilterSet):
         fields = ('submitter', 'project')
 
 
+def msgid_filter(queryset, name, value):
+    return queryset.filter(**{name: '<' + value + '>'})
+
+
 class CoverLetterFilterSet(TimestampMixin, BaseFilterSet):
 
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
@@ -180,6 +184,7 @@ class CoverLetterFilterSet(TimestampMixin, BaseFilterSet):
     series = BaseFilter(queryset=Project.objects.all(),
                         widget=MultipleHiddenInput, distinct=False)
     submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
+    msgid = CharFilter(method=msgid_filter)
 
     class Meta:
         model = CoverLetter
@@ -198,17 +203,18 @@ class PatchFilterSet(TimestampMixin, BaseFilterSet):
     delegate = UserFilter(queryset=User.objects.all(), distinct=False)
     state = StateFilter(queryset=State.objects.all(), distinct=False)
     hash = CharFilter(lookup_expr='iexact')
+    msgid = CharFilter(method=msgid_filter)
 
     class Meta:
         model = Patch
-        # NOTE(dja): ideally we want to version the hash field, but I cannot
-        # find a way to do that which is reliable and not extremely ugly.
+        # NOTE(dja): ideally we want to version the hash/msgid field, but I
+        # can't find a way to do that which is reliable and not extremely ugly.
         # The best I can come up with is manually working with request.GET
         # which seems to rather defeat the point of using django-filters.
         fields = ('project', 'series', 'submitter', 'delegate',
-                  'state', 'archived', 'hash')
+                  'state', 'archived', 'hash', 'msgid')
         versioned_fields = {
-            '1.2': ('hash', ),
+            '1.2': ('hash', 'msgid'),
         }
 
 

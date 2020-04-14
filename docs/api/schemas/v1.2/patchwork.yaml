@@ -246,6 +246,14 @@ paths:
           schema:
             title: ''
             type: string
+        - in: query
+          name: msgid
+          description: >
+            The cover message-id as a case-sensitive string, without leading or
+            trailing angle brackets, to filter by.
+          schema:
+            title: ''
+            type: string
       responses:
         '200':
           description: ''
@@ -471,6 +479,14 @@ paths:
           name: hash
           description: >
             The patch hash as a case-insensitive hexadecimal string, to filter by.
+          schema:
+            title: ''
+            type: string
+        - in: query
+          name: msgid
+          description: >
+            The patch message-id as a case-sensitive string, without leading or
+            trailing angle brackets, to filter by.
           schema:
             title: ''
             type: string
