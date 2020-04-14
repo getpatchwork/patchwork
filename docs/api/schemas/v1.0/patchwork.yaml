@@ -1082,7 +1082,10 @@ components:
         Links to related resources, in the format defined by
         [RFC 5988](https://tools.ietf.org/html/rfc5988#section-5).
         This will include a link with relation type `next` to the
-        next page, if there is a next page.
+        next page and `prev` to the previous page, if there is a next
+        or previous page. It will also include links with the
+        relation type `first` and `last` pointing to the first and
+        last page, respectively.
       schema:
         type: string
   requestBodies:

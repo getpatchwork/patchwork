@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The ``Link`` header included in REST API responses now includes ``first``
+    and ``last`` relations, as described in `RFC 5988`__. As their name would
+    suggest, these can be used to navigate to the beginning and end of the
+    resource.
+
+    .. __: https://datatracker.ietf.org/doc/html/rfc5988
