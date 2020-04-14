@@ -6,7 +6,7 @@
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from patchwork.api.embedded import UserSerializer
 from patchwork.models import Person
@@ -27,7 +27,7 @@ class PersonSerializer(HyperlinkedModelSerializer):
 
 class PersonMixin(object):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = PersonSerializer
 
     def get_queryset(self):

@@ -84,7 +84,10 @@ class UserDetailSerializer(UserListSerializer):
 class UserMixin(object):
 
     queryset = User.objects.all()
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    )
 
 
 class UserList(UserMixin, ListAPIView):
