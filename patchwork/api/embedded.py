@@ -141,7 +141,8 @@ class PatchSerializer(SerializedRelatedField):
 
 class PatchRelationSerializer(BaseHyperlinkedModelSerializer):
     """Hide the PatchRelation model, just show the list"""
-    patches = PatchSerializer(many=True)
+    patches = PatchSerializer(many=True,
+                              style={'base_template': 'input.html'})
 
     def to_internal_value(self, data):
         if not isinstance(data, type([])):
