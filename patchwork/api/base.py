@@ -12,6 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.serializers import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.utils.urls import replace_query_param
 
 from patchwork.api import utils
 
@@ -59,19 +60,33 @@ class LinkHeaderPagination(PageNumberPagination):
     max_page_size = settings.MAX_REST_RESULTS_PER_PAGE
     page_size_query_param = 'per_page'
 
+    def get_first_link(self):
+        url = self.request.build_absolute_uri()
+        return replace_query_param(url, self.page_query_param, 1)
+
+    def get_last_link(self):
+        url = self.request.build_absolute_uri()
+        page_number = self.page.paginator.num_pages
+        return replace_query_param(url, self.page_query_param, page_number)
+
     def get_paginated_response(self, data):
         next_url = self.get_next_link()
         previous_url = self.get_previous_link()
+        first_url = self.get_first_link()
+        last_url = self.get_last_link()
 
-        link = ''
-        if next_url is not None and previous_url is not None:
-            link = '<{next_url}>; rel="next", <{previous_url}>; rel="prev"'
-        elif next_url is not None:
-            link = '<{next_url}>; rel="next"'
-        elif previous_url is not None:
-            link = '<{previous_url}>; rel="prev"'
-        link = link.format(next_url=next_url, previous_url=previous_url)
-        headers = {'Link': link} if link else {}
+        links = []
+
+        if next_url is not None:
+            links.append(f'<{next_url}>; rel="next"')
+
+        if previous_url is not None:
+            links.append(f'<{previous_url}>; rel="prev"')
+
+        links.append(f'<{first_url}>; rel="first"')
+        links.append(f'<{last_url}>; rel="last"')
+
+        headers = {'Link': ', '.join(links)} if links else {}
         return Response(data, headers=headers)
 
 
