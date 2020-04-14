@@ -1,0 +1,6 @@
+---
+api:
+  - |
+    The REST API now supports filtering patches and cover letters by message
+    ID, using the ``msgid`` query parameter. Don't include leading or trailing
+    angle brackets.

@@ -199,6 +199,18 @@ class TestPatchAPI(utils.APITestCase):
                                {'hash': 'garbagevalue'})
         self.assertEqual(1, len(resp.data))
 
+    def test_list_filter_msgid(self):
+        """Filter patches by msgid."""
+        patch = self._create_patch()
+
+        resp = self.client.get(self.api_url(), {'msgid': patch.url_msgid})
+        self.assertEqual([patch.id], [x['id'] for x in resp.data])
+
+        # empty response if nothing matches
+        resp = self.client.get(self.api_url(), {
+            'msgid': 'fishfish@fish.fish'})
+        self.assertEqual(0, len(resp.data))
+
     @utils.store_samples('patch-list-1-0')
     def test_list_version_1_0(self):
         """List patches using API v1.0."""

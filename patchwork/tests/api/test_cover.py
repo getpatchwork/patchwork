@@ -111,6 +111,18 @@ class TestCoverLetterAPI(utils.APITestCase):
             'submitter': 'test@example.org'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_filter_msgid(self):
+        """Filter covers by msgid."""
+        cover = create_cover()
+
+        resp = self.client.get(self.api_url(), {'msgid': cover.url_msgid})
+        self.assertEqual([cover.id], [x['id'] for x in resp.data])
+
+        # empty response if nothing matches
+        resp = self.client.get(self.api_url(), {
+            'msgid': 'fishfish@fish.fish'})
+        self.assertEqual(0, len(resp.data))
+
     @utils.store_samples('cover-list-1-0')
     def test_list_version_1_0(self):
         create_cover()
