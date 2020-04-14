@@ -62,7 +62,8 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
     project = ProjectSerializer(read_only=True)
     mbox = SerializerMethodField()
     owner = UserSerializer(read_only=True)
-    patches = PatchSerializer(many=True, required=True)
+    patches = PatchSerializer(many=True, required=True,
+                              style={'base_template': 'input.html'})
 
     def get_web_url(self, instance):
         request = self.context.get('request')
