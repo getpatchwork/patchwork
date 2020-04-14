@@ -23,6 +23,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@loca
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_event TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchrelation TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchtag TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_person TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_project TO 'www-data'@localhost;
@@ -38,6 +39,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_userprofile_maintainer_project
 -- cover letters) and series
 GRANT INSERT, SELECT ON patchwork_comment TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_coverletter TO 'nobody'@localhost;
+GRANT INSERT, SELECT ON patchwork_event TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_patch TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_person TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_series TO 'nobody'@localhost;
