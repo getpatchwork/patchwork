@@ -1,5 +1,5 @@
 mysqlclient~=1.4.4  # pyup: >=1.4.4,<1.5.0
 psycopg2-binary~=2.8.0  # pyup: >=2.8.0,<2.9.0
 sqlparse~=0.3.0  # pyup: >=0.3.0,<0.4.0
-python-dateutil~=2.8.0  # pyup: >=2.8.0,<2.9.0
+python-dateutil==2.8.1  # pyup: >=2.8.0,<2.9.0
 openapi-core~=0.8.0  # pyup: >=0.8.0,<0.9.0
