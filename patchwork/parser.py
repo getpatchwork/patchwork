@@ -392,6 +392,13 @@ def get_original_sender(mail, name, email):
         # Mailman uses the format "<name> via <list>"
         # Google Groups uses "'<name>' via <list>"
         stripped_name = name[:name.rfind(' via ')].strip().strip("'")
+    elif name.endswith(' via'):
+        # Sometimes this seems to happen (perhaps if Mailman isn't set up with
+        # any list name)
+        stripped_name = name[:name.rfind(' via')].strip().strip("'")
+    else:
+        # We've hit a format that we don't expect
+        stripped_name = None
 
     original_from = clean_header(mail.get('X-Original-From', ''))
     if original_from:
