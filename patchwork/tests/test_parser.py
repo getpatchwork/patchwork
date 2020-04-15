@@ -366,6 +366,29 @@ class SenderCorrelationTest(TestCase):
         self.assertEqual(person_b._state.adding, False)
         self.assertEqual(person_b.id, person_a.id)
 
+    def test_weird_dmarc_munging(self):
+        project = create_project()
+        real_sender = 'Existing Sender <existing@example.com>'
+        munged_sender1 = "'Existing Sender' via <{}>".format(project.listemail)
+        munged_sender2 = "'Existing Sender' <{}>".format(project.listemail)
+
+        # Unmunged author
+        mail = self._create_email(real_sender)
+        person_a = get_or_create_author(mail, project)
+        person_a.save()
+
+        # Munged with no list name
+        mail = self._create_email(munged_sender1, None, None, real_sender)
+        person_b = get_or_create_author(mail, project)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
+        # Munged with no 'via'
+        mail = self._create_email(munged_sender2, None, None, real_sender)
+        person_b = get_or_create_author(mail, project)
+        self.assertEqual(person_b._state.adding, False)
+        self.assertEqual(person_b.id, person_a.id)
+
 
 class SeriesCorrelationTest(TestCase):
     """Validate correct behavior of find_series."""
