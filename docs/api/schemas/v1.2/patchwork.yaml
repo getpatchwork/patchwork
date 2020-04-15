@@ -2506,15 +2506,21 @@ components:
       properties:
         name:
           title: Name
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         patches:
           title: Patches
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         public:
           title: Public
-          type: string
+          type: array
+          items:
+            type: string
     ErrorCheckCreate:
       type: object
       properties:
