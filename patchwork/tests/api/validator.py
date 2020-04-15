@@ -6,7 +6,6 @@
 import os
 import re
 
-import django
 from django.urls import resolve
 from django.urls.resolvers import get_resolver
 import openapi_core
@@ -72,52 +71,13 @@ def _extract_headers(request):
     return request_headers
 
 
-def _resolve_django1x(path, resolver=None):
-    """Resolve a given path to its matching regex (Django 1.x).
-
-    This is essentially a re-implementation of ``RegexURLResolver.resolve``
-    that builds and returns the matched regex instead of the view itself.
-
-    >>> _resolve_django1x('/api/1.0/patches/1/checks/')
-    "^api/(?:(?P<version>(1.0|1.1))/)patches/(?P<patch_id>[^/]+)/checks/$"
-    """
-    from django.urls.resolvers import RegexURLResolver  # noqa
-
-    resolver = resolver or get_resolver()
-    match = resolver.regex.search(path)
-
-    if not match:
-        return
-
-    if isinstance(resolver, RegexURLResolver):
-        sub_path = path[match.end():]
-        for sub_resolver in resolver.url_patterns:
-            sub_match = _resolve_django1x(sub_path, sub_resolver)
-            if not sub_match:
-                continue
-
-            kwargs = dict(match.groupdict())
-            kwargs.update(sub_match[2])
-            args = sub_match[1]
-            if not kwargs:
-                args = match.groups() + args
-
-            regex = resolver.regex.pattern + sub_match[0].lstrip('^')
-
-            return regex, args, kwargs
-    else:  # RegexURLPattern
-        kwargs = match.groupdict()
-        args = () if kwargs else match.groups()
-        return resolver.regex.pattern, args, kwargs
-
-
-def _resolve_django2x(path, resolver=None):
+def _resolve(path, resolver=None):
     """Resolve a given path to its matching regex (Django 2.x).
 
     This is essentially a re-implementation of ``URLResolver.resolve`` that
     builds and returns the matched regex instead of the view itself.
 
-    >>> _resolve_django2x('/api/1.0/patches/1/checks/')
+    >>> _resolve('/api/1.0/patches/1/checks/')
     "^api/(?:(?P<version>(1.0|1.1))/)patches/(?P<patch_id>[^/]+)/checks/$"
     """
     from django.urls.resolvers import URLResolver  # noqa
@@ -135,7 +95,7 @@ def _resolve_django2x(path, resolver=None):
     if isinstance(resolver, URLResolver):
         sub_path, args, kwargs = match
         for sub_resolver in resolver.url_patterns:
-            sub_match = _resolve_django2x(sub_path, sub_resolver)
+            sub_match = _resolve(sub_path, sub_resolver)
             if not sub_match:
                 continue
 
@@ -148,12 +108,6 @@ def _resolve_django2x(path, resolver=None):
     else:
         _, args, kwargs = match
         return resolver.pattern._regex, args, kwargs
-
-
-if django.VERSION < (2, 0):
-    _resolve = _resolve_django1x
-else:
-    _resolve = _resolve_django2x
 
 
 def _resolve_path_to_kwargs(path):
