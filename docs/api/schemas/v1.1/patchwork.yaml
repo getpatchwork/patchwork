@@ -726,7 +726,8 @@ paths:
         required: true
         schema:
           title: ID
-          type: integer
+          # TODO: Add regex?
+          type: string
     get:
       description: Show a project.
       operationId: projects_read

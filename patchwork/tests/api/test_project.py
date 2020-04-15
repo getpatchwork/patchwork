@@ -196,8 +196,11 @@ class TestProjectAPI(utils.APITestCase):
 
         user = create_maintainer(project)
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(project.id), {
-            'link_name': 'test'})
+        resp = self.client.patch(
+            self.api_url(project.id),
+            {'link_name': 'test'},
+            validate_request=False,
+        )
         # NOTE(stephenfin): This actually returns HTTP 200 due to
         # https://github.com/encode/django-rest-framework/issues/1655
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
