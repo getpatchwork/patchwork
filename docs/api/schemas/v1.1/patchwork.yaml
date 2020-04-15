@@ -1253,6 +1253,7 @@ components:
           type: object
           title: Owner
           readOnly: true
+          nullable: false
           allOf:
             - $ref: '#/components/schemas/UserEmbedded'
         patches:
@@ -2231,6 +2232,7 @@ components:
           readOnly: true
     UserEmbedded:
       type: object
+      nullable: true
       properties:
         id:
           title: ID
