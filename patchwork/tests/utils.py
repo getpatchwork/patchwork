@@ -228,7 +228,7 @@ def create_cover(**kwargs):
         'msgid': make_msgid(),
         'name': 'testpatch%d' % num,
         'headers': '',
-        'content': '',
+        'content': 'foo',
     }
     values.update(kwargs)
 

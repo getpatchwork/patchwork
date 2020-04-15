@@ -1411,9 +1411,15 @@ components:
         - properties:
             headers:
               title: Headers
-              type: array
-              items:
-                type: string
+              anyOf:
+                - type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+                - type: object
+                  additionalProperties:
+                    type: string
               readOnly: true
             content:
               title: Content
