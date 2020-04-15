@@ -392,9 +392,9 @@ paths:
     patch:
       description: Update a patch (partial).
       operationId: patches_partial_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -427,9 +427,9 @@ paths:
     put:
       description: Update a patch.
       operationId: patches_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -561,9 +561,9 @@ paths:
     post:
       description: Create a check.
       operationId: checks_create
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Check'
       responses:
@@ -631,9 +631,9 @@ paths:
     get:
       description: List people.
       operationId: people_list
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
@@ -671,9 +671,9 @@ paths:
     get:
       description: Show a person.
       operationId: people_read
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       responses:
         '200':
           description: ''
@@ -748,9 +748,9 @@ paths:
     patch:
       description: Update a project (partial).
       operationId: projects_partial_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -783,9 +783,9 @@ paths:
     put:
       description: Update a project.
       operationId: projects_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -883,9 +883,9 @@ paths:
     get:
       description: List users.
       operationId: users_list
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
@@ -923,9 +923,9 @@ paths:
     get:
       description: Show a user.
       operationId: users_read
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       responses:
         '200':
           description: ''
@@ -950,9 +950,9 @@ paths:
     patch:
       description: Update a user (partial).
       operationId: users_partial_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
@@ -985,9 +985,9 @@ paths:
     put:
       description: Update a user.
       operationId: users_update
-      security:
-        - basicAuth: []
-        - apiKeyAuth: []
+#      security:
+#        - basicAuth: []
+#        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
@@ -1680,8 +1680,8 @@ components:
           readOnly: true
         tags:
           title: Tags
-          type: array
-          items:
+          type: object
+          additionalProperties:
             type: string
           readOnly: true
     PatchDetail:
@@ -1690,9 +1690,15 @@ components:
         - properties:
             headers:
               title: Headers
-              type: array
-              items:
-                type: string
+              anyOf:
+                - type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+                - type: object
+                  additionalProperties:
+                    type: string
               readOnly: true
             content:
               title: Content
@@ -2243,19 +2249,27 @@ components:
       properties:
         state:
           title: State
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         delegate:
           title: Delegate
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         commit_ref:
           title: Commit ref
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         archived:
           title: Archived
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
     ErrorProjectUpdate:
       type: object
