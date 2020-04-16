@@ -14,6 +14,7 @@ import unittest
 
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.db.transaction import atomic
 
 from patchwork.models import Comment
 from patchwork.models import Patch
@@ -31,6 +32,7 @@ from patchwork.parser import parse_series_marker
 from patchwork.parser import parse_version
 from patchwork.parser import split_prefixes
 from patchwork.parser import subject_check
+from patchwork.parser import DuplicateMailError
 from patchwork.tests import TEST_MAIL_DIR
 from patchwork.tests import TEST_FUZZ_DIR
 from patchwork.tests.utils import create_project
@@ -1103,3 +1105,28 @@ class WeirdMailTest(TransactionTestCase):
 
     def test_x_face(self):
         self._test_patch('x-face.mbox')
+
+
+class DuplicateMailTest(TestCase):
+    def setUp(self):
+        self.listid = 'patchwork.ozlabs.org'
+        create_project(listid=self.listid)
+        create_state()
+
+    def _test_duplicate_mail(self, mail):
+        _parse_mail(mail)
+        with self.assertRaises(DuplicateMailError):
+            # If we see any database errors from the duplicate insert
+            # (typically an IntegrityError), the insert will abort the current
+            # transaction. This atomic() ensures that we can recover, and
+            # perform subsequent queries.
+            with atomic():
+                _parse_mail(mail)
+
+    def test_duplicate_patch(self):
+        diff = read_patch('0001-add-line.patch')
+        m = create_email(diff, listid=self.listid, msgid='1@example.com')
+
+        self._test_duplicate_mail(m)
+
+        self.assertEqual(Patch.objects.count(), 1)
