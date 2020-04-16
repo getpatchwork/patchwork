@@ -106,17 +106,17 @@ paths:
         - bundles
 {% endif %}
   /api/{{ version_url }}bundles/{id}/:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: A unique integer value identifying this bundle.
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a bundle.
       operationId: bundles_read
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: A unique integer value identifying this bundle.
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -139,14 +139,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this bundle.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Bundle'
       responses:
@@ -182,14 +174,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this bundle.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Bundle'
       responses:
@@ -276,17 +260,17 @@ paths:
       tags:
         - covers
   /api/{{ version_url }}covers/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this cover letter.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a cover letter.
       operationId: covers_read
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this cover letter.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -303,18 +287,19 @@ paths:
       tags:
         - covers
   /api/{{ version_url }}covers/{id}/comments/:
+    parameters:
+      - in: path
+        name: id
+        description: >
+          A unique integer value identifying the parent cover letter.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: List comments
       operationId: cover_comments_list
       parameters:
-        - in: path
-          name: id
-          description: >
-            A unique integer value identifying the parent cover letter.
-          required: true
-          schema:
-            title: ID
-            type: integer
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Order'
@@ -522,17 +507,17 @@ paths:
       tags:
         - patches
   /api/{{ version_url }}patches/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this patch.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a patch.
       operationId: patches_read
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this patch.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -554,14 +539,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this patch.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -605,14 +582,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this patch.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -651,17 +620,18 @@ paths:
       tags:
         - patches
   /api/{{ version_url }}patches/{id}/comments/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying the parent patch.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: List comments
       operationId: patch_comments_list
       parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying the parent patch.
-          required: true
-          schema:
-            title: ID
-            type: integer
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Order'
@@ -687,17 +657,18 @@ paths:
       tags:
         - comments
   /api/{{ version_url }}patches/{patch_id}/checks/:
+    parameters:
+      - in: path
+        name: patch_id
+        description: A unique integer value identifying the parent patch.
+        required: true
+        schema:
+          title: Patch ID
+          type: integer
     get:
       description: List checks.
       operationId: checks_list
       parameters:
-        - in: path
-          name: patch_id
-          description: A unique integer value identifying the parent patch.
-          required: true
-          schema:
-            title: Patch ID
-            type: integer
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Order'
@@ -753,14 +724,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: patch_id
-          description: A unique integer value identifying the parent patch.
-          required: true
-          schema:
-            title: Patch ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Check'
       responses:
@@ -791,24 +754,24 @@ paths:
       tags:
         - checks
   /api/{{ version_url }}patches/{patch_id}/checks/{check_id}/:
+    parameters:
+      - in: path
+        name: patch_id
+        description: A unique integer value identifying the parent patch.
+        required: true
+        schema:
+          title: Patch ID
+          type: integer
+      - in: path
+        name: check_id
+        description: A unique integer value identifying this check.
+        required: true
+        schema:
+          title: Check ID
+          type: integer
     get:
       description: Show a check.
       operationId: checks_read
-      parameters:
-        - in: path
-          name: patch_id
-          description: A unique integer value identifying the parent patch.
-          required: true
-          schema:
-            title: Patch ID
-            type: integer
-        - in: path
-          name: check_id
-          description: A unique integer value identifying this check.
-          required: true
-          schema:
-            title: Check ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -857,20 +820,20 @@ paths:
       tags:
         - people
   /api/{{ version_url }}people/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this person.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a person.
       operationId: people_read
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this person.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -916,17 +879,17 @@ paths:
       tags:
         - projects
   /api/{{ version_url }}projects/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this project.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a project.
       operationId: projects_read
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this project.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -948,14 +911,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this project.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -991,14 +946,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this project.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -1066,17 +1013,17 @@ paths:
       tags:
         - series
   /api/{{ version_url }}series/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this series.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a series.
       operationId: series_read
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this series.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -1125,20 +1072,20 @@ paths:
       tags:
         - users
   /api/{{ version_url }}users/{id}/:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this user.
+        required: true
+        schema:
+          title: ID
+          type: integer
     get:
       description: Show a user.
       operationId: users_read
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this user.
-          required: true
-          schema:
-            title: ID
-            type: integer
       responses:
         '200':
           description: ''
@@ -1170,14 +1117,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this user.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
@@ -1217,14 +1156,6 @@ paths:
       security:
         - basicAuth: []
         - apiKeyAuth: []
-      parameters:
-        - in: path
-          name: id
-          description: A unique integer value identifying this user.
-          required: true
-          schema:
-            title: ID
-            type: integer
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
