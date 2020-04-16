@@ -1069,7 +1069,10 @@ def parse_mail(mail, list_id=None):
             filenames = find_filenames(diff)
             delegate = find_delegate_by_filename(project, filenames)
 
-        try:
+        with transaction.atomic():
+            if Patch.objects.filter(project=project, msgid=msgid):
+                raise DuplicateMailError(msgid=msgid)
+
             patch = Patch.objects.create(
                 msgid=msgid,
                 project=project,
@@ -1084,8 +1087,6 @@ def parse_mail(mail, list_id=None):
                 delegate=delegate,
                 state=find_state(mail))
             logger.debug('Patch saved')
-        except IntegrityError:
-            raise DuplicateMailError(msgid=msgid)
 
         for attempt in range(1, 11):  # arbitrary retry count
             try:

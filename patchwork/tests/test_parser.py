@@ -1138,7 +1138,6 @@ class DuplicateMailTest(TestCase):
 
         self.assertEqual(errors, [])
 
-    @unittest.expectedFailure
     def test_duplicate_patch(self):
         diff = read_patch('0001-add-line.patch')
         m = create_email(diff, listid=self.listid, msgid='1@example.com')
