@@ -115,7 +115,11 @@ class TestEventAPI(utils.APITestCase):
         # There should only be one
         self.assertEqual(1, len(resp.data))
 
-        resp = self.client.get(self.api_url(), {'category': 'foo-bar'})
+        resp = self.client.get(
+            self.api_url(),
+            {'category': 'foo-bar'},
+            validate_request=False,
+        )
         self.assertEqual(0, len(resp.data))
 
     def test_list_filter_patch(self):

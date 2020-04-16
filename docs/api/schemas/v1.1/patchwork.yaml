@@ -270,7 +270,7 @@ paths:
               schema:
                 type: array
                 items:
-                  oneOf:
+                  anyOf:
                     - $ref: '#/components/schemas/EventCoverCreated'
                     - $ref: '#/components/schemas/EventPatchCreated'
                     - $ref: '#/components/schemas/EventPatchCompleted'
@@ -1465,9 +1465,7 @@ components:
             payload:
               properties:
                 cover:
-                  title: Cover
-                  type: string
-                  readOnly: true
+                  $ref: '#/components/schemas/CoverLetterEmbedded'
     EventPatchCreated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -1543,13 +1541,9 @@ components:
                 patch:
                   $ref: '#/components/schemas/PatchEmbedded'
                 previous_delegate:
-                  allOf:
-                    - $ref: '#/components/schemas/UserEmbedded'
-                    - title: Previous delegate
+                  $ref: '#/components/schemas/UserEmbedded'
                 current_delegate:
-                  allOf:
-                    - $ref: '#/components/schemas/UserEmbedded'
-                    - title: Current delegate
+                  $ref: '#/components/schemas/UserEmbedded'
     EventCheckCreated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
