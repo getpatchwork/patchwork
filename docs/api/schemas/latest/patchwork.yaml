@@ -1887,7 +1887,7 @@ components:
           title: Relations
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/PatchEmbedded'
     PatchDetail:
       allOf:
         - $ref: '#/components/schemas/PatchList'
@@ -1948,7 +1948,7 @@ components:
           title: Relations
           type: array
           items:
-            type: string
+            type: integer
     Person:
       type: object
       properties:

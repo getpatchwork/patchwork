@@ -1964,7 +1964,7 @@ components:
           title: Relations
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/PatchEmbedded'
 {% endif %}
     PatchDetail:
       allOf:
@@ -2027,7 +2027,7 @@ components:
           title: Relations
           type: array
           items:
-            type: string
+            type: integer
 {% endif %}
     Person:
       type: object
