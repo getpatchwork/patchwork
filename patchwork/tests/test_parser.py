@@ -12,7 +12,9 @@ import os
 import sys
 import unittest
 
+import django
 from django.db.transaction import atomic
+from django.db import connection
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import six
@@ -1125,6 +1127,10 @@ class WeirdMailTest(TransactionTestCase):
         self._test_patch('x-face.mbox')
 
 
+@unittest.skipIf(
+    django.VERSION < (2, 0),
+    'Django 1.11 does not provide an easy DB query introspection API'
+)
 class DuplicateMailTest(TestCase):
     def setUp(self):
         self.listid = 'patchwork.ozlabs.org'
@@ -1132,15 +1138,30 @@ class DuplicateMailTest(TestCase):
         create_state()
 
     def _test_duplicate_mail(self, mail):
-        _parse_mail(mail)
-        with self.assertRaises(DuplicateMailError):
-            # If we see any database errors from the duplicate insert
-            # (typically an IntegrityError), the insert will abort the current
-            # transaction. This atomic() ensures that we can recover, and
-            # perform subsequent queries.
-            with atomic():
-                _parse_mail(mail)
+        errors = []
 
+        def log_query_errors(execute, sql, params, many, context):
+            try:
+                result = execute(sql, params, many, context)
+            except Exception as e:
+                errors.append(e)
+                raise
+            return result
+
+        _parse_mail(mail)
+
+        with self.assertRaises(DuplicateMailError):
+            with connection.execute_wrapper(log_query_errors):
+                # If we see any database errors from the duplicate insert
+                # (typically an IntegrityError), the insert will abort the
+                # current transaction. This atomic() ensures that we can
+                # recover, and perform subsequent queries.
+                with atomic():
+                    _parse_mail(mail)
+
+        self.assertEqual(errors, [])
+
+    @unittest.expectedFailure
     def test_duplicate_patch(self):
         diff = read_patch('0001-add-line.patch')
         m = create_email(diff, listid=self.listid, msgid='1@example.com')
