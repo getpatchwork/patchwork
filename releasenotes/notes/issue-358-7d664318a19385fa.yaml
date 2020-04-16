@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The parser module now uses an atomic select-insert when creating new patch,
+    cover letter and comment entries. This prevents the integrity errors from
+    being logged in the DB logs.
+    (`#358 <https://github.com/getpatchwork/patchwork/issues/358>`__)

@@ -1227,7 +1227,10 @@ def parse_mail(mail, list_id=None):
                 SeriesReference.objects.create(
                     msgid=msgid, project=project, series=series)
 
-            try:
+            with transaction.atomic():
+                if CoverLetter.objects.filter(project=project, msgid=msgid):
+                    raise DuplicateMailError(msgid=msgid)
+
                 cover_letter = CoverLetter.objects.create(
                     msgid=msgid,
                     project=project,
@@ -1236,8 +1239,6 @@ def parse_mail(mail, list_id=None):
                     headers=headers,
                     submitter=author,
                     content=message)
-            except IntegrityError:
-                raise DuplicateMailError(msgid=msgid)
 
             logger.debug('Cover letter saved')
 

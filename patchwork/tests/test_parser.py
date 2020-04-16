@@ -21,6 +21,7 @@ from patchwork.models import Comment
 from patchwork.models import Patch
 from patchwork.models import Person
 from patchwork.models import State
+from patchwork.models import CoverLetter
 from patchwork.parser import clean_subject
 from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
@@ -1157,3 +1158,12 @@ class DuplicateMailTest(TestCase):
 
         self.assertEqual(Patch.objects.count(), 1)
         self.assertEqual(Comment.objects.count(), 1)
+
+    def test_duplicate_coverletter(self):
+        m = create_email('test', listid=self.listid, msgid='1@example.com')
+        del m['Subject']
+        m['Subject'] = '[PATCH 0/1] test cover letter'
+
+        self._test_duplicate_mail(m)
+
+        self.assertEqual(CoverLetter.objects.count(), 1)
