@@ -2153,19 +2153,27 @@ components:
       properties:
         state:
           title: State
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         target_url:
           title: Target URL
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         context:
           title: Context
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
         description:
           title: Description
-          type: string
+          type: array
+          items:
+            type: string
           readOnly: true
     ErrorPatchUpdate:
       type: object

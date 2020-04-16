@@ -147,7 +147,7 @@ class TestCheckAPI(utils.APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
-        resp = self.client.post(self.api_url(), check)
+        resp = self.client.post(self.api_url(), check, validate_request=False)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())
 
@@ -164,7 +164,7 @@ class TestCheckAPI(utils.APITestCase):
         }
 
         self.client.force_authenticate(user=self.user)
-        resp = self.client.post(self.api_url(), check)
+        resp = self.client.post(self.api_url(), check, validate_request=False)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertEqual(0, Check.objects.all().count())
 
