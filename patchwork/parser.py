@@ -1277,7 +1277,9 @@ def parse_mail(mail, list_id=None):
 
     author = get_or_create_author(mail, project)
 
-    try:
+    with transaction.atomic():
+        if Comment.objects.filter(submission=submission, msgid=msgid):
+            raise DuplicateMailError(msgid=msgid)
         comment = Comment.objects.create(
             submission=submission,
             msgid=msgid,
@@ -1285,8 +1287,6 @@ def parse_mail(mail, list_id=None):
             headers=headers,
             submitter=author,
             content=message)
-    except IntegrityError:
-        raise DuplicateMailError(msgid=msgid)
 
     logger.debug('Comment saved')
 

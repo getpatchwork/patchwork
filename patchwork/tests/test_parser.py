@@ -1168,3 +1168,15 @@ class DuplicateMailTest(TestCase):
         self._test_duplicate_mail(m)
 
         self.assertEqual(Patch.objects.count(), 1)
+
+    def test_duplicate_comment(self):
+        diff = read_patch('0001-add-line.patch')
+        m1 = create_email(diff, listid=self.listid, msgid='1@example.com')
+        _parse_mail(m1)
+
+        m2 = create_email('test', listid=self.listid, msgid='2@example.com',
+                          in_reply_to='1@example.com')
+        self._test_duplicate_mail(m2)
+
+        self.assertEqual(Patch.objects.count(), 1)
+        self.assertEqual(Comment.objects.count(), 1)
