@@ -1518,9 +1518,15 @@ components:
           minLength: 1
         headers:
           title: Headers
-          type: array
-          items:
-            type: string
+          anyOf:
+            - type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            - type: object
+              additionalProperties:
+                type: string
           readOnly: true
     CoverLetterList:
       type: object
