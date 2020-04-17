@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    An issue that preventing updating bundles via the REST API without
+    updating the included patches has been resolved.
+    (`#357 <https://github.com/getpatchwork/patchwork/issues/357>`__)
