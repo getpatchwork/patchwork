@@ -80,10 +80,11 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        patches = validated_data.pop('patches')
+        patches = validated_data.pop('patches', None)
         instance = super(BundleSerializer, self).update(
             instance, validated_data)
-        instance.overwrite_patches(patches)
+        if patches:
+            instance.overwrite_patches(patches)
         return instance
 
     def validate_patches(self, value):
@@ -97,7 +98,8 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
         return value
 
     def validate(self, data):
-        data['project'] = data['patches'][0].project
+        if data.get('patches'):
+            data['project'] = data['patches'][0].project
 
         return super(BundleSerializer, self).validate(data)
 

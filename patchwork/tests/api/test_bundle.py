@@ -288,9 +288,34 @@ class TestBundleAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data['patches']))
         self.assertEqual('hello-bundle', resp.data['name'])
+        self.assertFalse(resp.data['public'])
         self.assertEqual(1, Bundle.objects.all().count())
         self.assertEqual(2, len(Bundle.objects.first().patches.all()))
         self.assertEqual('hello-bundle', Bundle.objects.first().name)
+        self.assertFalse(Bundle.objects.first().public)
+
+    def test_update_no_patches(self):
+        """Validate we handle updating only the name."""
+        user, project, patch_a, patch_b = self._test_create_update()
+        bundle = create_bundle(owner=user, project=project)
+
+        bundle.append_patch(patch_a)
+        bundle.append_patch(patch_b)
+
+        self.assertEqual(1, Bundle.objects.all().count())
+        self.assertEqual(2, len(Bundle.objects.first().patches.all()))
+
+        resp = self.client.patch(self.api_url(bundle.id), {
+            'name': 'hello-bundle', 'public': True,
+        })
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(2, len(resp.data['patches']))
+        self.assertEqual('hello-bundle', resp.data['name'])
+        self.assertTrue(resp.data['public'])
+        self.assertEqual(1, Bundle.objects.all().count())
+        self.assertEqual(2, len(Bundle.objects.first().patches.all()))
+        self.assertEqual('hello-bundle', Bundle.objects.first().name)
+        self.assertTrue(Bundle.objects.first().public)
 
     @utils.store_samples('bundle-delete-not-found')
     def test_delete_anonymous(self):
