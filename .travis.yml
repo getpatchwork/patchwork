@@ -1,7 +1,7 @@
 language: python
 
+os: linux
 dist: xenial
-sudo: false
 
 python:
   - 3.6
@@ -16,14 +16,14 @@ services:
   - postgresql
 
 env:
-  matrix:
+  jobs:
     - PW_TEST_DB_TYPE=postgres PW_TEST_DB_USER=postgres
     - PW_TEST_DB_TYPE=mysql PW_TEST_DB_USER=root
   global:
     - PW_TEST_DB_PASS=""
     - PW_TEST_DB_HOST="localhost"
 
-matrix:
+jobs:
   include:
     - addons:
         mariadb: 10.3
