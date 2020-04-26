@@ -1,8 +1,34 @@
 import datetime
 
-from django.db import migrations, models
+from django.db import connection, migrations, models
 import django.db.models.deletion
 import patchwork.models
+
+
+def delete_coverletter_comments(apps, schema_editor):
+    if connection.vendor == 'mysql':
+        schema_editor.execute(
+            """
+            DELETE patchwork_comment FROM
+                patchwork_comment
+            INNER JOIN patchwork_coverletter
+                ON patchwork_coverletter.submission_ptr_id = patchwork_comment.submission_id
+            """,  # noqa
+        )
+    elif connection.vendor == 'postgresql':
+        schema_editor.execute(
+            """
+            DELETE
+            FROM patchwork_comment
+                USING patchwork_coverletter
+            WHERE patchwork_coverletter.submission_ptr_id = patchwork_comment.submission_id
+            """,  # noqa
+        )
+    else:
+        CoverLetter = apps.get_model('patchwork', 'CoverLetter')
+
+        for cover in CoverLetter.objects.all():
+            cover.comments.all().delete()
 
 
 class Migration(migrations.Migration):
@@ -175,15 +201,7 @@ class Migration(migrations.Migration):
         # remove all the old 'CoverLetter'-related entries from the 'Comment'
         # table
 
-        migrations.RunSQL(
-            """
-            DELETE patchwork_comment FROM
-                patchwork_comment
-            INNER JOIN patchwork_coverletter
-                ON patchwork_coverletter.submission_ptr_id = patchwork_comment.submission_id
-            """,  # noqa
-            None
-        ),
+        migrations.RunPython(delete_coverletter_comments, None, atomic=False),
 
         # delete the old 'CoverLetter' model
 

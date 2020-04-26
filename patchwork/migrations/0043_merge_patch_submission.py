@@ -42,10 +42,40 @@ def migrate_data(apps, schema_editor):
             """  # noqa
         )
     else:
-        raise Exception('DB not supported')
+        schema_editor.execute(
+            """
+            UPDATE patchwork_submission
+              SET (
+                archived, commit_ref, delegate_id, diff, hash, number,
+                pull_url, related_id, series_id, state_id
+              ) = (
+                SELECT
+                  patchwork_patch.archived2,
+                  patchwork_patch.commit_ref2,
+                  patchwork_patch.delegate2_id,
+                  patchwork_patch.diff2,
+                  patchwork_patch.hash2,
+                  patchwork_patch.number2,
+                  patchwork_patch.pull_url2,
+                  patchwork_patch.related2_id,
+                  patchwork_patch.series2_id,
+                  patchwork_patch.state2_id
+                FROM patchwork_patch
+                WHERE patchwork_patch.submission_ptr_id = patchwork_submission.id
+              )
+            WHERE
+              EXISTS (
+                SELECT *
+                FROM patchwork_patch
+                WHERE patchwork_patch.submission_ptr_id = patchwork_submission.id
+              )
+            """  # noqa
+        )
 
 
 class Migration(migrations.Migration):
+
+    atomic = False
 
     dependencies = [
         ('patchwork', '0042_add_cover_model'),
