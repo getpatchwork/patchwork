@@ -126,7 +126,7 @@ class SeriesAdmin(admin.ModelAdmin):
     list_filter = ('project', 'submitter')
     list_select_related = ('submitter', 'project')
     readonly_fields = ('received_total', 'received_all')
-    search_fields = ('submitter_name', 'submitter_email')
+    search_fields = ('submitter__name', 'submitter__email')
     exclude = ('patches', )
     inlines = (PatchInline, )
 
