@@ -55,13 +55,13 @@ address.</p>
  <tr>
   <td>{{ email.email }}</td>
   <td>
-  {% ifnotequal user.email email.email %}
+  {% if user.email != email.email %}
    <form action="{% url 'user-unlink' person_id=email.id %}"
     method="post">
     {% csrf_token %}
     <input type="submit" value="Unlink"/>
    </form>
-    {% endifnotequal %}
+    {% endif %}
   </td>
   <td>
    {% if email.is_optout %}

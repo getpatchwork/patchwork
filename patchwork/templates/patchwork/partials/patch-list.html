@@ -71,7 +71,7 @@ $(document).ready(function() {
    {% endif %}
 
    <th>
-    {% ifequal order.name "name" %}
+    {% if order.name == "name" %}
      <a class="colactive" href="{% listurl order=order.reversed_name %}">
       <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
      </a>
@@ -84,7 +84,7 @@ $(document).ready(function() {
      {% else %}
      <span class="colinactive">Patch</span>
      {% endif %}
-    {% endifequal %}
+    {% endif %}
    </th>
 
    <th>
@@ -100,7 +100,7 @@ $(document).ready(function() {
    </th>
 
    <th>
-    {% ifequal order.name "date" %}
+    {% if order.name == "date" %}
      <a class="colactive" href="{% listurl order=order.reversed_name %}">
       <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
      </a>
@@ -113,11 +113,11 @@ $(document).ready(function() {
      {% else %}
      <span class="colinactive">Date</span>
      {% endif %}
-    {% endifequal %}
+    {% endif %}
    </th>
 
    <th>
-    {% ifequal order.name "submitter" %}
+    {% if order.name == "submitter" %}
      <a class="colactive" href="{% listurl order=order.reversed_name %}">
       <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
      </a>
@@ -132,11 +132,11 @@ $(document).ready(function() {
      {% else %}
      <span class="colinactive">Submitter</span>
      {% endif %}
-    {% endifequal %}
+    {% endif %}
    </th>
 
    <th>
-    {% ifequal order.name "delegate" %}
+    {% if order.name == "delegate" %}
      <a class="colactive" href="{% listurl order=order.reversed_name %}">
       <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
      </a>
@@ -149,11 +149,11 @@ $(document).ready(function() {
      {% else %}
      <span class="colinactive">Delegate</span>
      {% endif %}
-    {% endifequal %}
+    {% endif %}
    </th>
 
    <th>
-    {% ifequal order.name "state" %}
+    {% if order.name == "state" %}
      <a class="colactive" href="{% listurl order=order.reversed_name %}">
       <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
      </a>
@@ -166,7 +166,7 @@ $(document).ready(function() {
      {% else %}
      <span class="colinactive">State</span>
      {% endif %}
-    {% endifequal %}
+    {% endif %}
    </th>
 
   </tr>

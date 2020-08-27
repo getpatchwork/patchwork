@@ -1,6 +1,6 @@
 {% load listurl %}
 
-{% ifnotequal page.paginator.num_pages 1 %}
+{% if page.paginator.num_pages != 1 %}
 <div class="paginator">
 {% if page.has_previous %}
  <span class="prev">
@@ -18,12 +18,12 @@
 {% endif %}
 
 {% for p in page.paginator.adjacent_set %}
-  {% ifequal p page.number %}
+  {% if p == page.number %}
     <span class="curr" title="Current Page">{{ p }}</span>
   {% else %}
     <span class="page"><a href="{% listurl page=p %}"
      title="Page {{ p }}">{{ p }}</a></span>
-  {% endifequal %}
+  {% endif %}
 {% endfor %}
 
 {% if page.paginator.leading_set %}
@@ -42,4 +42,4 @@
  <span class="next-na">&raquo;</span>
 {% endif %}
 </div>
-{% endifnotequal %}
+{% endif %}
