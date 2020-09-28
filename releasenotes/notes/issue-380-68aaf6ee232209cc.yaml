@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Previously, it was possible to create a project with a ``linkname``
+    containing invalid URL characters. This would result in broken URLs. We
+    now validate this field and restrict characters to unicode slugs (unicode
+    letters, numbers, underscores and hyphens).

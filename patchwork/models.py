@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.core.validators import validate_unicode_slug
 
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
@@ -56,7 +57,8 @@ class Person(models.Model):
 class Project(models.Model):
     # properties
 
-    linkname = models.CharField(max_length=255, unique=True)
+    linkname = models.CharField(max_length=255, unique=True,
+                                validators=[validate_unicode_slug])
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255)
     listemail = models.CharField(max_length=200)
