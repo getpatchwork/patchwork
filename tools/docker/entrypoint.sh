@@ -26,7 +26,7 @@ reset_data_mysql() {
 DROP DATABASE IF EXISTS patchwork;
 CREATE DATABASE patchwork CHARACTER SET utf8;
 GRANT ALL ON patchwork.* TO 'patchwork' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON test_patchwork.* TO 'patchwork'@'%';
+GRANT ALL ON 'test_patchwork\_%'.* to 'patchwork'@'%';
 FLUSH PRIVILEGES;
 EOF
 }
