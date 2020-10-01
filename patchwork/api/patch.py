@@ -10,7 +10,6 @@ import email.parser
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListAPIView
@@ -18,15 +17,16 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
+from rest_framework import status
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
-from patchwork.api.filters import PatchFilterSet
-from patchwork.api.embedded import PatchRelationSerializer
+from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
+from patchwork.api.filters import PatchFilterSet
 from patchwork.models import Patch
 from patchwork.models import PatchRelation
 from patchwork.models import State
@@ -83,7 +83,8 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     check = SerializerMethodField()
     checks = SerializerMethodField()
     tags = SerializerMethodField()
-    related = PatchRelationSerializer()
+    related = PatchSerializer(
+        source='related.patches', many=True, default=[])
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -127,14 +128,11 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         data = super(PatchListSerializer, self).to_representation(instance)
         data['series'] = [data['series']] if data['series'] else []
 
-        # stop the related serializer returning this patch in the list of
-        # related patches. Also make it return an empty list, not null/None
-        if 'related' in data:
-            if data['related']:
-                data['related'] = [p for p in data['related']
-                                   if p['id'] != instance.id]
-            else:
-                data['related'] = []
+        # Remove this patch from 'related'
+        if 'related' in data and data['related']:
+            data['related'] = [
+                x for x in data['related'] if x['id'] != data['id']
+            ]
 
         return data
 
