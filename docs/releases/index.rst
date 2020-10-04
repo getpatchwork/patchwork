@@ -10,6 +10,8 @@ on the release process, refer to :doc:`/development/releasing`.
    :maxdepth: 2
 
    /releases/unreleased
+   /releases/grosgrain
+   /releases/flannel
    /releases/eolienne
    /releases/dazzle
    /releases/cashmere

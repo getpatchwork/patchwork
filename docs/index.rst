@@ -58,6 +58,7 @@ of community projects.
    :caption: Release Notes
 
    releases/unreleased
+   releases/grosgrain
    releases/flannel
    releases/eolienne
    releases/dazzle
