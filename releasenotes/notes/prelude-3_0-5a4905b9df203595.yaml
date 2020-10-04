@@ -1,0 +1,8 @@
+---
+prelude: |
+  There are two main changes in this release: the removal of Python 2.7 support
+  and the resolution of the longstanding performance issues introduced by the
+  ``Submission`` model. On top of this, there is the usual bump in
+  requirements, a significant amount of fixes to the documentation for the
+  REST API, and the squashing of all migrations introduced in versions up to
+  and including v2.2.0.
