@@ -172,6 +172,53 @@ class PatchChangedTest(_BaseTestCase):
                          Event.CATEGORY_PATCH_DELEGATED)
         self.assertEventFields(events[3], previous_delegate=delegate_b)
 
+    def test_patch_relations_changed(self):
+        # purposefully setting series to None to minimize additional events
+        relation = utils.create_relation()
+        patches = utils.create_patches(3, series=None)
+
+        # mark the first two patches as related; the second patch should be the
+        # one that the event is raised for
+
+        patches[0].related = relation
+        patches[0].save()
+        patches[1].related = relation
+        patches[1].save()
+
+        events = _get_events(patch=patches[1])
+        self.assertEqual(events.count(), 2)
+        self.assertEqual(
+            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+        self.assertEqual(events[1].project, patches[1].project)
+        self.assertEqual(events[1].previous_relation, None)
+        self.assertEqual(events[1].current_relation, relation)
+
+        # add the third patch
+
+        patches[2].related = relation
+        patches[2].save()
+
+        events = _get_events(patch=patches[2])
+        self.assertEqual(events.count(), 2)
+        self.assertEqual(
+            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+        self.assertEqual(events[1].project, patches[1].project)
+        self.assertEqual(events[1].previous_relation, None)
+        self.assertEqual(events[1].current_relation, relation)
+
+        # drop the third patch
+
+        patches[2].related = None
+        patches[2].save()
+
+        events = _get_events(patch=patches[2])
+        self.assertEqual(events.count(), 3)
+        self.assertEqual(
+            events[2].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+        self.assertEqual(events[2].project, patches[1].project)
+        self.assertEqual(events[2].previous_relation, relation)
+        self.assertEqual(events[2].current_relation, None)
+
 
 class CheckCreatedTest(_BaseTestCase):
 
