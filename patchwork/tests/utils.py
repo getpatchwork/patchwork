@@ -308,6 +308,11 @@ def create_series_reference(**kwargs):
     return SeriesReference.objects.create(**values)
 
 
+def create_relation(**kwargs):
+    """Create 'PatchRelation' object."""
+    return PatchRelation.objects.create(**kwargs)
+
+
 def _create_submissions(create_func, count=1, **kwargs):
     """Create 'count' SubmissionMixin-based objects.
 
@@ -364,13 +369,3 @@ def create_covers(count=1, **kwargs):
         kwargs (dict): Overrides for various cover letter fields
     """
     return _create_submissions(create_cover, count, **kwargs)
-
-
-def create_relation(count_patches=2, **kwargs):
-    relation = PatchRelation.objects.create()
-    values = {
-        'related': relation
-    }
-    values.update(kwargs)
-    create_patches(count_patches, **values)
-    return relation

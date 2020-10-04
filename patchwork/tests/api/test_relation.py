@@ -48,8 +48,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
     @utils.store_samples('relation-list')
     def test_list_two_patch_relation(self):
-        relation = create_relation(2, project=self.project)
-        patches = relation.patches.all()
+        relation = create_relation()
+        patches = create_patches(2, project=self.project, related=relation)
 
         # nobody
         resp = self.client.get(self.api_url(item=patches[0].pk))
@@ -101,8 +101,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(patches[1].related, patches[0].related)
 
     def test_delete_two_patch_relation_nobody(self):
-        relation = create_relation(project=self.project)
-        patch = relation.patches.all()[0]
+        relation = create_relation()
+        patch = create_patches(2, project=self.project, related=relation)[0]
 
         self.assertEqual(PatchRelation.objects.count(), 1)
 
@@ -112,8 +112,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
     @utils.store_samples('relation-delete')
     def test_delete_two_patch_relation_maintainer(self):
-        relation = create_relation(project=self.project)
-        patch = relation.patches.all()[0]
+        relation = create_relation()
+        patch = create_patches(2, project=self.project, related=relation)[0]
 
         self.assertEqual(PatchRelation.objects.count(), 1)
 
@@ -145,8 +145,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(patches[1].related, patches[2].related)
 
     def test_delete_from_three_patch_relation(self):
-        relation = create_relation(3, project=self.project)
-        patch = relation.patches.all()[0]
+        relation = create_relation()
+        patch = create_patches(3, project=self.project, related=relation)[0]
 
         self.assertEqual(PatchRelation.objects.count(), 1)
 
@@ -159,8 +159,9 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
     @utils.store_samples('relation-extend-through-new')
     def test_extend_relation_through_new(self):
-        relation = create_relation(project=self.project)
-        existing_patch_a = relation.patches.first()
+        relation = create_relation()
+        existing_patch_a = create_patches(
+            2, project=self.project, related=relation)[0]
 
         new_patch = create_patch(project=self.project)
 
@@ -173,8 +174,9 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(relation.patches.count(), 3)
 
     def test_extend_relation_through_old(self):
-        relation = create_relation(project=self.project)
-        existing_patch_a = relation.patches.first()
+        relation = create_relation()
+        existing_patch_a = create_patches(
+            2, project=self.project, related=relation)[0]
 
         new_patch = create_patch(project=self.project)
 
@@ -188,8 +190,9 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(relation.patches.count(), 3)
 
     def test_extend_relation_through_new_two(self):
-        relation = create_relation(project=self.project)
-        existing_patch_a = relation.patches.first()
+        relation = create_relation()
+        existing_patch_a = create_patches(
+            2, project=self.project, related=relation)[0]
 
         new_patch_a = create_patch(project=self.project)
         new_patch_b = create_patch(project=self.project)
@@ -210,8 +213,9 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
     @utils.store_samples('relation-extend-through-old')
     def test_extend_relation_through_old_two(self):
-        relation = create_relation(project=self.project)
-        existing_patch_a = relation.patches.first()
+        relation = create_relation()
+        existing_patch_a = create_patches(
+            2, project=self.project, related=relation)[0]
 
         new_patch_a = create_patch(project=self.project)
         new_patch_b = create_patch(project=self.project)
@@ -232,9 +236,10 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(relation.patches.count(), 4)
 
     def test_remove_one_patch_from_relation_bad(self):
-        relation = create_relation(3, project=self.project)
-        keep_patch_a = relation.patches.all()[1]
-        keep_patch_b = relation.patches.all()[2]
+        relation = create_relation()
+        patches = create_patches(3, project=self.project, related=relation)
+        keep_patch_a = patches[1]
+        keep_patch_b = patches[1]
 
         # this should do nothing - it is interpreted as
         # _adding_ keep_patch_b again which is a no-op.
@@ -248,8 +253,9 @@ class TestRelationSimpleAPI(utils.APITestCase):
         self.assertEqual(relation.patches.count(), 3)
 
     def test_remove_one_patch_from_relation_good(self):
-        relation = create_relation(3, project=self.project)
-        target_patch = relation.patches.all()[0]
+        relation = create_relation()
+        target_patch = create_patches(
+            3, project=self.project, related=relation)[0]
 
         # maintainer
         self.client.force_authenticate(user=self.maintainer)
@@ -263,8 +269,10 @@ class TestRelationSimpleAPI(utils.APITestCase):
     @utils.store_samples('relation-forbid-moving-between-relations')
     def test_forbid_moving_patch_between_relations(self):
         """Test the break-before-make logic"""
-        relation_a = create_relation(project=self.project)
-        relation_b = create_relation(project=self.project)
+        relation_a = create_relation()
+        create_patches(2, project=self.project, related=relation_a)
+        relation_b = create_relation()
+        create_patches(2, project=self.project, related=relation_b)
 
         patch_a = relation_a.patches.first()
         patch_b = relation_b.patches.first()
