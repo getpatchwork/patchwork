@@ -22,6 +22,7 @@ from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import Person
 from patchwork.models import State
+from patchwork import parser
 from patchwork.parser import clean_subject
 from patchwork.parser import get_or_create_author
 from patchwork.parser import find_patch_content as find_content
@@ -37,6 +38,10 @@ from patchwork.parser import subject_check
 from patchwork.parser import DuplicateMailError
 from patchwork.tests import TEST_MAIL_DIR
 from patchwork.tests import TEST_FUZZ_DIR
+from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_cover_comment
+from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_reference
@@ -1167,3 +1172,66 @@ class DuplicateMailTest(TestCase):
         self._test_duplicate_mail(m)
 
         self.assertEqual(Cover.objects.count(), 1)
+
+
+class TestCommentCorrelation(TestCase):
+
+    def test_find_patch_for_comment__no_reply(self):
+        """Test behavior for mails that don't match anything we have."""
+        project = create_project()
+        create_patch(project=project)
+
+        result = parser.find_patch_for_comment(project, ['foo'])
+
+        self.assertIsNone(result)
+
+    def test_find_patch_for_comment__direct_reply(self):
+        """Test behavior when we have a reference to the original patch."""
+        msgid = make_msgid()
+        project = create_project()
+        patch = create_patch(msgid=msgid, project=project)
+
+        result = parser.find_patch_for_comment(project, [msgid])
+
+        self.assertEqual(patch, result)
+
+    def test_find_patch_for_comment__indirect_reply(self):
+        """Test behavior when we only have a reference to a comment."""
+        msgid = make_msgid()
+        project = create_project()
+        patch = create_patch(project=project)
+        create_patch_comment(patch=patch, msgid=msgid)
+
+        result = parser.find_patch_for_comment(project, [msgid])
+
+        self.assertEqual(patch, result)
+
+    def test_find_cover_for_comment__no_reply(self):
+        """Test behavior for mails that don't match anything we have."""
+        project = create_project()
+        create_cover(project=project)
+
+        result = parser.find_cover_for_comment(project, ['foo'])
+
+        self.assertIsNone(result)
+
+    def test_find_cover_for_comment__direct_reply(self):
+        """Test behavior when we have a reference to the original cover."""
+        msgid = make_msgid()
+        project = create_project()
+        cover = create_cover(msgid=msgid, project=project)
+
+        result = parser.find_cover_for_comment(project, [msgid])
+
+        self.assertEqual(cover, result)
+
+    def test_find_cover_for_comment__indirect_reply(self):
+        """Test behavior when we only have a reference to a comment."""
+        msgid = make_msgid()
+        project = create_project()
+        cover = create_cover(project=project)
+        create_cover_comment(cover=cover, msgid=msgid)
+
+        result = parser.find_cover_for_comment(project, [msgid])
+
+        self.assertEqual(cover, result)

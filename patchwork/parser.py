@@ -668,7 +668,7 @@ def find_patch_for_comment(project, refs):
                 patch__project=project,
                 msgid=ref,
             )
-            return comment.submission
+            return comment.patch
         except PatchComment.MultipleObjectsReturned:
             # NOTE(stephenfin): This is a artifact of prior lack of support
             # for cover letters in Patchwork. Previously all replies to
@@ -688,7 +688,7 @@ def find_patch_for_comment(project, refs):
                 msgid=ref,
             )
             # The latter item will be the cover letter
-            return comments.reverse()[0].submission
+            return comments.reverse()[0].patch
         except PatchComment.DoesNotExist:
             pass
 
