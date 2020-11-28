@@ -73,6 +73,8 @@ GRANT INSERT, SELECT ON
 	patchwork_coverletter,
 	patchwork_event,
 	patchwork_seriesreference,
+TO "nobody";
+GRANT INSERT, SELECT, UPDATE ON
 	patchwork_submission
 TO "nobody";
 GRANT INSERT, SELECT, UPDATE, DELETE ON
