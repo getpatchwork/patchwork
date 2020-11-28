@@ -72,7 +72,7 @@ GRANT INSERT, SELECT ON
 	patchwork_comment,
 	patchwork_coverletter,
 	patchwork_event,
-	patchwork_seriesreference,
+	patchwork_seriesreference
 TO "nobody";
 GRANT INSERT, SELECT, UPDATE ON
 	patchwork_submission
