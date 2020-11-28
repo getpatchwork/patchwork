@@ -46,6 +46,7 @@ GRANT INSERT, SELECT ON patchwork_series TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_seriesreference TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_submission TO 'nobody'@localhost;
 GRANT INSERT, SELECT, UPDATE, DELETE ON patchwork_patchtag TO 'nobody'@localhost;
+GRANT SELECT ON auth_user TO 'nobody'@localhost;
 GRANT SELECT ON patchwork_delegationrule TO 'nobody'@localhost;
 GRANT SELECT ON	patchwork_project TO 'nobody'@localhost;
 GRANT SELECT ON patchwork_state TO 'nobody'@localhost;

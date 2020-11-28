@@ -84,6 +84,7 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON
 	patchwork_series
 TO "nobody";
 GRANT SELECT ON
+	auth_user,
 	patchwork_delegationrule,
 	patchwork_project,
 	patchwork_state,
