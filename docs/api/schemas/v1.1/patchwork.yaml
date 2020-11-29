@@ -1551,24 +1551,6 @@ components:
                 current_state:
                   title: Current state
                   type: string
-    EventPatchRelationChanged:
-      allOf:
-        - $ref: '#/components/schemas/EventBase'
-        - type: object
-          properties:
-            category:
-              enum:
-                - patch-relation-changed
-            payload:
-              properties:
-                patch:
-                  $ref: '#/components/schemas/PatchEmbedded'
-                previous_relation:
-                  title: Previous relation
-                  type: string
-                current_relation:
-                  title: Current relation
-                  type: string
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'

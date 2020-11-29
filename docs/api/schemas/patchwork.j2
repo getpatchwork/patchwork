@@ -1821,7 +1821,7 @@ components:
                 current_state:
                   title: Current state
                   type: string
-{% if version >= (1, 1) %}
+{% if version >= (1, 2) %}
     EventPatchRelationChanged:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -1837,9 +1837,11 @@ components:
                 previous_relation:
                   title: Previous relation
                   type: string
+                  nullable: true
                 current_relation:
                   title: Current relation
                   type: string
+                  nullable: true
 {% endif %}
     EventPatchDelegated:
       allOf:

@@ -1768,9 +1768,11 @@ components:
                 previous_relation:
                   title: Previous relation
                   type: string
+                  nullable: true
                 current_relation:
                   title: Current relation
                   type: string
+                  nullable: true
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
