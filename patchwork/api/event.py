@@ -33,10 +33,8 @@ class EventSerializer(ModelSerializer):
     current_delegate = UserSerializer()
     created_check = SerializerMethodField()
     created_check = CheckSerializer()
-    previous_relation = PatchSerializer(
-        source='previous_relation.patches', many=True, default=None)
-    current_relation = PatchSerializer(
-        source='current_relation.patches', many=True, default=None)
+    previous_relation = SerializerMethodField()
+    current_relation = SerializerMethodField()
 
     _category_map = {
         Event.CATEGORY_COVER_CREATED: ['cover'],
@@ -52,6 +50,12 @@ class EventSerializer(ModelSerializer):
         Event.CATEGORY_SERIES_CREATED: ['series'],
         Event.CATEGORY_SERIES_COMPLETED: ['series'],
     }
+
+    def get_previous_relation(self, instance):
+        return None
+
+    def get_current_relation(self, instance):
+        return None
 
     def to_representation(self, instance):
         data = super(EventSerializer, self).to_representation(instance)
@@ -72,10 +76,12 @@ class EventSerializer(ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('id', 'category', 'project', 'date', 'actor', 'patch',
-                  'series', 'cover', 'previous_state', 'current_state',
-                  'previous_delegate', 'current_delegate', 'created_check',
-                  'previous_relation', 'current_relation',)
+        fields = (
+            'id', 'category', 'project', 'date', 'actor', 'patch',
+            'series', 'cover', 'previous_state', 'current_state',
+            'previous_delegate', 'current_delegate', 'created_check',
+            'previous_relation', 'current_relation',
+        )
         read_only_fields = fields
         versioned_fields = {
             '1.2': ('actor', ),

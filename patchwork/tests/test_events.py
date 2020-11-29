@@ -190,8 +190,8 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEqual(
             events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
         self.assertEqual(events[1].project, patches[1].project)
-        self.assertEqual(events[1].previous_relation, None)
-        self.assertEqual(events[1].current_relation, relation)
+        self.assertIsNone(events[1].previous_relation)
+        self.assertIsNone(events[1].current_relation)
 
         # add the third patch
 
@@ -203,8 +203,8 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEqual(
             events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
         self.assertEqual(events[1].project, patches[1].project)
-        self.assertEqual(events[1].previous_relation, None)
-        self.assertEqual(events[1].current_relation, relation)
+        self.assertIsNone(events[1].previous_relation)
+        self.assertIsNone(events[1].current_relation)
 
         # drop the third patch
 
@@ -216,8 +216,8 @@ class PatchChangedTest(_BaseTestCase):
         self.assertEqual(
             events[2].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
         self.assertEqual(events[2].project, patches[1].project)
-        self.assertEqual(events[2].previous_relation, relation)
-        self.assertEqual(events[2].current_relation, None)
+        self.assertIsNone(events[2].previous_relation)
+        self.assertIsNone(events[2].current_relation)
 
 
 class CheckCreatedTest(_BaseTestCase):
