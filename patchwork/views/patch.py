@@ -154,7 +154,7 @@ def patch_mbox(request, project_id, msgid):
     patch = get_object_or_404(Patch, project_id=project.id, msgid=db_msgid)
     series_id = request.GET.get('series')
 
-    response = HttpResponse(content_type='text/plain')
+    response = HttpResponse(content_type='text/plain; charset=utf-8')
     if series_id:
         if not patch.series:
             raise Http404('Patch does not have an associated series. This is '
