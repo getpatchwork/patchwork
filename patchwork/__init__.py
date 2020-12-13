@@ -5,7 +5,7 @@
 
 from patchwork.version import get_latest_version
 
-VERSION = (2, 2, 3, 'alpha', 0)
+VERSION = (2, 2, 3)
 
 __version__ = get_latest_version(VERSION)
 
