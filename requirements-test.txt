@@ -3,4 +3,4 @@ psycopg2-binary~=2.8.0
 sqlparse~=0.4.0
 python-dateutil~=2.8.0
 tblib~=1.7.0
-https://github.com/p1c2u/openapi-core/archive/97ec8c796746f72ef3298fe92078b5f80e1f66f7.tar.gz
+openapi-core~=0.13.4
