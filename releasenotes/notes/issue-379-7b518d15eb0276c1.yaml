@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Resolve a bug that would prevent listing patches for a project via the
+    browseable API view when logged in with admin permissions (`issue #379`__)
+
+    __ https://github.com/getpatchwork/patchwork/issues/379
