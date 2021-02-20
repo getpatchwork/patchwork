@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed a compatability issue with Django 3.1 that prevented users from
+    resetting their password.
+    (`#394 <https://github.com/getpatchwork/patchwork/issues/394>`__)
