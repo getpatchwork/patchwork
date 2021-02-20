@@ -17,7 +17,7 @@ and modify information about patches, projects and more.
 .. deprecated:: 2.0
 
     The XML-RPC API is a legacy API and has been deprecated in favour of the
-    :doc:`REST API <rest/index>`. It will be removed in Patchwork 3.0.
+    :doc:`REST API <rest/index>`. It may be removed in a future release.
 
 Getting Started
 ---------------
@@ -26,18 +26,18 @@ The Patchwork XML-RPC API provides a number of "methods". Some methods require
 authentication (via HTTP Basic Auth) while others do not. Authentication uses
 your Patchwork account and the on-server documentation will indicate where it
 is necessary. We will only cover the unauthenticated method here for brevity -
-consult the `xmlrpclib`_ documentation for more detailed examples:
+consult the `xmlrpc`_ documentation for more detailed examples:
 
 To interact with the Patchwork XML-RPC API, a XML-RPC library should be used.
-Python provides such a library - `xmlrpclib`_ - in its standard library. For
+Python provides such a library - `xmlrpc`_ - in its standard library. For
 example, to get the version of the XML-RPC API for a Patchwork instance hosted
 at `patchwork.example.com`, run:
 
 .. code-block:: pycon
 
     $ python
-    >>> import xmlrpclib  # or 'xmlrpc.client' for Python 3
-    >>> rpc = xmlrpclib.ServerProxy('http://patchwork.example.com/xmlrpc/')
+    >>> import xmlrpc.client
+    >>> rpc = xmlrpc.client.ServerProxy('http://patchwork.example.com/xmlrpc/')
     >>> rpc.pw_rpc_version()
     1.1
 
@@ -61,4 +61,4 @@ where `patchwork.example.com` refers to the URL of your Patchwork instance.
    Automatic documentation generation for the Patchwork API was introduced in
    Patchwork v1.1. Prior versions of Patchwork do not offer this functionality.
 
-.. _xmlrpclib: https://docs.python.org/2/library/xmlrpclib.html
+.. _xmlrpc: https://docs.python.org/3/library/xmlrpc.html

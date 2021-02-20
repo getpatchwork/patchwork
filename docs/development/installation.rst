@@ -231,9 +231,6 @@ packages using ``pip``:
 
    $ sudo pip install virtualenv tox
 
-If you wish to use Python 3 then simply replace ``python`` with ``python3`` in
-the above command.
-
 Configure Virtual Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -254,8 +251,8 @@ virtual environment. This can be done like so:
 
 .. note::
 
-   If you installed a Python 3.x-based virtual environment package, adjust the
-   executable indicated above as necessary, e.g. ``virtualenv-3.7``.
+   If you wish to use a specific Python version, you can provide the
+   ``--python`` argument to use this, e.g. ``--python=python3.7``.
 
 Now install the packages. Patchwork provides three requirements files.
 
