@@ -9,7 +9,8 @@ from django.test.client import Client
 from django.test import TestCase
 from django.urls import reverse
 
-from patchwork.models import EmailConfirmation, Person
+from patchwork.models import EmailConfirmation
+from patchwork.models import Person
 from patchwork.tests.utils import create_user
 
 
@@ -31,11 +32,13 @@ class RegistrationTest(TestCase):
     def setUp(self):
         self.user = TestUser()
         self.client = Client()
-        self.default_data = {'username': self.user.username,
-                             'first_name': self.user.firstname,
-                             'last_name': self.user.lastname,
-                             'email': self.user.email,
-                             'password': self.user.password}
+        self.default_data = {
+            'username': self.user.username,
+            'first_name': self.user.firstname,
+            'last_name': self.user.lastname,
+            'email': self.user.email,
+            'password': self.user.password,
+        }
         self.required_error = 'This field is required.'
         self.invalid_error = 'Enter a valid value.'
 
@@ -65,9 +68,9 @@ class RegistrationTest(TestCase):
         data['username'] = user.username
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'username',
-                             'This username is already taken. Please choose '
-                             'another.')
+        self.assertFormError(
+            response, 'form', 'username',
+            'This username is already taken. Please choose another.')
 
     def test_existing_email(self):
         user = create_user()
@@ -75,9 +78,10 @@ class RegistrationTest(TestCase):
         data['email'] = user.email
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'email',
-                             'This email address is already in use '
-                             'for the account "%s".\n' % user.username)
+        self.assertFormError(
+            response, 'form', 'email',
+            'This email address is already in use for the account '
+            '"%s".\n' % user.username)
 
     def test_valid_registration(self):
         response = self.client.post('/register/', self.default_data)
@@ -93,8 +97,8 @@ class RegistrationTest(TestCase):
         self.assertEqual(user.is_active, False)
 
         # check for confirmation object
-        confs = EmailConfirmation.objects.filter(user=user,
-                                                 type='registration')
+        confs = EmailConfirmation.objects.filter(
+            user=user, type='registration')
         self.assertEqual(len(confs), 1)
         conf = confs[0]
         self.assertEqual(conf.email, self.user.email)
@@ -124,6 +128,7 @@ class RegistrationConfirmationTest(TestCase):
         }
 
     def test_valid(self):
+        """Test the success path."""
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
         self.assertEqual(response.status_code, 200)
@@ -144,8 +149,11 @@ class RegistrationConfirmationTest(TestCase):
         self.assertFalse(conf.active)
 
     def test_new_person_setup(self):
-        """Check that the person object created after registration has the
-           correct details."""
+        """Ensure a new Person is created after account setup.
+
+        Create an account for a never before seen email. Check that a Person
+        object is created after registration and has the correct details.
+        """
         # register
         self.assertEqual(EmailConfirmation.objects.count(), 0)
         response = self.client.post('/register/', self.default_data)
@@ -164,8 +172,12 @@ class RegistrationConfirmationTest(TestCase):
         self.assertEqual(person.name, self.user.fullname)
 
     def test_existing_person_setup(self):
-        """ Check that the person object created after registration has the
-            correct details """
+        """Ensure an existing person is linked after account setup.
+
+        Create an account for a user using an email we've previously seen.
+        Check that the person object is updated after registration with the
+        correct details.
+        """
         person = Person(name=self.user.fullname, email=self.user.email)
         person.save()
 
@@ -184,8 +196,11 @@ class RegistrationConfirmationTest(TestCase):
         self.assertEqual(person.name, self.user.fullname)
 
     def test_existing_person_unmodified(self):
-        """Check that an unconfirmed registration can't modify an existing
-           Person object."""
+        """Ensure an existing person is not linked until registration is done.
+
+        Create an account for a user using an email we've previously seen but
+        don't confirm it. Check that the person object is not updated yet.
+        """
         person = Person(name=self.user.fullname, email=self.user.email)
         person.save()
 
@@ -197,5 +212,5 @@ class RegistrationConfirmationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(Person.objects.get(pk=person.pk).name,
-                         self.user.fullname)
+        self.assertEqual(
+            Person.objects.get(pk=person.pk).name, self.user.fullname)
