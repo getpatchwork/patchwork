@@ -126,6 +126,17 @@ done later.
 
 __ https://www.postgresql.org/docs/10/static/auth-methods.html#AUTH-PEER
 
+.. note::
+
+    As noted in the `Django documentation`__, Django expects databases to be
+    configured with an encoding of UTF-8 or UTF-16. If using MySQL, you may
+    need to configure this this explicitly as older versions defaulted to
+    `latin1` encoding. Refer to the `MySQL documentation`__ for more
+    information.
+
+    __ https://docs.djangoproject.com/en/3.1/ref/unicode/
+    __ https://dev.mysql.com/doc/refman/en/charset.html
+
 
 Patchwork
 ---------
