@@ -22,11 +22,7 @@ from .base import *  # noqa
 # be used to generate a secret key:
 #
 #      import string
-#      try:
-#          import secrets
-#      except ImportError:  # Python < 3.6
-#          import random
-#          secrets = random.SystemRandom()
+#      import secrets
 #
 #      chars = string.ascii_letters + string.digits + string.punctuation
 #      print("".join([secrets.choice(chars) for i in range(50)]))

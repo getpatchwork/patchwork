@@ -41,7 +41,7 @@ providers don't support. We address this in the appropriate section below.
 Requirements
 ------------
 
-For the purpose of this guide, we will assume an **Ubuntu 18.04** host:
+For the purpose of this guide, we will assume an **Ubuntu 20.04** host:
 commands, package names and/or package versions will likely change if using a
 different distro or release. Similarly, usage of different package versions to
 the ones suggested may require slightly different configuration.
@@ -155,7 +155,7 @@ We will install this under ``/opt``, though this is only a suggestion:
 .. code-block:: shell
 
    $ tar -xvzf v3.0.0.tar.gz
-   $ sudo mv v3.0.0 /opt/patchwork
+   $ sudo mv patchwork-3.0.0 /opt/patchwork
 
 .. important::
 
@@ -233,7 +233,8 @@ As a reminder, these were:
 - ``DATABASE_HOST``
 - ``DATABASE_PORT``
 
-Configure the ``DATABASE`` setting in ``production.py`` accordingly.
+Export these environment variables or configure the ``DATABASE`` setting in
+``production.py`` accordingly.
 
 Static Files
 ^^^^^^^^^^^^
@@ -246,8 +247,8 @@ location that these files will be stored in. We will install these under
 
    $ sudo mkdir -p /var/www/patchwork
 
-You can configure this by configuring the ``STATIC_ROOT`` setting in
-``production.py``.
+Export the ``STATIC_ROOT`` environment variable or configure the
+``STATIC_ROOT`` setting in ``production.py``.
 
 .. code-block:: python
 
@@ -263,16 +264,13 @@ This should be a random value and kept secret. You can generate and a value for
 .. code-block:: python
 
    import string
-   try:
-       import secrets
-   except ImportError:  # Python < 3.6
-       import random
-       secrets = random.SystemRandom()
+   import secrets
 
    chars = string.ascii_letters + string.digits + string.punctuation
    print("".join([secrets.choice(chars) for i in range(50)]))
 
-Once again, store this in ``production.py``.
+Export the ``DJANGO_STATIC_KEY`` environment variable or configure the
+``STATIC_KEY`` setting in ``production.py``.
 
 Other Options
 ^^^^^^^^^^^^^
@@ -280,7 +278,6 @@ Other Options
 There are many other settings that may be configured, many of which are
 described in :doc:`configuration`.
 
-* ``SECRET_KEY``
 * ``ADMINS``
 * ``TIME_ZONE``
 * ``LANGUAGE_CODE``
@@ -314,6 +311,24 @@ Once done, we should be able to check that all requirements are met using the
 .. code-block:: shell
 
    $ sudo -u www-data python3 manage.py check
+
+.. note::
+
+   If you've been using environment variables to configure your deployment,
+   you must pass the ``--preserve-env`` option for each attribute or pass the
+   environments as part of the command:
+
+   .. code-block:: shell
+
+      $ sudo -u www-data \
+          --preserve-env=DATABASE_NAME \
+          --preserve-env=DATABASE_USER \
+          --preserve-env=DATABASE_PASS \
+          --preserve-env=DATABASE_HOST \
+          --preserve-env=DATABASE_PORT \
+          --preserve-env=STATIC_ROOT \
+          --preserve-env=DJANGO_SECRET_KEY \
+      python3 manage.py check
 
 We should also take this opportunity to both configure the database and static
 files:
@@ -405,6 +420,12 @@ Now, use the provided configuration for *uWSGI*:
 
    We created the ``/etc/uwsgi`` directory above because we're going to run
    *uWSGI* in `emperor mode`__. This has benefits for multi-app deployments.
+
+.. note::
+
+   If you're using environment variables for configuration, you will need to
+   edit the ``patchwork.ini`` file created above to include these using the
+   ``env = VAR=VALUE`` syntax.
 
 __ https://uwsgi-docs.readthedocs.io/en/latest/Emperor.html
 
