@@ -372,10 +372,13 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
     def list_archive_url(self):
         if not self.project.list_archive_url_format:
             return None
+
         if not self.msgid:
             return None
+
         return self.project.list_archive_url_format.format(
-            self.url_msgid)
+            self.url_msgid,
+        )
 
     # patchwork metadata
 
@@ -653,9 +656,13 @@ class CoverComment(EmailMixin, models.Model):
     def list_archive_url(self):
         if not self.cover.project.list_archive_url_format:
             return None
+
         if not self.msgid:
             return None
-        return self.project.list_archive_url_format.format(self.url_msgid)
+
+        return self.cover.project.list_archive_url_format.format(
+            self.url_msgid,
+        )
 
     def get_absolute_url(self):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})
@@ -685,10 +692,13 @@ class PatchComment(EmailMixin, models.Model):
     def list_archive_url(self):
         if not self.patch.project.list_archive_url_format:
             return None
+
         if not self.msgid:
             return None
-        return self.patch.list_archive_url_format.format(
-            self.url_msgid)
+
+        return self.patch.project.list_archive_url_format.format(
+            self.url_msgid,
+        )
 
     def get_absolute_url(self):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})

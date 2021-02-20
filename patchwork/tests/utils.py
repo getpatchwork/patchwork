@@ -61,6 +61,8 @@ def create_project(**kwargs):
         'listid': 'test%d.example.com' % num,
         'listemail': 'test%d@example.com' % num,
         'subject_match': '',
+        'list_archive_url': 'https://lists.example.com/',
+        'list_archive_url_format': 'https://lists.example.com/mail/{}',
     }
     values.update(kwargs)
 

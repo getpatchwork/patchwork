@@ -1,0 +1,6 @@
+---
+api:
+  - |
+    The ``list_archive_url`` field will now be correctly shown for patch
+    comments and cover letter comments.
+    (`#391 <https://github.com/getpatchwork/patchwork/issues/391>`__)

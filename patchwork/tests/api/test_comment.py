@@ -54,6 +54,18 @@ class TestCoverComments(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(comment, resp.data[0])
+        self.assertIn('list_archive_url', resp.data[0])
+
+    def test_list_version_1_1(self):
+        """List cover letter comments using API v1.1."""
+        cover = create_cover()
+        comment = create_cover_comment(cover=cover)
+
+        resp = self.client.get(self.api_url(cover, version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(comment, resp.data[0])
+        self.assertNotIn('list_archive_url', resp.data[0])
 
     def test_list_version_1_0(self):
         """List cover letter comments using API v1.0."""
@@ -105,6 +117,18 @@ class TestPatchComments(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(comment, resp.data[0])
+        self.assertIn('list_archive_url', resp.data[0])
+
+    def test_list_version_1_1(self):
+        """List patch comments using API v1.1."""
+        patch = create_patch()
+        comment = create_patch_comment(patch=patch)
+
+        resp = self.client.get(self.api_url(patch, version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertSerialized(comment, resp.data[0])
+        self.assertNotIn('list_archive_url', resp.data[0])
 
     def test_list_version_1_0(self):
         """List patch comments using API v1.0."""
