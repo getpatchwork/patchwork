@@ -8,14 +8,14 @@ import re
 
 from django.urls import resolve
 import openapi_core
-from openapi_core.contrib.django import DjangoOpenAPIResponseFactory
 from openapi_core.contrib.django import DjangoOpenAPIRequestFactory
-from openapi_core.schema.schemas.models import Format
+from openapi_core.contrib.django import DjangoOpenAPIResponseFactory
+from openapi_core.schema.media_types.exceptions import OpenAPIMediaTypeError
+from openapi_core.schema.parameters.exceptions import OpenAPIParameterError
+from openapi_core.templating import util
+from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.validation.request.validators import RequestValidator
 from openapi_core.validation.response.validators import ResponseValidator
-from openapi_core.schema.parameters.exceptions import OpenAPIParameterError
-from openapi_core.schema.media_types.exceptions import OpenAPIMediaTypeError
-from openapi_core.templating import util
 from rest_framework import status
 import yaml
 
@@ -57,17 +57,25 @@ class RegexValidator(object):
 
 
 CUSTOM_FORMATTERS = {
-    'uri': Format(str, RegexValidator(
-        r'^(?:http|ftp)s?://'
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # noqa
-        r'localhost|'
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-        r'(?::\d+)?'
-        r'(?:/?|[/?]\S+)$')),
-    'iso8601': Format(str, RegexValidator(
-        r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}$')),
-    'email': Format(str, RegexValidator(
-        r'[^@]+@[^@]+\.[^@]+')),
+    'uri': Formatter.from_callables(
+        RegexValidator(
+            r'^(?:http|ftp)s?://'
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # noqa: E501
+            r'localhost|'
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+            r'(?::\d+)?'
+            r'(?:/?|[/?]\S+)$',
+        ),
+        str,
+    ),
+    'iso8601': Formatter.from_callables(
+        RegexValidator(r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}$'),
+        str,
+    ),
+    'email': Formatter.from_callables(
+        RegexValidator(r'[^@]+@[^@]+\.[^@]+'),
+        str,
+    ),
 }
 
 
