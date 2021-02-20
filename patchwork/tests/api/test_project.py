@@ -71,6 +71,26 @@ class TestProjectAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(project, resp.data[0])
+        self.assertIn('subject_match', resp.data[0])
+        self.assertIn('list_archive_url', resp.data[0])
+        self.assertIn('list_archive_url_format', resp.data[0])
+        self.assertIn('commit_url_format', resp.data[0])
+
+    @utils.store_samples('project-list-1.1')
+    def test_list_version_1_1(self):
+        """List projects using API v1.1.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        create_project()
+
+        resp = self.client.get(self.api_url(version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('subject_match', resp.data[0])
+        self.assertNotIn('list_archive_url', resp.data[0])
+        self.assertNotIn('list_archive_url_format', resp.data[0])
+        self.assertNotIn('commit_url_format', resp.data[0])
 
     @utils.store_samples('project-list-1.0')
     def test_list_version_1_0(self):
@@ -86,7 +106,7 @@ class TestProjectAPI(utils.APITestCase):
         self.assertNotIn('subject_match', resp.data[0])
 
     @utils.store_samples('project-detail')
-    def test_detail_by_id(self):
+    def test_detail(self):
         """Show project using ID lookup.
 
         Validate that it's possible to filter by pk.
@@ -96,6 +116,10 @@ class TestProjectAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(project.pk))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
+        self.assertIn('subject_match', resp.data)
+        self.assertIn('list_archive_url', resp.data)
+        self.assertIn('list_archive_url_format', resp.data)
+        self.assertIn('commit_url_format', resp.data)
 
     def test_detail_by_linkname(self):
         """Show project using linkname lookup.
@@ -118,6 +142,22 @@ class TestProjectAPI(utils.APITestCase):
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
+
+    @utils.store_samples('project-detail-1.1')
+    def test_detail_version_1_1(self):
+        """Show project using API v1.1.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        project = create_project()
+
+        resp = self.client.get(self.api_url(project.pk, version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertIn('name', resp.data)
+        self.assertIn('subject_match', resp.data)
+        self.assertNotIn('list_archive_url', resp.data)
+        self.assertNotIn('list_archive_url_format', resp.data)
+        self.assertNotIn('commit_url_format', resp.data)
 
     @utils.store_samples('project-detail-1.0')
     def test_detail_version_1_0(self):
