@@ -24,7 +24,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON
 	patchwork_event,
 	patchwork_patch,
 	patchwork_patchchangenotification,
-	patchwork_patchcomment,
+	patchwork_comment,
 	patchwork_patchrelation,
 	patchwork_patchtag,
 	patchwork_person,
@@ -55,7 +55,7 @@ GRANT SELECT, UPDATE ON
 	patchwork_emailconfirmation_id_seq,
 	patchwork_event_id_seq,
 	patchwork_patch_id_seq,
-	patchwork_patchcomment_id_seq,
+	patchwork_comment_id_seq,
 	patchwork_patchrelation_id_seq,
 	patchwork_patchtag_id_seq,
 	patchwork_person_id_seq,
@@ -74,7 +74,7 @@ GRANT INSERT, SELECT ON
 	patchwork_cover,
 	patchwork_covercomment,
 	patchwork_patch,
-	patchwork_patchcomment,
+	patchwork_comment,
 	patchwork_event,
 	patchwork_seriesreference
 TO "nobody";
