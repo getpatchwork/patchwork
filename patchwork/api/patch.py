@@ -84,7 +84,8 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     checks = SerializerMethodField()
     tags = SerializerMethodField()
     related = PatchSerializer(
-        source='related.patches', many=True, default=[])
+        source='related.patches', many=True, default=[],
+        style={'base_template': 'input.html'})
 
     def get_web_url(self, instance):
         request = self.context.get('request')
