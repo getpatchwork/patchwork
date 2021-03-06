@@ -3,13 +3,19 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+from datetime import datetime as dt
+from datetime import timedelta
+
 from django.test import TestCase
 from django.urls import reverse
 
+from patchwork.models import Check
+from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_comment
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_user
 
 
 class CoverLetterViewTest(TestCase):
@@ -155,6 +161,38 @@ class PatchViewTest(TestCase):
         )
         response = self.client.get(requested_url)
         self.assertEqual(response.status_code, 404)
+
+    def test_patch_with_checks(self):
+        user = create_user()
+        patch = create_patch()
+        check_a = create_check(
+            patch=patch, user=user, context='foo', state=Check.STATE_FAIL,
+            date=(dt.utcnow() - timedelta(days=1)))
+        create_check(
+            patch=patch, user=user, context='foo', state=Check.STATE_SUCCESS)
+        check_b = create_check(
+            patch=patch, user=user, context='bar', state=Check.STATE_PENDING)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+
+        # the response should contain checks
+        self.assertContains(response, '<h2>Checks</h2>')
+
+        # and it should only show the unique checks
+        self.assertEqual(
+            1, response.content.decode('utf-8').count(
+                '<td>%s/%s</td>' % (check_a.user, check_a.context)
+            ))
+        self.assertEqual(
+            1, response.content.decode('utf-8').count(
+                '<td>%s/%s</td>' % (check_b.user, check_b.context)
+            ))
 
 
 class CommentRedirectTest(TestCase):

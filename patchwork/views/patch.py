@@ -123,7 +123,9 @@ def patch_detail(request, project_id, msgid):
         related_different_project = []
 
     context['comments'] = comments
-    context['checks'] = patch.check_set.all().select_related('user')
+    context['checks'] = Patch.filter_unique_checks(
+        patch.check_set.all().select_related('user'),
+    )
     context['submission'] = patch
     context['patchform'] = form
     context['createbundleform'] = createbundleform
