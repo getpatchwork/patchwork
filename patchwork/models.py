@@ -518,50 +518,13 @@ class Patch(SubmissionMixin):
             return True
         return False
 
-    @property
-    def combined_check_state(self):
-        """Return the combined state for all checks.
-
-        Generate the combined check's state for this patch. This check
-        is one of the following, based on the value of each unique
-        check:
-
-          * failure, if any context's latest check reports as failure
-          * warning, if any context's latest check reports as warning
-          * pending, if there are no checks, or a context's latest
-              Check reports as pending
-          * success, if latest checks for all contexts reports as
-              success
-        """
-        state_names = dict(Check.STATE_CHOICES)
-        states = [check.state for check in self.checks]
-
-        if not states:
-            return state_names[Check.STATE_PENDING]
-
-        for state in [Check.STATE_FAIL, Check.STATE_WARNING,
-                      Check.STATE_PENDING]:  # order sensitive
-            if state in states:
-                return state_names[state]
-
-        return state_names[Check.STATE_SUCCESS]
-
-    @property
-    def checks(self):
-        """Return the list of unique checks.
-
-        Generate a list of checks associated with this patch for each
-        type of Check. Only "unique" checks are considered,
-        identified by their 'context' field. This means, given n
-        checks with the same 'context', the newest check is the only
-        one counted regardless of its value. The end result will be a
-        association of types to number of unique checks for said
-        type.
-        """
+    @staticmethod
+    def filter_unique_checks(checks):
+        """Filter the provided checks to generate the unique list."""
         unique = {}
         duplicates = []
 
-        for check in self.check_set.all():
+        for check in checks:
             ctx = check.context
             user = check.user_id
 
@@ -588,7 +551,50 @@ class Patch(SubmissionMixin):
         # prefetch_related.) So, do it 'by hand' in Python. We can
         # also be confident that this won't be worse, seeing as we've
         # just iterated over self.check_set.all() *anyway*.
-        return [c for c in self.check_set.all() if c.id not in duplicates]
+        return [c for c in checks if c.id not in duplicates]
+
+    @property
+    def checks(self):
+        """Return the list of unique checks.
+
+        Generate a list of checks associated with this patch for each
+        type of Check. Only "unique" checks are considered,
+        identified by their 'context' field. This means, given n
+        checks with the same 'context', the newest check is the only
+        one counted regardless of its value. The end result will be a
+        association of types to number of unique checks for said
+        type.
+        """
+        return self.filter_unique_checks(self.check_set.all())
+
+    @property
+    def combined_check_state(self):
+        """Return the combined state for all checks.
+
+        Generate the combined check's state for this patch. This check
+        is one of the following, based on the value of each unique
+        check:
+
+        * failure, if any context's latest check reports as failure
+        * warning, if any context's latest check reports as warning
+        * pending, if there are no checks, or a context's latest check reports
+          as pending
+        * success, if latest checks for all contexts reports as success
+        """
+        state_names = dict(Check.STATE_CHOICES)
+        states = [check.state for check in self.checks]
+
+        if not states:
+            return state_names[Check.STATE_PENDING]
+
+        # order sensitive
+        for state in (
+            Check.STATE_FAIL, Check.STATE_WARNING, Check.STATE_PENDING,
+        ):
+            if state in states:
+                return state_names[state]
+
+        return state_names[Check.STATE_SUCCESS]
 
     @property
     def check_count(self):
