@@ -10,60 +10,44 @@ import dateutil.parser
 import dateutil.tz
 import email
 
+from django.http import Http404
 from django.test import TestCase
-from django.urls import reverse
 
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
-from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_person
+from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_user
+from patchwork.views import utils
 
 
 class MboxPatchResponseTest(TestCase):
 
-    """Test that the mbox view appends the Acked-by from a patch comment."""
-
-    def setUp(self):
-        self.project = create_project()
-        self.person = create_person()
-
-    def test_patch_response(self):
-        patch = create_patch(
-            project=self.project,
-            submitter=self.person,
-            content='comment 1 text\nAcked-by: 1\n')
+    def test_tags(self):
+        """Test that tags are taken from a patch comment."""
+        patch = create_patch(content='comment 1 text\nAcked-by: 1\n')
         create_patch_comment(
-            patch=patch,
-            submitter=self.person,
-            content='comment 2 text\nAcked-by: 2\n')
-        response = self.client.get(
-            reverse('patch-mbox', args=[self.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, 'Acked-by: 1\nAcked-by: 2\n')
+            patch=patch, content='comment 2 text\nAcked-by: 2\n')
 
-    def test_patch_utf8_nbsp(self):
-        patch = create_patch(
-            project=self.project,
-            submitter=self.person,
-            content='patch text\n')
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn('Acked-by: 1\nAcked-by: 2\n', mbox)
+
+    def test_utf8_nbsp_tags(self):
+        """Test that UTF-8 NBSP characters are correctly handled."""
+        patch = create_patch(content='patch text\n')
         create_patch_comment(
-            patch=patch,
-            submitter=self.person,
-            content=u'comment\nAcked-by:\u00A0 foo')
-        response = self.client.get(
-            reverse('patch-mbox', args=[self.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, u'\u00A0 foo\n')
+            patch=patch, content=u'comment\nAcked-by:\u00A0 foo')
 
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn(u'\u00A0 foo\n', mbox)
 
-class MboxPatchSplitResponseTest(TestCase):
+    def test_multiple_tags(self):
+        """Test that the mbox view appends tags correct.
 
-    """Test that the mbox view appends the Acked-by from a patch comment,
-       and places it before an '---' update line."""
-
-    def setUp(self):
+        Ensure the tags are extracted from a patch comment, and placed before
+        an '---' update line.
+        """
         self.project = create_project()
         self.person = create_person()
         self.patch = create_patch(
@@ -76,23 +60,13 @@ class MboxPatchSplitResponseTest(TestCase):
             submitter=self.person,
             content='comment 2 text\nAcked-by: 2\n')
 
-    def test_patch_response(self):
-        response = self.client.get(
-            reverse('patch-mbox', args=[self.project.linkname,
-                                        self.patch.url_msgid]))
-        self.assertContains(response, 'Acked-by: 1\nAcked-by: 2\n')
-
-
-class MboxHeaderTest(TestCase):
-
-    """Test the passthrough and generation of various headers."""
+        mbox = utils.patch_to_mbox(self.patch)
+        self.assertIn('Acked-by: 1\nAcked-by: 2\n', mbox)
 
     def _test_header_passthrough(self, header):
         patch = create_patch(headers=header + '\n')
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, header)
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn(header, mbox)
 
     def test_header_passthrough_cc(self):
         """Validate passthrough of 'Cc' header."""
@@ -121,10 +95,8 @@ class MboxHeaderTest(TestCase):
 
     def _test_header_dropped(self, header):
         patch = create_patch(headers=header + '\n')
-        response = self.client.get(reverse('patch-mbox',
-                                           args=[patch.project.linkname,
-                                                 patch.url_msgid]))
-        self.assertNotContains(response, header)
+        mbox = utils.patch_to_mbox(patch)
+        self.assertNotIn(header, mbox)
 
     def test_header_dropped_content_transfer_encoding(self):
         """Validate dropping of 'Content-Transfer-Encoding' header."""
@@ -139,33 +111,28 @@ class MboxHeaderTest(TestCase):
     def test_patchwork_id_header(self):
         """Validate inclusion of generated 'X-Patchwork-Id' header."""
         patch = create_patch()
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, 'X-Patchwork-Id: %d' % patch.id)
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn('X-Patchwork-Id: %d' % patch.id, mbox)
 
     def test_patchwork_delegate_header(self):
         """Validate inclusion of generated 'X-Patchwork-Delegate' header."""
         user = create_user()
         patch = create_patch(delegate=user)
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, 'X-Patchwork-Delegate: %s' % user.email)
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn('X-Patchwork-Delegate: %s' % user.email, mbox)
 
     def test_patchwork_submitter_header(self):
         """Validate inclusion of generated 'X-Patchwork-Submitter' header."""
         email = 'jon@doe.com'
-        from_header = 'From: Jon Doe <%s>\n' % email
-
+        from_header = f'From: Jon Doe <{email}>\n'
         person = create_person(name='Jonathon Doe', email=email)
+        submitter_header = f'X-Patchwork-Submitter: {person.name} <{email}>'
+
         patch = create_patch(submitter=person, headers=from_header)
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, from_header)
-        self.assertContains(response, 'X-Patchwork-Submitter: %s <%s>' % (
-            person.name, email))
+
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn(from_header, mbox)
+        self.assertIn(submitter_header, mbox)
 
     def test_from_header(self):
         """Validate non-ascii 'From' header.
@@ -177,11 +144,9 @@ class MboxHeaderTest(TestCase):
         """
         person = create_person(name=u'©ool guŷ')
         patch = create_patch(submitter=person)
-        from_email = '<' + person.email + '>'
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        self.assertContains(response, from_email)
+        from_email = f'<{person.email}>'
+        mbox = utils.patch_to_mbox(patch)
+        self.assertIn(from_email, mbox)
 
     def test_dmarc_from_header(self):
         """Validate 'From' header is rewritten correctly when DMARC-munged.
@@ -197,19 +162,15 @@ class MboxHeaderTest(TestCase):
         patch = create_patch(project=project,
                              headers='From: ' + orig_from_header,
                              submitter=person)
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        mail = email.message_from_string(response.content.decode())
+        mbox = utils.patch_to_mbox(patch)
+        mail = email.message_from_string(mbox)
         self.assertEqual(mail['From'], rewritten_from_header)
         self.assertEqual(mail['X-Patchwork-Original-From'], orig_from_header)
 
     def test_date_header(self):
         patch = create_patch()
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        mail = email.message_from_string(response.content.decode())
+        mbox = utils.patch_to_mbox(patch)
+        mail = email.message_from_string(mbox)
         mail_date = dateutil.parser.parse(mail['Date'])
         # patch dates are all in UTC
         patch_date = patch.date.replace(tzinfo=dateutil.tz.tzutc(),
@@ -226,15 +187,10 @@ class MboxHeaderTest(TestCase):
         patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")
         patch.save()
 
-        response = self.client.get(
-            reverse('patch-mbox', args=[patch.project.linkname,
-                                        patch.url_msgid]))
-        mail = email.message_from_string(response.content.decode())
+        mbox = utils.patch_to_mbox(patch)
+        mail = email.message_from_string(mbox)
         mail_date = dateutil.parser.parse(mail['Date'])
         self.assertEqual(mail_date, date)
-
-
-class MboxCommentPostcriptUnchangedTest(TestCase):
 
     def test_comment_unchanged(self):
         """Validate postscript part of mail is unchanged.
@@ -248,14 +204,13 @@ class MboxCommentPostcriptUnchangedTest(TestCase):
         project = create_project()
         patch = create_patch(content=content, diff='', project=project)
 
-        response = self.client.get(
-            reverse('patch-mbox', args=[project.linkname, patch.url_msgid]))
+        mbox = utils.patch_to_mbox(patch)
 
-        self.assertContains(response, content)
-        self.assertNotContains(response, content + '\n')
+        self.assertIn(content, mbox)
+        self.assertNotIn(content + '\n', mbox)
 
 
-class MboxSeriesDependencies(TestCase):
+class MboxSeriesPatchTest(TestCase):
 
     @staticmethod
     def _create_patches():
@@ -268,63 +223,43 @@ class MboxSeriesDependencies(TestCase):
     def test_patch_with_wildcard_series(self):
         _, patch_a, patch_b = self._create_patches()
 
-        response = self.client.get(
-            '%s?series=*' % reverse(
-                'patch-mbox',
-                args=[patch_b.project.linkname, patch_b.url_msgid],
-            ),
-        )
+        mbox = utils.series_patch_to_mbox(patch_b, '*')
 
-        self.assertContains(response, patch_a.content)
-        self.assertContains(response, patch_b.content)
+        self.assertIn(patch_a.content, mbox)
+        self.assertIn(patch_b.content, mbox)
 
     def test_patch_with_numeric_series(self):
         series, patch_a, patch_b = self._create_patches()
 
-        response = self.client.get('%s?series=%d' % (
-            reverse(
-                'patch-mbox',
-                args=[patch_b.project.linkname, patch_b.url_msgid],
-            ),
-            series.id,
-        ))
+        mbox = utils.series_patch_to_mbox(patch_b, series.id)
 
-        self.assertContains(response, patch_a.content)
-        self.assertContains(response, patch_b.content)
+        self.assertIn(patch_a.content, mbox)
+        self.assertIn(patch_b.content, mbox)
 
     def test_patch_with_invalid_series(self):
         series, patch_a, patch_b = self._create_patches()
 
         for value in ('foo', str(series.id + 1)):
-            response = self.client.get('%s?series=%s' % (
-                reverse(
-                    'patch-mbox',
-                    args=[patch_b.project.linkname, patch_b.url_msgid]
-                ),
-                value,
-            ))
-
-            self.assertEqual(response.status_code, 404)
+            with self.assertRaises(Http404):
+                utils.series_patch_to_mbox(patch_b, value)
 
     def test_legacy_patch(self):
         """Validate a patch with non-existent dependencies raises a 404."""
         # we're explicitly creating a patch without a series
         patch = create_patch(series=None)
 
-        response = self.client.get('%s?series=*' % reverse(
-            'patch-mbox', args=[patch.project.linkname, patch.url_msgid]))
-
-        self.assertEqual(response.status_code, 404)
+        with self.assertRaises(Http404):
+            utils.series_patch_to_mbox(patch, '*')
 
 
-class MboxSeries(TestCase):
+class MboxSeriesTest(TestCase):
 
     def test_series(self):
         series = create_series()
         patch_a = create_patch(series=series)
         patch_b = create_patch(series=series)
 
-        response = self.client.get(reverse('series-mbox', args=[series.id]))
+        mbox = utils.series_to_mbox(series)
 
-        self.assertContains(response, patch_a.content)
-        self.assertContains(response, patch_b.content)
+        self.assertIn(patch_a.content, mbox)
+        self.assertIn(patch_b.content, mbox)

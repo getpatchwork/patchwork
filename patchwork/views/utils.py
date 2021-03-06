@@ -146,7 +146,14 @@ def series_patch_to_mbox(patch, series_id):
     Returns:
         A string for the mbox file.
     """
-    if series_id != '*':
+    if series_id == '*':
+        if not patch.series:
+            raise Http404(
+                'Patch does not have an associated series. This is '
+                'because the patch was processed with an older '
+                'version of Patchwork. It is not possible to '
+                'provide dependencies for this patch.')
+    else:
         try:
             series_id = int(series_id)
         except ValueError:
