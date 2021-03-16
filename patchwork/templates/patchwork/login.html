@@ -1,37 +1,77 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block title %}Sign in to Patchwork{% endblock %}
-{% block heading %}Sign in to Patchwork{% endblock %}
 
 {% block headers %}
-  <script>
-    $(function() {
-        $('#id_username').focus()
-    });
-  </script>
 {% endblock %}
 
 {% block body %}
-<form method="post">
-{% csrf_token %}
-  <table class="form loginform">
-    <tr>
-      <th colspan="2" class="headerrow">login</th>
-    </tr>
-{% if error %}
-    <tr>
-      <td colspan="2">{{ error }}</td>
-    </tr>
+<section class="hero is-primary is-fullheight">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+          <div class="block has-text-centered">
+            <h1 class="title is-3">Sign in to Patchwork</h1>
+          </div>
+{% if form.non_field_errors %}
+          <div class="notification is-danger is-light">
+            <button class="delete"></button>
+            {{ form.non_field_errors }}
+          </div>
 {% endif %}
-{{ form }}
-    <tr>
-      <td class="submitrow">
-        <input type="submit" value="Login"/>
-      </td>
-      <td class="submitrow">
-        <a href="{% url 'password_reset' %}">Forgot password?</a>
-      </td>
-    </tr>
-  </table>
-</form>
+          <form method="post" class="box">
+            {% csrf_token %}
+            <div class="field">
+              <label for="id_username" class="label has-text-weight-normal">Username</label>
+              <div class="control has-icons-left">
+                <input id="id_username" type="text" name="username" placeholder="e.g. bobsmith" class="input" autocomplete="username" autofocus required>
+                <span class="icon is-small is-left">
+                  <i class="fa fa-user"></i>
+                </span>
+              </div>
+{% for error in form.username.errors %}
+              <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+            </div>
+            <div class="field">
+              <label for="id_password" class="label has-text-weight-normal">Password</label>
+              <div class="control has-icons-left">
+                <input id="id_password" type="password" name="password" placeholder="*******" class="input" autocomplete="current-password" required>
+                <span class="icon is-small is-left">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </div>
+{% for error in form.password.errors %}
+              <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+            </div>
+            <div class="field">
+              <button class="button is-success is-fullwidth">
+                Login
+              </button>
+            </div>
+          </form>
+          <div class="box has-text-centered">
+            <a href="{% url 'user-register' %}">Sign Up</a>
+            &nbsp;•&nbsp;
+            <a href="{% url 'password_reset' %}">Forgot Password</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+var btns = document.getElementsByClassName('delete')
+
+for (var i = 0; i < btns.length; i++) {
+  console.log('got button');
+  btns[i].addEventListener('click', function(e) {
+    console.log('hello');
+    this.parentNode.remove(); //this refers to the current target element
+  }, false);
+}
+</script>
 {% endblock %}

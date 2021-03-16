@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Patchwork{% endblock %} - Patchwork</title>
+    <link rel="stylesheet" href="{% static "css/bulma.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/fontawesome.min.css" %}">
+{% block headers %}{% endblock %}
+  </head>
+  <body>
+{% block body %}{% endblock %}
+  </body>
+</html>
