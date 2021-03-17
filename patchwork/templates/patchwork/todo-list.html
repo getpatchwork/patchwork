@@ -1,17 +1,44 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% load person %}
 
-{% block title %}{{ user }}'s todo list{% endblock %}
+{% block title %}Todo list{% endblock %}
 
 {% block body %}
-<h1>TODO</h1>
+<div class="container" style="margin-top: 1rem;">
+  <h1 class="title">
+    Todo list
+  </h1>
 
-<p>
-  A Patchwork todo-list contains patches that are assigned to you, are in an
-  "action required" state ({{ action_required_states|join:", " }}), and are
-  not archived.
-</p>
+  <section class="block">
+    <p>
+      Your Patchwork todo list contains patches that are assigned to you,
+      are in an "action required" state ({{ action_required_states|join:", " }}),
+      and are not archived.
+    </p>
+  </section>
+
+  <section class="block">
+{% if patches %}
+{% for patch in patches %}
+{% endfor %}
+{% else %}
+    <div class="box">
+      <div class="columns">
+        <div class="column is-narrow">
+          <span class="icon">
+            <i class="fa fa-info"></i>
+          </span>
+        </div>
+        <div class="column">
+          <p>You have no pending reviews.</p>
+        </div>
+      </div>
+    </div>
+{% endif %}
+
+  </section>
+</div>
 
 {% include "patchwork/partials/patch-list.html" %}
 {% endblock %}
