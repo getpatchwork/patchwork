@@ -1,66 +1,91 @@
-{% extends "base.html" %}
-
-{% load static %}
+{% extends "base2.html" %}
 
 {% block title %}Bundles{% endblock %}
-{% block bundle_active %}active{% endblock %}
 
 {% block body %}
-<h1>Bundles</h1>
+<div class="container" style="margin-top: 1rem;">
+  <h1 class="title">
+    Bundles
+  </h1>
 
+  <section class="block">
+    <p>
+      Bundles are groups of related patches.
+      You can create bundles by selecting patches from a project,
+      then using the 'create bundle' form to give your bundle a name.
+      Each bundle can be public or private;
+      public bundles are given a persistent URL,
+      based on your username and the name of the bundle.
+      Private bundles are only visible to you.
+    </p>
+  </section>
+
+  <section class="block">
 {% if bundles %}
-<table class="bundlelist">
-  <tr>
-    <th>Bundle</th>
-    <th>Project</th>
-    <th>Public</th>
-    <th>Patches</th>
-    <th>Download</th>
-    <th>Delete</th>
-  </tr>
+    <div class="table-container">
+      <table class="table is-fullwidth">
+        <tr>
+          <th class="has-text-left">Bundle</th>
+          <th class="has-text-centered">Project</th>
+          <th class="has-text-centered">Patches</th>
+          <th class="has-text-centered">Public</th>
+          <th class="has-text-right">Actions</th>
+        </tr>
 {% for bundle in bundles %}
-  <tr>
-    <td><a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a></td>
-    <td>
-      <a href="{% url 'project-detail' project_id=bundle.project.linkname %}">
-        {{ bundle.project.linkname }}
-      </a>
-    </td>
-    <td style="text-align: center;">
-      {% if bundle.public %}
-        <span class="glyphicon glyphicon-ok"></span>
-      {% else %}
-        <span class="glyphicon glyphicon-remove"></span>
-      {% endif %}
-    </td>
-    <td style="text-align: right">{{ bundle.patches.count }}</td>
-    <td style="text-align: center;"><a href="{{ bundle.get_mbox_url }}"
-      ><span class="glyphicon glyphicon-download-alt"></span></a></td>
-    <td style="text-align: center;">
-      <form method="post"
-        onsubmit="return confirm_delete('bundle', '{{ bundle.name|escapejs }}');">
-        {% csrf_token %}
-        {{ bundle.delete_form.as_p }}
-        <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
-          <span class="glyphicon glyphicon-remove"></span>
-        </button>
-      </form>
-    </td>
-
-  </tr>
+        <form id="delete-bundle" method="post" onsubmit="return confirm_delete('bundle', '{{ bundle.name|escapejs }}');">
+          {% csrf_token %}
+          <input type="hidden" name="form_name" value="deletebundleform">
+          <input type="hidden" name="bundle_id" value="{{ bundle.id }}">
+        </form>
+        <tr>
+          <td class="has-text-left">
+            <a href="{{ bundle.get_absolute_url }}">{{ bundle.name }}</a>
+          </td>
+          <td class="has-text-centered">
+            <a href="{% url 'project-detail' project_id=bundle.project.linkname %}">
+              {{ bundle.project.name }}
+            </a>
+          </td>
+          <td class="has-text-centered">{{ bundle.patches.count }}</td>
+          <td class="has-text-centered">
+{% if bundle.public %}
+            <span class="icon">
+              <i class="fa fa-check"></i>
+            </span>
+{% else %}
+            <span class="icon">
+              <i class="fa fa-times"></i>
+            </span>
+{% endif %}
+          </td>
+          <td class="has-text-right">
+            <a href="{{ bundle.get_mbox_url }}" class="button is-success is-small">
+              <span class="icon is-small"><i class="fas fa-download"></i></span>
+              <span>Download</span>
+            </a>
+            <button class="button is-danger is-small" form="delete-bundle">
+              <span class="icon is-small"><i class="fas fa-times"></i></span>
+              <span>Delete</span>
+            </button>
+          </td>
+        </tr>
 {% endfor %}
-</table>
+      </table>
+    </div>
+{% else %}
+    <div class="box">
+      <div class="columns">
+        <div class="column is-narrow">
+          <span class="icon">
+            <i class="fa fa-info"></i>
+          </span>
+        </div>
+        <div class="column">
+          <p>You have no bundles.</p>
+        </div>
+      </div>
+    </div>
 {% endif %}
-
-<p>
-  Bundles are groups of related patches. You can create bundles by
-  selecting patches from a project, then using the 'create bundle' form
-  to give your bundle a name. Each bundle can be public or private; public
-  bundles are given a persistent URL, based you your username and the name
-  of the bundle. Private bundles are only visible to you.
-</p>
-
-{% if not bundles %}
-<p>You have no bundles.</p>
-{% endif %}
+  </section>
+</div>
 {% endblock %}
