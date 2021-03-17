@@ -10,6 +10,88 @@
 {% block headers %}{% endblock %}
   </head>
   <body>
+{% block navigation %}
+    <nav class="navbar is-white" role="navigation" aria-label="main navigation">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item brand-text" href="/">Patchwork</a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+        <div id="navMenu" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item" href="{% url 'user-todos' %}">Todo List</a>
+            <a class="navbar-item" href="{% url 'user-bundles' %}">Bundles</a>
+            <a class="navbar-item" href="{% url 'project-list' %}">Projects</a>
+          </div>
+          <div class="navbar-end">
+{% if user.is_authenticated %}
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                <span class="icon-text">
+                  <span class="icon">
+                    <i class="fa fa-user"></i>
+                  </span>
+                  <span>{{ user.username }}</span>
+                </span>
+              </a>
+              <div class="navbar-dropdown is-right">
+                <a class="navbar-item" href="{% url 'user-todos' %}">
+                  Todo List
+                </a>
+                <a class="navbar-item" href="{% url 'user-bundles' %}">
+                  Bundles
+                </a>
+                <a class="navbar-item" href="{% url 'user-profile' %}">
+                  Profile
+                </a>
+{% if user.is_staff %}
+                <hr class="navbar-divider">
+                <a class="navbar-item" href="{% url 'admin:index' %}">
+                  Patchwork Settings
+                </a>
+{% endif %}
+                <hr class="navbar-divider">
+                <a class="navbar-item" href="{% url 'auth_logout' %}">
+                  Sign out
+                </a>
+              </div>
+            </div>
+{% else %}
+            <div class="navbar-item">
+              <div class="buttons">
+                <a href="{% url 'user-register' %}" class="button is-primary">
+                  <strong>Sign up</strong>
+                </a>
+                <a href="{% url 'auth_login' %}" class="button is-light">
+                  Log in
+                </a>
+              </div>
+            </div>
+{% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+{% endblock %}
 {% block body %}{% endblock %}
+{% block footer %}
+    <div class="block"></div>
+
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <a href="https://github.com/getpatchwork/patchwork/">Patchwork patch tracking system</a>
+          &nbsp;•&nbsp;
+          Version {{ version }}
+          &nbsp;•&nbsp;
+          <a href="{% url 'about' %}">About Patchwork</a>
+        </p>
+      </div>
+    </footer>
+{% endblock %}
   </body>
 </html>
