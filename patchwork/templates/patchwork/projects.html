@@ -1,38 +1,55 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
-{% block title %}Project List{% endblock %}
+{% block title %}Projects{% endblock %}
+
 {% block body %}
-<div style="margin-top:20px;"></div>
-{% if projects %}
-{% for p in projects %}
-{% cycle '<div class="row">' '' '' %}
-  <div class="col-sm-6 col-md-4">
-    <div class="thumbnail">
-      <div class="caption">
-        <h3>{{ p.name }}</h3>
-        <p class="core-info">
-          <span>
-            <a href="{% url 'patch-list' project_id=p.linkname %}">
-              View patches
-            </a>
+<div class="container" style="margin-top: 1rem;">
+  <h1 class="title">
+    Projects
+  </h1>
+
+  <section class="block">
+{% for project in projects %}
+    <div class="box">
+      <div class="columns is-vcentered">
+        <div class="column is-narrow">
+          <h2 class="title is-5">{{ project.name }}</h2>
+        </div>
+        <div class="column">
+          <span>({{ project.listemail }})</span>
+        </div>
+        <div class="column is-narrow">
+          <a class="button is-secondary" href="{% url 'project-detail' project_id=project.linkname %}">
+            <span class="icon">
+              <i class="fas fa-info"></i>
+            </span>
+            <span>About</span>
+          </a>
+        </div>
+        <div class="column is-narrow">
+          <a class="button is-primary" href="{% url 'patch-list' project_id=project.linkname %}">
+            <span class="icon">
+              <i class="fas fa-code-branch"></i>
+            </span>
+            <span>View patches</span>
+          </a>
+        </div>
+      </div>
+    </div>
+{% empty %}
+    <div class="box">
+      <div class="columns is-vcentered">
+        <div class="column is-narrow">
+          <span class="icon">
+            <i class="fa fa-info"></i>
           </span>
-        </p>
-{% if p.web_url %}
-      <p><a href="{{ p.web_url }}">{{ p.web_url }}</a></p>
-{% endif %}
-{% if p.webscm_url %}
-      <p><a href="{{ p.webscm_url }}">{{ p.webscm_url }}</a></p>
-{% endif %}
-     </div>
-   </div>
- </div>
-{% if forloop.last %}
-</div>
-{% else %}
-{% cycle '' '' '</div>' %}
-{% endif %}
+        </div>
+        <div class="column">
+          <p>Patchwork doesn't have any projects to display.</p>
+        </div>
+      </div>
+    </div>
 {% endfor %}
-{% else %}
-<p>Patchwork doesn't have any projects to display!</p>
-{% endif %}
+  </section>
+</div>
 {% endblock %}
