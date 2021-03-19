@@ -1,79 +1,348 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block title %}{{ project.name }}{% endblock %}
-{% block info_active %}active{% endblock %}
 
 {% block body %}
-<h1>About {{ project.name }}</h1>
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="notification is-success">
+{% elif message.tags == 'warning' %}
+<div class="notification is-warning">
+{% elif message.tags == 'error' %}
+<div class="notification is-danger">
+{% else %}
+<div class="notification">
+{% endif %}
+  {{ message }}
+  <button class="delete" onclick="dismiss(this);"></button>
+</div>
+{% endfor %}
 
-<table class="horizontal">
-  <tr>
-    <th>Name</th>
-    <td>{{ project.name }}
-  </tr>
-  <tr>
-    <th>List address</th>
-    <td>{{ project.listemail }}</td>
-  </tr>
-{% if project.list_archive_url %}
-  <tr>
-    <th>List archive</th>
-    <td><a href="{{ project.list_archive_url }}">{{ project.list_archive_url }}</a></td>
-  </tr>
-{% endif %}
-  <tr>
-    <th>Maintainer{{ maintainers|length|pluralize }}</th>
-    <td>
-      {% for maintainer in maintainers %}
-        {{ maintainer.profile.name }}
-          &lt;<a href="mailto:{{ maintainer.email }}">{{ maintainer.email }}</a>&gt;
-          <br />
-      {% endfor %}
-    </td>
-  </tr>
-  <tr>
-    <th>Patches </th>
-    <td>{{ n_patches }} (+ {{ n_archived_patches }} archived)</td>
-  </tr>
-{% if project.web_url %}
-  <tr>
-    <th>Website</th>
-    <td><a href="{{ project.web_url }}">{{ project.web_url }}</a></td>
-  </tr>
-{% endif %}
-{% if project.webscm_url %}
-  <tr>
-    <th>Source Code Web Interface</th>
-    <td><a href="{{ project.webscm_url }}">{{ project.webscm_url }}</a></td>
-  </tr>
-{% endif %}
-{% if project.scm_url %}
-  <tr>
-    <th>Source Code Manager URL</th>
-    <td><a href="{{ project.scm_url }}">{{ project.scm_url }}</a></td>
-  </tr>
-{% endif %}
-</table>
+<div class="container" style="margin-top: 1rem;">
+  <section class="block">
+    <h1 class="title">
+      About {{ project.name }}
+    </h1>
+    <p class="subtitle">
+      {{ project.listemail }}
+    </p>
+  </section>
 
-{% if enable_xmlrpc %}
-<h2>pwclient</h2>
+  <div class="block"></div>
 
-<p>
-  <code>pwclient</code> is the command-line client for Patchwork. Currently,
-  it provides access to some read-only features of Patchwork, such as
-  downloading and applying patches.
-</p>
+  <section class="block">
+    <h2 id="overview" class="title is-4">
+      <a href="#overview" title="Permalink to this section">#</a>
+      Overview
+    </h2>
 
-<p>To use pwclient, you will need:</p>
-<ul>
-  <li>
-    The <a href="https://github.com/getpatchwork/pwclient">pwclient</a>
-    program.
-  </li>
-  <li>
-    (Optional) A <code><a href="{% url 'pwclientrc' project.linkname %}">.pwclientrc</a></code>
-    file for this project, which should be stored in your home directory.
-  </li>
-</ul>
+    <div class="tile is-ancestor has-text-centered">
+      <div class="tile is-parent">
+        <div class="tile is-child is-primary box">
+          <p class="title">
+            {{ n_patches }}
+          </p>
+          <p class="subtitle">Patches</p>
+        </div>
+      </div>
+
+      <div class="tile is-parent">
+        <a href="{{ project.web_url }}" class="tile is-child box">
+          <p class="title">
+            <span class="icon">
+              <i class="fas fa-home"></i>
+            </span>
+          </p>
+          <p class="subtitle">Website</p>
+        </a>
+      </div>
+
+      <div class="tile is-parent">
+        <a href="{{ project.list_archive_url }}" class="tile is-child box">
+          <p class="title">
+            <span class="icon">
+              <i class="fas fa-envelope"></i>
+            </span>
+          </p>
+          <p class="subtitle">List Archives</p>
+        </a>
+      </div>
+
+      <div class="tile is-parent">
+        <a href="{{ project.webscm_url }}" class="tile is-child box">
+          <p class="title">
+            <span class="icon">
+              <i class="fas fa-code"></i>
+            </span>
+          </p>
+          <p class="subtitle">Source Code</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 id="maintainers" class="title is-4">
+      <a href="#maintainers" title="Permalink to this section">#</a>
+      Maintainers
+    </h2>
+
+{% for maintainer in maintainers %}
+    <div class="card">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <span class="has-text-weight-bold">{{ maintainer.username }}</span>
+{% if maintainer.first_name and maintainer.last_name %}
+            ({{ maintainer.first_name }} {{ maintainer.last_name }})
+{% elif maintainer.first_name %}
+            ({{ maintainer.first_name }})
+{% elif maintainer.last_name %}
+            ({{ maintainer.last_name }})
 {% endif %}
+          </div>
+          <div class="column">
+            <span>{{ maintainer.email }}</span>
+          </div>
+{% if maintainers|length > 1 and maintainer.username != user.username %}
+          <div class="column is-narrow">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="form_name" value="remove-maintainer">
+              <input type="hidden" name="email" value="{{ maintainer.username }}">
+              <span class="icon">
+                <i class="fas fa-trash"></i>
+              </span>
+            </form>
+          </div>
+{% endif %}
+        </div>
+      </div>
+    </div>
+{% empty %}
+    <p>This project has no maintainers.</p>
+{% endfor %}
+{% if project in user.profile.maintainer_projects.all %}
+    <div class="block"></div>
+    <div class="block">
+      <form class="block" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_name" value="add-maintainer">
+        <label for="id_username" class="label">
+          Add maintainer
+        </label>
+        <div class="field is-grouped">
+          <div class="control">
+            <input id="id_username" type="text" name="username" placeholder="e.g. bobsmith" class="input" value="{{ add_maintainer_form.username.value|default:'' }}" required>
+{% for error in add_maintainer_form.username.errors %}
+            <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+          </div>
+          <div class="control">
+            <button class="button is-info">
+              Add maintainer
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+{% endif %}
+  </section>
+
+{% if pwclientrc %}
+  <section class="block">
+    <h2 id="pwclient" class="title is-4">
+      <a href="#pwclient" title="Permalink to this section">#</a>
+      <code>pwclientrc</code> configuration
+    </h2>
+
+    <div class="content">
+      <p>
+        <code>pwclient</code> is the command-line client for Patchwork. Currently,
+        it provides access to some read-only features of Patchwork, such as
+        downloading and applying patches.
+      </p>
+
+      <p>To use pwclient, you will need:</p>
+
+      <ul>
+        <li>
+          The <a href="https://github.com/getpatchwork/pwclient">pwclient</a>
+          program.
+        </li>
+        <li>
+          (Optional) A <code>.pwclientrc</code> file for this project,
+          which should be stored in your home directory.
+        </li>
+      </ul>
+
+      <p>A sample <code>pwclientrc</code> config file is provided below.</p>
+
+      <pre><code>{{ pwclientrc }}</code></pre>
+    </div>
+  </section>
+{% endif %}
+
+{% if project in user.profile.maintainer_projects.all %}
+  <section class="block">
+    <h2 id="settings" class="title is-4">
+      <a href="#settings" title="Permalink to this section">#</a>
+      Settings
+    </h2>
+
+{% if project_settings_form.non_field_errors %}
+    <div class="notification is-danger is-light">
+      <button class="delete" onclick="dismiss(this);"></button>
+      {{ project_settings_form.non_field_errors }}
+    </div>
+{% endif %}
+    <form class="block" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="form_name" value="project-settings">
+      <div class="field">
+        <label for="linkname" class="label">
+          Linkname
+        </label>
+        <div class="control">
+          <input id="id_linkname" type="text" name="linkname" class="input" value="{{ project.linkname }}" disabled>
+        </div>
+        <p class="help">
+          Patchwork project ID.
+        </p>
+      </div>
+      <div class="field">
+        <label for="listemail" class="label">
+          List email
+        </label>
+        <div class="control">
+          <input id="id_listemail" type="text" name="listemail" class="input" value="{{ project.listemail }}" disabled>
+        </div>
+        <p class="help">
+          Mailing list email.
+        </p>
+      </div>
+      <div class="field">
+        <label for="listid" class="label">
+          List ID
+        </label>
+        <div class="control">
+          <input id="id_listid" type="text" name="listid" class="input" value="{{ project.listid }}" disabled>
+        </div>
+        <p class="help">
+          Mailing list ID.
+        </p>
+      </div>
+      <div class="field">
+        <label for="name" class="label">
+          Name
+        </label>
+        <div class="control">
+          <input id="id_name" type="text" name="name" class="input" value="{{ project.name }}" required>
+        </div>
+        <p class="help">
+          Name of project.
+        </p>
+{% for error in project_settings_form.name.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="web_url" class="label">
+          Website
+        </label>
+        <div class="control">
+          <input id="id_web_url" type="text" name="web_url" class="input" value="{{ project.web_url }}">
+        </div>
+        <p class="help">
+          Homepage of project.
+        </p>
+{% for error in project_settings_form.web_url.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="scm_url" class="label">
+          Source code manager URL
+        </label>
+        <div class="control">
+          <input id="id_scm_url" type="text" name="scm_url" class="input" value="{{ project.scm_url }}">
+        </div>
+        <p class="help">
+          Checkout or clone URL for project source code.
+        </p>
+{% for error in project_settings_form.scm_url.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="webscm_url" class="label">
+          Source code website
+        </label>
+        <div class="control">
+          <input id="id_webscm_url" type="text" name="webscm_url" class="input" value="{{ project.webscm_url }}">
+        </div>
+        <p class="help">
+          Website for browing project source code.
+        </p>
+{% for error in project_settings_form.webscm_url.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="list_archive_url" class="label">
+          List archives
+        </label>
+        <div class="control">
+          <input id="id_list_archive_url" type="text" name="list_archive_url" class="input" value="{{ project.list_archive_url }}">
+        </div>
+        <p class="help">
+          URL for accessing list archives.
+        </p>
+{% for error in project_settings_form.list_archive_url.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="list_archive_url_format" class="label">
+          List archive URL format
+        </label>
+        <div class="control">
+          <input id="id_list_archive_url_format" type="text" name="list_archive_url_format" class="input" value="{{ project.list_archive_url_format }}">
+        </div>
+        <p class="help">
+          URL format for the list archive's Message-ID redirector.
+          <code>{}</code> will be replaced by the Message-ID.
+        </p>
+{% for error in project_settings_form.list_archive_url_format.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="field">
+        <label for="commit_url_format" class="label">
+          Commit URL format
+        </label>
+        <div class="control">
+          <input id="id_commit_url_format" type="text" name="commit_url_format" class="input" value="{{ project.commit_url_format }}">
+        </div>
+        <p class="help">
+          URL format for a particular commit.
+          <code>{}</code> will be replaced by the commit SHA.
+        </p>
+{% for error in project_settings_form.commit_url_format.errors %}
+        <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+      </div>
+      <div class="control">
+        <button class="button is-primary is-disabled">Update settings</button>
+      </div>
+    </form>
+  </section>
+{% endif %}
+</div>
+
+<script>
+function dismiss(el){
+  el.parentNode.style.display = 'none';
+};
+</script>
 {% endblock %}

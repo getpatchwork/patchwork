@@ -244,6 +244,89 @@ class UserProfileForm(forms.ModelForm):
         labels = {'show_ids': 'Show Patch IDs:'}
 
 
+class AddProjectMaintainerForm(forms.Form):
+
+    name = 'add-maintainer'
+
+    username = forms.RegexField(
+        regex=r'^\w+$', max_length=30, label='Username'
+    )
+
+    def __init__(self, project, *args, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def clean_username(self):
+        value = self.cleaned_data['username']
+
+        try:
+            user = User.objects.get(username__iexact=value)
+        except User.DoesNotExist:
+            raise forms.ValidationError(
+                'That username is not valid. Please choose another.'
+            )
+
+        if self.project in user.profile.maintainer_projects.all():
+            raise forms.ValidationError(
+                'That user is already a maintainer of this project.'
+            )
+
+        return value
+
+
+class RemoveProjectMaintainerForm(forms.Form):
+
+    name = 'remove-maintainer'
+
+    username = forms.RegexField(
+        regex=r'^\w+$', max_length=30, label='Username'
+    )
+
+    def __init__(self, project, *args, **kwargs):
+        self.project = project
+        super().__init__(*args, **kwargs)
+
+    def clean_username(self):
+        value = self.cleaned_data['username']
+
+        try:
+            user = User.objects.get(username__iexact=value)
+        except User.DoesNotExist:
+            raise forms.ValidationError(
+                'That username is not valid. Please choose another.'
+            )
+
+        maintainers = User.objects.filter(
+            profile__maintainer_projects=self.project,
+        ).select_related('profile')
+
+        if user not in maintainers:
+            raise forms.ValidationError(
+                'That user is not a maintainer of this project.'
+            )
+
+        # TODO(stephenfin): Should we prevent users removing themselves?
+
+        if maintainers.count() <= 1:
+            raise forms.ValidationError(
+                'You cannot remove the only maintainer of the project.'
+            )
+
+        return value
+
+
+class ProjectSettingsForm(forms.ModelForm):
+
+    name = 'project-settings'
+
+    class Meta:
+        model = models.Project
+        fields = [
+            'name', 'web_url', 'scm_url', 'webscm_url', 'list_archive_url',
+            'list_archive_url_format', 'commit_url_format',
+        ]
+
+
 def _get_delegate_qs(project, instance=None):
     if instance and not project:
         project = instance.project
