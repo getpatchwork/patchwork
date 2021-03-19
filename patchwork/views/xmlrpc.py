@@ -24,15 +24,13 @@ from patchwork.models import State
 from patchwork.views.utils import patch_to_mbox
 
 
-class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
-                                XMLRPCDocGenerator):
+class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher, XMLRPCDocGenerator):
 
     server_name = 'Patchwork XML-RPC API'
     server_title = 'Patchwork XML-RPC API v1 Documentation'
 
     def __init__(self):
-        SimpleXMLRPCDispatcher.__init__(self, allow_none=False,
-                                        encoding=None)
+        SimpleXMLRPCDispatcher.__init__(self, allow_none=False, encoding=None)
         XMLRPCDocGenerator.__init__(self)
 
         def _dumps(obj, *args, **kwargs):
@@ -65,7 +63,7 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
         if not header.startswith('Basic '):
             raise Exception('Authentication scheme not supported')
 
-        header = header[len('Basic '):].strip()
+        header = header[len('Basic ') :].strip()
 
         try:
             decoded = base64.b64decode(header.encode('ascii')).decode('ascii')
@@ -104,7 +102,8 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher,
             # report exception back to server
             response = self.dumps(
                 xmlrpc_client.Fault(
-                    1, '%s:%s' % (sys.exc_info()[0], sys.exc_info()[1])),
+                    1, '%s:%s' % (sys.exc_info()[0], sys.exc_info()[1])
+                ),
             )
 
         return response
@@ -134,6 +133,7 @@ def xmlrpc(request):
 
     return response
 
+
 # decorator for XMLRPC methods. Setting login_required to true will call
 # the decorated function with a non-optional user as the first argument.
 
@@ -147,14 +147,30 @@ def xmlrpc_method(login_required=False):
 
 
 # We allow most of the Django field lookup types for remote queries
-LOOKUP_TYPES = ['iexact', 'contains', 'icontains', 'gt', 'gte', 'lt',
-                'in', 'startswith', 'istartswith', 'endswith',
-                'iendswith', 'range', 'year', 'month', 'day', 'isnull']
+LOOKUP_TYPES = [
+    'iexact',
+    'contains',
+    'icontains',
+    'gt',
+    'gte',
+    'lt',
+    'in',
+    'startswith',
+    'istartswith',
+    'endswith',
+    'iendswith',
+    'range',
+    'year',
+    'month',
+    'day',
+    'isnull',
+]
 
 
 #######################################################################
 # Helper functions
 #######################################################################
+
 
 def project_to_dict(obj):
     """Serialize a project object.
@@ -312,13 +328,14 @@ def patch_check_to_dict(obj):
     return {
         'state': obj.combined_check_state,
         'total': len(obj.checks),
-        'checks': [check_to_dict(check) for check in obj.checks]
+        'checks': [check_to_dict(check) for check in obj.checks],
     }
 
 
 #######################################################################
 # Public XML-RPC methods
 #######################################################################
+
 
 def _get_objects(serializer, objects, max_count):
     if max_count > 0:
@@ -416,8 +433,9 @@ def person_list(search_str=None, max_count=0):
         of all persons if no filter given.
     """
     if search_str:
-        people = (Person.objects.filter(name__icontains=search_str) |
-                  Person.objects.filter(email__icontains=search_str))
+        people = Person.objects.filter(
+            name__icontains=search_str
+        ) | Person.objects.filter(email__icontains=search_str)
     else:
         people = Person.objects.all()
 
@@ -625,8 +643,7 @@ def patch_get_by_project_hash(project, hash):
         if any, else an empty dict.
     """
     try:
-        patch = Patch.objects.get(project__linkname=project,
-                                  hash=hash)
+        patch = Patch.objects.get(project__linkname=project, hash=hash)
         return patch_to_dict(patch)
     except Patch.DoesNotExist:
         return {}
@@ -860,8 +877,7 @@ def check_list(filt=None):
         if parts[0] == 'user_id':
             dfilter['user'] = Person.objects.filter(id=filt[key])[0]
         if parts[0] == 'project_id':
-            dfilter['patch__project'] = Project.objects.filter(
-                id=filt[key])[0]
+            dfilter['patch__project'] = Project.objects.filter(id=filt[key])[0]
         elif parts[0] == 'patch_id':
             dfilter['patch'] = Patch.objects.filter(id=filt[key])[0]
         elif parts[0] == 'max_count':
@@ -895,8 +911,9 @@ def check_get(check_id):
 
 
 @xmlrpc_method(login_required=True)
-def check_create(user, patch_id, context, state, target_url="",
-                 description=""):
+def check_create(
+    user, patch_id, context, state, target_url="", description=""
+):
     """Add a Check to a patch.
 
     **NOTE:** Authentication is required for this method.
@@ -920,8 +937,14 @@ def check_create(user, patch_id, context, state, target_url="",
             break
     else:
         raise Exception("Invalid check state: %s" % state)
-    Check.objects.create(patch=patch, context=context, state=state, user=user,
-                         target_url=target_url, description=description)
+    Check.objects.create(
+        patch=patch,
+        context=context,
+        state=state,
+        user=user,
+        target_url=target_url,
+        description=description,
+    )
     return True
 
 

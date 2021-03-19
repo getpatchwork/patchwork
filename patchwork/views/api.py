@@ -41,8 +41,9 @@ def _handle_request(request, queryset_fn, formatter):
 
 def submitters(request):
     def queryset(search):
-        return Person.objects.filter(Q(name__icontains=search) |
-                                     Q(email__icontains=search))
+        return Person.objects.filter(
+            Q(name__icontains=search) | Q(email__icontains=search)
+        )
 
     def formatter(submitter):
         return {
@@ -56,9 +57,11 @@ def submitters(request):
 
 def delegates(request):
     def queryset(search):
-        return User.objects.filter(Q(username__icontains=search) |
-                                   Q(first_name__icontains=search) |
-                                   Q(last_name__icontains=search))
+        return User.objects.filter(
+            Q(username__icontains=search)
+            | Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+        )
 
     def formatter(user):
         return {

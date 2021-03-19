@@ -52,8 +52,9 @@ def bundle_list(request, project_id=None):
         if form_name == DeleteBundleForm.name:
             form = DeleteBundleForm(request.POST)
             if form.is_valid():
-                bundle = get_object_or_404(Bundle,
-                                           id=form.cleaned_data['bundle_id'])
+                bundle = get_object_or_404(
+                    Bundle, id=form.cleaned_data['bundle_id']
+                )
                 bundle.delete()
 
     if project_id is None:
@@ -63,8 +64,9 @@ def bundle_list(request, project_id=None):
         bundles = request.user.bundles.filter(project=project)
 
     for bundle in bundles:
-        bundle.delete_form = DeleteBundleForm(auto_id=False,
-                                              initial={'bundle_id': bundle.id})
+        bundle.delete_form = DeleteBundleForm(
+            auto_id=False, initial={'bundle_id': bundle.id}
+        )
 
     context = {
         'bundles': bundles,
@@ -75,8 +77,9 @@ def bundle_list(request, project_id=None):
 
 
 def bundle_detail(request, username, bundlename):
-    bundle = get_object_or_404(Bundle, owner__username=username,
-                               name=bundlename)
+    bundle = get_object_or_404(
+        Bundle, owner__username=username, name=bundlename
+    )
     filter_settings = [(DelegateFilter, DelegateFilter.ANY_DELEGATE)]
 
     is_owner = request.user == bundle.owner
@@ -105,30 +108,38 @@ def bundle_detail(request, username, bundlename):
         else:
             form = BundleForm(instance=bundle)
 
-        if (request.method == 'POST' and
-            request.POST.get('form') == 'reorderform'):
+        if (
+            request.method == 'POST'
+            and request.POST.get('form') == 'reorderform'
+        ):
             order = get_object_or_404(
                 BundlePatch,
                 bundle=bundle,
-                patch__id=request.POST.get('order_start')).order
+                patch__id=request.POST.get('order_start'),
+            ).order
 
             for patch_id in request.POST.getlist('neworder'):
-                bundlepatch = get_object_or_404(BundlePatch,
-                                                bundle=bundle,
-                                                patch__id=patch_id)
+                bundlepatch = get_object_or_404(
+                    BundlePatch, bundle=bundle, patch__id=patch_id
+                )
                 bundlepatch.order = order
                 bundlepatch.save()
                 order += 1
     else:
         form = None
 
-    context = generic_list(request, bundle.project,
-                           'bundle-detail',
-                           view_args={'username': bundle.owner.username,
-                                      'bundlename': bundle.name},
-                           filter_settings=filter_settings,
-                           patches=bundle.ordered_patches(),
-                           editable_order=is_owner)
+    context = generic_list(
+        request,
+        bundle.project,
+        'bundle-detail',
+        view_args={
+            'username': bundle.owner.username,
+            'bundlename': bundle.name,
+        },
+        filter_settings=filter_settings,
+        patches=bundle.ordered_patches(),
+        editable_order=is_owner,
+    )
 
     context['bundle'] = bundle
     context['bundleform'] = form
@@ -137,16 +148,18 @@ def bundle_detail(request, username, bundlename):
 
 
 def bundle_mbox(request, username, bundlename):
-    bundle = get_object_or_404(Bundle, owner__username=username,
-                               name=bundlename)
+    bundle = get_object_or_404(
+        Bundle, owner__username=username, name=bundlename
+    )
 
     request.user = rest_auth(request)
     if not (request.user == bundle.owner or bundle.public):
         return HttpResponseNotFound()
 
     response = HttpResponse(content_type='text/plain')
-    response['Content-Disposition'] = \
-        'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+    response[
+        'Content-Disposition'
+    ] = 'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
     response.write(bundle_to_mbox(bundle))
 
     return response
@@ -162,7 +175,11 @@ def bundle_detail_redir(request, bundle_id):
 def bundle_mbox_redir(request, bundle_id):
     bundle = get_object_or_404(Bundle, id=bundle_id, owner=request.user)
     return HttpResponseRedirect(
-        reverse('bundle-mbox', kwargs={
-            'username': request.user.username,
-            'bundlename': bundle.name,
-        }))
+        reverse(
+            'bundle-mbox',
+            kwargs={
+                'username': request.user.username,
+                'bundlename': bundle.name,
+            },
+        )
+    )

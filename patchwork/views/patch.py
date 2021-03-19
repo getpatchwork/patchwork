@@ -25,8 +25,12 @@ from patchwork.views.utils import series_patch_to_mbox
 
 def patch_list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
-    context = generic_list(request, project, 'patch-list',
-                           view_args={'project_id': project.linkname})
+    context = generic_list(
+        request,
+        project,
+        'patch-list',
+        view_args={'project_id': project.linkname},
+    )
 
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
@@ -36,7 +40,7 @@ def patch_list(request, project_id):
 
 def patch_detail(request, project_id, msgid):
     project = get_object_or_404(Project, linkname=project_id)
-    db_msgid = ('<%s>' % msgid)
+    db_msgid = '<%s>' % msgid
 
     # redirect to cover letters where necessary
     try:
@@ -48,15 +52,15 @@ def patch_detail(request, project_id, msgid):
         )
         if covers:
             return HttpResponseRedirect(
-                reverse('cover-detail',
-                        kwargs={'project_id': project.linkname,
-                                'msgid': msgid}))
+                reverse(
+                    'cover-detail',
+                    kwargs={'project_id': project.linkname, 'msgid': msgid},
+                )
+            )
         raise Http404('Patch does not exist')
 
     editable = patch.is_editable(request.user)
-    context = {
-        'project': patch.project
-    }
+    context = {'project': patch.project}
 
     form = None
     createbundleform = None
@@ -73,8 +77,9 @@ def patch_detail(request, project_id, msgid):
 
         if action == 'createbundle':
             bundle = Bundle(owner=request.user, project=project)
-            createbundleform = CreateBundleForm(instance=bundle,
-                                                data=request.POST)
+            createbundleform = CreateBundleForm(
+                instance=bundle, data=request.POST
+            )
             if createbundleform.is_valid():
                 createbundleform.save()
                 bundle.append_patch(patch)
@@ -83,16 +88,20 @@ def patch_detail(request, project_id, msgid):
                 messages.success(request, 'Bundle %s created' % bundle.name)
         elif action == 'addtobundle':
             bundle = get_object_or_404(
-                Bundle, id=request.POST.get('bundle_id'))
+                Bundle, id=request.POST.get('bundle_id')
+            )
             if bundle.append_patch(patch):
-                messages.success(request,
-                                 'Patch "%s" added to bundle "%s"' % (
-                                     patch.name, bundle.name))
+                messages.success(
+                    request,
+                    'Patch "%s" added to bundle "%s"'
+                    % (patch.name, bundle.name),
+                )
             else:
-                messages.error(request,
-                               'Failed to add patch "%s" to bundle "%s": '
-                               'patch is already in bundle' % (
-                                   patch.name, bundle.name))
+                messages.error(
+                    request,
+                    'Failed to add patch "%s" to bundle "%s": '
+                    'patch is already in bundle' % (patch.name, bundle.name),
+                )
 
         # all other actions require edit privs
         elif not editable:
@@ -114,10 +123,12 @@ def patch_detail(request, project_id, msgid):
 
     if patch.related:
         related_same_project = patch.related.patches.only(
-            'name', 'msgid', 'project', 'related')
+            'name', 'msgid', 'project', 'related'
+        )
         # avoid a second trip out to the db for info we already have
         related_different_project = [
-            related_patch for related_patch in related_same_project
+            related_patch
+            for related_patch in related_same_project
             if related_patch.project_id != patch.project_id
         ]
     else:
@@ -140,20 +151,21 @@ def patch_detail(request, project_id, msgid):
 
 
 def patch_raw(request, project_id, msgid):
-    db_msgid = ('<%s>' % msgid)
+    db_msgid = '<%s>' % msgid
     project = get_object_or_404(Project, linkname=project_id)
     patch = get_object_or_404(Patch, project_id=project.id, msgid=db_msgid)
 
     response = HttpResponse(content_type="text/x-patch")
     response.write(patch.diff)
     response['Content-Disposition'] = 'attachment; filename=%s.diff' % (
-        patch.filename)
+        patch.filename
+    )
 
     return response
 
 
 def patch_mbox(request, project_id, msgid):
-    db_msgid = ('<%s>' % msgid)
+    db_msgid = '<%s>' % msgid
     project = get_object_or_404(Project, linkname=project_id)
     patch = get_object_or_404(Patch, project_id=project.id, msgid=db_msgid)
     series_id = request.GET.get('series')
@@ -164,7 +176,8 @@ def patch_mbox(request, project_id, msgid):
     else:
         response.write(patch_to_mbox(patch))
     response['Content-Disposition'] = 'attachment; filename=%s.patch' % (
-        patch.filename)
+        patch.filename
+    )
 
     return response
 
@@ -172,8 +185,13 @@ def patch_mbox(request, project_id, msgid):
 def patch_by_id(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
 
-    url = reverse('patch-detail', kwargs={'project_id': patch.project.linkname,
-                                          'msgid': patch.url_msgid})
+    url = reverse(
+        'patch-detail',
+        kwargs={
+            'project_id': patch.project.linkname,
+            'msgid': patch.url_msgid,
+        },
+    )
 
     return HttpResponseRedirect(url)
 
@@ -181,8 +199,13 @@ def patch_by_id(request, patch_id):
 def patch_mbox_by_id(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
 
-    url = reverse('patch-mbox', kwargs={'project_id': patch.project.linkname,
-                                        'msgid': patch.url_msgid})
+    url = reverse(
+        'patch-mbox',
+        kwargs={
+            'project_id': patch.project.linkname,
+            'msgid': patch.url_msgid,
+        },
+    )
 
     return HttpResponseRedirect(url)
 
@@ -190,7 +213,12 @@ def patch_mbox_by_id(request, patch_id):
 def patch_raw_by_id(request, patch_id):
     patch = get_object_or_404(Patch, id=patch_id)
 
-    url = reverse('patch-raw', kwargs={'project_id': patch.project.linkname,
-                                       'msgid': patch.url_msgid})
+    url = reverse(
+        'patch-raw',
+        kwargs={
+            'project_id': patch.project.linkname,
+            'msgid': patch.url_msgid,
+        },
+    )
 
     return HttpResponseRedirect(url)
