@@ -3,6 +3,20 @@
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block body %}
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="notification is-success">
+{% elif message.tags == 'warning' %}
+<div class="notification is-warning">
+{% elif message.tags == 'error' %}
+<div class="notification is-danger">
+{% else %}
+<div class="notification">
+{% endif %}
+  {{ message }}
+  <button class="delete" onclick="dismiss(this);"></button>
+</div>
+{% endfor %}
 <div class="container" style="margin-top: 1rem;">
   <div class="columns">
     <div class="column is-3">
@@ -100,7 +114,6 @@
         Settings
       </h1>
 
-{# TODO: Add view to enable this #}
       <section class="block">
         <h2 id="profile" class="title is-4">
           <a href="#profile" title="Permalink to this section">#</a>
@@ -108,6 +121,7 @@
         </h2>
         <form method="post">
           {% csrf_token %}
+          <input type="hidden" name="form_name" value="user-form">
           <div class="field">
             <label for="id_username" class="label">
               Username
@@ -143,6 +157,12 @@
           <a href="#linked-emails" title="Permalink to this section">#</a>
           Linked emails
         </h2>
+{% if user_link_email_form.non_field_errors %}
+        <div class="notification is-danger is-light">
+          <button class="delete" onclick="dismiss(this);"></button>
+          {{ user_link_email_form.non_field_errors }}
+        </div>
+{% endif %}
 {% for email in linked_emails %}
         <div class="card">
           <div class="card-content">
@@ -155,14 +175,17 @@
               </div>
 {% if user.email != email.email %}
               <div class="column is-narrow">
-                <form method="post" action="{% url 'user-unlink' person_id=email.id %}">
+                <form method="post">
                   {% csrf_token %}
+                  <input type="hidden" name="form_name" value="user-unlink-email-form">
+                  <input type="hidden" name="email" value="{{ email.email }}">
                   <button class="button is-danger">Unlink</button>
                 </form>
               </div>
-{# TODO: Add view to enable this #}
               <div class="column is-narrow">
                 <form method="post">
+                  <input type="hidden" name="form_name" value="user-primary-email-form">
+                  <input type="hidden" name="email" value="{{ email.email }}">
                   {% csrf_token %}
                   <button class="button is-info">Make primary</button>
                 </form>
@@ -170,14 +193,16 @@
 {% endif %}
               <div class="column is-narrow">
 {% if email.is_optout %}
-                <form method="post" action="{% url 'mail-optin' %}">
+                <form method="post">
                   {% csrf_token %}
+                  <input type="hidden" name="form_name" value="user-email-optin-form">
                   <input type="hidden" name="email" value="{{ email.email }}"/>
                   <button class="button is-info is-right">Opt-in</button>
                 </form>
 {% else %}
-                <form method="post" action="{% url 'mail-optout' %}">
+                <form method="post">
                   {% csrf_token %}
+                  <input type="hidden" name="form_name" value="user-email-optout-form">
                   <input type="hidden" name="email" value="{{ email.email }}"/>
                   <button class="button is-info">Opt-out</button>
                 </form>
@@ -189,14 +214,18 @@
 {% endfor %}
         <div class="block"></div>
         <div class="block">
-          <form class="block" method="post" action="{% url 'user-link' %}">
+          <form class="block" method="post">
             {% csrf_token %}
+            <input type="hidden" name="form_name" value="user-link-email-form">
             <label for="id_email" class="label">
               Add email address
             </label>
             <div class="field is-grouped">
               <div class="control">
-                <input id="id_email" type="email" name="email" placeholder="e.g. bobsmith@example.com" class="input" required>
+                <input id="id_email" type="email" name="email" placeholder="e.g. bobsmith@example.com" class="input" value="{{ user_link_email_form.email.value|default:'' }}" required>
+{% for error in user_link_email_form.email.errors %}
+                <p class="help is-danger">{{ error }}</p>
+{% endfor %}
               </div>
               <div class="control">
                 <button class="button is-info">
@@ -213,8 +242,15 @@
           <a href="#profile-settings" title="Permalink to this section">#</a>
           Profile settings
         </h2>
+{% if user_profile_form.non_field_errors %}
+        <div class="notification is-danger is-light">
+          <button class="delete" onclick="dismiss(this);"></button>
+          {{ user_profile_form.non_field_errors }}
+        </div>
+{% endif %}
         <form class="block" method="post">
           {% csrf_token %}
+          <input type="hidden" name="form_name" value="user-profile-form">
           <div class="field">
             <label for="id_items_per_page" class="label">
               Items per page
@@ -222,6 +258,9 @@
             <div class="control">
               <input id="id_items_per_page" type="number" name="items_per_page" class="input" value="{{ user.profile.items_per_page }}" required>
               <p class="help">Number of items to display per page</p>
+{% for error in user_profile_form.items_per_page.errors %}
+              <p class="help is-danger">{{ error }}</p>
+{% endfor %}
             </div>
           </div>
           <div class="field">
@@ -230,14 +269,17 @@
             </p>
             <div class="control">
               <label class="radio">
-                <input type="radio" name="show_ids">
+                <input type="radio" name="show_ids" value="yes" {% if user.profile.show_ids %}checked{% endif %}>
                 Yes
               </label>
               <label class="radio">
-                <input type="radio" name="show_ids">
+                <input type="radio" name="show_ids" value="no" {% if not user.profile.show_ids %}checked{% endif %}>
                 No
               </label>
               <p class="help">Show click-to-copy patch IDs in the list view</p>
+{% for error in user_profile_form.show_ids.errors %}
+              <p class="help is-danger">{{ error }}</p>
+{% endfor %}
             </div>
           </div>
           <div class="control">
@@ -251,8 +293,15 @@
           <a href="#security" title="Permalink to this section">#</a>
           Security
         </h2>
-        <form class="block" method="post" action="{% url 'password_change' %}">
+{% if user_password_form.non_field_errors %}
+        <div class="notification is-danger is-light">
+          <button class="delete" onclick="dismiss(this);"></button>
+          {{ user_password_form.non_field_errors }}
+        </div>
+{% endif %}
+        <form class="block" method="post">
           {% csrf_token %}
+          <input type="hidden" name="form_name" value="user-password-form">
           <div class="field">
             <label for="id_old_password" class="label">
               Current password
@@ -260,22 +309,31 @@
             <div class="control">
               <input id="id_old_password" type="password" name="old_password" class="input" required>
             </div>
+{% for error in user_password_form.old_password.errors %}
+            <p class="help is-danger">{{ error }}</p>
+{% endfor %}
           </div>
           <div class="field">
             <label for="id_new_password1" class="label">
               New password
             </label>
             <div class="control">
-              <input id="id_new_password1" type="password" name="new_password1" class="input" required>
+              <input id="id_new_password1" type="password" name="new_password1" class="input" autocomplete="new-password" required>
             </div>
+{% for error in user_password_form.new_password1.errors %}
+            <p class="help is-danger">{{ error }}</p>
+{% endfor %}
           </div>
           <div class="field">
             <label for="id_new_password2" class="label">
               Confirm password
             </label>
             <div class="control">
-              <input id="id_new_password2" type="password" name="new_password2" class="input" required>
+              <input id="id_new_password2" type="password" name="new_password2" class="input" autocomplete="new-password" required>
             </div>
+{% for error in user_password_form.new_password2.errors %}
+            <p class="help is-danger">{{ error }}</p>
+{% endfor %}
           </div>
           <div class="control">
             <button class="button is-primary is-disabled">Update password</button>
@@ -333,5 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function dismiss(el){
+  el.parentNode.style.display = 'none';
+};
 </script>
 {% endblock %}

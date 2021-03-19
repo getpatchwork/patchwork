@@ -6,7 +6,10 @@
 import smtplib
 
 from django.contrib import auth
+from django.contrib.auth import forms as auth_forms
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.conf import settings
 from django.core.mail import send_mail
@@ -17,8 +20,12 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 
 from patchwork.filters import DelegateFilter
-from patchwork.forms import EmailForm
+from patchwork import forms
 from patchwork.forms import RegistrationForm
+from patchwork.forms import UserLinkEmailForm
+from patchwork.forms import UserUnlinkEmailForm
+from patchwork.forms import UserPrimaryEmailForm
+from patchwork.forms import UserForm
 from patchwork.forms import UserProfileForm
 from patchwork.models import EmailConfirmation
 from patchwork.models import EmailOptout
@@ -96,20 +103,199 @@ def register_confirm(request, conf):
     return render(request, 'patchwork/registration-confirm.html')
 
 
+def _opt_in(request, email):
+    conf = EmailConfirmation(type='optin', email=email)
+    conf.save()
+
+    context = {'confirmation': conf}
+    subject = render_to_string('patchwork/mails/optin-request-subject.txt')
+    message = render_to_string(
+        'patchwork/mails/optin-request.txt', context, request=request)
+
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+    except smtplib.SMTPException:
+        messages.error(
+            request,
+            'An error occurred while submitting this request. '
+            'Please contact an administrator.'
+        )
+        return False
+
+    return True
+
+
+def _opt_out(request, email):
+    conf = EmailConfirmation(type='optout', email=email)
+    conf.save()
+
+    context = {'confirmation': conf}
+    subject = render_to_string('patchwork/mails/optout-request-subject.txt')
+    message = render_to_string(
+        'patchwork/mails/optout-request.txt', context, request=request)
+
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+    except smtplib.SMTPException:
+        messages.error(
+            request,
+            'An error occurred while submitting this request. '
+            'Please contact an administrator.'
+        )
+        return False
+
+    return True
+
+
+def _send_confirmation_email(request, email):
+    conf = EmailConfirmation(type='userperson', user=request.user, email=email)
+    conf.save()
+
+    context = {'confirmation': conf}
+    subject = render_to_string('patchwork/mails/user-link-subject.txt')
+    message = render_to_string(
+        'patchwork/mails/user-link.txt',
+        context,
+        request=request,
+    )
+
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+    except smtplib.SMTPException:
+        messages.error(
+            request,
+            'An error occurred while submitting this request. '
+            'Please contact an administrator.'
+        )
+        return False
+
+    return True
+
+
 @login_required
 def profile(request):
+    user_link_email_form = UserLinkEmailForm(user=request.user)
+    user_unlink_email_form = UserUnlinkEmailForm(user=request.user)
+    user_primary_email_form = UserPrimaryEmailForm(instance=request.user)
+    user_email_optin_form = forms.UserEmailOptinForm(user=request.user)
+    user_email_optout_form = forms.UserEmailOptoutForm(user=request.user)
+    user_form = UserForm(instance=request.user)
+    user_password_form = auth_forms.PasswordChangeForm(user=request.user)
+    user_profile_form = UserProfileForm(instance=request.user.profile)
+
     if request.method == 'POST':
-        form = UserProfileForm(
-            instance=request.user.profile, data=request.POST
-        )
-        if form.is_valid():
-            form.save()
-    else:
-        form = UserProfileForm(instance=request.user.profile)
+        form_name = request.POST.get('form_name', '')
+        if form_name == UserLinkEmailForm.name:
+            user_link_email_form = UserLinkEmailForm(
+                user=request.user, data=request.POST
+            )
+            if user_link_email_form.is_valid():
+                if _send_confirmation_email(
+                    request, user_link_email_form.cleaned_data['email'],
+                ):
+                    messages.success(
+                        request,
+                        'Added new email. Check your email for confirmation.',
+                    )
+                    return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error linking new email.')
+        elif form_name == UserUnlinkEmailForm.name:
+            user_unlink_email_form = UserUnlinkEmailForm(
+                user=request.user, data=request.POST
+            )
+            if user_unlink_email_form.is_valid():
+                person = get_object_or_404(
+                    Person, email=user_unlink_email_form.cleaned_data['email']
+                )
+                person.user = None
+                person.save()
+                messages.success(request, 'Unlinked email.')
+                return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error unlinking email.')
+        elif form_name == UserPrimaryEmailForm.name:
+            user_primary_email_form = UserPrimaryEmailForm(
+                instance=request.user, data=request.POST
+            )
+            if user_primary_email_form.is_valid():
+                user_primary_email_form.save()
+                messages.success(request, 'Primary email updated.')
+                return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error updating primary email.')
+        elif form_name == forms.UserEmailOptinForm.name:
+            user_email_optin_form = forms.UserEmailOptinForm(
+                user=request.user, data=request.POST)
+            if user_email_optin_form.is_valid():
+                if _opt_in(
+                    request, user_email_optin_form.cleaned_data['email'],
+                ):
+                    messages.success(
+                        request,
+                        'Requested opt-in to email from Patchwork. '
+                        'Check your email for confirmation.',
+                    )
+                    return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error opting into email.')
+        elif form_name == forms.UserEmailOptoutForm.name:
+            user_email_optout_form = forms.UserEmailOptoutForm(
+                user=request.user, data=request.POST)
+            if user_email_optout_form.is_valid():
+                if _opt_out(
+                    request, user_email_optout_form.cleaned_data['email'],
+                ):
+                    messages.success(
+                        request,
+                        'Requested opt-out from email from Patchwork. '
+                        'Check your email for confirmation.',
+                    )
+                    return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error opting out of email.')
+        elif form_name == UserForm.name:
+            user_form = UserForm(instance=request.user, data=request.POST)
+            if user_form.is_valid():
+                user_form.save()
+                messages.success(request, 'Name updated.')
+                return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error updating name.')
+        elif form_name == 'user-password-form':
+            user_password_form = auth_forms.PasswordChangeForm(
+                user=request.user, data=request.POST
+            )
+            if user_password_form.is_valid():
+                user_password_form.save()
+                update_session_auth_hash(request, request.user)
+                messages.success(request, 'Password updated.')
+                return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error updating password.')
+        elif form_name == UserProfileForm.name:
+            user_profile_form = UserProfileForm(
+                instance=request.user.profile, data=request.POST
+            )
+            if user_profile_form.is_valid():
+                user_profile_form.save()
+                messages.success(request, 'Preferences updated.')
+                return HttpResponseRedirect(reverse('user-profile'))
+
+            messages.error(request, 'Error updating preferences.')
+        else:
+            messages.error(request, 'Unrecognized request')
 
     context = {
         'bundles': request.user.bundles.all(),
-        'profileform': form,
+        'user_link_email_form': user_link_email_form,
+        'user_unlink_email_form': user_unlink_email_form,
+        'user_primary_email_form': user_primary_email_form,
+        'user_email_optin_form': user_email_optin_form,
+        'user_email_optout_form': user_email_optout_form,
+        'user_form': user_form,
+        'user_password_form': user_password_form,
+        'user_profile_form': user_profile_form,
     }
 
     # This looks unsafe but is actually fine: it just gets the names
@@ -127,53 +313,9 @@ def profile(request):
         select={'is_optout': optout_query}
     )
     context['linked_emails'] = people
-    context['linkform'] = EmailForm()
     context['api_token'] = request.user.profile.token
-    if settings.ENABLE_REST_API:
-        context['rest_api_enabled'] = True
 
     return render(request, 'patchwork/profile.html', context)
-
-
-@login_required
-def link(request):
-    context = {}
-
-    if request.method == 'POST':
-        form = EmailForm(request.POST)
-        if form.is_valid():
-            conf = EmailConfirmation(
-                type='userperson',
-                user=request.user,
-                email=form.cleaned_data['email'],
-            )
-            conf.save()
-
-            context['confirmation'] = conf
-
-            subject = render_to_string('patchwork/mails/user-link-subject.txt')
-            message = render_to_string(
-                'patchwork/mails/user-link.txt', context, request=request
-            )
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [form.cleaned_data['email']],
-                )
-            except smtplib.SMTPException:
-                context['confirmation'] = None
-                context['error'] = (
-                    'An error occurred during confirmation. '
-                    'Please try again later'
-                )
-    else:
-        form = EmailForm()
-
-    context['linkform'] = form
-
-    return render(request, 'patchwork/user-link.html', context)
 
 
 @login_required
@@ -187,20 +329,7 @@ def link_confirm(request, conf):
     person.save()
     conf.deactivate()
 
-    context = {
-        'person': person,
-    }
-
-    return render(request, 'patchwork/user-link-confirm.html', context)
-
-
-@login_required
-def unlink(request, person_id):
-    person = get_object_or_404(Person, id=person_id)
-
-    if request.method == 'POST' and person.email != request.user.email:
-        person.user = None
-        person.save()
+    messages.success(request, 'Successfully linked email to account.')
 
     return HttpResponseRedirect(reverse('user-profile'))
 

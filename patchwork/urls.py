@@ -128,19 +128,7 @@ urlpatterns = [
     path('user/todo/', user_views.todo_lists, name='user-todos'),
     path('user/todo/<project_id>/', user_views.todo_list, name='user-todo'),
     path('user/bundles/', bundle_views.bundle_list, name='user-bundles'),
-    path('user/link/', user_views.link, name='user-link'),
-    path('user/unlink/<person_id>/', user_views.unlink, name='user-unlink'),
-    # password change
-    path(
-        'user/password-change/',
-        auth_views.PasswordChangeView.as_view(),
-        name='password_change',
-    ),
-    path(
-        'user/password-change/done/',
-        auth_views.PasswordChangeDoneView.as_view(),
-        name='password_change_done',
-    ),
+    # password reset
     path(
         'user/password-reset/',
         auth_views.PasswordResetView.as_view(),

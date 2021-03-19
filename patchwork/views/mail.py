@@ -86,8 +86,8 @@ def _optinout(request, action):
 
     email = form.cleaned_data['email']
     if (
-        action == 'optin'
-        and EmailOptout.objects.filter(email=email).count() == 0
+        action == 'optin' and
+        EmailOptout.objects.filter(email=email).count() == 0
     ):
         context['error'] = (
             "The email address %s is not on the patchwork "
@@ -109,7 +109,7 @@ def _optinout(request, action):
     except smtplib.SMTPException:
         context['confirmation'] = None
         context['error'] = (
-            'An error occurred during confirmation . '
+            'An error occurred during confirmation. '
             'Please try again later.'
         )
         context['admins'] = conf_settings.ADMINS

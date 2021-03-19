@@ -243,29 +243,40 @@ class UserLinkTest(_UserTestCase):
         self.secondary_email = _generate_secondary_email(self.user)
 
     def test_user_person_request_form(self):
-        response = self.client.get(reverse('user-link'))
+        response = self.client.get(reverse('user-profile'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['linkform'])
+        self.assertTrue(response.context['user_link_email_form'])
 
-    def test_user_person_request_empty(self):
-        response = self.client.post(reverse('user-link'), {'email': ''})
+    def _test_user_link_error(self, email, error):
+        response = self.client.post(
+            reverse('user-profile'),
+            {'form_name': 'user-link-email-form', 'email': email},
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['linkform'])
-        self.assertFormError(response, 'linkform', 'email',
-                             'This field is required.')
+        self.assertTrue(response.context['user_link_email_form'])
+        self.assertFormError(
+            response, 'user_link_email_form', 'email', error)
 
-    def test_user_person_request_invalid(self):
-        response = self.client.post(reverse('user-link'), {'email': 'foo'})
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['linkform'])
-        self.assertFormError(response, 'linkform', 'email',
-                             error_strings['email'])
+    def test_user_link_empty_request(self):
+        self._test_user_link_error('', 'This field is required.')
 
-    def test_user_person_request_valid(self):
-        response = self.client.post(reverse('user-link'),
-                                    {'email': self.secondary_email})
+    def test_user_link_invalid_email(self):
+        self._test_user_link_error('foo', error_strings['email'])
+
+    def test_user_link_email_already_linked(self):
+        self._test_user_link_error(
+            self.user.email, 'That email is already linked to your account.')
+
+    def test_user_link_success(self):
+        response = self.client.post(
+            reverse('user-profile'),
+            {
+                'form_name': 'user-link-email-form',
+                'email': self.secondary_email,
+            },
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['confirmation'])
+        self.assertTrue(response.context['user_link_email_form'])
 
         # check that we have a confirmation saved
         self.assertEqual(EmailConfirmation.objects.count(), 1)
@@ -283,8 +294,7 @@ class UserLinkTest(_UserTestCase):
 
         # ...and that the URL is valid
         response = self.client.get(_confirmation_url(conf))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'patchwork/user-link-confirm.html')
+        self.assertRedirects(response, reverse('user-profile'))
 
 
 class ConfirmationTest(TestCase):
