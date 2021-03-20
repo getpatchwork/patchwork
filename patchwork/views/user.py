@@ -103,50 +103,6 @@ def register_confirm(request, conf):
     return render(request, 'patchwork/registration-confirm.html')
 
 
-def _opt_in(request, email):
-    conf = EmailConfirmation(type='optin', email=email)
-    conf.save()
-
-    context = {'confirmation': conf}
-    subject = render_to_string('patchwork/mails/optin-request-subject.txt')
-    message = render_to_string(
-        'patchwork/mails/optin-request.txt', context, request=request)
-
-    try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-    except smtplib.SMTPException:
-        messages.error(
-            request,
-            'An error occurred while submitting this request. '
-            'Please contact an administrator.'
-        )
-        return False
-
-    return True
-
-
-def _opt_out(request, email):
-    conf = EmailConfirmation(type='optout', email=email)
-    conf.save()
-
-    context = {'confirmation': conf}
-    subject = render_to_string('patchwork/mails/optout-request-subject.txt')
-    message = render_to_string(
-        'patchwork/mails/optout-request.txt', context, request=request)
-
-    try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-    except smtplib.SMTPException:
-        messages.error(
-            request,
-            'An error occurred while submitting this request. '
-            'Please contact an administrator.'
-        )
-        return False
-
-    return True
-
-
 def _send_confirmation_email(request, email):
     conf = EmailConfirmation(type='userperson', user=request.user, email=email)
     conf.save()
@@ -228,30 +184,28 @@ def profile(request):
             user_email_optin_form = forms.UserEmailOptinForm(
                 user=request.user, data=request.POST)
             if user_email_optin_form.is_valid():
-                if _opt_in(
-                    request, user_email_optin_form.cleaned_data['email'],
-                ):
-                    messages.success(
-                        request,
-                        'Requested opt-in to email from Patchwork. '
-                        'Check your email for confirmation.',
-                    )
-                    return HttpResponseRedirect(reverse('user-profile'))
+                EmailOptout.objects.filter(
+                    email=user_email_optin_form.cleaned_data['email'],
+                ).delete()
+                messages.success(
+                    request,
+                    'Opt-in into email from Patchwork.'
+                )
+                return HttpResponseRedirect(reverse('user-profile'))
 
             messages.error(request, 'Error opting into email.')
         elif form_name == forms.UserEmailOptoutForm.name:
             user_email_optout_form = forms.UserEmailOptoutForm(
                 user=request.user, data=request.POST)
             if user_email_optout_form.is_valid():
-                if _opt_out(
-                    request, user_email_optout_form.cleaned_data['email'],
-                ):
-                    messages.success(
-                        request,
-                        'Requested opt-out from email from Patchwork. '
-                        'Check your email for confirmation.',
-                    )
-                    return HttpResponseRedirect(reverse('user-profile'))
+                EmailOptout(
+                    email=user_email_optout_form.cleaned_data['email'],
+                ).save()
+                messages.success(
+                    request,
+                    'Opted-out from email from Patchwork.'
+                )
+                return HttpResponseRedirect(reverse('user-profile'))
 
             messages.error(request, 'Error opting out of email.')
         elif form_name == UserForm.name:
