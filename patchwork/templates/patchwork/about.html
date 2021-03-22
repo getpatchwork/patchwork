@@ -1,70 +1,105 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block title %}About{% endblock %}
-{% block heading %}About Patchwork{% endblock %}
 
 {% block body %}
-<div class="container">
-  <h1>About Patchwork</h1>
+<div class="container" style="margin-top: 1rem;">
+  <section class="block">
+    <h1 class="title">
+      About Patchwork
+    </h1>
 
-  <p>Patchwork is free software, and is available from the <a
-     href="http://jk.ozlabs.org/projects/patchwork/">Patchwork website</a>.
-     Documentation is available on <a
-     href="http://patchwork.readthedocs.io/">Read the Docs</a>.</p>
+    <p>
+      Patchwork is a patch tracking system for community-based projects.
+      It is intended to make the patch management process easier for both the
+      project's contributors and maintainers, leaving time for the more
+      important (and more interesting) stuff.
+    </p>
 
-  <p>Patchwork is built on the <a href="https://djangoproject.com/">Django</a>
-  web framework using <a href="https://getbootstrap.com/">Bootstrap</a>.</p>
+    <p>
+      Patchwork is free software, and is available from the
+      <a href="https://github.com/getpatchwork/patchwork/">Patchwork website</a>.
+      Documentation is available on
+      <a href="http://patchwork.readthedocs.io/">Read the Docs</a>.
+    </p>
+  </section>
 
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">Version</h3>
+  <section class="block">
+    <h2 id="overview" class="title is-4">
+      <a href="#overview" title="Permalink to this section">#</a>
+      Status
+    </h2>
+
+    <div class="card">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <span class="has-text-weight-bold">Version</span>
+          </div>
+          <div class="column is-narrow">
+            {{ version }}
+          </div>
+        </div>
+      </div>
     </div>
-    <ul class="list-group">
-      <li class="list-group-item">
-        <p>{{ version }}</p>
-      </li>
-    </ul>
-  </div>
 
-  {% if admins %}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">Administrators</h3>
+    <div class="card">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <span class="has-text-weight-bold">REST API</span>
+          </div>
+          <div class="column is-narrow">
+{% if enabled_apis.rest %}
+            <span class="tag is-medium is-success">enabled</span>
+{% else %}
+            <span class="tag is-medium is-danger">disabled</span>
+{% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-    <ul class="list-group">
-      {% for admin in admins %}
-      <li class="list-group-item">
-        <a href="mailto:{{ admin.1 }}">{{ admin.0 }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
 
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">API Status</h3>
+    <div class="card">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <span class="has-text-weight-bold">XML-RPC API</span>
+          </div>
+          <div class="column is-narrow">
+{% if enabled_apis.xmlrpc %}
+            <span class="tag is-medium is-success">enabled</span>
+{% else %}
+            <span class="tag is-medium is-danger">disabled</span>
+{% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-    <ul class="list-group">
-      <li class="list-group-item">
-        REST
-        <span class="glyphicon glyphicon-question-sign" title="The REST API"></span>
-        {% if enabled_apis.rest %}
-        <span class="label label-success pull-right">enabled</span>
-        {% else %}
-        <span class="label label-warning pull-right">disabled</span>
-        {% endif %}
-      </li>
-      <li class="list-group-item">
-        XML-RPC
-        <span class="glyphicon glyphicon-question-sign" title="The XML-RPC API"></span>
-        {% if enabled_apis.xmlrpc %}
-        <span class="label label-success pull-right">enabled</span>
-        {% else %}
-        <span class="label label-warning pull-right">disabled</span>
-        {% endif %}
-      </li>
-    </ul>
-  </div>
+
+  </section>
+
+  <section class="block">
+    <h2 id="administrators" class="title is-4">
+      <a href="#administrators" title="Permalink to this section">#</a>
+      Administrators
+    </h2>
+{% for admin in admins %}
+    <div class="card">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <span class="has-text-weight-bold">{{ admin.0 }}</span>
+          </div>
+          <div class="column">
+            <span>{{ admin.1 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+{% empty %}
+    <p>This instance has no administrators.</p>
+{% endfor %}
+  </section>
 </div>
 {% endblock %}
