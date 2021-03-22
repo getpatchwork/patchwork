@@ -32,6 +32,7 @@ class RegistrationForm(forms.Form):
             User.objects.get(username__iexact=value)
         except User.DoesNotExist:
             return self.cleaned_data['username']
+
         raise forms.ValidationError(
             'This username is already taken. Please choose another.'
         )
@@ -39,12 +40,12 @@ class RegistrationForm(forms.Form):
     def clean_email(self):
         value = self.cleaned_data['email']
         try:
-            user = User.objects.get(email__iexact=value)
+            User.objects.get(email__iexact=value)
         except User.DoesNotExist:
             return self.cleaned_data['email']
+
         raise forms.ValidationError(
-            'This email address is already in use '
-            'for the account "%s".\n' % user.username
+            'This email address is already in use for another account.'
         )
 
     def clean(self):

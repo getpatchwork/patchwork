@@ -81,11 +81,18 @@ def register(request):
                     [confirmation.email]
                 )
             except smtplib.SMTPException:
-                context['confirmation'] = None
-                context['error'] = (
-                    'An error occurred during registration. '
-                    'Please try again later'
+                messages.error(
+                    request,
+                    'An error occurred while submitting this request. '
+                    'Please contact an administrator.'
                 )
+            else:
+                messages.success(
+                    request,
+                    'Succesfully signed up. '
+                    'Check your email for confirmation.',
+                )
+                return HttpResponseRedirect(reverse('project-list'))
     else:
         form = RegistrationForm()
 
