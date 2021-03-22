@@ -4,9 +4,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from patchwork.models import EmailConfirmation
 from patchwork.views import mail
@@ -22,18 +22,27 @@ def confirm(request, key):
         'optin': mail.optin_confirm,
     }
 
-    conf = get_object_or_404(EmailConfirmation, key=key)
+    try:
+        conf = EmailConfirmation.objects.get(key=key)
+    except EmailConfirmation.DoesNotExist:
+        messages.error(
+            request,
+            'That request is invalid or expired. Please try again.'
+        )
+        return HttpResponseRedirect(reverse('project-list'))
+
     if conf.type not in views:
-        raise Http404
+        messages.error(
+            request,
+            'That request is invalid or expired. Please try again.'
+        )
+        return HttpResponseRedirect(reverse('project-list'))
 
     if conf.active and conf.is_valid():
         return views[conf.type](request, conf)
 
-    context = {}
-    context['conf'] = conf
-    if not conf.active:
-        context['error'] = 'inactive'
-    elif not conf.is_valid():
-        context['error'] = 'expired'
-
-    return render(request, 'patchwork/confirm-error.html', context)
+    messages.error(
+        request,
+        'That request is invalid or expired. Please try again.'
+    )
+    return HttpResponseRedirect(reverse('project-list'))

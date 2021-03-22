@@ -185,8 +185,7 @@ urlpatterns = [
     path('delegate/', api_views.delegates, name='api-delegates'),
     # email setup
     path('mail/', mail_views.settings, name='mail-settings'),
-    path('mail/optout/', mail_views.optout, name='mail-optout'),
-    path('mail/optin/', mail_views.optin, name='mail-optin'),
+    path('mail/<path:email>/', mail_views.configure, name='mail-configure'),
     # about
     path('about/', about_views.about, name='about'),
     # legacy redirects

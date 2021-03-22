@@ -1,0 +1,70 @@
+{% extends "base2.html" %}
+
+{% block title %}Mail settings{% endblock %}
+
+{% block body %}
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="notification is-success">
+{% elif message.tags == 'warning' %}
+<div class="notification is-warning">
+{% elif message.tags == 'error' %}
+<div class="notification is-danger">
+{% else %}
+<div class="notification">
+{% endif %}
+  {{ message }}
+  <button class="delete" onclick="dismiss(this);"></button>
+</div>
+{% endfor %}
+
+<div class="container" style="margin-top: 1rem;">
+  <section class="block">
+    <h1 class="title">
+      Mail settings for {{ email }}
+    </h1>
+  </section>
+
+  <div class="content">
+    <p>
+      You can configure your notification settings for Patchwork.
+      Use this if you wish to opt out of all email from Patchwork,
+      or if have previously opted out of Patchwork mail but now wish to
+      receive notifications from Patchwork.
+    </p>
+    <p>
+      If you opt out of email, Patchwork may still email you if you do certain
+      actions yourself (such as create a new Patchwork account) but will not
+      send you unsolicited email.
+    </p>
+    <p>
+      When you submit a request, an email will be sent to your address with
+      a link to click to finalise the request.
+      Patchwork does this to prevent someone modifying your mail settings
+      without your consent.
+    </p>
+
+{% if is_optout %}
+    <p>
+      Patchwork <strong>may not</strong> send automated notifications to this address.
+    </p>
+{% else %}
+    <p>
+      Patchwork <strong>may</strong> send automated notifications to this address.
+    </p>
+{% endif %}
+
+    <form class="form" method="post">
+      {% csrf_token %}
+      <div class="field is-grouped">
+        <div class="control">
+          <input class="button" type="submit" name="optin" value="Opt-in"{% if not is_optout %} disabled{% endif %}/>
+        </div>
+        <div class="control">
+          <input class="button" type="submit" name="optout" value="Opt-out"{% if is_optout %} disabled{% endif %}/>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

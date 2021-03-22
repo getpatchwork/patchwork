@@ -54,12 +54,12 @@ def register(request):
             user.save()
 
             # create confirmation
-            conf = EmailConfirmation(
+            confirmation = EmailConfirmation(
                 type='registration', user=user, email=user.email
             )
-            conf.save()
+            confirmation.save()
 
-            context['confirmation'] = conf
+            context['confirmation'] = confirmation
 
             # send email
             subject = render_to_string(
@@ -67,12 +67,18 @@ def register(request):
             )
             message = render_to_string(
                 'patchwork/mails/activation.txt',
-                {'site': Site.objects.get_current(), 'confirmation': conf},
+                {
+                    'site': Site.objects.get_current(),
+                    'confirmation': confirmation,
+                },
             )
 
             try:
                 send_mail(
-                    subject, message, settings.DEFAULT_FROM_EMAIL, [conf.email]
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [confirmation.email]
                 )
             except smtplib.SMTPException:
                 context['confirmation'] = None
@@ -88,26 +94,34 @@ def register(request):
     return render(request, 'patchwork/registration.html', context)
 
 
-def register_confirm(request, conf):
-    conf.user.is_active = True
-    conf.user.save()
-    conf.deactivate()
+def register_confirm(request, confirmation):
+    confirmation.user.is_active = True
+    confirmation.user.save()
+    confirmation.deactivate()
 
     try:
-        person = Person.objects.get(email__iexact=conf.user.email)
+        person = Person.objects.get(email__iexact=confirmation.user.email)
     except Person.DoesNotExist:
-        person = Person(email=conf.user.email, name=conf.user.profile.name)
-    person.user = conf.user
+        person = Person(
+            email=confirmation.user.email, name=confirmation.user.profile.name,
+        )
+    person.user = confirmation.user
     person.save()
 
-    return render(request, 'patchwork/registration-confirm.html')
+    messages.success(request, 'Successfully confirmed account.')
+
+    return HttpResponseRedirect(reverse('project-list'))
 
 
 def _send_confirmation_email(request, email):
-    conf = EmailConfirmation(type='userperson', user=request.user, email=email)
-    conf.save()
+    confirmation = EmailConfirmation(
+        type='userperson',
+        user=request.user,
+        email=email,
+    )
+    confirmation.save()
 
-    context = {'confirmation': conf}
+    context = {'confirmation': confirmation}
     subject = render_to_string('patchwork/mails/user-link-subject.txt')
     message = render_to_string(
         'patchwork/mails/user-link.txt',
@@ -273,15 +287,15 @@ def profile(request):
 
 
 @login_required
-def link_confirm(request, conf):
+def link_confirm(request, confirmation):
     try:
-        person = Person.objects.get(email__iexact=conf.email)
+        person = Person.objects.get(email__iexact=confirmation.email)
     except Person.DoesNotExist:
-        person = Person(email=conf.email)
+        person = Person(email=confirmation.email)
 
-    person.link_to_user(conf.user)
+    person.link_to_user(confirmation.user)
     person.save()
-    conf.deactivate()
+    confirmation.deactivate()
 
     messages.success(request, 'Successfully linked email to account.')
 

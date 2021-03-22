@@ -1,37 +1,83 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block title %}Mail settings{% endblock %}
-{% block heading %}Mail settings{% endblock %}
 
 {% block body %}
-<p>Settings for <strong>{{ email }}</strong>:</p>
-
-<table class="horizontal">
-  <tr>
-    <th>Opt-out list</th>
-{% if is_optout %}
-    <td>
-      Patchwork <strong>may not</strong> send automated notifications to this address.
-    </td>
-    <td>
-      <form method="post" action="{% url 'mail-optin' %}">
-        {% csrf_token %}
-        <input type="hidden" name="email" value="{{ email }}"/>
-        <input type="submit" value="Opt-in"/>
-      </form>
-    </td>
+{% for message in messages %}
+{% if message.tags == 'success' %}
+<div class="notification is-success">
+{% elif message.tags == 'warning' %}
+<div class="notification is-warning">
+{% elif message.tags == 'error' %}
+<div class="notification is-danger">
 {% else %}
-    <td>
-      Patchwork <strong>may</strong> send automated notifications to this address.
-    </td>
-    <td>
-      <form method="post" action="{% url 'mail-optout' %}">
-        {% csrf_token %}
-        <input type="hidden" name="email" value="{{ email }}"/>
-        <input type="submit" value="Opt-out"/>
-      </form>
-    </td>
+<div class="notification">
 {% endif %}
-  </tr>
-</table>
+  {{ message }}
+  <button class="delete" onclick="dismiss(this);"></button>
+</div>
+{% endfor %}
+
+<div class="container" style="margin-top: 1rem;">
+  <section class="block">
+    <h1 class="title">
+      Mail settings
+    </h1>
+  </section>
+
+  <p>
+    You can configure Patchwork to send you mail on certain events,
+    or block automated mail altogether. Enter your email address to
+    view or change your email settings.
+  </p>
+
+  <div class="block"></div>
+
+{% if form.non_field_errors %}
+  <div class="notification is-danger is-light">
+    <button class="delete" onclick="dismiss(this);"></button>
+    {{ form.non_field_errors }}
+  </div>
+{% endif %}
+
+  <form class="form" method="post">
+    {% csrf_token %}
+
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label for="email" class="label">
+          Email address
+        </label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input id="id_email" type="email" name="email" class="input" placeholder="e.g. bobsmith@example.com">
+          </div>
+          <p class="help">
+            Your email address
+          </p>
+{% for error in form.email.errors %}
+          <p class="help is-danger">{{ error }}</p>
+{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <!-- Left empty for spacing -->
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary">
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
 {% endblock %}
