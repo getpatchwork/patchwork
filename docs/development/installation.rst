@@ -22,7 +22,13 @@ Patchwork provides a Docker-based environment for quick configuration of a
 development environment. This is the preferred installation method. To
 configure Patchwork using Docker:
 
-#. Install `docker`_ and `docker-compose`_.
+#. Install `docker`_ and `docker-compose`_. [1]_ Patchwork assumes that you
+   have Docker configured to allow a non-root user to manage Docker, as
+   outlined in the `Docker post-install instructions`__.
+
+  .. [1] Depending on your distro, `docker-compose` may also be available as a
+        package.
+  __ post-install_
 
 #. Create a ``.env`` file in the root directory of the project and store your
    ``UID`` and ``GID`` attribute there.
@@ -125,9 +131,10 @@ For more information on Docker itself, please refer to the `docker`_ and
 
      ERROR: Couldn't connect to the Docker daemon at http+docker://localunixsocket - is it running?
 
-   ensure you have correctly installed Docker, added your user to the
-   ``docker`` group, and started the daemon, per the `docker documentation
-   <docker>`_.
+   ensure you have correctly installed Docker, and have followed the `Docker
+   post-install instructions`__.
+
+   __ post-install_
 
 .. note::
 
@@ -141,8 +148,9 @@ For more information on Docker itself, please refer to the `docker`_ and
 
    __ https://github.com/docker/compose/issues/2380
 
-.. _docker: https://docs.docker.com/compose/install/
-.. _docker-compose: https://docs.docker.com/engine/installation/linux/
+.. _docker: https://docs.docker.com/engine/install/
+.. _docker-compose: https://docs.docker.com/compose/install/
+.. _post-install: https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
 
 
 Manual Installation
