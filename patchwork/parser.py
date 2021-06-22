@@ -70,6 +70,27 @@ def normalise_space(value):
     return whitespace_re.sub(' ', value).strip()
 
 
+def remove_rfc2822_comments(header_contents):
+    """Removes RFC2822 comments from header fields.
+
+    Gnus create reply emails with commments like In-Reply-To/References:
+    <msg-id> (User's message of Sun, 01 Jan 2012 12:34:56 +0700) [comment].
+    Patchwork parses the values of the In-Reply-To & References header fields
+    with the comment included as part of their value. A side effect of the
+    comment not being removed is that message-ids are mismatched. These
+    comments do not provide useful information for processing patches
+    because they are ignored for threading and not rendered by mail readers.
+    """
+
+    # Captures comments in header fields.
+    comment_pattern = re.compile(r"""
+                                \(      # The opening parenthesis of comment
+                                [^()]*  # The contents of the comment
+                                \)      # The closing parenthesis of comment
+                                """, re.X)
+    return re.sub(comment_pattern, '', header_contents)
+
+
 def sanitise_header(header_contents, header_name=None):
     """Clean and individual mail header.
 
@@ -483,13 +504,13 @@ def find_references(mail):
 
     if 'In-Reply-To' in mail:
         for in_reply_to in mail.get_all('In-Reply-To'):
-            r = clean_header(in_reply_to)
+            r = remove_rfc2822_comments(clean_header(in_reply_to))
             if r:
                 refs.append(r)
 
     if 'References' in mail:
         for references_header in mail.get_all('References'):
-            h = clean_header(references_header)
+            h = remove_rfc2822_comments(clean_header(references_header))
             if not h:
                 continue
             references = h.split()

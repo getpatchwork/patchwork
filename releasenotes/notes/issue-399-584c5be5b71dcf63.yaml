@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Gnus users' replies would not be associated to the patch they reply to
+    because their In-Reply-To & References field generated explanatory
+    comments that were added to the value of the message-id parsed.
+    (`#399 <https://github.com/getpatchwork/patchwork/issues/399>`__)
