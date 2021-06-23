@@ -48,7 +48,8 @@ RUN curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-instal
 
 RUN pyenv latest install 3.6 && \
     pyenv latest install 3.7 && \
-    pyenv latest install 3.8
+    pyenv latest install 3.8 && \
+    pyenv latest install 3.9
 RUN pyenv global $(pyenv versions --bare | tac)
 
 RUN pip install tox tox-pyenv
