@@ -2,6 +2,7 @@
 # Copyright (C) 2008 Jeremy Kerr <jk@ozlabs.org>
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
+import logging
 
 from django.contrib import messages
 from django.http import Http404
@@ -21,6 +22,8 @@ from patchwork.models import Project
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
 from patchwork.views.utils import series_patch_to_mbox
+
+logger = logging.getLogger(__name__)
 
 
 def patch_list(request, project_id):
