@@ -195,6 +195,11 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': True,
         },
+        'patchwork.views': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }
 
