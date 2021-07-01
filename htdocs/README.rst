@@ -131,3 +131,12 @@ js
   :Website: https://selectize.github.io/selectize.js/
   :GitHub: https://github.com/selectize/selectize.js
   :Version: 0.11.2
+
+``js.cookie.min.js``
+
+  Library used to handle cookies.
+
+  This is used to get the ``csrftoken`` cookie for AJAX POST requests.
+
+  :GitHub: https://github.com/js-cookie/js-cookie/
+  :Version: 2.2.1
