@@ -4,6 +4,10 @@
 {% load project %}
 {% load static %}
 
+{% block headers %}
+  <script src="{% static "js/patch-list.js" %}"></script>
+{% endblock %}
+
 {% include "patchwork/partials/filters.html" %}
 
 {% include "patchwork/partials/pagination.html" %}
@@ -35,25 +39,61 @@
 </div>
 {% endif %}
 
-<script type="text/javascript">
-$(document).ready(function() {
-    $('#patchlist').stickyTableHeaders();
-
-    $('#check-all').change(function(e) {
-        if(this.checked) {
-            $('#patchlist > tbody').checkboxes('check');
-        } else {
-            $('#patchlist > tbody').checkboxes('uncheck');
-        }
-        e.preventDefault();
-    });
-});
-</script>
-
 <form method="post">
 {% csrf_token %}
-<input type="hidden" name="form" value="patchlistform"/>
-<input type="hidden" name="project" value="{{project.id}}"/>
+{% for hidden in patchform.hidden_fields %}
+  {{ hidden }}
+{% endfor %}
+<div class="patchforms" id="patchforms">
+  {% if patchform %}
+  <div id="patchform-properties" class="patchform">
+    <h3>Properties</h3>
+    <div class="fieldWrapper">
+      {{ patchform.state.errors }}
+      {{ patchform.state.label_tag }} {{ patchform.state }}
+    </div>
+    <div class="fieldWrapper">
+      {{ patchform.delegate.errors }}
+      {{ patchform.delegate.label_tag }} {{ patchform.delegate }}
+    </div>
+    <div class="fieldWrapper">
+      {{ patchform.archived.errors }}
+      {{ patchform.archived.label_tag }} {{ patchform.archived }}
+    </div>
+    <input type="submit" name="action" value="{{patchform.action}}"/>
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated %}
+    <div id="patchform-bundle" class="patchform">
+      <h3>Bundling</h3>
+      <div id="create-bundle">
+        <label for="bundle_name">Create bundle:</label>
+        <input type="text" name="bundle_name"/>
+        <input name="action" value="Create" type="submit"/>
+      </div>
+      {% if bundles %}
+      <div id="add-to-bundle">
+        <label for="bundle_id">Add to bundle:</label>
+        <select name="bundle_id">
+          {% for bundle in bundles %}
+           <option value="{{bundle.id}}">{{bundle.name}}</option>
+          {% endfor %}
+        </select>
+        <input name="action" value="Add" type="submit"/>
+      </div>
+      {% endif %}
+      {% if bundle %}
+      <div id="remove-bundle">
+        <label for="action">Remove from bundle:</label>
+        <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
+        <input name="action" value="Remove" type="submit"/>
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
 <table id="patchlist" class="table table-hover table-extra-condensed table-striped pw-list"
        data-toggle="checkboxes" data-range="true">
  <thead>
@@ -217,86 +257,6 @@ $(document).ready(function() {
 
 {% if page.paginator.count %}
 {% include "patchwork/partials/pagination.html" %}
-
-<div class="patchforms" id="patchforms">
-
-{% if patchform %}
- <div class="patchform patchform-properties">
-  <h3>Properties</h3>
-    <table class="form">
-     <tr>
-      <th>Change state:</th>
-      <td>
-       {{ patchform.state }}
-       {{ patchform.state.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Delegate to:</th>
-      <td>
-       {{ patchform.delegate }}
-       {{ patchform.delegate.errors }}
-      </td>
-     </tr>
-     <tr>
-      <th>Archive:</th>
-      <td>
-       {{ patchform.archived }}
-       {{ patchform.archived.errors }}
-      </td>
-     </tr>
-     <tr>
-      <td></td>
-      <td>
-       <input type="submit" name="action" value="{{patchform.action}}"/>
-      </td>
-     </tr>
-    </table>
- </div>
-
-{% endif %}
-
-{% if user.is_authenticated %}
- <div class="patchform patchform-bundle">
-  <h3>Bundling</h3>
-   <table class="form">
-    <tr>
-     <td>Create bundle:</td>
-     <td>
-      <input type="text" name="bundle_name"/>
-      <input name="action" value="Create" type="submit"/>
-      </td>
-    </tr>
-  {% if bundles %}
-    <tr>
-     <td>Add to bundle:</td>
-     <td>
-       <select name="bundle_id">
-        {% for bundle in bundles %}
-         <option value="{{bundle.id}}">{{bundle.name}}</option>
-        {% endfor %}
-        </select>
-       <input name="action" value="Add" type="submit"/>
-     </td>
-    </tr>
-  {% endif %}
-  {% if bundle %}
-   <tr>
-     <td>Remove from bundle:</td>
-     <td>
-       <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
-       <input name="action" value="Remove" type="submit"/>
-     </td>
-    </tr>
-  {% endif %}
-  </table>
- </div>
-{% endif %}
-
- <div style="clear: both;">
- </div>
-</div>
-
 {% endif %}
 
 </form>

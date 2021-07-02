@@ -33,7 +33,7 @@ def patch_list(request, project_id):
 
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
-
+    logger.debug(context.get('errors'))
     return render(request, 'patchwork/list.html', context)
 
 
