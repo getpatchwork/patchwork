@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import logging
+
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
@@ -16,6 +18,7 @@ from patchwork.models import Project
 from patchwork.models import Check
 from patchwork.paginator import Paginator
 
+logger = logging.getLogger('patchwork.views')
 
 bundle_actions = ['create', 'add', 'remove']
 

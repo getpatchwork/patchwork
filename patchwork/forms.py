@@ -168,10 +168,17 @@ class MultiplePatchForm(forms.Form):
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
+        self.fields['form'] = forms.CharField(
+            initial="patchlistform", widget=forms.HiddenInput)
+        self.fields['project'] = forms.CharField(
+            initial=project.id, widget=forms.HiddenInput)
+        self.fields['action'] = forms.CharField(
+            initial="update", widget=forms.HiddenInput)
         self.fields['delegate'] = OptionalModelChoiceField(
-            queryset=_get_delegate_qs(project=project), required=False)
+            queryset=_get_delegate_qs(project=project), label="Delegate to",
+            required=False)
         self.fields['state'] = OptionalModelChoiceField(
-            queryset=State.objects.all())
+            queryset=State.objects.all(), label="Change state")
 
     def save(self, instance, commit=True):
         opts = instance.__class__._meta
