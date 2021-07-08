@@ -4,35 +4,22 @@
 {% load syntax %}
 {% load person %}
 {% load patch %}
+{% load static %}
+
+{% block headers %}
+  <script src="{% static "js/submission.js" %}"></script>
+{% endblock %}
 
 {% block title %}{{submission.name}}{% endblock %}
 
 {% block body %}
-<script>
-function toggle_div(link_id, headers_id, label_show, label_hide)
-{
-    var link = document.getElementById(link_id)
-    var headers = document.getElementById(headers_id)
-
-    var hidden = headers.style['display'] == 'none';
-
-    if (hidden) {
-        link.innerHTML = label_hide || 'hide';
-        headers.style['display'] = 'block';
-    } else {
-        link.innerHTML = label_show || 'show';
-        headers.style['display'] = 'none';
-    }
-
-}
-</script>
 
 <div>
   {% include "patchwork/partials/download-buttons.html" %}
   <h1>{{ submission.name }}</h1>
 </div>
 
-<table class="patchmeta">
+<table class="patch-meta">
  <tr>
   <th>Message ID</th>
   {% if submission.list_archive_url %}
@@ -61,12 +48,11 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
 {% endif %}
  <tr>
   <th>Headers</th>
-  <td><a id="togglepatchheaders"
-   href="javascript:toggle_div('togglepatchheaders', 'patchheaders')"
-   >show</a>
-   <div id="patchheaders" class="patchheaders" style="display:none;">
-    <pre>{{submission.headers}}</pre>
-   </div>
+  <td>
+    <button id="toggle-patch-headers">show</button>
+    <div id="patch-headers" class="patch-headers" style="display:none;">
+      <pre>{{submission.headers}}</pre>
+    </div>
   </td>
  </tr>
 {% if submission.series %}
@@ -75,11 +61,9 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
   <td>
    <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
     {{ submission.series.name }}
-   </a> |
-   <a id="togglepatchseries"
-      href="javascript:toggle_div('togglepatchseries', 'patchseries', 'expand', 'collapse')"
-   >expand</a>
-   <div id="patchseries" class="submissionlist" style="display:none;">
+   </a>
+   <button id="toggle-patch-series">expand</button>
+   <div id="patch-series" class="submissionlist" style="display:none;">
     <ul>
      {% with submission.series.cover_letter as cover %}
       <li>
@@ -114,36 +98,32 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
  <tr>
   <th>Related</th>
   <td>
-   <a id="togglerelated"
-      href="javascript:toggle_div('togglerelated', 'related')"
-   >show</a>
-   <div id="related" class="submissionlist" style="display:none;">
-    <ul>
-     {% for sibling in related_same_project %}
-      <li>
-       {% if sibling.id != submission.id %}
-        <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
-         {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-        </a>
-       {% endif %}
-      </li>
-     {% endfor %}
-     {% if related_different_project %}
-      <a id="togglerelatedoutside"
-         href="javascript:toggle_div('togglerelatedoutside', 'relatedoutside', 'show from other projects')"
-      >show from other projects</a>
-      <div id="relatedoutside" class="submissionlist" style="display:none;">
-       {% for sibling in related_outside %}
+    <button id="toggle-related">show</button>
+    <div id="related" class="submissionlist" style="display:none;">
+      <ul>
+      {% for sibling in related_same_project %}
         <li>
-         <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
+        {% if sibling.id != submission.id %}
+          <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
           {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
-         </a> (in {{ sibling.project }})
+          </a>
+        {% endif %}
         </li>
-       {% endfor %}
-      </div>
-     {% endif %}
-    </ul>
-   </div>
+      {% endfor %}
+      {% if related_different_project %}
+        <button id="toggle-related-outside">show from other projects</button>
+        <div id="related-outside" class="submissionlist" style="display:none;">
+        {% for sibling in related_outside %}
+          <li>
+          <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
+            {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
+          </a> (in {{ sibling.project }})
+          </li>
+        {% endfor %}
+        </div>
+      {% endif %}
+      </ul>
+    </div>
   </td>
  </tr>
 {% endif %}
