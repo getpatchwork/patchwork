@@ -132,6 +132,8 @@ def set_bundle(request, project, action, data, patches, context):
         bundle.save()
         messages.success(request, "Bundle %s created" % bundle.name)
     elif action == 'add':
+        if not data['bundle_id']:
+            return ['No bundle was selected']
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
     elif action == 'remove':
         bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
