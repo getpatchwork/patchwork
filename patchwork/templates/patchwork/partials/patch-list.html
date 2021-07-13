@@ -37,7 +37,7 @@
 </div>
 {% endif %}
 
-<form method="post">
+<form id="patch-list-form" method="post">
 {% csrf_token %}
 <input type="hidden" name="form" value="patchlistform"/>
 <input type="hidden" name="project" value="{{project.id}}"/>
@@ -208,9 +208,9 @@
 
  <tbody>
  {% for patch in page.object_list %}
-  <tr id="patch_row:{{patch.id}}">
+  <tr id="patch_row:{{patch.id}}" data-patch-id="{{patch.id}}">
    {% if user.is_authenticated %}
-   <td style="text-align: center;">
+   <td id="select-patch" style="text-align: center;">
     <input type="checkbox" name="patch_id:{{patch.id}}"/>
    </td>
    {% endif %}
@@ -222,24 +222,49 @@
     </button>
    </td>
    {% endif %}
-   <td>
+   <td id="patch-name">
     <a href="{% url 'patch-detail' project_id=project.linkname msgid=patch.url_msgid %}">
      {{ patch.name|default:"[no subject]"|truncatechars:100 }}
     </a>
    </td>
-   <td>
+   <td id="patch-series">
     {% if patch.series %}
     <a href="?series={{patch.series.id}}">
      {{ patch.series|truncatechars:100 }}
     </a>
     {% endif %}
    </td>
-   <td class="text-nowrap">{{ patch|patch_tags }}</td>
-   <td class="text-nowrap">{{ patch|patch_checks }}</td>
-   <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
-   <td>{{ patch.submitter|personify:project }}</td>
-   <td>{{ patch.delegate.username }}</td>
-   <td>{{ patch.state }}</td>
+   <td id="patch-tags" class="text-nowrap">{{ patch|patch_tags }}</td>
+   <td id="patch-checks" class="text-nowrap">{{ patch|patch_checks }}</td>
+   <td id="patch-date" class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
+   <td id="patch-submitter">{{ patch.submitter|personify:project }}</td>
+   <td id="patch-delegate">
+      <select class="change-property-delegate">
+        {% if not patch.delegate.username %}
+          <option value="*" selected>No delegate</option>
+        {% else %}
+          <option value="*">No delegate</option>
+        {% endif %}
+        {% for maintainer in maintainers %}
+          {% if maintainer.name == patch.delegate.username %}
+            <option value="{{ patch.delegate.username.id }}" selected>{{ patch.delegate.username }}</option>
+          {% else %}
+            <option value="{{ maintainer.id }}">{{ maintainer.name }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </td>
+   <td id="patch-state">
+    <select class="change-property-state">
+      {% for state in states %}
+        {% if state.name == patch.state.name %}
+          <option value="{{ patch.state.ordering }}" selected>{{ patch.state }}</option>
+        {% else %}
+          <option value="{{ state.ordering  }}">{{ state.name }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </td>
   </tr>
  {% empty %}
   <tr>

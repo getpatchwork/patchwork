@@ -8,6 +8,7 @@ import logging
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
+from django.contrib.auth.models import User
 
 from patchwork.filters import Filters
 from patchwork.forms import MultiplePatchForm
@@ -15,6 +16,7 @@ from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.models import Patch
 from patchwork.models import Project
+from patchwork.models import State
 from patchwork.models import Check
 from patchwork.paginator import Paginator
 
@@ -180,6 +182,8 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
         'project': project,
         'projects': Project.objects.all(),
         'filters': filters,
+        'maintainers': project.maintainer_project.all(),
+        'states': State.objects.all(),
     }
 
     # pagination
@@ -318,7 +322,20 @@ def process_multiplepatch_form(request, form, action, patches, context):
             continue
 
         changed_patches += 1
-        form.save(patch)
+        # Save single patch delegate and state changes to database
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            delegate_id = request.POST.get('delegate')
+            state_id = request.POST.get('state')
+            if state_id != '*':
+                patch.state = State.objects.get(ordering=int(state_id))
+            else:
+                if delegate_id == '*':
+                    patch.delegate = None
+                else:
+                    patch.delegate = User.objects.get(id=int(delegate_id))
+            patch.save()
+        else:
+            form.save(patch)
 
     if changed_patches == 1:
         messages.success(request, '1 patch updated')
