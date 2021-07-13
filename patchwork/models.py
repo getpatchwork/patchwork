@@ -3,6 +3,7 @@
 # Copyright (C) 2015 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
+import logging
 
 from collections import Counter
 from collections import OrderedDict
@@ -20,6 +21,8 @@ from django.core.validators import validate_unicode_slug
 
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
+
+logger = logging.getLogger('patchwork.views')
 
 if settings.ENABLE_REST_API:
     from rest_framework.authtoken.models import Token
@@ -495,13 +498,19 @@ class Patch(SubmissionMixin):
             self._set_tag(tag, counter[tag])
 
     def save(self, *args, **kwargs):
+        logger.debug("hello")
+        logger.debug(self.state)
+        logger.debug(self.delegate)
         if not hasattr(self, 'state') or not self.state:
             self.state = get_default_initial_patch_state()
+            logger.debug("initial patch state")
 
         if self.hash is None and self.diff is not None:
             self.hash = hash_diff(self.diff)
 
-        super(Patch, self).save(**kwargs)
+        super(Patch, self).save(*args, **kwargs)
+        logger.debug(self.state)
+        logger.debug(self.delegate)
 
         self.refresh_tag_counts()
 

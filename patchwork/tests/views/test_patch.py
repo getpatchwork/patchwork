@@ -316,7 +316,7 @@ class PatchUpdateTest(TestCase):
 
         self.url = reverse('patch-list', args=[self.project.linkname])
         self.base_data = {
-            'action': 'Update',
+            'action': 'update',
             'project': str(self.project.id),
             'form': 'patchlistform',
             'archived': '*',

@@ -122,10 +122,11 @@ class PatchForm(forms.ModelForm):
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
-    no_change_choice = ('*', 'no change')
+    no_change_choice = ('*', 'No change')
     to_field_name = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, placeholder, *args, **kwargs):
+        self.no_change_choice = ('*', placeholder)
         super(OptionalModelChoiceField, self).__init__(
             initial=self.no_change_choice[0], *args, **kwargs)
 
@@ -161,8 +162,8 @@ class OptionalBooleanField(forms.TypedChoiceField):
 class MultiplePatchForm(forms.Form):
     action = 'update'
     archived = OptionalBooleanField(
-        choices=[('*', 'no change'), ('True', 'Archived'),
-                 ('False', 'Unarchived')],
+        choices=[('*', 'No change'), ('True', 'Archive'),
+                 ('False', 'Unarchive')],
         coerce=lambda x: x == 'True',
         empty_value='*')
 
@@ -175,10 +176,20 @@ class MultiplePatchForm(forms.Form):
         self.fields['action'] = forms.CharField(
             initial="update", widget=forms.HiddenInput)
         self.fields['delegate'] = OptionalModelChoiceField(
-            queryset=_get_delegate_qs(project=project), label="Delegate to",
+            queryset=_get_delegate_qs(project=project),
+            placeholder="Delegate to",
+            label="Delegate to",
             required=False)
         self.fields['state'] = OptionalModelChoiceField(
-            queryset=State.objects.all(), label="Change state")
+            queryset=State.objects.all(),
+            placeholder="Change state",
+            label="Change state")
+        self.fields['state'].widget.attrs.update(
+            {'class': 'change-property'})
+        self.fields['delegate'].widget.attrs.update(
+            {'class': 'change-property'})
+        self.fields['archived'].widget.attrs.update(
+            {'class': 'archive-patch'})
 
     def save(self, instance, commit=True):
         opts = instance.__class__._meta
