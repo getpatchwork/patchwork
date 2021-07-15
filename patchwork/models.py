@@ -498,19 +498,13 @@ class Patch(SubmissionMixin):
             self._set_tag(tag, counter[tag])
 
     def save(self, *args, **kwargs):
-        logger.debug("hello")
-        logger.debug(self.state)
-        logger.debug(self.delegate)
         if not hasattr(self, 'state') or not self.state:
             self.state = get_default_initial_patch_state()
-            logger.debug("initial patch state")
 
         if self.hash is None and self.diff is not None:
             self.hash = hash_diff(self.diff)
 
         super(Patch, self).save(*args, **kwargs)
-        logger.debug(self.state)
-        logger.debug(self.delegate)
 
         self.refresh_tag_counts()
 

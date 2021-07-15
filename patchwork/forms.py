@@ -165,16 +165,11 @@ class MultiplePatchForm(forms.Form):
         choices=[('*', 'No change'), ('True', 'Archive'),
                  ('False', 'Unarchive')],
         coerce=lambda x: x == 'True',
-        empty_value='*')
+        empty_value='*',
+        label="Archived")
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
-        self.fields['form'] = forms.CharField(
-            initial="patchlistform", widget=forms.HiddenInput)
-        self.fields['project'] = forms.CharField(
-            initial=project.id, widget=forms.HiddenInput)
-        self.fields['action'] = forms.CharField(
-            initial="update", widget=forms.HiddenInput)
         self.fields['delegate'] = OptionalModelChoiceField(
             queryset=_get_delegate_qs(project=project),
             placeholder="Delegate to",

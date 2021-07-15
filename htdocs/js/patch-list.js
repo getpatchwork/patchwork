@@ -1,76 +1,85 @@
 $( document ).ready(function() {
-    async function postPropertyChange(property, patchId, propertyValue, project) {
-        const formData = getFormData(property, patchId, propertyValue, project);
-        const requestData = new URLSearchParams(formData);
-        const request = new Request(document.URL, {
-            method: 'POST',
-            mode: 'same-origin',
+    async function postPropertyChange(property, patchId, propertyValue) {
+        const url = "/api/patches/" + patchId + "/";
+        const data = {};
+        data[property] = propertyValue;
+        const request = new Request(url, {
+            method: "PATCH",
+            mode: "same-origin",
             headers: {
-                'X-CSRFToken': Cookies.get('csrftoken'),
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest',
+                "X-CSRFToken": Cookies.get("csrftoken"),
+                "Content-Type": "application/json",
             },
-            body: requestData,
+            body: JSON.stringify(data),
         });
 
-        fetch(request)
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch((error) => {
-                console.error('Error:', error);
-        });
+        await fetch(request)
+            .then(response => {
+                if (!response.ok) {
+                    response.text().then(text => {
+                        handleUpdateMessage("No patches updated");
+                        handleErrorMessage(JSON.parse(text).detail);
+                    });
+                } else {
+                    handleUpdateMessage("1 patch updated");
+                }
+            });
     }
 
-    // Returns form data object for POST request for property change
-    function getFormData(property, patchId, propertyValue, project) {
-        const formData = new FormData();
-
-        // Static form data fields and values
-        formData.append('form', 'patchlistform');
-        formData.append('action', 'update');
-        formData.append('archived', '*');
-        formData.append('bundle_name', '');
-
-        // Dynamic form data fields and values
-        formData.append('project', project);
-        formData.append(patchId, 'on');
-        if (property === 'delegate') {
-            formData.append('delegate', propertyValue);
-            formData.append('state', '*');
-        } else if (property === 'state') {
-            formData.append('delegate', '*');
-            formData.append('state', propertyValue);
-        }
-        return formData;
-    }
-
-    function getPatchProperties(target) {
+    function getPatchProperties(target, property) {
+        const selectedOption = target.options[target.selectedIndex];
         return {
-            'patchId': "patch_id:" + target.parentElement.parentElement.dataset.patchId,
-            'propertyValue': target.value,
-            'project': $("input[name='project']").val(),
+            "patchId": target.parentElement.parentElement.dataset.patchId,
+            "propertyValue": (property === "state") ? selectedOption.text
+                            : (selectedOption.value === "*") ? null : selectedOption.value,
         }
+    }
+
+    function handleUpdateMessage(messageContent) {
+        let messages = document.getElementById("messages");
+        if (messages == null) {
+            messages = document.createElement("div");
+            messages.setAttribute("id", "messages");
+        }
+        let message = document.createElement("div");
+        message.setAttribute("class", "message");
+        message.textContent = messageContent;
+        messages.appendChild(message);
+        if (messages) $(messages).insertAfter("nav");
+    }
+
+    function handleErrorMessage(errorMessage) {
+        let container = document.getElementById("main-content");
+        let errorHeader = document.createElement("p");
+        let errorList = document.createElement("ul");
+        let error = document.createElement("li");
+        errorHeader.textContent = "The following error was encountered while updating patches:";
+        errorList.setAttribute("class", "errorlist");
+        error.textContent = errorMessage;
+        errorList.appendChild(error);
+        container.prepend(errorList);
+        container.prepend(errorHeader);
     }
 
     $(".change-property-delegate").change((event) => {
-        const property = 'delegate';
-        const { patchId, propertyValue, project } = getPatchProperties(event.target);
-        postPropertyChange(property, patchId, propertyValue, project);
+        const property = "delegate";
+        const { patchId, propertyValue } = getPatchProperties(event.target, property);
+        postPropertyChange(property, patchId, propertyValue);
     });
 
     $(".change-property-state").change((event) => {
-        const property = 'state';
-        const { patchId, propertyValue, project } = getPatchProperties(event.target);
-        postPropertyChange(property, patchId, propertyValue, project);
+        const property = "state";
+        const { patchId, propertyValue } = getPatchProperties(event.target, property);
+        postPropertyChange(property, patchId, propertyValue);
     });
 
-    $('#patchlist').stickyTableHeaders();
+    $("#patchlist").stickyTableHeaders();
 
-    $('#check-all').change(function(e) {
+    $("#check-all").change(function(e) {
         if(this.checked) {
-            $('#patchlist > tbody').checkboxes('check');
+            $("#patchlist > tbody").checkboxes("check");
         } else {
-            $('#patchlist > tbody').checkboxes('uncheck');
+            $("#patchlist > tbody").checkboxes("uncheck");
         }
         e.preventDefault();
     });

@@ -55,7 +55,7 @@
         </div>
         <div id="patchform-archive">
           {{ patchform.archived.errors }}
-          {{ patchform.archived }}
+          {{ patchform.archived.label_tag }} {{ patchform.archived }}
         </div>
         <button class="patchform-submit btn btn-primary" name="action" value="{{patchform.action}}">Update</button>
       </div>

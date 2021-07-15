@@ -9,7 +9,6 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
-from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.urls import reverse
@@ -28,14 +27,12 @@ logger = logging.getLogger(__name__)
 
 
 def patch_list(request, project_id):
-    logger.debug(request)
     project = get_object_or_404(Project, linkname=project_id)
+    # logger.debug(User.objects.get(pk=1).profile.maintainer_projects)
+    # project.maintainer_project.add(User.objects.get(pk=1).profile)
+    # project.save()
     context = generic_list(request, project, 'patch-list',
                            view_args={'project_id': project.linkname})
-    # Return JSON for fetch request for single patch delegate and state changes
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'messages': context.get('messages'),
-                            'errors': context.get('errors')})
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
     return render(request, 'patchwork/list.html', context)
