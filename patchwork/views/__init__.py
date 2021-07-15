@@ -15,6 +15,7 @@ from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.models import Patch
 from patchwork.models import Project
+from patchwork.models import State
 from patchwork.models import Check
 from patchwork.paginator import Paginator
 
@@ -132,6 +133,8 @@ def set_bundle(request, project, action, data, patches, context):
         bundle.save()
         messages.success(request, "Bundle %s created" % bundle.name)
     elif action == 'add':
+        if not data['bundle_id']:
+            return ['No bundle was selected']
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
     elif action == 'remove':
         bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
@@ -178,6 +181,8 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
         'project': project,
         'projects': Project.objects.all(),
         'filters': filters,
+        'maintainers': project.maintainer_project.all(),
+        'states': State.objects.all(),
     }
 
     # pagination

@@ -1,47 +1,86 @@
 $( document ).ready(function() {
-    function postPatchListData(formID) {
-        console.log(formID);
-        const formData = new FormData(document.getElementById(formID));
-
-        // Get all checked checkbox elements
-        $("input[type='checkbox'][name^='patch_id']").filter(':checked').each((i, elem) => {
-            formData.append(elem.getAttribute('name'), 'on'); // Add checked checkBox's patch ids to form data
-        });
-        for(var pair of formData.entries()) {
-            console.log(pair[0]+ ', '+ pair[1]);
-        }
-        const requestData = new URLSearchParams(formData);
-        const request = new Request(document.URL, {
-            method: 'POST',
-            mode: 'same-origin',
-            body: requestData,
+    async function postPropertyChange(property, patchId, propertyValue) {
+        const url = "/api/patches/" + patchId + "/";
+        const data = {};
+        data[property] = propertyValue;
+        const request = new Request(url, {
+            method: "PATCH",
+            mode: "same-origin",
             headers: {
-                'X-CSRFToken': Cookies.get('csrftoken'),
-                'Content-Type': 'application/x-www-form-urlencoded',
+                "X-CSRFToken": Cookies.get("csrftoken"),
+                "Content-Type": "application/json",
             },
+            body: JSON.stringify(data),
         });
-        fetch(request)
-            .then(data => console.log(data))
-            .catch((error) => {
-                console.error('Error:', error);
+
+        await fetch(request)
+            .then(response => {
+                if (!response.ok) {
+                    response.text().then(text => {
+                        handleUpdateMessage("No patches updated");
+                        handleErrorMessage(JSON.parse(text).detail);
+                    });
+                } else {
+                    handleUpdateMessage("1 patch updated");
+                }
             });
     }
 
-    $("#patchform-properties").submit((event) => {
-        postPatchListData(event.target.id);
-        event.preventDefault();
+    function getPatchProperties(target, property) {
+        const selectedOption = target.options[target.selectedIndex];
+        return {
+            "patchId": target.parentElement.parentElement.dataset.patchId,
+            "propertyValue": (property === "state") ? selectedOption.text
+                            : (selectedOption.value === "*") ? null : selectedOption.value,
+        }
+    }
+
+    function handleUpdateMessage(messageContent) {
+        let messages = document.getElementById("messages");
+        if (messages == null) {
+            messages = document.createElement("div");
+            messages.setAttribute("id", "messages");
+        }
+        let message = document.createElement("div");
+        message.setAttribute("class", "message");
+        message.textContent = messageContent;
+        messages.appendChild(message);
+        if (messages) $(messages).insertAfter("nav");
+    }
+
+    function handleErrorMessage(errorMessage) {
+        let container = document.getElementById("main-content");
+        let errorHeader = document.createElement("p");
+        let errorList = document.createElement("ul");
+        let error = document.createElement("li");
+        errorHeader.textContent = "The following error was encountered while updating patches:";
+        errorList.setAttribute("class", "errorlist");
+        error.textContent = errorMessage;
+        errorList.appendChild(error);
+        container.prepend(errorList);
+        container.prepend(errorHeader);
+    }
+
+    $(".change-property-delegate").change((event) => {
+        const property = "delegate";
+        const { patchId, propertyValue } = getPatchProperties(event.target, property);
+        postPropertyChange(property, patchId, propertyValue);
     });
 
-    $('#patchlist').stickyTableHeaders();
+    $(".change-property-state").change((event) => {
+        const property = "state";
+        const { patchId, propertyValue } = getPatchProperties(event.target, property);
+        postPropertyChange(property, patchId, propertyValue);
+    });
 
-    $('#check-all').change(function(e) {
+    $("#patchlist").stickyTableHeaders();
+
+    $("#check-all").change(function(e) {
         if(this.checked) {
-            $('#patchlist > tbody').checkboxes('check');
+            $("#patchlist > tbody").checkboxes("check");
         } else {
-            $('#patchlist > tbody').checkboxes('uncheck');
+            $("#patchlist > tbody").checkboxes("uncheck");
         }
         e.preventDefault();
     });
-
-
 });

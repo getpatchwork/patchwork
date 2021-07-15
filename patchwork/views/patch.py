@@ -28,12 +28,13 @@ logger = logging.getLogger(__name__)
 
 def patch_list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
+    # logger.debug(User.objects.get(pk=1).profile.maintainer_projects)
+    # project.maintainer_project.add(User.objects.get(pk=1).profile)
+    # project.save()
     context = generic_list(request, project, 'patch-list',
                            view_args={'project_id': project.linkname})
-
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
-
     return render(request, 'patchwork/list.html', context)
 
 
