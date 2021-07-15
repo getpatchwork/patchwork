@@ -1,5 +1,7 @@
 :root {
     --light-color: #F7F7F7;
+    --warning-color: #f0ad4e;
+    --success-color: #5cb85c;
 }
 
 h2 {
@@ -277,12 +279,18 @@ table.patchmeta tr th, table.patchmeta tr td {
     color: #f7977a;
 }
 
-.comment .meta {
+.patch-message .meta {
+    display: flex;
+    align-items: center;
     background: #f0f0f0;
     padding: 0.3em 0.5em;
 }
 
-.comment .content {
+.patch-message .message-date {
+    margin-left: 8px;
+}
+
+.patch-message .content {
     border: 0;
 }
 
@@ -292,6 +300,34 @@ table.patchmeta tr th, table.patchmeta tr td {
 
 .patch-pull-url {
     font-family: "DejaVu Sans Mono", fixed;
+}
+
+#comment-status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#comment-status-label {
+    margin: 0px 8px;
+}
+
+#comment-action-addressed, #comment-action-unaddressed {
+    background-color: var(--light-color);
+    border-radius: 4px;
+}
+
+#comment-action-addressed {
+    border-color: var(--success-color);
+}
+
+#comment-action-unaddressed {
+    border-color: var(--warning-color);
+}
+
+#comment-action-addressed:hover, #comment-action-unaddressed:hover {
+    background-color: var(--success-color);
+    color: var(--light-color);
 }
 
 .quote {
