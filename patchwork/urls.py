@@ -337,6 +337,11 @@ if settings.ENABLE_REST_API:
             name='api-patch-comment-list',
         ),
         path(
+            'patches/<patch_id>/comments/<comment_id>/',
+            api_comment_views.PatchCommentDetail.as_view(),
+            name='api-patch-comment-detail',
+        ),
+        path(
             'covers/<pk>/comments/',
             api_comment_views.CoverCommentList.as_view(),
             name='api-cover-comment-list',

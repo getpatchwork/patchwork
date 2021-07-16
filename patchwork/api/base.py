@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import rest_framework
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -13,6 +14,24 @@ from rest_framework.serializers import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer
 
 from patchwork.api import utils
+
+
+DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
+
+
+if DRF_VERSION > (3, 11):
+    class CurrentPatchDefault(object):
+        requires_context = True
+
+        def __call__(self, serializer_field):
+            return serializer_field.context['request'].patch
+else:
+    class CurrentPatchDefault(object):
+        def set_context(self, serializer_field):
+            self.patch = serializer_field.context['request'].patch
+
+        def __call__(self):
+            return self.patch
 
 
 class LinkHeaderPagination(PageNumberPagination):
@@ -44,7 +63,10 @@ class LinkHeaderPagination(PageNumberPagination):
 
 
 class PatchworkPermission(permissions.BasePermission):
-    """This permission works for Project and Patch model objects"""
+    """
+    This permission works for Project, Patch, and PatchComment
+    model objects
+    """
     def has_object_permission(self, request, view, obj):
         # read only for everyone
         if request.method in permissions.SAFE_METHODS:
