@@ -182,17 +182,17 @@ input#reorder-change {
 }
 
 /* patch view */
-table.patchmeta th {
+table.patch-meta th {
     text-align: left;
 }
 
-table.patchmeta tr th, table.patchmeta tr td {
+table.patch-meta tr th, table.patch-meta tr td {
     text-align: left;
     padding: 1px 10px;
     vertical-align: top;
 }
 
-.submissionlist ul {
+.submission-list ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
