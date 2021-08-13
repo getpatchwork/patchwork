@@ -4,28 +4,15 @@
 {% load syntax %}
 {% load person %}
 {% load patch %}
+{% load static %}
+
+{% block headers %}
+  <script type="module" src="{% static "js/submission.js" %}"></script>
+{% endblock %}
 
 {% block title %}{{submission.name}}{% endblock %}
 
 {% block body %}
-<script>
-function toggle_div(link_id, headers_id, label_show, label_hide)
-{
-    var link = document.getElementById(link_id)
-    var headers = document.getElementById(headers_id)
-
-    var hidden = headers.style['display'] == 'none';
-
-    if (hidden) {
-        link.innerHTML = label_hide || 'hide';
-        headers.style['display'] = 'block';
-    } else {
-        link.innerHTML = label_show || 'show';
-        headers.style['display'] = 'none';
-    }
-
-}
-</script>
 
 <div>
   {% include "patchwork/partials/download-buttons.html" %}
@@ -62,7 +49,7 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
  <tr>
   <th>Headers</th>
   <td>
-    <a id="toggle-patch-headers" href="javascript:toggle_div('toggle-patch-headers', 'patch-headers')">show</a>
+    <a id="toggle-patch-headers">show</a>
     <div id="patch-headers" class="patch-headers" style="display:none;">
       <pre>{{submission.headers}}</pre>
     </div>
@@ -75,7 +62,7 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
    <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
     {{ submission.series.name }}
    </a> |
-   <a id="toggle-patch-series" href="javascript:toggle_div('toggle-patch-series', 'patch-series', 'expand', 'collapse')">expand</a>
+   <a id="toggle-patch-series">expand</a>
    <div id="patch-series" class="submission-list" style="display:none;">
     <ul>
      {% with submission.series.cover_letter as cover %}
@@ -111,7 +98,7 @@ function toggle_div(link_id, headers_id, label_show, label_hide)
  <tr>
   <th>Related</th>
   <td>
-   <a id="toggle-related" href="javascript:toggle_div('toggle-related', 'related')">show</a>
+   <a id="toggle-related">show</a>
    <div id="related" class="submission-list" style="display:none;">
     <ul>
      {% for sibling in related_same_project %}
