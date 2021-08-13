@@ -49,7 +49,7 @@
  <tr>
   <th>Headers</th>
   <td>
-    <a id="toggle-patch-headers">show</a>
+    <button id="toggle-patch-headers">show</button>
     <div id="patch-headers" class="patch-headers" style="display:none;">
       <pre>{{submission.headers}}</pre>
     </div>
@@ -62,7 +62,7 @@
    <a href="{% url 'patch-list' project_id=project.linkname %}?series={{ submission.series.id }}">
     {{ submission.series.name }}
    </a> |
-   <a id="toggle-patch-series">expand</a>
+   <button id="toggle-patch-series">expand</button>
    <div id="patch-series" class="submission-list" style="display:none;">
     <ul>
      {% with submission.series.cover_letter as cover %}
@@ -98,7 +98,7 @@
  <tr>
   <th>Related</th>
   <td>
-   <a id="toggle-related">show</a>
+   <button id="toggle-related">show</button>
    <div id="related" class="submission-list" style="display:none;">
     <ul>
      {% for sibling in related_same_project %}
@@ -111,7 +111,7 @@
       </li>
      {% endfor %}
      {% if related_different_project %}
-      <a id="toggle-related-outside">show from other projects</a>
+      <button id="toggle-related-outside">show from other projects</button>
       <div id="related-outside" class="submission-list" style="display:none;">
        {% for sibling in related_outside %}
         <li>
