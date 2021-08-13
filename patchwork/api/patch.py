@@ -97,7 +97,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     def get_comments(self, patch):
         return self.context.get('request').build_absolute_uri(
-            reverse('api-patch-comment-list', kwargs={'pk': patch.id}))
+            reverse('api-patch-comment-list', kwargs={'patch_id': patch.id}))
 
     def get_check(self, instance):
         return instance.combined_check_state

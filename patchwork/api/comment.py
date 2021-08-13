@@ -102,12 +102,12 @@ class PatchCommentList(ListAPIView):
     search_fields = ('subject',)
     ordering_fields = ('id', 'subject', 'date', 'submitter')
     ordering = 'id'
-    lookup_url_kwarg = 'pk'
+    lookup_url_kwarg = 'patch_id'
 
     def get_queryset(self):
-        if not Patch.objects.filter(pk=self.kwargs['pk']).exists():
+        if not Patch.objects.filter(id=self.kwargs['patch_id']).exists():
             raise Http404
 
         return PatchComment.objects.filter(
-            patch=self.kwargs['pk']
+            patch=self.kwargs['patch_id']
         ).select_related('submitter')

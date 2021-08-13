@@ -90,7 +90,7 @@ class TestPatchComments(utils.APITestCase):
         kwargs = {}
         if version:
             kwargs['version'] = version
-        kwargs['pk'] = patch.id
+        kwargs['patch_id'] = patch.id
 
         return reverse('api-patch-comment-list', kwargs=kwargs)
 
@@ -142,5 +142,5 @@ class TestPatchComments(utils.APITestCase):
     def test_list_invalid_patch(self):
         """Ensure we get a 404 for a non-existent patch."""
         resp = self.client.get(
-            reverse('api-patch-comment-list', kwargs={'pk': '99999'}))
+            reverse('api-patch-comment-list', kwargs={'patch_id': '99999'}))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
