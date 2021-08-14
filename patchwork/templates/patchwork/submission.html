@@ -14,6 +14,8 @@
 
 {% block body %}
 
+{% include "patchwork/partials/errors.html" %}
+
 <div>
   {% include "patchwork/partials/download-buttons.html" %}
   <h1>{{ submission.name }}</h1>

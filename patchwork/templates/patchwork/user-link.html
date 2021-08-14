@@ -14,7 +14,7 @@ you.</p>
     {{ form.non_field_errors }}
    {% endif %}
    {% if error %}
-    <ul class="errorlist"><li>{{error}}</li></ul>
+    <ul class="error-list"><li>{{error}}</li></ul>
    {% endif %}
 
    <form action="{% url 'user-link' %}" method="post">

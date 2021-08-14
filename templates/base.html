@@ -104,15 +104,19 @@
     </div>
    </div>
   </nav>
-{% if messages %}
-  <div id="messages">
-  {% for message in messages %}
-  {# TODO(stephenfin): Make use of message.tags when completely #}
-  {# converted to django.contrib.messages #}
-   <div class="message">{{ message }}</div>
-  {% endfor %}
-  </div>
-{% endif %}
+  <!--
+    spaceless tag is used to remove automatically added whitespace so that the container
+    is truly considered empty by the `:empty` pseudo-class that is used for styling
+  -->
+  {% spaceless %}
+  <ul class="messages">
+  {% if messages %}
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  {% endif %}
+  </ul>
+  {% endspaceless %}
   <div id="main-content" class="container-fluid">
 {% block body %}
 {% endblock %}
