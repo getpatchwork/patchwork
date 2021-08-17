@@ -122,6 +122,15 @@ js
   :GitHub: jQuery plug-in to drag and drop rows in HTML tables
   :Version: ???
 
+``js.cookie.min.js``
+
+  Library used to handle cookies.
+
+  This is used to get the ``csrftoken`` cookie for AJAX requests in JavaScript.
+
+  :GitHub: https://github.com/js-cookie/js-cookie/
+  :Version: 3.0.0
+
 ``selectize.min.js``
 
   Selectize is the hybrid of a ``textbox`` and ``<select>`` box. It's jQuery
