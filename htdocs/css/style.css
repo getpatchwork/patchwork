@@ -1,3 +1,9 @@
+:root {
+    --success-color:rgb(92, 184, 92);
+    --warning-color:rgb(240, 173, 78);
+    --danger-color:rgb(217, 83, 79);
+}
+
 h2 {
     font-size: 25px;
     margin: 18px 0 18px 0;
@@ -78,14 +84,27 @@ dl dt {
 }
 
 /* messages */
-#messages {
+.messages {
     background: #e0e0f0;
-    margin: 0.5em 1em 0.0em 0.5em;
+    margin: 0.5em 1em 0.0em 1em;
     padding: 0.3em;
+    list-style-type: none;
 }
 
-#messages .message {
-    color: green;
+.messages:empty {
+    display: none;
+}
+
+.messages .success {
+    color: var(--success-color);
+}
+
+.messages .warning {
+    color: var(--warning-color);
+}
+
+.messages .error {
+    color: var(--danger-color);
 }
 
 .filters {
@@ -421,13 +440,17 @@ table.loginform {
 }
 
 /* form errors */
-.errorlist {
-    color: red;
-    list-style-type: none;
-    padding-left: 0.2em;
-    margin: 0em;
+#errors {
+    background: #e0e0f0;
+    margin: 0em 1em 0.5em 1em;
+    padding: 0.3em;
 }
-.error {
+
+#errors:empty {
+    display: none;
+}
+
+.error-list, .errorlist {
     color: red;
 }
 

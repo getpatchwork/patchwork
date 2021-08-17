@@ -5,12 +5,9 @@
 
 {% block body %}
 
-{% if errors %}
-<p>{{ errors }}</p>
-{% else %}
+{% if not errors %}
  <p>You have successfully linked the email address {{ person.email }} to
   your Patchwork account</p>
-
 {% endif %}
 <p>Back to <a href="{% url 'user-profile' %}">your
  profile</a>.</p>

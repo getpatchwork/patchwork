@@ -8,16 +8,6 @@
 
 {% block body %}
 
-{% if errors %}
-<p>The following error{{ errors|length|pluralize:" was,s were" }} encountered
-while updating patches:</p>
-<ul class="errorlist">
-{% for error in errors %}
- <li>{{ error }}</li>
-{% endfor %}
-</ul>
-{% endif %}
-
 {% include "patchwork/partials/patch-list.html" %}
 
 {% endblock %}

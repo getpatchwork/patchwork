@@ -105,15 +105,28 @@
     </div>
    </div>
   </nav>
-{% if messages %}
-  <div id="messages">
-  {% for message in messages %}
-  {# TODO(stephenfin): Make use of message.tags when completely #}
-  {# converted to django.contrib.messages #}
-   <div class="message">{{ message }}</div>
-  {% endfor %}
+  {% comment %}
+    spaceless tag is used to remove automatically added whitespace so that the container
+    is truly considered empty by the `:empty` pseudo-class that is used for styling
+  {% endcomment %}{% spaceless %}
+  <ul class="messages">
+  {% if messages %}
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  {% endif %}
+  </ul>
+  <div id="errors">
+    {% if errors %}
+        <p>The following error{{ errors|length|pluralize:" was,s were" }} encountered:</p>
+        <ul class="error-list">
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
   </div>
-{% endif %}
+  {% endspaceless %}
   <div id="main-content" class="container-fluid">
 {% block body %}
 {% endblock %}
