@@ -122,6 +122,11 @@ js
   :GitHub: https://github.com/js-cookie/js-cookie/
   :Version: 3.0.0
 
+``rest.js.``
+  Utility module for REST API requests to be used by other Patchwork JS files.
+
+  Part of Patchwork.
+
 ``selectize.min.js``
   Selectize is the hybrid of a ``textbox`` and ``<select>`` box. It's jQuery
   based and it has autocomplete and native-feeling keyboard navigation; useful
