@@ -1,3 +1,11 @@
+# commit 3a979ed8bfc6 ("migrations: don't go to the db for 0041_python3 migration")
+# made a bunch of strings go past 79 characters, breaking flake8 checks.
+#
+# We're not really expecting future changes to this file so just don't run
+# flake8 against it.
+#
+# flake8: noqa
+
 import datetime
 
 from django.conf import settings
