@@ -334,6 +334,20 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertIsNone(Patch.objects.get(id=patch.id).delegate)
 
+    def test_update_maintainer_version_1_0(self):
+        """Update patch as maintainer on v1.1."""
+        project = create_project()
+        patch = create_patch(project=project)
+        state = create_state()
+        user = create_maintainer(project)
+
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(self.api_url(patch.id, version="1.1"),
+                                 {'state': state.slug, 'delegate': user.id})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).state, state)
+        self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
+
     @utils.store_samples('patch-update-error-bad-request')
     def test_update_invalid_state(self):
         """Update patch with invalid fields.

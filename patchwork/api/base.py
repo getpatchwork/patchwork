@@ -96,6 +96,9 @@ class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
             # field was added, we drop it
             if not utils.has_version(request, version):
                 for field in self.Meta.versioned_fields[version]:
-                    data.pop(field)
+                    # After a PATCH with an older API version, we may not see
+                    # these fields. If they don't exist, don't panic, return
+                    # (and then discard) None.
+                    data.pop(field, None)
 
         return data
