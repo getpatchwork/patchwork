@@ -109,7 +109,8 @@ def patch_detail(request, project_id, msgid):
 
     comments = patch.comments.all()
     comments = comments.select_related('submitter')
-    comments = comments.only('submitter', 'date', 'id', 'content', 'patch')
+    comments = comments.only('submitter', 'date', 'id', 'content', 'patch',
+                             'addressed')
 
     if patch.related:
         related_same_project = patch.related.patches.only(
@@ -128,6 +129,7 @@ def patch_detail(request, project_id, msgid):
         patch.check_set.all().select_related('user'),
     )
     context['submission'] = patch
+    context['editable'] = editable
     context['patchform'] = form
     context['createbundleform'] = createbundleform
     context['project'] = patch.project

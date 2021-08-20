@@ -1,4 +1,5 @@
 :root {
+    --light-color:rgb(247, 247, 247);
     --success-color:rgb(92, 184, 92);
     --warning-color:rgb(240, 173, 78);
     --danger-color:rgb(217, 83, 79);
@@ -25,6 +26,10 @@ pre {
     position: fixed;
     left: 0.1em;
     top: 17em;
+}
+
+.hidden {
+    visibility: hidden;
 }
 
 /* Bootstrap overrides */
@@ -313,6 +318,39 @@ table.patch-meta tr th, table.patch-meta tr td {
 
 .patch-pull-url {
     font-family: "DejaVu Sans Mono", fixed;
+}
+
+div[class^="comment-status-bar-"] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.comment-status-label {
+    margin: 0px 8px;
+}
+
+button[class^=comment-action] {
+    background-color: var(--light-color);
+    border-radius: 4px;
+}
+
+.comment-action-addressed {
+    border-color: var(--success-color);
+}
+
+.comment-action-unaddressed {
+    border-color: var(--warning-color);
+}
+
+.comment-action-addressed:hover {
+    background-color: var(--success-color);
+    color: var(--light-color);
+}
+
+.comment-action-unaddressed:hover {
+    background-color: var(--warning-color);
+    color: var(--light-color);
 }
 
 .quote {

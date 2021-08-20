@@ -5,6 +5,7 @@
 {% load person %}
 {% load patch %}
 {% load static %}
+{% load utils %}
 
 {% block headers %}
   <script type="module" src="{% static "js/submission.js" %}"></script>
@@ -19,7 +20,12 @@
   <h1>{{ submission.name }}</h1>
 </div>
 
-<table class="patch-meta">
+<table
+  id="patch-meta"
+  class="patch-meta"
+  data-submission-type={{submission|verbose_name_plural|lower}}
+  data-submission-id={{submission.id}}
+>
  <tr>
   <th>Message ID</th>
   {% if submission.list_archive_url %}
@@ -271,18 +277,50 @@
 {% if forloop.first %}
 <h2>Comments</h2>
 {% endif %}
-
+{% is_editable item user as comment_is_editable %}
 <a name="{{ item.id }}"></a>
 <div class="submission-message">
-<div class="meta">
- <span>{{ item.submitter|personify:project }}</span>
- <span class="message-date">{{ item.date }} UTC |
-   <a href="{% url 'comment-redirect' comment_id=item.id %}">#{{ forloop.counter }}</a>
-  </span>
-</div>
-<pre class="content">
-{{ item|commentsyntax }}
-</pre>
+  <div class="meta">
+    {{ item.submitter|personify:project }}
+    <span class="message-date">{{ item.date }} UTC |
+      <a href="{% url 'comment-redirect' comment_id=item.id %}">#{{ forloop.counter }}</a>
+    </span>
+    {% if item.addressed %}
+      <div class="comment-status-bar-addressed" data-comment-id={{item.id}}>
+    {% else %}
+      <div class="comment-status-bar-addressed hidden" data-comment-id={{item.id}}>
+    {% endif %}
+        <div class="comment-status-label text-success mx-3">
+          <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+          Addressed
+        </div>
+        {% if editable or comment_is_editable %}
+          <button class="comment-action-unaddressed text-warning" value="false">
+            <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+            Mark Unaddressed
+          </button>
+        {% endif %}
+      </div>
+    {% if item.addressed %}
+      <div class="comment-status-bar-unaddressed hidden" data-comment-id={{item.id}}>
+    {% else %}
+      <div class="comment-status-bar-unaddressed" data-comment-id={{item.id}}>
+    {% endif %}
+        <div class="comment-status-label text-warning mx-3">
+          <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+          Unaddressed
+        </div>
+        {% if editable or comment_is_editable %}
+          <button class="comment-action-addressed text-success" value="true">
+            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+            Mark Addressed
+          </button>
+        {% endif %}
+      </div>
+  </div>
+  <pre class="content">
+  {{ item|commentsyntax }}
+  </pre>
 </div>
 {% endfor %}
 
