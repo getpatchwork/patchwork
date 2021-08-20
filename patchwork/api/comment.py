@@ -83,13 +83,13 @@ class CoverCommentList(ListAPIView):
     search_fields = ('subject',)
     ordering_fields = ('id', 'subject', 'date', 'submitter')
     ordering = 'id'
-    lookup_url_kwarg = 'pk'
+    lookup_url_kwarg = 'cover_id'
 
     def get_queryset(self):
-        get_object_or_404(Cover, pk=self.kwargs['pk'])
+        get_object_or_404(Cover, pk=self.kwargs['cover_id'])
 
         return CoverComment.objects.filter(
-            cover=self.kwargs['pk']
+            cover=self.kwargs['cover_id']
         ).select_related('submitter')
 
 

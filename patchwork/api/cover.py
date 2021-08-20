@@ -37,7 +37,7 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
 
     def get_comments(self, cover):
         return self.context.get('request').build_absolute_uri(
-            reverse('api-cover-comment-list', kwargs={'pk': cover.id}))
+            reverse('api-cover-comment-list', kwargs={'cover_id': cover.id}))
 
     def to_representation(self, instance):
         # NOTE(stephenfin): This is here to ensure our API looks the same even

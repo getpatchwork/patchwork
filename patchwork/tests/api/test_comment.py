@@ -28,7 +28,7 @@ class TestCoverComments(utils.APITestCase):
         kwargs = {}
         if version:
             kwargs['version'] = version
-        kwargs['pk'] = cover.id
+        kwargs['cover_id'] = cover.id
 
         return reverse('api-cover-comment-list', kwargs=kwargs)
 
@@ -80,7 +80,7 @@ class TestCoverComments(utils.APITestCase):
     def test_list_non_existent_cover(self):
         """Ensure we get a 404 for a non-existent cover letter."""
         resp = self.client.get(
-            reverse('api-cover-comment-list', kwargs={'pk': '99999'}))
+            reverse('api-cover-comment-list', kwargs={'cover_id': '99999'}))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     def test_list_invalid_cover(self):
