@@ -296,17 +296,19 @@ table.patch-meta tr th, table.patch-meta tr td {
     color: #f7977a;
 }
 
-.comment .meta {
+.submission-message .meta {
+    display: flex;
+    align-items: center;
     background: #f0f0f0;
     padding: 0.3em 0.5em;
 }
 
-.comment .content {
-    border: 0;
+.submission-message .message-date {
+    margin-left: 8px;
 }
 
-.patch .content {
-    padding: 1em;
+.submission-message .content {
+    border: 0;
 }
 
 .patch-pull-url {

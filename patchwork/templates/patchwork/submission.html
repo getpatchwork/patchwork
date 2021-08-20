@@ -257,14 +257,14 @@
 {% else %}
 <h2>Message</h2>
 {% endif %}
-<div class="comment">
-<div class="meta">
- <span>{{ submission.submitter|personify:project }}</span>
- <span class="pull-right">{{ submission.date }} UTC</span>
-</div>
-<pre class="content">
-{{ submission|commentsyntax }}
-</pre>
+<div class="submission-message">
+  <div class="meta">
+    <span>{{ submission.submitter|personify:project }}</span>
+    <span class="message-date">{{ submission.date }} UTC</span>
+  </div>
+  <pre class="content">
+  {{ submission|commentsyntax }}
+  </pre>
 </div>
 
 {% for item in comments %}
@@ -273,11 +273,12 @@
 {% endif %}
 
 <a name="{{ item.id }}"></a>
-<div class="comment">
+<div class="submission-message">
 <div class="meta">
  <span>{{ item.submitter|personify:project }}</span>
- <span class="pull-right">{{ item.date }} UTC | <a href="{% url 'comment-redirect' comment_id=item.id %}"
-   >#{{ forloop.counter }}</a></span>
+ <span class="message-date">{{ item.date }} UTC |
+   <a href="{% url 'comment-redirect' comment_id=item.id %}">#{{ forloop.counter }}</a>
+  </span>
 </div>
 <pre class="content">
 {{ item|commentsyntax }}
