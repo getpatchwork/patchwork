@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django.http.request import QueryDict
-import rest_framework
+
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.generics import ListCreateAPIView
@@ -16,28 +16,11 @@ from rest_framework.serializers import ValidationError
 
 from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
+from patchwork.api.base import CurrentPatchDefault
 from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import CheckFilterSet
 from patchwork.models import Check
 from patchwork.models import Patch
-
-
-DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
-
-
-if DRF_VERSION > (3, 11):
-    class CurrentPatchDefault(object):
-        requires_context = True
-
-        def __call__(self, serializer_field):
-            return serializer_field.context['request'].patch
-else:
-    class CurrentPatchDefault(object):
-        def set_context(self, serializer_field):
-            self.patch = serializer_field.context['request'].patch
-
-        def __call__(self):
-            return self.patch
 
 
 class CheckSerializer(HyperlinkedModelSerializer):

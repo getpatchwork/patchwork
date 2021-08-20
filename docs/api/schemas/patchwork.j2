@@ -324,6 +324,74 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
+{% if version >= (1, 3) %}
+  /api/{{ version_url }}covers/{cover_id}/comments/{comment_id}/:
+    parameters:
+      - in: path
+        name: cover_id
+        description: A unique integer value identifying the parent cover.
+        required: true
+        schema:
+          title: Cover ID
+          type: integer
+      - in: path
+        name: comment_id
+        description: A unique integer value identifying this comment.
+        required: true
+        schema:
+          title: Comment ID
+          type: integer
+    get:
+      description: Show a cover comment.
+      operationId: cover_comments_read
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+    patch:
+      description: Update a cover comment (partial).
+      operationId: cover_comments_partial_update
+      requestBody:
+        $ref: '#/components/requestBodies/Comment'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCommentUpdate'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+{% endif %}
   /api/{{ version_url }}events/:
     get:
       description: List events.
@@ -656,6 +724,74 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
+{% if version >= (1, 3) %}
+  /api/{{ version_url }}patches/{patch_id}/comments/{comment_id}/:
+    parameters:
+      - in: path
+        name: patch_id
+        description: A unique integer value identifying the parent patch.
+        required: true
+        schema:
+          title: Patch ID
+          type: integer
+      - in: path
+        name: comment_id
+        description: A unique integer value identifying this comment.
+        required: true
+        schema:
+          title: Comment ID
+          type: integer
+    get:
+      description: Show a patch comment.
+      operationId: patch_comments_read
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+    patch:
+      description: Update a patch comment (partial).
+      operationId: patch_comments_partial_update
+      requestBody:
+        $ref: '#/components/requestBodies/Comment'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorCommentUpdate'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+{% endif %}
   /api/{{ version_url }}patches/{patch_id}/checks/:
     parameters:
       - in: path
@@ -1277,6 +1413,14 @@ components:
         application/x-www-form-urlencoded:
           schema:
             $ref: '#/components/schemas/CheckCreate'
+{% if version >= (1, 3) %}
+    Comment:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CommentUpdate'
+{% endif %}
     Patch:
       required: true
       content:
@@ -1586,6 +1730,17 @@ components:
               additionalProperties:
                 type: string
           readOnly: true
+{% if version >= (1, 3) %}
+        addressed:
+          title: Addressed
+          type: boolean
+    CommentUpdate:
+      type: object
+      properties:
+        addressed:
+          title: Addressed
+          type: boolean
+{% endif %}
     CoverList:
       type: object
       properties:
@@ -2659,6 +2814,16 @@ components:
           items:
             type: string
           readOnly: true
+{% if version >= (1, 3) %}
+    ErrorCommentUpdate:
+      type: object
+      properties:
+        addressed:
+          title: Addressed
+          type: array
+          items:
+            type: string
+{% endif %}
     ErrorPatchUpdate:
       type: object
       properties:
