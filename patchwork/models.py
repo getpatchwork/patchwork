@@ -675,6 +675,20 @@ class CoverComment(EmailMixin, models.Model):
         return reverse('comment-redirect', kwargs={'comment_id': self.id})
 
     def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+
+        # user submitted comment
+        if user == self.submitter.user:
+            return True
+
+        # user submitted cover letter
+        if user == self.cover.submitter.user:
+            return True
+
+        # user is project maintainer
+        if self.cover.project.is_editable(user):
+            return True
         return False
 
     class Meta:
@@ -720,7 +734,9 @@ class PatchComment(EmailMixin, models.Model):
         self.patch.refresh_tag_counts()
 
     def is_editable(self, user):
-        return False
+        if user == self.submitter.user:
+            return True
+        return self.patch.is_editable(user)
 
     class Meta:
         ordering = ['date']
