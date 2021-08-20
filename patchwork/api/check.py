@@ -3,11 +3,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from django.http import Http404
 from django.http.request import QueryDict
-from django.shortcuts import get_object_or_404
 import rest_framework
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import get_object_or_404
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import CurrentUserDefault
@@ -95,8 +94,8 @@ class CheckMixin(object):
     def get_queryset(self):
         patch_id = self.kwargs['patch_id']
 
-        if not Patch.objects.filter(pk=self.kwargs['patch_id']).exists():
-            raise Http404
+        # ensure the patch exists
+        get_object_or_404(Patch, id=self.kwargs['patch_id'])
 
         return Check.objects.prefetch_related('user').filter(patch=patch_id)
 

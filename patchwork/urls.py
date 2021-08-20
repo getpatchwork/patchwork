@@ -249,7 +249,7 @@ if settings.ENABLE_REST_API:
             name='api-user-list',
         ),
         path(
-            'users/<pk>/',
+            'users/<int:pk>/',
             api_user_views.UserDetail.as_view(),
             name='api-user-detail',
         ),
@@ -259,7 +259,7 @@ if settings.ENABLE_REST_API:
             name='api-person-list',
         ),
         path(
-            'people/<pk>/',
+            'people/<int:pk>/',
             api_person_views.PersonDetail.as_view(),
             name='api-person-detail',
         ),
@@ -269,7 +269,7 @@ if settings.ENABLE_REST_API:
             name='api-cover-list',
         ),
         path(
-            'covers/<pk>/',
+            'covers/<int:pk>/',
             api_cover_views.CoverDetail.as_view(),
             name='api-cover-detail',
         ),
@@ -279,17 +279,17 @@ if settings.ENABLE_REST_API:
             name='api-patch-list',
         ),
         path(
-            'patches/<pk>/',
+            'patches/<int:pk>/',
             api_patch_views.PatchDetail.as_view(),
             name='api-patch-detail',
         ),
         path(
-            'patches/<patch_id>/checks/',
+            'patches/<int:patch_id>/checks/',
             api_check_views.CheckListCreate.as_view(),
             name='api-check-list',
         ),
         path(
-            'patches/<patch_id>/checks/<check_id>/',
+            'patches/<int:patch_id>/checks/<int:check_id>/',
             api_check_views.CheckDetail.as_view(),
             name='api-check-detail',
         ),
@@ -299,7 +299,7 @@ if settings.ENABLE_REST_API:
             name='api-series-list',
         ),
         path(
-            'series/<pk>/',
+            'series/<int:pk>/',
             api_series_views.SeriesDetail.as_view(),
             name='api-series-detail',
         ),
@@ -309,7 +309,7 @@ if settings.ENABLE_REST_API:
             name='api-bundle-list',
         ),
         path(
-            'bundles/<pk>/',
+            'bundles/<int:pk>/',
             api_bundle_views.BundleDetail.as_view(),
             name='api-bundle-detail',
         ),
@@ -332,12 +332,12 @@ if settings.ENABLE_REST_API:
 
     api_1_1_patterns = [
         path(
-            'patches/<patch_id>/comments/',
+            'patches/<int:patch_id>/comments/',
             api_comment_views.PatchCommentList.as_view(),
             name='api-patch-comment-list',
         ),
         path(
-            'covers/<pk>/comments/',
+            'covers/<int:pk>/comments/',
             api_comment_views.CoverCommentList.as_view(),
             name='api-cover-comment-list',
         ),

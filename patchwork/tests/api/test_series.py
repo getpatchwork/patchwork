@@ -6,6 +6,7 @@
 import unittest
 
 from django.conf import settings
+from django.urls import NoReverseMatch
 from django.urls import reverse
 
 from patchwork.tests.api import utils
@@ -172,6 +173,16 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertNotIn('web_url', resp.data['cover_letter'])
         self.assertNotIn('mbox', resp.data['cover_letter'])
         self.assertNotIn('web_url', resp.data['patches'][0])
+
+    def test_detail_non_existent(self):
+        """Ensure we get a 404 for a non-existent series."""
+        resp = self.client.get(self.api_url('999999'))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    def test_detail_invalid(self):
+        """Ensure we get a 404 for an invalid series ID."""
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(self.api_url('foo'))
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""

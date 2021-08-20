@@ -172,6 +172,14 @@ class TestProjectAPI(utils.APITestCase):
         self.assertIn('name', resp.data)
         self.assertNotIn('subject_match', resp.data)
 
+    def test_detail_non_existent(self):
+        """Ensure we get a 404 for a non-existent project."""
+        resp = self.client.get(self.api_url('999999'))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+        resp = self.client.get(self.api_url('foo'))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
     def test_create(self):
         """Ensure creations are rejected."""
         project = create_project()

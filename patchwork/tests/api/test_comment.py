@@ -22,6 +22,7 @@ if settings.ENABLE_REST_API:
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestCoverComments(utils.APITestCase):
+
     @staticmethod
     def api_url(cover, version=None):
         kwargs = {}
@@ -76,11 +77,18 @@ class TestCoverComments(utils.APITestCase):
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url(cover, version='1.0'))
 
-    def test_list_invalid_cover(self):
+    def test_list_non_existent_cover(self):
         """Ensure we get a 404 for a non-existent cover letter."""
         resp = self.client.get(
             reverse('api-cover-comment-list', kwargs={'pk': '99999'}))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    def test_list_invalid_cover(self):
+        """Ensure we get a 404 for an invalid cover letter ID."""
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(
+                reverse('api-cover-comment-list', kwargs={'pk': 'foo'}),
+            )
 
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
@@ -139,8 +147,15 @@ class TestPatchComments(utils.APITestCase):
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url(patch, version='1.0'))
 
-    def test_list_invalid_patch(self):
+    def test_list_non_existent_patch(self):
         """Ensure we get a 404 for a non-existent patch."""
         resp = self.client.get(
             reverse('api-patch-comment-list', kwargs={'patch_id': '99999'}))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    def test_list_invalid_patch(self):
+        """Ensure we get a 404 for an invalid patch ID."""
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(
+                reverse('api-patch-comment-list', kwargs={'patch_id': 'foo'}),
+            )

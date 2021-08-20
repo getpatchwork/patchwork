@@ -6,6 +6,7 @@
 import unittest
 
 from django.conf import settings
+from django.urls import NoReverseMatch
 from django.urls import reverse
 
 from patchwork.models import Bundle
@@ -183,6 +184,16 @@ class TestBundleAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
+
+    def test_detail_non_existent(self):
+        """Ensure we get a 404 for a non-existent bundle."""
+        resp = self.client.get(self.api_url('999999'))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    def test_detail_invalid(self):
+        """Ensure we get a 404 for an invalid bundle ID."""
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(self.api_url('foo'))
 
     def _test_create_update(self, authenticate=True):
         user = create_user()

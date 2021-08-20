@@ -6,6 +6,7 @@
 import unittest
 
 from django.conf import settings
+from django.urls import NoReverseMatch
 from django.urls import reverse
 
 from patchwork.tests.api import utils
@@ -98,6 +99,19 @@ class TestPersonAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(person.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(person, resp.data, has_user=True)
+
+    def test_detail_non_existent(self):
+        """Ensure we get a 404 for a non-existent person."""
+        user = create_user(link_person=True)
+        self.client.force_authenticate(user=user)
+
+        resp = self.client.get(self.api_url('999999'))
+        self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
+
+    def test_detail_invalid(self):
+        """Ensure we get a 404 for an invalid person ID."""
+        with self.assertRaises(NoReverseMatch):
+            self.client.get(self.api_url('foo'))
 
     def test_create_update_delete(self):
         """Ensure creates, updates and deletes aren't allowed"""
