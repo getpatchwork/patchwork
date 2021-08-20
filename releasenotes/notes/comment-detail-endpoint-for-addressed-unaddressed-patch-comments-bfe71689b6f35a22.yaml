@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    Patch comments and cover letter comments can be marked 'addressed' or 'unaddressed' to
+    reflect whether the comment has been addressed by the patch and cover letter submitter
+    or a reviewer. The current state of a comment is shown in the header when showing a
+    comment and users with edit permission can toggle the state using an adjacent button.
+api:
+  - |
+    The API version has been updated to v1.3.
+  - |
+    A new REST API endpoint is available at ``/api/covers/<cover_id>/comments/<comment_id>/``.
+    This can be used to retrieve and update (e.g. ``addressed`` state) details about a specific
+    cover comment.
+  - |
+    A new REST API endpoint is available at ``/api/patches/<patch_id>/comments/<comment_id>/``.
+    This can be used to retrieve and update (e.g. ``addressed`` state) details about a specific
+    patch comment.
