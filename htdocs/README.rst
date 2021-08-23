@@ -122,6 +122,12 @@ js
   :GitHub: https://github.com/js-cookie/js-cookie/
   :Version: 3.0.0
 
+``patch-list.js.``
+  Event helpers and other application logic for patch-list.html. These
+  support patch list manipulation.
+
+  Part of Patchwork.
+
 ``rest.js.``
   Utility module for REST API requests to be used by other Patchwork JS files.
 
