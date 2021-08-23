@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% include "patchwork/partials/filters.html" %}
-{% include "patchwork/partials/pagination.html" %}
 
 {% if order.editable %}
 <table class="patch-list">
@@ -28,18 +27,15 @@
 </table>
 {% endif %}
 
-{% if page.paginator.long_page and user.is_authenticated %}
-<div class="floaty">
-  <a title="jump to form" href="#patch-forms">
-    <span style="font-size: 120%">&#9662;</span>
-  </a>
-</div>
-{% endif %}
-
-<form method="post">
+<form id="patch-list-form" method="post">
   {% csrf_token %}
   <input type="hidden" name="form" value="patch-list-form"/>
   <input type="hidden" name="project" value="{{project.id}}"/>
+
+  <div class="patch-list-actions">
+{% include "patchwork/partials/patch-forms.html" %}
+{% include "patchwork/partials/pagination.html" %}
+  </div>
   <table id="patch-list" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
     <thead>
       <tr>
@@ -159,7 +155,7 @@
 
     <tbody>
 {% for patch in page.object_list %}
-      <tr id="patch-row:{{patch.id}}">
+      <tr id="patch-row:{{patch.id}}" data-patch-id="{{patch.id}}">
 {% if user.is_authenticated %}
         <td id="select-patch:{{patch.id}}" style="text-align: center;">
           <input type="checkbox" name="patch_id:{{patch.id}}"/>
@@ -201,82 +197,5 @@
 
 {% if page.paginator.count %}
 {% include "patchwork/partials/pagination.html" %}
-
-  <div class="patch-forms" id="patch-forms">
-
-{% if patch_form %}
-     <div class="patch-form patch-form-properties">
-       <h3>Properties</h3>
-       <table class="form">
-         <tr>
-           <th>Change state:</th>
-           <td>
-             {{ patch_form.state }}
-             {{ patch_form.state.errors }}
-           </td>
-         </tr>
-         <tr>
-           <th>Delegate to:</th>
-           <td>
-             {{ patch_form.delegate }}
-             {{ patch_form.delegate.errors }}
-           </td>
-         </tr>
-         <tr>
-           <th>Archive:</th>
-           <td>
-             {{ patch_form.archived }}
-             {{ patch_form.archived.errors }}
-           </td>
-         </tr>
-         <tr>
-           <td></td>
-           <td>
-             <input type="submit" name="action" value="{{patch_form.action}}"/>
-           </td>
-         </tr>
-       </table>
-     </div>
-{% endif %}
-
-{% if user.is_authenticated %}
-    <div class="patch-form patch-form-bundle">
-      <h3>Bundling</h3>
-      <table class="form">
-        <tr>
-         <td>Create bundle:</td>
-         <td>
-           <input type="text" name="bundle_name"/>
-           <input name="action" value="Create" type="submit"/>
-         </td>
-        </tr>
-{% if bundles %}
-        <tr>
-          <td>Add to bundle:</td>
-          <td>
-            <select name="bundle_id">
-{% for bundle in bundles %}
-              <option value="{{bundle.id}}">{{bundle.name}}</option>
-{% endfor %}
-            </select>
-            <input name="action" value="Add" type="submit"/>
-          </td>
-        </tr>
-{% endif %}
-{% if bundle %}
-        <tr>
-          <td>Remove from bundle:</td>
-          <td>
-            <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
-            <input name="action" value="Remove" type="submit"/>
-          </td>
-        </tr>
-{% endif %}
-      </table>
-    </div>
-{% endif %}
-    <div style="clear: both;">
-    </div>
-  </div>
 {% endif %}
 </form>

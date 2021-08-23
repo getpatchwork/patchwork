@@ -14,11 +14,11 @@ from django.urls import reverse
 
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
-from patchwork.models import Bundle
 from patchwork.models import Cover
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.views import generic_list
+from patchwork.views import set_bundle
 from patchwork.views.utils import patch_to_mbox
 from patchwork.views.utils import series_patch_to_mbox
 
@@ -64,6 +64,7 @@ def patch_detail(request, project_id, msgid):
 
     form = None
     create_bundle_form = None
+    errors = None
 
     if editable:
         form = PatchForm(instance=patch)
@@ -75,39 +76,15 @@ def patch_detail(request, project_id, msgid):
         if action:
             action = action.lower()
 
-        if action == 'createbundle':
-            bundle = Bundle(owner=request.user, project=project)
-            create_bundle_form = CreateBundleForm(
-                instance=bundle, data=request.POST
+        if action in ['create', 'add']:
+            errors = set_bundle(
+                request, project, action, request.POST, [patch]
             )
-            if create_bundle_form.is_valid():
-                create_bundle_form.save()
-                bundle.append_patch(patch)
-                bundle.save()
-                create_bundle_form = CreateBundleForm()
-                messages.success(request, 'Bundle %s created' % bundle.name)
-        elif action == 'addtobundle':
-            bundle = get_object_or_404(
-                Bundle, id=request.POST.get('bundle_id')
-            )
-            if bundle.append_patch(patch):
-                messages.success(
-                    request,
-                    'Patch "%s" added to bundle "%s"'
-                    % (patch.name, bundle.name),
-                )
-            else:
-                messages.error(
-                    request,
-                    'Failed to add patch "%s" to bundle "%s": '
-                    'patch is already in bundle' % (patch.name, bundle.name),
-                )
 
-        # all other actions require edit privs
         elif not editable:
             return HttpResponseForbidden()
 
-        elif action is None:
+        elif action == 'update':
             form = PatchForm(data=request.POST, instance=patch)
             if form.is_valid():
                 form.save()
@@ -147,6 +124,8 @@ def patch_detail(request, project_id, msgid):
     context['project'] = patch.project
     context['related_same_project'] = related_same_project
     context['related_different_project'] = related_different_project
+    if errors:
+        context['errors'] = errors
 
     return render(request, 'patchwork/submission.html', context)
 

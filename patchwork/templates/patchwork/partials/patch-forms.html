@@ -1,0 +1,49 @@
+<div class="patch-forms" id="patch-forms">
+{% if patch_form %}
+  <div id="patch-form-properties" class="patch-form">
+    <div id="patch-form-state">
+      {{ patch_form.state.errors }}
+      {{ patch_form.state }}
+    </div>
+    <div id="patch-form-delegate">
+      {{ patch_form.delegate.errors }}
+      {{ patch_form.delegate }}
+    </div>
+    <div id="patch-form-archive">
+      {{ patch_form.archived.errors }}
+      {{ patch_form.archived.label_tag }} {{ patch_form.archived }}
+    </div>
+    <button class="patch-form-submit btn btn-primary" name="action" value="update">
+      Update
+    </button>
+  </div>
+{% endif %}
+{% if user.is_authenticated %}
+  <div id="patch-form-bundle" class="patch-form">
+    <div id="create-bundle">
+      {{ create_bundle_form.name.errors }}
+      {{ create_bundle_form.name }}
+      <input class="patch-form-submit btn btn-primary" name="action" value="Create" type="submit"/>
+    </div>
+    {% if bundles %}
+    <div id="add-to-bundle">
+      <select class="add-bundle" name="bundle_id">
+      <option value="" selected>Add to bundle</option>
+      {% for bundle in bundles %}
+        <option value="{{bundle.id}}">{{bundle.name}}</option>
+      {% endfor %}
+      </select>
+      <input class="patch-form-submit btn btn-primary" name="action" value="Add" type="submit"/>
+    </div>
+    {% endif %}
+    {% if bundle %}
+    <div id="remove-bundle">
+      <input type="hidden" name="removed_bundle_id" value="{{bundle.id}}"/>
+      <button class="patch-form-submit btn btn-primary" name="action" value="Remove">
+        Remove from bundle
+      </button>
+    </div>
+    {% endif %}
+  </div>
+{% endif %}
+</div>

@@ -3,11 +3,14 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import json
+
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
 
 from patchwork.filters import Filters
+from patchwork.forms import CreateBundleForm
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
@@ -108,52 +111,34 @@ class Order(object):
 
 
 # TODO(stephenfin): Refactor this to break it into multiple, testable functions
-def set_bundle(request, project, action, data, patches, context):
+def set_bundle(request, project, action, data, patches):
     # set up the bundle
     bundle = None
     user = request.user
 
     if action == 'create':
-        bundle_name = data['bundle_name'].strip()
-        if '/' in bundle_name:
-            return ["Bundle names can't contain slashes"]
-
-        if not bundle_name:
-            return ['No bundle name was specified']
-
-        if Bundle.objects.filter(owner=user, name=bundle_name).count() > 0:
-            return ['You already have a bundle called "%s"' % bundle_name]
-
+        bundle_name = data['name'].strip()
         bundle = Bundle(owner=user, project=project, name=bundle_name)
-        bundle.save()
-        messages.success(request, 'Bundle %s created' % bundle.name)
+        create_bundle_form = CreateBundleForm(
+            instance=bundle, data=request.POST
+        )
+        if create_bundle_form.is_valid():
+            create_bundle_form.save()
+            add_bundle_patches(request, patches, bundle)
+            bundle.save()
+            messages.success(request, 'Bundle %s created' % bundle.name)
+        else:
+            formErrors = json.loads(create_bundle_form.errors.as_json())
+            errors = [e['message'] for e in formErrors['name']]
+            return errors
     elif action == 'add':
+        if not data['bundle_id']:
+            return ['No bundle was selected']
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
+        add_bundle_patches(request, patches, bundle)
     elif action == 'remove':
         bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
-
-    if not bundle:
-        return ['no such bundle']
-
-    for patch in patches:
-        if action in ['create', 'add']:
-            bundlepatch_count = BundlePatch.objects.filter(
-                bundle=bundle, patch=patch
-            ).count()
-            if bundlepatch_count == 0:
-                bundle.append_patch(patch)
-                messages.success(
-                    request,
-                    "Patch '%s' added to bundle %s"
-                    % (patch.name, bundle.name),
-                )
-            else:
-                messages.warning(
-                    request,
-                    "Patch '%s' already in bundle %s"
-                    % (patch.name, bundle.name),
-                )
-        elif action == 'remove':
+        for patch in patches:
             try:
                 bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
                 bp.delete()
@@ -165,10 +150,26 @@ def set_bundle(request, project, action, data, patches, context):
                     "Patch '%s' removed from bundle %s\n"
                     % (patch.name, bundle.name),
                 )
-
-    bundle.save()
-
     return []
+
+
+def add_bundle_patches(request, patches, bundle):
+    for patch in patches:
+        bundlepatch_count = BundlePatch.objects.filter(
+            bundle=bundle, patch=patch
+        ).count()
+        if bundlepatch_count == 0:
+            bundle.append_patch(patch)
+            bundle.save()
+            messages.success(
+                request,
+                "Patch '%s' added to bundle %s" % (patch.name, bundle.name),
+            )
+        else:
+            messages.warning(
+                request,
+                "Patch '%s' already in bundle %s" % (patch.name, bundle.name),
+            )
 
 
 def generic_list(
@@ -232,6 +233,7 @@ def generic_list(
         data = None
     user = request.user
     properties_form = None
+    create_bundle_form = None
 
     if user.is_authenticated:
         # we only pass the post data to the MultiplePatchForm if that was
@@ -241,19 +243,20 @@ def generic_list(
             data_tmp = data
 
         properties_form = MultiplePatchForm(project, data=data_tmp)
+        create_bundle_form = CreateBundleForm()
 
     if request.method == 'POST' and data.get('form') == 'patch-list-form':
         action = data.get('action', '').lower()
 
         # special case: the user may have hit enter in the 'create bundle'
         # text field, so if non-empty, assume the create action:
-        if data.get('bundle_name', False):
+        if data.get('name', False):
             action = 'create'
 
         ps = Patch.objects.filter(id__in=get_patch_ids(data))
 
         if action in bundle_actions:
-            errors = set_bundle(request, project, action, data, ps, context)
+            errors = set_bundle(request, project, action, data, ps)
 
         elif properties_form and action == properties_form.action:
             errors = process_multiplepatch_form(
@@ -320,6 +323,7 @@ def generic_list(
         {
             'page': paginator.current_page,
             'patch_form': properties_form,
+            'create_bundle_form': create_bundle_form,
             'project': project,
             'order': order,
         }

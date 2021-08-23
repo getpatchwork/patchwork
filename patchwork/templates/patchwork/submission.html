@@ -132,89 +132,10 @@
 {% endif %}
 </table>
 
-<div class="patch-forms">
-{% if patch_form %}
-  <div class="patch-form patch-form-properties">
-    <h3>Patch Properties</h3>
-    <form method="post">
-      {% csrf_token %}
-      <table class="form">
-        <tr>
-          <th>Change state:</th>
-          <td>
-            {{ patch_form.state }}
-            {{ patch_form.state.errors }}
-          </td>
-        </tr>
-        <tr>
-          <th>Delegate to:</th>
-          <td>
-            {{ patch_form.delegate }}
-            {{ patch_form.delegate.errors }}
-          </td>
-        </tr>
-        <tr>
-          <th>Archived:</th>
-          <td>
-            {{ patch_form.archived }}
-            {{ patch_form.archived.errors }}
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input type="submit" value="Update">
-          </td>
-        </tr>
-      </table>
-    </form>
-  </div>
-{% endif %}
-
-{% if create_bundle_form %}
-  <div class="patch-form patch-form-bundle">
-    <h3>Bundling</h3>
-    <table class="form">
-      <tr>
-        <td>Create bundle:</td>
-        <td>
-{% if create_bundle_form.non_field_errors %}
-          <dd class="errors">{{create_bundle_form.non_field_errors}}</dd>
-{% endif %}
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="createbundle"/>
-{% if create_bundle_form.name.errors %}
-            <dd class="errors">{{create_bundle_form.name.errors}}</dd>
-{% endif %}
-            {{ create_bundle_form.name }}
-            <input value="Create" type="submit"/>
-          </form>
-        </td>
-      </tr>
-{% if bundles %}
-      <tr>
-        <td>Add to bundle:</td>
-        <td>
-          <form method="post">
-{% csrf_token %}
-            <input type="hidden" name="action" value="addtobundle"/>
-            <select name="bundle_id"/>
-{% for bundle in bundles %}
-              <option value="{{bundle.id}}">{{bundle.name}}</option>
-{% endfor %}
-            </select>
-            <input value="Add" type="submit"/>
-          </form>
-        </td>
-      </tr>
-{% endif %}
-    </table>
-  </div>
-{% endif %}
-  <div style="clear: both;">
-  </div>
-</div>
+<form id="patch-list-form" method="POST">
+  {% csrf_token %}
+  {% include "patchwork/partials/patch-forms.html" %}
+</form>
 
 {% if submission.pull_url %}
 <h2>Pull-request</h2>

@@ -64,7 +64,7 @@ class BundleForm(forms.ModelForm):
         regex=r'^[^/]+$',
         min_length=1,
         max_length=50,
-        label='Name',
+        required=False,
         error_messages={'invalid': "Bundle names can't contain slashes"},
     )
 
@@ -76,12 +76,19 @@ class BundleForm(forms.ModelForm):
 class CreateBundleForm(BundleForm):
     def clean_name(self):
         name = self.cleaned_data['name']
+        if not name:
+            raise forms.ValidationError(
+                'No bundle name was specified', code='invalid'
+            )
+
         count = Bundle.objects.filter(
             owner=self.instance.owner, name=name
         ).count()
         if count > 0:
             raise forms.ValidationError(
-                'A bundle called %s already exists' % name
+                'A bundle called %(name)s already exists',
+                code='invalid',
+                params={'name': name},
             )
         return name
 
