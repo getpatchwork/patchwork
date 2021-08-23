@@ -1,6 +1,6 @@
 # sphinx 4.1.x breaks sphinxcontrib-httpdomain which sphinxcontrib-openapi depends on
 # see https://github.com/sphinx-contrib/httpdomain/pull/51
-sphinx>=2.0,<4.1
+sphinx==4.1.2
 reno>=2.2
 sphinx_rtd_theme~=0.5.0
 jinja2~=2.11.2
