@@ -66,6 +66,9 @@ class BundleForm(forms.ModelForm):
         max_length=50,
         required=False,
         error_messages={'invalid': "Bundle names can't contain slashes"},
+        widget=forms.TextInput(
+            attrs={'class': 'create-bundle', 'placeholder': 'Bundle name'}
+        ),
     )
 
     class Meta:
@@ -136,19 +139,29 @@ class PatchForm(forms.ModelForm):
     def __init__(self, instance=None, project=None, *args, **kwargs):
         super(PatchForm, self).__init__(instance=instance, *args, **kwargs)
         self.fields['delegate'] = forms.ModelChoiceField(
-            queryset=_get_delegate_qs(project, instance), required=False
+            queryset=_get_delegate_qs(project, instance),
+            widget=forms.Select(attrs={'class': 'change-property-delegate'}),
+            required=False,
         )
 
     class Meta:
         model = Patch
         fields = ['state', 'archived', 'delegate']
+        widgets = {
+            'state': forms.Select(attrs={'class': 'change-property-state'}),
+            'archived': forms.CheckboxInput(
+                attrs={'class': 'archive-patch-check'}
+            ),
+        }
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
-    no_change_choice = ('*', 'no change')
+    no_change_choice = ('*', 'No change')
     to_field_name = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, placeholder, className, **kwargs):
+        self.no_change_choice = ('*', placeholder)
+        self.widget = forms.Select(attrs={'class': className})
         super(OptionalModelChoiceField, self).__init__(
             initial=self.no_change_choice[0], *args, **kwargs
         )
@@ -181,6 +194,10 @@ class OptionalModelChoiceField(forms.ModelChoiceField):
 
 
 class OptionalBooleanField(forms.TypedChoiceField):
+    def __init__(self, className, *args, **kwargs):
+        self.widget = forms.Select(attrs={'class': className})
+        super(OptionalBooleanField, self).__init__(*args, **kwargs)
+
     def is_no_change(self, value):
         return value == self.empty_value
 
@@ -188,22 +205,31 @@ class OptionalBooleanField(forms.TypedChoiceField):
 class MultiplePatchForm(forms.Form):
     action = 'update'
     archived = OptionalBooleanField(
+        className='archive-patch-select',
         choices=[
-            ('*', 'no change'),
-            ('True', 'Archived'),
-            ('False', 'Unarchived'),
+            ('*', 'No change'),
+            ('True', 'Archive'),
+            ('False', 'Unarchive'),
         ],
         coerce=lambda x: x == 'True',
         empty_value='*',
+        label='Archived',
     )
 
     def __init__(self, project, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
         self.fields['delegate'] = OptionalModelChoiceField(
-            queryset=_get_delegate_qs(project=project), required=False
+            queryset=_get_delegate_qs(project=project),
+            placeholder='Delegate to',
+            className='change-property-delegate',
+            label='Delegate to',
+            required=False,
         )
         self.fields['state'] = OptionalModelChoiceField(
-            queryset=State.objects.all()
+            queryset=State.objects.all(),
+            placeholder='Change state',
+            className='change-property-state',
+            label='Change state',
         )
 
     def save(self, instance, commit=True):

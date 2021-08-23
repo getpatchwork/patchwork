@@ -174,10 +174,6 @@ a.col-inactive:hover {
 div.filters {
 }
 
-div.patch-forms {
-    margin-top: 1em;
-}
-
 /* list order manipulation */
 
 table.patch-list tr.draghover {
@@ -201,7 +197,7 @@ input#reorder-change {
 .paginator {
     text-align: right;
     clear: both;
-        margin: 8px 0 15px;
+    margin: 16px 0;
 }
 
 .paginator .prev-na,
@@ -433,13 +429,62 @@ table.bundlelist td
     padding-right: 2em;
 }
 
+.patch-list-actions {
+    width: 100%;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
 /* forms that appear for a patch */
+.patch-forms {
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
 div.patch-form {
-    border: thin solid #080808;
-    padding-left: 0.6em;
-    padding-right: 0.6em;
-    float: left;
-    margin: 0.5em 5em 0.5em 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+select[class^=change-property-], .archive-patch-select, .add-bundle {
+    padding: 4px;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    background-color: var(--light-color);
+}
+
+#patch-form-archive {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+}
+
+#patch-form-archive > label {
+    margin: 0px;
+}
+
+#patch-form-archive > select, #patch-form-archive > input {
+    margin: 0px 4px 0px 4px;
+}
+
+.patch-form-submit {
+    font-weight: bold;
+    padding: 4px;
+}
+
+#patch-form-bundle, #add-to-bundle, #remove-bundle {
+    margin-left: 16px;
+}
+
+.create-bundle {
+    padding: 4px;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
 }
 
 div.patch-form h3 {
@@ -458,14 +503,16 @@ div.patch-form ul {
     margin-top: 0em;
 }
 
-/* forms */
-table.form {
+.create-bundle {
+    padding: 4px;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
 }
 
 span.help_text {
     font-size: 80%;
 }
-
 
 table.form td {
     padding: 0.6em;
