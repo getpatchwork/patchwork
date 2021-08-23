@@ -6,8 +6,8 @@ function order_button_click(node)
 {
     var rows, form;
 
-    form = $("#reorderform");
-    rows = $("#patchlist").get(0).tBodies[0].rows;
+    form = $("#reorder-form");
+    rows = $("#patch-list").get(0).tBodies[0].rows;
 
     if (rows.length < 1)
         return;
@@ -35,18 +35,18 @@ function order_button_click(node)
         $("#reorder\\-cancel").css("display", "inline");
 
         /* show help text */
-        $("#reorderhelp").text('Drag & drop rows to reorder');
+        $("#reorder-help").text('Drag & drop rows to reorder');
 
         /* enable drag & drop on the patches list */
-        $("#patchlist").tableDnD({
+        $("#patch-list").tableDnD({
             onDragClass: 'dragging',
             onDragStart: function() { dragging = true; },
             onDrop: function() { dragging = false; }
         });
 
         /* replace zebra striping with hover */
-        $("#patchlist tbody tr").css("background", "inherit");
-        $("#patchlist tbody tr").hover(drag_hover_in, drag_hover_out);
+        $("#patch-list tbody tr").css("background", "inherit");
+        $("#patch-list tbody tr").hover(drag_hover_in, drag_hover_out);
     }
 
     editing_order = !editing_order;

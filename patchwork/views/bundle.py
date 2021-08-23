@@ -110,7 +110,7 @@ def bundle_detail(request, username, bundlename):
 
         if (
             request.method == 'POST'
-            and request.POST.get('form') == 'reorderform'
+            and request.POST.get('form') == 'reorder-form'
         ):
             order = get_object_or_404(
                 BundlePatch,

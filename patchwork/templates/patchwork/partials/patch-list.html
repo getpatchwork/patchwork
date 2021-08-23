@@ -8,14 +8,14 @@
 {% include "patchwork/partials/pagination.html" %}
 
 {% if order.editable %}
-<table class="patchlist">
+<table class="patch-list">
   <tr>
-    <td class="patchlistreorder">
-      <form method="post" id="reorderform">
+    <td class="patch-list-reorder">
+      <form method="post" id="reorder-form">
         {% csrf_token %}
-        <input type="hidden" name="form" value="reorderform"/>
+        <input type="hidden" name="form" value="reorder-form"/>
         <input type="hidden" name="order_start" value="0"/>
-        <span id="reorderhelp"></span>
+        <span id="reorder-help"></span>
         <input id="reorder-cancel" type="button" value="Cancel" onClick="order_cancel_click(this)"/>
         <input id="reorder-change" type="button" value="Change order" onClick="order_button_click(this)"/>
       </form>
@@ -26,7 +26,7 @@
 
 {% if page.paginator.long_page and user.is_authenticated %}
 <div class="floaty">
-  <a title="jump to form" href="#patchforms">
+  <a title="jump to form" href="#patch-forms">
     <span style="font-size: 120%">&#9662;</span>
   </a>
 </div>
@@ -34,15 +34,15 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#patchlist').stickyTableHeaders();
+    $('#patch-list').stickyTableHeaders();
 
-    $('#patchlist').checkboxes('range', true);
+    $('#patch-list').checkboxes('range', true);
 
     $('#check-all').change(function(e) {
         if(this.checked) {
-            $('#patchlist > tbody').checkboxes('check');
+            $('#patch-list > tbody').checkboxes('check');
         } else {
-            $('#patchlist > tbody').checkboxes('uncheck');
+            $('#patch-list > tbody').checkboxes('uncheck');
         }
         e.preventDefault();
     });
@@ -51,9 +51,9 @@ $(document).ready(function() {
 
 <form method="post">
   {% csrf_token %}
-  <input type="hidden" name="form" value="patchlistform"/>
+  <input type="hidden" name="form" value="patch-list-form"/>
   <input type="hidden" name="project" value="{{project.id}}"/>
-  <table id="patchlist" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
+  <table id="patch-list" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
     <thead>
       <tr>
 {% if user.is_authenticated %}
@@ -71,22 +71,22 @@ $(document).ready(function() {
         <th>
 {% if not order.editable %}
 {% if order.name == "name" %}
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
           </a>
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
            Patch
           </a>
 {% else %}
-          <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+          <a class="col-inactive" href="{% listurl order="name" %}">Patch</a>
 {% endif %}
 {% else %}
-          <span class="colinactive">Patch</span>
+          <span class="col-inactive">Patch</span>
 {% endif %}
         </th>
 
         <th>
-          <span class="colinactive">Series</span>
+          <span class="col-inactive">Series</span>
         </th>
 
         <th>
@@ -100,70 +100,70 @@ $(document).ready(function() {
         <th>
 {% if not order.editable %}
 {% if order.name == "date" %}
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
           </a>
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             Date
           </a>
 {% else %}
-          <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+          <a class="col-inactive" href="{% listurl order="date" %}">Date</a>
 {% endif %}
 {% else %}
-          <span class="colinactive">Date</span>
+          <span class="col-inactive">Date</span>
 {% endif %}
         </th>
 
         <th>
 {% if not order.editable %}
 {% if order.name == "submitter" %}
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
           </a>
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             Submitter
           </a>
 {% else %}
-          <a class="colinactive" href="{% listurl order="submitter" %}">
+          <a class="col-inactive" href="{% listurl order="submitter" %}">
             Submitter
           </a>
 {% endif %}
 {% else %}
-          <span class="colinactive">Submitter</span>
+          <span class="col-inactive">Submitter</span>
 {% endif %}
         </th>
 
         <th>
 {% if not order.editable %}
 {% if order.name == "delegate" %}
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
           </a>
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             Delegate
           </a>
 {% else %}
-          <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+          <a class="col-inactive" href="{% listurl order="delegate" %}">Delegate</a>
 {% endif %}
 {% else %}
-          <span class="colinactive">Delegate</span>
+          <span class="col-inactive">Delegate</span>
 {% endif %}
         </th>
 
         <th>
 {% if not order.editable %}
 {% if order.name == "state" %}
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
           </a>
-          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+          <a class="col-active" href="{% listurl order=order.reversed_name %}">
             State
           </a>
 {% else %}
-          <a class="colinactive" href="{% listurl order="state" %}">State</a>
+          <a class="col-inactive" href="{% listurl order="state" %}">State</a>
 {% endif %}
 {% else %}
-          <span class="colinactive">State</span>
+          <span class="col-inactive">State</span>
 {% endif %}
         </th>
 
@@ -172,9 +172,9 @@ $(document).ready(function() {
 
     <tbody>
 {% for patch in page.object_list %}
-      <tr id="patch_row:{{patch.id}}">
+      <tr id="patch-row:{{patch.id}}">
 {% if user.is_authenticated %}
-        <td style="text-align: center;">
+        <td id="select-patch:{{patch.id}}" style="text-align: center;">
           <input type="checkbox" name="patch_id:{{patch.id}}"/>
         </td>
 {% endif %}
@@ -185,24 +185,24 @@ $(document).ready(function() {
           </button>
         </td>
 {% endif %}
-        <td>
+        <td id="patch-name:{{patch.id}}">
           <a href="{% url 'patch-detail' project_id=project.linkname msgid=patch.encoded_msgid %}">
             {{ patch.name|default:"[no subject]"|truncatechars:100 }}
           </a>
         </td>
-        <td>
+        <td id="patch-series:{{patch.id}}">
 {% if patch.series %}
           <a href="?series={{patch.series.id}}">
             {{ patch.series|truncatechars:100 }}
           </a>
 {% endif %}
         </td>
-        <td class="text-nowrap">{{ patch|patch_tags }}</td>
-        <td class="text-nowrap">{{ patch|patch_checks }}</td>
-        <td class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
-        <td>{{ patch.submitter|personify:project }}</td>
-        <td>{{ patch.delegate.username }}</td>
-        <td>{{ patch.state }}</td>
+        <td id="patch-tags:{{patch.id}}" class="text-nowrap">{{ patch|patch_tags }}</td>
+        <td id="patch-checks:{{patch.id}}" class="text-nowrap">{{ patch|patch_checks }}</td>
+        <td id="patch-date:{{patch.id}}" class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
+        <td id="patch-submitter:{{patch.id}}">{{ patch.submitter|personify:project }}</td>
+        <td id="patch-delegate:{{patch.id}}">{{ patch.delegate.username }}</td>
+        <td id="patch-state:{{patch.id}}">{{ patch.state }}</td>
        </tr>
 {% empty %}
       <tr>
@@ -215,37 +215,37 @@ $(document).ready(function() {
 {% if page.paginator.count %}
 {% include "patchwork/partials/pagination.html" %}
 
-  <div class="patchforms" id="patchforms">
+  <div class="patch-forms" id="patch-forms">
 
-{% if patchform %}
-     <div class="patchform patchform-properties">
+{% if patch_form %}
+     <div class="patch-form patch-form-properties">
        <h3>Properties</h3>
        <table class="form">
          <tr>
            <th>Change state:</th>
            <td>
-             {{ patchform.state }}
-             {{ patchform.state.errors }}
+             {{ patch_form.state }}
+             {{ patch_form.state.errors }}
            </td>
          </tr>
          <tr>
            <th>Delegate to:</th>
            <td>
-             {{ patchform.delegate }}
-             {{ patchform.delegate.errors }}
+             {{ patch_form.delegate }}
+             {{ patch_form.delegate.errors }}
            </td>
          </tr>
          <tr>
            <th>Archive:</th>
            <td>
-             {{ patchform.archived }}
-             {{ patchform.archived.errors }}
+             {{ patch_form.archived }}
+             {{ patch_form.archived.errors }}
            </td>
          </tr>
          <tr>
            <td></td>
            <td>
-             <input type="submit" name="action" value="{{patchform.action}}"/>
+             <input type="submit" name="action" value="{{patch_form.action}}"/>
            </td>
          </tr>
        </table>
@@ -253,7 +253,7 @@ $(document).ready(function() {
 {% endif %}
 
 {% if user.is_authenticated %}
-    <div class="patchform patchform-bundle">
+    <div class="patch-form patch-form-bundle">
       <h3>Bundling</h3>
       <table class="form">
         <tr>

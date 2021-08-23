@@ -162,25 +162,25 @@ table.pw-list > thead {
     background-color: white;
 }
 
-a.colinactive, a.colactive {
+a.col-inactive, a.col-active {
     color: black;
     text-decoration: none;
 }
 
-a.colinactive:hover {
+a.col-inactive:hover {
     color: red;
 }
 
 div.filters {
 }
 
-div.patchforms {
+div.patch-forms {
     margin-top: 1em;
 }
 
 /* list order manipulation */
 
-table.patchlist tr.draghover {
+table.patch-list tr.draghover {
     background: #e8e8e8 !important;
 }
 
@@ -256,7 +256,7 @@ table.patch-meta tr th, table.patch-meta tr td {
 }
 
 /* checks forms */
-/* TODO(stephenfin): Merge this with 'div.patchform' rules */
+/* TODO(stephenfin): Merge this with 'div.patch-form' rules */
 .checks {
     border: 1px solid gray;
     margin: 0.5em 1em;
@@ -434,7 +434,7 @@ table.bundlelist td
 }
 
 /* forms that appear for a patch */
-div.patchform {
+div.patch-form {
     border: thin solid #080808;
     padding-left: 0.6em;
     padding-right: 0.6em;
@@ -442,7 +442,7 @@ div.patchform {
     margin: 0.5em 5em 0.5em 10px;
 }
 
-div.patchform h3 {
+div.patch-form h3 {
     margin-top: 0em;
     margin-left: -0.6em;
     margin-right: -0.6em;
@@ -452,7 +452,7 @@ div.patchform h3 {
     font-size: 100%;
 }
 
-div.patchform ul {
+div.patch-form ul {
     list-style-type: none;
     padding-left: 0.2em;
     margin-top: 0em;

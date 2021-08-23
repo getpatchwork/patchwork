@@ -63,12 +63,12 @@ def patch_detail(request, project_id, msgid):
     context = {'project': patch.project}
 
     form = None
-    createbundleform = None
+    create_bundle_form = None
 
     if editable:
         form = PatchForm(instance=patch)
     if request.user.is_authenticated:
-        createbundleform = CreateBundleForm()
+        create_bundle_form = CreateBundleForm()
 
     if request.method == 'POST':
         action = request.POST.get('action', None)
@@ -77,14 +77,14 @@ def patch_detail(request, project_id, msgid):
 
         if action == 'createbundle':
             bundle = Bundle(owner=request.user, project=project)
-            createbundleform = CreateBundleForm(
+            create_bundle_form = CreateBundleForm(
                 instance=bundle, data=request.POST
             )
-            if createbundleform.is_valid():
-                createbundleform.save()
+            if create_bundle_form.is_valid():
+                create_bundle_form.save()
                 bundle.append_patch(patch)
                 bundle.save()
-                createbundleform = CreateBundleForm()
+                create_bundle_form = CreateBundleForm()
                 messages.success(request, 'Bundle %s created' % bundle.name)
         elif action == 'addtobundle':
             bundle = get_object_or_404(
@@ -142,8 +142,8 @@ def patch_detail(request, project_id, msgid):
     )
     context['submission'] = patch
     context['editable'] = editable
-    context['patchform'] = form
-    context['createbundleform'] = createbundleform
+    context['patch_form'] = form
+    context['create_bundle_form'] = create_bundle_form
     context['project'] = patch.project
     context['related_same_project'] = related_same_project
     context['related_different_project'] = related_different_project

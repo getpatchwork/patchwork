@@ -132,9 +132,9 @@
 {% endif %}
 </table>
 
-<div class="patchforms">
-{% if patchform %}
-  <div class="patchform patchform-properties">
+<div class="patch-forms">
+{% if patch_form %}
+  <div class="patch-form patch-form-properties">
     <h3>Patch Properties</h3>
     <form method="post">
       {% csrf_token %}
@@ -142,22 +142,22 @@
         <tr>
           <th>Change state:</th>
           <td>
-            {{ patchform.state }}
-            {{ patchform.state.errors }}
+            {{ patch_form.state }}
+            {{ patch_form.state.errors }}
           </td>
         </tr>
         <tr>
           <th>Delegate to:</th>
           <td>
-            {{ patchform.delegate }}
-            {{ patchform.delegate.errors }}
+            {{ patch_form.delegate }}
+            {{ patch_form.delegate.errors }}
           </td>
         </tr>
         <tr>
           <th>Archived:</th>
           <td>
-            {{ patchform.archived }}
-            {{ patchform.archived.errors }}
+            {{ patch_form.archived }}
+            {{ patch_form.archived.errors }}
           </td>
         </tr>
         <tr>
@@ -171,23 +171,23 @@
   </div>
 {% endif %}
 
-{% if createbundleform %}
-  <div class="patchform patchform-bundle">
+{% if create_bundle_form %}
+  <div class="patch-form patch-form-bundle">
     <h3>Bundling</h3>
     <table class="form">
       <tr>
         <td>Create bundle:</td>
         <td>
-{% if createbundleform.non_field_errors %}
-          <dd class="errors">{{createbundleform.non_field_errors}}</dd>
+{% if create_bundle_form.non_field_errors %}
+          <dd class="errors">{{create_bundle_form.non_field_errors}}</dd>
 {% endif %}
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="createbundle"/>
-{% if createbundleform.name.errors %}
-            <dd class="errors">{{createbundleform.name.errors}}</dd>
+{% if create_bundle_form.name.errors %}
+            <dd class="errors">{{create_bundle_form.name.errors}}</dd>
 {% endif %}
-            {{ createbundleform.name }}
+            {{ create_bundle_form.name }}
             <input value="Create" type="submit"/>
           </form>
         </td>

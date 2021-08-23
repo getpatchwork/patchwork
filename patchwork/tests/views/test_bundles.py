@@ -170,7 +170,7 @@ class BundleUpdateTest(BundleTestBase):
         self.assertEqual(bundle.public, not self.bundle.public)
 
         # check other forms for errors
-        formname = 'patchform'
+        formname = 'patch_form'
         if formname not in response.context:
             return
         form = response.context[formname]
@@ -368,7 +368,7 @@ class BundleCreateFromListTest(BundleTestBase):
     def test_create_empty_bundle(self):
         newbundlename = 'testbundle-new'
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'bundle_name': newbundlename,
             'action': 'Create',
             'project': self.project.id,
@@ -388,7 +388,7 @@ class BundleCreateFromListTest(BundleTestBase):
         patch = self.patches[0]
 
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'bundle_name': newbundlename,
             'action': 'Create',
             'project': self.project.id,
@@ -417,7 +417,7 @@ class BundleCreateFromListTest(BundleTestBase):
         n_bundles = Bundle.objects.count()
 
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'bundle_name': '',
             'action': 'Create',
             'project': self.project.id,
@@ -443,7 +443,7 @@ class BundleCreateFromListTest(BundleTestBase):
         patch = self.patches[0]
 
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'bundle_name': newbundlename,
             'action': 'Create',
             'project': self.project.id,
@@ -532,7 +532,7 @@ class BundleAddFromListTest(BundleTestBase):
     def test_add_to_empty_bundle(self):
         patch = self.patches[0]
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'action': 'Add',
             'project': self.project.id,
             'bundle_id': self.bundle.id,
@@ -557,7 +557,7 @@ class BundleAddFromListTest(BundleTestBase):
         self.bundle.append_patch(self.patches[0])
         patch = self.patches[1]
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'action': 'Add',
             'project': self.project.id,
             'bundle_id': self.bundle.id,
@@ -592,7 +592,7 @@ class BundleAddFromListTest(BundleTestBase):
         patch = self.patches[0]
 
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'action': 'Add',
             'project': self.project.id,
             'bundle_id': self.bundle.id,
@@ -617,7 +617,7 @@ class BundleAddFromListTest(BundleTestBase):
         patch = self.patches[0]
 
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'action': 'Add',
             'project': self.project.id,
             'bundle_id': self.bundle.id,
@@ -723,7 +723,7 @@ class BundleInitialOrderTest(BundleTestBase):
 
         # need to define our querystring explicity to enforce ordering
         params = {
-            'form': 'patchlistform',
+            'form': 'patch-list-form',
             'bundle_name': newbundlename,
             'action': 'Create',
             'project': self.project.id,
@@ -781,7 +781,7 @@ class BundleReorderTest(BundleTestBase):
 
         slice_ids = neworder_ids[start:end]
         params = {
-            'form': 'reorderform',
+            'form': 'reorder-form',
             'order_start': firstpatch.id,
             'neworder': slice_ids,
         }
