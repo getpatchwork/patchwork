@@ -5,7 +5,7 @@
 
 import email.parser
 
-from django.http import Http404
+from rest_framework.generics import get_object_or_404
 from rest_framework.generics import ListAPIView
 from rest_framework.serializers import SerializerMethodField
 
@@ -86,8 +86,7 @@ class CoverCommentList(ListAPIView):
     lookup_url_kwarg = 'pk'
 
     def get_queryset(self):
-        if not Cover.objects.filter(pk=self.kwargs['pk']).exists():
-            raise Http404
+        get_object_or_404(Cover, pk=self.kwargs['pk'])
 
         return CoverComment.objects.filter(
             cover=self.kwargs['pk']
@@ -105,8 +104,7 @@ class PatchCommentList(ListAPIView):
     lookup_url_kwarg = 'patch_id'
 
     def get_queryset(self):
-        if not Patch.objects.filter(id=self.kwargs['patch_id']).exists():
-            raise Http404
+        get_object_or_404(Patch, id=self.kwargs['patch_id'])
 
         return PatchComment.objects.filter(
             patch=self.kwargs['patch_id']
