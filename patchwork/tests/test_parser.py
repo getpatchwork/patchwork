@@ -18,6 +18,7 @@ from django.db.transaction import atomic
 from django.db import connection
 
 from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import Person
@@ -68,22 +69,42 @@ def read_mail(filename, project=None):
     return mail
 
 
-def _create_email(msg, msgid=None, sender=None, listid=None, in_reply_to=None):
+def _create_email(
+    msg,
+    msgid=None,
+    subject=None,
+    sender=None,
+    listid=None,
+    in_reply_to=None,
+    headers=None,
+):
     msg['Message-Id'] = msgid or make_msgid()
-    msg['Subject'] = 'Test subject'
+    msg['Subject'] = subject or 'Test subject'
     msg['From'] = sender or 'Test Author <test-author@example.com>'
     msg['List-Id'] = listid or 'test.example.com'
+
     if in_reply_to:
         msg['In-Reply-To'] = in_reply_to
+
+    for header in headers or {}:
+        msg[header] = headers[header]
 
     return msg
 
 
-def create_email(content, msgid=None, sender=None, listid=None,
-                 in_reply_to=None):
+def create_email(
+    content,
+    msgid=None,
+    subject=None,
+    sender=None,
+    listid=None,
+    in_reply_to=None,
+    headers=None,
+):
     msg = MIMEText(content, _charset='us-ascii')
 
-    return _create_email(msg, msgid, sender, listid, in_reply_to)
+    return _create_email(
+        msg, msgid, subject, sender, listid, in_reply_to, headers)
 
 
 def parse_mail(*args, **kwargs):
@@ -819,6 +840,64 @@ class DelegateRequestTest(TestCase):
         email['X-Patchwork-Delegate'] = self.invalid_delegate_email
         parse_mail(email)
         self.assertDelegate(None)
+
+
+class CommentActionRequiredTest(TestCase):
+
+    fixtures = ['default_tags']
+
+    def setUp(self):
+        self.project = create_project(listid='test.example.com')
+
+    def _create_submission_and_comments(self, submission_email):
+        comment_a_email = create_email(
+            'test comment\n',
+            in_reply_to=submission_email['Message-Id'],
+            listid=self.project.listid,
+            headers={},
+        )
+        comment_b_email = create_email(
+            'another test comment\n',
+            in_reply_to=submission_email['Message-Id'],
+            listid=self.project.listid,
+            headers={'X-Patchwork-Action-Required': ''},
+        )
+        parse_mail(submission_email)
+        parse_mail(comment_a_email)
+        parse_mail(comment_b_email)
+
+        comment_a_msgid = comment_a_email.get('Message-ID')
+        comment_b_msgid = comment_b_email.get('Message-ID')
+
+        return comment_a_msgid, comment_b_msgid
+
+    def test_patch_comment(self):
+        body = read_patch('0001-add-line.patch')
+        patch_email = create_email(body, listid=self.project.listid)
+        comment_a_msgid, comment_b_msgid = \
+            self._create_submission_and_comments(patch_email)
+
+        self.assertEqual(1, Patch.objects.count())
+        self.assertEqual(2, PatchComment.objects.count())
+        comment_a = PatchComment.objects.get(msgid=comment_a_msgid)
+        self.assertIsNone(comment_a.addressed)
+        comment_b = PatchComment.objects.get(msgid=comment_b_msgid)
+        self.assertFalse(comment_b.addressed)
+
+    def test_cover_comment(self):
+        cover_email = create_email(
+            'test cover letter',
+            subject='[0/2] A cover letter',
+            listid=self.project.listid)
+        comment_a_msgid, comment_b_msgid = \
+            self._create_submission_and_comments(cover_email)
+
+        self.assertEqual(1, Cover.objects.count())
+        self.assertEqual(2, CoverComment.objects.count())
+        comment_a = CoverComment.objects.get(msgid=comment_a_msgid)
+        self.assertIsNone(comment_a.addressed)
+        comment_b = CoverComment.objects.get(msgid=comment_b_msgid)
+        self.assertFalse(comment_b.addressed)
 
 
 class InitialPatchStateTest(TestCase):

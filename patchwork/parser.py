@@ -1019,6 +1019,12 @@ def find_delegate_by_header(mail):
     return None
 
 
+def find_comment_addressed_by_header(mail):
+    """Determine whether a comment is actionable or not."""
+    # we dispose of the value - it's irrelevant
+    return False if 'X-Patchwork-Action-Required' in mail else None
+
+
 def parse_mail(mail, list_id=None):
     """Parse a mail and add to the database.
 
@@ -1278,6 +1284,7 @@ def parse_mail(mail, list_id=None):
     patch = find_patch_for_comment(project, refs)
     if patch:
         author = get_or_create_author(mail, project)
+        addressed = find_comment_addressed_by_header(mail)
 
         with transaction.atomic():
             if PatchComment.objects.filter(patch=patch, msgid=msgid):
@@ -1288,7 +1295,8 @@ def parse_mail(mail, list_id=None):
                 date=date,
                 headers=headers,
                 submitter=author,
-                content=message)
+                content=message,
+                addressed=addressed)
 
         logger.debug('Comment saved')
 

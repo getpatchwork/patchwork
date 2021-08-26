@@ -181,6 +181,8 @@ system to test patches. Checks have a number of fields associated with them:
    to Patchwork.
 
 
+.. _overview-comment-metadata:
+
 Comment Metadata
 ----------------
 
@@ -197,6 +199,11 @@ letter comments. This flag can be set by maintainers or by the users submitting
 the cover letters. Once the submitter has provided the required information,
 either the submitter or a maintainer can mark the comment as "addressed". This
 provides a more granular way of tracking work items than patch states.
+
+.. note::
+
+   Users can indicate that a comment requires an action using a custom mail
+   header. For more information, refer to :doc:`/usage/headers`.
 
 
 Collections
