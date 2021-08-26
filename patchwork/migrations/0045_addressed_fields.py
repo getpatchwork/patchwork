@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='covercomment',
             name='addressed',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(null=True),
         ),
         migrations.AddField(
             model_name='patchcomment',
             name='addressed',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(null=True),
         ),
     ]

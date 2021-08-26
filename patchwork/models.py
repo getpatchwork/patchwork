@@ -657,7 +657,7 @@ class CoverComment(EmailMixin, models.Model):
         related_query_name='comment',
         on_delete=models.CASCADE,
     )
-    addressed = models.BooleanField(default=False)
+    addressed = models.BooleanField(null=True)
 
     @property
     def list_archive_url(self):
@@ -708,7 +708,7 @@ class PatchComment(EmailMixin, models.Model):
         related_query_name='comment',
         on_delete=models.CASCADE,
     )
-    addressed = models.BooleanField(default=False)
+    addressed = models.BooleanField(null=True)
 
     @property
     def list_archive_url(self):

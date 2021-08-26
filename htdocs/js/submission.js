@@ -29,7 +29,17 @@ $( document ).ready(function() {
         };
         updateProperty(url, data, updateMessage).then(isSuccess => {
             if (isSuccess) {
-                $("div[class^='comment-status-bar-'][data-comment-id='"+commentId+"']").toggleClass("hidden");
+                // The API won't accept anything but true or false, so we
+                // always hide the -action-required element
+                $("div[class='comment-status-bar-action-required'][data-comment-id='"+commentId+"']").addClass("hidden");
+
+                if (event.target.value === "true") {
+                    $("div[class^='comment-status-bar-addressed'][data-comment-id='"+commentId+"']").removeClass("hidden");
+                    $("div[class^='comment-status-bar-unaddressed'][data-comment-id='"+commentId+"']").addClass("hidden");
+                } else if (event.target.value === "false") {
+                    $("div[class^='comment-status-bar-addressed'][data-comment-id='"+commentId+"']").addClass("hidden");
+                    $("div[class^='comment-status-bar-unaddressed'][data-comment-id='"+commentId+"']").removeClass("hidden");
+                }
             }
         })
     });

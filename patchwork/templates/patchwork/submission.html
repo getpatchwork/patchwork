@@ -285,7 +285,19 @@
     <span class="message-date">{{ item.date }} UTC |
       <a href="{% url 'comment-redirect' comment_id=item.id %}">#{{ forloop.counter }}</a>
     </span>
-    {% if item.addressed %}
+    {% if item.addressed == None %}
+      <div class="comment-status-bar-action-required" data-comment-id={{item.id}}>
+    {% else %}
+      <div class="comment-status-bar-action-required hidden" data-comment-id={{item.id}}>
+    {% endif %}
+        {% if editable or comment_is_editable %}
+          <button class="comment-action-unaddressed text-warning" value="false">
+            <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+            Mark Action Required
+          </button>
+        {% endif %}
+      </div>
+    {% if item.addressed == True %}
       <div class="comment-status-bar-addressed" data-comment-id={{item.id}}>
     {% else %}
       <div class="comment-status-bar-addressed hidden" data-comment-id={{item.id}}>
@@ -301,10 +313,10 @@
           </button>
         {% endif %}
       </div>
-    {% if item.addressed %}
-      <div class="comment-status-bar-unaddressed hidden" data-comment-id={{item.id}}>
-    {% else %}
+    {% if item.addressed == False %}
       <div class="comment-status-bar-unaddressed" data-comment-id={{item.id}}>
+    {% else %}
+      <div class="comment-status-bar-unaddressed hidden" data-comment-id={{item.id}}>
     {% endif %}
         <div class="comment-status-label text-warning mx-3">
           <span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>

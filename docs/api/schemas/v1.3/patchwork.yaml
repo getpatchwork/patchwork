@@ -1669,12 +1669,14 @@ components:
         addressed:
           title: Addressed
           type: boolean
+          nullable: true
     CommentUpdate:
       type: object
       properties:
         addressed:
           title: Addressed
           type: boolean
+          nullable: true
     CoverList:
       type: object
       properties:
