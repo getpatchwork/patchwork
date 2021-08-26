@@ -69,6 +69,17 @@ class TestCoverComments(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(comment, resp.data[0])
         self.assertIn('list_archive_url', resp.data[0])
+        self.assertIn('addressed', resp.data[0])
+
+    def test_list_version_1_2(self):
+        """List cover letter comments using API v1.2."""
+        create_cover_comment(cover=self.cover)
+
+        resp = self.client.get(self.api_url(self.cover, version='1.2'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('list_archive_url', resp.data[0])
+        self.assertNotIn('addressed', resp.data[0])
 
     def test_list_version_1_1(self):
         """List cover letter comments using API v1.1."""
@@ -107,15 +118,6 @@ class TestCoverComments(utils.APITestCase):
         comment = create_cover_comment(cover=self.cover)
 
         resp = self.client.get(self.api_url(self.cover, item=comment))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertSerialized(comment, resp.data)
-
-    def test_detail_version_1_3(self):
-        """Show a cover letter comment using API v1.3."""
-        comment = create_cover_comment(cover=self.cover)
-
-        resp = self.client.get(
-            self.api_url(self.cover, version='1.3', item=comment))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(comment, resp.data)
 
@@ -292,6 +294,17 @@ class TestPatchComments(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertSerialized(comment, resp.data[0])
         self.assertIn('list_archive_url', resp.data[0])
+        self.assertIn('addressed', resp.data[0])
+
+    def test_list_version_1_2(self):
+        """List patch comments using API v1.2."""
+        create_patch_comment(patch=self.patch)
+
+        resp = self.client.get(self.api_url(self.patch, version='1.2'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('list_archive_url', resp.data[0])
+        self.assertNotIn('addressed', resp.data[0])
 
     def test_list_version_1_1(self):
         """List patch comments using API v1.1."""
@@ -330,15 +343,6 @@ class TestPatchComments(utils.APITestCase):
         comment = create_patch_comment(patch=self.patch)
 
         resp = self.client.get(self.api_url(self.patch, item=comment))
-        self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertSerialized(comment, resp.data)
-
-    def test_detail_version_1_3(self):
-        """Show a patch comment using API v1.3."""
-        comment = create_patch_comment(patch=self.patch)
-
-        resp = self.client.get(
-            self.api_url(self.patch, version='1.3', item=comment))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(comment, resp.data)
 
