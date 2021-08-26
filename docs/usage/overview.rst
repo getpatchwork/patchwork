@@ -71,11 +71,11 @@ Cover Letters
 ~~~~~~~~~~~~~
 
 Cover letters provide a way to offer a "big picture" overview of a series of
-patches. When using Git, these mails can be recognised by way of their `0/N`
-subject prefix, e.g. `[00/11] A sample series`. Like patches, Patchwork stores
-not only the various aspects of the cover letter itself, such as the name and
-body of the cover letter, but also various metadata associated with the email
-that the cover letter was parsed from.
+patches. When using Git, these mails can be recognised by way of their ``0/N``
+subject prefix, e.g. ``[00/11] A sample series``. Like patches, Patchwork
+stores not only the various aspects of the cover letter itself, such as the
+name and body of the cover letter, but also various metadata associated with
+the email that the cover letter was parsed from.
 
 
 Comments
@@ -179,6 +179,24 @@ system to test patches. Checks have a number of fields associated with them:
 
    Provide information on building a CI system that reports check results back
    to Patchwork.
+
+
+Comment Metadata
+----------------
+
+Like patches, Patchwork allows users to store various bits of metadata against
+comments.
+
+Action required
+~~~~~~~~~~~~~~~
+
+.. versionadded:: 3.1.0
+
+Patchwork allows users to set an "action required" flag on patch and cover
+letter comments. This flag can be set by maintainers or by the users submitting
+the cover letters. Once the submitter has provided the required information,
+either the submitter or a maintainer can mark the comment as "addressed". This
+provides a more granular way of tracking work items than patch states.
 
 
 Collections
