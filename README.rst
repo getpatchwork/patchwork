@@ -18,6 +18,10 @@ Patchwork
    :target: http://patchwork.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://img.shields.io/discord/857116373653127208.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
+   :target: https://discord.gg/hGWjXVTAbB
+   :alt: Discord
+
 **Patchwork** is a patch tracking system for community-based projects. It is
 intended to make the patch management process easier for both the project's
 contributors and maintainers, leaving time for the more important (and more
