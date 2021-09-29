@@ -7,6 +7,8 @@ Design based on:
     http://www.revsys.com/blog/2014/nov/21/recommended-django-project-layout/
 """
 
+import os
+
 from .base import *  # noqa
 
 try:
@@ -77,7 +79,7 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 # django-debug-toolbar
 
 if debug_toolbar:
-    INSTALLED_APPS += [
+    INSTALLED_APPS += [  # noqa: F405
         'debug_toolbar'
     ]
 
@@ -86,7 +88,7 @@ if debug_toolbar:
 # This should go first in the middleware classes
     MIDDLEWARE = [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ] + MIDDLEWARE
+    ] + MIDDLEWARE  # noqa: F405
 
     INTERNAL_IPS = [
         '127.0.0.1', '::1',
