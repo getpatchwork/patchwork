@@ -68,6 +68,10 @@ TEMPLATES = [
     },
 ]
 
+# TODO(stephenfin): Consider changing to BigAutoField when we drop support for
+# Django < 3.2
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 DEFAULT_FROM_EMAIL = 'Patchwork <patchwork@patchwork.example.com>'
 
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
