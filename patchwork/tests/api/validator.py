@@ -10,8 +10,7 @@ from django.urls import resolve
 import openapi_core
 from openapi_core.contrib.django import DjangoOpenAPIRequestFactory
 from openapi_core.contrib.django import DjangoOpenAPIResponseFactory
-from openapi_core.schema.media_types.exceptions import OpenAPIMediaTypeError
-from openapi_core.schema.parameters.exceptions import OpenAPIParameterError
+from openapi_core.exceptions import OpenAPIParameterError
 from openapi_core.templating import util
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.validation.request.validators import RequestValidator
@@ -113,9 +112,6 @@ def validate_data(path, request, response, validate_request,
         result = validator.validate(request)
         try:
             result.raise_for_errors()
-        except OpenAPIMediaTypeError:
-            if response.status_code != status.HTTP_400_BAD_REQUEST:
-                raise
         except OpenAPIParameterError:
             # TODO(stephenfin): In API v2.0, this should be an error. As things
             # stand, we silently ignore these issues.
