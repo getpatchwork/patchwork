@@ -1,0 +1,104 @@
+---
+name: CI
+on:
+  - push
+  - pull_request
+jobs:
+  lint:
+    name: Run linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: python -m pip install tox
+      - name: Run tox
+        run: tox -e pep8
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.6, 3.7, 3.8, 3.9]
+        db: [postgres, mysql]
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: patchwork
+          POSTGRES_PASSWORD: patchwork
+          POSTGRES_USER: patchwork
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: patchwork
+          MYSQL_USER: patchwork
+          MYSQL_PASSWORD: patchwork
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Python dependencies
+        run: python -m pip install tox tox-gh-actions codecov
+      - name: Log database configuration (mysql)
+        if: ${{ matrix.db == 'mysql' }}
+        run: mysql -h 127.0.0.1 -e "SELECT VERSION(), CURRENT_USER();" -uroot -proot patchwork
+      - name: Log database configuration (postgres)
+        if: ${{ matrix.db == 'postgres' }}
+        run: psql -h 127.0.0.1 -c "SELECT VERSION(), CURRENT_USER, current_database()" -U patchwork -d patchwork
+        env:
+          PGPASSWORD: patchwork
+      - name: Modify database user permissions (mysql)
+        if: ${{ matrix.db == 'mysql' }}
+        run: mysql -h 127.0.0.1 -e "GRANT ALL ON \`test\\_patchwork%\`.* to 'patchwork'@'%';" -uroot -proot
+      - name: Run unit tests (via tox)
+        run: tox
+        env:
+          PW_TEST_DB_TYPE: "${{ matrix.db }}"
+          PW_TEST_DB_USER: "patchwork"
+          PW_TEST_DB_PASS: "patchwork"
+          PW_TEST_DB_HOST: "127.0.0.1"
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: python -m pip install tox
+      - name: Build docs (via tox)
+        run: tox -e docs
+      - name: Archive build results
+        uses: actions/upload-artifact@v2
+        with:
+          name: html-docs-build
+          path: docs/_build/html
+          retention-days: 7
