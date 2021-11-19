@@ -10,8 +10,8 @@ Patchwork
    :target: https://codecov.io/gh/getpatchwork/patchwork
    :alt: Codecov
 
-.. image:: https://travis-ci.org/getpatchwork/patchwork.svg?branch=master
-   :target: https://travis-ci.org/getpatchwork/patchwork
+.. image:: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml/badge.svg
+   :target: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml
    :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/patchwork/badge/?version=latest
