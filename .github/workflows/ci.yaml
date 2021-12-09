@@ -28,10 +28,10 @@ jobs:
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
       DATABASE_HOST: "127.0.0.1"
-      DATABASE_NAME: ${{ matrix.db != 'sqlite3' && 'patchwork' || '/dev/shm/patchwork.test.db.sqlite3' }}
-      DATABASE_USER: patchwork
-      DATABASE_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: root
+      DATABASE_NAME: ${{ matrix.db != 'sqlite3' && format('patchwork-db-{0}', github.run_id) || '/dev/shm/patchwork.test.db.sqlite3' }}
+      DATABASE_USER: patchwork-user-${{ github.run_id }}
+      DATABASE_PASSWORD: password-${{ github.run_id }}
+      MYSQL_ROOT_PASSWORD: root-${{ github.run_id }}
     services:
       postgres:
         image: postgres:latest
