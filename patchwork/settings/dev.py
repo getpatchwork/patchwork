@@ -7,8 +7,6 @@ Design based on:
     http://www.revsys.com/blog/2014/nov/21/recommended-django-project-layout/
 """
 
-import os
-
 from .base import *  # noqa
 
 try:
@@ -36,30 +34,8 @@ SECRET_KEY = '00000000000000000000000000000000000000000000000000'  # noqa
 
 DEBUG = True
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-        'PORT': os.getenv('DATABASE_PORT', ''),
-        'USER': os.getenv('DATABASE_USER', 'patchwork'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
-        'NAME': os.getenv('DATABASE_NAME', 'patchwork'),
-        'TEST': {
-            'CHARSET': 'utf8',
-        },
-    },
-}
-
-if os.getenv('DATABASE_TYPE', None) == 'postgres':
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-    DATABASES['default']['HOST'] = os.getenv('DATABASE_HOST', '')
-elif os.getenv('DATABASE_TYPE', None) == 'sqlite':
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
-    DATABASES['default']['NAME'] = '/dev/shm/patchwork.test.db.sqlite3'
-    del DATABASES['default']['HOST']
-    del DATABASES['default']['PORT']
-    del DATABASES['default']['USER']
-    del DATABASES['default']['PASSWORD']
+if DATABASES['default']['ENGINE'] == 'mysql':  # noqa: F405
+    DATABASES['default']['TEST'] = {'CHARSET': 'utf8'}  # noqa: F405
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

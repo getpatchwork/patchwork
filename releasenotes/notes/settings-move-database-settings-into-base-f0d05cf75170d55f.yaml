@@ -1,0 +1,19 @@
+---
+upgrade:
+  - |
+    Database configuration has been added to ``patchwork.settings.base``.
+    Previously, this had to be specified in the ``settings.py`` file manually
+    created by admins. The following environment variables can now be used to
+    configure the settings:
+
+    - ``DATABASE_TYPE`` (one of: ``postgres``, ``sqlite3``, ``mysql``;
+      default: ``mysql``)
+    - ``DATABASE_HOST`` (default: ``localhost``)
+    - ``DATABASE_PORT`` (default: ``<unset>``)
+    - ``DATABASE_NAME`` (default: ``patchwork``)
+    - ``DATABASE_USER`` (default: ``patchwork``)
+    - ``DATABASE_PASSWORD`` (default: ``patchwork``)
+
+    If you are manually defining ``DATABASES`` in your ``settings.py`` file,
+    this should have no impact. However, you may wish to rework your deployment
+    to use environment variables instead.

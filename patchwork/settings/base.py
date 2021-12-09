@@ -105,6 +105,45 @@ STATICFILES_DIRS = [
     os.path.join(ROOT_DIR, 'htdocs'),
 ]
 
+# Database
+#
+# If you're using a postgres database, connecting over a local unix-domain
+# socket, then the following setting should work for you. Otherwise,
+# see https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+
+if os.getenv('DATABASE_TYPE') == 'postgres':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+            'PORT': os.environ.get('DATABASE_PORT', ''),
+            'NAME': os.environ.get('DATABASE_NAME', 'patchwork'),
+            'USER': os.environ.get('DATABASE_USER', 'patchwork'),
+            'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'password'),
+        },
+    }
+elif os.getenv('DATABASE_TYPE') == 'sqlite3':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.environ.get('DATABASE_NAME', ''),
+        },
+    }
+else:  # mysql
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+            'PORT': os.getenv('DATABASE_PORT', ''),
+            'NAME': os.getenv('DATABASE_NAME', 'patchwork'),
+            'USER': os.getenv('DATABASE_USER', 'patchwork'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
+            'TEST': {
+                'CHARSET': 'utf8',
+            },
+        },
+    }
+
 #
 # Third-party application settings
 #
