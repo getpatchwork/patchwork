@@ -5,6 +5,8 @@ services:
     volumes:
       - ./tools/docker/db/postdata:/var/lib/postgresql/data
     environment:
+      - POSTGRES_DB=patchwork
+      - POSTGRES_USER=patchwork
       - POSTGRES_PASSWORD=password
 
   web:

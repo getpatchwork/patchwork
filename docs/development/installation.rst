@@ -91,6 +91,10 @@ To run unit tests against the system Python packages, run:
 
 .. code-block:: shell
 
+   # For MySQL database:
+   $ docker-compose exec -T -- db sh -c \
+         "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%'; FLUSH PRIVILEGES;\""
+
    $ docker-compose run --rm web python manage.py test
 
 To run unit tests for multiple versions using ``tox``, run:
@@ -99,12 +103,12 @@ To run unit tests for multiple versions using ``tox``, run:
 
    $ docker-compose run --rm web tox
 
-To reset the database before any of these commands, add ``--reset`` to the
-command line after ``web`` and before any other arguments:
+To reset the database, stop the db container and purge the database files:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --reset tox
+   $ docker-compose stop db
+   $ sudo rm -rf tools/docker/db
 
 Any local edits to the project files made locally are immediately visible to
 the Docker container, and so should be picked up by the Django auto-reloader.

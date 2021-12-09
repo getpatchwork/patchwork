@@ -6,6 +6,7 @@ services:
       - ./tools/docker/db/data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=patchwork
       - MYSQL_USER=patchwork
       - MYSQL_PASSWORD=password
 
@@ -28,6 +29,6 @@ services:
       # skip DATABASE_TYPE explicitly as mysql should be the default type.
       - DATABASE_HOST=db
       - DATABASE_PORT=3306
+      - DATABASE_NAME=patchwork
       - DATABASE_USER=patchwork
       - DATABASE_PASSWORD=password
-      - MYSQL_ROOT_PASSWORD=root

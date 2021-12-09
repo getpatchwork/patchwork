@@ -16,19 +16,10 @@ postgres)
 *)
     export DATABASE_TYPE=mysql
     mysql_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} ${DATABASE_PORT:+--port=${DATABASE_PORT}} "--user=${DATABASE_USER}" "--password=${DATABASE_PASSWORD}" )
-    mysql_root_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} ${DATABASE_PORT:+--port=${DATABASE_PORT}} "--user=root" "--password=${MYSQL_ROOT_PASSWORD:-}" )
     ;;
 esac
 
 # functions
-
-test_db_connection() {
-    if [ ${DATABASE_TYPE} = "postgres" ]; then
-        echo ';' | psql "${psql_args[@]}" 2> /dev/null > /dev/null
-    else
-        mysqladmin "${mysql_root_args[@]}" ping > /dev/null 2> /dev/null
-    fi
-}
 
 test_database() {
     if [ ${DATABASE_TYPE} = "postgres" ]; then
@@ -36,37 +27,6 @@ test_database() {
     else
         echo ';' | mysql "${mysql_args[@]}" "${DATABASE_NAME}" 2> /dev/null
     fi
-}
-
-reset_data_mysql() {
-    mysql "${mysql_root_args[@]}" << EOF
-DROP DATABASE IF EXISTS ${DATABASE_NAME};
-CREATE DATABASE ${DATABASE_NAME} CHARACTER SET utf8;
-GRANT ALL ON ${DATABASE_NAME}.* TO '${DATABASE_USER}' IDENTIFIED BY '${DATABASE_PASSWORD}';
-GRANT ALL ON \`test\\_${DATABASE_NAME}%\`.* to '${DATABASE_USER}'@'%';
-FLUSH PRIVILEGES;
-EOF
-}
-
-reset_data_postgres() {
-    psql "${psql_args[@]}" <<EOF
-DROP DATABASE IF EXISTS ${DATABASE_NAME};
-CREATE DATABASE ${DATABASE_NAME} WITH ENCODING = 'UTF8';
-EOF
-}
-
-reset_data() {
-    if [ x${DATABASE_TYPE} = x"postgres" ]; then
-        reset_data_postgres
-    else
-        reset_data_mysql
-    fi
-
-    # load initial data
-    python manage.py migrate #> /dev/null
-    python manage.py loaddata default_tags #> /dev/null
-    python manage.py loaddata default_states #> /dev/null
-    python manage.py loaddata default_projects #> /dev/null
 }
 
 # the script begins!
@@ -103,20 +63,20 @@ done
 set -e
 
 # check if db is connected
-if ! test_db_connection; then
+if ! test_database; then
     echo "The database seems not to be connected, or the ${DATABASE_USER} user is broken"
     echo "MySQL/Postgres may still be starting. Waiting 5 seconds."
     sleep 5
-    if ! test_db_connection; then
+    if ! test_database; then
         echo "Still cannot connect to database."
         echo "Maybe you are starting the db for the first time. Waiting up to 60 seconds."
         for i in {0..9}; do
             sleep 5
-            if test_db_connection; then
+            if test_database; then
                 break
             fi
         done
-        if ! test_db_connection; then
+        if ! test_database; then
             echo "Still cannot connect to database. Giving up."
             echo "Are you using docker-compose? If not, have you set up the link correctly?"
             exit 1
@@ -124,19 +84,10 @@ if ! test_db_connection; then
     fi
 fi
 
-# rebuild db
-# do this on --reset or if the db doesn't exist
-if [[ "$1" == "--reset" ]]; then
-    shift
-    reset_data
-elif ! test_database; then
-    reset_data
-fi
-
-if [ $# -eq 0 ]; then
-    # we probably ran with --reset and nothing else
-    # just exit cleanly
-    exit 0
-fi
+# load initial data
+python manage.py migrate #> /dev/null
+python manage.py loaddata default_tags #> /dev/null
+python manage.py loaddata default_states #> /dev/null
+python manage.py loaddata default_projects #> /dev/null
 
 exec "$@"
