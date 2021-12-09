@@ -76,10 +76,10 @@ jobs:
       - name: Run unit tests (via tox)
         run: tox
         env:
-          PW_TEST_DB_TYPE: "${{ matrix.db }}"
-          PW_TEST_DB_USER: "patchwork"
-          PW_TEST_DB_PASS: "patchwork"
-          PW_TEST_DB_HOST: "127.0.0.1"
+          DATABASE_TYPE: "${{ matrix.db }}"
+          DATABASE_USER: "patchwork"
+          DATABASE_PASSWORD: "patchwork"
+          DATABASE_HOST: "127.0.0.1"
   docs:
     name: Build docs
     runs-on: ubuntu-latest

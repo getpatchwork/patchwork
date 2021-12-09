@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Database configuration variables ``PW_TEST_DB_*`` are renamed to their
+    corresponding ``DATABASE_*`` names to sync development & production
+    environments setup. Some mistaken references to ``DATABASE_PASS`` are
+    also replaced with ``DATABASE_PASSWORD`` to follow the convention.

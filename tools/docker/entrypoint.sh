@@ -1,28 +1,28 @@
 #!/bin/bash
 set -euo pipefail
 
-PW_TEST_DB_TYPE=${PW_TEST_DB_TYPE:-mysql}
+DATABASE_TYPE=${DATABASE_TYPE:-mysql}
 
 # functions
 
 test_db_connection() {
-    if [ ${PW_TEST_DB_TYPE} = "postgres" ]; then
-        echo ';' | psql -h $PW_TEST_DB_HOST -U postgres 2> /dev/null > /dev/null
+    if [ ${DATABASE_TYPE} = "postgres" ]; then
+        echo ';' | psql -h $DATABASE_HOST -U postgres 2> /dev/null > /dev/null
     else
-        mysqladmin -h $PW_TEST_DB_HOST -u patchwork --password=password ping > /dev/null 2> /dev/null
+        mysqladmin -h $DATABASE_HOST -u patchwork --password=password ping > /dev/null 2> /dev/null
     fi
 }
 
 test_database() {
-    if [ ${PW_TEST_DB_TYPE} = "postgres" ]; then
-        echo ';' | psql -h $PW_TEST_DB_HOST -U postgres patchwork 2> /dev/null
+    if [ ${DATABASE_TYPE} = "postgres" ]; then
+        echo ';' | psql -h $DATABASE_HOST -U postgres patchwork 2> /dev/null
     else
-        echo ';' | mysql -h $PW_TEST_DB_HOST -u patchwork -ppassword patchwork 2> /dev/null
+        echo ';' | mysql -h $DATABASE_HOST -u patchwork -ppassword patchwork 2> /dev/null
     fi
 }
 
 reset_data_mysql() {
-    mysql -uroot -ppassword -h $PW_TEST_DB_HOST << EOF
+    mysql -uroot -ppassword -h $DATABASE_HOST << EOF
 DROP DATABASE IF EXISTS patchwork;
 CREATE DATABASE patchwork CHARACTER SET utf8;
 GRANT ALL ON patchwork.* TO 'patchwork' IDENTIFIED BY 'password';
@@ -32,14 +32,14 @@ EOF
 }
 
 reset_data_postgres() {
-    psql -h $PW_TEST_DB_HOST -U postgres <<EOF
+    psql -h $DATABASE_HOST -U postgres <<EOF
 DROP DATABASE IF EXISTS patchwork;
 CREATE DATABASE patchwork WITH ENCODING = 'UTF8';
 EOF
 }
 
 reset_data() {
-    if [ x${PW_TEST_DB_TYPE} = x"postgres" ]; then
+    if [ x${DATABASE_TYPE} = x"postgres" ]; then
         reset_data_postgres
     else
         reset_data_mysql

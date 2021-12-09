@@ -39,21 +39,21 @@ DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': os.getenv('PW_TEST_DB_HOST', 'localhost'),
-        'PORT': os.getenv('PW_TEST_DB_PORT', ''),
-        'USER': os.getenv('PW_TEST_DB_USER', 'patchwork'),
-        'PASSWORD': os.getenv('PW_TEST_DB_PASS', 'password'),
-        'NAME': os.getenv('PW_TEST_DB_NAME', 'patchwork'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+        'PORT': os.getenv('DATABASE_PORT', ''),
+        'USER': os.getenv('DATABASE_USER', 'patchwork'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
+        'NAME': os.getenv('DATABASE_NAME', 'patchwork'),
         'TEST': {
             'CHARSET': 'utf8',
         },
     },
 }
 
-if os.getenv('PW_TEST_DB_TYPE', None) == 'postgres':
+if os.getenv('DATABASE_TYPE', None) == 'postgres':
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-    DATABASES['default']['HOST'] = os.getenv('PW_TEST_DB_HOST', '')
-elif os.getenv('PW_TEST_DB_TYPE', None) == 'sqlite':
+    DATABASES['default']['HOST'] = os.getenv('DATABASE_HOST', '')
+elif os.getenv('DATABASE_TYPE', None) == 'sqlite':
     DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
     DATABASES['default']['NAME'] = '/dev/shm/patchwork.test.db.sqlite3'
     del DATABASES['default']['HOST']

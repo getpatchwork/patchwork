@@ -5,7 +5,7 @@ services:
     volumes:
       - ./tools/docker/db/data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=patchwork
       - MYSQL_PASSWORD=password
 
@@ -26,5 +26,9 @@ services:
     environment:
       - UID
       - GID
-      - PW_TEST_DB_HOST=db
-      - PW_TEST_DB_PORT=3306
+      # skip DATABASE_TYPE explicitly as mysql should be the default type.
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+      - DATABASE_USER=patchwork
+      - DATABASE_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root

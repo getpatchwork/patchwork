@@ -64,7 +64,7 @@ used to ease deployment:
   Username that the Patchwork web application will access the database with. We
   will use ``www-data``, for reasons described later in this guide.
 
-``DATABASE_PASS=``
+``DATABASE_PASSWORD=``
   Password that the Patchwork web application will access the database with. As
   we're going to use *peer* authentication (more on this later), this will be
   unset.
@@ -323,7 +323,7 @@ Once done, we should be able to check that all requirements are met using the
       $ sudo -u www-data \
           --preserve-env=DATABASE_NAME \
           --preserve-env=DATABASE_USER \
-          --preserve-env=DATABASE_PASS \
+          --preserve-env=DATABASE_PASSWORD \
           --preserve-env=DATABASE_HOST \
           --preserve-env=DATABASE_PORT \
           --preserve-env=STATIC_ROOT \

@@ -316,7 +316,7 @@ if necessary:
 
    The ``patchwork`` username and ``password`` password are the defaults
    expected by the provided ``dev`` settings files. If using something
-   different, export the ``PW_TEST_DB_USER`` and ``PW_TEST_DB_PASS`` variables
+   different, export the ``DATABASE_USER`` and ``DATABASE_PASSWORD`` variables
    described in the :ref:`Environment Variables <dev-envvar>` section below.
    Alternatively, you can create your own settings file with these variables
    hardcoded and change the value of ``DJANGO_SETTINGS_MODULE`` as described
@@ -470,17 +470,16 @@ __ https://django-dbbackup.readthedocs.io/en/stable/
 Environment Variables
 ---------------------
 
-The following environment variables are available to configure settings when
-using the provided ``dev`` settings file.
+The following environment variables are available to configure settings.
 
-``PW_TEST_DB_NAME=patchwork``
+``DATABASE_NAME=patchwork``
   Name of the database
 
-``PW_TEST_DB_USER=patchwork``
+``DATABASE_USER=patchwork``
   Username to access the database with
 
-``PW_TEST_DB_PASS=password``
+``DATABASE_PASSWORD=password``
   Password to access the database with<
 
-``PW_TEST_DB_TYPE=mysql``
+``DATABASE_TYPE=mysql``
   Type of database to use. Options: ``mysql``, ``postgres``

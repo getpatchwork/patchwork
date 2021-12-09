@@ -24,9 +24,9 @@ services:
     environment:
       - UID
       - GID
-      - PW_TEST_DB_HOST=db
-      - PW_TEST_DB_PORT=5432
-      - PW_TEST_DB_TYPE=postgres
-      - PW_TEST_DB_USER=postgres
-      - PW_TEST_DB_PASS=password
-      - PGPASSWORD=password
+      - DATABASE_TYPE=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=patchwork
+      - DATABASE_USER=patchwork
+      - DATABASE_PASSWORD=password
