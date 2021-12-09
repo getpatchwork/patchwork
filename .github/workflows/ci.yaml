@@ -116,6 +116,8 @@ jobs:
     strategy:
       matrix:
         db: [postgres, mysql]
+    env:
+      COMPOSE_FILE: ${{ matrix.db == 'mysql' && 'docker-compose.yml' || 'docker-compose-pg.yml' }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -125,11 +127,30 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Bring up docker-compose service
-        env:
-          COMPOSE_FILE: ${{ matrix.db == 'mysql' && 'docker-compose.yml' || 'docker-compose-pg.yml' }}
+      - name: Build docker-compose service
         run: |
           docker-compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+      - name: Test createsuperuser/changepassword
+        run: |
+          docker-compose run -T --rm web \
+              python manage.py createsuperuser \
+              --username patchwork --no-input --email test@example.com
+          { echo patchwork; echo patchwork; } | \
+              docker-compose run -T --rm web \
+              python manage.py changepassword patchwork
+      - name: Test dbbackup/dbrestore
+        run: |
+          docker-compose run -T --rm web python manage.py dbbackup
+          echo y | docker-compose run -T --rm web python manage.py dbrestore
+      - name: Modify database user permissions (mysql)
+        if: ${{ matrix.db == 'mysql' }}
+        run: |
+          docker-compose exec -T -- db \
+              sh -c "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%'; FLUSH PRIVILEGES;\""
+      - name: Run unittest
+        run: docker-compose run -T --rm web tox
+      - name: Test normal startup
+        run: |
           docker-compose up --detach
 
           for count in $(seq 50); do \
@@ -140,12 +161,6 @@ jobs:
           done
           echo
 
-          docker-compose exec -T web \
-              python manage.py createsuperuser \
-              --username patchwork --no-input --email test@example.com
-          { echo patchwork; echo patchwork; } | \
-              docker-compose exec -T web \
-              python manage.py changepassword patchwork
           docker-compose ps
       - name: Test client access (git-pw)
         run: |
