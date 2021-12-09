@@ -24,11 +24,11 @@ jobs:
     strategy:
       matrix:
         python: [3.6, 3.7, 3.8, 3.9]
-        db: [postgres, mysql]
+        db: [postgres, mysql, sqlite3]
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
       DATABASE_HOST: "127.0.0.1"
-      DATABASE_NAME: patchwork
+      DATABASE_NAME: ${{ matrix.db != 'sqlite3' && 'patchwork' || '/dev/shm/patchwork.test.db.sqlite3' }}
       DATABASE_USER: patchwork
       DATABASE_PASSWORD: password
       MYSQL_ROOT_PASSWORD: root
@@ -115,9 +115,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        db: [postgres, mysql]
+        db: [postgres, mysql, sqlite3]
     env:
-      COMPOSE_FILE: ${{ matrix.db == 'mysql' && 'docker-compose.yml' || 'docker-compose-pg.yml' }}
+      COMPOSE_FILE: ${{ matrix.db == 'mysql' && 'docker-compose.yml' || (matrix.db == 'postgres' && 'docker-compose-pg.yml') || 'docker-compose-sqlite3.yml' }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2

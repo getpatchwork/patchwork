@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     mariadb-client \
     postgresql-client \
+    sqlite3 \
     tzdata \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

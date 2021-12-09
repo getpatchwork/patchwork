@@ -1,0 +1,19 @@
+version: "3"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./tools/docker/Dockerfile
+      args:
+        - UID
+        - GID
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/home/patchwork/patchwork/
+    ports:
+      - "8000:8000"
+    environment:
+      - UID
+      - GID
+      - DATABASE_TYPE=sqlite3
+      - DATABASE_NAME=/home/patchwork/patchwork/tools/docker/db/db.sqlite3

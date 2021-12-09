@@ -3,18 +3,22 @@ set -euo pipefail
 
 export DATABASE_HOST=${DATABASE_HOST:-}
 export DATABASE_PORT=${DATABASE_PORT:-}
-export DATABASE_NAME=${DATABASE_NAME:-patchwork}
 export DATABASE_USER=${DATABASE_USER:-patchwork}
 export DATABASE_PASSWORD=${DATABASE_PASSWORD:-password}
 
 case "${DATABASE_TYPE:-}" in
 postgres)
+    export DATABASE_NAME=${DATABASE_NAME:-patchwork}
     export PGPORT=${DATABASE_PORT}
     export PGPASSWORD=${DATABASE_PASSWORD}
     psql_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} "--username=${DATABASE_USER}" )
     ;;
+sqlite3)
+    export DATABASE_NAME=${DATABASE_NAME:-/dev/shm/patchwork.db.sqlite3}
+    ;;
 *)
     export DATABASE_TYPE=mysql
+    export DATABASE_NAME=${DATABASE_NAME:-patchwork}
     mysql_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} ${DATABASE_PORT:+--port=${DATABASE_PORT}} "--user=${DATABASE_USER}" "--password=${DATABASE_PASSWORD}" )
     ;;
 esac
@@ -22,11 +26,14 @@ esac
 # functions
 
 test_database() {
-    if [ ${DATABASE_TYPE} = "postgres" ]; then
-        echo ';' | psql "${psql_args[@]}" "${DATABASE_NAME}" 2> /dev/null
-    else
-        echo ';' | mysql "${mysql_args[@]}" "${DATABASE_NAME}" 2> /dev/null
-    fi
+    case "${DATABASE_TYPE}" in
+    "postgres")
+        echo ';' | psql "${psql_args[@]}" "${DATABASE_NAME}" 2> /dev/null ;;
+    "mysql")
+        echo ';' | mysql "${mysql_args[@]}" "${DATABASE_NAME}" 2> /dev/null ;;
+    "sqlite3")
+        echo ';' | sqlite3 "${DATABASE_NAME}" > /dev/null 2> /dev/null ;;
+    esac
 }
 
 # the script begins!
