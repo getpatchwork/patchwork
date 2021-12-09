@@ -133,20 +133,10 @@ elif ! test_database; then
     reset_data
 fi
 
-# TODO(stephenfin): Deprecated the --test, --tox, --quick-test and --quick-tox
-# flags in a future release
 if [ $# -eq 0 ]; then
     # we probably ran with --reset and nothing else
     # just exit cleanly
     exit 0
-elif [ "$1" == "--shell" ]; then
-    exec bash
-elif [ "$1" == "--test" ] || [ "$1" == "--quick-test" ]; then
-    shift
-    python manage.py test $@
-elif [ "$1" == "--tox" ] || [ "$1" == "--quick-tox" ]; then
-    shift
-    tox $@
-else # run whatever CMD is set to
-    $@
 fi
+
+exec "$@"

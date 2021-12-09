@@ -60,7 +60,7 @@ To run a shell within this environment, run:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm web --shell
+   $ docker-compose run --rm web /bin/bash
 
 To run ``django-manage`` commands, such as ``createsuperuser`` or ``migrate``,
 run:
@@ -85,7 +85,7 @@ Likewise, to restore an older version of the database, run:
 
 .. code-block:: shell
 
-   $ docker-compose run --rm -web python manage.py dbrestore
+   $ docker-compose run --rm web python manage.py dbrestore
 
 To run unit tests against the system Python packages, run:
 

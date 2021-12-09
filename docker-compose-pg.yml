@@ -16,7 +16,6 @@ services:
         - GID
     depends_on:
       - db
-    command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/home/patchwork/patchwork/
     ports:

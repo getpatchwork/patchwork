@@ -38,5 +38,6 @@ RUN pip install -r /opt/requirements-dev.txt
 
 COPY tools/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 USER patchwork
 WORKDIR /home/patchwork/patchwork
