@@ -25,13 +25,20 @@ jobs:
       matrix:
         python: [3.6, 3.7, 3.8, 3.9]
         db: [postgres, mysql]
+    env:
+      DATABASE_TYPE: "${{ matrix.db }}"
+      DATABASE_HOST: "127.0.0.1"
+      DATABASE_NAME: patchwork
+      DATABASE_USER: patchwork
+      DATABASE_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
     services:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: patchwork
-          POSTGRES_PASSWORD: patchwork
-          POSTGRES_USER: patchwork
+          POSTGRES_DB: ${{ env.DATABASE_NAME }}
+          POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          POSTGRES_USER: ${{ env.DATABASE_USER }}
         ports:
           - 5432:5432
         options: >-
@@ -42,10 +49,10 @@ jobs:
       mysql:
         image: mysql:latest
         env:
-          MYSQL_DATABASE: patchwork
-          MYSQL_USER: patchwork
-          MYSQL_PASSWORD: patchwork
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ${{ env.DATABASE_NAME }}
+          MYSQL_USER: ${{ env.DATABASE_USER }}
+          MYSQL_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -64,22 +71,23 @@ jobs:
         run: python -m pip install tox tox-gh-actions codecov
       - name: Log database configuration (mysql)
         if: ${{ matrix.db == 'mysql' }}
-        run: mysql -h 127.0.0.1 -e "SELECT VERSION(), CURRENT_USER();" -uroot -proot patchwork
+        run: |
+          mysql -h 127.0.0.1 -e "SELECT VERSION(), CURRENT_USER();" \
+              -uroot -p${MYSQL_ROOT_PASSWORD} ${DATABASE_NAME}
       - name: Log database configuration (postgres)
         if: ${{ matrix.db == 'postgres' }}
-        run: psql -h 127.0.0.1 -c "SELECT VERSION(), CURRENT_USER, current_database()" -U patchwork -d patchwork
+        run: |
+          psql -h 127.0.0.1 -c "SELECT VERSION(), CURRENT_USER, current_database()" \
+              -U ${DATABASE_USER} -d ${DATABASE_NAME}
         env:
-          PGPASSWORD: patchwork
+          PGPASSWORD: ${{ env.DATABASE_PASSWORD }}
       - name: Modify database user permissions (mysql)
         if: ${{ matrix.db == 'mysql' }}
-        run: mysql -h 127.0.0.1 -e "GRANT ALL ON \`test\\_patchwork%\`.* to 'patchwork'@'%';" -uroot -proot
+        run: |
+          mysql -h 127.0.0.1 -e "GRANT ALL ON \`test\\_${DATABASE_NAME}%\`.* to '${DATABASE_USER}'@'%';" \
+              -uroot -p${MYSQL_ROOT_PASSWORD}
       - name: Run unit tests (via tox)
         run: tox
-        env:
-          DATABASE_TYPE: "${{ matrix.db }}"
-          DATABASE_USER: "patchwork"
-          DATABASE_PASSWORD: "patchwork"
-          DATABASE_HOST: "127.0.0.1"
   docs:
     name: Build docs
     runs-on: ubuntu-latest

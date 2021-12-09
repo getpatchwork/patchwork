@@ -1,40 +1,57 @@
 #!/bin/bash
 set -euo pipefail
 
-DATABASE_TYPE=${DATABASE_TYPE:-mysql}
+export DATABASE_HOST=${DATABASE_HOST:-}
+export DATABASE_PORT=${DATABASE_PORT:-}
+export DATABASE_NAME=${DATABASE_NAME:-patchwork}
+export DATABASE_USER=${DATABASE_USER:-patchwork}
+export DATABASE_PASSWORD=${DATABASE_PASSWORD:-password}
+
+case "${DATABASE_TYPE:-}" in
+postgres)
+    export PGPORT=${DATABASE_PORT}
+    export PGPASSWORD=${DATABASE_PASSWORD}
+    psql_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} "--username=${DATABASE_USER}" )
+    ;;
+*)
+    export DATABASE_TYPE=mysql
+    mysql_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} ${DATABASE_PORT:+--port=${DATABASE_PORT}} "--user=${DATABASE_USER}" "--password=${DATABASE_PASSWORD}" )
+    mysql_root_args=( ${DATABASE_HOST:+--host=${DATABASE_HOST}} ${DATABASE_PORT:+--port=${DATABASE_PORT}} "--user=root" "--password=${MYSQL_ROOT_PASSWORD:-}" )
+    ;;
+esac
 
 # functions
 
 test_db_connection() {
     if [ ${DATABASE_TYPE} = "postgres" ]; then
-        echo ';' | psql -h $DATABASE_HOST -U postgres 2> /dev/null > /dev/null
+        echo ';' | psql "${psql_args[@]}" 2> /dev/null > /dev/null
     else
-        mysqladmin -h $DATABASE_HOST -u patchwork --password=password ping > /dev/null 2> /dev/null
+        mysqladmin "${mysql_root_args[@]}" ping > /dev/null 2> /dev/null
     fi
 }
 
 test_database() {
     if [ ${DATABASE_TYPE} = "postgres" ]; then
-        echo ';' | psql -h $DATABASE_HOST -U postgres patchwork 2> /dev/null
+        echo ';' | psql "${psql_args[@]}" "${DATABASE_NAME}" 2> /dev/null
     else
-        echo ';' | mysql -h $DATABASE_HOST -u patchwork -ppassword patchwork 2> /dev/null
+        echo ';' | mysql "${mysql_args[@]}" "${DATABASE_NAME}" 2> /dev/null
     fi
 }
 
 reset_data_mysql() {
-    mysql -uroot -ppassword -h $DATABASE_HOST << EOF
-DROP DATABASE IF EXISTS patchwork;
-CREATE DATABASE patchwork CHARACTER SET utf8;
-GRANT ALL ON patchwork.* TO 'patchwork' IDENTIFIED BY 'password';
-GRANT ALL ON \`test\\_patchwork%\`.* to 'patchwork'@'%';
+    mysql "${mysql_root_args[@]}" << EOF
+DROP DATABASE IF EXISTS ${DATABASE_NAME};
+CREATE DATABASE ${DATABASE_NAME} CHARACTER SET utf8;
+GRANT ALL ON ${DATABASE_NAME}.* TO '${DATABASE_USER}' IDENTIFIED BY '${DATABASE_PASSWORD}';
+GRANT ALL ON \`test\\_${DATABASE_NAME}%\`.* to '${DATABASE_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 }
 
 reset_data_postgres() {
-    psql -h $DATABASE_HOST -U postgres <<EOF
-DROP DATABASE IF EXISTS patchwork;
-CREATE DATABASE patchwork WITH ENCODING = 'UTF8';
+    psql "${psql_args[@]}" <<EOF
+DROP DATABASE IF EXISTS ${DATABASE_NAME};
+CREATE DATABASE ${DATABASE_NAME} WITH ENCODING = 'UTF8';
 EOF
 }
 
@@ -87,7 +104,7 @@ set -e
 
 # check if db is connected
 if ! test_db_connection; then
-    echo "The database seems not to be connected, or the patchwork user is broken"
+    echo "The database seems not to be connected, or the ${DATABASE_USER} user is broken"
     echo "MySQL/Postgres may still be starting. Waiting 5 seconds."
     sleep 5
     if ! test_db_connection; then
