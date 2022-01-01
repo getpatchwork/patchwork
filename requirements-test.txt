@@ -9,4 +9,4 @@ openapi-core~=0.14.2
 # this properly
 #
 # [1] https://github.com/OAI/OpenAPI-Specification/issues/1368
-jsonschema<4.0
+jsonschema==4.3.3
