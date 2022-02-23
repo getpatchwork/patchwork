@@ -178,7 +178,7 @@ Python Requirements
 ^^^^^^^^^^^^^^^^^^^
 
 To develop Python-based software you first need Python. Patchwork supports
-Python 3.6+. Python 3 will be installed by default on many installations,
+Python 3.7+. Python 3 will be installed by default on many installations,
 though a suitable version can usually be installed manually using the
 ``python3`` package.
 

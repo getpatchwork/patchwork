@@ -9,8 +9,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid
 import os
-import sys
-import unittest
 
 from django.test import TestCase
 from django.test import TransactionTestCase
@@ -1155,13 +1153,6 @@ class WeirdMailTest(TransactionTestCase):
             parse_mail(m, list_id='patchwork.ozlabs.org')
         except ValueError:
             pass
-
-    @unittest.skipUnless((3, 0) <= sys.version_info < (3, 7),
-                         'Breaks only on Python 3.0 - 3.6')
-    def test_early_fail(self):
-        file_path = os.path.join(TEST_FUZZ_DIR, 'earlyfail.mbox')
-        with self.assertRaises(AttributeError):
-            load_mail(file_path)
 
     def test_base64err(self):
         self._test_patch('base64err.mbox')
