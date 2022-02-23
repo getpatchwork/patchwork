@@ -38,6 +38,8 @@ TIME_ZONE = 'Australia/Canberra'
 
 USE_I18N = False
 
+USE_TZ = False
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ROOT_URLCONF = 'patchwork.urls'
