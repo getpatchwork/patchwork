@@ -123,7 +123,7 @@ For more information on Docker itself, please refer to the `docker`_ and
 
    .. code-block:: shell
 
-      $ chcon -RT svirt_sandbox_file_t $PATCHWORK_DIR
+      $ chcon -R -t svirt_sandbox_file_t $PATCHWORK_DIR
 
    where ``$PATCHWORK_DIR`` is the absolute patch to the ``patchwork`` folder
    created when you cloned the repo. For more information, see ``man docker
