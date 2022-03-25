@@ -91,8 +91,11 @@ if ! test_database; then
     fi
 fi
 
-# load initial data
-if ! python manage.py migrate --check -v0; then
+# load initial data but only if we haven't loaded it before
+# HACK: We choose an arbitrary Django migration since we don't want to apply
+# Patchwork migrations by default each time since they might be WIP. The
+# 'sessions' migrations look unlikely to change very often.
+if ! python manage.py migrate sessions --check -v0; then
     python manage.py migrate #> /dev/null
     python manage.py loaddata default_tags #> /dev/null
     python manage.py loaddata default_states #> /dev/null
