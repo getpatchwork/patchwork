@@ -92,9 +92,11 @@ if ! test_database; then
 fi
 
 # load initial data
-python manage.py migrate #> /dev/null
-python manage.py loaddata default_tags #> /dev/null
-python manage.py loaddata default_states #> /dev/null
-python manage.py loaddata default_projects #> /dev/null
+if ! python manage.py migrate --check -v0; then
+    python manage.py migrate #> /dev/null
+    python manage.py loaddata default_tags #> /dev/null
+    python manage.py loaddata default_states #> /dev/null
+    python manage.py loaddata default_projects #> /dev/null
+fi
 
 exec "$@"
