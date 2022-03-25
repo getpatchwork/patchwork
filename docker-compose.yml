@@ -1,7 +1,7 @@
 version: "3"
 services:
   db:
-    image: mariadb:10.4
+    image: mysql:latest
     volumes:
       - ./tools/docker/db/data:/var/lib/mysql
     environment:
@@ -9,7 +9,10 @@ services:
       - MYSQL_DATABASE=patchwork
       - MYSQL_USER=patchwork
       - MYSQL_PASSWORD=password
-
+    cap_add:
+      # avoid "mbind: Operation not permitted" error message spamming
+      # https://stackoverflow.com/a/55706057
+      - SYS_NICE  # CAP_SYS_NICE
   web:
     build:
       context: .

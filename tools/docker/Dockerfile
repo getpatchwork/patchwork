@@ -21,10 +21,10 @@ RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libmariadbclient-dev \
+    libmysqlclient-dev \
     libpq-dev \
     libsqlite3-dev \
-    mariadb-client \
+    mysql-client \
     postgresql-client \
     sqlite3 \
     tzdata \
