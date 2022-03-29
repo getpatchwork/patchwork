@@ -8,8 +8,12 @@ from django.test import TestCase
 from patchwork.models import Event
 from patchwork.tests import utils
 
-BASE_FIELDS = ['previous_state', 'current_state', 'previous_delegate',
-               'current_delegate']
+BASE_FIELDS = [
+    'previous_state',
+    'current_state',
+    'previous_delegate',
+    'current_delegate',
+]
 
 
 def _get_events(**filters):
@@ -277,3 +281,31 @@ class SeriesChangedTest(_BaseTestCase):
         events = _get_events(series=series)
         self.assertIn(Event.CATEGORY_SERIES_COMPLETED,
                       [x.category for x in events])
+
+
+class CoverCommentCreatedTest(_BaseTestCase):
+
+    def test_cover_comment_created(self):
+        """Validate 'cover-comment-created' events."""
+        comment = utils.create_cover_comment()
+        events = _get_events(cover_comment=comment)
+        self.assertEqual(events.count(), 1)
+        self.assertEqual(
+            events[0].category, Event.CATEGORY_COVER_COMMENT_CREATED,
+        )
+        self.assertEqual(events[0].project, comment.cover.project)
+        self.assertEventFields(events[0])
+
+
+class PatchCommentCreatedTest(_BaseTestCase):
+
+    def test_patch_comment_created(self):
+        """Validate 'patch-comment-created' events."""
+        comment = utils.create_patch_comment()
+        events = _get_events(patch_comment=comment)
+        self.assertEqual(events.count(), 1)
+        self.assertEqual(
+            events[0].category, Event.CATEGORY_PATCH_COMMENT_CREATED,
+        )
+        self.assertEqual(events[0].project, comment.patch.project)
+        self.assertEventFields(events[0])

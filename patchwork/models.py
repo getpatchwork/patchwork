@@ -1028,6 +1028,8 @@ class Event(models.Model):
     CATEGORY_CHECK_CREATED = 'check-created'
     CATEGORY_SERIES_CREATED = 'series-created'
     CATEGORY_SERIES_COMPLETED = 'series-completed'
+    CATEGORY_COVER_COMMENT_CREATED = 'cover-comment-created'
+    CATEGORY_PATCH_COMMENT_CREATED = 'patch-comment-created'
     CATEGORY_CHOICES = (
         (CATEGORY_COVER_CREATED, 'Cover Letter Created'),
         (CATEGORY_PATCH_CREATED, 'Patch Created'),
@@ -1038,6 +1040,8 @@ class Event(models.Model):
         (CATEGORY_CHECK_CREATED, 'Check Created'),
         (CATEGORY_SERIES_CREATED, 'Series Created'),
         (CATEGORY_SERIES_COMPLETED, 'Series Completed'),
+        (CATEGORY_COVER_COMMENT_CREATED, 'Cover Comment Created'),
+        (CATEGORY_PATCH_COMMENT_CREATED, 'Patch Comment Created'),
     )
 
     # parents
@@ -1111,6 +1115,18 @@ class Event(models.Model):
 
     created_check = models.ForeignKey(
         Check, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
+
+    # fields for 'cover-comment-created' events
+
+    cover_comment = models.ForeignKey(
+        CoverComment, related_name='+', null=True, blank=True,
+        on_delete=models.CASCADE)
+
+    # fields for 'patch-comment-created' events
+
+    patch_comment = models.ForeignKey(
+        PatchComment, related_name='+', null=True, blank=True,
         on_delete=models.CASCADE)
 
     # TODO(stephenfin): Validate that the correct fields are being set by way

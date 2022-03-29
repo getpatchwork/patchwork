@@ -120,6 +120,24 @@ class CoverSerializer(SerializedRelatedField):
             }
 
 
+class CoverCommentSerializer(SerializedRelatedField):
+
+    class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
+
+        class Meta:
+            model = models.CoverComment
+            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
+                      'date', 'name')
+            read_only_fields = fields
+            versioned_fields = {
+                '1.1': ('web_url', 'mbox', ),
+                '1.2': ('list_archive_url',),
+            }
+            extra_kwargs = {
+                'url': {'view_name': 'api-cover-comment-detail'},
+            }
+
+
 class PatchSerializer(SerializedRelatedField):
 
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
@@ -135,6 +153,24 @@ class PatchSerializer(SerializedRelatedField):
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-patch-detail'},
+            }
+
+
+class PatchCommentSerializer(SerializedRelatedField):
+
+    class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
+
+        class Meta:
+            model = models.PatchComment
+            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
+                      'date', 'name')
+            read_only_fields = fields
+            versioned_fields = {
+                '1.1': ('web_url', 'mbox', ),
+                '1.2': ('list_archive_url',),
+            }
+            extra_kwargs = {
+                'url': {'view_name': 'api-patch-comment-detail'},
             }
 
 

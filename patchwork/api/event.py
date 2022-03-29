@@ -12,7 +12,9 @@ from rest_framework.serializers import SlugRelatedField
 
 from patchwork.api.embedded import CheckSerializer
 from patchwork.api.embedded import CoverSerializer
+from patchwork.api.embedded import CoverCommentSerializer
 from patchwork.api.embedded import PatchSerializer
+from patchwork.api.embedded import PatchCommentSerializer
 from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
@@ -35,20 +37,41 @@ class EventSerializer(ModelSerializer):
     created_check = CheckSerializer()
     previous_relation = SerializerMethodField()
     current_relation = SerializerMethodField()
+    cover_comment = CoverCommentSerializer()
+    patch_comment = PatchCommentSerializer()
 
+    # Mapping of event type to fields to include in the response
     _category_map = {
         Event.CATEGORY_COVER_CREATED: ['cover'],
         Event.CATEGORY_PATCH_CREATED: ['patch'],
         Event.CATEGORY_PATCH_COMPLETED: ['patch', 'series'],
-        Event.CATEGORY_PATCH_STATE_CHANGED: ['patch', 'previous_state',
-                                             'current_state'],
-        Event.CATEGORY_PATCH_DELEGATED: ['patch', 'previous_delegate',
-                                         'current_delegate'],
-        Event.CATEGORY_PATCH_RELATION_CHANGED: ['patch', 'previous_relation',
-                                                'current_relation'],
+        Event.CATEGORY_PATCH_STATE_CHANGED: [
+            'patch',
+            'previous_state',
+            'current_state',
+        ],
+        Event.CATEGORY_PATCH_DELEGATED: [
+            'patch',
+            'previous_delegate',
+            'current_delegate',
+        ],
+        Event.CATEGORY_PATCH_RELATION_CHANGED: [
+            'patch',
+            'previous_relation',
+            'current_relation',
+        ],
         Event.CATEGORY_CHECK_CREATED: ['patch', 'created_check'],
         Event.CATEGORY_SERIES_CREATED: ['series'],
         Event.CATEGORY_SERIES_COMPLETED: ['series'],
+        Event.CATEGORY_COVER_COMMENT_CREATED: ['cover', 'cover_comment'],
+        Event.CATEGORY_PATCH_COMMENT_CREATED: ['patch', 'patch_comment'],
+    }
+
+    # Mapping of database column names to REST API representations
+    _field_name_map = {
+        'created_check': 'check',
+        'cover_comment': 'comment',
+        'patch_comment': 'comment',
     }
 
     def get_previous_relation(self, instance):
@@ -61,13 +84,19 @@ class EventSerializer(ModelSerializer):
         data = super(EventSerializer, self).to_representation(instance)
         payload = OrderedDict()
         kept_fields = self._category_map[instance.category] + [
-            'id', 'category', 'project', 'date', 'actor']
+            'id',
+            'category',
+            'project',
+            'date',
+            'actor',
+        ]
 
         for field in [x for x in data]:
             if field not in kept_fields:
                 del data[field]
             elif field in self._category_map[instance.category]:
-                field_name = 'check' if field == 'created_check' else field
+                # remap fields if necessary
+                field_name = self._field_name_map.get(field, field)
                 payload[field_name] = data.pop(field)
 
         data['payload'] = payload
@@ -77,14 +106,27 @@ class EventSerializer(ModelSerializer):
     class Meta:
         model = Event
         fields = (
-            'id', 'category', 'project', 'date', 'actor', 'patch',
-            'series', 'cover', 'previous_state', 'current_state',
-            'previous_delegate', 'current_delegate', 'created_check',
-            'previous_relation', 'current_relation',
+            'id',
+            'category',
+            'project',
+            'date',
+            'actor',
+            'patch',
+            'series',
+            'cover',
+            'previous_state',
+            'current_state',
+            'previous_delegate',
+            'current_delegate',
+            'created_check',
+            'previous_relation',
+            'current_relation',
+            'cover_comment',
+            'patch_comment',
         )
         read_only_fields = fields
         versioned_fields = {
-            '1.2': ('actor', ),
+            '1.2': ('actor',),
         }
 
 
@@ -98,8 +140,16 @@ class EventList(ListAPIView):
     ordering = '-date'
 
     def get_queryset(self):
-        return Event.objects.all()\
-            .prefetch_related('project', 'patch__project', 'series__project',
-                              'cover', 'previous_state', 'current_state',
-                              'previous_delegate', 'current_delegate',
-                              'created_check')
+        return Event.objects.all().prefetch_related(
+            'project',
+            'patch__project',
+            'series__project',
+            'cover',
+            'previous_state',
+            'current_state',
+            'previous_delegate',
+            'current_delegate',
+            'created_check',
+            'cover_comment',
+            'patch_comment',
+        )

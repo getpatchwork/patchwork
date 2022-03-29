@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Two new event types have been added: ``cover-comment-created`` and
+    ``patch-comment-created``. As their names would suggest, these track the
+    creation of new cover letter and patch comments respectively.

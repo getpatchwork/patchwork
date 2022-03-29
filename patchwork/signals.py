@@ -11,9 +11,11 @@ from django.dispatch import receiver
 
 from patchwork.models import Check
 from patchwork.models import Cover
+from patchwork.models import CoverComment
 from patchwork.models import Event
 from patchwork.models import Patch
 from patchwork.models import PatchChangeNotification
+from patchwork.models import PatchComment
 from patchwork.models import Series
 
 
@@ -267,3 +269,31 @@ def create_series_completed_event(sender, instance, raw, **kwargs):
     # the instance yet so we duplicate that logic here but with an offset
     if (instance.series.received_total + 1) >= instance.series.total:
         create_event(instance.series)
+
+
+@receiver(post_save, sender=CoverComment)
+def create_cover_comment_created_event(sender, instance, raw, **kwargs):
+
+    def create_event(comment):
+        return Event.objects.create(
+            category=Event.CATEGORY_COVER_COMMENT_CREATED,
+            project=comment.cover.project,
+            cover=comment.cover,
+            cover_comment=comment,
+        )
+
+    create_event(instance)
+
+
+@receiver(post_save, sender=PatchComment)
+def create_patch_comment_created_event(sender, instance, raw, **kwargs):
+
+    def create_event(comment):
+        return Event.objects.create(
+            category=Event.CATEGORY_PATCH_COMMENT_CREATED,
+            project=comment.patch.project,
+            patch=comment.patch,
+            patch_comment=comment,
+        )
+
+    create_event(instance)

@@ -431,6 +431,10 @@ paths:
               - check-created
               - series-created
               - series-completed
+{% if version >= (1, 3) %}
+              - cover-comment-created
+              - patch-comment-created
+{% endif %}
         - in: query
           name: series
           description: An ID of a series to filter events by.
@@ -470,6 +474,8 @@ paths:
                     - $ref: '#/components/schemas/EventCheckCreated'
                     - $ref: '#/components/schemas/EventSeriesCreated'
                     - $ref: '#/components/schemas/EventSeriesCompleted'
+                    - $ref: '#/components/schemas/EventCoverCommentCreated'
+                    - $ref: '#/components/schemas/EventPatchCommentCreated'
                   discriminator:
                     propertyName: category
                     mapping:
@@ -482,6 +488,8 @@ paths:
                       check-created: '#/components/schemas/EventCheckCreated'
                       series-created: '#/components/schemas/EventSeriesCreated'
                       series-completed: '#/components/schemas/EventSeriesCompleted'
+                      cover-comment-created: '#/components/schemas/EventCoverCommentCreated'
+                      patch-comment-created: '#/components/schemas/EventPatchCommentCreated'
       tags:
         - events
   /api/{{ version_url }}patches/:
@@ -1989,6 +1997,34 @@ components:
               properties:
                 series:
                   $ref: '#/components/schemas/SeriesEmbedded'
+    EventCoverCommentCreated:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          properties:
+            category:
+              enum:
+                - cover-comment-created
+            payload:
+              properties:
+                cover:
+                  $ref: '#/components/schemas/CoverEmbedded'
+                comment:
+                  $ref: '#/components/schemas/CommentEmbedded'
+    EventPatchCommentCreated:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          properties:
+            category:
+              enum:
+                - patch-comment-created
+            payload:
+              properties:
+                patch:
+                  $ref: '#/components/schemas/PatchEmbedded'
+                comment:
+                  $ref: '#/components/schemas/CommentEmbedded'
     PatchList:
       required:
         - state
@@ -2482,6 +2518,47 @@ components:
           maxLength: 255
           minLength: 1
           readOnly: true
+    CommentEmbedded:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+          readOnly: true
+        url:
+          title: URL
+          type: string
+          format: uri
+          readOnly: true
+{% if version >= (1, 1) %}
+        web_url:
+          title: Web URL
+          type: string
+          format: uri
+          readOnly: true
+{% endif %}
+        msgid:
+          title: Message ID
+          type: string
+          readOnly: true
+          minLength: 1
+{% if version >= (1, 2) %}
+        list_archive_url:
+          title: List archive URL
+          type: string
+          readOnly: true
+          nullable: true
+{% endif %}
+        date:
+          title: Date
+          type: string
+          format: iso8601
+          readOnly: true
+        name:
+          title: Name
+          type: string
+          readOnly: true
+          minLength: 1
     CoverEmbedded:
       type: object
       properties:
