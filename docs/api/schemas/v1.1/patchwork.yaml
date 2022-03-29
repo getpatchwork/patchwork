@@ -228,7 +228,11 @@ paths:
             type: string
         - in: query
           name: category
-          description: An event category to filter events by.
+          description: >
+            An event category to filter events by. These categories are subject
+            to change depending on the version of Patchwork deployed and are
+            not subject to the versionining constraints present across the rest
+            of the API.
           schema:
             title: ''
             type: string
@@ -237,6 +241,7 @@ paths:
               - patch-created
               - patch-completed
               - patch-state-changed
+              - patch-relation-changed
               - patch-delegated
               - check-created
               - series-created
@@ -275,6 +280,7 @@ paths:
                     - $ref: '#/components/schemas/EventPatchCreated'
                     - $ref: '#/components/schemas/EventPatchCompleted'
                     - $ref: '#/components/schemas/EventPatchStateChanged'
+                    - $ref: '#/components/schemas/EventPatchRelationChanged'
                     - $ref: '#/components/schemas/EventPatchDelegated'
                     - $ref: '#/components/schemas/EventCheckCreated'
                     - $ref: '#/components/schemas/EventSeriesCreated'
@@ -284,16 +290,13 @@ paths:
                     mapping:
                       cover-created: '#/components/schemas/EventCoverCreated'
                       patch-created: '#/components/schemas/EventPatchCreated'
-                      patch-completed: >
-                        '#/components/schemas/EventPatchCompleted'
-                      patch-state-changed: >
-                        '#/components/schemas/EventPatchStateChanged'
-                      patch-delegated: >
-                        '#/components/schemas/EventPatchDelegated'
+                      patch-completed: '#/components/schemas/EventPatchCompleted'
+                      patch-state-changed: '#/components/schemas/EventPatchStateChanged'
+                      patch-relation-changed: '#/components/schemas/EventPatchRelationChanged'
+                      patch-delegated: '#/components/schemas/EventPatchDelegated'
                       check-created: '#/components/schemas/EventCheckCreated'
                       series-created: '#/components/schemas/EventSeriesCreated'
-                      series-completed: >
-                        '#/components/schemas/EventSeriesCompleted'
+                      series-completed: '#/components/schemas/EventSeriesCompleted'
       tags:
         - events
   /api/1.1/patches/:
@@ -1510,6 +1513,26 @@ components:
                 current_state:
                   title: Current state
                   type: string
+    EventPatchRelationChanged:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+        - type: object
+          properties:
+            category:
+              enum:
+                - patch-relation-changed
+            payload:
+              properties:
+                patch:
+                  $ref: '#/components/schemas/PatchEmbedded'
+                previous_relation:
+                  title: Previous relation
+                  type: string
+                  nullable: true
+                current_relation:
+                  title: Current relation
+                  type: string
+                  nullable: true
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'

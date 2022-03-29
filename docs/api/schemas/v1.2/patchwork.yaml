@@ -336,7 +336,11 @@ paths:
             type: string
         - in: query
           name: category
-          description: An event category to filter events by.
+          description: >
+            An event category to filter events by. These categories are subject
+            to change depending on the version of Patchwork deployed and are
+            not subject to the versionining constraints present across the rest
+            of the API.
           schema:
             title: ''
             type: string
@@ -394,18 +398,13 @@ paths:
                     mapping:
                       cover-created: '#/components/schemas/EventCoverCreated'
                       patch-created: '#/components/schemas/EventPatchCreated'
-                      patch-completed: >
-                        '#/components/schemas/EventPatchCompleted'
-                      patch-state-changed: >
-                        '#/components/schemas/EventPatchStateChanged'
-                      patch-relation-changed: >
-                        '#/components/schemas/EventPatchRelationChanged'
-                      patch-delegated: >
-                        '#/components/schemas/EventPatchDelegated'
+                      patch-completed: '#/components/schemas/EventPatchCompleted'
+                      patch-state-changed: '#/components/schemas/EventPatchStateChanged'
+                      patch-relation-changed: '#/components/schemas/EventPatchRelationChanged'
+                      patch-delegated: '#/components/schemas/EventPatchDelegated'
                       check-created: '#/components/schemas/EventCheckCreated'
                       series-created: '#/components/schemas/EventSeriesCreated'
-                      series-completed: >
-                        '#/components/schemas/EventSeriesCompleted'
+                      series-completed: '#/components/schemas/EventSeriesCompleted'
       tags:
         - events
   /api/1.2/patches/:
