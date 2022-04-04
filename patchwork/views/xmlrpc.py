@@ -225,7 +225,7 @@ def patch_to_dict(obj):
     {
         'id': 1
         'date': '2000-12-31 00:11:22',
-        'filename': 'Fix-all-the-bugs.patch',
+        'filename': 'Fix-all-the-bugs',
         'msgid': '<BLU438-SMTP36690BBDD2CE71A7138B082511A@phx.gbl>',
         'name': "Fix all the bugs",
         'project': 'my-project',
