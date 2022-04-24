@@ -23,7 +23,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_emailoptout TO 'www-data'@loca
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_event TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patch TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchchangenotification TO 'www-data'@localhost;
-GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_comment TO 'www-data'@localhost;
+GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchcomment TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchrelation TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_patchtag TO 'www-data'@localhost;
 GRANT SELECT, UPDATE, INSERT, DELETE ON patchwork_person TO 'www-data'@localhost;
@@ -41,7 +41,7 @@ GRANT INSERT, SELECT ON patchwork_cover TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_covercomment TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_event TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_patch TO 'nobody'@localhost;
-GRANT INSERT, SELECT ON patchwork_comment TO 'nobody'@localhost;
+GRANT INSERT, SELECT ON patchwork_patchcomment TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_person TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_series TO 'nobody'@localhost;
 GRANT INSERT, SELECT ON patchwork_seriesreference TO 'nobody'@localhost;
