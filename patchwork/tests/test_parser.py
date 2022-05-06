@@ -68,7 +68,15 @@ def read_mail(filename, project=None):
     return mail
 
 
-def _create_email(msg, msgid=None, sender=None, listid=None, in_reply_to=None):
+def _create_email(
+    msg,
+    msgid=None,
+    subject=None,
+    sender=None,
+    listid=None,
+    in_reply_to=None,
+    references=None,
+):
     msg['Message-Id'] = msgid or make_msgid()
     msg['Subject'] = 'Test subject'
     msg['From'] = sender or 'Test Author <test-author@example.com>'
@@ -76,14 +84,32 @@ def _create_email(msg, msgid=None, sender=None, listid=None, in_reply_to=None):
     if in_reply_to:
         msg['In-Reply-To'] = in_reply_to
 
+    if references:
+        msg['References'] = references
+
     return msg
 
 
-def create_email(content, msgid=None, sender=None, listid=None,
-                 in_reply_to=None):
+def create_email(
+    content,
+    msgid=None,
+    subject=None,
+    sender=None,
+    listid=None,
+    in_reply_to=None,
+    references=None,
+):
     msg = MIMEText(content, _charset='us-ascii')
 
-    return _create_email(msg, msgid, sender, listid, in_reply_to)
+    return _create_email(
+        msg,
+        msgid,
+        subject,
+        sender,
+        listid,
+        in_reply_to,
+        references,
+    )
 
 
 def parse_mail(*args, **kwargs):
@@ -1146,7 +1172,7 @@ class DuplicateMailTest(TestCase):
 
     def test_duplicate_patch(self):
         diff = read_patch('0001-add-line.patch')
-        m = create_email(diff, listid=self.listid, msgid='1@example.com')
+        m = create_email(diff, listid=self.listid, msgid='<1@example.com>')
 
         self._test_duplicate_mail(m)
 
@@ -1154,24 +1180,78 @@ class DuplicateMailTest(TestCase):
 
     def test_duplicate_comment(self):
         diff = read_patch('0001-add-line.patch')
-        m1 = create_email(diff, listid=self.listid, msgid='1@example.com')
+        m1 = create_email(
+            diff,
+            listid=self.listid,
+            msgid='<1@example.com>',
+        )
         _parse_mail(m1)
 
-        m2 = create_email('test', listid=self.listid, msgid='2@example.com',
-                          in_reply_to='1@example.com')
+        m2 = create_email(
+            'test',
+            listid=self.listid,
+            msgid='<2@example.com>',
+            in_reply_to='<1@example.com>',
+        )
         self._test_duplicate_mail(m2)
 
         self.assertEqual(Patch.objects.count(), 1)
         self.assertEqual(PatchComment.objects.count(), 1)
 
     def test_duplicate_coverletter(self):
-        m = create_email('test', listid=self.listid, msgid='1@example.com')
+        m = create_email('test', listid=self.listid, msgid='<1@example.com>')
         del m['Subject']
         m['Subject'] = '[PATCH 0/1] test cover letter'
 
         self._test_duplicate_mail(m)
 
         self.assertEqual(Cover.objects.count(), 1)
+
+
+class TestFindReferences(TestCase):
+    def test_find_references__header_with_comments(self):
+        """Test that we strip comments from References, In-Reply-To fields."""
+        in_reply_to = (
+            '<4574b99b-edac-d8dc-9141-79c3109d2fcc@huawei.com> (message from\n'
+            ' liqingqing on Thu, 1 Apr 2021 16:51:45 +0800)'
+        )
+        email = create_email('test', in_reply_to=in_reply_to)
+
+        expected = ['<4574b99b-edac-d8dc-9141-79c3109d2fcc@huawei.com>']
+        actual = parser.find_references(email)
+
+        self.assertEqual(expected, actual)
+
+    def test_find_references__duplicate_references(self):
+        """Test that we ignore duplicate message IDs in 'References'."""
+        message_id = '<20130510114450.7104c5d2@nehalam.linuxnetplumber.net>'
+        in_reply_to = (
+            '<525534677.5312512.1368202896189.JavaMail.root@vmware.com>'
+        )
+        references = (
+            '<AFCFCEB8EB0E24448E4EB95988BA1E531FA2EA0D@xmb-aln-x05.cisco.com>\n'  # noqa: E501
+            ' <CAE68AUOr7B5a2QvduJhH0kEHPi+sR9X3qfrtumgLxT1BK4VS+Q@mail.gmail.com>\n'  # noqa: E501
+            ' <1676591087.5291867.1368201908283.JavaMail.root@vmware.com>\n'
+            ' <20130510091549.3c064df6@nehalam.linuxnetplumber.net>\n'
+            ' <525534677.5312512.1368202896189.JavaMail.root@vmware.com>'
+        )
+        email = create_email(
+            'test',
+            msgid=message_id,
+            in_reply_to=in_reply_to,
+            references=references,
+        )
+
+        expected = [
+            '<525534677.5312512.1368202896189.JavaMail.root@vmware.com>',
+            '<20130510091549.3c064df6@nehalam.linuxnetplumber.net>',
+            '<1676591087.5291867.1368201908283.JavaMail.root@vmware.com>',
+            '<CAE68AUOr7B5a2QvduJhH0kEHPi+sR9X3qfrtumgLxT1BK4VS+Q@mail.gmail.com>',  # noqa: E501
+            '<AFCFCEB8EB0E24448E4EB95988BA1E531FA2EA0D@xmb-aln-x05.cisco.com>',
+        ]
+        actual = parser.find_references(email)
+
+        self.assertEqual(expected, actual)
 
 
 class TestCommentCorrelation(TestCase):
