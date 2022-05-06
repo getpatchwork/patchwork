@@ -31,6 +31,7 @@ from patchwork.models import SeriesReference
 from patchwork.models import State
 
 
+_msgid_re = re.compile(r'<[^>]+>')
 _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
 _filename_re = re.compile(r'^(---|\+\+\+) (\S+)')
 list_id_headers = ['List-ID', 'X-Mailing-List', 'X-list']
@@ -502,19 +503,15 @@ def find_references(mail):
 
     if 'In-Reply-To' in mail:
         for in_reply_to in mail.get_all('In-Reply-To'):
-            r = clean_header(in_reply_to)
-            if r:
-                refs.append(r)
+            ref = _msgid_re.search(clean_header(in_reply_to))
+            if ref:
+                refs.append(ref.group(0))
 
     if 'References' in mail:
         for references_header in mail.get_all('References'):
-            h = clean_header(references_header)
-            if not h:
-                continue
-            references = h.split()
+            references = _msgid_re.findall(clean_header(references_header))
             references.reverse()
             for ref in references:
-                ref = ref.strip()
                 if ref not in refs:
                     refs.append(ref)
 

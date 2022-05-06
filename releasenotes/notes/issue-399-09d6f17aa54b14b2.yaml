@@ -1,0 +1,11 @@
+---
+fixes:
+  - |
+    Comments and whitespace are now correctly stripped from the ``Message-ID``,
+    ``In-Reply-To``, and ``References`` headers. One side effect of this change
+    is that the parser is now stricter with regards to the format of the
+    ``msg-id`` component of these headers: all identifiers must now be
+    surrounded by angle brackets, e.g. ``<abcdef@example.com>``. This is
+    mandated in the spec and a review of mailing lists archives suggest it is
+    broadly adhered to. Without these markers, there is no way to delimit
+    ``msg-id`` from any surrounding comments and whitespace.
