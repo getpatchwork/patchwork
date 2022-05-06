@@ -7,7 +7,6 @@ import email.parser
 from email.utils import make_msgid
 import unittest
 
-import django
 from django.conf import settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
@@ -229,10 +228,7 @@ class TestPatchAPI(utils.APITestCase):
         series = create_series()
         create_patches(5, series=series)
 
-        # TODO(stephenfin): Remove when we drop support for Django < 3.2
-        num_queries = 7 if django.VERSION < (3, 2) else 5
-
-        with self.assertNumQueries(num_queries):
+        with self.assertNumQueries(5):
             self.client.get(self.api_url())
 
     @utils.store_samples('patch-detail')

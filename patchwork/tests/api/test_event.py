@@ -5,7 +5,6 @@
 
 import unittest
 
-import django
 from django.conf import settings
 from django.urls import reverse
 
@@ -194,10 +193,7 @@ class TestEventAPI(APITestCase):
         for _ in range(3):
             self._create_events()
 
-        # TODO(stephenfin): Remove when we drop support for Django < 3.2
-        num_queries = 28 if django.VERSION < (3, 2) else 27
-
-        with self.assertNumQueries(num_queries):
+        with self.assertNumQueries(27):
             self.client.get(self.api_url())
 
     def test_order_by_date_default(self):
