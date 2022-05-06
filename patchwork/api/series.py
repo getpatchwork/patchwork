@@ -36,13 +36,34 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Series
-        fields = ('id', 'url', 'web_url', 'project', 'name', 'date',
-                  'submitter', 'version', 'total', 'received_total',
-                  'received_all', 'mbox', 'cover_letter', 'patches')
-        read_only_fields = ('date', 'submitter', 'total', 'received_total',
-                            'received_all', 'mbox', 'cover_letter', 'patches')
+        fields = (
+            'id',
+            'url',
+            'web_url',
+            'project',
+            'name',
+            'date',
+            'submitter',
+            'version',
+            'total',
+            'received_total',
+            'received_all',
+            'mbox',
+            'cover_letter',
+            'patches',
+        )
+        read_only_fields = (
+            'date',
+            'submitter',
+            'total',
+            'received_total',
+            'received_all',
+            'mbox',
+            'cover_letter',
+            'patches',
+        )
         versioned_fields = {
-            '1.1': ('web_url', ),
+            '1.1': ('web_url',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
@@ -55,9 +76,11 @@ class SeriesMixin(object):
     serializer_class = SeriesSerializer
 
     def get_queryset(self):
-        return Series.objects.all()\
-            .prefetch_related('patches__project', 'cover_letter__project')\
+        return (
+            Series.objects.all()
+            .prefetch_related('patches__project', 'cover_letter__project')
             .select_related('submitter', 'project')
+        )
 
 
 class SeriesList(SeriesMixin, ListAPIView):

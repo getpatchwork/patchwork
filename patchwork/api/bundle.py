@@ -27,6 +27,7 @@ class BundlePermission(permissions.BasePermission):
     Bundle creation/updating was only added in API v1.2 and we don't want to
     change behavior in older API versions.
     """
+
     def has_permission(self, request, view):
         # read-only permission for everything
         if request.method in permissions.SAFE_METHODS:
@@ -36,16 +37,19 @@ class BundlePermission(permissions.BasePermission):
             raise exceptions.MethodNotAllowed(request.method)
 
         if request.method == 'POST' and (
-                not request.user or not request.user.is_authenticated):
+            not request.user or not request.user.is_authenticated
+        ):
             return False
 
         # we have more to do but we can't do that until we have an object
         return True
 
     def has_object_permission(self, request, view, obj):
-        if (request.user and
-                request.user.is_authenticated and
-                request.user == obj.owner):
+        if (
+            request.user
+            and request.user.is_authenticated
+            and request.user == obj.owner
+        ):
             return True
 
         if not obj.public:
@@ -62,8 +66,9 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
     project = ProjectSerializer(read_only=True)
     mbox = SerializerMethodField()
     owner = UserSerializer(read_only=True)
-    patches = PatchSerializer(many=True, required=True,
-                              style={'base_template': 'input.html'})
+    patches = PatchSerializer(
+        many=True, required=True, style={'base_template': 'input.html'}
+    )
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -82,7 +87,8 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         patches = validated_data.pop('patches', None)
         instance = super(BundleSerializer, self).update(
-            instance, validated_data)
+            instance, validated_data
+        )
         if patches:
             instance.overwrite_patches(patches)
         return instance
@@ -92,8 +98,9 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
             raise ValidationError('Bundles cannot be empty')
 
         if len(set([p.project.id for p in value])) > 1:
-            raise ValidationError('Bundle patches must belong to the same '
-                                  'project')
+            raise ValidationError(
+                'Bundle patches must belong to the same ' 'project'
+            )
 
         return value
 
@@ -105,11 +112,20 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Bundle
-        fields = ('id', 'url', 'web_url', 'project', 'name', 'owner',
-                  'patches', 'public', 'mbox')
+        fields = (
+            'id',
+            'url',
+            'web_url',
+            'project',
+            'name',
+            'owner',
+            'patches',
+            'public',
+            'mbox',
+        )
         read_only_fields = ('project', 'owner', 'mbox')
         versioned_fields = {
-            '1.1': ('web_url', ),
+            '1.1': ('web_url',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-bundle-detail'},
@@ -127,10 +143,13 @@ class BundleMixin(object):
         else:
             bundle_filter = Q(public=True)
 
-        return Bundle.objects\
-            .filter(bundle_filter)\
-            .prefetch_related('patches',)\
+        return (
+            Bundle.objects.filter(bundle_filter)
+            .prefetch_related(
+                'patches',
+            )
             .select_related('owner', 'project')
+        )
 
 
 class BundleList(BundleMixin, ListCreateAPIView):

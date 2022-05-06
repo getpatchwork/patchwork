@@ -23,12 +23,12 @@ from patchwork.views import utils
 
 
 class MboxPatchResponseTest(TestCase):
-
     def test_tags(self):
         """Test that tags are taken from a patch comment."""
         patch = create_patch(content='comment 1 text\nAcked-by: 1\n')
         create_patch_comment(
-            patch=patch, content='comment 2 text\nAcked-by: 2\n')
+            patch=patch, content='comment 2 text\nAcked-by: 2\n'
+        )
 
         mbox = utils.patch_to_mbox(patch)
         self.assertIn('Acked-by: 1\nAcked-by: 2\n', mbox)
@@ -37,7 +37,8 @@ class MboxPatchResponseTest(TestCase):
         """Test that UTF-8 NBSP characters are correctly handled."""
         patch = create_patch(content='patch text\n')
         create_patch_comment(
-            patch=patch, content=u'comment\nAcked-by:\u00A0 foo')
+            patch=patch, content=u'comment\nAcked-by:\u00A0 foo'
+        )
 
         mbox = utils.patch_to_mbox(patch)
         self.assertIn(u'\u00A0 foo\n', mbox)
@@ -54,11 +55,13 @@ class MboxPatchResponseTest(TestCase):
             project=self.project,
             submitter=self.person,
             diff='',
-            content='comment 1 text\nAcked-by: 1\n---\nupdate\n')
+            content='comment 1 text\nAcked-by: 1\n---\nupdate\n',
+        )
         self.comment = create_patch_comment(
             patch=self.patch,
             submitter=self.person,
-            content='comment 2 text\nAcked-by: 2\n')
+            content='comment 2 text\nAcked-by: 2\n',
+        )
 
         mbox = utils.patch_to_mbox(self.patch)
         self.assertIn('Acked-by: 1\nAcked-by: 2\n', mbox)
@@ -159,9 +162,11 @@ class MboxPatchResponseTest(TestCase):
         rewritten_from_header = 'Person <person@example.com>'
         project = create_project(listemail='list@example.com')
         person = create_person(name='Person', email='person@example.com')
-        patch = create_patch(project=project,
-                             headers='From: ' + orig_from_header,
-                             submitter=person)
+        patch = create_patch(
+            project=project,
+            headers='From: ' + orig_from_header,
+            submitter=person,
+        )
         mbox = utils.patch_to_mbox(patch)
         mail = email.message_from_string(mbox)
         self.assertEqual(mail['From'], rewritten_from_header)
@@ -173,8 +178,9 @@ class MboxPatchResponseTest(TestCase):
         mail = email.message_from_string(mbox)
         mail_date = dateutil.parser.parse(mail['Date'])
         # patch dates are all in UTC
-        patch_date = patch.date.replace(tzinfo=dateutil.tz.tzutc(),
-                                        microsecond=0)
+        patch_date = patch.date.replace(
+            tzinfo=dateutil.tz.tzutc(), microsecond=0
+        )
         self.assertEqual(mail_date, patch_date)
 
     def test_supplied_date_header(self):
@@ -211,7 +217,6 @@ class MboxPatchResponseTest(TestCase):
 
 
 class MboxSeriesPatchTest(TestCase):
-
     @staticmethod
     def _create_patches():
         series = create_series()
@@ -253,7 +258,6 @@ class MboxSeriesPatchTest(TestCase):
 
 
 class MboxSeriesTest(TestCase):
-
     def test_series(self):
         series = create_series()
         patch_a = create_patch(series=series)

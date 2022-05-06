@@ -59,15 +59,14 @@ class TestPatchAPI(utils.APITestCase):
 
         # nested fields
 
-        self.assertEqual(patch_obj.submitter.id,
-                         patch_json['submitter']['id'])
-        self.assertEqual(patch_obj.project.id,
-                         patch_json['project']['id'])
+        self.assertEqual(patch_obj.submitter.id, patch_json['submitter']['id'])
+        self.assertEqual(patch_obj.project.id, patch_json['project']['id'])
 
         if patch_obj.series:
             self.assertEqual(1, len(patch_json['series']))
-            self.assertEqual(patch_obj.series.id,
-                             patch_json['series'][0]['id'])
+            self.assertEqual(
+                patch_obj.series.id, patch_json['series'][0]['id']
+            )
         else:
             self.assertEqual([], patch_json['series'])
 
@@ -81,8 +80,12 @@ class TestPatchAPI(utils.APITestCase):
         person_obj = create_person(email='test@example.com')
         project_obj = create_project(linkname='myproject')
         state_obj = create_state(name='Under Review')
-        patch_obj = create_patch(state=state_obj, project=project_obj,
-                                 submitter=person_obj, **kwargs)
+        patch_obj = create_patch(
+            state=state_obj,
+            project=project_obj,
+            submitter=person_obj,
+            **kwargs
+        )
 
         return patch_obj
 
@@ -125,8 +128,9 @@ class TestPatchAPI(utils.APITestCase):
         create_patch(state=state_obj_c)
 
         self.client.force_authenticate(user=user)
-        resp = self.client.get(self.api_url(), [('state', 'under-review'),
-                                                ('state', 'new')])
+        resp = self.client.get(
+            self.api_url(), [('state', 'under-review'), ('state', 'new')]
+        )
         self.assertEqual(2, len(resp.data))
 
     def test_list_filter_project(self):
@@ -154,41 +158,50 @@ class TestPatchAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(), {'submitter': submitter.id})
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.com'})
+        resp = self.client.get(
+            self.api_url(), {'submitter': 'test@example.com'}
+        )
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.org'})
+        resp = self.client.get(
+            self.api_url(), {'submitter': 'test@example.org'}
+        )
         self.assertEqual(0, len(resp.data))
 
     def test_list_filter_hash(self):
         """Filter patches by hash."""
         patch = self._create_patch()
-        patch_new_diff = create_patch(state=patch.state, project=patch.project,
-                                      submitter=patch.submitter,
-                                      diff=SAMPLE_DIFF)
+        patch_new_diff = create_patch(
+            state=patch.state,
+            project=patch.project,
+            submitter=patch.submitter,
+            diff=SAMPLE_DIFF,
+        )
 
         # check regular filtering
         resp = self.client.get(self.api_url(), {'hash': patch.hash})
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
 
         # 2 patches with identical diffs
-        patch_same_diff = create_patch(state=patch.state,
-                                       project=patch.project,
-                                       submitter=patch.submitter)
+        patch_same_diff = create_patch(
+            state=patch.state, project=patch.project, submitter=patch.submitter
+        )
         resp = self.client.get(self.api_url(), {'hash': patch.hash})
-        self.assertEqual([patch.id, patch_same_diff.id],
-                         [x['id'] for x in resp.data])
+        self.assertEqual(
+            [patch.id, patch_same_diff.id], [x['id'] for x in resp.data]
+        )
 
         # case insensitive matching
-        resp = self.client.get(self.api_url(),
-                               {'hash': patch_new_diff.hash.upper()})
+        resp = self.client.get(
+            self.api_url(), {'hash': patch_new_diff.hash.upper()}
+        )
         self.assertEqual([patch_new_diff.id], [x['id'] for x in resp.data])
 
         # empty response if nothing matches
-        resp = self.client.get(self.api_url(), {
-            'hash': 'da638d0746a115000bf890fada1f02679aa282e8'})
+        resp = self.client.get(
+            self.api_url(),
+            {'hash': 'da638d0746a115000bf890fada1f02679aa282e8'},
+        )
         self.assertEqual(0, len(resp.data))
 
     def test_list_filter_hash_version_1_1(self):
@@ -196,8 +209,9 @@ class TestPatchAPI(utils.APITestCase):
         self._create_patch()
 
         # we still see the patch since the hash field is ignored
-        resp = self.client.get(self.api_url(version='1.1'),
-                               {'hash': 'garbagevalue'})
+        resp = self.client.get(
+            self.api_url(version='1.1'), {'hash': 'garbagevalue'}
+        )
         self.assertEqual(1, len(resp.data))
 
     def test_list_filter_msgid(self):
@@ -208,8 +222,7 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
 
         # empty response if nothing matches
-        resp = self.client.get(self.api_url(), {
-            'msgid': 'fishfish@fish.fish'})
+        resp = self.client.get(self.api_url(), {'msgid': 'fishfish@fish.fish'})
         self.assertEqual(0, len(resp.data))
 
     @utils.store_samples('patch-list-1-0')
@@ -236,7 +249,7 @@ class TestPatchAPI(utils.APITestCase):
         """Show a specific patch."""
         patch = create_patch(
             content='Reviewed-by: Test User <test@example.com>\n',
-            headers='Received: from somewhere\nReceived: from another place'
+            headers='Received: from somewhere\nReceived: from another place',
         )
 
         resp = self.client.get(self.api_url(patch.id))
@@ -332,16 +345,18 @@ class TestPatchAPI(utils.APITestCase):
         user = create_maintainer(project)
 
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(patch.id),
-                                 {'state': state.slug, 'delegate': user.id})
+        resp = self.client.patch(
+            self.api_url(patch.id), {'state': state.slug, 'delegate': user.id}
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
 
         # (who can unset fields too)
         # we need to send as JSON due to https://stackoverflow.com/q/30677216/
-        resp = self.client.patch(self.api_url(patch.id), {'delegate': None},
-                                 format='json')
+        resp = self.client.patch(
+            self.api_url(patch.id), {'delegate': None}, format='json'
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertIsNone(Patch.objects.get(id=patch.id).delegate)
 
@@ -353,8 +368,10 @@ class TestPatchAPI(utils.APITestCase):
         user = create_maintainer(project)
 
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(patch.id, version="1.1"),
-                                 {'state': state.slug, 'delegate': user.id})
+        resp = self.client.patch(
+            self.api_url(patch.id, version="1.1"),
+            {'state': state.slug, 'delegate': user.id},
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
@@ -373,8 +390,11 @@ class TestPatchAPI(utils.APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.patch(self.api_url(patch.id), {'state': 'foobar'})
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
-        self.assertContains(resp, 'Expected one of: %s.' % state.slug,
-                            status_code=status.HTTP_400_BAD_REQUEST)
+        self.assertContains(
+            resp,
+            'Expected one of: %s.' % state.slug,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     def test_update_legacy_delegate(self):
         """Regression test for bug #313."""
@@ -394,8 +414,9 @@ class TestPatchAPI(utils.APITestCase):
         self.assertNotEqual(user_b.id, user_b.profile.id)
 
         self.client.force_authenticate(user=user_a)
-        resp = self.client.patch(self.api_url(patch.id),
-                                 {'delegate': user_b.id})
+        resp = self.client.patch(
+            self.api_url(patch.id), {'delegate': user_b.id}
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user_b)
@@ -412,11 +433,15 @@ class TestPatchAPI(utils.APITestCase):
         user_b = create_user()
 
         self.client.force_authenticate(user=user_a)
-        resp = self.client.patch(self.api_url(patch.id),
-                                 {'delegate': user_b.id})
+        resp = self.client.patch(
+            self.api_url(patch.id), {'delegate': user_b.id}
+        )
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
-        self.assertContains(resp, "User '%s' is not a maintainer" % user_b,
-                            status_code=status.HTTP_400_BAD_REQUEST)
+        self.assertContains(
+            resp,
+            "User '%s' is not a maintainer" % user_b,
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     def test_delete(self):
         """Ensure deletions are always rejected."""

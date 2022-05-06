@@ -100,15 +100,19 @@ def create_user(link_person=True, **kwargs):
     values.update(kwargs)
 
     # this one must be done rather specifically
-    user = User.objects.create_user(values['username'], values['email'],
-                                    values['username'],
-                                    first_name=values['first_name'],
-                                    last_name=values['last_name'])
+    user = User.objects.create_user(
+        values['username'],
+        values['email'],
+        values['username'],
+        first_name=values['first_name'],
+        last_name=values['last_name'],
+    )
 
     if link_person:
         # unfortunately we don't split on these
-        values['name'] = ' '.join([values.pop('first_name'),
-                                   values.pop('last_name')])
+        values['name'] = ' '.join(
+            [values.pop('first_name'), values.pop('last_name')]
+        )
         values.pop('username')
         create_person(user=user, **values)
 
@@ -331,8 +335,7 @@ def _create_submissions(create_func, count=1, **kwargs):
 
     objects = []
     for i in range(0, count):
-        obj = create_func(date=date + timedelta(minutes=i),
-                          **values)
+        obj = create_func(date=date + timedelta(minutes=i), **values)
         objects.append(obj)
 
     return objects
@@ -350,9 +353,7 @@ def create_patches(count=1, **kwargs):
         count (int): Number of patches to create
         kwargs (dict): Overrides for various patch fields
     """
-    values = {
-        'state': create_state() if 'state' not in kwargs else None
-    }
+    values = {'state': create_state() if 'state' not in kwargs else None}
     values.update(kwargs)
 
     return _create_submissions(create_patch, count, **values)

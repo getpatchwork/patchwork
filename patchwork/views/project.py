@@ -19,8 +19,8 @@ def project_list(request):
 
     if projects.count() == 1:
         return HttpResponseRedirect(
-            reverse('patch-list',
-                    kwargs={'project_id': projects[0].linkname}))
+            reverse('patch-list', kwargs={'project_id': projects[0].linkname})
+        )
 
     context = {
         'projects': projects,
@@ -35,7 +35,8 @@ def project_detail(request, project_id):
     context = {
         'project': project,
         'maintainers': User.objects.filter(
-            profile__maintainer_projects=project).select_related('profile'),
+            profile__maintainer_projects=project
+        ).select_related('profile'),
         'n_patches': patches.filter(archived=False).count(),
         'n_archived_patches': patches.filter(archived=True).count(),
         'enable_xmlrpc': settings.ENABLE_XMLRPC,

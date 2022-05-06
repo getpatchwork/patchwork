@@ -21,11 +21,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-c', '--compress', action='store_true',
+            '-c',
+            '--compress',
+            action='store_true',
             help='compress generated archive.',
         )
         parser.add_argument(
-            'projects', metavar='PROJECT', nargs='*',
+            'projects',
+            metavar='PROJECT',
+            nargs='*',
             help='list ID of project(s) to export. If not supplied, all '
             'projects will be exported.',
         )
@@ -54,16 +58,19 @@ class Command(BaseCommand):
 
         with tarfile.open(name, 'w:gz', compresslevel=compress_level) as tar:
             for i, project in enumerate(projects):
-                self.stdout.write('Project %02d/%02d (%s)' % (
-                    i + 1, len(projects), project.linkname))
+                self.stdout.write(
+                    'Project %02d/%02d (%s)'
+                    % (i + 1, len(projects), project.linkname)
+                )
 
                 with tempfile.NamedTemporaryFile(delete=False) as mbox:
                     patches = Patch.objects.filter(project=project)
                     count = patches.count()
                     for j, patch in enumerate(patches):
                         if not (j % 10):
-                            self.stdout.write('%06d/%06d\r' % (j, count),
-                                              ending='')
+                            self.stdout.write(
+                                '%06d/%06d\r' % (j, count), ending=''
+                            )
                             self.stdout.flush()
 
                         mbox.write(force_bytes(patch_to_mbox(patch) + '\n'))

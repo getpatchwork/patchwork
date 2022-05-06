@@ -15,6 +15,7 @@ from rest_framework.relations import ManyRelatedField
 # [1] https://github.com/encode/django-rest-framework/issues/7550
 # [2] https://github.com/encode/django-rest-framework/pull/7574
 
+
 def _get_attribute(self, instance):
     # Can't have any relationships if not created
     if hasattr(instance, 'pk') and instance.pk is None:
@@ -39,7 +40,7 @@ def _get_attribute(self, instance):
                 field=self.field_name,
                 serializer=self.parent.__class__.__name__,
                 instance=instance.__class__.__name__,
-                exc=exc
+                exc=exc,
             )
         )
         raise type(exc)(msg)

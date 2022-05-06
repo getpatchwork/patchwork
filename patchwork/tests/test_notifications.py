@@ -69,7 +69,7 @@ class PatchNotificationModelTest(TestCase):
 
     def test_notification_updated(self):
         """Ensure we update notifications when the patch has a second change,
-           but keep the original patch details"""
+        but keep the original patch details"""
         patch = create_patch(project=self.project)
         oldstate = patch.state
         newstates = [create_state(), create_state()]
@@ -91,7 +91,7 @@ class PatchNotificationModelTest(TestCase):
 
     def test_notifications_disabled(self):
         """Ensure we don't see notifications created when a project is
-           configured not to send them"""
+        configured not to send them"""
         patch = create_patch()  # don't use self.project
         state = create_state()
 
@@ -101,13 +101,13 @@ class PatchNotificationModelTest(TestCase):
 
 
 class PatchNotificationEmailTest(TestCase):
-
     def setUp(self):
         self.project = create_project(send_notifications=True)
 
     def _expire_notifications(self, **kwargs):
-        timestamp = datetime.datetime.utcnow() - \
-            datetime.timedelta(minutes=settings.NOTIFICATION_DELAY_MINUTES + 1)
+        timestamp = datetime.datetime.utcnow() - datetime.timedelta(
+            minutes=settings.NOTIFICATION_DELAY_MINUTES + 1
+        )
 
         qs = PatchChangeNotification.objects.all()
         if kwargs:
@@ -141,8 +141,9 @@ class PatchNotificationEmailTest(TestCase):
         self.assertIn(patch.get_absolute_url(), msg.body)
 
     def test_notification_escaping(self):
-        patch = create_patch(name='Patch name with " character',
-                             project=self.project)
+        patch = create_patch(
+            name='Patch name with " character', project=self.project
+        )
         PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
         self._expire_notifications()
@@ -157,8 +158,7 @@ class PatchNotificationEmailTest(TestCase):
     def test_notification_optout(self):
         """Ensure opt-out addresses don't get notifications."""
         patch = create_patch(project=self.project)
-        PatchChangeNotification(patch=patch,
-                                orig_state=patch.state).save()
+        PatchChangeNotification(patch=patch, orig_state=patch.state).save()
 
         self._expire_notifications()
 
@@ -186,8 +186,8 @@ class PatchNotificationEmailTest(TestCase):
 
     def test_unexpired_notification_merge(self):
         """Test that when there are multiple pending notifications, with
-           at least one within the notification delay, that other notifications
-           are held"""
+        at least one within the notification delay, that other notifications
+        are held"""
         patches = create_patches(2, project=self.project)
         for patch in patches:
             patch.save()

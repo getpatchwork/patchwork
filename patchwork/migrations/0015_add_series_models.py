@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         help_text=b'An optional name to associate with the '
-                                  b'series, e.g. "John\'s PCI series".',
+                        b'series, e.g. "John\'s PCI series".',
                         max_length=255,
                         null=True,
                     ),
@@ -52,14 +52,14 @@ class Migration(migrations.Migration):
                     models.IntegerField(
                         default=1,
                         help_text=b'Version of series as indicated by the '
-                                  b'subject prefix(es)',
+                        b'subject prefix(es)',
                     ),
                 ),
                 (
                     'total',
                     models.IntegerField(
                         help_text=b'Number of patches in series as indicated '
-                                  b'by the subject prefix(es)'
+                        b'by the subject prefix(es)'
                     ),
                 ),
                 (
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
                     'number',
                     models.PositiveSmallIntegerField(
                         help_text=b'The number assigned to this patch in the '
-                                  b'series'
+                        b'series'
                     ),
                 ),
                 (

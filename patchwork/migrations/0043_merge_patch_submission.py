@@ -83,8 +83,10 @@ class Migration(migrations.Migration):
 
     operations = [
         # move the 'PatchTag' model to point to 'Submission'
-
-        migrations.RemoveField(model_name='patch', name='tags',),
+        migrations.RemoveField(
+            model_name='patch',
+            name='tags',
+        ),
         migrations.AddField(
             model_name='submission',
             name='tags',
@@ -100,9 +102,7 @@ class Migration(migrations.Migration):
                 to='patchwork.Submission',
             ),
         ),
-
         # do the same for any other field that references 'Patch'
-
         migrations.AlterField(
             model_name='bundle',
             name='patches',
@@ -148,47 +148,67 @@ class Migration(migrations.Migration):
                 to='patchwork.Submission',
             ),
         ),
-
         # rename all the fields on 'Patch' so we don't have duplicates when we
         # add them to 'Submission'
-
         migrations.RemoveIndex(
-            model_name='patch', name='patch_list_covering_idx',
+            model_name='patch',
+            name='patch_list_covering_idx',
         ),
-        migrations.AlterUniqueTogether(name='patch', unique_together=set([]),),
-        migrations.RenameField(
-            model_name='patch', old_name='archived', new_name='archived2',
-        ),
-        migrations.RenameField(
-            model_name='patch', old_name='commit_ref', new_name='commit_ref2',
+        migrations.AlterUniqueTogether(
+            name='patch',
+            unique_together=set([]),
         ),
         migrations.RenameField(
-            model_name='patch', old_name='delegate', new_name='delegate2',
+            model_name='patch',
+            old_name='archived',
+            new_name='archived2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='diff', new_name='diff2',
+            model_name='patch',
+            old_name='commit_ref',
+            new_name='commit_ref2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='hash', new_name='hash2',
+            model_name='patch',
+            old_name='delegate',
+            new_name='delegate2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='number', new_name='number2',
+            model_name='patch',
+            old_name='diff',
+            new_name='diff2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='pull_url', new_name='pull_url2',
+            model_name='patch',
+            old_name='hash',
+            new_name='hash2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='related', new_name='related2',
+            model_name='patch',
+            old_name='number',
+            new_name='number2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='series', new_name='series2',
+            model_name='patch',
+            old_name='pull_url',
+            new_name='pull_url2',
         ),
         migrations.RenameField(
-            model_name='patch', old_name='state', new_name='state2',
+            model_name='patch',
+            old_name='related',
+            new_name='related2',
         ),
-
+        migrations.RenameField(
+            model_name='patch',
+            old_name='series',
+            new_name='series2',
+        ),
+        migrations.RenameField(
+            model_name='patch',
+            old_name='state',
+            new_name='state2',
+        ),
         # add the fields found on 'Patch' to 'Submission'
-
         migrations.AddField(
             model_name='submission',
             name='archived',
@@ -268,13 +288,9 @@ class Migration(migrations.Migration):
                 to='patchwork.State',
             ),
         ),
-
         # copy the data from 'Patch' to 'Submission'
-
         migrations.RunPython(migrate_data, None, atomic=False),
-
         # configure metadata for the 'Submission' model
-
         migrations.AlterModelOptions(
             name='submission',
             options={
@@ -288,7 +304,8 @@ class Migration(migrations.Migration):
             unique_together=set([('series', 'number'), ('msgid', 'project')]),
         ),
         migrations.RemoveIndex(
-            model_name='submission', name='submission_covering_idx',
+            model_name='submission',
+            name='submission_covering_idx',
         ),
         migrations.AddIndex(
             model_name='submission',
@@ -305,18 +322,37 @@ class Migration(migrations.Migration):
                 name='patch_covering_idx',
             ),
         ),
-
         # remove the foreign key fields from the 'Patch' model
-
-        migrations.RemoveField(model_name='patch', name='delegate2',),
-        migrations.RemoveField(model_name='patch', name='patch_project',),
-        migrations.RemoveField(model_name='patch', name='related2',),
-        migrations.RemoveField(model_name='patch', name='series2',),
-        migrations.RemoveField(model_name='patch', name='state2',),
-        migrations.RemoveField(model_name='patch', name='submission_ptr',),
-
+        migrations.RemoveField(
+            model_name='patch',
+            name='delegate2',
+        ),
+        migrations.RemoveField(
+            model_name='patch',
+            name='patch_project',
+        ),
+        migrations.RemoveField(
+            model_name='patch',
+            name='related2',
+        ),
+        migrations.RemoveField(
+            model_name='patch',
+            name='series2',
+        ),
+        migrations.RemoveField(
+            model_name='patch',
+            name='state2',
+        ),
+        migrations.RemoveField(
+            model_name='patch',
+            name='submission_ptr',
+        ),
         # drop the 'Patch' model and rename 'Submission' to 'Patch'
-
-        migrations.DeleteModel(name='Patch',),
-        migrations.RenameModel(old_name='Submission', new_name='Patch',),
+        migrations.DeleteModel(
+            name='Patch',
+        ),
+        migrations.RenameModel(
+            old_name='Submission',
+            new_name='Patch',
+        ),
     ]

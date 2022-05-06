@@ -42,21 +42,24 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertEqual(series_obj.name, series_json['name'])
         self.assertEqual(series_obj.version, series_json['version'])
         self.assertEqual(series_obj.total, series_json['total'])
-        self.assertEqual(series_obj.received_total,
-                         series_json['received_total'])
+        self.assertEqual(
+            series_obj.received_total, series_json['received_total']
+        )
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
         self.assertIn(series_obj.get_absolute_url(), series_json['web_url'])
 
         # nested fields
 
-        self.assertEqual(series_obj.project.id,
-                         series_json['project']['id'])
-        self.assertEqual(series_obj.submitter.id,
-                         series_json['submitter']['id'])
-        self.assertEqual(series_obj.cover_letter.id,
-                         series_json['cover_letter']['id'])
-        self.assertEqual(series_obj.patches.count(),
-                         len(series_json['patches']))
+        self.assertEqual(series_obj.project.id, series_json['project']['id'])
+        self.assertEqual(
+            series_obj.submitter.id, series_json['submitter']['id']
+        )
+        self.assertEqual(
+            series_obj.cover_letter.id, series_json['cover_letter']['id']
+        )
+        self.assertEqual(
+            series_obj.patches.count(), len(series_json['patches'])
+        )
 
     def test_list_empty(self):
         """List series when none are present."""
@@ -114,12 +117,14 @@ class TestSeriesAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(), {'submitter': submitter.id})
         self.assertEqual([series.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.com'})
+        resp = self.client.get(
+            self.api_url(), {'submitter': 'test@example.com'}
+        )
         self.assertEqual([series.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.org'})
+        resp = self.client.get(
+            self.api_url(), {'submitter': 'test@example.org'}
+        )
         self.assertEqual(0, len(resp.data))
 
     @utils.store_samples('series-list-1-0')
@@ -145,7 +150,8 @@ class TestSeriesAPI(utils.APITestCase):
         person_obj = create_person(email='test@example.com')
         for i in range(10):
             series_obj = create_series(
-                project=project_obj, submitter=person_obj,
+                project=project_obj,
+                submitter=person_obj,
             )
             create_cover(series=series_obj)
             create_patch(series=series_obj)

@@ -11,7 +11,6 @@ from django.urls import reverse
 
 
 class AboutViewTest(TestCase):
-
     def _test_redirect(self, view):
         requested_url = reverse(view)
         redirect_url = reverse('about')
@@ -23,9 +22,10 @@ class AboutViewTest(TestCase):
         for view in ['help', 'help-about']:
             self._test_redirect(view)
 
-    @unittest.skipUnless(settings.ENABLE_XMLRPC,
-                         'requires xmlrpc interface (use the ENABLE_XMLRPC '
-                         'setting)')
+    @unittest.skipUnless(
+        settings.ENABLE_XMLRPC,
+        'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+    )
     def test_redirects_xmlrpc(self):
         self._test_redirect('help-pwclient')
 

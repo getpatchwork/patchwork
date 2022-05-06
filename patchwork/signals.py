@@ -45,8 +45,9 @@ def patch_change_callback(sender, instance, raw, **kwargs):
         pass
 
     if notification is None:
-        notification = PatchChangeNotification(patch=instance,
-                                               orig_state=orig_patch.state)
+        notification = PatchChangeNotification(
+            patch=instance, orig_state=orig_patch.state
+        )
     elif notification.orig_state == instance.state:
         # If we're back at the original state, there is no need to notify
         notification.delete()
@@ -58,12 +59,12 @@ def patch_change_callback(sender, instance, raw, **kwargs):
 
 @receiver(post_save, sender=Cover)
 def create_cover_created_event(sender, instance, created, raw, **kwargs):
-
     def create_event(cover):
         return Event.objects.create(
             category=Event.CATEGORY_COVER_CREATED,
             project=cover.project,
-            cover=cover)
+            cover=cover,
+        )
 
     # don't trigger for items loaded from fixtures or new items
     if raw or not created:
@@ -74,12 +75,12 @@ def create_cover_created_event(sender, instance, created, raw, **kwargs):
 
 @receiver(post_save, sender=Patch)
 def create_patch_created_event(sender, instance, created, raw, **kwargs):
-
     def create_event(patch):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_CREATED,
             project=patch.project,
-            patch=patch)
+            patch=patch,
+        )
 
     # don't trigger for items loaded from fixtures or new items
     if raw or not created:
@@ -90,7 +91,6 @@ def create_patch_created_event(sender, instance, created, raw, **kwargs):
 
 @receiver(pre_save, sender=Patch)
 def create_patch_state_changed_event(sender, instance, raw, **kwargs):
-
     def create_event(patch, before, after):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_STATE_CHANGED,
@@ -98,7 +98,8 @@ def create_patch_state_changed_event(sender, instance, raw, **kwargs):
             actor=getattr(patch, '_edited_by', None),
             patch=patch,
             previous_state=before,
-            current_state=after)
+            current_state=after,
+        )
 
     # don't trigger for items loaded from fixtures or new items
     if raw or not instance.pk:
@@ -114,7 +115,6 @@ def create_patch_state_changed_event(sender, instance, raw, **kwargs):
 
 @receiver(pre_save, sender=Patch)
 def create_patch_delegated_event(sender, instance, raw, **kwargs):
-
     def create_event(patch, before, after):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_DELEGATED,
@@ -122,7 +122,8 @@ def create_patch_delegated_event(sender, instance, raw, **kwargs):
             actor=getattr(patch, '_edited_by', None),
             patch=patch,
             previous_delegate=before,
-            current_delegate=after)
+            current_delegate=after,
+        )
 
     # don't trigger for items loaded from fixtures or new items
     if raw or not instance.pk:
@@ -138,13 +139,13 @@ def create_patch_delegated_event(sender, instance, raw, **kwargs):
 
 @receiver(pre_save, sender=Patch)
 def create_patch_relation_changed_event(sender, instance, raw, **kwargs):
-
     def create_event(patch):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_RELATION_CHANGED,
             project=patch.project,
             actor=getattr(patch, '_edited_by', None),
-            patch=patch)
+            patch=patch,
+        )
 
     # don't trigger for items loaded from fixtures or new items
     if raw or not instance.pk:
@@ -160,13 +161,13 @@ def create_patch_relation_changed_event(sender, instance, raw, **kwargs):
 
 @receiver(pre_save, sender=Patch)
 def create_patch_completed_event(sender, instance, raw, **kwargs):
-
     def create_event(patch):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_COMPLETED,
             project=patch.project,
             patch=patch,
-            series=patch.series)
+            series=patch.series,
+        )
 
     # don't trigger for items loaded from fixtures, new items or items that
     # (still) don't have a series
@@ -183,7 +184,8 @@ def create_patch_completed_event(sender, instance, raw, **kwargs):
     # if dependencies not met, don't raise event. There's also no point raising
     # events for successors since they'll have the same issue
     predecessors = Patch.objects.filter(
-        series=instance.series, number__lt=instance.number)
+        series=instance.series, number__lt=instance.number
+    )
     if predecessors.count() != instance.number - 1:
         return
 
@@ -193,7 +195,8 @@ def create_patch_completed_event(sender, instance, raw, **kwargs):
     # those
     count = instance.number + 1
     for successor in Patch.objects.order_by('number').filter(
-            series=instance.series, number__gt=instance.number):
+        series=instance.series, number__gt=instance.number
+    ):
         if successor.number != count:
             break
 
@@ -203,7 +206,6 @@ def create_patch_completed_event(sender, instance, raw, **kwargs):
 
 @receiver(post_save, sender=Check)
 def create_check_created_event(sender, instance, created, raw, **kwargs):
-
     def create_event(check):
         # TODO(stephenfin): It might make sense to add a 'project' field to
         # 'check' to prevent lookups here and in the REST API
@@ -212,7 +214,8 @@ def create_check_created_event(sender, instance, created, raw, **kwargs):
             project=check.patch.project,
             actor=check.user,
             patch=check.patch,
-            created_check=check)
+            created_check=check,
+        )
 
     # don't trigger for items loaded from fixtures or existing items
     if raw or not created:
@@ -223,12 +226,12 @@ def create_check_created_event(sender, instance, created, raw, **kwargs):
 
 @receiver(post_save, sender=Series)
 def create_series_created_event(sender, instance, created, raw, **kwargs):
-
     def create_event(series):
         return Event.objects.create(
             category=Event.CATEGORY_SERIES_CREATED,
             project=series.project,
-            series=series)
+            series=series,
+        )
 
     # don't trigger for items loaded from fixtures or existing items
     if raw or not created:
@@ -250,7 +253,8 @@ def create_series_completed_event(sender, instance, raw, **kwargs):
         return Event.objects.create(
             category=Event.CATEGORY_SERIES_COMPLETED,
             project=series.project,
-            series=series)
+            series=series,
+        )
 
     # don't trigger for items loaded from fixtures, new items or items that
     # (still) don't have a series
@@ -273,7 +277,6 @@ def create_series_completed_event(sender, instance, raw, **kwargs):
 
 @receiver(post_save, sender=CoverComment)
 def create_cover_comment_created_event(sender, instance, raw, **kwargs):
-
     def create_event(comment):
         return Event.objects.create(
             category=Event.CATEGORY_COVER_COMMENT_CREATED,
@@ -287,7 +290,6 @@ def create_cover_comment_created_event(sender, instance, raw, **kwargs):
 
 @receiver(post_save, sender=PatchComment)
 def create_patch_comment_created_event(sender, instance, raw, **kwargs):
-
     def create_event(comment):
         return Event.objects.create(
             category=Event.CATEGORY_PATCH_COMMENT_CREATED,

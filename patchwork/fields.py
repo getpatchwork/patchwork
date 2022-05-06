@@ -10,7 +10,6 @@ from django.db import models
 
 
 class HashField(models.CharField):
-
     def __init__(self, *args, **kwargs):
         self.n_bytes = len(hashlib.sha1().hexdigest())
         kwargs['max_length'] = self.n_bytes

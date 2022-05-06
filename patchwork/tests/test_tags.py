@@ -21,10 +21,14 @@ class ExtractTagsTest(TestCase):
 
     def assertTagsEqual(self, str, acks, reviews, tests):  # noqa
         counts = Patch.extract_tags(str, Tag.objects.all())
-        self.assertEqual((acks, reviews, tests),
-                         (counts[Tag.objects.get(name='Acked-by')],
-                          counts[Tag.objects.get(name='Reviewed-by')],
-                          counts[Tag.objects.get(name='Tested-by')]))
+        self.assertEqual(
+            (acks, reviews, tests),
+            (
+                counts[Tag.objects.get(name='Acked-by')],
+                counts[Tag.objects.get(name='Reviewed-by')],
+                counts[Tag.objects.get(name='Tested-by')],
+            ),
+        )
 
     def test_empty(self):
         self.assertTagsEqual('', 0, 0, 0)
@@ -53,7 +57,8 @@ class ExtractTagsTest(TestCase):
 
     def test_multiple_types(self):
         str = 'Acked-by: %s\nAcked-by: %s\nReviewed-by: %s\n' % (
-            (self.name_email,) * 3)
+            (self.name_email,) * 3
+        )
         self.assertTagsEqual(str, 2, 1, 0)
 
     def test_lower(self):
@@ -99,7 +104,7 @@ class PatchTagsTest(TransactionTestCase):
         tags = {
             self.ACK: 'Acked',
             self.REVIEW: 'Reviewed',
-            self.TEST: 'Tested'
+            self.TEST: 'Tested',
         }
         if tagtype not in tags:
             return ''
@@ -108,8 +113,8 @@ class PatchTagsTest(TransactionTestCase):
 
     def create_tag_comment(self, patch, tagtype=None):
         comment = create_patch_comment(
-            patch=patch,
-            content=self.create_tag(tagtype))
+            patch=patch, content=self.create_tag(tagtype)
+        )
         return comment
 
     def test_no_comments(self):
@@ -168,7 +173,6 @@ class PatchTagsTest(TransactionTestCase):
 
 
 class PatchTagManagerTest(PatchTagsTest):
-
     def assertTagsEqual(self, patch, acks, reviews, tests):  # noqa
         tagattrs = {}
         for tag in Tag.objects.all():
@@ -181,8 +185,9 @@ class PatchTagManagerTest(PatchTagsTest):
         # the patch table lookup, and the prefetch_related for the
         # projects table.
         with self.assertNumQueries(2):
-            patch = Patch.objects.with_tag_counts(project=patch.project) \
-                .get(pk=patch.pk)
+            patch = Patch.objects.with_tag_counts(project=patch.project).get(
+                pk=patch.pk
+            )
 
             counts = (
                 getattr(patch, tagattrs['Acked-by']),

@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         help_text=b'The cover letter that this event was '
-                                  b'created for.',
+                        b'created for.',
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name='+',
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         help_text=b'The patch that this event was created '
-                                  b'for.',
+                        b'for.',
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name='+',
@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         help_text=b'The series that this event was created '
-                                  b'for.',
+                        b'for.',
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name='+',

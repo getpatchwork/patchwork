@@ -22,7 +22,6 @@ def _get_events(**filters):
 
 
 class _BaseTestCase(TestCase):
-
     def assertEventFields(self, event, parent_type='patch', **fields):
         for field_name in [x for x in BASE_FIELDS]:
             field = getattr(event, field_name)
@@ -33,7 +32,6 @@ class _BaseTestCase(TestCase):
 
 
 class PatchCreatedTest(_BaseTestCase):
-
     def test_patch_created(self):
         """No series, so patch dependencies implicitly exist."""
         patch = utils.create_patch(series=None)
@@ -90,8 +88,9 @@ class PatchCreatedTest(_BaseTestCase):
             events = _get_events(patch=patch)
             self.assertEqual(events.count(), 2)
             self.assertEqual(events[0].category, Event.CATEGORY_PATCH_CREATED)
-            self.assertEqual(events[1].category,
-                             Event.CATEGORY_PATCH_COMPLETED)
+            self.assertEqual(
+                events[1].category, Event.CATEGORY_PATCH_COMPLETED
+            )
             self.assertEventFields(events[0])
             self.assertEventFields(events[1])
 
@@ -108,7 +107,6 @@ class PatchCreatedTest(_BaseTestCase):
 
 
 class PatchChangedTest(_BaseTestCase):
-
     def test_patch_state_changed(self):
         # purposefully setting series to None to minimize additional events
         patch = utils.create_patch(series=None)
@@ -123,12 +121,14 @@ class PatchChangedTest(_BaseTestCase):
         events = _get_events(patch=patch)
         self.assertEqual(events.count(), 2)
         # we don't care about the CATEGORY_PATCH_CREATED event here
-        self.assertEqual(events[1].category,
-                         Event.CATEGORY_PATCH_STATE_CHANGED)
+        self.assertEqual(
+            events[1].category, Event.CATEGORY_PATCH_STATE_CHANGED
+        )
         self.assertEqual(events[1].project, patch.project)
         self.assertEqual(events[1].actor, actor)
-        self.assertEventFields(events[1], previous_state=old_state,
-                               current_state=new_state)
+        self.assertEventFields(
+            events[1], previous_state=old_state, current_state=new_state
+        )
 
     def test_patch_delegated(self):
         # purposefully setting series to None to minimize additional events
@@ -145,8 +145,7 @@ class PatchChangedTest(_BaseTestCase):
         events = _get_events(patch=patch)
         self.assertEqual(events.count(), 2)
         # we don't care about the CATEGORY_PATCH_CREATED event here
-        self.assertEqual(events[1].category,
-                         Event.CATEGORY_PATCH_DELEGATED)
+        self.assertEqual(events[1].category, Event.CATEGORY_PATCH_DELEGATED)
         self.assertEqual(events[1].project, patch.project)
         self.assertEqual(events[1].actor, actor)
         self.assertEventFields(events[1], current_delegate=delegate_a)
@@ -160,10 +159,12 @@ class PatchChangedTest(_BaseTestCase):
 
         events = _get_events(patch=patch)
         self.assertEqual(events.count(), 3)
-        self.assertEqual(events[2].category,
-                         Event.CATEGORY_PATCH_DELEGATED)
-        self.assertEventFields(events[2], previous_delegate=delegate_a,
-                               current_delegate=delegate_b)
+        self.assertEqual(events[2].category, Event.CATEGORY_PATCH_DELEGATED)
+        self.assertEventFields(
+            events[2],
+            previous_delegate=delegate_a,
+            current_delegate=delegate_b,
+        )
 
         # Delegate B -> None
 
@@ -172,8 +173,7 @@ class PatchChangedTest(_BaseTestCase):
 
         events = _get_events(patch=patch)
         self.assertEqual(events.count(), 4)
-        self.assertEqual(events[3].category,
-                         Event.CATEGORY_PATCH_DELEGATED)
+        self.assertEqual(events[3].category, Event.CATEGORY_PATCH_DELEGATED)
         self.assertEventFields(events[3], previous_delegate=delegate_b)
 
     def test_patch_relations_changed(self):
@@ -192,7 +192,8 @@ class PatchChangedTest(_BaseTestCase):
         events = _get_events(patch=patches[1])
         self.assertEqual(events.count(), 2)
         self.assertEqual(
-            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED
+        )
         self.assertEqual(events[1].project, patches[1].project)
         self.assertIsNone(events[1].previous_relation)
         self.assertIsNone(events[1].current_relation)
@@ -205,7 +206,8 @@ class PatchChangedTest(_BaseTestCase):
         events = _get_events(patch=patches[2])
         self.assertEqual(events.count(), 2)
         self.assertEqual(
-            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+            events[1].category, Event.CATEGORY_PATCH_RELATION_CHANGED
+        )
         self.assertEqual(events[1].project, patches[1].project)
         self.assertIsNone(events[1].previous_relation)
         self.assertIsNone(events[1].current_relation)
@@ -218,14 +220,14 @@ class PatchChangedTest(_BaseTestCase):
         events = _get_events(patch=patches[2])
         self.assertEqual(events.count(), 3)
         self.assertEqual(
-            events[2].category, Event.CATEGORY_PATCH_RELATION_CHANGED)
+            events[2].category, Event.CATEGORY_PATCH_RELATION_CHANGED
+        )
         self.assertEqual(events[2].project, patches[1].project)
         self.assertIsNone(events[2].previous_relation)
         self.assertIsNone(events[2].current_relation)
 
 
 class CheckCreatedTest(_BaseTestCase):
-
     def test_check_created(self):
         check = utils.create_check()
         events = _get_events(created_check=check)
@@ -237,7 +239,6 @@ class CheckCreatedTest(_BaseTestCase):
 
 
 class CoverCreatedTest(_BaseTestCase):
-
     def test_cover_created(self):
         cover = utils.create_cover()
         events = _get_events(cover=cover)
@@ -248,7 +249,6 @@ class CoverCreatedTest(_BaseTestCase):
 
 
 class SeriesCreatedTest(_BaseTestCase):
-
     def test_series_created(self):
         series = utils.create_series()
         events = _get_events(series=series)
@@ -259,53 +259,55 @@ class SeriesCreatedTest(_BaseTestCase):
 
 
 class SeriesChangedTest(_BaseTestCase):
-
     def test_series_completed(self):
         """Validate 'series-completed' events."""
         series = utils.create_series(total=2)
 
         # the series has no patches associated with it so it's not yet complete
         events = _get_events(series=series)
-        self.assertNotIn(Event.CATEGORY_SERIES_COMPLETED,
-                         [x.category for x in events])
+        self.assertNotIn(
+            Event.CATEGORY_SERIES_COMPLETED, [x.category for x in events]
+        )
 
         # create the second of two patches in the series; series is still not
         # complete
         utils.create_patch(series=series, number=2)
         events = _get_events(series=series)
-        self.assertNotIn(Event.CATEGORY_SERIES_COMPLETED,
-                         [x.category for x in events])
+        self.assertNotIn(
+            Event.CATEGORY_SERIES_COMPLETED, [x.category for x in events]
+        )
 
         # now create the first patch, which will "complete" the series
         utils.create_patch(series=series, number=1)
         events = _get_events(series=series)
-        self.assertIn(Event.CATEGORY_SERIES_COMPLETED,
-                      [x.category for x in events])
+        self.assertIn(
+            Event.CATEGORY_SERIES_COMPLETED, [x.category for x in events]
+        )
 
 
 class CoverCommentCreatedTest(_BaseTestCase):
-
     def test_cover_comment_created(self):
         """Validate 'cover-comment-created' events."""
         comment = utils.create_cover_comment()
         events = _get_events(cover_comment=comment)
         self.assertEqual(events.count(), 1)
         self.assertEqual(
-            events[0].category, Event.CATEGORY_COVER_COMMENT_CREATED,
+            events[0].category,
+            Event.CATEGORY_COVER_COMMENT_CREATED,
         )
         self.assertEqual(events[0].project, comment.cover.project)
         self.assertEventFields(events[0])
 
 
 class PatchCommentCreatedTest(_BaseTestCase):
-
     def test_patch_comment_created(self):
         """Validate 'patch-comment-created' events."""
         comment = utils.create_patch_comment()
         events = _get_events(patch_comment=comment)
         self.assertEqual(events.count(), 1)
         self.assertEqual(
-            events[0].category, Event.CATEGORY_PATCH_COMMENT_CREATED,
+            events[0].category,
+            Event.CATEGORY_PATCH_COMMENT_CREATED,
         )
         self.assertEqual(events[0].project, comment.patch.project)
         self.assertEventFields(events[0])

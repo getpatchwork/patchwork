@@ -20,7 +20,6 @@ if settings.ENABLE_REST_API:
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestProjectAPI(utils.APITestCase):
-
     @staticmethod
     def api_url(item=None, version=None):
         kwargs = {}
@@ -37,13 +36,16 @@ class TestProjectAPI(utils.APITestCase):
         self.assertEqual(project_obj.name, project_json['name'])
         self.assertEqual(project_obj.linkname, project_json['link_name'])
         self.assertEqual(project_obj.listid, project_json['list_id'])
-        self.assertEqual(project_obj.subject_match,
-                         project_json['subject_match'])
+        self.assertEqual(
+            project_obj.subject_match, project_json['subject_match']
+        )
 
         # nested fields
 
-        self.assertEqual(len(project_json['maintainers']),
-                         project_obj.maintainer_project.all().count())
+        self.assertEqual(
+            len(project_json['maintainers']),
+            project_obj.maintainer_project.all().count(),
+        )
 
     def test_list_empty(self):
         """List projects when none are present."""

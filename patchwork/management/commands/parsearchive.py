@@ -21,13 +21,12 @@ class Command(BaseCommand):
     help = 'Parse an mbox archive file and store any patches/comments found.'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            'infile',
-            help='input mbox filename')
+        parser.add_argument('infile', help='input mbox filename')
         parser.add_argument(
             '--list-id',
             help='mailing list ID. If not supplied, this will be '
-            'extracted from the mail headers.')
+            'extracted from the mail headers.',
+        )
 
     def handle(self, *args, **options):
         results = {
@@ -117,7 +116,8 @@ class Command(BaseCommand):
             '  %(duplicates)4d duplicates\n'
             '  %(dropped)4d dropped\n'
             '  %(errors)4d errors\n'
-            'Total: %(new)s new entries' % {
+            'Total: %(new)s new entries'
+            % {
                 'total': count,
                 'covers': results[models.Cover],
                 'patches': results[models.Patch],
@@ -128,4 +128,5 @@ class Command(BaseCommand):
                 'dropped': dropped,
                 'errors': errors,
                 'new': count - duplicates - dropped - errors,
-            })
+            }
+        )

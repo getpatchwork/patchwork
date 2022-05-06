@@ -58,6 +58,7 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=255),
         ),
         migrations.AlterUniqueTogether(
-            name='seriesreference', unique_together=set([('series', 'msgid')]),
+            name='seriesreference',
+            unique_together=set([('series', 'msgid')]),
         ),
     ]

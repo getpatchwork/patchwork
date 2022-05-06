@@ -15,14 +15,18 @@ class Migration(migrations.Migration):
         # Rename the 'Patch' to 'Submission'
         migrations.RenameModel(old_name='Patch', new_name='Submission'),
         migrations.AlterModelOptions(
-            name='submission', options={'ordering': ['date']},
+            name='submission',
+            options={'ordering': ['date']},
         ),
         # Rename the non-Patch specific references to point to Submission
         migrations.RenameField(
-            model_name='comment', old_name='patch', new_name='submission',
+            model_name='comment',
+            old_name='patch',
+            new_name='submission',
         ),
         migrations.AlterUniqueTogether(
-            name='comment', unique_together=set([('msgid', 'submission')]),
+            name='comment',
+            unique_together=set([('msgid', 'submission')]),
         ),
         migrations.RenameField(
             model_name='userprofile',

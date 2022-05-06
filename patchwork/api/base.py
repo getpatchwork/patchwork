@@ -21,6 +21,7 @@ DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
 
 
 if DRF_VERSION > (3, 11):
+
     class CurrentPatchDefault(object):
         requires_context = True
 
@@ -32,7 +33,9 @@ if DRF_VERSION > (3, 11):
 
         def __call__(self, serializer_field):
             return serializer_field.context['request'].cover
+
 else:
+
     class CurrentPatchDefault(object):
         def set_context(self, serializer_field):
             self.patch = serializer_field.context['request'].patch
@@ -56,6 +59,7 @@ class LinkHeaderPagination(PageNumberPagination):
        https://tools.ietf.org/html/rfc5988#section-5
        https://developer.github.com/guides/traversing-with-pagination
     """
+
     page_size = settings.REST_RESULTS_PER_PAGE
     max_page_size = settings.MAX_REST_RESULTS_PER_PAGE
     page_size_query_param = 'per_page'
@@ -95,6 +99,7 @@ class PatchworkPermission(permissions.BasePermission):
     This permission works for Project, Patch, PatchComment
     and CoverComment model objects
     """
+
     def has_object_permission(self, request, view, obj):
         # read only for everyone
         if request.method in permissions.SAFE_METHODS:
@@ -109,7 +114,8 @@ class MultipleFieldLookupMixin(object):
         queryset = self.filter_queryset(self.get_queryset())
         filter_kwargs = {}
         for field_name, field in zip(
-                self.lookup_fields, self.lookup_url_kwargs):
+            self.lookup_fields, self.lookup_url_kwargs
+        ):
             if self.kwargs[field]:
                 filter_kwargs[field_name] = self.kwargs[field]
 
@@ -117,7 +123,6 @@ class MultipleFieldLookupMixin(object):
 
 
 class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
-
     def get_url(self, obj, view_name, request, format):
         # Unsaved objects will not yet have a valid URL.
         if obj.pk is None:
@@ -135,10 +140,10 @@ class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
 
 
 class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
-
     def to_representation(self, instance):
         data = super(BaseHyperlinkedModelSerializer, self).to_representation(
-            instance)
+            instance
+        )
 
         request = self.context.get('request')
         for version in getattr(self.Meta, 'versioned_fields', {}):

@@ -29,8 +29,8 @@ from patchwork.models import State
 
 # custom backend
 
-class DjangoFilterBackend(rest_framework.DjangoFilterBackend):
 
+class DjangoFilterBackend(rest_framework.DjangoFilterBackend):
     def filter_queryset(self, request, queryset, view):
         try:
             return super().filter_queryset(request, queryset, view)
@@ -40,8 +40,8 @@ class DjangoFilterBackend(rest_framework.DjangoFilterBackend):
 
 # custom fields, filters
 
-class ModelMultipleChoiceField(BaseMultipleChoiceField):
 
+class ModelMultipleChoiceField(BaseMultipleChoiceField):
     def _get_filter(self, value):
         if not self.alternate_lookup:
             return 'pk', value
@@ -124,7 +124,6 @@ class ProjectFilter(ModelMultipleChoiceFilter):
 
 
 class StateChoiceField(ModelMultipleChoiceField):
-
     def _get_filter(self, value):
         try:
             return 'pk', int(value)
@@ -151,7 +150,6 @@ class UserFilter(ModelMultipleChoiceFilter):
 
 
 class BaseFilterSet(FilterSet):
-
     @property
     def form(self):
         form = super(BaseFilterSet, self).form
@@ -193,8 +191,11 @@ class CoverFilterSet(TimestampMixin, BaseFilterSet):
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
-    series = BaseFilter(queryset=Project.objects.all(),
-                        widget=MultipleHiddenInput, distinct=False)
+    series = BaseFilter(
+        queryset=Project.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
     submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
     msgid = CharFilter(method=msgid_filter)
 
@@ -208,8 +209,11 @@ class PatchFilterSet(TimestampMixin, BaseFilterSet):
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
-    series = BaseFilter(queryset=Series.objects.all(),
-                        widget=MultipleHiddenInput, distinct=False)
+    series = BaseFilter(
+        queryset=Series.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
     submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
     delegate = UserFilter(queryset=User.objects.all(), distinct=False)
     state = StateFilter(queryset=State.objects.all(), distinct=False)
@@ -222,8 +226,16 @@ class PatchFilterSet(TimestampMixin, BaseFilterSet):
         # can't find a way to do that which is reliable and not extremely ugly.
         # The best I can come up with is manually working with request.GET
         # which seems to rather defeat the point of using django-filters.
-        fields = ('project', 'series', 'submitter', 'delegate',
-                  'state', 'archived', 'hash', 'msgid')
+        fields = (
+            'project',
+            'series',
+            'submitter',
+            'delegate',
+            'state',
+            'archived',
+            'hash',
+            'msgid',
+        )
         versioned_fields = {
             '1.2': ('hash', 'msgid'),
         }
@@ -243,24 +255,32 @@ class EventFilterSet(TimestampMixin, BaseFilterSet):
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
     # TODO(stephenfin): We should really use an AJAX widget of some form here
-    project = ProjectFilter(queryset=Project.objects.all(),
-                            widget=MultipleHiddenInput,
-                            distinct=False)
-    series = BaseFilter(queryset=Series.objects.all(),
-                        widget=MultipleHiddenInput,
-                        distinct=False)
-    patch = BaseFilter(queryset=Patch.objects.all(),
-                       widget=MultipleHiddenInput,
-                       distinct=False)
-    cover = BaseFilter(queryset=Cover.objects.all(),
-                       widget=MultipleHiddenInput,
-                       distinct=False)
+    project = ProjectFilter(
+        queryset=Project.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
+    series = BaseFilter(
+        queryset=Series.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
+    patch = BaseFilter(
+        queryset=Patch.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
+    cover = BaseFilter(
+        queryset=Cover.objects.all(),
+        widget=MultipleHiddenInput,
+        distinct=False,
+    )
 
     class Meta:
         model = Event
         fields = ('project', 'category', 'series', 'patch', 'cover', 'actor')
         versioned_fields = {
-            '1.2': ('actor', ),
+            '1.2': ('actor',),
         }
 
 

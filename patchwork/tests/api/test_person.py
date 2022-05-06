@@ -20,7 +20,6 @@ if settings.ENABLE_REST_API:
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestPersonAPI(utils.APITestCase):
-
     @staticmethod
     def api_url(item=None):
         if item is None:
@@ -36,8 +35,7 @@ class TestPersonAPI(utils.APITestCase):
             self.assertEqual(person_obj.user.profile.name, person_json['name'])
             self.assertEqual(person_obj.user.email, person_json['email'])
             # nested fields
-            self.assertEqual(person_obj.user.id,
-                             person_json['user']['id'])
+            self.assertEqual(person_obj.user.id, person_json['user']['id'])
 
     def test_list_empty(self):
         """List people when none are present."""

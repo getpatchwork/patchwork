@@ -20,8 +20,14 @@ import yaml
 
 # docs/api/schemas
 SCHEMAS_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir,
-    os.pardir, 'docs', 'api', 'schemas')
+    os.path.dirname(os.path.abspath(__file__)),
+    os.pardir,
+    os.pardir,
+    os.pardir,
+    'docs',
+    'api',
+    'schemas',
+)
 
 _LOADED_SPECS = {}
 
@@ -41,7 +47,6 @@ util.search = search
 
 
 class RegexValidator(object):
-
     def __init__(self, regex):
         self.regex = re.compile(regex, re.IGNORECASE)
 
@@ -84,9 +89,11 @@ def _load_spec(version):
     if _LOADED_SPECS.get(version):
         return _LOADED_SPECS[version]
 
-    spec_path = os.path.join(SCHEMAS_DIR,
-                             'v{}'.format(version) if version else 'latest',
-                             'patchwork.yaml')
+    spec_path = os.path.join(
+        SCHEMAS_DIR,
+        'v{}'.format(version) if version else 'latest',
+        'patchwork.yaml',
+    )
 
     with open(spec_path, 'r') as fh:
         data = yaml.load(fh, Loader=yaml.SafeLoader)
@@ -96,8 +103,9 @@ def _load_spec(version):
     return _LOADED_SPECS[version]
 
 
-def validate_data(path, request, response, validate_request,
-                  validate_response):
+def validate_data(
+    path, request, response, validate_request, validate_response
+):
     if response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED:
         return
 
@@ -107,8 +115,7 @@ def validate_data(path, request, response, validate_request,
 
     # request
     if validate_request:
-        validator = RequestValidator(
-            spec, custom_formatters=CUSTOM_FORMATTERS)
+        validator = RequestValidator(spec, custom_formatters=CUSTOM_FORMATTERS)
         result = validator.validate(request)
         try:
             result.raise_for_errors()
@@ -120,6 +127,7 @@ def validate_data(path, request, response, validate_request,
     # response
     if validate_response:
         validator = ResponseValidator(
-            spec, custom_formatters=CUSTOM_FORMATTERS)
+            spec, custom_formatters=CUSTOM_FORMATTERS
+        )
         result = validator.validate(request, response)
         result.raise_for_errors()

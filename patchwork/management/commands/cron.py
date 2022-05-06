@@ -10,13 +10,16 @@ from patchwork.notifications import send_notifications
 
 
 class Command(BaseCommand):
-    help = ('Run periodic Patchwork functions: send notifications and '
-            'expire unused users')
+    help = (
+        'Run periodic Patchwork functions: send notifications and '
+        'expire unused users'
+    )
 
     def handle(self, *args, **kwargs):
         errors = send_notifications()
         for (recipient, error) in errors:
-            self.stderr.write("Failed sending to %s: %s" %
-                              (recipient.email, error))
+            self.stderr.write(
+                "Failed sending to %s: %s" % (recipient.email, error)
+            )
 
         expire_notifications()

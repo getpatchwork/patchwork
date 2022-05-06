@@ -27,15 +27,13 @@ def _generate_secondary_email(user):
 
 
 class _UserTestCase(TestCase):
-
     def setUp(self):
         self.user = create_user()
         self.password = User.objects.make_random_password()
         self.user.set_password(self.password)
         self.user.save()
 
-        self.client.login(username=self.user.username,
-                          password=self.password)
+        self.client.login(username=self.user.username, password=self.password)
 
 
 class TestUser(object):
@@ -48,7 +46,6 @@ class TestUser(object):
 
 
 class RegistrationTest(TestCase):
-
     def setUp(self):
         self.user = TestUser()
         self.client = Client()
@@ -89,8 +86,11 @@ class RegistrationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
         self.assertFormError(
-            response, 'form', 'username',
-            'This username is already taken. Please choose another.')
+            response,
+            'form',
+            'username',
+            'This username is already taken. Please choose another.',
+        )
 
     def test_existing_email(self):
         user = create_user()
@@ -99,9 +99,12 @@ class RegistrationTest(TestCase):
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
         self.assertFormError(
-            response, 'form', 'email',
+            response,
+            'form',
+            'email',
             'This email address is already in use for the account '
-            '"%s".\n' % user.username)
+            '"%s".\n' % user.username,
+        )
 
     def test_valid_registration(self):
         response = self.client.post('/register/', self.default_data)
@@ -118,7 +121,8 @@ class RegistrationTest(TestCase):
 
         # check for confirmation object
         confs = EmailConfirmation.objects.filter(
-            user=user, type='registration')
+            user=user, type='registration'
+        )
         self.assertEqual(len(confs), 1)
         conf = confs[0]
         self.assertEqual(conf.email, self.user.email)
@@ -136,7 +140,6 @@ class RegistrationTest(TestCase):
 
 
 class RegistrationConfirmationTest(TestCase):
-
     def setUp(self):
         self.user = TestUser()
         self.default_data = {
@@ -144,7 +147,7 @@ class RegistrationConfirmationTest(TestCase):
             'first_name': self.user.firstname,
             'last_name': self.user.lastname,
             'email': self.user.email,
-            'password': self.user.password
+            'password': self.user.password,
         }
 
     def test_valid(self):
@@ -162,7 +165,8 @@ class RegistrationConfirmationTest(TestCase):
         response = self.client.get(_confirmation_url(conf))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
-            response, 'patchwork/registration-confirm.html')
+            response, 'patchwork/registration-confirm.html'
+        )
 
         conf = EmailConfirmation.objects.get(pk=conf.pk)
         self.assertTrue(conf.user.is_active)
@@ -233,11 +237,11 @@ class RegistrationConfirmationTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(
-            Person.objects.get(pk=person.pk).name, self.user.fullname)
+            Person.objects.get(pk=person.pk).name, self.user.fullname
+        )
 
 
 class UserLinkTest(_UserTestCase):
-
     def setUp(self):
         super().setUp()
         self.secondary_email = _generate_secondary_email(self.user)
@@ -251,19 +255,22 @@ class UserLinkTest(_UserTestCase):
         response = self.client.post(reverse('user-link'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
-        self.assertFormError(response, 'linkform', 'email',
-                             'This field is required.')
+        self.assertFormError(
+            response, 'linkform', 'email', 'This field is required.'
+        )
 
     def test_user_person_request_invalid(self):
         response = self.client.post(reverse('user-link'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
-        self.assertFormError(response, 'linkform', 'email',
-                             error_strings['email'])
+        self.assertFormError(
+            response, 'linkform', 'email', error_strings['email']
+        )
 
     def test_user_person_request_valid(self):
-        response = self.client.post(reverse('user-link'),
-                                    {'email': self.secondary_email})
+        response = self.client.post(
+            reverse('user-link'), {'email': self.secondary_email}
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['confirmation'])
 
@@ -288,20 +295,18 @@ class UserLinkTest(_UserTestCase):
 
 
 class ConfirmationTest(TestCase):
-
     def setUp(self):
         self.user = create_user(link_person=False)
         self.password = User.objects.make_random_password()
         self.user.set_password(self.password)
         self.user.save()
 
-        self.client.login(username=self.user.username,
-                          password=self.password)
+        self.client.login(username=self.user.username, password=self.password)
 
         self.secondary_email = _generate_secondary_email(self.user)
-        self.conf = EmailConfirmation(type='userperson',
-                                      email=self.secondary_email,
-                                      user=self.user)
+        self.conf = EmailConfirmation(
+            type='userperson', email=self.secondary_email, user=self.user
+        )
         self.conf.save()
 
     def test_user_person_confirm(self):
@@ -322,14 +327,13 @@ class ConfirmationTest(TestCase):
 
 
 class InvalidConfirmationTest(TestCase):
-
     def setUp(self):
         self.user = create_user()
         self.secondary_email = _generate_secondary_email(self.user)
 
-        self.conf = EmailConfirmation(type='userperson',
-                                      email=self.secondary_email,
-                                      user=self.user)
+        self.conf = EmailConfirmation(
+            type='userperson', email=self.secondary_email, user=self.user
+        )
         self.conf.save()
 
     def test_inactive_confirmation(self):
@@ -352,7 +356,6 @@ class InvalidConfirmationTest(TestCase):
 
 
 class LoginRedirectTest(TestCase):
-
     def test_user_login_redirect(self):
         url = reverse('user-profile')
         response = self.client.get(url)
@@ -360,7 +363,6 @@ class LoginRedirectTest(TestCase):
 
 
 class UserProfileTest(_UserTestCase):
-
     def test_user_profile(self):
         response = self.client.get(reverse('user-profile'))
         self.assertContains(response, 'Your Profile')
@@ -408,7 +410,6 @@ class UserProfileTest(_UserTestCase):
 
 
 class PasswordChangeTest(_UserTestCase):
-
     def test_password_change_form(self):
         response = self.client.get(reverse('password_change'))
         self.assertContains(response, 'Change my password')
@@ -432,16 +433,16 @@ class PasswordChangeTest(_UserTestCase):
         self.assertTrue(user.check_password(new_password))
 
         response = self.client.get(reverse('password_change_done'))
-        self.assertContains(response,
-                            "Your password has been changed successfully")
+        self.assertContains(
+            response, "Your password has been changed successfully"
+        )
 
 
 class UserUnlinkTest(_UserTestCase):
-
     def _create_confirmation(self, email):
-        conf = EmailConfirmation(type='userperson',
-                                 email=email,
-                                 user=self.user)
+        conf = EmailConfirmation(
+            type='userperson', email=email, user=self.user
+        )
         conf.save()
         self.client.get(_confirmation_url(conf))
 

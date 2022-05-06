@@ -35,8 +35,11 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
         return request.build_absolute_uri(instance.get_absolute_url())
 
     def get_subject(self, comment):
-        return email.parser.Parser().parsestr(comment.headers,
-                                              True).get('Subject', '')
+        return (
+            email.parser.Parser()
+            .parsestr(comment.headers, True)
+            .get('Subject', '')
+        )
 
     def get_headers(self, comment):
         headers = {}
@@ -53,13 +56,31 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
         return headers
 
     class Meta:
-        fields = ('id', 'web_url', 'msgid', 'list_archive_url', 'date',
-                  'subject', 'submitter', 'content', 'headers', 'addressed')
-        read_only_fields = ('id', 'web_url', 'msgid', 'list_archive_url',
-                            'date', 'subject', 'submitter', 'content',
-                            'headers')
+        fields = (
+            'id',
+            'web_url',
+            'msgid',
+            'list_archive_url',
+            'date',
+            'subject',
+            'submitter',
+            'content',
+            'headers',
+            'addressed',
+        )
+        read_only_fields = (
+            'id',
+            'web_url',
+            'msgid',
+            'list_archive_url',
+            'date',
+            'subject',
+            'submitter',
+            'content',
+            'headers',
+        )
         versioned_fields = {
-            '1.1': ('web_url', ),
+            '1.1': ('web_url',),
             '1.2': ('list_archive_url',),
             '1.3': ('addressed',),
         }
@@ -71,14 +92,12 @@ class CoverCommentSerializer(BaseCommentListSerializer):
 
     class Meta:
         model = CoverComment
-        fields = BaseCommentListSerializer.Meta.fields + (
-            'cover', 'addressed')
+        fields = BaseCommentListSerializer.Meta.fields + ('cover', 'addressed')
         read_only_fields = BaseCommentListSerializer.Meta.read_only_fields + (
-            'cover', )
+            'cover',
+        )
         versioned_fields = BaseCommentListSerializer.Meta.versioned_fields
-        extra_kwargs = {
-            'url': {'view_name': 'api-cover-comment-detail'}
-        }
+        extra_kwargs = {'url': {'view_name': 'api-cover-comment-detail'}}
 
 
 class CoverCommentMixin(object):
@@ -97,9 +116,9 @@ class CoverCommentMixin(object):
         cover_id = self.kwargs['cover_id']
         get_object_or_404(Cover, pk=cover_id)
 
-        return CoverComment.objects.filter(
-            cover=cover_id
-        ).select_related('submitter')
+        return CoverComment.objects.filter(cover=cover_id).select_related(
+            'submitter'
+        )
 
 
 class PatchCommentSerializer(BaseCommentListSerializer):
@@ -108,13 +127,12 @@ class PatchCommentSerializer(BaseCommentListSerializer):
 
     class Meta:
         model = PatchComment
-        fields = BaseCommentListSerializer.Meta.fields + ('patch', )
+        fields = BaseCommentListSerializer.Meta.fields + ('patch',)
         read_only_fields = BaseCommentListSerializer.Meta.read_only_fields + (
-            'patch', )
+            'patch',
+        )
         versioned_fields = BaseCommentListSerializer.Meta.versioned_fields
-        extra_kwargs = {
-            'url': {'view_name': 'api-patch-comment-detail'}
-        }
+        extra_kwargs = {'url': {'view_name': 'api-patch-comment-detail'}}
 
 
 class PatchCommentMixin(object):
@@ -133,9 +151,9 @@ class PatchCommentMixin(object):
         patch_id = self.kwargs['patch_id']
         get_object_or_404(Patch, id=patch_id)
 
-        return PatchComment.objects.filter(
-            patch=patch_id
-        ).select_related('submitter')
+        return PatchComment.objects.filter(patch=patch_id).select_related(
+            'submitter'
+        )
 
 
 class CoverCommentList(CoverCommentMixin, ListAPIView):
@@ -147,8 +165,9 @@ class CoverCommentList(CoverCommentMixin, ListAPIView):
     lookup_url_kwarg = 'cover_id'
 
 
-class CoverCommentDetail(CoverCommentMixin, MultipleFieldLookupMixin,
-                         RetrieveUpdateAPIView):
+class CoverCommentDetail(
+    CoverCommentMixin, MultipleFieldLookupMixin, RetrieveUpdateAPIView
+):
     """
     get:
     Show a cover comment.
@@ -159,6 +178,7 @@ class CoverCommentDetail(CoverCommentMixin, MultipleFieldLookupMixin,
     put:
     Update a cover comment.
     """
+
     lookup_url_kwargs = ('cover_id', 'comment_id')
     lookup_fields = ('cover_id', 'id')
 
@@ -172,8 +192,9 @@ class PatchCommentList(PatchCommentMixin, ListAPIView):
     lookup_url_kwarg = 'patch_id'
 
 
-class PatchCommentDetail(PatchCommentMixin, MultipleFieldLookupMixin,
-                         RetrieveUpdateAPIView):
+class PatchCommentDetail(
+    PatchCommentMixin, MultipleFieldLookupMixin, RetrieveUpdateAPIView
+):
     """
     get:
     Show a patch comment.
@@ -184,5 +205,6 @@ class PatchCommentDetail(PatchCommentMixin, MultipleFieldLookupMixin,
     put:
     Update a patch comment.
     """
+
     lookup_url_kwargs = ('patch_id', 'comment_id')
     lookup_fields = ('patch_id', 'id')

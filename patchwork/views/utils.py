@@ -28,8 +28,9 @@ class PatchMbox(MIMENonMultipart):
     patch_charset = 'utf-8'
 
     def __init__(self, _text):
-        MIMENonMultipart.__init__(self, 'text', 'plain',
-                                  **{'charset': self.patch_charset})
+        MIMENonMultipart.__init__(
+            self, 'text', 'plain', **{'charset': self.patch_charset}
+        )
         self.set_payload(_text.encode(self.patch_charset))
         encode_7or8bit(self)
 
@@ -79,9 +80,12 @@ def _submission_to_mbox(submission):
     utc_timestamp = delta.seconds + delta.days * 24 * 3600
 
     mail = PatchMbox(body)
-    mail['X-Patchwork-Submitter'] = email.utils.formataddr((
-        str(Header(submission.submitter.name, mail.patch_charset)),
-        submission.submitter.email))
+    mail['X-Patchwork-Submitter'] = email.utils.formataddr(
+        (
+            str(Header(submission.submitter.name, mail.patch_charset)),
+            submission.submitter.email,
+        )
+    )
     mail['X-Patchwork-Id'] = str(submission.id)
     if is_patch and submission.delegate:
         mail['X-Patchwork-Delegate'] = str(submission.delegate.email)
@@ -152,13 +156,15 @@ def series_patch_to_mbox(patch, series_id):
                 'Patch does not have an associated series. This is '
                 'because the patch was processed with an older '
                 'version of Patchwork. It is not possible to '
-                'provide dependencies for this patch.')
+                'provide dependencies for this patch.'
+            )
     else:
         try:
             series_id = int(series_id)
         except ValueError:
-            raise Http404('Expected integer series value or *. Received: %r' %
-                          series_id)
+            raise Http404(
+                'Expected integer series value or *. Received: %r' % series_id
+            )
 
         if patch.series.id != series_id:
             raise Http404('Patch does not belong to series %d' % series_id)
@@ -166,8 +172,9 @@ def series_patch_to_mbox(patch, series_id):
     mbox = []
 
     # get the series-ified patch
-    for dep in patch.series.patches.filter(
-            number__lt=patch.number).order_by('number'):
+    for dep in patch.series.patches.filter(number__lt=patch.number).order_by(
+        'number'
+    ):
         mbox.append(patch_to_mbox(dep))
 
     mbox.append(patch_to_mbox(patch))

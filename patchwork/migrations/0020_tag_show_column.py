@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             field=models.BooleanField(
                 default=True,
                 help_text=b"Show a column displaying this tag's count in the "
-                          b"patch list view",
+                b"patch list view",
             ),
         ),
     ]

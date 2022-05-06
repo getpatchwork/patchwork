@@ -9,7 +9,6 @@ from patchwork import fields
 
 
 class TestHashField(SimpleTestCase):
-
     def test_n_bytes(self):
         """Sanity check the hashing algorithm.
 

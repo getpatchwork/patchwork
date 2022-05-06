@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='userprofile', name='primary_project',
+            model_name='userprofile',
+            name='primary_project',
         ),
     ]

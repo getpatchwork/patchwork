@@ -28,7 +28,6 @@ from patchwork.tests.utils import read_patch
 
 
 class EmptyPatchListTest(TestCase):
-
     def test_empty_patch_list(self):
         """Validates absence of table with zero patches."""
         project = create_project()
@@ -40,26 +39,56 @@ class EmptyPatchListTest(TestCase):
 class PatchListOrderingTest(TestCase):
 
     patchmeta = [
-        ('AlCMyjOsx', 'AlxMyjOsx@nRbqkQV.wBw',
-         dt(2014, 3, 16, 13, 4, 50, 155643)),
-        ('MMZnrcDjT', 'MMmnrcDjT@qGaIfOl.tbk',
-         dt(2014, 1, 25, 13, 4, 50, 162814)),
-        ('WGirwRXgK', 'WGSrwRXgK@TriIETY.GhE',
-         dt(2014, 2, 14, 13, 4, 50, 169305)),
-        ('isjNIuiAc', 'issNIuiAc@OsEirYx.EJh',
-         dt(2014, 3, 15, 13, 4, 50, 176264)),
-        ('XkAQpYGws', 'XkFQpYGws@hzntTcm.JSE',
-         dt(2014, 1, 18, 13, 4, 50, 182493)),
-        ('uJuCPWMvi', 'uJACPWMvi@AVRBOBl.ecy',
-         dt(2014, 3, 12, 13, 4, 50, 189554)),
-        ('TyQmWtcbg', 'TylmWtcbg@DzrNeNH.JuB',
-         dt(2014, 2, 3, 13, 4, 50, 195685)),
-        ('FpvAhWRdX', 'FpKAhWRdX@agxnCAI.wFO',
-         dt(2014, 3, 15, 13, 4, 50, 201398)),
-        ('bmoYvnyWa', 'bmdYvnyWa@aeoPnlX.juy',
-         dt(2014, 3, 4, 13, 4, 50, 206800)),
-        ('CiReUQsAq', 'CiieUQsAq@DnOYRuf.TTI',
-         dt(2014, 3, 28, 13, 4, 50, 212169)),
+        (
+            'AlCMyjOsx',
+            'AlxMyjOsx@nRbqkQV.wBw',
+            dt(2014, 3, 16, 13, 4, 50, 155643),
+        ),
+        (
+            'MMZnrcDjT',
+            'MMmnrcDjT@qGaIfOl.tbk',
+            dt(2014, 1, 25, 13, 4, 50, 162814),
+        ),
+        (
+            'WGirwRXgK',
+            'WGSrwRXgK@TriIETY.GhE',
+            dt(2014, 2, 14, 13, 4, 50, 169305),
+        ),
+        (
+            'isjNIuiAc',
+            'issNIuiAc@OsEirYx.EJh',
+            dt(2014, 3, 15, 13, 4, 50, 176264),
+        ),
+        (
+            'XkAQpYGws',
+            'XkFQpYGws@hzntTcm.JSE',
+            dt(2014, 1, 18, 13, 4, 50, 182493),
+        ),
+        (
+            'uJuCPWMvi',
+            'uJACPWMvi@AVRBOBl.ecy',
+            dt(2014, 3, 12, 13, 4, 50, 189554),
+        ),
+        (
+            'TyQmWtcbg',
+            'TylmWtcbg@DzrNeNH.JuB',
+            dt(2014, 2, 3, 13, 4, 50, 195685),
+        ),
+        (
+            'FpvAhWRdX',
+            'FpKAhWRdX@agxnCAI.wFO',
+            dt(2014, 3, 15, 13, 4, 50, 201398),
+        ),
+        (
+            'bmoYvnyWa',
+            'bmdYvnyWa@aeoPnlX.juy',
+            dt(2014, 3, 4, 13, 4, 50, 206800),
+        ),
+        (
+            'CiReUQsAq',
+            'CiieUQsAq@DnOYRuf.TTI',
+            dt(2014, 3, 28, 13, 4, 50, 212169),
+        ),
     ]
 
     def setUp(self):
@@ -67,13 +96,13 @@ class PatchListOrderingTest(TestCase):
 
         for name, email, date in self.patchmeta:
             person = create_person(name=name, email=email)
-            create_patch(submitter=person, project=self.project,
-                         date=date)
+            create_patch(submitter=person, project=self.project, date=date)
 
     def _extract_patch_ids(self, response):
         id_re = re.compile(r'<tr id="patch_row:(\d+)"')
-        ids = [int(m.group(1))
-               for m in id_re.finditer(response.content.decode())]
+        ids = [
+            int(m.group(1)) for m in id_re.finditer(response.content.decode())
+        ]
 
         return ids
 
@@ -87,8 +116,9 @@ class PatchListOrderingTest(TestCase):
             test_fn(p1, p2)
 
     def test_date_order(self):
-        url = reverse('patch-list',
-                      kwargs={'project_id': self.project.linkname})
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
         response = self.client.get(url + '?order=date')
 
         def test_fn(p1, p2):
@@ -97,8 +127,9 @@ class PatchListOrderingTest(TestCase):
         self._test_sequence(response, test_fn)
 
     def test_date_reverse_order(self):
-        url = reverse('patch-list',
-                      kwargs={'project_id': self.project.linkname})
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
         response = self.client.get(url + '?order=-date')
 
         def test_fn(p1, p2):
@@ -111,37 +142,42 @@ class PatchListOrderingTest(TestCase):
     #
     # [1] https://code.djangoproject.com/ticket/30248
     # [2] https://michaelsoolee.com/case-insensitive-sorting-sqlite/
-    @unittest.skipIf('sqlite3' in settings.DATABASES['default']['ENGINE'],
-                     'The sqlite3 backend does not support case insensitive '
-                     'ordering')
+    @unittest.skipIf(
+        'sqlite3' in settings.DATABASES['default']['ENGINE'],
+        'The sqlite3 backend does not support case insensitive ' 'ordering',
+    )
     def test_submitter_order(self):
-        url = reverse('patch-list',
-                      kwargs={'project_id': self.project.linkname})
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
         response = self.client.get(url + '?order=submitter')
 
         def test_fn(p1, p2):
-            self.assertLessEqual(p1.submitter.name.lower(),
-                                 p2.submitter.name.lower())
+            self.assertLessEqual(
+                p1.submitter.name.lower(), p2.submitter.name.lower()
+            )
 
         self._test_sequence(response, test_fn)
 
-    @unittest.skipIf('sqlite3' in settings.DATABASES['default']['ENGINE'],
-                     'The sqlite3 backend does not support case insensitive '
-                     'ordering')
+    @unittest.skipIf(
+        'sqlite3' in settings.DATABASES['default']['ENGINE'],
+        'The sqlite3 backend does not support case insensitive ' 'ordering',
+    )
     def test_submitter_reverse_order(self):
-        url = reverse('patch-list',
-                      kwargs={'project_id': self.project.linkname})
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
         response = self.client.get(url + '?order=-submitter')
 
         def test_fn(p1, p2):
-            self.assertGreaterEqual(p1.submitter.name.lower(),
-                                    p2.submitter.name.lower())
+            self.assertGreaterEqual(
+                p1.submitter.name.lower(), p2.submitter.name.lower()
+            )
 
         self._test_sequence(response, test_fn)
 
 
 class PatchListFilteringTest(TestCase):
-
     def test_escaping(self):
         """Validate escaping of filter fragments in a query string.
 
@@ -168,16 +204,23 @@ class PatchListFilteringTest(TestCase):
 
 
 class PatchViewTest(TestCase):
-
     def test_redirect(self):
         patch = create_patch()
 
-        requested_url = reverse('cover-detail',
-                                kwargs={'project_id': patch.project.linkname,
-                                        'msgid': patch.url_msgid})
-        redirect_url = reverse('patch-detail',
-                               kwargs={'project_id': patch.project.linkname,
-                                       'msgid': patch.url_msgid})
+        requested_url = reverse(
+            'cover-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
+        redirect_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -186,13 +229,19 @@ class PatchViewTest(TestCase):
         patch = create_patch()
         comment_id = create_patch_comment(patch=patch).id
 
-        requested_url = reverse('comment-redirect',
-                                kwargs={'comment_id': comment_id})
+        requested_url = reverse(
+            'comment-redirect', kwargs={'comment_id': comment_id}
+        )
         redirect_url = '%s#%d' % (
-            reverse('patch-detail',
-                    kwargs={'project_id': patch.project.linkname,
-                            'msgid': patch.url_msgid}),
-            comment_id)
+            reverse(
+                'patch-detail',
+                kwargs={
+                    'project_id': patch.project.linkname,
+                    'msgid': patch.url_msgid,
+                },
+            ),
+            comment_id,
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -200,11 +249,16 @@ class PatchViewTest(TestCase):
     def test_old_detail_url(self):
         patch = create_patch()
 
-        requested_url = reverse('patch-id-redirect',
-                                kwargs={'patch_id': patch.id})
-        redirect_url = reverse('patch-detail',
-                               kwargs={'project_id': patch.project.linkname,
-                                       'msgid': patch.url_msgid})
+        requested_url = reverse(
+            'patch-id-redirect', kwargs={'patch_id': patch.id}
+        )
+        redirect_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -212,11 +266,16 @@ class PatchViewTest(TestCase):
     def test_old_mbox_url(self):
         patch = create_patch()
 
-        requested_url = reverse('patch-mbox-redirect',
-                                kwargs={'patch_id': patch.id})
-        redirect_url = reverse('patch-mbox',
-                               kwargs={'project_id': patch.project.linkname,
-                                       'msgid': patch.url_msgid})
+        requested_url = reverse(
+            'patch-mbox-redirect', kwargs={'patch_id': patch.id}
+        )
+        redirect_url = reverse(
+            'patch-mbox',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -224,11 +283,16 @@ class PatchViewTest(TestCase):
     def test_old_raw_url(self):
         patch = create_patch()
 
-        requested_url = reverse('patch-raw-redirect',
-                                kwargs={'patch_id': patch.id})
-        redirect_url = reverse('patch-raw',
-                               kwargs={'project_id': patch.project.linkname,
-                                       'msgid': patch.url_msgid})
+        requested_url = reverse(
+            'patch-raw-redirect', kwargs={'patch_id': patch.id}
+        )
+        redirect_url = reverse(
+            'patch-raw',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -246,9 +310,13 @@ class PatchViewTest(TestCase):
         patch.headers = unescaped_string
         patch.content = unescaped_string
         patch.save()
-        requested_url = reverse('patch-detail',
-                                kwargs={'project_id': patch.project.linkname,
-                                        'msgid': patch.url_msgid})
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.url_msgid,
+            },
+        )
         response = self.client.get(requested_url)
         self.assertNotIn('<b>TEST</b>'.encode('utf-8'), response.content)
 
@@ -273,12 +341,18 @@ class PatchViewTest(TestCase):
         user = create_user()
         patch = create_patch()
         check_a = create_check(
-            patch=patch, user=user, context='foo', state=Check.STATE_FAIL,
-            date=(dt.utcnow() - timedelta(days=1)))
+            patch=patch,
+            user=user,
+            context='foo',
+            state=Check.STATE_FAIL,
+            date=(dt.utcnow() - timedelta(days=1)),
+        )
         create_check(
-            patch=patch, user=user, context='foo', state=Check.STATE_SUCCESS)
+            patch=patch, user=user, context='foo', state=Check.STATE_SUCCESS
+        )
         check_b = create_check(
-            patch=patch, user=user, context='bar', state=Check.STATE_PENDING)
+            patch=patch, user=user, context='bar', state=Check.STATE_PENDING
+        )
         requested_url = reverse(
             'patch-detail',
             kwargs={
@@ -293,13 +367,17 @@ class PatchViewTest(TestCase):
 
         # and it should only show the unique checks
         self.assertEqual(
-            1, response.content.decode().count(
+            1,
+            response.content.decode().count(
                 f'<td>{check_a.user}/{check_a.context}</td>'
-            ))
+            ),
+        )
         self.assertEqual(
-            1, response.content.decode().count(
+            1,
+            response.content.decode().count(
                 f'<td>{check_b.user}/{check_b.context}</td>'
-            ))
+            ),
+        )
 
 
 class PatchUpdateTest(TestCase):
@@ -311,8 +389,9 @@ class PatchUpdateTest(TestCase):
         self.user = create_maintainer(self.project)
         self.patches = create_patches(3, project=self.project)
 
-        self.client.login(username=self.user.username,
-                          password=self.user.username)
+        self.client.login(
+            username=self.user.username, password=self.user.username
+        )
 
         self.url = reverse('patch-list', args=[self.project.linkname])
         self.base_data = {
@@ -321,7 +400,7 @@ class PatchUpdateTest(TestCase):
             'form': 'patchlistform',
             'archived': '*',
             'delegate': '*',
-            'state': '*'
+            'state': '*',
         }
 
     def _select_all_patches(self, data):
@@ -335,8 +414,7 @@ class PatchUpdateTest(TestCase):
 
         response = self.client.post(self.url, data)
 
-        self.assertContains(response, 'No patches to display',
-                            status_code=200)
+        self.assertContains(response, 'No patches to display', status_code=200)
         # Don't use the cached version of patches: retrieve from the DB
         for patch in [Patch.objects.get(pk=p.pk) for p in self.patches]:
             self.assertTrue(patch.archived)
@@ -352,8 +430,7 @@ class PatchUpdateTest(TestCase):
 
         response = self.client.post(self.url, data)
 
-        self.assertContains(response, self.properties_form_id,
-                            status_code=200)
+        self.assertContains(response, self.properties_form_id, status_code=200)
         for patch in [Patch.objects.get(pk=p.pk) for p in self.patches]:
             self.assertFalse(patch.archived)
 
@@ -364,8 +441,7 @@ class PatchUpdateTest(TestCase):
 
         response = self.client.post(self.url, data)
 
-        self.assertContains(response, self.properties_form_id,
-                            status_code=200)
+        self.assertContains(response, self.properties_form_id, status_code=200)
         return response
 
     def test_state_change_valid(self):
@@ -384,9 +460,13 @@ class PatchUpdateTest(TestCase):
 
         new_states = [Patch.objects.get(pk=p.pk).state for p in self.patches]
         self.assertEqual(new_states, orig_states)
-        self.assertFormError(response, 'patchform', 'state',
-                             'Select a valid choice. That choice is not one '
-                             'of the available choices.')
+        self.assertFormError(
+            response,
+            'patchform',
+            'state',
+            'Select a valid choice. That choice is not one '
+            'of the available choices.',
+        )
 
     def _test_delegate_change(self, delegate_str):
         data = self.base_data.copy()
@@ -414,34 +494,41 @@ class PatchUpdateTest(TestCase):
 
 
 class UTF8PatchViewTest(TestCase):
-
     def setUp(self):
         patch_content = read_patch('0002-utf-8.patch', encoding='utf-8')
         self.patch = create_patch(diff=patch_content)
 
     def test_patch_view(self):
-        response = self.client.get(reverse(
-            'patch-detail', args=[self.patch.project.linkname,
-                                  self.patch.url_msgid]))
+        response = self.client.get(
+            reverse(
+                'patch-detail',
+                args=[self.patch.project.linkname, self.patch.url_msgid],
+            )
+        )
         self.assertContains(response, self.patch.name)
 
     def test_mbox_view(self):
         response = self.client.get(
-            reverse('patch-mbox', args=[self.patch.project.linkname,
-                                        self.patch.url_msgid]))
+            reverse(
+                'patch-mbox',
+                args=[self.patch.project.linkname, self.patch.url_msgid],
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.patch.diff in response.content.decode('utf-8'))
 
     def test_raw_view(self):
-        response = self.client.get(reverse('patch-raw',
-                                           args=[self.patch.project.linkname,
-                                                 self.patch.url_msgid]))
+        response = self.client.get(
+            reverse(
+                'patch-raw',
+                args=[self.patch.project.linkname, self.patch.url_msgid],
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode('utf-8'), self.patch.diff)
 
 
 class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
-
     def setUp(self):
         author = create_person(name=u'P\xe4tch Author')
         patch_content = read_patch('0002-utf-8.patch', encoding='utf-8')

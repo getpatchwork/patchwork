@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                     field=models.SlugField(
                         default='default',
                         help_text='A label to discern check from checks of other '
-                                  'testing systems.',
+                        'testing systems.',
                         max_length=255,
                     ),
                 ),
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                     field=models.URLField(
                         blank=True,
                         help_text='The target URL to associate with this check. This '
-                                  'should be specific to the patch.',
+                        'should be specific to the patch.',
                         null=True,
                     ),
                 ),
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                     name='path',
                     field=models.CharField(
                         help_text='An fnmatch-style pattern to match filenames '
-                                  'against.',
+                        'against.',
                         max_length=255,
                     ),
                 ),
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                     field=models.IntegerField(
                         default=0,
                         help_text='The priority of the rule. Rules with a higher '
-                                  'priority will override rules with lower priorities',
+                        'priority will override rules with lower priorities',
                     ),
                 ),
                 migrations.AlterField(
@@ -139,7 +139,10 @@ class Migration(migrations.Migration):
                             ('patch-completed', 'Patch Completed'),
                             ('patch-state-changed', 'Patch State Changed'),
                             ('patch-delegated', 'Patch Delegate Changed'),
-                            ('patch-relation-changed', 'Patch Relation Changed'),
+                            (
+                                'patch-relation-changed',
+                                'Patch Relation Changed',
+                            ),
                             ('check-created', 'Check Created'),
                             ('series-created', 'Series Created'),
                             ('series-completed', 'Series Completed'),
@@ -218,7 +221,7 @@ class Migration(migrations.Migration):
                     field=models.CharField(
                         blank=True,
                         help_text='URL format for a particular commit. {} will be '
-                                  'replaced by the commit SHA.',
+                        'replaced by the commit SHA.',
                         max_length=2000,
                     ),
                 ),
@@ -228,7 +231,7 @@ class Migration(migrations.Migration):
                     field=models.CharField(
                         blank=True,
                         help_text="URL format for the list archive's Message-ID "
-                                  "redirector. {} will be replaced by the Message-ID.",
+                        "redirector. {} will be replaced by the Message-ID.",
                         max_length=2000,
                     ),
                 ),
@@ -239,11 +242,11 @@ class Migration(migrations.Migration):
                         blank=True,
                         default='',
                         help_text='Regex to match the subject against if only part '
-                                  'of emails sent to the list belongs to this project. Will be '
-                                  'used with IGNORECASE and MULTILINE flags. If rules for more '
-                                  'projects match the first one returned from DB is chosen; '
-                                  'empty field serves as a default for every email which has no '
-                                  'other match.',
+                        'of emails sent to the list belongs to this project. Will be '
+                        'used with IGNORECASE and MULTILINE flags. If rules for more '
+                        'projects match the first one returned from DB is chosen; '
+                        'empty field serves as a default for every email which has no '
+                        'other match.',
                         max_length=64,
                         validators=[patchwork.models.validate_regex_compiles],
                     ),
@@ -254,7 +257,7 @@ class Migration(migrations.Migration):
                     field=models.CharField(
                         blank=True,
                         help_text='An optional name to associate with the series, '
-                                  'e.g. "John\'s PCI series".',
+                        'e.g. "John\'s PCI series".',
                         max_length=255,
                         null=True,
                     ),
@@ -264,7 +267,7 @@ class Migration(migrations.Migration):
                     name='total',
                     field=models.IntegerField(
                         help_text='Number of patches in series as indicated by the '
-                                  'subject prefix(es)'
+                        'subject prefix(es)'
                     ),
                 ),
                 migrations.AlterField(
@@ -273,7 +276,7 @@ class Migration(migrations.Migration):
                     field=models.IntegerField(
                         default=1,
                         help_text='Version of series as indicated by the subject '
-                                  'prefix(es)',
+                        'prefix(es)',
                     ),
                 ),
                 migrations.AlterField(
@@ -291,7 +294,7 @@ class Migration(migrations.Migration):
                     name='abbrev',
                     field=models.CharField(
                         help_text='Short (one-or-two letter) abbreviation for the '
-                                  'tag, used in table column headers',
+                        'tag, used in table column headers',
                         max_length=2,
                         unique=True,
                     ),
@@ -301,8 +304,8 @@ class Migration(migrations.Migration):
                     name='pattern',
                     field=models.CharField(
                         help_text='A simple regex to match the tag in the content of '
-                                  'a message. Will be used with MULTILINE and IGNORECASE flags. '
-                                  'eg. ^Acked-by:',
+                        'a message. Will be used with MULTILINE and IGNORECASE flags. '
+                        'eg. ^Acked-by:',
                         max_length=50,
                         validators=[patchwork.models.validate_regex_compiles],
                     ),
@@ -313,14 +316,15 @@ class Migration(migrations.Migration):
                     field=models.BooleanField(
                         default=True,
                         help_text="Show a column displaying this tag's count in the "
-                                  "patch list view",
+                        "patch list view",
                     ),
                 ),
                 migrations.AlterField(
                     model_name='userprofile',
                     name='items_per_page',
                     field=models.PositiveIntegerField(
-                        default=100, help_text='Number of items to display per page'
+                        default=100,
+                        help_text='Number of items to display per page',
                     ),
                 ),
                 migrations.AlterField(
@@ -329,7 +333,7 @@ class Migration(migrations.Migration):
                     field=models.BooleanField(
                         default=False,
                         help_text='Selecting this option allows patchwork to send '
-                                  'email on your behalf',
+                        'email on your behalf',
                     ),
                 ),
                 migrations.AlterField(

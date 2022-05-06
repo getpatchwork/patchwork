@@ -38,35 +38,41 @@ def register(request):
             data = form.cleaned_data
 
             # create inactive user
-            user = auth.models.User.objects.create_user(data['username'],
-                                                        data['email'],
-                                                        data['password'])
+            user = auth.models.User.objects.create_user(
+                data['username'], data['email'], data['password']
+            )
             user.is_active = False
             user.first_name = data.get('first_name', '')
             user.last_name = data.get('last_name', '')
             user.save()
 
             # create confirmation
-            conf = EmailConfirmation(type='registration', user=user,
-                                     email=user.email)
+            conf = EmailConfirmation(
+                type='registration', user=user, email=user.email
+            )
             conf.save()
 
             context['confirmation'] = conf
 
             # send email
             subject = render_to_string(
-                'patchwork/mails/activation-subject.txt')
+                'patchwork/mails/activation-subject.txt'
+            )
             message = render_to_string(
                 'patchwork/mails/activation.txt',
-                {'site': Site.objects.get_current(), 'confirmation': conf})
+                {'site': Site.objects.get_current(), 'confirmation': conf},
+            )
 
             try:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
-                          [conf.email])
+                send_mail(
+                    subject, message, settings.DEFAULT_FROM_EMAIL, [conf.email]
+                )
             except smtplib.SMTPException:
                 context['confirmation'] = None
-                context['error'] = ('An error occurred during registration. '
-                                    'Please try again later')
+                context['error'] = (
+                    'An error occurred during registration. '
+                    'Please try again later'
+                )
     else:
         form = RegistrationForm()
 
@@ -83,8 +89,7 @@ def register_confirm(request, conf):
     try:
         person = Person.objects.get(email__iexact=conf.user.email)
     except Person.DoesNotExist:
-        person = Person(email=conf.user.email,
-                        name=conf.user.profile.name)
+        person = Person(email=conf.user.email, name=conf.user.profile.name)
     person.user = conf.user
     person.save()
 
@@ -94,8 +99,9 @@ def register_confirm(request, conf):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        form = UserProfileForm(instance=request.user.profile,
-                               data=request.POST)
+        form = UserProfileForm(
+            instance=request.user.profile, data=request.POST
+        )
         if form.is_valid():
             form.save()
     else:
@@ -115,9 +121,11 @@ def profile(request):
         Person._meta.db_table,
         Person._meta.get_field('email').column,
         EmailOptout._meta.get_field('email').column,
-        EmailOptout._meta.db_table)
-    people = Person.objects.filter(user=request.user) \
-        .extra(select={'is_optout': optout_query})
+        EmailOptout._meta.db_table,
+    )
+    people = Person.objects.filter(user=request.user).extra(
+        select={'is_optout': optout_query}
+    )
     context['linked_emails'] = people
     context['linkform'] = EmailForm()
     context['api_token'] = request.user.profile.token
@@ -134,25 +142,32 @@ def link(request):
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
-            conf = EmailConfirmation(type='userperson',
-                                     user=request.user,
-                                     email=form.cleaned_data['email'])
+            conf = EmailConfirmation(
+                type='userperson',
+                user=request.user,
+                email=form.cleaned_data['email'],
+            )
             conf.save()
 
             context['confirmation'] = conf
 
             subject = render_to_string('patchwork/mails/user-link-subject.txt')
-            message = render_to_string('patchwork/mails/user-link.txt',
-                                       context, request=request)
+            message = render_to_string(
+                'patchwork/mails/user-link.txt', context, request=request
+            )
             try:
-                send_mail(subject,
-                          message,
-                          settings.DEFAULT_FROM_EMAIL,
-                          [form.cleaned_data['email']])
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [form.cleaned_data['email']],
+                )
             except smtplib.SMTPException:
                 context['confirmation'] = None
-                context['error'] = ('An error occurred during confirmation. '
-                                    'Please try again later')
+                context['error'] = (
+                    'An error occurred during confirmation. '
+                    'Please try again later'
+                )
     else:
         form = EmailForm()
 
@@ -205,7 +220,9 @@ def todo_lists(request):
         return HttpResponseRedirect(
             reverse(
                 'user-todo',
-                kwargs={'project_id': todo_lists[0]['project'].linkname}))
+                kwargs={'project_id': todo_lists[0]['project'].linkname},
+            )
+        )
 
     context = {
         'todo_lists': todo_lists,
@@ -218,19 +235,22 @@ def todo_lists(request):
 def todo_list(request, project_id):
     project = get_object_or_404(Project, linkname=project_id)
     patches = request.user.profile.todo_patches(project=project)
-    filter_settings = [(DelegateFilter,
-                        {'delegate': request.user})]
+    filter_settings = [(DelegateFilter, {'delegate': request.user})]
 
     # TODO(stephenfin): Build the context dict here
-    context = generic_list(request, project,
-                           'user-todo',
-                           view_args={'project_id': project.linkname},
-                           filter_settings=filter_settings,
-                           patches=patches)
+    context = generic_list(
+        request,
+        project,
+        'user-todo',
+        view_args={'project_id': project.linkname},
+        filter_settings=filter_settings,
+        patches=patches,
+    )
 
     context['bundles'] = request.user.bundles.all()
     context['action_required_states'] = State.objects.filter(
-        action_required=True).all()
+        action_required=True
+    ).all()
 
     return render(request, 'patchwork/todo-list.html', context)
 

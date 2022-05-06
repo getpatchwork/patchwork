@@ -265,9 +265,9 @@ class Migration(migrations.Migration):
                     'pattern',
                     models.CharField(
                         help_text=b'A simple regex to match the tag in the '
-                                  b'content of a message. Will be used with '
-                                  b'MULTILINE and IGNORECASE flags. eg. '
-                                  b'^Acked-by:',
+                        b'content of a message. Will be used with '
+                        b'MULTILINE and IGNORECASE flags. eg. '
+                        b'^Acked-by:',
                         max_length=50,
                     ),
                 ),
@@ -275,7 +275,7 @@ class Migration(migrations.Migration):
                     'abbrev',
                     models.CharField(
                         help_text=b'Short (one-or-two letter) abbreviation '
-                                  b'for the tag, used in table column headers',
+                        b'for the tag, used in table column headers',
                         unique=True,
                         max_length=2,
                     ),
@@ -300,7 +300,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=False,
                         help_text=b'Selecting this option allows patchwork to '
-                                  b'send email on your behalf',
+                        b'send email on your behalf',
                     ),
                 ),
                 (
@@ -457,18 +457,23 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='patchtag', unique_together=set([('patch', 'tag')]),
+            name='patchtag',
+            unique_together=set([('patch', 'tag')]),
         ),
         migrations.AlterUniqueTogether(
-            name='patch', unique_together=set([('msgid', 'project')]),
+            name='patch',
+            unique_together=set([('msgid', 'project')]),
         ),
         migrations.AlterUniqueTogether(
-            name='comment', unique_together=set([('msgid', 'patch')]),
+            name='comment',
+            unique_together=set([('msgid', 'patch')]),
         ),
         migrations.AlterUniqueTogether(
-            name='bundlepatch', unique_together=set([('bundle', 'patch')]),
+            name='bundlepatch',
+            unique_together=set([('bundle', 'patch')]),
         ),
         migrations.AlterUniqueTogether(
-            name='bundle', unique_together=set([('owner', 'name')]),
+            name='bundle',
+            unique_together=set([('owner', 'name')]),
         ),
     ]

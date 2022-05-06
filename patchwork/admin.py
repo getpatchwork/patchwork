@@ -32,7 +32,7 @@ class UserProfileInline(admin.StackedInline):
 
 
 class UserAdmin(BaseUserAdmin):
-    inlines = (UserProfileInline, )
+    inlines = (UserProfileInline,)
 
 
 admin.site.unregister(User)
@@ -78,7 +78,7 @@ admin.site.register(State, StateAdmin)
 
 class CoverAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'date')
-    list_filter = ('project', )
+    list_filter = ('project',)
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
@@ -87,8 +87,15 @@ admin.site.register(Cover, CoverAdmin)
 
 
 class PatchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'submitter', 'project', 'state', 'date',
-                    'archived', 'is_pull_request')
+    list_display = (
+        'name',
+        'submitter',
+        'project',
+        'state',
+        'date',
+        'archived',
+        'is_pull_request',
+    )
     list_filter = ('project', 'submitter', 'state', 'archived')
     list_select_related = ('submitter', 'project', 'state')
     search_fields = ('name', 'submitter__name', 'submitter__email')
@@ -129,23 +136,38 @@ class PatchInline(admin.StackedInline):
 
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'submitter', 'project', 'date', 'version', 'total',
-                    'received_total', 'received_all')
+    list_display = (
+        'name',
+        'submitter',
+        'project',
+        'date',
+        'version',
+        'total',
+        'received_total',
+        'received_all',
+    )
     list_filter = ('project', 'submitter')
     list_select_related = ('submitter', 'project')
     readonly_fields = ('received_total', 'received_all')
     search_fields = ('submitter__name', 'submitter__email')
-    exclude = ('patches', )
-    inlines = (PatchInline, )
+    exclude = ('patches',)
+    inlines = (PatchInline,)
 
     def received_all(self, series):
         return series.received_all
+
     received_all.boolean = True
 
     def get_queryset(self, request):
         qs = super(SeriesAdmin, self).get_queryset(request)
-        return qs.prefetch_related(Prefetch(
-            'patches', Patch.objects.only('series',)))
+        return qs.prefetch_related(
+            Prefetch(
+                'patches',
+                Patch.objects.only(
+                    'series',
+                ),
+            )
+        )
 
 
 admin.site.register(Series, SeriesAdmin)
@@ -159,9 +181,15 @@ admin.site.register(SeriesReference, SeriesReferenceAdmin)
 
 
 class CheckAdmin(admin.ModelAdmin):
-    list_display = ('patch', 'user', 'state', 'target_url',
-                    'description', 'context')
-    exclude = ('date', )
+    list_display = (
+        'patch',
+        'user',
+        'state',
+        'target_url',
+        'description',
+        'context',
+    )
+    exclude = ('date',)
     search_fields = ('patch__name', 'project__name')
     date_hierarchy = 'date'
 

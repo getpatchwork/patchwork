@@ -29,7 +29,6 @@ else:
 # to fix our schema to work with recent versions of openapi_core
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestEventAPI(APITestCase):
-
     @staticmethod
     def api_url(version=None):
         kwargs = {}
@@ -46,11 +45,9 @@ class TestEventAPI(APITestCase):
 
         # nested fields
 
-        self.assertEqual(event_obj.project.id,
-                         event_json['project']['id'])
+        self.assertEqual(event_obj.project.id, event_json['project']['id'])
         if event_obj.actor is not None:
-            self.assertEqual(event_obj.actor.id,
-                             event_json['actor']['id'])
+            self.assertEqual(event_obj.actor.id, event_json['actor']['id'])
 
         # TODO(stephenfin): Check other fields
 
@@ -116,8 +113,9 @@ class TestEventAPI(APITestCase):
         """Filter events by category."""
         events = self._create_events()
 
-        resp = self.client.get(self.api_url(),
-                               {'category': events[0].category})
+        resp = self.client.get(
+            self.api_url(), {'category': events[0].category}
+        )
         # There should only be one
         self.assertEqual(1, len(resp.data))
 
@@ -184,8 +182,9 @@ class TestEventAPI(APITestCase):
         events = self._create_events()
 
         # we still see all the events since the actor field is ignored
-        resp = self.client.get(self.api_url(version='1.1'),
-                               {'actor': 'foo-bar'})
+        resp = self.client.get(
+            self.api_url(version='1.1'), {'actor': 'foo-bar'}
+        )
         self.assertEqual(len(events), len(resp.data))
 
     def test_list_bug_335(self):

@@ -21,8 +21,14 @@ else:
 
 # docs/api/samples
 OUT_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir,
-    os.pardir, 'docs', 'api', 'samples')
+    os.path.dirname(os.path.abspath(__file__)),
+    os.pardir,
+    os.pardir,
+    os.pardir,
+    'docs',
+    'api',
+    'samples',
+)
 
 _WRITTEN_FILES = {}
 
@@ -40,7 +46,9 @@ def _duplicate_sample(filename, func):
 
         raise Exception(
             "Tests '{}' and '{}' write to the same file".format(
-                _WRITTEN_FILES[filename], func))
+                _WRITTEN_FILES[filename], func
+            )
+        )
 
     _WRITTEN_FILES[filename] = func
 
@@ -58,18 +66,18 @@ def store_samples(filename):
         os.mkdir(OUT_DIR)
 
     def inner(func):
-
         def wrapper(self, *args, **kwargs):
-
-            def client_wrapper(orig_func, path, data=None, *orig_args,
-                               **orig_kwargs):
+            def client_wrapper(
+                orig_func, path, data=None, *orig_args, **orig_kwargs
+            ):
 
                 req_filename = filename + '-req.json'
                 resp_filename = filename + '-resp.json'
 
                 # we don't have a request body for GET requests
                 if orig_func != _get and not _duplicate_sample(
-                        req_filename, func):
+                    req_filename, func
+                ):
                     with open(os.path.join(OUT_DIR, req_filename), 'w') as fh:
                         json.dump(data, fh, indent=4, separators=(',', ': '))
 
@@ -77,8 +85,9 @@ def store_samples(filename):
 
                 if not _duplicate_sample(resp_filename, func):
                     with open(os.path.join(OUT_DIR, resp_filename), 'w') as fh:
-                        json.dump(resp.data, fh, indent=4,
-                                  separators=(',', ': '))
+                        json.dump(
+                            resp.data, fh, indent=4, separators=(',', ': ')
+                        )
 
                 return resp
 
@@ -106,7 +115,6 @@ def store_samples(filename):
 
 
 class APIClient(BaseAPIClient):
-
     def __init__(self, *args, **kwargs):
         super(APIClient, self).__init__(*args, **kwargs)
         self.factory = APIRequestFactory()
@@ -116,63 +124,123 @@ class APIClient(BaseAPIClient):
         validate_response = extra.pop('validate_response', True)
 
         request = self.factory.get(
-            path, data=data, SERVER_NAME='example.com', **extra)
+            path, data=data, SERVER_NAME='example.com', **extra
+        )
         response = super(APIClient, self).get(
-            path, data=data, follow=follow, SERVER_NAME='example.com', **extra)
+            path, data=data, follow=follow, SERVER_NAME='example.com', **extra
+        )
 
-        validator.validate_data(path, request, response, validate_request,
-                                validate_response)
+        validator.validate_data(
+            path, request, response, validate_request, validate_response
+        )
 
         return response
 
-    def post(self, path, data=None, format=None, content_type=None,
-             follow=False, **extra):
+    def post(
+        self,
+        path,
+        data=None,
+        format=None,
+        content_type=None,
+        follow=False,
+        **extra
+    ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
         request = self.factory.post(
-            path, data=data, format='json', content_type=content_type,
-            SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            SERVER_NAME='example.com',
+            **extra
+        )
         response = super(APIClient, self).post(
-            path, data=data, format='json', content_type=content_type,
-            follow=follow, SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            follow=follow,
+            SERVER_NAME='example.com',
+            **extra
+        )
 
-        validator.validate_data(path, request, response, validate_request,
-                                validate_response)
+        validator.validate_data(
+            path, request, response, validate_request, validate_response
+        )
 
         return response
 
-    def put(self, path, data=None, format=None, content_type=None,
-            follow=False, **extra):
+    def put(
+        self,
+        path,
+        data=None,
+        format=None,
+        content_type=None,
+        follow=False,
+        **extra
+    ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
         request = self.factory.put(
-            path, data=data, format='json', content_type=content_type,
-            SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            SERVER_NAME='example.com',
+            **extra
+        )
         response = super(APIClient, self).put(
-            path, data=data, format='json', content_type=content_type,
-            follow=follow, SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            follow=follow,
+            SERVER_NAME='example.com',
+            **extra
+        )
 
-        validator.validate_data(path, request, response, validate_request,
-                                validate_response)
+        validator.validate_data(
+            path, request, response, validate_request, validate_response
+        )
 
         return response
 
-    def patch(self, path, data=None, format=None, content_type=None,
-              follow=False, **extra):
+    def patch(
+        self,
+        path,
+        data=None,
+        format=None,
+        content_type=None,
+        follow=False,
+        **extra
+    ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
         request = self.factory.patch(
-            path, data=data, format='json', content_type=content_type,
-            SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            SERVER_NAME='example.com',
+            **extra
+        )
         response = super(APIClient, self).patch(
-            path, data=data, format='json', content_type=content_type,
-            follow=follow, SERVER_NAME='example.com', **extra)
+            path,
+            data=data,
+            format='json',
+            content_type=content_type,
+            follow=follow,
+            SERVER_NAME='example.com',
+            **extra
+        )
 
-        validator.validate_data(path, request, response, validate_request,
-                                validate_response)
+        validator.validate_data(
+            path, request, response, validate_request, validate_response
+        )
 
         return response
 

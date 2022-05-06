@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name='series', options={'verbose_name_plural': 'Series'},
+            name='series',
+            options={'verbose_name_plural': 'Series'},
         ),
     ]

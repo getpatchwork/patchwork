@@ -45,14 +45,14 @@ class TestBundleAPI(utils.APITestCase):
 
         # nested fields
 
-        self.assertEqual(bundle_obj.owner.id,
-                         bundle_json['owner']['id'])
-        self.assertEqual(bundle_obj.project.id,
-                         bundle_json['project']['id'])
-        self.assertEqual(bundle_obj.patches.count(),
-                         len(bundle_json['patches']))
+        self.assertEqual(bundle_obj.owner.id, bundle_json['owner']['id'])
+        self.assertEqual(bundle_obj.project.id, bundle_json['project']['id'])
+        self.assertEqual(
+            bundle_obj.patches.count(), len(bundle_json['patches'])
+        )
         for patch_obj, patch_json in zip(
-                bundle_obj.patches.all(), bundle_json['patches']):
+            bundle_obj.patches.all(), bundle_json['patches']
+        ):
             self.assertEqual(patch_obj.id, patch_json['id'])
 
     def test_list_empty(self):
@@ -64,10 +64,10 @@ class TestBundleAPI(utils.APITestCase):
     def _create_bundles(self):
         user = create_user(username='myuser')
         project = create_project(linkname='myproject')
-        bundle_public = create_bundle(public=True, owner=user,
-                                      project=project)
-        bundle_private = create_bundle(public=False, owner=user,
-                                       project=project)
+        bundle_public = create_bundle(public=True, owner=user, project=project)
+        bundle_private = create_bundle(
+            public=False, owner=user, project=project
+        )
 
         return user, project, bundle_public, bundle_private
 
@@ -95,7 +95,8 @@ class TestBundleAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data))
         for bundle_rsp, bundle_obj in zip(
-                resp.data, [bundle_public, bundle_private]):
+            resp.data, [bundle_public, bundle_private]
+        ):
             self.assertSerialized(bundle_obj, bundle_rsp)
 
     def test_list_filter_project(self):
@@ -105,8 +106,9 @@ class TestBundleAPI(utils.APITestCase):
         # test filtering by project
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
-        self.assertEqual([bundle_public.id, bundle_private.id],
-                         [x['id'] for x in resp.data])
+        self.assertEqual(
+            [bundle_public.id, bundle_private.id], [x['id'] for x in resp.data]
+        )
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
         self.assertEqual(0, len(resp.data))
 
@@ -117,11 +119,13 @@ class TestBundleAPI(utils.APITestCase):
         # test filtering by owner, both ID and username
         self.client.force_authenticate(user=user)
         resp = self.client.get(self.api_url(), {'owner': user.id})
-        self.assertEqual([bundle_public.id, bundle_private.id],
-                         [x['id'] for x in resp.data])
+        self.assertEqual(
+            [bundle_public.id, bundle_private.id], [x['id'] for x in resp.data]
+        )
         resp = self.client.get(self.api_url(), {'owner': 'myuser'})
-        self.assertEqual([bundle_public.id, bundle_private.id],
-                         [x['id'] for x in resp.data])
+        self.assertEqual(
+            [bundle_public.id, bundle_private.id], [x['id'] for x in resp.data]
+        )
         resp = self.client.get(self.api_url(), {'owner': 'otheruser'})
         self.assertEqual(0, len(resp.data))
 
@@ -213,7 +217,8 @@ class TestBundleAPI(utils.APITestCase):
         Ensure creations can only be performed by signed in users.
         """
         user, project, patch_a, patch_b = self._test_create_update(
-            authenticate=False)
+            authenticate=False
+        )
         bundle = {
             'name': 'test-bundle',
             'public': True,
@@ -277,11 +282,14 @@ class TestBundleAPI(utils.APITestCase):
         Ensure updates can only be performed by signed in users.
         """
         user, project, patch_a, patch_b = self._test_create_update(
-            authenticate=False)
+            authenticate=False
+        )
         bundle = create_bundle(owner=user, project=project)
 
-        resp = self.client.patch(self.api_url(bundle.id), {
-            'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]})
+        resp = self.client.patch(
+            self.api_url(bundle.id),
+            {'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]},
+        )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     @utils.store_samples('bundle-update')
@@ -293,9 +301,10 @@ class TestBundleAPI(utils.APITestCase):
         self.assertEqual(1, Bundle.objects.all().count())
         self.assertEqual(0, len(Bundle.objects.first().patches.all()))
 
-        resp = self.client.patch(self.api_url(bundle.id), {
-            'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]
-        })
+        resp = self.client.patch(
+            self.api_url(bundle.id),
+            {'name': 'hello-bundle', 'patches': [patch_a.id, patch_b.id]},
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data['patches']))
         self.assertEqual('hello-bundle', resp.data['name'])
@@ -316,9 +325,13 @@ class TestBundleAPI(utils.APITestCase):
         self.assertEqual(1, Bundle.objects.all().count())
         self.assertEqual(2, len(Bundle.objects.first().patches.all()))
 
-        resp = self.client.patch(self.api_url(bundle.id), {
-            'name': 'hello-bundle', 'public': True,
-        })
+        resp = self.client.patch(
+            self.api_url(bundle.id),
+            {
+                'name': 'hello-bundle',
+                'public': True,
+            },
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data['patches']))
         self.assertEqual('hello-bundle', resp.data['name'])
@@ -335,7 +348,8 @@ class TestBundleAPI(utils.APITestCase):
         Ensure deletions can only be performed when signed in.
         """
         user, project, patch_a, patch_b = self._test_create_update(
-            authenticate=False)
+            authenticate=False
+        )
         bundle = create_bundle(owner=user, project=project)
 
         resp = self.client.delete(self.api_url(bundle.id))
@@ -363,8 +377,9 @@ class TestBundleAPI(utils.APITestCase):
         resp = self.client.post(self.api_url(version='1.1'), {'name': 'test'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
-        resp = self.client.patch(self.api_url(1, version='1.1'),
-                                 {'name': 'test'})
+        resp = self.client.patch(
+            self.api_url(1, version='1.1'), {'name': 'test'}
+        )
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
         resp = self.client.delete(self.api_url(1, version='1.1'))

@@ -11,16 +11,30 @@ class Migration(migrations.Migration):
     operations = [
         # Remove SeriesPatch
         migrations.AlterUniqueTogether(
-            name='seriespatch', unique_together=set([]),
+            name='seriespatch',
+            unique_together=set([]),
         ),
-        migrations.RemoveField(model_name='seriespatch', name='patch',),
-        migrations.RemoveField(model_name='seriespatch', name='series',),
-        migrations.RemoveField(model_name='series', name='patches',),
-        migrations.DeleteModel(name='SeriesPatch',),
+        migrations.RemoveField(
+            model_name='seriespatch',
+            name='patch',
+        ),
+        migrations.RemoveField(
+            model_name='seriespatch',
+            name='series',
+        ),
+        migrations.RemoveField(
+            model_name='series',
+            name='patches',
+        ),
+        migrations.DeleteModel(
+            name='SeriesPatch',
+        ),
         # Now that SeriesPatch has been removed, we can use the now-unused
         # Patch.series field and add a backreference
         migrations.RenameField(
-            model_name='patch', old_name='series_alt', new_name='series',
+            model_name='patch',
+            old_name='series_alt',
+            new_name='series',
         ),
         migrations.AlterField(
             model_name='patch',
@@ -35,7 +49,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='patch', unique_together=set([('series', 'number')]),
+            name='patch',
+            unique_together=set([('series', 'number')]),
         ),
         # Migrate CoverLetter to OneToOneField as a cover letter can no longer
         # be assigned to multiple series

@@ -120,8 +120,8 @@ class Migration(migrations.Migration):
                     models.URLField(
                         blank=True,
                         help_text=b'The target URL to associate with this '
-                                  b'check. This should be specific to the '
-                                  b'patch.',
+                        b'check. This should be specific to the '
+                        b'patch.',
                         null=True,
                     ),
                 ),
@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
                     models.SlugField(
                         default='default',
                         help_text=b'A label to discern check from checks of '
-                                  b'other testing systems.',
+                        b'other testing systems.',
                         max_length=255,
                     ),
                 ),
@@ -227,13 +227,13 @@ class Migration(migrations.Migration):
                         blank=True,
                         default='',
                         help_text=b'Regex to match the subject against if '
-                                  b'only part of emails sent to the list '
-                                  b'belongs to this project. Will be used '
-                                  b'with IGNORECASE and MULTILINE flags. If '
-                                  b'rules for more projects match the first '
-                                  b'one returned from DB is chosen; empty '
-                                  b'field serves as a default for every email '
-                                  b'which has no other match.',
+                        b'only part of emails sent to the list '
+                        b'belongs to this project. Will be used '
+                        b'with IGNORECASE and MULTILINE flags. If '
+                        b'rules for more projects match the first '
+                        b'one returned from DB is chosen; empty '
+                        b'field serves as a default for every email '
+                        b'which has no other match.',
                         max_length=64,
                         validators=[patchwork.models.validate_regex_compiles],
                     ),
@@ -250,8 +250,8 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         help_text=b"URL format for the list archive's "
-                                  b"Message-ID redirector. {} will be "
-                                  b"replaced by the Message-ID.",
+                        b"Message-ID redirector. {} will be "
+                        b"replaced by the Message-ID.",
                         max_length=2000,
                     ),
                 ),
@@ -260,7 +260,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         help_text=b'URL format for a particular commit. {} '
-                                  b'will be replaced by the commit SHA.',
+                        b'will be replaced by the commit SHA.',
                         max_length=2000,
                     ),
                 ),
@@ -289,7 +289,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         help_text=b'An optional name to associate with the '
-                                  b'series, e.g. "John\'s PCI series".',
+                        b'series, e.g. "John\'s PCI series".',
                         max_length=255,
                         null=True,
                     ),
@@ -300,14 +300,14 @@ class Migration(migrations.Migration):
                     models.IntegerField(
                         default=1,
                         help_text=b'Version of series as indicated by the '
-                                  b'subject prefix(es)',
+                        b'subject prefix(es)',
                     ),
                 ),
                 (
                     'total',
                     models.IntegerField(
                         help_text=b'Number of patches in series as indicated '
-                                  b'by the subject prefix(es)'
+                        b'by the subject prefix(es)'
                     ),
                 ),
                 (
@@ -405,9 +405,9 @@ class Migration(migrations.Migration):
                     'pattern',
                     models.CharField(
                         help_text=b'A simple regex to match the tag in the '
-                                  b'content of a message. Will be used with '
-                                  b'MULTILINE and IGNORECASE flags. eg. '
-                                  b'^Acked-by:',
+                        b'content of a message. Will be used with '
+                        b'MULTILINE and IGNORECASE flags. eg. '
+                        b'^Acked-by:',
                         max_length=50,
                         validators=[patchwork.models.validate_regex_compiles],
                     ),
@@ -416,7 +416,7 @@ class Migration(migrations.Migration):
                     'abbrev',
                     models.CharField(
                         help_text=b'Short (one-or-two letter) abbreviation '
-                                  b'for the tag, used in table column headers',
+                        b'for the tag, used in table column headers',
                         max_length=2,
                         unique=True,
                     ),
@@ -426,7 +426,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=True,
                         help_text=b"Show a column displaying this tag's count "
-                                  b"in the patch list view",
+                        b"in the patch list view",
                     ),
                 ),
             ],
@@ -485,7 +485,7 @@ class Migration(migrations.Migration):
                     models.PositiveSmallIntegerField(
                         default=None,
                         help_text=b'The number assigned to this patch in the '
-                                  b'series',
+                        b'series',
                         null=True,
                     ),
                 ),
@@ -513,7 +513,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=False,
                         help_text=b'Selecting this option allows patchwork to '
-                                  b'send email on your behalf',
+                        b'send email on your behalf',
                     ),
                 ),
                 (
@@ -528,7 +528,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=False,
                         help_text=b'Show click-to-copy patch IDs in the list '
-                                  b'view',
+                        b'view',
                     ),
                 ),
                 (
@@ -623,7 +623,10 @@ class Migration(migrations.Migration):
                             (b'patch-completed', b'Patch Completed'),
                             (b'patch-state-changed', b'Patch State Changed'),
                             (b'patch-delegated', b'Patch Delegate Changed'),
-                            (b'patch-relation-changed', b'Patch Relation Changed'),  # noqa
+                            (
+                                b'patch-relation-changed',
+                                b'Patch Relation Changed',
+                            ),  # noqa
                             (b'check-created', b'Check Created'),
                             (b'series-created', b'Series Created'),
                             (b'series-completed', b'Series Completed'),
@@ -735,7 +738,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         help_text=b'The series that this event was created '
-                                  b'for.',
+                        b'for.',
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name='+',
@@ -801,7 +804,7 @@ class Migration(migrations.Migration):
                     'path',
                     models.CharField(
                         help_text=b'An fnmatch-style pattern to match '
-                                  b'filenames against.',
+                        b'filenames against.',
                         max_length=255,
                     ),
                 ),
@@ -810,8 +813,8 @@ class Migration(migrations.Migration):
                     models.IntegerField(
                         default=0,
                         help_text=b'The priority of the rule. Rules with a '
-                                  b'higher priority will override rules with '
-                                  b'lower priorities',
+                        b'higher priority will override rules with '
+                        b'lower priorities',
                     ),
                 ),
                 (
@@ -927,10 +930,12 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='submission', unique_together={('msgid', 'project')},
+            name='submission',
+            unique_together={('msgid', 'project')},
         ),
         migrations.AlterUniqueTogether(
-            name='seriesreference', unique_together={('project', 'msgid')},
+            name='seriesreference',
+            unique_together={('project', 'msgid')},
         ),
         migrations.AddField(
             model_name='series',
@@ -1033,7 +1038,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='delegationrule', unique_together={('path', 'project')},
+            name='delegationrule',
+            unique_together={('path', 'project')},
         ),
         migrations.AddIndex(
             model_name='comment',
@@ -1042,7 +1048,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='comment', unique_together={('msgid', 'submission')},
+            name='comment',
+            unique_together={('msgid', 'submission')},
         ),
         migrations.AddField(
             model_name='check',
@@ -1068,7 +1075,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='patchtag', unique_together={('patch', 'tag')},
+            name='patchtag',
+            unique_together={('patch', 'tag')},
         ),
         migrations.AddField(
             model_name='patchchangenotification',
@@ -1086,12 +1094,15 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='patch', unique_together={('series', 'number')},
+            name='patch',
+            unique_together={('series', 'number')},
         ),
         migrations.AlterUniqueTogether(
-            name='bundlepatch', unique_together={('bundle', 'patch')},
+            name='bundlepatch',
+            unique_together={('bundle', 'patch')},
         ),
         migrations.AlterUniqueTogether(
-            name='bundle', unique_together={('owner', 'name')},
+            name='bundle',
+            unique_together={('owner', 'name')},
         ),
     ]

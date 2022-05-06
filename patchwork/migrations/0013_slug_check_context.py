@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             field=models.SlugField(
                 default=b'default',
                 help_text=b'A label to discern check from checks of other '
-                          b'testing systems.',
+                b'testing systems.',
                 max_length=255,
             ),
         ),

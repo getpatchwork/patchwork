@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='path',
             field=models.CharField(
                 help_text=b'An fnmatch-style pattern to match filenames '
-                          b'against.',
+                b'against.',
                 max_length=255,
             ),
         ),
@@ -25,8 +25,8 @@ class Migration(migrations.Migration):
             field=models.IntegerField(
                 default=0,
                 help_text=b'The priority of the rule. Rules with a higher '
-                          b'priority will override rules with lower '
-                          b'priorities',
+                b'priority will override rules with lower '
+                b'priorities',
             ),
         ),
         migrations.AlterField(

@@ -14,7 +14,6 @@ ITEMS_PER_PAGE = 1
 
 
 class PaginatorTest(TestCase):
-
     def setUp(self):
         self.user = create_user()
         self.user.profile.items_per_page = ITEMS_PER_PAGE
@@ -24,37 +23,46 @@ class PaginatorTest(TestCase):
 
     def _get_patches(self, params):
         return self.client.get(
-            reverse('patch-list', kwargs={
-                'project_id': self.project.linkname}),
-            params)
+            reverse(
+                'patch-list', kwargs={'project_id': self.project.linkname}
+            ),
+            params,
+        )
 
     def test_items_per_page(self):
         response = self._get_patches({})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['page'].object_list),
-                         len(self.patches))
+        self.assertEqual(
+            len(response.context['page'].object_list), len(self.patches)
+        )
 
-        self.client.login(username=self.user.username,
-                          password=self.user.username)
+        self.client.login(
+            username=self.user.username, password=self.user.username
+        )
         response = self._get_patches({})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['page'].object_list),
-                         ITEMS_PER_PAGE)
+        self.assertEqual(
+            len(response.context['page'].object_list), ITEMS_PER_PAGE
+        )
 
     def test_page_valid(self):
         page = 2
-        self.client.login(username=self.user.username,
-                          password=self.user.username)
+        self.client.login(
+            username=self.user.username, password=self.user.username
+        )
 
         for page_ in [2, str(2)]:
             response = self._get_patches({'page': page_})
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context['page'].object_list[0].id,
-                             self.patches[-page].id)
+            self.assertEqual(
+                response.context['page'].object_list[0].id,
+                self.patches[-page].id,
+            )
 
     def test_navigation(self):
-        self.client.login(username=self.user.username,
-                          password=self.user.username)
+        self.client.login(
+            username=self.user.username, password=self.user.username
+        )
         for page_num in range(1, 11):
             response = self._get_patches({'page': page_num})
 
@@ -65,8 +73,7 @@ class PaginatorTest(TestCase):
 
             # if there is a prev page, it should be:
             if page.has_previous():
-                self.assertEqual(page.previous_page_number(),
-                                 page_num - 1)
+                self.assertEqual(page.previous_page_number(), page_num - 1)
                 # ... either in the adjacent set or in the trailing set
                 if adjacent is not None:
                     self.assertIn(page_num - 1, adjacent)
@@ -75,8 +82,7 @@ class PaginatorTest(TestCase):
 
             # if there is a next page, it should be:
             if page.has_next():
-                self.assertEqual(page.next_page_number(),
-                                 page_num + 1)
+                self.assertEqual(page.next_page_number(), page_num + 1)
                 # ... either in the adjacent set or in the leading set
                 if adjacent is not None:
                     self.assertIn(page_num + 1, adjacent)
@@ -91,9 +97,11 @@ class PaginatorTest(TestCase):
                 self.assertNotIn(x, trailing)
 
     def test_page_invalid(self):
-        self.client.login(username=self.user.username,
-                          password=self.user.username)
+        self.client.login(
+            username=self.user.username, password=self.user.username
+        )
         response = self._get_patches({'page': 'foo'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['page'].object_list[0].id,
-                         self.patches[-1].id)
+        self.assertEqual(
+            response.context['page'].object_list[0].id, self.patches[-1].id
+        )

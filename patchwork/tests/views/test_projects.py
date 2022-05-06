@@ -10,13 +10,13 @@ from patchwork.tests import utils
 
 
 class ProjectViewTest(TestCase):
-
     def test_redirect(self):
         project = utils.create_project()
 
         requested_url = reverse('project-list')
-        redirect_url = reverse('patch-list', kwargs={
-            'project_id': project.linkname})
+        redirect_url = reverse(
+            'patch-list', kwargs={'project_id': project.linkname}
+        )
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
@@ -34,8 +34,9 @@ class ProjectViewTest(TestCase):
     def test_n_patches(self):
         project = utils.create_project()
 
-        requested_url = reverse('project-detail', kwargs={
-            'project_id': project.linkname})
+        requested_url = reverse(
+            'project-detail', kwargs={'project_id': project.linkname}
+        )
 
         response = self.client.get(requested_url)
         self.assertEqual(response.status_code, 200)
@@ -59,8 +60,9 @@ class ProjectViewTest(TestCase):
     def test_maintainers(self):
         project = utils.create_project()
 
-        requested_url = reverse('project-detail', kwargs={
-            'project_id': project.linkname})
+        requested_url = reverse(
+            'project-detail', kwargs={'project_id': project.linkname}
+        )
 
         response = self.client.get(requested_url)
         self.assertEqual(response.status_code, 200)

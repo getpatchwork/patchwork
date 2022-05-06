@@ -17,7 +17,6 @@ from patchwork.tests import utils
 
 
 class ParsemailTest(TestCase):
-
     def test_invalid_path(self):
         # this can raise IOError, CommandError, or FileNotFoundError,
         # depending of the versions of Python and Django used. Just
@@ -118,53 +117,53 @@ class ParsearchiveTest(TestCase):
     def test_invalid_mbox(self):
         out = StringIO()
         # we haven't created a project yet, so this will fail
-        call_command('parsearchive',
-                     os.path.join(TEST_MAIL_DIR,
-                                  '0001-git-pull-request.mbox'),
-                     stdout=out)
+        call_command(
+            'parsearchive',
+            os.path.join(TEST_MAIL_DIR, '0001-git-pull-request.mbox'),
+            stdout=out,
+        )
 
         self.assertIn('Processed 1 messages -->', out.getvalue())
         self.assertIn('  1 dropped', out.getvalue())
 
 
 class ReplacerelationsTest(TestCase):
-
     def test_invalid_path(self):
         out = StringIO()
         with self.assertRaises(SystemExit) as exc:
-            call_command('replacerelations', 'xyz123random', '-v 0',
-                         stdout=out)
+            call_command(
+                'replacerelations', 'xyz123random', '-v 0', stdout=out
+            )
         self.assertEqual(exc.exception.code, 1)
 
     def test_valid_relations(self):
         test_submitter = utils.create_person()
         utils.create_patches(8, submitter=test_submitter)
-        patch_ids = (models.Patch.objects
-                     .filter(submitter=test_submitter)
-                     .values_list('id', flat=True))
+        patch_ids = models.Patch.objects.filter(
+            submitter=test_submitter
+        ).values_list('id', flat=True)
 
-        with tempfile.NamedTemporaryFile(delete=False,
-                                         mode='w+') as f1:
+        with tempfile.NamedTemporaryFile(delete=False, mode='w+') as f1:
             for i in range(0, len(patch_ids), 3):
                 # we write out the patch IDs this way so that we can
                 # have a mix of 3-patch and 2-patch lines without special
                 # casing the format string.
-                f1.write('%s\n' % ' '.join(map(str, patch_ids[i:(i + 3)])))
+                f1.write('%s\n' % ' '.join(map(str, patch_ids[i : (i + 3)])))
 
         out = StringIO()
         call_command('replacerelations', f1.name, stdout=out)
         self.assertEqual(models.PatchRelation.objects.count(), 3)
         os.unlink(f1.name)
 
-        patch_ids_with_missing = (
-            list(patch_ids) +
-            [i for i in range(max(patch_ids), max(patch_ids) + 3)]
-        )
-        with tempfile.NamedTemporaryFile(delete=False,
-                                         mode='w+') as f2:
+        patch_ids_with_missing = list(patch_ids) + [
+            i for i in range(max(patch_ids), max(patch_ids) + 3)
+        ]
+        with tempfile.NamedTemporaryFile(delete=False, mode='w+') as f2:
             for i in range(0, len(patch_ids_with_missing), 3):
-                f2.write('%s\n' % ' '.join(
-                    map(str, patch_ids_with_missing[i:(i + 3)])))
+                f2.write(
+                    '%s\n'
+                    % ' '.join(map(str, patch_ids_with_missing[i : (i + 3)]))
+                )
 
         call_command('replacerelations', f2.name, stdout=out)
         self.assertEqual(models.PatchRelation.objects.count(), 3)

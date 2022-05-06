@@ -28,13 +28,13 @@ class Filter(object):
     @property
     def condition(self):
         """The current condition of the filter, to be displayed in the
-           filter UI"""
+        filter UI"""
         raise NotImplementedError
 
     @property
     def key(self):
         """The key for this filter, to appear in the querystring. A key of
-           None will remove the param=key pair from the querystring."""
+        None will remove the param=key pair from the querystring."""
         raise NotImplementedError
 
     @key.setter
@@ -55,8 +55,8 @@ class Filter(object):
 
     def set_status(self, *kwargs):
         """Views can call this to force a specific filter status. For example,
-           a user's todo page needs to setup the delegate filter to show
-           that user's delegated patches"""
+        a user's todo page needs to setup the delegate filter to show
+        that user's delegated patches"""
         pass
 
     def parse(self, values):
@@ -111,8 +111,10 @@ class SeriesFilter(Filter):
 
     @property
     def form(self):
-        return mark_safe('<input type="text" name="series" '
-                         'id="series_input" class="form-control">')
+        return mark_safe(
+            '<input type="text" name="series" '
+            'id="series_input" class="form-control">'
+        )
 
 
 class SubmitterFilter(Filter):
@@ -167,8 +169,11 @@ class SubmitterFilter(Filter):
         if self.person:
             user = self.person.user
             if user:
-                return {'submitter__in':
-                        Person.objects.filter(user=user).values('pk').query}
+                return {
+                    'submitter__in': Person.objects.filter(user=user)
+                    .values('pk')
+                    .query
+                }
             return {'submitter': self.person}
         elif self.person_match:
             return {'submitter__name__icontains': self.person_match}
@@ -177,8 +182,10 @@ class SubmitterFilter(Filter):
 
     @property
     def form(self):
-        return mark_safe('<input type="text" name="submitter" '
-                         'id="submitter_input" class="form-control">')
+        return mark_safe(
+            '<input type="text" name="submitter" '
+            'id="submitter_input" class="form-control">'
+        )
 
 
 class StateFilter(Filter):
@@ -237,8 +244,11 @@ class StateFilter(Filter):
         if self.state is not None:
             return {'state': self.state}
 
-        return {'state__in': State.objects.filter(
-            action_required=True).values('pk').query}
+        return {
+            'state__in': State.objects.filter(action_required=True)
+            .values('pk')
+            .query
+        }
 
     @property
     def form(self):
@@ -253,7 +263,9 @@ class StateFilter(Filter):
         if self.applied and self.state is None:
             selected = 'selected'
         out += '<option %s value="">%s</option>' % (
-            selected, self.action_req_str)
+            selected,
+            self.action_req_str,
+        )
 
         for state in State.objects.all():
             selected = ''
@@ -261,7 +273,10 @@ class StateFilter(Filter):
                 selected = ' selected="true"'
 
             out += '<option value="%d" %s>%s</option>' % (
-                state.id, selected, escape(state.name))
+                state.id,
+                selected,
+                escape(state.name),
+            )
         out += '</select>'
         return mark_safe(out)
 
@@ -300,23 +315,17 @@ class SearchFilter(Filter):
         value = ''
         if self.search:
             value = escape(self.search)
-        return mark_safe('<input name="%s" class="form-control" value="%s">' %
-                         (self.param, value))
+        return mark_safe(
+            '<input name="%s" class="form-control" value="%s">'
+            % (self.param, value)
+        )
 
 
 class ArchiveFilter(Filter):
     name = 'Archived'
     param = 'archive'
-    param_map = {
-        True: 'true',
-        False: '',
-        None: 'both'
-    }
-    description_map = {
-        True: 'Yes',
-        False: 'No',
-        None: 'Both'
-    }
+    param_map = {True: 'true', False: '', None: 'both'}
+    description_map = {True: 'Yes', False: 'No', None: 'Both'}
 
     def __init__(self, filters):
         super(ArchiveFilter, self).__init__(filters)
@@ -369,15 +378,17 @@ class ArchiveFilter(Filter):
             selected = ''
             if self.archive_state == b:
                 selected = 'checked'
-            s += ('<label class="checkbox-inline">'
-                  ' <input type="radio" name="%(param)s" '
-                  '%(selected)s value="%(value)s">%(label)s'
-                  '</label>') % \
-                {'label': label,
-                 'param': self.param,
-                 'selected': selected,
-                 'value': self.param_map[b]
-                 }
+            s += (
+                '<label class="checkbox-inline">'
+                ' <input type="radio" name="%(param)s" '
+                '%(selected)s value="%(value)s">%(label)s'
+                '</label>'
+            ) % {
+                'label': label,
+                'param': self.param,
+                'selected': selected,
+                'value': self.param_map[b],
+            }
         return mark_safe(s)
 
 
@@ -452,11 +463,14 @@ class DelegateFilter(Filter):
     @property
     def form(self):
         if self.forced:
-            return mark_safe('<input type="hidden" value="%s">%s' % (
-                self.param, self.condition))
+            return mark_safe(
+                '<input type="hidden" value="%s">%s'
+                % (self.param, self.condition)
+            )
 
         delegates = User.objects.filter(
-            profile__maintainer_projects__isnull=False)
+            profile__maintainer_projects__isnull=False
+        )
 
         out = '<select name="delegate" class="form-control">'
 
@@ -469,7 +483,10 @@ class DelegateFilter(Filter):
         if self.applied and self.delegate is None:
             selected = 'selected'
         out += '<option %s value="%s">%s</option>' % (
-            selected, self.no_delegate_str, self.no_delegate_str)
+            selected,
+            self.no_delegate_str,
+            self.no_delegate_str,
+        )
 
         for delegate in delegates:
             selected = ''
@@ -477,7 +494,10 @@ class DelegateFilter(Filter):
                 selected = ' selected'
 
             out += '<option %s value="%s">%s</option>' % (
-                selected, delegate.id, delegate.username)
+                selected,
+                delegate.id,
+                delegate.username,
+            )
         out += '</select>'
         return mark_safe(out)
 
@@ -497,12 +517,11 @@ FILTERS = [
     StateFilter,
     SearchFilter,
     ArchiveFilter,
-    DelegateFilter
+    DelegateFilter,
 ]
 
 
 class Filters:
-
     def __init__(self, request):
         self._filters = [c(self) for c in FILTERS]
         self.values = request.GET
@@ -512,13 +531,15 @@ class Filters:
 
     @property
     def params(self):
-        return collections.OrderedDict([
-            (f.param, f.key) for f in self._filters if f.key is not None])
+        return collections.OrderedDict(
+            [(f.param, f.key) for f in self._filters if f.key is not None]
+        )
 
     @property
     def applied_filters(self):
-        return collections.OrderedDict([
-            (x.param, x) for x in self._filters if x.applied])
+        return collections.OrderedDict(
+            [(x.param, x) for x in self._filters if x.applied]
+        )
 
     @property
     def available_filters(self):
@@ -551,8 +572,12 @@ class Filters:
                 s = str(s)
             return quote(s.encode('utf-8'))
 
-        return '?' + '&'.join(['%s=%s' % (sanitise(k), sanitise(v))
-                               for (k, v) in list(params.items())])
+        return '?' + '&'.join(
+            [
+                '%s=%s' % (sanitise(k), sanitise(v))
+                for (k, v) in list(params.items())
+            ]
+        )
 
     def querystring_without_filter(self, filter):
         return self.querystring(filter)

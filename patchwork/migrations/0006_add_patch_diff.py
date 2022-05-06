@@ -10,7 +10,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name='patch', old_name='content', new_name='diff',
+            model_name='patch',
+            old_name='content',
+            new_name='diff',
         ),
         migrations.AddField(
             model_name='patch',

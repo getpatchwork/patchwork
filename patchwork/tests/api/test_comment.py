@@ -28,7 +28,6 @@ if settings.ENABLE_REST_API:
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestCoverComments(utils.APITestCase):
-
     @staticmethod
     def api_url(cover, version=None, item=None):
         kwargs = {'cover_id': cover.id}
@@ -47,8 +46,9 @@ class TestCoverComments(utils.APITestCase):
 
     def assertSerialized(self, comment_obj, comment_json):
         self.assertEqual(comment_obj.id, comment_json['id'])
-        self.assertEqual(comment_obj.submitter.id,
-                         comment_json['submitter']['id'])
+        self.assertEqual(
+            comment_obj.submitter.id, comment_json['submitter']['id']
+        )
         self.assertEqual(comment_obj.addressed, comment_json['addressed'])
         self.assertIn(SAMPLE_CONTENT, comment_json['content'])
 
@@ -102,7 +102,8 @@ class TestCoverComments(utils.APITestCase):
     def test_list_non_existent_cover(self):
         """Ensure we get a 404 for a non-existent cover letter."""
         resp = self.client.get(
-            reverse('api-cover-comment-list', kwargs={'cover_id': '99999'}))
+            reverse('api-cover-comment-list', kwargs={'cover_id': '99999'})
+        )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     def test_list_invalid_cover(self):
@@ -127,7 +128,8 @@ class TestCoverComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.cover, version='1.2', item=comment))
+                self.api_url(self.cover, version='1.2', item=comment)
+            )
 
     def test_detail_version_1_1(self):
         """Show a cover letter comment using API v1.1."""
@@ -135,7 +137,8 @@ class TestCoverComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.cover, version='1.1', item=comment))
+                self.api_url(self.cover, version='1.1', item=comment)
+            )
 
     def test_detail_version_1_0(self):
         """Show a cover letter comment using API v1.0."""
@@ -143,16 +146,17 @@ class TestCoverComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.cover, version='1.0', item=comment))
+                self.api_url(self.cover, version='1.0', item=comment)
+            )
 
     @utils.store_samples('cover-comment-detail-error-not-found')
     def test_detail_invalid_cover(self):
         """Ensure we handle non-existent cover letters."""
         comment = create_cover_comment()
         resp = self.client.get(
-            reverse('api-cover-comment-detail', kwargs={
-                'cover_id': '99999',
-                'comment_id': comment.id}
+            reverse(
+                'api-cover-comment-detail',
+                kwargs={'cover_id': '99999', 'comment_id': comment.id},
             ),
         )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
@@ -167,7 +171,7 @@ class TestCoverComments(utils.APITestCase):
         return self.client.patch(
             self.api_url(cover, item=comment),
             {'addressed': kwargs.get('addressed', True)},
-            validate_request=kwargs.get('validate_request', True)
+            validate_request=kwargs.get('validate_request', True),
         )
 
     @utils.store_samples('cover-comment-detail-update-authorized')
@@ -230,10 +234,12 @@ class TestCoverComments(utils.APITestCase):
         """
         person = create_person(name='cover-submitter', user=create_user())
         cover = create_cover(submitter=person)
-        resp = self._test_update(person=person,
-                                 cover=cover,
-                                 addressed='not-valid',
-                                 validate_request=False)
+        resp = self._test_update(
+            person=person,
+            cover=cover,
+            addressed='not-valid',
+            validate_request=False,
+        )
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertFalse(
             getattr(CoverComment.objects.all().first(), 'addressed')
@@ -273,8 +279,9 @@ class TestPatchComments(utils.APITestCase):
 
     def assertSerialized(self, comment_obj, comment_json):
         self.assertEqual(comment_obj.id, comment_json['id'])
-        self.assertEqual(comment_obj.submitter.id,
-                         comment_json['submitter']['id'])
+        self.assertEqual(
+            comment_obj.submitter.id, comment_json['submitter']['id']
+        )
         self.assertEqual(comment_obj.addressed, comment_json['addressed'])
         self.assertIn(SAMPLE_CONTENT, comment_json['content'])
 
@@ -327,7 +334,8 @@ class TestPatchComments(utils.APITestCase):
     def test_list_non_existent_patch(self):
         """Ensure we get a 404 for a non-existent patch."""
         resp = self.client.get(
-            reverse('api-patch-comment-list', kwargs={'patch_id': '99999'}))
+            reverse('api-patch-comment-list', kwargs={'patch_id': '99999'})
+        )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     def test_list_invalid_patch(self):
@@ -352,7 +360,8 @@ class TestPatchComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.patch, version='1.2', item=comment))
+                self.api_url(self.patch, version='1.2', item=comment)
+            )
 
     def test_detail_version_1_1(self):
         """Show a patch comment using API v1.1."""
@@ -360,7 +369,8 @@ class TestPatchComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.patch, version='1.1', item=comment))
+                self.api_url(self.patch, version='1.1', item=comment)
+            )
 
     def test_detail_version_1_0(self):
         """Show a patch comment using API v1.0."""
@@ -368,16 +378,17 @@ class TestPatchComments(utils.APITestCase):
 
         with self.assertRaises(NoReverseMatch):
             self.client.get(
-                self.api_url(self.patch, version='1.0', item=comment))
+                self.api_url(self.patch, version='1.0', item=comment)
+            )
 
     @utils.store_samples('patch-comment-detail-error-not-found')
     def test_detail_invalid_patch(self):
         """Ensure we handle non-existent patches."""
         comment = create_patch_comment()
         resp = self.client.get(
-            reverse('api-patch-comment-detail', kwargs={
-                'patch_id': '99999',
-                'comment_id': comment.id}
+            reverse(
+                'api-patch-comment-detail',
+                kwargs={'patch_id': '99999', 'comment_id': comment.id},
             ),
         )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
@@ -392,7 +403,7 @@ class TestPatchComments(utils.APITestCase):
         return self.client.patch(
             self.api_url(patch, item=comment),
             {'addressed': kwargs.get('addressed', True)},
-            validate_request=kwargs.get('validate_request', True)
+            validate_request=kwargs.get('validate_request', True),
         )
 
     @utils.store_samples('patch-comment-detail-update-authorized')
@@ -462,10 +473,12 @@ class TestPatchComments(utils.APITestCase):
         """
         person = create_person(name='patch-submitter', user=create_user())
         patch = create_patch(submitter=person)
-        resp = self._test_update(person=person,
-                                 patch=patch,
-                                 addressed='not-valid',
-                                 validate_request=False)
+        resp = self._test_update(
+            person=person,
+            patch=patch,
+            addressed='not-valid',
+            validate_request=False,
+        )
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertFalse(
             getattr(PatchComment.objects.all().first(), 'addressed')

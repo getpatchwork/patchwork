@@ -14,16 +14,15 @@ from patchwork.tests import utils
 
 
 class ServerProxy(xmlrpc_client.ServerProxy):
-
     def close(self):
         self.__close()
 
 
-@unittest.skipUnless(settings.ENABLE_XMLRPC,
-                     'requires xmlrpc interface (use the ENABLE_XMLRPC '
-                     'setting)')
+@unittest.skipUnless(
+    settings.ENABLE_XMLRPC,
+    'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+)
 class XMLRPCTest(LiveServerTestCase):
-
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
         self.rpc = ServerProxy(self.url)
@@ -33,7 +32,6 @@ class XMLRPCTest(LiveServerTestCase):
 
 
 class XMLRPCGenericTest(XMLRPCTest):
-
     def test_pw_rpc_version(self):
         # If you update the RPC version, update the tests!
         self.assertEqual(self.rpc.pw_rpc_version(), [1, 3, 0])
@@ -51,19 +49,21 @@ class XMLRPCGenericTest(XMLRPCTest):
             self.rpc.patch_set(0, {})
 
 
-@unittest.skipUnless(settings.ENABLE_XMLRPC,
-                     'requires xmlrpc interface (use the ENABLE_XMLRPC '
-                     'setting)')
+@unittest.skipUnless(
+    settings.ENABLE_XMLRPC,
+    'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+)
 class XMLRPCAuthenticatedTest(LiveServerTestCase):
-
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
         # url is of the form http://localhost:PORT/PATH
         # strip the http and replace it with the username/passwd of a user.
         self.project = utils.create_project()
         self.user = utils.create_maintainer(self.project)
-        self.url = ('http://%s:%s@' + self.url[7:]) % (self.user.username,
-                                                       self.user.username)
+        self.url = ('http://%s:%s@' + self.url[7:]) % (
+            self.user.username,
+            self.user.username,
+        )
         self.rpc = ServerProxy(self.url)
 
     def tearDown(self):
@@ -82,7 +82,6 @@ class XMLRPCAuthenticatedTest(LiveServerTestCase):
 
 
 class XMLRPCModelTestMixin(object):
-
     def create_multiple(self, count):
         return [self.create_single() for i in range(count)]
 
@@ -191,7 +190,6 @@ class XMLRPCPatchTest(XMLRPCTest, XMLRPCFilterModelTestMixin):
 
 
 class XMLRPCPersonTest(XMLRPCTest, XMLRPCModelTestMixin):
-
     def setUp(self):
         super(XMLRPCPersonTest, self).setUp()
         self.get_endpoint = self.rpc.person_get
@@ -200,7 +198,6 @@ class XMLRPCPersonTest(XMLRPCTest, XMLRPCModelTestMixin):
 
 
 class XMLRPCProjectTest(XMLRPCTest, XMLRPCModelTestMixin):
-
     def setUp(self):
         super(XMLRPCProjectTest, self).setUp()
         self.get_endpoint = self.rpc.project_get
@@ -216,7 +213,6 @@ class XMLRPCProjectTest(XMLRPCTest, XMLRPCModelTestMixin):
 
 
 class XMLRPCStateTest(XMLRPCTest, XMLRPCModelTestMixin):
-
     def setUp(self):
         super(XMLRPCStateTest, self).setUp()
         self.get_endpoint = self.rpc.state_get
@@ -225,7 +221,6 @@ class XMLRPCStateTest(XMLRPCTest, XMLRPCModelTestMixin):
 
 
 class XMLRPCCheckTest(XMLRPCTest, XMLRPCFilterModelTestMixin):
-
     def setUp(self):
         super(XMLRPCCheckTest, self).setUp()
         self.get_endpoint = self.rpc.check_get

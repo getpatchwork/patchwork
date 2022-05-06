@@ -124,8 +124,7 @@ def set_bundle(request, project, action, data, patches, context):
         if Bundle.objects.filter(owner=user, name=bundle_name).count() > 0:
             return ['You already have a bundle called "%s"' % bundle_name]
 
-        bundle = Bundle(owner=user, project=project,
-                        name=bundle_name)
+        bundle = Bundle(owner=user, project=project, name=bundle_name)
         bundle.save()
         messages.success(request, "Bundle %s created" % bundle.name)
     elif action == 'add':
@@ -138,15 +137,22 @@ def set_bundle(request, project, action, data, patches, context):
 
     for patch in patches:
         if action in ['create', 'add']:
-            bundlepatch_count = BundlePatch.objects.filter(bundle=bundle,
-                                                           patch=patch).count()
+            bundlepatch_count = BundlePatch.objects.filter(
+                bundle=bundle, patch=patch
+            ).count()
             if bundlepatch_count == 0:
                 bundle.append_patch(patch)
-                messages.success(request, "Patch '%s' added to bundle %s" %
-                                 (patch.name, bundle.name))
+                messages.success(
+                    request,
+                    "Patch '%s' added to bundle %s"
+                    % (patch.name, bundle.name),
+                )
             else:
-                messages.warning(request, "Patch '%s' already in bundle %s" %
-                                 (patch.name, bundle.name))
+                messages.warning(
+                    request,
+                    "Patch '%s' already in bundle %s"
+                    % (patch.name, bundle.name),
+                )
         elif action == 'remove':
             try:
                 bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
@@ -156,16 +162,24 @@ def set_bundle(request, project, action, data, patches, context):
             else:
                 messages.success(
                     request,
-                    "Patch '%s' removed from bundle %s\n" % (patch.name,
-                                                             bundle.name))
+                    "Patch '%s' removed from bundle %s\n"
+                    % (patch.name, bundle.name),
+                )
 
     bundle.save()
 
     return []
 
 
-def generic_list(request, project, view, view_args=None, filter_settings=None,
-                 patches=None, editable_order=False):
+def generic_list(
+    request,
+    project,
+    view,
+    view_args=None,
+    filter_settings=None,
+    patches=None,
+    editable_order=False,
+):
 
     if not filter_settings:
         filter_settings = []
@@ -198,13 +212,16 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
         data = request.POST
     order = Order(data.get('order'), editable=editable_order)
 
-    context.update({
-        'order': order,
-        'list_view': {
-            'view': view,
-            'view_params': view_args or {},
-            'params': params
-        }})
+    context.update(
+        {
+            'order': order,
+            'list_view': {
+                'view': view,
+                'view_params': view_args or {},
+                'params': params,
+            },
+        }
+    )
 
     # form processing
 
@@ -240,8 +257,9 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
             errors = set_bundle(request, project, action, data, ps, context)
 
         elif properties_form and action == properties_form.action:
-            errors = process_multiplepatch_form(request, properties_form,
-                                                action, ps, context)
+            errors = process_multiplepatch_form(
+                request, properties_form, action, ps, context
+            )
         else:
             errors = []
 
@@ -272,25 +290,41 @@ def generic_list(request, project, view, view_args=None, filter_settings=None,
 
     # but we will need to follow the state and submitter relations for
     # rendering the list template
-    patches = patches.select_related('state', 'submitter', 'delegate',
-                                     'series')
+    patches = patches.select_related(
+        'state', 'submitter', 'delegate', 'series'
+    )
 
-    patches = patches.only('state', 'submitter', 'delegate', 'project',
-                           'series__name', 'name', 'date', 'msgid')
+    patches = patches.only(
+        'state',
+        'submitter',
+        'delegate',
+        'project',
+        'series__name',
+        'name',
+        'date',
+        'msgid',
+    )
 
     # we also need checks and series
     patches = patches.prefetch_related(
-        Prefetch('check_set', queryset=Check.objects.only(
-            'context', 'user_id', 'patch_id', 'state', 'date')))
+        Prefetch(
+            'check_set',
+            queryset=Check.objects.only(
+                'context', 'user_id', 'patch_id', 'state', 'date'
+            ),
+        )
+    )
 
     paginator = Paginator(request, patches)
 
-    context.update({
-        'page': paginator.current_page,
-        'patchform': properties_form,
-        'project': project,
-        'order': order,
-    })
+    context.update(
+        {
+            'page': paginator.current_page,
+            'patchform': properties_form,
+            'project': project,
+            'order': order,
+        }
+    )
 
     return context
 
@@ -308,8 +342,9 @@ def process_multiplepatch_form(request, form, action, patches, context):
     changed_patches = 0
     for patch in patches:
         if not patch.is_editable(request.user):
-            errors.append("You don't have permissions to edit patch '%s'"
-                          % patch.name)
+            errors.append(
+                "You don't have permissions to edit patch '%s'" % patch.name
+            )
             continue
 
         changed_patches += 1

@@ -19,7 +19,6 @@ if settings.ENABLE_REST_API:
 
 @unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
 class TestUserAPI(utils.APITestCase):
-
     @staticmethod
     def api_url(item=None, version=None):
         kwargs = {}
@@ -42,12 +41,17 @@ class TestUserAPI(utils.APITestCase):
 
         if has_settings:
             self.assertIn('settings', user_json)
-            self.assertEqual(user_json['settings']['send_email'],
-                             user_obj.profile.send_email)
-            self.assertEqual(user_json['settings']['items_per_page'],
-                             user_obj.profile.items_per_page)
-            self.assertEqual(user_json['settings']['show_ids'],
-                             user_obj.profile.show_ids)
+            self.assertEqual(
+                user_json['settings']['send_email'],
+                user_obj.profile.send_email,
+            )
+            self.assertEqual(
+                user_json['settings']['items_per_page'],
+                user_obj.profile.items_per_page,
+            )
+            self.assertEqual(
+                user_json['settings']['show_ids'], user_obj.profile.show_ids
+            )
         else:
             self.assertNotIn('settings', user_json)
 
@@ -127,8 +131,9 @@ class TestUserAPI(utils.APITestCase):
         user_b = create_user()
 
         self.client.force_authenticate(user=user_a)
-        resp = self.client.patch(self.api_url(user_b.id),
-                                 {'first_name': 'Tan'})
+        resp = self.client.patch(
+            self.api_url(user_b.id), {'first_name': 'Tan'}
+        )
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
     @utils.store_samples('users-update-self')
@@ -138,8 +143,10 @@ class TestUserAPI(utils.APITestCase):
         self.assertFalse(user.profile.send_email)
 
         self.client.force_authenticate(user=user)
-        resp = self.client.patch(self.api_url(user.id), {
-            'first_name': 'Tan', 'settings': {'send_email': True}})
+        resp = self.client.patch(
+            self.api_url(user.id),
+            {'first_name': 'Tan', 'settings': {'send_email': True}},
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(user, resp.data, has_settings=True)
         self.assertEqual('Tan', user.first_name)
@@ -157,7 +164,8 @@ class TestUserAPI(utils.APITestCase):
         resp = self.client.patch(
             self.api_url(user.id, version='1.1'),
             {'first_name': 'Tan', 'settings': {'send_email': True}},
-            validate_request=False)
+            validate_request=False,
+        )
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(user, resp.data, has_settings=False)
         self.assertEqual('Tan', user.first_name)

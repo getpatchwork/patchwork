@@ -19,21 +19,43 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
     link_name = CharField(max_length=255, source='linkname', read_only=True)
     list_id = CharField(max_length=255, source='listid', read_only=True)
     list_email = CharField(max_length=200, source='listemail', read_only=True)
-    maintainers = UserProfileSerializer(many=True, read_only=True,
-                                        source='maintainer_project')
+    maintainers = UserProfileSerializer(
+        many=True, read_only=True, source='maintainer_project'
+    )
 
     class Meta:
         model = Project
-        fields = ('id', 'url', 'name', 'link_name', 'list_id', 'list_email',
-                  'web_url', 'scm_url', 'webscm_url', 'maintainers',
-                  'subject_match', 'list_archive_url',
-                  'list_archive_url_format', 'commit_url_format')
-        read_only_fields = ('name', 'link_name', 'list_id', 'list_email',
-                            'maintainers', 'subject_match')
+        fields = (
+            'id',
+            'url',
+            'name',
+            'link_name',
+            'list_id',
+            'list_email',
+            'web_url',
+            'scm_url',
+            'webscm_url',
+            'maintainers',
+            'subject_match',
+            'list_archive_url',
+            'list_archive_url_format',
+            'commit_url_format',
+        )
+        read_only_fields = (
+            'name',
+            'link_name',
+            'list_id',
+            'list_email',
+            'maintainers',
+            'subject_match',
+        )
         versioned_fields = {
-            '1.1': ('subject_match', ),
-            '1.2': ('list_archive_url', 'list_archive_url_format',
-                    'commit_url_format'),
+            '1.1': ('subject_match',),
+            '1.2': (
+                'list_archive_url',
+                'list_archive_url_format',
+                'commit_url_format',
+            ),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-project-detail'},
@@ -70,9 +92,17 @@ class ProjectMixin(object):
 class ProjectList(ProjectMixin, ListAPIView):
     """List projects."""
 
-    search_fields = ('link_name', 'list_id', 'list_email', 'web_url',
-                     'scm_url', 'webscm_url', 'list_archive_url',
-                     'list_archive_url_format', 'commit_url_format')
+    search_fields = (
+        'link_name',
+        'list_id',
+        'list_email',
+        'web_url',
+        'scm_url',
+        'webscm_url',
+        'list_archive_url',
+        'list_archive_url_format',
+        'commit_url_format',
+    )
     ordering_fields = ('id', 'name', 'link_name', 'list_id')
     ordering = 'id'
 

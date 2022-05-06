@@ -24,9 +24,7 @@ except ImportError:
 # https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
 #
 
-ADMINS = (
-    ('Joe Bloggs', 'jbloggs@example.com'),
-)
+ADMINS = (('Joe Bloggs', 'jbloggs@example.com'),)
 
 ALLOWED_HOSTS = ['*']
 
@@ -55,21 +53,16 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 # django-debug-toolbar
 
 if debug_toolbar:
-    INSTALLED_APPS += [  # noqa: F405
-        'debug_toolbar'
-    ]
+    INSTALLED_APPS += ['debug_toolbar']  # noqa: F405
 
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-# This should go first in the middleware classes
+    # This should go first in the middleware classes
     MIDDLEWARE = [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ] + MIDDLEWARE  # noqa: F405
 
-    INTERNAL_IPS = [
-        '127.0.0.1', '::1',
-        '172.18.0.1'
-    ]
+    INTERNAL_IPS = ['127.0.0.1', '::1', '172.18.0.1']
 
 # django-dbbackup
 

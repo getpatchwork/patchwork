@@ -47,6 +47,7 @@ def hash_diff(diff):
                 if not x:
                     return 1
                 return int(x)
+
             line_nos = list(map(fn, hunk_match.groups()))
             line = '@@ -%d +%d @@' % tuple(line_nos)
         elif line[0] in prefixes:

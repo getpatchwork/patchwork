@@ -161,7 +161,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_extend_relation_through_new(self):
         relation = create_relation()
         existing_patch_a = create_patches(
-            2, project=self.project, related=relation)[0]
+            2, project=self.project, related=relation
+        )[0]
 
         new_patch = create_patch(project=self.project)
 
@@ -176,7 +177,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_extend_relation_through_old(self):
         relation = create_relation()
         existing_patch_a = create_patches(
-            2, project=self.project, related=relation)[0]
+            2, project=self.project, related=relation
+        )[0]
 
         new_patch = create_patch(project=self.project)
 
@@ -192,7 +194,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_extend_relation_through_new_two(self):
         relation = create_relation()
         existing_patch_a = create_patches(
-            2, project=self.project, related=relation)[0]
+            2, project=self.project, related=relation
+        )[0]
 
         new_patch_a = create_patch(project=self.project)
         new_patch_b = create_patch(project=self.project)
@@ -215,7 +218,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_extend_relation_through_old_two(self):
         relation = create_relation()
         existing_patch_a = create_patches(
-            2, project=self.project, related=relation)[0]
+            2, project=self.project, related=relation
+        )[0]
 
         new_patch_a = create_patch(project=self.project)
         new_patch_b = create_patch(project=self.project)
@@ -255,7 +259,8 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_remove_one_patch_from_relation_good(self):
         relation = create_relation()
         target_patch = create_patches(
-            3, project=self.project, related=relation)[0]
+            3, project=self.project, related=relation
+        )[0]
 
         # maintainer
         self.client.force_authenticate(user=self.maintainer)

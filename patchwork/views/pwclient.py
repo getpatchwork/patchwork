@@ -21,8 +21,9 @@ def pwclientrc(request, project_id):
     else:
         context['scheme'] = 'http'
 
-    response = render(request, 'patchwork/pwclientrc', context,
-                      content_type='text/plain')
+    response = render(
+        request, 'patchwork/pwclientrc', context, content_type='text/plain'
+    )
     response['Content-Disposition'] = 'attachment; filename=.pwclientrc'
 
     return response

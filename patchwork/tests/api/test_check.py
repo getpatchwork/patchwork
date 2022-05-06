@@ -31,8 +31,10 @@ class TestCheckAPI(utils.APITestCase):
     def api_url(self, item=None):
         if item is None:
             return reverse('api-check-list', args=[self.patch.id])
-        return reverse('api-check-detail', kwargs={
-            'patch_id': self.patch.id, 'check_id': item.id})
+        return reverse(
+            'api-check-detail',
+            kwargs={'patch_id': self.patch.id, 'check_id': item.id},
+        )
 
     def setUp(self):
         super(TestCheckAPI, self).setUp()
@@ -89,7 +91,8 @@ class TestCheckAPI(utils.APITestCase):
     def test_list_invalid_patch(self):
         """Ensure we get a 404 for a non-existent patch."""
         resp = self.client.get(
-            reverse('api-check-list', kwargs={'patch_id': '99999'}))
+            reverse('api-check-list', kwargs={'patch_id': '99999'})
+        )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     @utils.store_samples('check-detail')
@@ -180,7 +183,8 @@ class TestCheckAPI(utils.APITestCase):
 
         self.client.force_authenticate(user=self.user)
         resp = self.client.post(
-            reverse('api-check-list', kwargs={'patch_id': '99999'}), check)
+            reverse('api-check-list', kwargs={'patch_id': '99999'}), check
+        )
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
     def test_update_delete(self):
@@ -208,6 +212,7 @@ class TestCheckAPIMultipart(BaseAPITestCase):
     This is required due to the difference in handling JSON vs form-data in
     CheckSerializer's run_validation().
     """
+
     fixtures = ['default_tags']
 
     def setUp(self):
@@ -235,12 +240,11 @@ class TestCheckAPIMultipart(BaseAPITestCase):
 
         self.client.force_authenticate(user=user)
         return self.client.post(
-            reverse('api-check-list', args=[self.patch.id]),
-            check)
+            reverse('api-check-list', args=[self.patch.id]), check
+        )
 
     def test_creates(self):
-        """Create a set of checks.
-        """
+        """Create a set of checks."""
         resp = self._test_create(user=self.user)
         self.assertEqual(status.HTTP_201_CREATED, resp.status_code)
         self.assertEqual(1, Check.objects.all().count())

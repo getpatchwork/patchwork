@@ -37,8 +37,9 @@ class Person(models.Model):
 
     email = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, null=True, blank=True)
-    user = models.ForeignKey(User, null=True, blank=True,
-                             on_delete=models.SET_NULL)
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     def link_to_user(self, user):
         self.name = user.profile.name
@@ -57,19 +58,24 @@ class Person(models.Model):
 class Project(models.Model):
     # properties
 
-    linkname = models.CharField(max_length=255, unique=True,
-                                validators=[validate_unicode_slug])
+    linkname = models.CharField(
+        max_length=255, unique=True, validators=[validate_unicode_slug]
+    )
     name = models.CharField(max_length=255, unique=True)
     listid = models.CharField(max_length=255)
     listemail = models.CharField(max_length=200)
     subject_match = models.CharField(
-        max_length=64, blank=True, default='',
-        validators=[validate_regex_compiles], help_text='Regex to match the '
+        max_length=64,
+        blank=True,
+        default='',
+        validators=[validate_regex_compiles],
+        help_text='Regex to match the '
         'subject against if only part of emails sent to the list belongs to '
         'this project. Will be used with IGNORECASE and MULTILINE flags. If '
         'rules for more projects match the first one returned from DB is '
         'chosen; empty field serves as a default for every email which has no '
-        'other match.')
+        'other match.',
+    )
 
     # url metadata
 
@@ -81,12 +87,14 @@ class Project(models.Model):
         max_length=2000,
         blank=True,
         help_text="URL format for the list archive's Message-ID redirector. "
-        "{} will be replaced by the Message-ID.")
+        "{} will be replaced by the Message-ID.",
+    )
     commit_url_format = models.CharField(
         max_length=2000,
         blank=True,
         help_text='URL format for a particular commit. '
-        '{} will be replaced by the commit SHA.')
+        '{} will be replaced by the commit SHA.',
+    )
 
     # configuration options
 
@@ -117,44 +125,54 @@ class DelegationRule(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        help_text='A user to delegate the patch to.')
+        help_text='A user to delegate the patch to.',
+    )
     path = models.CharField(
         max_length=255,
-        help_text='An fnmatch-style pattern to match filenames against.')
+        help_text='An fnmatch-style pattern to match filenames against.',
+    )
     priority = models.IntegerField(
         default=0,
         help_text='The priority of the rule. Rules with a higher priority '
-        'will override rules with lower priorities')
+        'will override rules with lower priorities',
+    )
 
     def __str__(self):
         return self.path
 
     class Meta:
         ordering = ['-priority', 'path']
-        unique_together = (('path', 'project'))
+        unique_together = ('path', 'project')
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, unique=True, related_name='profile',
-                                on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, unique=True, related_name='profile', on_delete=models.CASCADE
+    )
 
     # projects
 
     maintainer_projects = models.ManyToManyField(
-        Project, related_name='maintainer_project', blank=True)
+        Project, related_name='maintainer_project', blank=True
+    )
 
     # configuration options
 
     send_email = models.BooleanField(
         default=False,
         help_text='Selecting this option allows patchwork to send email on'
-        ' your behalf')
+        ' your behalf',
+    )
     items_per_page = models.PositiveIntegerField(
-        default=100, null=False, blank=False,
-        help_text='Number of items to display per page')
+        default=100,
+        null=False,
+        blank=False,
+        help_text='Number of items to display per page',
+    )
     show_ids = models.BooleanField(
         default=False,
-        help_text='Show click-to-copy patch IDs in the list view')
+        help_text='Show click-to-copy patch IDs in the list view',
+    )
 
     @property
     def name(self):
@@ -166,8 +184,11 @@ class UserProfile(models.Model):
     @property
     def contributor_projects(self):
         submitters = Person.objects.filter(user=self.user)
-        return Project.objects.filter(id__in=Patch.objects.filter(
-            submitter__in=submitters).values('project_id').query)
+        return Project.objects.filter(
+            id__in=Patch.objects.filter(submitter__in=submitters)
+            .values('project_id')
+            .query
+        )
 
     @property
     def n_todo_patches(self):
@@ -190,9 +211,15 @@ class UserProfile(models.Model):
         else:
             qs = Patch.objects
 
-        qs = qs.filter(archived=False).filter(
-            delegate=self.user).filter(state__in=State.objects.filter(
-                action_required=True).values('pk').query)
+        qs = (
+            qs.filter(archived=False)
+            .filter(delegate=self.user)
+            .filter(
+                state__in=State.objects.filter(action_required=True)
+                .values('pk')
+                .query
+            )
+        )
         return qs
 
     def __str__(self):
@@ -228,16 +255,23 @@ class State(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     pattern = models.CharField(
-        max_length=50, validators=[validate_regex_compiles],
+        max_length=50,
+        validators=[validate_regex_compiles],
         help_text='A simple regex to match the tag in the content of a '
         'message. Will be used with MULTILINE and IGNORECASE flags. eg. '
-        '^Acked-by:')
+        '^Acked-by:',
+    )
     abbrev = models.CharField(
-        max_length=2, unique=True, help_text='Short (one-or-two letter)'
-        ' abbreviation for the tag, used in table column headers')
-    show_column = models.BooleanField(help_text='Show a column displaying this'
-                                      ' tag\'s count in the patch list view',
-                                      default=True)
+        max_length=2,
+        unique=True,
+        help_text='Short (one-or-two letter)'
+        ' abbreviation for the tag, used in table column headers',
+    )
+    show_column = models.BooleanField(
+        help_text='Show a column displaying this'
+        ' tag\'s count in the patch list view',
+        default=True,
+    )
 
     @property
     def attr_name(self):
@@ -264,7 +298,6 @@ def get_default_initial_patch_state():
 
 
 class PatchQuerySet(models.query.QuerySet):
-
     def with_tag_counts(self, project=None):
         if project and not project.use_tags:
             return self
@@ -288,14 +321,14 @@ class PatchQuerySet(models.query.QuerySet):
                 "coalesce("
                 "(SELECT count FROM patchwork_patchtag"
                 " WHERE patchwork_patchtag.patch_id=patchwork_patch.id"
-                " AND patchwork_patchtag.tag_id=%s), 0)")
+                " AND patchwork_patchtag.tag_id=%s), 0)"
+            )
             select_params.append(tag.id)
 
         return qs.extra(select=select, select_params=select_params)
 
 
 class PatchManager(models.Manager):
-
     def get_queryset(self):
         return PatchQuerySet(self.model, using=self.db)
 
@@ -305,6 +338,7 @@ class PatchManager(models.Manager):
 
 class EmailMixin(models.Model):
     """Mixin for models with an email-origin."""
+
     # email metadata
 
     msgid = models.CharField(max_length=255)
@@ -318,15 +352,20 @@ class EmailMixin(models.Model):
 
     response_re = re.compile(
         r'^(Tested|Reviewed|Acked|Signed-off|Nacked|Reported)-by:.*$',
-        re.M | re.I)
+        re.M | re.I,
+    )
 
     @property
     def patch_responses(self):
         if not self.content:
             return ''
 
-        return ''.join([match.group(0) + '\n' for match in
-                        self.response_re.finditer(self.content)])
+        return ''.join(
+            [
+                match.group(0) + '\n'
+                for match in self.response_re.finditer(self.content)
+            ]
+        )
 
     @property
     def url_msgid(self):
@@ -350,7 +389,6 @@ class EmailMixin(models.Model):
 
 
 class FilenameMixin(object):
-
     @property
     def filename(self):
         """Return a sanitized filename without extension."""
@@ -393,16 +431,23 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
 
 
 class Cover(SubmissionMixin):
-
     def get_absolute_url(self):
-        return reverse('cover-detail',
-                       kwargs={'project_id': self.project.linkname,
-                               'msgid': self.url_msgid})
+        return reverse(
+            'cover-detail',
+            kwargs={
+                'project_id': self.project.linkname,
+                'msgid': self.url_msgid,
+            },
+        )
 
     def get_mbox_url(self):
-        return reverse('cover-mbox',
-                       kwargs={'project_id': self.project.linkname,
-                               'msgid': self.url_msgid})
+        return reverse(
+            'cover-mbox',
+            kwargs={
+                'project_id': self.project.linkname,
+                'msgid': self.url_msgid,
+            },
+        )
 
     class Meta:
         ordering = ['date']
@@ -457,8 +502,13 @@ class Patch(SubmissionMixin):
     # related patches metadata
 
     related = models.ForeignKey(
-        'PatchRelation', null=True, blank=True, on_delete=models.SET_NULL,
-        related_name='patches', related_query_name='patch')
+        'PatchRelation',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='patches',
+        related_query_name='patch',
+    )
 
     objects = PatchManager()
 
@@ -589,7 +639,9 @@ class Patch(SubmissionMixin):
 
         # order sensitive
         for state in (
-            Check.STATE_FAIL, Check.STATE_WARNING, Check.STATE_PENDING,
+            Check.STATE_FAIL,
+            Check.STATE_WARNING,
+            Check.STATE_PENDING,
         ):
             if state in states:
                 return state_names[state]
@@ -615,14 +667,22 @@ class Patch(SubmissionMixin):
         return counts
 
     def get_absolute_url(self):
-        return reverse('patch-detail',
-                       kwargs={'project_id': self.project.linkname,
-                               'msgid': self.url_msgid})
+        return reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': self.project.linkname,
+                'msgid': self.url_msgid,
+            },
+        )
 
     def get_mbox_url(self):
-        return reverse('patch-mbox',
-                       kwargs={'project_id': self.project.linkname,
-                               'msgid': self.url_msgid})
+        return reverse(
+            'patch-mbox',
+            kwargs={
+                'project_id': self.project.linkname,
+                'msgid': self.url_msgid,
+            },
+        )
 
     def __str__(self):
         return self.name
@@ -750,28 +810,38 @@ class Series(FilenameMixin, models.Model):
     """A collection of patches."""
 
     # parent
-    project = models.ForeignKey(Project, related_name='series', null=True,
-                                blank=True, on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        Project,
+        related_name='series',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # content
     cover_letter = models.OneToOneField(
-        Cover,
-        related_name='series',
-        null=True,
-        on_delete=models.CASCADE
+        Cover, related_name='series', null=True, on_delete=models.CASCADE
     )
 
     # metadata
-    name = models.CharField(max_length=255, blank=True, null=True,
-                            help_text='An optional name to associate with '
-                            'the series, e.g. "John\'s PCI series".')
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text='An optional name to associate with '
+        'the series, e.g. "John\'s PCI series".',
+    )
     date = models.DateTimeField()
     submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
-    version = models.IntegerField(default=1,
-                                  help_text='Version of series as indicated '
-                                  'by the subject prefix(es)')
-    total = models.IntegerField(help_text='Number of patches in series as '
-                                'indicated by the subject prefix(es)')
+    version = models.IntegerField(
+        default=1,
+        help_text='Version of series as indicated '
+        'by the subject prefix(es)',
+    )
+    total = models.IntegerField(
+        help_text='Number of patches in series as '
+        'indicated by the subject prefix(es)'
+    )
 
     @staticmethod
     def _format_name(obj):
@@ -849,9 +919,9 @@ class Series(FilenameMixin, models.Model):
 
     def get_absolute_url(self):
         # TODO(stephenfin): We really need a proper series view
-        return reverse('patch-list',
-                       kwargs={'project_id': self.project.linkname}) + (
-            '?series=%d' % self.id)
+        return reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        ) + ('?series=%d' % self.id)
 
     def get_mbox_url(self):
         return reverse('series-mbox', kwargs={'series_id': self.id})
@@ -871,10 +941,14 @@ class SeriesReference(models.Model):
     required to handle the case whereby one or more patches are
     received before the cover letter.
     """
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    series = models.ForeignKey(Series, related_name='references',
-                               related_query_name='reference',
-                               on_delete=models.CASCADE)
+    series = models.ForeignKey(
+        Series,
+        related_name='references',
+        related_query_name='reference',
+        on_delete=models.CASCADE,
+    )
     msgid = models.CharField(max_length=255)
 
     def __str__(self):
@@ -885,9 +959,12 @@ class SeriesReference(models.Model):
 
 
 class Bundle(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE,
-                              related_name='bundles',
-                              related_query_name='bundle')
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='bundles',
+        related_query_name='bundle',
+    )
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=False, blank=False)
     patches = models.ManyToManyField(Patch, through='BundlePatch')
@@ -903,7 +980,8 @@ class Bundle(models.Model):
 
     def append_patch(self, patch):
         orders = BundlePatch.objects.filter(bundle=self).aggregate(
-            models.Max('order'))
+            models.Max('order')
+        )
 
         if orders and orders['order__max']:
             max_order = orders['order__max']
@@ -913,8 +991,9 @@ class Bundle(models.Model):
         if BundlePatch.objects.filter(bundle=self, patch=patch).exists():
             return
 
-        return BundlePatch.objects.create(bundle=self, patch=patch,
-                                          order=max_order + 1)
+        return BundlePatch.objects.create(
+            bundle=self, patch=patch, order=max_order + 1
+        )
 
     def overwrite_patches(self, patches):
         BundlePatch.objects.filter(bundle=self).delete()
@@ -923,16 +1002,19 @@ class Bundle(models.Model):
             self.append_patch(patch)
 
     def get_absolute_url(self):
-        return reverse('bundle-detail', kwargs={
-            'username': self.owner.username,
-            'bundlename': self.name,
-        })
+        return reverse(
+            'bundle-detail',
+            kwargs={
+                'username': self.owner.username,
+                'bundlename': self.name,
+            },
+        )
 
     def get_mbox_url(self):
-        return reverse('bundle-mbox', kwargs={
-            'bundlename': self.name,
-            'username': self.owner.username
-        })
+        return reverse(
+            'bundle-mbox',
+            kwargs={'bundlename': self.name, 'username': self.owner.username},
+        )
 
     class Meta:
         unique_together = [('owner', 'name')]
@@ -949,7 +1031,6 @@ class BundlePatch(models.Model):
 
 
 class PatchRelation(models.Model):
-
     def __str__(self):
         patches = self.patches.all()
         if not patches:
@@ -968,6 +1049,7 @@ class Check(models.Model):
     given patch. This is useful, for example, when using a continuous
     integration (CI) system to test patches.
     """
+
     STATE_PENDING = 0
     STATE_SUCCESS = 1
     STATE_WARNING = 2
@@ -984,22 +1066,32 @@ class Check(models.Model):
     date = models.DateTimeField(default=datetime.datetime.utcnow)
 
     state = models.SmallIntegerField(
-        choices=STATE_CHOICES, default=STATE_PENDING,
-        help_text='The state of the check.')
+        choices=STATE_CHOICES,
+        default=STATE_PENDING,
+        help_text='The state of the check.',
+    )
     target_url = models.URLField(
-        blank=True, null=True,
+        blank=True,
+        null=True,
         help_text='The target URL to associate with this check. This should '
-        'be specific to the patch.')
+        'be specific to the patch.',
+    )
     description = models.TextField(
-        blank=True, null=True, help_text='A brief description of the check.')
+        blank=True, null=True, help_text='A brief description of the check.'
+    )
     context = models.SlugField(
-        max_length=255, default='default',
+        max_length=255,
+        default='default',
         help_text='A label to discern check from checks of other testing '
-        'systems.')
+        'systems.',
+    )
 
     def __repr__(self):
         return "<Check id='%d' context='%s' state='%s'" % (
-            self.id, self.context, self.get_state_display())
+            self.id,
+            self.context,
+            self.get_state_display(),
+        )
 
     def __str__(self):
         return '%s (%s)' % (self.context, self.get_state_display())
@@ -1019,6 +1111,7 @@ class Event(models.Model):
     the future. Refer to https://code.djangoproject.com/ticket/24272 for more
     information.
     """
+
     CATEGORY_COVER_CREATED = 'cover-created'
     CATEGORY_PATCH_CREATED = 'patch-created'
     CATEGORY_PATCH_COMPLETED = 'patch-completed'
@@ -1047,9 +1140,12 @@ class Event(models.Model):
     # parents
 
     project = models.ForeignKey(
-        Project, related_name='+', db_index=True,
+        Project,
+        related_name='+',
+        db_index=True,
         on_delete=models.CASCADE,
-        help_text='The project that the events belongs to.')
+        help_text='The project that the events belongs to.',
+    )
 
     # event metadata
 
@@ -1057,14 +1153,20 @@ class Event(models.Model):
         max_length=25,
         choices=CATEGORY_CHOICES,
         db_index=True,
-        help_text='The category of the event.')
+        help_text='The category of the event.',
+    )
     date = models.DateTimeField(
         default=datetime.datetime.utcnow,
-        help_text='The time this event was created.')
+        help_text='The time this event was created.',
+    )
     actor = models.ForeignKey(
-        User, related_name='+', null=True, blank=True,
+        User,
+        related_name='+',
+        null=True,
+        blank=True,
         on_delete=models.SET_NULL,
-        help_text='The user that caused/created this event.')
+        help_text='The user that caused/created this event.',
+    )
 
     # event object
 
@@ -1072,62 +1174,102 @@ class Event(models.Model):
     # used
 
     patch = models.ForeignKey(
-        Patch, related_name='+', null=True, blank=True,
+        Patch,
+        related_name='+',
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
-        help_text='The patch that this event was created for.')
+        help_text='The patch that this event was created for.',
+    )
     series = models.ForeignKey(
-        Series, related_name='+', null=True, blank=True,
+        Series,
+        related_name='+',
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
-        help_text='The series that this event was created for.')
+        help_text='The series that this event was created for.',
+    )
     cover = models.ForeignKey(
-        Cover, related_name='+', null=True, blank=True,
+        Cover,
+        related_name='+',
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
-        help_text='The cover letter that this event was created for.')
+        help_text='The cover letter that this event was created for.',
+    )
 
     # fields for 'patch-state-changed' events
 
     previous_state = models.ForeignKey(
-        State, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        State,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     current_state = models.ForeignKey(
-        State, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        State,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # fields for 'patch-delegate-changed' events
 
     previous_delegate = models.ForeignKey(
-        User, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        User, related_name='+', null=True, blank=True, on_delete=models.CASCADE
+    )
     current_delegate = models.ForeignKey(
-        User, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        User, related_name='+', null=True, blank=True, on_delete=models.CASCADE
+    )
 
     # fields for 'patch-relation-changed-changed' events
 
     previous_relation = models.ForeignKey(
-        PatchRelation, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        PatchRelation,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     current_relation = models.ForeignKey(
-        PatchRelation, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        PatchRelation,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # fields or 'patch-check-created' events
 
     created_check = models.ForeignKey(
-        Check, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        Check,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # fields for 'cover-comment-created' events
 
     cover_comment = models.ForeignKey(
-        CoverComment, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        CoverComment,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # fields for 'patch-comment-created' events
 
     patch_comment = models.ForeignKey(
-        PatchComment, related_name='+', null=True, blank=True,
-        on_delete=models.CASCADE)
+        PatchComment,
+        related_name='+',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     # TODO(stephenfin): Validate that the correct fields are being set by way
     # of a 'clean' method
@@ -1141,11 +1283,14 @@ class Event(models.Model):
 
 class EmailConfirmation(models.Model):
     validity = datetime.timedelta(days=settings.CONFIRMATION_VALIDITY_DAYS)
-    type = models.CharField(max_length=20, choices=[
-        ('userperson', 'User-Person association'),
-        ('registration', 'Registration'),
-        ('optout', 'Email opt-out'),
-    ])
+    type = models.CharField(
+        max_length=20,
+        choices=[
+            ('userperson', 'User-Person association'),
+            ('registration', 'Registration'),
+            ('optout', 'Email opt-out'),
+        ],
+    )
     email = models.CharField(max_length=200)
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     key = HashField()

@@ -38,12 +38,15 @@ class StateField(RelatedField):
 
     TODO(stephenfin): Consider switching to SlugRelatedField for the v2.0 API.
     """
+
     default_error_messages = {
         'required': _('This field is required.'),
-        'invalid_choice': _('Invalid state {name}. Expected one of: '
-                            '{choices}.'),
-        'incorrect_type': _('Incorrect type. Expected string value, received '
-                            '{data_type}.'),
+        'invalid_choice': _(
+            'Invalid state {name}. Expected one of: ' '{choices}.'
+        ),
+        'incorrect_type': _(
+            'Incorrect type. Expected string value, received ' '{data_type}.'
+        ),
     }
 
     def to_internal_value(self, data):
@@ -51,8 +54,11 @@ class StateField(RelatedField):
         try:
             return self.get_queryset().get(slug=data)
         except State.DoesNotExist:
-            self.fail('invalid_choice', name=data, choices=', '.join([
-                x.slug for x in self.get_queryset()]))
+            self.fail(
+                'invalid_choice',
+                name=data,
+                choices=', '.join([x.slug for x in self.get_queryset()]),
+            )
 
     def to_representation(self, obj):
         return obj.slug
@@ -84,8 +90,11 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     checks = SerializerMethodField()
     tags = SerializerMethodField()
     related = PatchSerializer(
-        source='related.patches', many=True, default=[],
-        style={'base_template': 'input.html'})
+        source='related.patches',
+        many=True,
+        default=[],
+        style={'base_template': 'input.html'},
+    )
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -97,14 +106,16 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     def get_comments(self, patch):
         return self.context.get('request').build_absolute_uri(
-            reverse('api-patch-comment-list', kwargs={'patch_id': patch.id}))
+            reverse('api-patch-comment-list', kwargs={'patch_id': patch.id})
+        )
 
     def get_check(self, instance):
         return instance.combined_check_state
 
     def get_checks(self, instance):
         return self.context.get('request').build_absolute_uri(
-            reverse('api-check-list', kwargs={'patch_id': instance.id}))
+            reverse('api-check-list', kwargs={'patch_id': instance.id})
+        )
 
     def get_tags(self, instance):
         # TODO(stephenfin): Make tags performant, possibly by reworking the
@@ -116,10 +127,15 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         if not value:
             return value
 
-        if not value.profile.maintainer_projects.only('id').filter(
-                id=self.instance.project.id).exists():
-            raise ValidationError("User '%s' is not a maintainer for project "
-                                  "'%s'" % (value, self.instance.project))
+        if (
+            not value.profile.maintainer_projects.only('id')
+            .filter(id=self.instance.project.id)
+            .exists()
+        ):
+            raise ValidationError(
+                "User '%s' is not a maintainer for project "
+                "'%s'" % (value, self.instance.project)
+            )
         return value
 
     def to_representation(self, instance):
@@ -139,16 +155,52 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
     class Meta:
         model = Patch
-        fields = ('id', 'url', 'web_url', 'project', 'msgid',
-                  'list_archive_url', 'date', 'name', 'commit_ref', 'pull_url',
-                  'state', 'archived', 'hash', 'submitter', 'delegate', 'mbox',
-                  'series', 'comments', 'check', 'checks', 'tags', 'related',)
-        read_only_fields = ('web_url', 'project', 'msgid', 'list_archive_url',
-                            'date', 'name', 'hash', 'submitter', 'mbox',
-                            'series', 'comments', 'check', 'checks', 'tags')
+        fields = (
+            'id',
+            'url',
+            'web_url',
+            'project',
+            'msgid',
+            'list_archive_url',
+            'date',
+            'name',
+            'commit_ref',
+            'pull_url',
+            'state',
+            'archived',
+            'hash',
+            'submitter',
+            'delegate',
+            'mbox',
+            'series',
+            'comments',
+            'check',
+            'checks',
+            'tags',
+            'related',
+        )
+        read_only_fields = (
+            'web_url',
+            'project',
+            'msgid',
+            'list_archive_url',
+            'date',
+            'name',
+            'hash',
+            'submitter',
+            'mbox',
+            'series',
+            'comments',
+            'check',
+            'checks',
+            'tags',
+        )
         versioned_fields = {
             '1.1': ('comments', 'web_url'),
-            '1.2': ('list_archive_url', 'related',),
+            '1.2': (
+                'list_archive_url',
+                'related',
+            ),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
@@ -182,7 +234,8 @@ class PatchDetailSerializer(PatchListSerializer):
         # specifically ourselves and let d-r-f handle the rest
         if 'related' not in validated_data:
             return super(PatchDetailSerializer, self).update(
-                instance, validated_data)
+                instance, validated_data
+            )
 
         related = validated_data.pop('related')
 
@@ -227,7 +280,8 @@ class PatchDetailSerializer(PatchListSerializer):
                 instance.related.delete()
             instance.related = None
             return super(PatchDetailSerializer, self).update(
-                instance, validated_data)
+                instance, validated_data
+            )
 
         # break before make
         relations = {patch.related for patch in patches if patch.related}
@@ -252,7 +306,8 @@ class PatchDetailSerializer(PatchListSerializer):
         instance.save()
 
         return super(PatchDetailSerializer, self).update(
-            instance, validated_data)
+            instance, validated_data
+        )
 
     @staticmethod
     def check_user_maintains_all(user, patches):
@@ -268,9 +323,17 @@ class PatchDetailSerializer(PatchListSerializer):
     class Meta:
         model = Patch
         fields = PatchListSerializer.Meta.fields + (
-            'headers', 'content', 'diff', 'prefixes')
+            'headers',
+            'content',
+            'diff',
+            'prefixes',
+        )
         read_only_fields = PatchListSerializer.Meta.read_only_fields + (
-            'headers', 'content', 'diff', 'prefixes')
+            'headers',
+            'content',
+            'diff',
+            'prefixes',
+        )
         versioned_fields = PatchListSerializer.Meta.versioned_fields
         extra_kwargs = PatchListSerializer.Meta.extra_kwargs
 
@@ -282,19 +345,33 @@ class PatchList(ListAPIView):
     serializer_class = PatchListSerializer
     filter_class = filterset_class = PatchFilterSet
     search_fields = ('name',)
-    ordering_fields = ('id', 'name', 'project', 'date', 'state', 'archived',
-                       'submitter', 'check')
+    ordering_fields = (
+        'id',
+        'name',
+        'project',
+        'date',
+        'state',
+        'archived',
+        'submitter',
+        'check',
+    )
     ordering = 'id'
 
     def get_queryset(self):
         # TODO(dja): we need to revisit this after the patch migration, paying
         # particular attention to cases with filtering
-        return Patch.objects.all()\
+        return (
+            Patch.objects.all()
             .prefetch_related(
-                'check_set', 'delegate', 'project', 'series__project',
-                'related__patches__project')\
-            .select_related('state', 'submitter', 'series')\
+                'check_set',
+                'delegate',
+                'project',
+                'series__project',
+                'related__patches__project',
+            )
+            .select_related('state', 'submitter', 'series')
             .defer('content', 'diff', 'headers')
+        )
 
 
 class PatchDetail(RetrieveUpdateAPIView):
@@ -308,11 +385,15 @@ class PatchDetail(RetrieveUpdateAPIView):
     put:
     Update a patch.
     """
+
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchDetailSerializer
 
     def get_queryset(self):
-        return Patch.objects.all()\
-            .prefetch_related('check_set', 'related__patches__project')\
-            .select_related('project', 'state', 'submitter', 'delegate',
-                            'series')
+        return (
+            Patch.objects.all()
+            .prefetch_related('check_set', 'related__patches__project')
+            .select_related(
+                'project', 'state', 'submitter', 'delegate', 'series'
+            )
+        )

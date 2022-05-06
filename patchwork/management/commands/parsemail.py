@@ -24,11 +24,13 @@ class Command(base.BaseCommand):
             nargs='?',
             type=str,
             default=None,
-            help='input mbox file (a filename or stdin)')
+            help='input mbox file (a filename or stdin)',
+        )
         parser.add_argument(
             '--list-id',
             help='mailing list ID. If not supplied, this will be '
-            'extracted from the mail headers.')
+            'extracted from the mail headers.',
+        )
 
     def handle(self, *args, **options):
         infile = args[0] if args else options['infile']
@@ -61,7 +63,9 @@ class Command(base.BaseCommand):
         except DuplicateMailError as exc:
             logger.warning('Duplicate mail for message ID %s', exc.msgid)
         except (ValueError, Exception) as exc:
-            logger.exception('Error when parsing incoming email: %s',
-                             repr(exc),
-                             extra={'mail': mail.as_string()})
+            logger.exception(
+                'Error when parsing incoming email: %s',
+                repr(exc),
+                extra={'mail': mail.as_string()},
+            )
             sys.exit(1)

@@ -45,13 +45,13 @@ class TestCoverAPI(utils.APITestCase):
 
         # nested fields
 
-        self.assertEqual(cover_obj.submitter.id,
-                         cover_json['submitter']['id'])
+        self.assertEqual(cover_obj.submitter.id, cover_json['submitter']['id'])
 
         if hasattr(cover_obj, 'series'):
             self.assertEqual(1, len(cover_json['series']))
-            self.assertEqual(cover_obj.series.id,
-                             cover_json['series'][0]['id'])
+            self.assertEqual(
+                cover_obj.series.id, cover_json['series'][0]['id']
+            )
         else:
             self.assertEqual([], cover_json['series'])
 
@@ -104,12 +104,12 @@ class TestCoverAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(), {'submitter': submitter.id})
         self.assertEqual([cover.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': submitter.email})
+        resp = self.client.get(self.api_url(), {'submitter': submitter.email})
         self.assertEqual([cover.id], [x['id'] for x in resp.data])
 
-        resp = self.client.get(self.api_url(), {
-            'submitter': 'test@example.org'})
+        resp = self.client.get(
+            self.api_url(), {'submitter': 'test@example.org'}
+        )
         self.assertEqual(0, len(resp.data))
 
     def test_list_filter_msgid(self):
@@ -120,8 +120,7 @@ class TestCoverAPI(utils.APITestCase):
         self.assertEqual([cover.id], [x['id'] for x in resp.data])
 
         # empty response if nothing matches
-        resp = self.client.get(self.api_url(), {
-            'msgid': 'fishfish@fish.fish'})
+        resp = self.client.get(self.api_url(), {'msgid': 'fishfish@fish.fish'})
         self.assertEqual(0, len(resp.data))
 
     @utils.store_samples('cover-list-1-0')
@@ -156,8 +155,9 @@ class TestCoverAPI(utils.APITestCase):
 
         # Make sure we don't regress and all headers with the same key are
         # included in the response
-        parsed_headers = email.parser.Parser().parsestr(cover_obj.headers,
-                                                        True)
+        parsed_headers = email.parser.Parser().parsestr(
+            cover_obj.headers, True
+        )
         for key, value in parsed_headers.items():
             self.assertIn(value, resp.data['headers'][key])
 

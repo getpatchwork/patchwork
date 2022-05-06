@@ -15,7 +15,6 @@ from patchwork.api.utils import has_version
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
-
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -24,14 +23,12 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 
 class UserProfileSerializer(ModelSerializer):
-
     class Meta:
         model = UserProfile
         fields = ('send_email', 'items_per_page', 'show_ids')
 
 
 class UserListSerializer(HyperlinkedModelSerializer):
-
     class Meta:
         model = User
         fields = ('id', 'url', 'username', 'first_name', 'last_name', 'email')
@@ -50,15 +47,19 @@ class UserDetailSerializer(UserListSerializer):
         settings_data = validated_data.pop('profile', None)
 
         request = self.context['request']
-        if settings_data and has_version(request, '1.2') and (
-                request.user.id == instance.id):
+        if (
+            settings_data
+            and has_version(request, '1.2')
+            and (request.user.id == instance.id)
+        ):
             # TODO(stephenfin): We ignore this field rather than raise an error
             # to be consistent with the rest of the API. We should change this
             # when we change the overall settings
             self.fields['settings'].update(instance.profile, settings_data)
 
         return super(UserDetailSerializer, self).update(
-            instance, validated_data)
+            instance, validated_data
+        )
 
     def to_representation(self, instance):
         data = super(UserDetailSerializer, self).to_representation(instance)

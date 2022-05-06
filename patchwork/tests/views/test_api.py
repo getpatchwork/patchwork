@@ -24,8 +24,10 @@ class SubmitterCompletionTest(TestCase):
         self.assertEqual(data[0]['name'], people[0].name)
 
     def test_email_complete(self):
-        people = [create_person(email='test1@example.com'),
-                  create_person(email='test2@example.com')]
+        people = [
+            create_person(email='test1@example.com'),
+            create_person(email='test2@example.com'),
+        ]
         response = self.client.get(reverse('api-submitters'), {'q': 'test2'})
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
@@ -35,8 +37,9 @@ class SubmitterCompletionTest(TestCase):
     def test_param_limit(self):
         for i in range(10):
             create_person()
-        response = self.client.get(reverse('api-submitters'),
-                                   {'q': 'test', 'l': 5})
+        response = self.client.get(
+            reverse('api-submitters'), {'q': 'test', 'l': 5}
+        )
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content.decode())
         self.assertEqual(len(data), 5)

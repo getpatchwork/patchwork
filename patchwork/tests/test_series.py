@@ -19,7 +19,6 @@ TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
 
 
 class _BaseTestCase(TestCase):
-
     def setUp(self):
         utils.create_state()
 
@@ -82,8 +81,9 @@ class _BaseTestCase(TestCase):
                 # TODO(stephenfin): Rework this function into two different
                 # functions - we're clearly not always testing patches here
                 if isinstance(patch, models.Patch):
-                    self.assertEqual(series[idx].patches.get(id=patch.id),
-                                     patch)
+                    self.assertEqual(
+                        series[idx].patches.get(id=patch.id), patch
+                    )
                 else:
                     self.assertEqual(series[idx].cover_letter, patch)
 
@@ -102,8 +102,7 @@ class BaseSeriesTest(_BaseTestCase):
 
           - [PATCH] test: Add some lorem ipsum
         """
-        _, patches, _ = self._parse_mbox(
-            'base-single-patch.mbox', [0, 1, 0])
+        _, patches, _ = self._parse_mbox('base-single-patch.mbox', [0, 1, 0])
 
         self.assertSerialized(patches, [1])
 
@@ -119,7 +118,8 @@ class BaseSeriesTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'base-cover-letter.mbox', [1, 2, 0])
+            'base-cover-letter.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
@@ -135,7 +135,8 @@ class BaseSeriesTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
         """
         _, patches, _ = self._parse_mbox(
-            'base-no-cover-letter.mbox', [0, 2, 0])
+            'base-no-cover-letter.mbox', [0, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
 
@@ -152,7 +153,8 @@ class BaseSeriesTest(_BaseTestCase):
               - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'base-deep-threaded.mbox', [1, 2, 0])
+            'base-deep-threaded.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
@@ -170,7 +172,8 @@ class BaseSeriesTest(_BaseTestCase):
           - [PATCH 0/2] A sample series
         """
         covers, patches, _ = self._parse_mbox(
-            'base-out-of-order.mbox', [1, 2, 0])
+            'base-out-of-order.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
@@ -193,9 +196,11 @@ class BaseSeriesTest(_BaseTestCase):
         project_b = utils.create_project()
 
         _, patches_a, _ = self._parse_mbox(
-            'base-no-cover-letter.mbox', [0, 2, 0], project=project_a)
+            'base-no-cover-letter.mbox', [0, 2, 0], project=project_a
+        )
         _, patches_b, _ = self._parse_mbox(
-            'base-no-cover-letter.mbox', [0, 2, 0], project=project_b)
+            'base-no-cover-letter.mbox', [0, 2, 0], project=project_b
+        )
 
         self.assertSerialized(patches_a + patches_b, [2, 2])
 
@@ -212,7 +217,8 @@ class BaseSeriesTest(_BaseTestCase):
             - [PATCH 4/4] net: dsa: Introduce dsa_get_cpu_port()
         """
         covers, patches, _ = self._parse_mbox(
-            'base-different-versions.mbox', [1, 4, 0])
+            'base-different-versions.mbox', [1, 4, 0]
+        )
 
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [4])
@@ -234,7 +240,8 @@ class BaseSeriesTest(_BaseTestCase):
                 directory unnecessarily
         """
         covers, patches, _ = self._parse_mbox(
-            'bugs-multiple-references.mbox', [1, 4, 0])
+            'bugs-multiple-references.mbox', [1, 4, 0]
+        )
 
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [4])
@@ -249,8 +256,7 @@ class BaseSeriesTest(_BaseTestCase):
           - [PATCH 1/2] net: ieee802154: remove explicit set skb->sk
           - [PATCH 2/2] net: ieee802154: fix net_device reference release too
         """
-        _, patches, _ = self._parse_mbox(
-            'base-no-references.mbox', [0, 2, 0])
+        _, patches, _ = self._parse_mbox('base-no-references.mbox', [0, 2, 0])
 
         self.assertSerialized(patches, [2])
 
@@ -267,7 +273,8 @@ class BaseSeriesTest(_BaseTestCase):
             - [Patch 2/2]: powerpc/hotplug/mm: Fix hot-add memory node assoc
         """
         covers, patches, _ = self._parse_mbox(
-            'base-no-references-no-cover.mbox', [1, 2, 0])
+            'base-no-references-no-cover.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
@@ -277,7 +284,8 @@ class BaseSeriesTest(_BaseTestCase):
         Content-Type headers."""
 
         _, patches, _ = self._parse_mbox(
-            'bugs-multiple-content-types.mbox', [0, 1, 1])
+            'bugs-multiple-content-types.mbox', [0, 1, 1]
+        )
 
         patch = patches[0]
         self.assertEqual(patch_to_mbox(patch).count('Content-Type:'), 1)
@@ -308,8 +316,7 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH v2 1/2] test: Add some lorem ipsum
             - [PATCH v2 2/2] test: Convert to Markdown
         """
-        covers, patches, _ = self._parse_mbox(
-            'revision-basic.mbox', [2, 4, 0])
+        covers, patches, _ = self._parse_mbox('revision-basic.mbox', [2, 4, 0])
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
@@ -325,7 +332,8 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH v2] test: Add some lorem ipsum
         """
         _, patches, _ = self._parse_mbox(
-            'revision-threaded-to-single-patch.mbox', [0, 2, 0])
+            'revision-threaded-to-single-patch.mbox', [0, 2, 0]
+        )
 
         self.assertSerialized(patches, [1, 1])
 
@@ -347,7 +355,8 @@ class RevisedSeriesTest(_BaseTestCase):
               - [PATCH v2 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'revision-threaded-to-cover.mbox', [2, 4, 0])
+            'revision-threaded-to-cover.mbox', [2, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
@@ -370,7 +379,8 @@ class RevisedSeriesTest(_BaseTestCase):
                 - [PATCH v2 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'revision-threaded-to-patch.mbox', [2, 4, 0])
+            'revision-threaded-to-patch.mbox', [2, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
@@ -393,7 +403,8 @@ class RevisedSeriesTest(_BaseTestCase):
               - [PATCH v2 0/2] A sample series
         """
         covers, patches, _ = self._parse_mbox(
-            'revision-out-of-order.mbox', [2, 4, 0])
+            'revision-out-of-order.mbox', [2, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
@@ -414,7 +425,8 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'revision-no-cover-letter.mbox', [1, 4, 0])
+            'revision-no-cover-letter.mbox', [1, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 0])
@@ -436,7 +448,8 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'revision-unlabeled.mbox', [2, 4, 0])
+            'revision-unlabeled.mbox', [2, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
         self.assertSerialized(covers, [1, 1])
@@ -457,7 +470,8 @@ class RevisedSeriesTest(_BaseTestCase):
           - [PATCH 2/2] net: ieee802154: fix net_device reference release too
         """
         _, patches, _ = self._parse_mbox(
-            'revision-unlabeled-noreferences.mbox', [0, 4, 0])
+            'revision-unlabeled-noreferences.mbox', [0, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
 
@@ -475,7 +489,8 @@ class RevisedSeriesTest(_BaseTestCase):
             - This is an orphaned patch!
         """
         covers, patches, _ = self._parse_mbox(
-            'bugs-unnumbered.mbox', [1, 2, 0])
+            'bugs-unnumbered.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [1, 1])
         self.assertSerialized(covers, [1, 0])
@@ -498,7 +513,8 @@ class RevisedSeriesTest(_BaseTestCase):
               - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'bugs-nocover-noversion.mbox', [0, 4, 0])
+            'bugs-nocover-noversion.mbox', [0, 4, 0]
+        )
 
         self.assertSerialized(patches, [2, 2])
 
@@ -516,8 +532,7 @@ class RevisedSeriesTest(_BaseTestCase):
               - [PATCH v2 1/2] test: Add some lorem ipsum
                 - [PATCH v2 2/2] test: Convert to Markdown
         """
-        _, patches, _ = self._parse_mbox(
-            'bugs-nocover.mbox', [0, 4, 0])
+        _, patches, _ = self._parse_mbox('bugs-nocover.mbox', [0, 4, 0])
 
         self.assertSerialized(patches, [2, 2])
 
@@ -535,8 +550,7 @@ class RevisedSeriesTest(_BaseTestCase):
           - [PATCH v2 1/4] Rework tagging infrastructure
           - [PATCH v2 1/4] Rework tagging infrastructure
         """
-        _, patches, _ = self._parse_mbox(
-            'bugs-spamming.mbox', [0, 3, 0])
+        _, patches, _ = self._parse_mbox('bugs-spamming.mbox', [0, 3, 0])
 
         self.assertSerialized(patches, [1, 1, 1])
 
@@ -552,14 +566,14 @@ class RevisedSeriesTest(_BaseTestCase):
             - [PATCH v2 2/2] test: Convert to Markdown
         """
         _, patches, _ = self._parse_mbox(
-            'bugs-mixed-versions.mbox', [0, 2, 0],
+            'bugs-mixed-versions.mbox',
+            [0, 2, 0],
         )
 
         self.assertSerialized(patches, [1, 1])
 
 
 class SeriesTotalTest(_BaseTestCase):
-
     def test_incomplete(self):
         """Series received with patches missing.
 
@@ -571,7 +585,8 @@ class SeriesTotalTest(_BaseTestCase):
             - [PATCH 1/2] test: Add some lorem ipsum
         """
         covers, patches, _ = self._parse_mbox(
-            'base-incomplete.mbox', [1, 1, 0])
+            'base-incomplete.mbox', [1, 1, 0]
+        )
 
         self.assertSerialized(patches, [1])
         self.assertSerialized(covers, [1])
@@ -591,7 +606,8 @@ class SeriesTotalTest(_BaseTestCase):
             - [PATCH 2/2] test: Convert to Markdown
         """
         covers, patches, _ = self._parse_mbox(
-            'base-cover-letter.mbox', [1, 2, 0])
+            'base-cover-letter.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [2])
@@ -612,7 +628,8 @@ class SeriesTotalTest(_BaseTestCase):
             - [PATCH 3/n] test: Remove Markdown formatting
         """
         covers, patches, _ = self._parse_mbox(
-            'base-extra-patches.mbox', [1, 3, 0])
+            'base-extra-patches.mbox', [1, 3, 0]
+        )
 
         self.assertSerialized(covers, [1])
         self.assertSerialized(patches, [3])
@@ -642,7 +659,8 @@ class MercurialSeriesTest(_BaseTestCase):
                 slightly different output
         """
         covers, patches, comments = self._parse_mbox(
-            'mercurial-cover-letter.mbox', [1, 2, 0])
+            'mercurial-cover-letter.mbox', [1, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
         self.assertSerialized(covers, [1])
@@ -660,13 +678,13 @@ class MercurialSeriesTest(_BaseTestCase):
                 slightly different output
         """
         _, patches, _ = self._parse_mbox(
-            'mercurial-no-cover-letter.mbox', [0, 2, 0])
+            'mercurial-no-cover-letter.mbox', [0, 2, 0]
+        )
 
         self.assertSerialized(patches, [2])
 
 
 class SeriesNameTestCase(TestCase):
-
     def setUp(self):
         self.project = utils.create_project()
         utils.create_state()

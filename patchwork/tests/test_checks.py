@@ -15,7 +15,6 @@ from patchwork.tests.utils import create_user
 
 
 class PatchChecksTest(TransactionTestCase):
-
     def setUp(self):
         self.patch = create_patches()[0]
         self.user = create_user()
@@ -31,8 +30,9 @@ class PatchChecksTest(TransactionTestCase):
 
     def assertCheckEqual(self, patch, check_state):  # noqa
         state_names = dict(Check.STATE_CHOICES)
-        self.assertEqual(self.patch.combined_check_state,
-                         state_names[check_state])
+        self.assertEqual(
+            self.patch.combined_check_state, state_names[check_state]
+        )
 
     def assertChecksEqual(self, patch, checks=None):  # noqa
         if not checks:
@@ -41,7 +41,8 @@ class PatchChecksTest(TransactionTestCase):
         self.assertEqual(len(self.patch.checks), len(checks))
         self.assertEqual(
             sorted(self.patch.checks, key=lambda check: check.id),
-            sorted(checks, key=lambda check: check.id))
+            sorted(checks, key=lambda check: check.id),
+        )
 
     def assertCheckCountEqual(self, patch, total, state_counts=None):  # noqa
         if not state_counts:

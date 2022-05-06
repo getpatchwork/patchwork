@@ -44,18 +44,24 @@ SERIES_DELAY_INTERVAL = 20
 
 # @see https://git-scm.com/docs/git-diff#_generating_patches_with_p
 EXTENDED_HEADER_LINES = (
-    'old mode ', 'new mode ',
-    'deleted file mode ', 'new file mode ',
-    'copy from ', 'copy to ',
-    'rename from ', 'rename to ',
-    'similarity index ', 'dissimilarity index ',
-    'new file mode ', 'index ')
+    'old mode ',
+    'new mode ',
+    'deleted file mode ',
+    'new file mode ',
+    'copy from ',
+    'copy to ',
+    'rename from ',
+    'rename to ',
+    'similarity index ',
+    'dissimilarity index ',
+    'new file mode ',
+    'index ',
+)
 
 logger = logging.getLogger(__name__)
 
 
 class DuplicateMailError(Exception):
-
     def __init__(self, msgid):
         self.msgid = msgid
 
@@ -98,9 +104,9 @@ def sanitise_header(header_contents, header_name=None):
     # handling any interesting headers.
 
     try:
-        header = make_header(value,
-                             header_name=header_name,
-                             continuation_ws='\t')
+        header = make_header(
+            value, header_name=header_name, continuation_ws='\t'
+        )
     except (UnicodeDecodeError, LookupError, ValueError):
         #  - a part cannot be encoded as ascii. (UnicodeDecodeError), or
         #  - we don't have a codec matching the hint (LookupError)
@@ -118,9 +124,9 @@ def sanitise_header(header_contents, header_name=None):
             # python3 - force coding to unknown-8bit
             new_value += [(part, 'unknown-8bit')]
 
-        header = make_header(new_value,
-                             header_name=header_name,
-                             continuation_ws='\t')
+        header = make_header(
+            new_value, header_name=header_name, continuation_ws='\t'
+        )
 
     try:
         header.encode()
@@ -157,8 +163,9 @@ def find_project_by_id_and_subject(list_id, subject):
     for project in projects:
         if not project.subject_match:
             default = project
-        elif re.search(project.subject_match, subject,
-                       re.MULTILINE | re.IGNORECASE):
+        elif re.search(
+            project.subject_match, subject, re.MULTILINE | re.IGNORECASE
+        ):
             return project
 
     return default
@@ -171,8 +178,10 @@ def find_project(mail, list_id=None):
         return find_project_by_id_and_subject(list_id, clean_subject)
 
     project = None
-    listid_res = [re.compile(r'.*<([^>]+)>.*', re.S),
-                  re.compile(r'^([\S]+)$', re.S)]
+    listid_res = [
+        re.compile(r'.*<([^>]+)>.*', re.S),
+        re.compile(r'^([\S]+)$', re.S),
+    ]
 
     for header in list_id_headers:
         if header in mail:
@@ -195,8 +204,9 @@ def find_project(mail, list_id=None):
                 break
 
     if not project:
-        logger.debug("Could not find a valid project for given list-id and "
-                     "subject.")
+        logger.debug(
+            "Could not find a valid project for given list-id and " "subject."
+        )
 
     return project
 
@@ -243,7 +253,8 @@ def _find_series_by_references(project, mail):
     for ref in refs:
         try:
             series = SeriesReference.objects.get(
-                msgid=ref[:255], project=project).series
+                msgid=ref[:255], project=project
+            ).series
 
             if series.version != version:
                 # if the versions don't match, at least make sure these were
@@ -296,8 +307,12 @@ def _find_series_by_markers(project, mail, author):
     end_date = date + delta
 
     return Series.objects.filter(
-        submitter=author, project=project, version=version, total=total,
-        date__range=[start_date, end_date])
+        submitter=author,
+        project=project,
+        version=version,
+        total=total,
+        date__range=[start_date, end_date],
+    )
 
 
 def find_series(project, mail, author):
@@ -329,14 +344,13 @@ def split_from_header(from_header):
     from_res = [
         # for "Firstname Lastname" <example@example.com> style addresses
         (re.compile(r'"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
-
         # for example at example.com (Firstname Lastname) style addresses
-        (re.compile(r'(.*?)\sat\s(.*?)\s*\(([^\)]+)\)'),
-         (lambda g: (g[2], '@'.join(g[0:2])))),
-
+        (
+            re.compile(r'(.*?)\sat\s(.*?)\s*\(([^\)]+)\)'),
+            (lambda g: (g[2], '@'.join(g[0:2]))),
+        ),
         # for example@example.com (Firstname Lastname) style addresses
         (re.compile(r'"?(.*?)"?\s*\(([^\)]+)\)'), (lambda g: (g[1], g[0]))),
-
         # everything else
         (re.compile(r'(.*)'), (lambda g: (None, g[0]))),
     ]
@@ -372,11 +386,11 @@ def get_original_sender(mail, name, email):
     if name and ' via ' in name:
         # Mailman uses the format "<name> via <list>"
         # Google Groups uses "'<name>' via <list>"
-        stripped_name = name[:name.rfind(' via ')].strip().strip("'")
+        stripped_name = name[: name.rfind(' via ')].strip().strip("'")
     elif name.endswith(' via'):
         # Sometimes this seems to happen (perhaps if Mailman isn't set up with
         # any list name)
-        stripped_name = name[:name.rfind(' via')].strip().strip("'")
+        stripped_name = name[: name.rfind(' via')].strip().strip("'")
     else:
         # We've hit a format that we don't expect
         stripped_name = None
@@ -427,9 +441,9 @@ def get_or_create_author(mail, project=None):
     # the person and another process beats us to it. (If the record
     # does not exist, g_o_c invokes _create_object_from_params which
     # catches the IntegrityError and repeats the SELECT.)
-    person = Person.objects.get_or_create(email__iexact=email,
-                                          defaults={'name': name,
-                                                    'email': email})[0]
+    person = Person.objects.get_or_create(
+        email__iexact=email, defaults={'name': name, 'email': email}
+    )[0]
 
     if name and name != person.name:  # use the latest provided name
         person.name = name
@@ -463,11 +477,16 @@ def find_date(mail):
 
 
 def find_headers(mail):
-    headers = [(key, sanitise_header(value, header_name=key))
-               for key, value in mail.items()]
+    headers = [
+        (key, sanitise_header(value, header_name=key))
+        for key, value in mail.items()
+    ]
 
-    strings = [('%s: %s' % (key, header.encode()))
-               for (key, header) in headers if header is not None]
+    strings = [
+        ('%s: %s' % (key, header.encode()))
+        for (key, header) in headers
+        if header is not None
+    ]
 
     return '\n'.join(strings)
 
@@ -771,8 +790,11 @@ def clean_subject(subject, drop_prefixes=None):
 
     while match:
         prefix_str = match.group(1)
-        prefixes += [p for p in split_prefixes(prefix_str)
-                     if p.lower() not in drop_prefixes]
+        prefixes += [
+            p
+            for p in split_prefixes(prefix_str)
+            if p.lower() not in drop_prefixes
+        ]
 
         subject = match.group(2)
         match = prefix_re.match(subject)
@@ -860,8 +882,7 @@ def parse_patch(content):
         line += '\n'
 
         if state == 0:
-            if line.startswith('diff ') \
-                    or line.startswith('Index: '):
+            if line.startswith('diff ') or line.startswith('Index: '):
                 state = 1
                 buf += line
             elif line.startswith('--- '):
@@ -889,6 +910,7 @@ def parse_patch(content):
         elif state == 3:
             match = _hunk_re.match(line)
             if match:
+
                 def fn(x):
                     if not x:
                         return 1
@@ -963,7 +985,8 @@ def parse_pull_request(content):
         r'^The following changes since commit.*'
         r'^are available in the git repository at:\s*\n'
         r'^\s*([\w+-]+(?:://|@)[\w/.@:~-]+[\s\\]*[\w/._-]*)\s*$',
-        re.DOTALL | re.MULTILINE | re.IGNORECASE)
+        re.DOTALL | re.MULTILINE | re.IGNORECASE,
+    )
     match = git_re.search(content)
     if match:
         return re.sub(r'\s+', ' ', match.group(1)).strip()
@@ -1117,7 +1140,8 @@ def parse_mail(mail, list_id=None):
                 diff=diff,
                 pull_url=pull_url,
                 delegate=delegate,
-                state=find_state(mail))
+                state=find_state(mail),
+            )
             logger.debug('Patch saved')
 
         for attempt in range(1, 11):  # arbitrary retry count
@@ -1138,7 +1162,8 @@ def parse_mail(mail, list_id=None):
                             # another duplicate - find the best possible match
                             for series in series.order_by('-date'):
                                 if Patch.objects.filter(
-                                        series=series, number=x).count():
+                                    series=series, number=x
+                                ).count():
                                     continue
                                 break
                             else:
@@ -1152,14 +1177,19 @@ def parse_mail(mail, list_id=None):
                     # - there is no existing series to assign this patch to, or
                     # - there is an existing series, but it already has a patch
                     #   with this number in it
-                    if not series or Patch.objects.filter(
-                            series=series, number=x).count():
+                    if (
+                        not series
+                        or Patch.objects.filter(
+                            series=series, number=x
+                        ).count()
+                    ):
                         series = Series.objects.create(
                             project=project,
                             date=date,
                             submitter=author,
                             version=version,
-                            total=n)
+                            total=n,
+                        )
 
                         # NOTE(stephenfin) We must save references for series.
                         # We do this to handle the case where a later patch is
@@ -1177,32 +1207,40 @@ def parse_mail(mail, list_id=None):
                                 # series ref for this series, so check for the
                                 # msg-id only, not the msg-id/series pair.
                                 SeriesReference.objects.get(
-                                    msgid=ref, project=project)
+                                    msgid=ref, project=project
+                                )
                             except SeriesReference.DoesNotExist:
                                 SeriesReference.objects.create(
-                                    msgid=ref, project=project, series=series)
+                                    msgid=ref, project=project, series=series
+                                )
 
                         # attempt to pull the series in again, raising an
                         # exception if we lost the race when creating a series
                         # and force us to go through this again
-                        if attempt != 10 and find_series(
-                                project, mail, author).count() > 1:
+                        if (
+                            attempt != 10
+                            and find_series(project, mail, author).count() > 1
+                        ):
                             raise DuplicateSeriesError()
 
                     break
             except (IntegrityError, DuplicateSeriesError):
                 # we lost the race so go again
-                logger.warning('Conflict while saving series. This is '
-                               'probably because multiple patches belonging '
-                               'to the same series have been received at '
-                               'once. Trying again (attempt %02d/10)',
-                               attempt)
+                logger.warning(
+                    'Conflict while saving series. This is '
+                    'probably because multiple patches belonging '
+                    'to the same series have been received at '
+                    'once. Trying again (attempt %02d/10)',
+                    attempt,
+                )
         else:
             # we failed to save the series so return the series-less patch
-            logger.warning('Failed to save series. Your patch with message ID '
-                           '%s has been saved but this should not happen. '
-                           'Please report this as a bug and include logs',
-                           msgid)
+            logger.warning(
+                'Failed to save series. Your patch with message ID '
+                '%s has been saved but this should not happen. '
+                'Please report this as a bug and include logs',
+                msgid,
+            )
             return patch
 
         # add to a series if we have found one, and we have a numbered
@@ -1241,7 +1279,8 @@ def parse_mail(mail, list_id=None):
             # message
             try:
                 series = SeriesReference.objects.get(
-                    msgid=msgid, project=project).series
+                    msgid=msgid, project=project
+                ).series
             except SeriesReference.DoesNotExist:
                 series = None
 
@@ -1251,13 +1290,15 @@ def parse_mail(mail, list_id=None):
                     date=date,
                     submitter=author,
                     version=version,
-                    total=n)
+                    total=n,
+                )
 
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
                 # series
                 SeriesReference.objects.create(
-                    msgid=msgid, project=project, series=series)
+                    msgid=msgid, project=project, series=series
+                )
 
             with transaction.atomic():
                 if Cover.objects.filter(project=project, msgid=msgid):
@@ -1270,7 +1311,8 @@ def parse_mail(mail, list_id=None):
                     date=date,
                     headers=headers,
                     submitter=author,
-                    content=message)
+                    content=message,
+                )
 
             logger.debug('Cover letter saved')
 
@@ -1296,7 +1338,8 @@ def parse_mail(mail, list_id=None):
                 headers=headers,
                 submitter=author,
                 content=message,
-                addressed=addressed)
+                addressed=addressed,
+            )
 
         logger.debug('Comment saved')
 
@@ -1317,7 +1360,8 @@ def parse_mail(mail, list_id=None):
             date=date,
             headers=headers,
             submitter=author,
-            content=message)
+            content=message,
+        )
 
     logger.debug('Comment saved')
 

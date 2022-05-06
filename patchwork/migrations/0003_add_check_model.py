@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
                     'target_url',
                     models.URLField(
                         help_text=b'The target URL to associate with this '
-                                  b'check. This should be specific to the '
-                                  b'patch.',
+                        b'check. This should be specific to the '
+                        b'patch.',
                         null=True,
                         blank=True,
                     ),
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                         max_length=255,
                         null=True,
                         help_text=b'A label to discern check from checks of '
-                                  b'other testing systems.',
+                        b'other testing systems.',
                         blank=True,
                     ),
                 ),

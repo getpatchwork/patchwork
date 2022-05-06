@@ -78,17 +78,21 @@ def _optinout(request, action):
 
     form = EmailForm(data=request.POST)
     if not form.is_valid():
-        context['error'] = ('There was an error in the form. Please review '
-                            'and re-submit.')
+        context['error'] = (
+            'There was an error in the form. Please review ' 'and re-submit.'
+        )
         context['form'] = form
         return render(request, html_template, context)
 
     email = form.cleaned_data['email']
-    if action == 'optin' and EmailOptout.objects.filter(
-            email=email).count() == 0:
-        context['error'] = ("The email address %s is not on the patchwork "
-                            "opt-out list, so you don't need to opt back in" %
-                            email)
+    if (
+        action == 'optin'
+        and EmailOptout.objects.filter(email=email).count() == 0
+    ):
+        context['error'] = (
+            "The email address %s is not on the patchwork "
+            "opt-out list, so you don't need to opt back in" % email
+        )
         context['form'] = form
         return render(request, html_template, context)
 
@@ -104,8 +108,10 @@ def _optinout(request, action):
         send_mail(subject, message, conf_settings.DEFAULT_FROM_EMAIL, [email])
     except smtplib.SMTPException:
         context['confirmation'] = None
-        context['error'] = ('An error occurred during confirmation . '
-                            'Please try again later.')
+        context['error'] = (
+            'An error occurred during confirmation . '
+            'Please try again later.'
+        )
         context['admins'] = conf_settings.ADMINS
 
     return render(request, html_template, context)

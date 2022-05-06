@@ -43,6 +43,7 @@ class Migration(migrations.Migration):
             options={'ordering': ['-priority', 'path']},
         ),
         migrations.AlterUniqueTogether(
-            name='delegationrule', unique_together=set([('path', 'project')]),
+            name='delegationrule',
+            unique_together=set([('path', 'project')]),
         ),
     ]

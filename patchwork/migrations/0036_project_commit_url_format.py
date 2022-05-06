@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text=b'URL format for a particular commit. {} will be '
-                          b'replaced by the commit SHA.',
+                b'replaced by the commit SHA.',
                 max_length=2000,
             ),
         ),

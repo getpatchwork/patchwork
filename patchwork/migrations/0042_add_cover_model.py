@@ -39,7 +39,6 @@ class Migration(migrations.Migration):
 
     operations = [
         # create a new, separate cover (letter) model
-
         migrations.CreateModel(
             name='Cover',
             fields=[
@@ -86,11 +85,10 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='cover', unique_together=set([('msgid', 'project')]),
+            name='cover',
+            unique_together=set([('msgid', 'project')]),
         ),
-
         # create a new, separate cover (letter) comment model
-
         migrations.CreateModel(
             name='CoverComment',
             fields=[
@@ -136,13 +134,12 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='covercomment', unique_together=set([('msgid', 'cover')]),
+            name='covercomment',
+            unique_together=set([('msgid', 'cover')]),
         ),
-
         # copy all entries from the 'CoverLetter' model to the new 'Cover'
         # model; note that it's not possible to reverse this since we can't
         # guarantee IDs will be unique after the split
-
         migrations.RunSQL(
             """
             INSERT INTO patchwork_cover
@@ -155,10 +152,8 @@ class Migration(migrations.Migration):
             """,
             None,
         ),
-
         # copy all 'CoverLetter'-related comments to the new 'CoverComment'
         # table; as above, this is non-reversible
-
         migrations.RunSQL(
             """
             INSERT INTO patchwork_covercomment
@@ -171,10 +166,8 @@ class Migration(migrations.Migration):
             """,
             None,
         ),
-
         # update all references to the 'CoverLetter' model to point to the new
         # 'Cover' model instead
-
         migrations.AlterField(
             model_name='event',
             name='cover',
@@ -194,26 +187,20 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name='series',
-                to='patchwork.Cover'
+                to='patchwork.Cover',
             ),
         ),
-
         # remove all the old 'CoverLetter'-related entries from the 'Comment'
         # table
-
         migrations.RunPython(delete_coverletter_comments, None, atomic=False),
-
         # delete the old 'CoverLetter' model
-
         migrations.DeleteModel(
             name='CoverLetter',
         ),
-
         # rename the 'Comment.submission' field to 'Comment.patch'; note our
         # use of 'AlterField' before and after to work around bug #31335
         #
         # https://code.djangoproject.com/ticket/31335
-
         migrations.AlterField(
             model_name='comment',
             name='submission',
@@ -255,9 +242,7 @@ class Migration(migrations.Migration):
                 to='patchwork.Submission',
             ),
         ),
-
         # rename the 'Comment' model to 'PatchComment'
-
         migrations.RenameModel(
             old_name='Comment',
             new_name='PatchComment',

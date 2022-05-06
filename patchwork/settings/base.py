@@ -4,8 +4,9 @@ Base settings for patchwork project.
 
 import os
 
-ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        os.pardir, os.pardir)
+ROOT_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir
+)
 
 #
 # Core settings
@@ -167,8 +168,7 @@ except ImportError:
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS':
-        'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_PAGINATION_CLASS': 'patchwork.api.base.LinkHeaderPagination',
     'DEFAULT_FILTER_BACKENDS': (
         'patchwork.api.filters.DjangoFilterBackend',

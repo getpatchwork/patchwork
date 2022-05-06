@@ -37,22 +37,33 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
 
     def get_comments(self, cover):
         return self.context.get('request').build_absolute_uri(
-            reverse('api-cover-comment-list', kwargs={'cover_id': cover.id}))
+            reverse('api-cover-comment-list', kwargs={'cover_id': cover.id})
+        )
 
     def to_representation(self, instance):
         # NOTE(stephenfin): This is here to ensure our API looks the same even
         # after we changed the series-patch relationship from M:N to 1:N. It
         # will be removed in API v2
-        data = super(CoverListSerializer, self).to_representation(
-            instance)
+        data = super(CoverListSerializer, self).to_representation(instance)
         data['series'] = [data['series']] if data['series'] else []
         return data
 
     class Meta:
         model = Cover
-        fields = ('id', 'url', 'web_url', 'project', 'msgid',
-                  'list_archive_url', 'date', 'name', 'submitter', 'mbox',
-                  'series', 'comments')
+        fields = (
+            'id',
+            'url',
+            'web_url',
+            'project',
+            'msgid',
+            'list_archive_url',
+            'date',
+            'name',
+            'submitter',
+            'mbox',
+            'series',
+            'comments',
+        )
         read_only_fields = fields
         versioned_fields = {
             '1.1': ('web_url', 'mbox', 'comments'),
@@ -83,8 +94,7 @@ class CoverDetailSerializer(CoverListSerializer):
 
     class Meta:
         model = Cover
-        fields = CoverListSerializer.Meta.fields + (
-            'headers', 'content')
+        fields = CoverListSerializer.Meta.fields + ('headers', 'content')
         read_only_fields = fields
         extra_kwargs = CoverListSerializer.Meta.extra_kwargs
         versioned_fields = CoverListSerializer.Meta.versioned_fields
@@ -100,10 +110,12 @@ class CoverList(ListAPIView):
     ordering = 'id'
 
     def get_queryset(self):
-        return Cover.objects.all()\
-            .prefetch_related('series__project')\
-            .select_related('project', 'submitter', 'series')\
+        return (
+            Cover.objects.all()
+            .prefetch_related('series__project')
+            .select_related('project', 'submitter', 'series')
             .defer('content', 'headers')
+        )
 
 
 class CoverDetail(RetrieveAPIView):
@@ -112,5 +124,6 @@ class CoverDetail(RetrieveAPIView):
     serializer_class = CoverDetailSerializer
 
     def get_queryset(self):
-        return Cover.objects.all()\
-            .select_related('project', 'submitter', 'series')
+        return Cover.objects.all().select_related(
+            'project', 'submitter', 'series'
+        )

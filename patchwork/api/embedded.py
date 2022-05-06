@@ -45,13 +45,9 @@ class SerializedRelatedField(PrimaryKeyRelatedField):
         if cutoff is not None:
             queryset = queryset[:cutoff]
 
-        return OrderedDict([
-            (
-                item.pk,
-                self.display_value(item)
-            )
-            for item in queryset
-        ])
+        return OrderedDict(
+            [(item.pk, self.display_value(item)) for item in queryset]
+        )
 
     def to_representation(self, data):
         return self._Serializer(context=self.context).to_representation(data)
@@ -82,14 +78,14 @@ class WebURLMixin(BaseHyperlinkedModelSerializer):
 
 
 class CheckSerializer(SerializedRelatedField):
-
     class _Serializer(BaseHyperlinkedModelSerializer):
 
         url = CheckHyperlinkedIdentityField('api-check-detail')
 
         def to_representation(self, instance):
             data = super(CheckSerializer._Serializer, self).to_representation(
-                instance)
+                instance
+            )
             data['state'] = instance.get_state_display()
             return data
 
@@ -103,16 +99,25 @@ class CheckSerializer(SerializedRelatedField):
 
 
 class CoverSerializer(SerializedRelatedField):
-
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.Cover
-            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
-                      'date', 'name', 'mbox')
+            fields = (
+                'id',
+                'url',
+                'web_url',
+                'msgid',
+                'list_archive_url',
+                'date',
+                'name',
+                'mbox',
+            )
             read_only_fields = fields
             versioned_fields = {
-                '1.1': ('web_url', 'mbox', ),
+                '1.1': (
+                    'web_url',
+                    'mbox',
+                ),
                 '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
@@ -121,16 +126,24 @@ class CoverSerializer(SerializedRelatedField):
 
 
 class CoverCommentSerializer(SerializedRelatedField):
-
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.CoverComment
-            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
-                      'date', 'name')
+            fields = (
+                'id',
+                'url',
+                'web_url',
+                'msgid',
+                'list_archive_url',
+                'date',
+                'name',
+            )
             read_only_fields = fields
             versioned_fields = {
-                '1.1': ('web_url', 'mbox', ),
+                '1.1': (
+                    'web_url',
+                    'mbox',
+                ),
                 '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
@@ -139,16 +152,22 @@ class CoverCommentSerializer(SerializedRelatedField):
 
 
 class PatchSerializer(SerializedRelatedField):
-
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.Patch
-            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
-                      'date', 'name', 'mbox')
+            fields = (
+                'id',
+                'url',
+                'web_url',
+                'msgid',
+                'list_archive_url',
+                'date',
+                'name',
+                'mbox',
+            )
             read_only_fields = fields
             versioned_fields = {
-                '1.1': ('web_url', ),
+                '1.1': ('web_url',),
                 '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
@@ -157,16 +176,24 @@ class PatchSerializer(SerializedRelatedField):
 
 
 class PatchCommentSerializer(SerializedRelatedField):
-
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.PatchComment
-            fields = ('id', 'url', 'web_url', 'msgid', 'list_archive_url',
-                      'date', 'name')
+            fields = (
+                'id',
+                'url',
+                'web_url',
+                'msgid',
+                'list_archive_url',
+                'date',
+                'name',
+            )
             read_only_fields = fields
             versioned_fields = {
-                '1.1': ('web_url', 'mbox', ),
+                '1.1': (
+                    'web_url',
+                    'mbox',
+                ),
                 '1.2': ('list_archive_url',),
             }
             extra_kwargs = {
@@ -175,9 +202,7 @@ class PatchCommentSerializer(SerializedRelatedField):
 
 
 class PersonSerializer(SerializedRelatedField):
-
     class _Serializer(BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.Person
             fields = ('id', 'url', 'name', 'email')
@@ -188,7 +213,6 @@ class PersonSerializer(SerializedRelatedField):
 
 
 class ProjectSerializer(SerializedRelatedField):
-
     class _Serializer(BaseHyperlinkedModelSerializer):
 
         link_name = CharField(max_length=255, source='linkname')
@@ -197,31 +221,49 @@ class ProjectSerializer(SerializedRelatedField):
 
         class Meta:
             model = models.Project
-            fields = ('id', 'url', 'name', 'link_name', 'list_id',
-                      'list_email', 'web_url', 'scm_url', 'webscm_url',
-                      'list_archive_url', 'list_archive_url_format',
-                      'commit_url_format')
+            fields = (
+                'id',
+                'url',
+                'name',
+                'link_name',
+                'list_id',
+                'list_email',
+                'web_url',
+                'scm_url',
+                'webscm_url',
+                'list_archive_url',
+                'list_archive_url_format',
+                'commit_url_format',
+            )
             read_only_fields = fields
             extra_kwargs = {
                 'url': {'view_name': 'api-project-detail'},
             }
             versioned_fields = {
-                '1.2': ('list_archive_url', 'list_archive_url_format',
-                        'commit_url_format'),
+                '1.2': (
+                    'list_archive_url',
+                    'list_archive_url_format',
+                    'commit_url_format',
+                ),
             }
 
 
 class SeriesSerializer(SerializedRelatedField):
-
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.Series
-            fields = ('id', 'url', 'web_url', 'date', 'name', 'version',
-                      'mbox')
+            fields = (
+                'id',
+                'url',
+                'web_url',
+                'date',
+                'name',
+                'version',
+                'mbox',
+            )
             read_only_fields = fields
             versioned_fields = {
-                '1.1': ('web_url', ),
+                '1.1': ('web_url',),
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-series-detail'},
@@ -229,13 +271,17 @@ class SeriesSerializer(SerializedRelatedField):
 
 
 class UserSerializer(SerializedRelatedField):
-
     class _Serializer(BaseHyperlinkedModelSerializer):
-
         class Meta:
             model = models.User
-            fields = ('id', 'url', 'username', 'first_name', 'last_name',
-                      'email')
+            fields = (
+                'id',
+                'url',
+                'username',
+                'first_name',
+                'last_name',
+                'email',
+            )
             read_only_fields = fields
             extra_kwargs = {
                 'url': {'view_name': 'api-user-detail'},
@@ -243,7 +289,6 @@ class UserSerializer(SerializedRelatedField):
 
 
 class UserProfileSerializer(SerializedRelatedField):
-
     class _Serializer(BaseHyperlinkedModelSerializer):
 
         username = CharField(source='user.username')
@@ -253,8 +298,14 @@ class UserProfileSerializer(SerializedRelatedField):
 
         class Meta:
             model = models.UserProfile
-            fields = ('id', 'url', 'username', 'first_name', 'last_name',
-                      'email')
+            fields = (
+                'id',
+                'url',
+                'username',
+                'first_name',
+                'last_name',
+                'email',
+            )
             read_only_fields = fields
             extra_kwargs = {
                 'url': {'view_name': 'api-user-detail'},

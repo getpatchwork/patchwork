@@ -7,8 +7,7 @@ import subprocess
 import os
 
 
-ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        os.pardir)
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 
 
 def get_latest_version(version):
@@ -25,8 +24,12 @@ def get_latest_version(version):
 
 def format_version(version):
     """Format version tuple."""
-    return '.'.join(['.'.join([str(x) for x in version[:3]]),
-                     '-'.join([str(x) for x in version[3:]])])
+    return '.'.join(
+        [
+            '.'.join([str(x) for x in version[:3]]),
+            '-'.join([str(x) for x in version[3:]]),
+        ]
+    )
 
 
 def format_git_version(version):
@@ -41,9 +44,9 @@ def format_git_version(version):
 def get_raw_git_version():
     """Returns the raw git version via 'git-describe'."""
     try:
-        git_version = subprocess.check_output(['git', 'describe'],
-                                              stderr=subprocess.STDOUT,
-                                              cwd=ROOT_DIR)
+        git_version = subprocess.check_output(
+            ['git', 'describe'], stderr=subprocess.STDOUT, cwd=ROOT_DIR
+        )
     except (OSError, subprocess.CalledProcessError):
         return ''
 
