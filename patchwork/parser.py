@@ -236,15 +236,15 @@ def _find_series_by_references(project, mail):
     name, prefixes = clean_subject(subject, [project.linkname])
     version = parse_version(name, prefixes)
 
-    refs = find_references(mail)
-    h = clean_header(mail.get('Message-Id'))
-    if h:
-        refs = [h] + refs
+    msg_id = find_message_id(mail)
+    refs = [msg_id] + find_references(mail)
 
     for ref in refs:
         try:
             series = SeriesReference.objects.get(
-                msgid=ref[:255], project=project).series
+                msgid=ref[:255],
+                project=project,
+            ).series
 
             if series.version != version:
                 # if the versions don't match, at least make sure these were
@@ -473,6 +473,34 @@ def find_headers(mail):
     return '\n'.join(strings)
 
 
+def find_message_id(mail):
+    """Extract the 'message-id' headers from a given mail and validate it.
+
+    The validation here is simply checking that the Message-ID is correctly
+    formatted per RFC-2822. However, even if it's not we'll attempt to use what
+    we're given because a patch tracked in Patchwork with janky threading is
+    better than no patch whatsoever.
+    """
+    header = clean_header(mail.get('Message-Id'))
+    if not header:
+        raise ValueError("Broken 'Message-Id' header")
+
+    msgid = _msgid_re.search(header)
+    if msgid:
+        msgid = msgid.group(0)
+    else:
+        # This is only info level since the admin likely can't do anything
+        # about this
+        logger.info(
+            "Malformed 'Message-Id' header. The 'msg-id' component should be "
+            "surrounded by angle brackets. Saving raw header. This may "
+            "include comments and extra whitespace."
+        )
+        msgid = header.strip()
+
+    return msgid[:255]
+
+
 def find_references(mail):
     """Construct a list of possible reply message ids.
 
@@ -482,19 +510,33 @@ def find_references(mail):
     """
     refs = []
 
-    if 'In-Reply-To' in mail:
-        for in_reply_to in mail.get_all('In-Reply-To'):
-            ref = _msgid_re.search(clean_header(in_reply_to))
-            if ref:
-                refs.append(ref.group(0))
+    for header in mail.get_all('In-Reply-To', []):
+        header = clean_header(header)
+        if not header:
+            continue
+        ref = _msgid_re.search(header)
+        if ref:
+            ref = ref.group(0)
+        else:
+            logger.info(
+                "Malformed 'In-Reply-To' header. The 'msg-id' component "
+                "should be surrounded by angle brackets. Saving raw header. "
+                "This may include comments and extra whitespace."
+            )
+            ref = header.strip()
+        refs.append(ref)
 
-    if 'References' in mail:
-        for references_header in mail.get_all('References'):
-            references = _msgid_re.findall(clean_header(references_header))
-            references.reverse()
-            for ref in references:
-                if ref not in refs:
-                    refs.append(ref)
+    for header in mail.get_all('References', []):
+        header = clean_header(header)
+        if not header:
+            continue
+        # NOTE: We can't really implement a fallback here since without angle
+        # brackets there is no obvious way to delimit headers.
+        references = _msgid_re.findall(header)
+        references.reverse()
+        for ref in references:
+            if ref not in refs:
+                refs.append(ref)
 
     return refs
 
@@ -1056,11 +1098,7 @@ def parse_mail(mail, list_id=None):
 
     # parse metadata
 
-    msgid = clean_header(mail.get('Message-Id'))
-    if not msgid:
-        raise ValueError("Broken 'Message-Id' header")
-    msgid = msgid[:255]
-
+    msgid = find_message_id(mail)
     subject = mail.get('Subject')
     name, prefixes = clean_subject(subject, [project.linkname])
     is_comment = subject_check(subject)

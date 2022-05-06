@@ -1208,6 +1208,37 @@ class DuplicateMailTest(TestCase):
         self.assertEqual(Cover.objects.count(), 1)
 
 
+class TestFindMessageID(TestCase):
+    def test_find_message_id__missing_header(self):
+        email = create_email('test')
+        del email['Message-Id']
+        email['Message-Id'] = ''
+
+        with self.assertRaises(ValueError) as cm:
+            parser.find_message_id(email)
+            self.assertIn("Broken 'Message-Id' header", str(cm.exeception))
+
+    def test_find_message_id__header_with_comments(self):
+        """Test that we strip comments from the Message-ID field."""
+        message_id = '<xnzgy1de8d.fsf@rhel8.vm> (message ID with a comment)'
+        email = create_email('test', msgid=message_id)
+
+        expected = '<xnzgy1de8d.fsf@rhel8.vm>'
+        actual = parser.find_message_id(email)
+
+        self.assertEqual(expected, actual)
+
+    def test_find_message_id__invalid_header_fallback(self):
+        """Test that we accept badly formatted Message-ID fields."""
+        message_id = '5899d592-8c87-47d9-92b6-d34260ce1aa4@radware.com>'
+        email = create_email('test', msgid=message_id)
+
+        expected = '5899d592-8c87-47d9-92b6-d34260ce1aa4@radware.com>'
+        actual = parser.find_message_id(email)
+
+        self.assertEqual(expected, actual)
+
+
 class TestFindReferences(TestCase):
     def test_find_references__header_with_comments(self):
         """Test that we strip comments from References, In-Reply-To fields."""
@@ -1248,6 +1279,19 @@ class TestFindReferences(TestCase):
             '<1676591087.5291867.1368201908283.JavaMail.root@vmware.com>',
             '<CAE68AUOr7B5a2QvduJhH0kEHPi+sR9X3qfrtumgLxT1BK4VS+Q@mail.gmail.com>',  # noqa: E501
             '<AFCFCEB8EB0E24448E4EB95988BA1E531FA2EA0D@xmb-aln-x05.cisco.com>',
+        ]
+        actual = parser.find_references(email)
+
+        self.assertEqual(expected, actual)
+
+    def test_find_references__invalid_header_fallback(self):
+        """Test that we accept badly formatted In-Reply-To fields."""
+        message_id = '<F35DEAC7BCE34641BA9FAC6BCA4A12E70A85B341@SHSMSX104.ccr.corp.intel.com>'  # noqa: E501
+        in_reply_to = '5899d592-8c87-47d9-92b6-d34260ce1aa4@radware.com>'
+        email = create_email('test', msgid=message_id, in_reply_to=in_reply_to)
+
+        expected = [
+            '5899d592-8c87-47d9-92b6-d34260ce1aa4@radware.com>',
         ]
         actual = parser.find_references(email)
 
