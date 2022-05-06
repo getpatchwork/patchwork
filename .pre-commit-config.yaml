@@ -10,7 +10,7 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
       - id: end-of-file-fixer
-        exclude: (.*\.mbox)|(.*\.css)|(.*\.json)|(.*\.js)|(.*\.svg)|(.*/mails/.*-subject\.txt)
+        exclude: (.*\.mbox)|(.*\.css)|(.*\.json)|(.*\.js)|(.*\.svg)|(.*/mails/.*-subject\.txt)|(tools/docker/db)
       - id: trailing-whitespace
         exclude: (.*\.mbox)|(.*\.svg)
   - repo: https://gitlab.com/pycqa/flake8
