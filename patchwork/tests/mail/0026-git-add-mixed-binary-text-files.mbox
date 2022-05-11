@@ -1,0 +1,40 @@
+From 499d36d946a6f1f654eebad500742eb5c3057569 Mon Sep 17 00:00:00 2001
+From: Stephen Finucane <stephen@that.guru>
+Date: Wed, 11 May 2022 10:33:58 +0100
+Subject: [PATCH] Add a single pixel bitmap image, minimal script
+To: foo@example.com
+
+Demonstrate how Git generates a patch for a binary file when mixed with
+other file types.
+
+Signed-off-by: Stephen Finucane <stephen@that.guru>
+---
+ pixel.bmp | Bin 0 -> 142 bytes
+ quit.sh   |   3 +++
+ 2 files changed, 3 insertions(+)
+ create mode 100644 pixel.bmp
+ create mode 100644 quit.sh
+
+diff --git pixel.bmp pixel.bmp
+new file mode 100644
+index 0000000000000000000000000000000000000000..9710347a13c4336e7dbaafa69af0e44a40c21172
+GIT binary patch
+literal 142
+zcmZ?r?PGv|E+AC{#Eft(0hV9^lFE7z3>E+r{}~t{2+VVG4=P5;5yxUeQzj#`nE?RC
+Ceh3`^
+
+literal 0
+HcmV?d00001
+
+diff --git quit.sh quit.sh
+new file mode 100644
+index 0000000..f5f929a
+--- /dev/null
++++ quit.sh
+@@ -0,0 +1,3 @@
++#/usr/bin/env bash
++echo "Wuh wuh"
++exit 1
+-- 
+2.35.3
+

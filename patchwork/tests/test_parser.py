@@ -691,6 +691,40 @@ class PatchParseTest(PatchTest):
             'linux-davinci.git tags/davinci-for-v5.6/soc',
             pull_url)
 
+    def test_git_add_binary_file(self):
+        diff, message = self._find_content('0025-git-add-binary-file.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+        self.assertTrue(
+            diff.startswith('diff --git pixel.bmp pixel.bmp'), diff
+        )
+        self.assertIn('GIT binary patch\n', diff)
+        self.assertIn('literal 142\n', diff)
+        self.assertIn('literal 0\n', diff)
+
+    def test_git_add_mixed_binary_text_files(self):
+        diff, message = self._find_content(
+            '0026-git-add-mixed-binary-text-files.mbox'
+        )
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+        self.assertTrue(
+            diff.startswith('diff --git pixel.bmp pixel.bmp'), diff
+        )
+        self.assertIn('GIT binary patch\n', diff)
+        self.assertIn('diff --git quit.sh quit.sh\n', diff)
+
+    def test_git_modify_binary_file(self):
+        diff, message = self._find_content('0027-git-modify-binary-file.mbox')
+        self.assertTrue(diff is not None)
+        self.assertTrue(message is not None)
+        self.assertTrue(
+            diff.startswith('diff --git pixel.bmp pixel.bmp'), diff
+        )
+        self.assertIn('GIT binary patch\n', diff)
+        self.assertIn('literal 0\n', diff)
+        self.assertIn('literal 142\n', diff)
+
     def test_git_rename(self):
         diff, _ = self._find_content('0008-git-rename.mbox')
         self.assertTrue(diff is not None)

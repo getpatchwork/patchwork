@@ -1,0 +1,28 @@
+From 3029b9604cf2b2eaa5f38167f59246e2fa026eb5 Mon Sep 17 00:00:00 2001
+From: Stephen Finucane <stephen@that.guru>
+Date: Wed, 11 May 2022 10:59:59 +0100
+Subject: [PATCH] Add a single pixel bitmap image
+To: foo@example.com
+
+Demonstrate how Git generates a patch for a binary file.
+
+Signed-off-by: Stephen Finucane <stephen@that.guru>
+---
+ pixel.bmp | Bin 0 -> 142 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 pixel.bmp
+
+diff --git pixel.bmp pixel.bmp
+new file mode 100644
+index 0000000000000000000000000000000000000000..9710347a13c4336e7dbaafa69af0e44a40c21172
+GIT binary patch
+literal 142
+zcmZ?r?PGv|E+AC{#Eft(0hV9^lFE7z3>E+r{}~t{2+VVG4=P5;5yxUeQzj#`nE?RC
+Ceh3`^
+
+literal 0
+HcmV?d00001
+
+-- 
+2.35.3
+
