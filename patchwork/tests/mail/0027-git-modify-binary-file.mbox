@@ -1,0 +1,24 @@
+From 434fe33a7ed28cc8cd0b344e55f0be2c74f1a58c Mon Sep 17 00:00:00 2001
+From: Stephen Finucane <stephen@that.guru>
+Date: Wed, 11 May 2022 11:46:10 +0100
+Subject: [PATCH] Make changes to an existing binary file
+To: foo@example.com
+
+Signed-off-by: Stephen Finucane <stephen@that.guru>
+---
+ pixel.bmp | Bin 142 -> 0 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+diff --git pixel.bmp pixel.bmp
+index 9710347a13c4336e7dbaafa69af0e44a40c21172..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 100644
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 142
+zcmZ?r?PGv|E+AC{#Eft(0hV9^lFE7z3>E+r{}~t{2+VVG4=P5;5yxUeQzj#`nE?RC
+Ceh3`^
+
+-- 
+2.35.3
+

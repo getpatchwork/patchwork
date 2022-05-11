@@ -873,7 +873,7 @@ def parse_patch(content):
     format, and splits it into the component comments and diff.
 
     Args:
-        patch: The patch to be split
+        content: The mail to be split
 
     Returns:
         A tuple containing the diff and comment. Either one or both of
@@ -895,6 +895,7 @@ def parse_patch(content):
     # 4: patch hunk header line (@@ line)
     # 5: patch hunk content
     # 6: patch meta header (rename from/rename to/new file/index)
+    # 7: binary patch hunk
     #
     # valid transitions:
     #  0 -> 1 (diff, Index:)
@@ -903,10 +904,12 @@ def parse_patch(content):
     #  2 -> 3 (+++)
     #  3 -> 4 (@@ line)
     #  4 -> 5 (patch content)
-    #  5 -> 1 (run out of lines from @@-specifed count)
+    #  5 -> 1 (ran out of lines from @@-specified count)
     #  1 -> 6 (extended header lines)
     #  6 -> 2 (---)
+    #  6 -> 7 (GIT binary patch)
     #  6 -> 1 (other text)
+    #  7 -> 1 (diff)
     #
     # Suspected patch header is stored into buf, and appended to
     # patchbuf if we find a following hunk. Otherwise, append to
@@ -1001,9 +1004,20 @@ def parse_patch(content):
                 patchbuf += buf + line
                 buf = ''
                 state = 2
+            elif line.startswith('GIT binary patch'):
+                patchbuf += buf + line
+                buf = ''
+                state = 7
             else:
                 buf += line
                 state = 1
+        elif state == 7:
+            if line.startswith('diff'):
+                buf += line
+                state = 0
+            else:
+                patchbuf += buf + line
+                buf = ''
         else:
             raise Exception("Unknown state %d! (line '%s')" % (state, line))
 
