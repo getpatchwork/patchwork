@@ -369,11 +369,23 @@ class EmailMixin(models.Model):
 
     @property
     def url_msgid(self):
-        """A trimmed messageid, suitable for inclusion in URLs"""
+        """A trimmed Message ID, suitable for inclusion in URLs"""
         if settings.DEBUG:
             assert self.msgid[0] == '<' and self.msgid[-1] == '>'
 
         return self.msgid.strip('<>')
+
+    @property
+    def encoded_msgid(self):
+        """Like 'url_msgid' but with slashes percentage encoded."""
+        # We don't want to encode all characters (i.e. use urllib.parse.quote)
+        # because that would result in us encoding the '@' present in all
+        # message IDs. Instead we only percent-encode any slashes present [1].
+        # These are not common so this is very much expected to be an edge
+        # case.
+        #
+        # [1] https://datatracker.ietf.org/doc/html/rfc3986.html#section-2
+        return self.url_msgid.replace('/', '%2F')
 
     def save(self, *args, **kwargs):
         # Modifying a submission via admin interface changes '\n' newlines in
@@ -436,7 +448,7 @@ class Cover(SubmissionMixin):
             'cover-detail',
             kwargs={
                 'project_id': self.project.linkname,
-                'msgid': self.url_msgid,
+                'msgid': self.encoded_msgid,
             },
         )
 
@@ -445,7 +457,7 @@ class Cover(SubmissionMixin):
             'cover-mbox',
             kwargs={
                 'project_id': self.project.linkname,
-                'msgid': self.url_msgid,
+                'msgid': self.encoded_msgid,
             },
         )
 
@@ -671,7 +683,7 @@ class Patch(SubmissionMixin):
             'patch-detail',
             kwargs={
                 'project_id': self.project.linkname,
-                'msgid': self.url_msgid,
+                'msgid': self.encoded_msgid,
             },
         )
 
@@ -680,7 +692,7 @@ class Patch(SubmissionMixin):
             'patch-mbox',
             kwargs={
                 'project_id': self.project.linkname,
-                'msgid': self.url_msgid,
+                'msgid': self.encoded_msgid,
             },
         )
 
@@ -760,7 +772,6 @@ class CoverComment(EmailMixin, models.Model):
 
 
 class PatchComment(EmailMixin, models.Model):
-    # parent
 
     patch = models.ForeignKey(
         Patch,

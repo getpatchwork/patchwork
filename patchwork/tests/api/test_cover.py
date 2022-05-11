@@ -116,7 +116,7 @@ class TestCoverAPI(utils.APITestCase):
         """Filter covers by msgid."""
         cover = create_cover()
 
-        resp = self.client.get(self.api_url(), {'msgid': cover.url_msgid})
+        resp = self.client.get(self.api_url(), {'msgid': cover.encoded_msgid})
         self.assertEqual([cover.id], [x['id'] for x in resp.data])
 
         # empty response if nothing matches

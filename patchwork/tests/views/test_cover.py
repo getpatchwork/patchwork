@@ -19,14 +19,14 @@ class CoverViewTest(TestCase):
             'patch-detail',
             kwargs={
                 'project_id': cover.project.linkname,
-                'msgid': cover.url_msgid,
+                'msgid': cover.encoded_msgid,
             },
         )
         redirect_url = reverse(
             'cover-detail',
             kwargs={
                 'project_id': cover.project.linkname,
-                'msgid': cover.url_msgid,
+                'msgid': cover.encoded_msgid,
             },
         )
 
@@ -43,7 +43,7 @@ class CoverViewTest(TestCase):
             'cover-detail',
             kwargs={
                 'project_id': cover.project.linkname,
-                'msgid': cover.url_msgid,
+                'msgid': cover.encoded_msgid,
             },
         )
 
@@ -60,7 +60,7 @@ class CoverViewTest(TestCase):
             'cover-mbox',
             kwargs={
                 'project_id': cover.project.linkname,
-                'msgid': cover.url_msgid,
+                'msgid': cover.encoded_msgid,
             },
         )
 
@@ -98,7 +98,7 @@ class CommentRedirectTest(TestCase):
                 'cover-detail',
                 kwargs={
                     'project_id': cover.project.linkname,
-                    'msgid': cover.url_msgid,
+                    'msgid': cover.encoded_msgid,
                 },
             ),
             comment_id,

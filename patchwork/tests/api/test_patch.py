@@ -218,7 +218,7 @@ class TestPatchAPI(utils.APITestCase):
         """Filter patches by msgid."""
         patch = self._create_patch()
 
-        resp = self.client.get(self.api_url(), {'msgid': patch.url_msgid})
+        resp = self.client.get(self.api_url(), {'msgid': patch.encoded_msgid})
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
 
         # empty response if nothing matches

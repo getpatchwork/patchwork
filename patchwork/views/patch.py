@@ -40,7 +40,7 @@ def patch_list(request, project_id):
 
 def patch_detail(request, project_id, msgid):
     project = get_object_or_404(Project, linkname=project_id)
-    db_msgid = '<%s>' % msgid
+    db_msgid = f"<{msgid.replace('%2F', '/')}>"
 
     # redirect to cover letters where necessary
     try:
@@ -190,7 +190,7 @@ def patch_by_id(request, patch_id):
         'patch-detail',
         kwargs={
             'project_id': patch.project.linkname,
-            'msgid': patch.url_msgid,
+            'msgid': patch.encoded_msgid,
         },
     )
 
@@ -204,7 +204,7 @@ def patch_mbox_by_id(request, patch_id):
         'patch-mbox',
         kwargs={
             'project_id': patch.project.linkname,
-            'msgid': patch.url_msgid,
+            'msgid': patch.encoded_msgid,
         },
     )
 
@@ -218,7 +218,7 @@ def patch_raw_by_id(request, patch_id):
         'patch-raw',
         kwargs={
             'project_id': patch.project.linkname,
-            'msgid': patch.url_msgid,
+            'msgid': patch.encoded_msgid,
         },
     )
 

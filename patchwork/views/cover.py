@@ -71,7 +71,7 @@ def cover_by_id(request, cover_id):
         'cover-detail',
         kwargs={
             'project_id': cover.project.linkname,
-            'msgid': cover.url_msgid,
+            'msgid': cover.encoded_msgid,
         },
     )
 
@@ -85,7 +85,7 @@ def cover_mbox_by_id(request, cover_id):
         'cover-mbox',
         kwargs={
             'project_id': cover.project.linkname,
-            'msgid': cover.url_msgid,
+            'msgid': cover.encoded_msgid,
         },
     )
 
