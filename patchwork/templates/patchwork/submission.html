@@ -72,7 +72,7 @@
 {% if cover == submission %}
                 {{ cover.name|default:"[no subject]"|truncatechars:100 }}
 {% else %}
-              <a href="{% url 'cover-detail' project_id=project.linkname msgid=cover.url_msgid %}">
+              <a href="{% url 'cover-detail' project_id=project.linkname msgid=cover.encoded_msgid %}">
                 {{ cover.name|default:"[no subject]"|truncatechars:100 }}
               </a>
 {% endif %}
@@ -84,7 +84,7 @@
 {% if sibling == submission %}
                 {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
 {% else %}
-              <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
+              <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.encoded_msgid %}">
                 {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
               </a>
 {% endif %}
@@ -105,7 +105,7 @@
 {% for sibling in related_same_project %}
           <li>
 {% if sibling.id != submission.id %}
-            <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.url_msgid %}">
+            <a href="{% url 'patch-detail' project_id=project.linkname msgid=sibling.encoded_msgid %}">
               {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
             </a>
 {% endif %}
@@ -116,7 +116,7 @@
           <div id="related-outside" class="submission-list" style="display:none;">
 {% for sibling in related_outside %}
             <li>
-              <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.url_msgid %}">
+              <a href="{% url 'patch-detail' project_id=sibling.project.linkname msgid=sibling.encoded_msgid %}">
                 {{ sibling.name|default:"[no subject]"|truncatechars:100 }}
               </a> (in {{ sibling.project }})
             </li>

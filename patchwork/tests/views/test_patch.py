@@ -212,14 +212,14 @@ class PatchViewTest(TestCase):
             'cover-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
         redirect_url = reverse(
             'patch-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
 
@@ -238,7 +238,7 @@ class PatchViewTest(TestCase):
                 'patch-detail',
                 kwargs={
                     'project_id': patch.project.linkname,
-                    'msgid': patch.url_msgid,
+                    'msgid': patch.encoded_msgid,
                 },
             ),
             comment_id,
@@ -257,7 +257,7 @@ class PatchViewTest(TestCase):
             'patch-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
 
@@ -274,7 +274,7 @@ class PatchViewTest(TestCase):
             'patch-mbox',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
 
@@ -291,7 +291,7 @@ class PatchViewTest(TestCase):
             'patch-raw',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
 
@@ -315,7 +315,7 @@ class PatchViewTest(TestCase):
             'patch-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
         response = self.client.get(requested_url)
@@ -358,7 +358,7 @@ class PatchViewTest(TestCase):
             'patch-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
         response = self.client.get(requested_url)
@@ -511,7 +511,7 @@ class UTF8PatchViewTest(TestCase):
         response = self.client.get(
             reverse(
                 'patch-detail',
-                args=[self.patch.project.linkname, self.patch.url_msgid],
+                args=[self.patch.project.linkname, self.patch.encoded_msgid],
             )
         )
         self.assertContains(response, self.patch.name)
@@ -520,7 +520,7 @@ class UTF8PatchViewTest(TestCase):
         response = self.client.get(
             reverse(
                 'patch-mbox',
-                args=[self.patch.project.linkname, self.patch.url_msgid],
+                args=[self.patch.project.linkname, self.patch.encoded_msgid],
             )
         )
         self.assertEqual(response.status_code, 200)
@@ -530,7 +530,7 @@ class UTF8PatchViewTest(TestCase):
         response = self.client.get(
             reverse(
                 'patch-raw',
-                args=[self.patch.project.linkname, self.patch.url_msgid],
+                args=[self.patch.project.linkname, self.patch.encoded_msgid],
             )
         )
         self.assertEqual(response.status_code, 200)

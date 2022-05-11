@@ -1,0 +1,19 @@
+---
+fixes:
+  - |
+    Message IDs containing slashes will now have these slashes percent-encoded.
+    Previously, attempts to access submissions whose Message IDs contained
+    slashes would result in a HTTP 404 on some Django versions. If you wish to
+    access such a submission, you must now percent-encode the slashes first.
+    For example, to access a patch, cover letter or comment with the following
+    message ID:
+
+      bug-28101-10460-NydYNmfPGz@http.sourceware.org/bugzilla/
+
+    You should now use:
+
+      bug-28101-10460-NydYNmfPGz@http.sourceware.org%2Dbugzilla%2D
+
+    Both the web UI and REST API have been updated to generate URLs in this
+    format so this should only be noticable to users manually generating such
+    URLs.

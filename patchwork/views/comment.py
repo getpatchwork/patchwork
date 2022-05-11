@@ -29,7 +29,7 @@ def comment(request, comment_id):
             'patch-detail',
             kwargs={
                 'project_id': patch.project.linkname,
-                'msgid': patch.url_msgid,
+                'msgid': patch.encoded_msgid,
             },
         )
     else:  # cover
@@ -37,7 +37,7 @@ def comment(request, comment_id):
             'cover-detail',
             kwargs={
                 'project_id': cover.project.linkname,
-                'msgid': cover.url_msgid,
+                'msgid': cover.encoded_msgid,
             },
         )
 

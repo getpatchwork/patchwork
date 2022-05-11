@@ -496,7 +496,7 @@ class BundleCreateFromPatchTest(BundleTestBase):
                 'patch-detail',
                 kwargs={
                     'project_id': patch.project.linkname,
-                    'msgid': patch.url_msgid,
+                    'msgid': patch.encoded_msgid,
                 },
             ),
             params,
@@ -519,7 +519,7 @@ class BundleCreateFromPatchTest(BundleTestBase):
                 'patch-detail',
                 kwargs={
                     'project_id': patch.project.linkname,
-                    'msgid': patch.url_msgid,
+                    'msgid': patch.encoded_msgid,
                 },
             ),
             params,
@@ -655,7 +655,7 @@ class BundleAddFromPatchTest(BundleTestBase):
                 'patch-detail',
                 kwargs={
                     'project_id': patch.project.linkname,
-                    'msgid': patch.url_msgid,
+                    'msgid': patch.encoded_msgid,
                 },
             ),
             params,
@@ -680,7 +680,7 @@ class BundleAddFromPatchTest(BundleTestBase):
                 'patch-detail',
                 kwargs={
                     'project_id': patch.project.linkname,
-                    'msgid': patch.url_msgid,
+                    'msgid': patch.encoded_msgid,
                 },
             ),
             params,

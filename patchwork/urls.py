@@ -47,29 +47,21 @@ urlpatterns = [
         name='project-detail',
     ),
     # patch views
-    # NOTE(dja): Per the RFC, msgids can contain slashes. There doesn't seem
-    # to be an easy way to tell Django to urlencode the slash when generating
-    # URLs, so instead we must use a permissive regex (.+ rather than [^/]+).
-    # This also means we need to put the raw and mbox URLs first, otherwise the
-    # patch-detail regex will just greedily grab those parts into a massive and
-    # wrong msgid.
-    #
-    # This does mean that message-ids that end in '/raw/' or '/mbox/' will not
-    # work, but it is RECOMMENDED by the RFC that the right hand side of the @
-    # contains a domain, so I think breaking on messages that have "domains"
-    # ending in /raw/ or /mbox/ is good enough.
+    # NOTE(stephenfin): Per the RFC, msgids can contain slashes. Users are
+    # required to percent-encode any slashes present to generate valid URLs.
+    # The API does this automatically.
     path(
-        'project/<project_id>/patch/<path:msgid>/raw/',
+        'project/<project_id>/patch/<str:msgid>/raw/',
         patch_views.patch_raw,
         name='patch-raw',
     ),
     path(
-        'project/<project_id>/patch/<path:msgid>/mbox/',
+        'project/<project_id>/patch/<str:msgid>/mbox/',
         patch_views.patch_mbox,
         name='patch-mbox',
     ),
     path(
-        'project/<project_id>/patch/<path:msgid>/',
+        'project/<project_id>/patch/<str:msgid>/',
         patch_views.patch_detail,
         name='patch-detail',
     ),
