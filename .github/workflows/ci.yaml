@@ -4,16 +4,37 @@ on:
   - push
   - pull_request
 jobs:
-  lint:
-    name: Run linters
+  pyvers:
+    name: Enumerate supported Python versions
     runs-on: ubuntu-latest
+    env:
+      DEFAULT_PYTHON: '3.10'
+    outputs:
+      versions: ${{ steps.enumerator.outputs.versions }}
+      default: ${{ env.DEFAULT_PYTHON }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - id: enumerator
+        run: |
+          python -m pip install tox
+          versions=( $(tox -l | grep '^py' | cut -d- -f1 | sed -e 's,py\(.\)\(.*\),"\1.\2",' | sort -u -V) )
+          echo ::set-output "name=versions::[$(IFS=,; echo "${versions[*]}")]"
+  lint:
+    name: Run linters
+    runs-on: ubuntu-latest
+    needs: pyvers
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ needs.pyvers.outputs.default }}
       - name: Install dependencies
         run: python -m pip install tox
       - name: Run tox
@@ -21,9 +42,10 @@ jobs:
   test:
     name: Run unit tests
     runs-on: ubuntu-latest
+    needs: pyvers
     strategy:
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9]
+        python: ${{ fromJson(needs.pyvers.outputs.versions) }}
         db: [postgres, mysql, sqlite3]
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
@@ -91,15 +113,16 @@ jobs:
   docs:
     name: Build docs
     runs-on: ubuntu-latest
+    needs: pyvers
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Set up Python 3.9
+      - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ needs.pyvers.outputs.default }}
       - name: Install dependencies
         run: python -m pip install tox
       - name: Build docs (via tox)
@@ -113,6 +136,7 @@ jobs:
   docker-compose:
     name: Docker Image tests
     runs-on: ubuntu-latest
+    needs: pyvers
     strategy:
       matrix:
         db: [postgres, mysql, sqlite3]
@@ -123,10 +147,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Set up Python 3.9
+      - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ needs.pyvers.outputs.default }}
       - name: Build docker-compose service
         run: |
           docker-compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
