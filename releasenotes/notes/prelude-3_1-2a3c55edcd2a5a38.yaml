@@ -1,0 +1,9 @@
+---
+prelude: >
+    This release is one of the smaller releases. The primary new feature is
+    the ability to mark comments as addressed/unaddressed, allowing maintainers
+    to track work items. In addition, two new events have been added to the
+    ``/events`` API: ``cover-comment-created`` and ``patch-comment-created``.
+    Recent versions of Python (3.10) and Django (3.2, 4.0) are now supported,
+    while support for older Python (3.6) and Django (2.2, 3.0, 3.1) versions
+    has been removed. More information on all the above is included below.
