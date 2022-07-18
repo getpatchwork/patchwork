@@ -11,7 +11,7 @@ set -eu
 PW_DIR=/opt/patchwork/patchwork
 
 #TODO: the state map should really live in the repo's git-config
-STATE_MAP="refs/heads/master:Accepted"
+STATE_MAP="refs/heads/main:Accepted"
 
 # ignore all commits already present in these refs
 # e.g.,
