@@ -53,7 +53,7 @@ There is no cadence for releases: they are made available as necessary.
 Supported Versions
 ------------------
 
-Typically all development should occur on ``master``. While we will backport
+Typically all development should occur on ``main``. While we will backport
 bugfixes and security updates, we will not backport any new features. This is
 to ensure stability for users of these versions of Patchwork.
 
@@ -100,12 +100,12 @@ Backporting
 -----------
 
 We will occasionally backport bugfixes and security updates. When backporting a
-patch, said patch should first be merged into ``master``. Once merged, you can
+patch, said patch should first be merged into ``main``. Once merged, you can
 backport by cherry-picking commits, using the ``-x`` flag for posterity:
 
 .. code-block:: shell
 
-   $ git cherry-pick -x <master_commit>
+   $ git cherry-pick -x <main_commit>
 
 There may be some conflicts; resolve these, uncommenting the `Conflicts` line
 when committing::
