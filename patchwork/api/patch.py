@@ -42,10 +42,10 @@ class StateField(RelatedField):
     default_error_messages = {
         'required': _('This field is required.'),
         'invalid_choice': _(
-            'Invalid state {name}. Expected one of: ' '{choices}.'
+            'Invalid state {name}. Expected one of: {choices}.'
         ),
         'incorrect_type': _(
-            'Incorrect type. Expected string value, received ' '{data_type}.'
+            'Incorrect type. Expected string value, received {data_type}.'
         ),
     }
 

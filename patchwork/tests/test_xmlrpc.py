@@ -20,7 +20,7 @@ class ServerProxy(xmlrpc_client.ServerProxy):
 
 @unittest.skipUnless(
     settings.ENABLE_XMLRPC,
-    'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+    'requires xmlrpc interface (use the ENABLE_XMLRPC setting)',
 )
 class XMLRPCTest(LiveServerTestCase):
     def setUp(self):
@@ -51,7 +51,7 @@ class XMLRPCGenericTest(XMLRPCTest):
 
 @unittest.skipUnless(
     settings.ENABLE_XMLRPC,
-    'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+    'requires xmlrpc interface (use the ENABLE_XMLRPC setting)',
 )
 class XMLRPCAuthenticatedTest(LiveServerTestCase):
     def setUp(self):

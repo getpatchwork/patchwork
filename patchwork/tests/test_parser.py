@@ -325,7 +325,7 @@ class SenderCorrelationTest(TestCase):
         if x_original_from:
             mail += 'X-Original-From: %s\n' % x_original_from
 
-        mail += 'Subject: Tests\n\n' 'test\n'
+        mail += 'Subject: Tests\n\ntest\n'
 
         return message_from_string(mail)
 

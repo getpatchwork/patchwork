@@ -40,7 +40,7 @@ class RegistrationForm(forms.Form):
         except User.DoesNotExist:
             return self.cleaned_data['username']
         raise forms.ValidationError(
-            'This username is already taken. ' 'Please choose another.'
+            'This username is already taken. Please choose another.'
         )
 
     def clean_email(self):

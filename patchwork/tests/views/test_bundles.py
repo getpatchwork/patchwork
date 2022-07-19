@@ -826,7 +826,7 @@ class BundleReorderTest(BundleTestBase):
 
 @unittest.skipUnless(
     settings.COMPAT_REDIR,
-    'requires compat redirection (use the COMPAT_REDIR ' 'setting)',
+    'requires compat redirection (use the COMPAT_REDIR setting)',
 )
 class BundleRedirTest(BundleTestBase):
     """Validate redirection of legacy URLs."""

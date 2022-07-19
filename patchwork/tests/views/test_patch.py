@@ -145,7 +145,7 @@ class PatchListOrderingTest(TestCase):
     # [2] https://michaelsoolee.com/case-insensitive-sorting-sqlite/
     @unittest.skipIf(
         'sqlite3' in settings.DATABASES['default']['ENGINE'],
-        'The sqlite3 backend does not support case insensitive ' 'ordering',
+        'The sqlite3 backend does not support case insensitive ordering',
     )
     def test_submitter_order(self):
         url = reverse(
@@ -162,7 +162,7 @@ class PatchListOrderingTest(TestCase):
 
     @unittest.skipIf(
         'sqlite3' in settings.DATABASES['default']['ENGINE'],
-        'The sqlite3 backend does not support case insensitive ' 'ordering',
+        'The sqlite3 backend does not support case insensitive ordering',
     )
     def test_submitter_reverse_order(self):
         url = reverse(

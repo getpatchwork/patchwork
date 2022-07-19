@@ -24,7 +24,7 @@ class AboutViewTest(TestCase):
 
     @unittest.skipUnless(
         settings.ENABLE_XMLRPC,
-        'requires xmlrpc interface (use the ENABLE_XMLRPC ' 'setting)',
+        'requires xmlrpc interface (use the ENABLE_XMLRPC setting)',
     )
     def test_redirects_xmlrpc(self):
         self._test_redirect('help-pwclient')
