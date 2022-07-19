@@ -58,10 +58,6 @@ class RegistrationForm(forms.Form):
         return self.cleaned_data
 
 
-class EmailForm(forms.Form):
-    email = forms.EmailField(max_length=200)
-
-
 class BundleForm(forms.ModelForm):
     name = forms.RegexField(
         regex=r'^[^/]+$',
@@ -77,13 +73,6 @@ class BundleForm(forms.ModelForm):
 
 
 class CreateBundleForm(BundleForm):
-    def __init__(self, *args, **kwargs):
-        super(CreateBundleForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Bundle
-        fields = ['name']
-
     def clean_name(self):
         name = self.cleaned_data['name']
         count = Bundle.objects.filter(
@@ -95,11 +84,19 @@ class CreateBundleForm(BundleForm):
             )
         return name
 
+    class Meta:
+        model = Bundle
+        fields = ['name']
+
 
 class DeleteBundleForm(forms.Form):
     name = 'deletebundleform'
     form_name = forms.CharField(initial=name, widget=forms.HiddenInput)
     bundle_id = forms.IntegerField(widget=forms.HiddenInput)
+
+
+class EmailForm(forms.Form):
+    email = forms.EmailField(max_length=200)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -123,6 +120,7 @@ def _get_delegate_qs(project, instance=None):
     )
     if instance and instance.delegate:
         q = q | Q(username=instance.delegate)
+
     return User.objects.complex_filter(q)
 
 
@@ -139,6 +137,7 @@ class PatchForm(forms.ModelForm):
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
+
     no_change_choice = ('*', 'no change')
     to_field_name = None
 
@@ -177,6 +176,7 @@ class OptionalBooleanField(forms.TypedChoiceField):
 
 
 class MultiplePatchForm(forms.Form):
+
     action = 'update'
     archived = OptionalBooleanField(
         choices=[
