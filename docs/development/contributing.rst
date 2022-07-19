@@ -84,7 +84,7 @@ parameter:
 
 .. code-block:: shell
 
-   $ tox -e py27-django18
+   $ tox -e py310-django40
 
 In the case of the unit tests targets, you can also run specific tests by
 passing the fully qualified test name as an additional argument to this
@@ -92,7 +92,7 @@ command:
 
 .. code-block:: shell
 
-   $ tox -e py27-django18 patchwork.tests.SubjectCleanUpTest
+   $ tox -e py310-django40 patchwork.tests.SubjectCleanUpTest
 
 Because Patchwork support multiple versions of Django, it's very important that
 you test against all supported versions. When run without argument, tox will do
