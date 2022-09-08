@@ -449,7 +449,8 @@ class TestPatchComments(utils.APITestCase):
 
     @utils.store_samples('patch-comment-detail-update-not-authorized')
     def test_update_not_authorized(self):
-        """Update an existing patch comment when not signed in and not authorized.
+        """Update an existing patch comment when not signed in and not
+        authorized.
 
         To be authorized users must meet at least one of the following:
         - project maintainer, patch submitter, patch delegate, or
