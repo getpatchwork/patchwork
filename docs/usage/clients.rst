@@ -4,6 +4,13 @@ Clients
 A number of clients are available for interacting with Patchwork's various
 APIs.
 
+.. note::
+
+   Got a client that you think might be useful to the broader community? Feel
+   free to add it to this page by `submitting a patch`__.
+
+   __ https://patchwork.readthedocs.io/en/latest/development/contributing/
+
 
 pwclient
 --------
@@ -31,7 +38,7 @@ __ https://github.com/getpatchwork/pwclient/
 git-pw
 ------
 
-The :program:`git-pw` application can be used to integrate Git with Patchwork.
+The :program:`git-pw` application can be used to integrate Patchwork with Git.
 The :program:`git-pw` application relies on the REST API and can be used to
 interact to list, download and apply series, bundles and individual patches.
 
@@ -42,13 +49,28 @@ __ https://git-pw.readthedocs.io/
 __ https://github.com/getpatchwork/git-pw/
 
 
+VSCode-Patchwork
+----------------
+
+The *Patchwork* VSCode plugin can be used to integrate Patchwork with VSCode.
+This plugin relies on the REST API and can be used to view both patches and
+series and to apply them locally. You can also browse patches and series and
+look at replies.
+
+More information on the *Patchwork* VSCode plugin can be found on the `VSCode
+Marketplace`__ and the `GitHub repo`__.
+
+__ https://marketplace.visualstudio.com/items?itemName=florent-revest.patchwork
+__ https://github.com/FlorentRevest/vscode-patchwork
+
+
 snowpatch
 ---------
 
-The :program:`snowpatch` application is a bridge between Patchwork and the
-Jenkins continuous integration automation server. It monitors the REST API
-for incoming patches, applies them on top of an existing git tree, triggers
-appropriate builds and test suites, and reports the results back to Patchwork.
+The *snowpatch* application is a bridge between Patchwork and the Jenkins
+continuous integration automation server. It monitors the REST API for incoming
+patches, applies them on top of an existing git tree, triggers appropriate
+builds and test suites, and reports the results back to Patchwork.
 
 Find out more about :program:`snowpatch` at its `GitHub repo`__.
 

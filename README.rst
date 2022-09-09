@@ -38,6 +38,26 @@ subsystems of the Linux kernel. Although Patchwork has been developed with the
 kernel workflow in mind, the aim is to be flexible enough to suit the majority
 of community projects.
 
+Usage
+-----
+
+Patchwork provides a web UI, a REST API, and a XML-RPC API (*deprecated*). You
+can use the APIs to `build you own application`__ or you can use one the many
+`existing clients`__.
+
+There are many existing Patchwork instances. Unless you're a larger project
+that is already hosting many of its own resources, you may wish to request a
+project on one of these instances.
+
+- patchwork.ozlabs.org
+- patchwork.kernel.org
+- patches.linaro.org
+- patchwork.sourceware.org
+- patchwork.open-mesh.org
+
+__ https://patchwork.readthedocs.io/en/latest/development/api/
+__ https://patchwork.readthedocs.io/en/latest/usage/clients/
+
 Requirements
 ------------
 
