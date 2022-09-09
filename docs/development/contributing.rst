@@ -141,6 +141,43 @@ for more information.
     <release-notes>` using the ``api`` section.
 
 
+Documentation
+-------------
+
+All documentation files including release notes are authored in
+`reStructuredText`_ (rST). This is similar Markdown but significantly more
+powerful and with a slightly trickier syntax. `Sphinx`_ is used for building
+the documentation tree and the built documentation is published on `Read the
+Docs`_.
+
+The documentation tree is broadly broken down into five categories:
+
+`api`
+  Documentation for the APIs.
+
+`deployment`
+  Documentation for people that wish to deploy or maintain a Patchwork
+  instance.
+
+`development`
+  Documentation for people that wish to contribute to Patchwork itself.
+
+`releases`
+  Release notes.
+
+`usage`
+  Documentation for people that wish to use and interact with an existing
+  Patchwork instance.
+
+When contributing documentation, consider where your new documents should live.
+You should also ensure the documentation builds after your modifications. This
+can be done using the ``docs`` *tox* target.
+
+.. code-block:: shell
+
+   $ tox -e docs
+
+
 Reporting Issues
 ----------------
 
@@ -186,5 +223,8 @@ Further information about the Patchwork mailing list is available can be found o
 .. _reno: https://docs.openstack.org/developer/reno/
 .. _QEMU guidelines: http://wiki.qemu.org/Contribute/SubmitAPatch
 .. _Django REST Framework documentation: http://www.django-rest-framework.org/api-guide/versioning/
+.. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+.. _Sphinx: https://www.sphinx-doc.org/en/master/
+.. _Read the Docs: https://readthedocs.org
 .. _GitHub issue tracker: https://github.com/getpatchwork/patchwork
 .. _lists.ozlabs.org: https://lists.ozlabs.org/listinfo/patchwork
