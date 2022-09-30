@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The version of Django used is now checked on start-up. This can help avoid
+    issues where deployers forget to update their Django version and see odd
+    behavior as a result.
