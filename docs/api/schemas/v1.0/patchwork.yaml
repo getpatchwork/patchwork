@@ -1993,11 +1993,6 @@ components:
           title: ID
           type: integer
           readOnly: true
-        url:
-          title: URL
-          type: string
-          format: uri
-          readOnly: true
         msgid:
           title: Message ID
           type: string

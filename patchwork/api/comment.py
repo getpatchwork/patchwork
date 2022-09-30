@@ -12,6 +12,7 @@ from rest_framework.serializers import HiddenField
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
+from patchwork.api.base import NestedHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.base import CurrentCoverDefault
@@ -58,6 +59,7 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
     class Meta:
         fields = (
             'id',
+            'url',
             'web_url',
             'msgid',
             'list_archive_url',
@@ -70,6 +72,7 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
         )
         read_only_fields = (
             'id',
+            'url',
             'web_url',
             'msgid',
             'list_archive_url',
@@ -82,17 +85,27 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
         versioned_fields = {
             '1.1': ('web_url',),
             '1.2': ('list_archive_url',),
-            '1.3': ('addressed',),
+            '1.3': (
+                'addressed',
+                'url',
+            ),
         }
 
 
 class CoverCommentSerializer(BaseCommentListSerializer):
 
+    url = NestedHyperlinkedIdentityField(
+        'api-cover-comment-detail',
+        lookup_field_mapping={
+            'cover_id': 'cover_id',
+            'comment_id': 'id',
+        },
+    )
     cover = HiddenField(default=CurrentCoverDefault())
 
     class Meta:
         model = CoverComment
-        fields = BaseCommentListSerializer.Meta.fields + ('cover', 'addressed')
+        fields = BaseCommentListSerializer.Meta.fields + ('cover',)
         read_only_fields = BaseCommentListSerializer.Meta.read_only_fields + (
             'cover',
         )
@@ -123,6 +136,13 @@ class CoverCommentMixin(object):
 
 class PatchCommentSerializer(BaseCommentListSerializer):
 
+    url = NestedHyperlinkedIdentityField(
+        'api-patch-comment-detail',
+        lookup_field_mapping={
+            'patch_id': 'patch_id',
+            'comment_id': 'id',
+        },
+    )
     patch = HiddenField(default=CurrentPatchDefault())
 
     class Meta:

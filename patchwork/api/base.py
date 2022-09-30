@@ -151,19 +151,17 @@ class NestedHyperlinkedIdentityField(HyperlinkedIdentityField):
 
 class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
     def to_representation(self, instance):
-        data = super(BaseHyperlinkedModelSerializer, self).to_representation(
-            instance
-        )
-
         request = self.context.get('request')
         for version in getattr(self.Meta, 'versioned_fields', {}):
             # if the user has requested a version lower that than in which the
             # field was added, we drop it
             if not utils.has_version(request, version):
                 for field in self.Meta.versioned_fields[version]:
-                    # After a PATCH with an older API version, we may not see
-                    # these fields. If they don't exist, don't panic, return
-                    # (and then discard) None.
-                    data.pop(field, None)
+                    if field in self.fields:
+                        del self.fields[field]
+
+        data = super(BaseHyperlinkedModelSerializer, self).to_representation(
+            instance
+        )
 
         return data

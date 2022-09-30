@@ -99,7 +99,7 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
 
         if len(set([p.project.id for p in value])) > 1:
             raise ValidationError(
-                'Bundle patches must belong to the same ' 'project'
+                'Bundle patches must belong to the same project'
             )
 
         return value

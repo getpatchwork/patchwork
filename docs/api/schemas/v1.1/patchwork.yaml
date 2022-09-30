@@ -2044,11 +2044,6 @@ components:
           title: ID
           type: integer
           readOnly: true
-        url:
-          title: URL
-          type: string
-          format: uri
-          readOnly: true
         web_url:
           title: Web URL
           type: string

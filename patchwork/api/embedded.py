@@ -163,6 +163,7 @@ class CoverCommentSerializer(SerializedRelatedField):
                     'mbox',
                 ),
                 '1.2': ('list_archive_url',),
+                '1.3': ('url',),
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-cover-comment-detail'},
@@ -225,6 +226,7 @@ class PatchCommentSerializer(SerializedRelatedField):
                     'mbox',
                 ),
                 '1.2': ('list_archive_url',),
+                '1.3': ('url',),
             }
             extra_kwargs = {
                 'url': {'view_name': 'api-patch-comment-detail'},

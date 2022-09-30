@@ -180,6 +180,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'related',
         )
         read_only_fields = (
+            'url',
             'web_url',
             'project',
             'msgid',
