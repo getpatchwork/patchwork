@@ -29,9 +29,9 @@ html_theme = 'sphinx_rtd_theme'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Patchwork'
-copyright = u'2018-2019, Patchwork Developers'
-author = u'Patchwork Developers'
+project = 'Patchwork'
+copyright = '2018-, Patchwork Developers'
+author = 'Patchwork Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -530,6 +530,6 @@ class UTF8PatchViewTest(TestCase):
 
 class UTF8HeaderPatchViewTest(UTF8PatchViewTest):
     def setUp(self):
-        author = create_person(name=u'P\xe4tch Author')
+        author = create_person(name='P\xe4tch Author')
         patch_content = read_patch('0002-utf-8.patch', encoding='utf-8')
         self.patch = create_patch(submitter=author, diff=patch_content)

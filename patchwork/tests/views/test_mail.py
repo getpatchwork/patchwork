@@ -23,7 +23,7 @@ class MailSettingsTest(TestCase):
         self.assertTrue(response.context['form'])
 
     def test_post(self):
-        email = u'foo@example.com'
+        email = 'foo@example.com'
         response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
@@ -44,7 +44,7 @@ class MailSettingsTest(TestCase):
         self.assertFormError(response, 'form', 'email', error_strings['email'])
 
     def test_post_optin(self):
-        email = u'foo@example.com'
+        email = 'foo@example.com'
         response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail-settings.html')
@@ -53,7 +53,7 @@ class MailSettingsTest(TestCase):
         self.assertContains(response, 'action="%s"' % reverse('mail-optout'))
 
     def test_post_optout(self):
-        email = u'foo@example.com'
+        email = 'foo@example.com'
         EmailOptout(email=email).save()
         response = self.client.post(reverse('mail-settings'), {'email': email})
         self.assertEqual(response.status_code, 200)
@@ -69,7 +69,7 @@ class OptoutRequestTest(TestCase):
         self.assertRedirects(response, reverse('mail-settings'))
 
     def test_post(self):
-        email = u'foo@example.com'
+        email = 'foo@example.com'
         response = self.client.post(reverse('mail-optout'), {'email': email})
 
         # check for a confirmation object
@@ -109,7 +109,7 @@ class OptoutRequestTest(TestCase):
 
 class OptoutTest(TestCase):
     def setUp(self):
-        self.email = u'foo@example.com'
+        self.email = 'foo@example.com'
         self.conf = EmailConfirmation(type='optout', email=self.email)
         self.conf.save()
 
@@ -139,7 +139,7 @@ class OptoutPreexistingTest(OptoutTest):
 
 
 class OptinRequestTest(TestCase):
-    email = u'foo@example.com'
+    email = 'foo@example.com'
 
     def setUp(self):
         EmailOptout(email=self.email).save()
@@ -190,7 +190,7 @@ class OptinRequestTest(TestCase):
 
 class OptinTest(TestCase):
     def setUp(self):
-        self.email = u'foo@example.com'
+        self.email = 'foo@example.com'
         self.optout = EmailOptout(email=self.email)
         self.optout.save()
         self.conf = EmailConfirmation(type='optin', email=self.email)
@@ -217,7 +217,7 @@ class OptinWithoutOptoutTest(TestCase):
     """Test an opt-in with no existing opt-out."""
 
     def test_opt_in_without_optout(self):
-        email = u'foo@example.com'
+        email = 'foo@example.com'
         response = self.client.post(reverse('mail-optin'), {'email': email})
 
         # check for an error message

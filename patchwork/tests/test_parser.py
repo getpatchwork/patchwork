@@ -279,25 +279,25 @@ class SenderEncodingTest(TestCase):
 
     def test_ascii_encoding(self):
         from_header = 'example user <user@example.com>'
-        sender_name = u'example user'
+        sender_name = 'example user'
         sender_email = 'user@example.com'
         self._test_encoding(from_header, sender_name, sender_email)
 
     def test_utf8qp_encoding(self):
         from_header = '=?utf-8?q?=C3=A9xample=20user?= <user@example.com>'
-        sender_name = u'\xe9xample user'
+        sender_name = '\xe9xample user'
         sender_email = 'user@example.com'
         self._test_encoding(from_header, sender_name, sender_email)
 
     def test_utf8qp_split_encoding(self):
         from_header = '=?utf-8?q?=C3=A9xample?= user <user@example.com>'
-        sender_name = u'\xe9xample user'
+        sender_name = '\xe9xample user'
         sender_email = 'user@example.com'
         self._test_encoding(from_header, sender_name, sender_email)
 
     def test_utf8b64_encoding(self):
         from_header = '=?utf-8?B?w6l4YW1wbGUgdXNlcg==?= <user@example.com>'
-        sender_name = u'\xe9xample user'
+        sender_name = '\xe9xample user'
         sender_email = 'user@example.com'
         self._test_encoding(from_header, sender_name, sender_email)
 
@@ -552,12 +552,12 @@ class SubjectEncodingTest(TestCase):
 
     def test_subject_utf8qp_encoding(self):
         subject_header = '=?utf-8?q?test=20s=c3=bcbject?='
-        subject = u'test s\xfcbject'
+        subject = 'test s\xfcbject'
         self._test_encoding(subject_header, subject)
 
     def test_subject_utf8qp_multiple_encoding(self):
         subject_header = 'test =?utf-8?q?s=c3=bcbject?='
-        subject = u'test s\xfcbject'
+        subject = 'test s\xfcbject'
         self._test_encoding(subject_header, subject)
 
 

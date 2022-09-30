@@ -18,9 +18,11 @@ class RegistrationForm(forms.Form):
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     username = forms.RegexField(
-        regex=r'^\w+$', max_length=30, label=u'Username'
+        regex=r'^\w+$',
+        max_length=30,
+        label='Username',
     )
-    email = forms.EmailField(max_length=100, label=u'Email address')
+    email = forms.EmailField(max_length=100, label='Email address')
     password = forms.CharField(widget=forms.PasswordInput(), label='Password')
 
     def clean_username(self):
@@ -57,7 +59,7 @@ class BundleForm(forms.ModelForm):
         regex=r'^[^/]+$',
         min_length=1,
         max_length=50,
-        label=u'Name',
+        label='Name',
         error_messages={'invalid': 'Bundle names can\'t contain slashes'},
     )
 
