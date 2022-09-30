@@ -16,9 +16,7 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
-from patchwork.api.base import CheckHyperlinkedIdentityField
-from patchwork.api.base import CoverCommentHyperlinkedIdentityField
-from patchwork.api.base import PatchCommentHyperlinkedIdentityField
+from patchwork.api.base import NestedHyperlinkedIdentityField
 from patchwork import models
 
 
@@ -82,7 +80,13 @@ class WebURLMixin(BaseHyperlinkedModelSerializer):
 class CheckSerializer(SerializedRelatedField):
     class _Serializer(BaseHyperlinkedModelSerializer):
 
-        url = CheckHyperlinkedIdentityField('api-check-detail')
+        url = NestedHyperlinkedIdentityField(
+            'api-check-detail',
+            lookup_field_mapping={
+                'patch_id': 'patch_id',
+                'check_id': 'id',
+            },
+        )
 
         def to_representation(self, instance):
             data = super(CheckSerializer._Serializer, self).to_representation(
@@ -130,7 +134,13 @@ class CoverSerializer(SerializedRelatedField):
 class CoverCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
 
-        url = CoverCommentHyperlinkedIdentityField('api-cover-comment-detail')
+        url = NestedHyperlinkedIdentityField(
+            'api-cover-comment-detail',
+            lookup_field_mapping={
+                'cover_id': 'cover_id',
+                'comment_id': 'id',
+            },
+        )
 
         class Meta:
             model = models.CoverComment
@@ -182,7 +192,13 @@ class PatchSerializer(SerializedRelatedField):
 class PatchCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
 
-        url = PatchCommentHyperlinkedIdentityField('api-patch-comment-detail')
+        url = NestedHyperlinkedIdentityField(
+            'api-patch-comment-detail',
+            lookup_field_mapping={
+                'patch_id': 'patch_id',
+                'comment_id': 'id',
+            },
+        )
 
         class Meta:
             model = models.PatchComment
