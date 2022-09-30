@@ -14,8 +14,8 @@ from rest_framework.serializers import HiddenField
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.serializers import ValidationError
 
-from patchwork.api.base import CheckHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
+from patchwork.api.base import NestedHyperlinkedIdentityField
 from patchwork.api.base import CurrentPatchDefault
 from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import CheckFilterSet
@@ -25,7 +25,13 @@ from patchwork.models import Patch
 
 class CheckSerializer(HyperlinkedModelSerializer):
 
-    url = CheckHyperlinkedIdentityField('api-check-detail')
+    url = NestedHyperlinkedIdentityField(
+        'api-check-detail',
+        lookup_field_mapping={
+            'patch_id': 'patch_id',
+            'check_id': 'id',
+        },
+    )
     patch = HiddenField(default=CurrentPatchDefault())
     user = UserSerializer(default=CurrentUserDefault())
 

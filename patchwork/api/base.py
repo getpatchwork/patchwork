@@ -9,8 +9,8 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.response import Response
-from rest_framework.serializers import HyperlinkedIdentityField
 from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.utils.urls import replace_query_param
 
@@ -122,52 +122,28 @@ class MultipleFieldLookupMixin(object):
         return get_object_or_404(queryset, **filter_kwargs)
 
 
-class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
+class NestedHyperlinkedIdentityField(HyperlinkedIdentityField):
+    """A variant of HyperlinkedIdentityField that supports nested resources."""
+
+    def __init__(self, view_name, lookup_field_mapping, **kwargs):
+        self.lookup_field_mapping = lookup_field_mapping
+        super().__init__(view_name, **kwargs)
+
     def get_url(self, obj, view_name, request, format):
         # Unsaved objects will not yet have a valid URL.
-        if obj.pk is None:
+        if hasattr(obj, 'pk') and obj.pk in (None, ''):
             return None
+
+        kwargs = {}
+        for (
+            lookup_url_kwarg,
+            lookup_field,
+        ) in self.lookup_field_mapping.items():
+            kwargs[lookup_url_kwarg] = getattr(obj, lookup_field)
 
         return self.reverse(
             view_name,
-            kwargs={
-                'patch_id': obj.patch.id,
-                'check_id': obj.id,
-            },
-            request=request,
-            format=format,
-        )
-
-
-class CoverCommentHyperlinkedIdentityField(HyperlinkedIdentityField):
-    def get_url(self, obj, view_name, request, format):
-        # Unsaved objects will not yet have a valid URL.
-        if obj.pk is None:
-            return None
-
-        return self.reverse(
-            view_name,
-            kwargs={
-                'cover_id': obj.cover.id,
-                'comment_id': obj.id,
-            },
-            request=request,
-            format=format,
-        )
-
-
-class PatchCommentHyperlinkedIdentityField(HyperlinkedIdentityField):
-    def get_url(self, obj, view_name, request, format):
-        # Unsaved objects will not yet have a valid URL.
-        if obj.pk is None:
-            return None
-
-        return self.reverse(
-            view_name,
-            kwargs={
-                'patch_id': obj.patch.id,
-                'comment_id': obj.id,
-            },
+            kwargs=kwargs,
             request=request,
             format=format,
         )
