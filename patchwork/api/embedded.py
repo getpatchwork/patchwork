@@ -113,6 +113,8 @@ class CoverSerializer(SerializedRelatedField):
                 'url',
                 'web_url',
                 'msgid',
+                # TODO(stephenfin): Drop this in a future API version - it is
+                # too slow to calculate and not necessary here.
                 'list_archive_url',
                 'date',
                 'name',
@@ -149,6 +151,8 @@ class CoverCommentSerializer(SerializedRelatedField):
                 'url',
                 'web_url',
                 'msgid',
+                # TODO(stephenfin): Drop this in a future API version - it is
+                # too slow to calculate and not necessary here.
                 'list_archive_url',
                 'date',
             )
@@ -174,6 +178,8 @@ class PatchSerializer(SerializedRelatedField):
                 'url',
                 'web_url',
                 'msgid',
+                # TODO(stephenfin): Drop this in a future API version - it is
+                # too slow to calculate and not necessary here.
                 'list_archive_url',
                 'date',
                 'name',
@@ -207,6 +213,8 @@ class PatchCommentSerializer(SerializedRelatedField):
                 'url',
                 'web_url',
                 'msgid',
+                # TODO(stephenfin): Drop this in a future API version - it is
+                # too slow to calculate and not necessary here.
                 'list_archive_url',
                 'date',
             )
@@ -253,8 +261,12 @@ class ProjectSerializer(SerializedRelatedField):
                 'web_url',
                 'scm_url',
                 'webscm_url',
+                # TODO(stephenfin): Drop this in a future API version - it is
+                # too slow to calculate and not necessary here.
                 'list_archive_url',
+                # TODO(stephenfin): Ditto
                 'list_archive_url_format',
+                # TODO(stephenfin): Ditto
                 'commit_url_format',
             )
             read_only_fields = fields

@@ -406,7 +406,7 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
 
     name = models.CharField(max_length=255)
 
-    @property
+    @cached_property
     def list_archive_url(self):
         if not self.project.list_archive_url_format:
             return None
@@ -719,7 +719,7 @@ class CoverComment(EmailMixin, models.Model):
     )
     addressed = models.BooleanField(null=True)
 
-    @property
+    @cached_property
     def list_archive_url(self):
         if not self.cover.project.list_archive_url_format:
             return None
@@ -770,7 +770,7 @@ class PatchComment(EmailMixin, models.Model):
     )
     addressed = models.BooleanField(null=True)
 
-    @property
+    @cached_property
     def list_archive_url(self):
         if not self.patch.project.list_archive_url_format:
             return None
