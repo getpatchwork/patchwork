@@ -17,6 +17,8 @@ from rest_framework.serializers import SerializerMethodField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import CheckHyperlinkedIdentityField
+from patchwork.api.base import CoverCommentHyperlinkedIdentityField
+from patchwork.api.base import PatchCommentHyperlinkedIdentityField
 from patchwork import models
 
 
@@ -127,6 +129,9 @@ class CoverSerializer(SerializedRelatedField):
 
 class CoverCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
+
+        url = CoverCommentHyperlinkedIdentityField('api-cover-comment-detail')
+
         class Meta:
             model = models.CoverComment
             fields = (
@@ -136,7 +141,6 @@ class CoverCommentSerializer(SerializedRelatedField):
                 'msgid',
                 'list_archive_url',
                 'date',
-                'name',
             )
             read_only_fields = fields
             versioned_fields = {
@@ -177,6 +181,9 @@ class PatchSerializer(SerializedRelatedField):
 
 class PatchCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
+
+        url = PatchCommentHyperlinkedIdentityField('api-patch-comment-detail')
+
         class Meta:
             model = models.PatchComment
             fields = (
@@ -186,7 +193,6 @@ class PatchCommentSerializer(SerializedRelatedField):
                 'msgid',
                 'list_archive_url',
                 'date',
-                'name',
             )
             read_only_fields = fields
             versioned_fields = {

@@ -12,8 +12,10 @@ from patchwork.models import Event
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_cover
+from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
+from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_state
 
@@ -70,7 +72,7 @@ class TestEventAPI(APITestCase):
         # patch-created, patch-completed, series-completed
         patch = create_patch(series=series)
         # cover-created
-        create_cover(series=series)
+        cover = create_cover(series=series)
         # check-created
         create_check(patch=patch)
         # patch-delegated, patch-state-changed
@@ -81,6 +83,9 @@ class TestEventAPI(APITestCase):
         patch.state = state
         self.assertTrue(patch.is_editable(actor))
         patch.save()
+        # patch-cover-created, cover-comment-created
+        create_patch_comment(patch=patch, submitter=patch.submitter)
+        create_cover_comment(cover=cover, submitter=cover.submitter)
 
         return Event.objects.all()
 
@@ -91,7 +96,9 @@ class TestEventAPI(APITestCase):
 
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        self.assertEqual(8, len(resp.data), [x['category'] for x in resp.data])
+        self.assertEqual(
+            10, len(resp.data), [x['category'] for x in resp.data]
+        )
         for event_rsp in resp.data:
             event_obj = events.get(category=event_rsp['category'])
             self.assertSerialized(event_obj, event_rsp)
@@ -104,7 +111,7 @@ class TestEventAPI(APITestCase):
 
         resp = self.client.get(self.api_url(), {'project': project.pk})
         # All but one event belongs to the same project
-        self.assertEqual(8, len(resp.data))
+        self.assertEqual(10, len(resp.data))
 
         resp = self.client.get(self.api_url(), {'project': 'invalidproject'})
         self.assertEqual(0, len(resp.data))
@@ -132,9 +139,9 @@ class TestEventAPI(APITestCase):
 
         patch = events.get(category='patch-created').patch
         resp = self.client.get(self.api_url(), {'patch': patch.pk})
-        # There should be five - patch-created, patch-completed, check-created,
-        # patch-state-changed and patch-delegated
-        self.assertEqual(5, len(resp.data))
+        # There should be six - patch-created, patch-completed, check-created,
+        # patch-state-changed, patch-delegated and patch-comment-created
+        self.assertEqual(6, len(resp.data))
 
         resp = self.client.get(self.api_url(), {'patch': 999999})
         self.assertEqual(0, len(resp.data))
@@ -145,8 +152,8 @@ class TestEventAPI(APITestCase):
 
         cover = events.get(category='cover-created').cover
         resp = self.client.get(self.api_url(), {'cover': cover.pk})
-        # There should only be one - cover-created
-        self.assertEqual(1, len(resp.data))
+        # There should be two - cover-created and cover-comment-created
+        self.assertEqual(2, len(resp.data))
 
         resp = self.client.get(self.api_url(), {'cover': 999999})
         self.assertEqual(0, len(resp.data))
@@ -170,7 +177,7 @@ class TestEventAPI(APITestCase):
 
         # The final two events (patch-delegated, patch-state-changed)
         # have an actor set
-        actor = events[0].actor
+        actor = events.get(category='patch-delegated').actor
         resp = self.client.get(self.api_url(), {'actor': actor.pk})
         self.assertEqual(2, len(resp.data))
 
@@ -185,14 +192,15 @@ class TestEventAPI(APITestCase):
         resp = self.client.get(
             self.api_url(version='1.1'), {'actor': 'foo-bar'}
         )
-        self.assertEqual(len(events), len(resp.data))
+        # we don't see the two comment-related fields
+        self.assertEqual(len(events) - 2, len(resp.data))
 
     def test_list_bug_335(self):
         """Ensure we retrieve the embedded series project once."""
         for _ in range(3):
             self._create_events()
 
-        with self.assertNumQueries(27):
+        with self.assertNumQueries(33):
             self.client.get(self.api_url())
 
     def test_order_by_date_default(self):

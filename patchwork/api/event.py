@@ -19,6 +19,7 @@ from patchwork.api.embedded import ProjectSerializer
 from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import EventFilterSet
+from patchwork.api import utils
 from patchwork.models import Event
 
 
@@ -140,7 +141,7 @@ class EventList(ListAPIView):
     ordering = '-date'
 
     def get_queryset(self):
-        return Event.objects.all().prefetch_related(
+        events = Event.objects.all().prefetch_related(
             'project',
             'patch__project',
             'series__project',
@@ -150,6 +151,24 @@ class EventList(ListAPIView):
             'previous_delegate',
             'current_delegate',
             'created_check',
-            'cover_comment',
-            'patch_comment',
         )
+        # NOTE(stephenfin): We need to exclude comment-related events because
+        # until API v1.3, we didn't have an comment detail API to point to.
+        # This goes against our pledge to version events in the docs but must
+        # be done.
+        # TODO(stephenfin): Make this more generic.
+        if utils.has_version(self.request, '1.3'):
+            events = events.prefetch_related(
+                'cover_comment',
+                'cover_comment__cover__project',
+                'patch_comment',
+                'patch_comment__patch__project',
+            )
+        else:
+            events = events.exclude(
+                category__in=[
+                    Event.CATEGORY_COVER_COMMENT_CREATED,
+                    Event.CATEGORY_PATCH_COMMENT_CREATED,
+                ]
+            )
+        return events
