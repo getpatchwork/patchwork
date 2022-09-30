@@ -1,7 +1,7 @@
 Django~=4.0.0
 djangorestframework~=3.13.0
 django-filter~=22.1.0
-django-debug-toolbar~=3.5.0
+django-debug-toolbar~=3.7.0
 # This does not support Django 4.0
 # django-dbbackup~=3.3.0
 -r requirements-test.txt
