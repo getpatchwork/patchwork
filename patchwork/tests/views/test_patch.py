@@ -8,6 +8,7 @@ from datetime import timedelta
 import re
 import unittest
 
+import django
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -460,13 +461,21 @@ class PatchUpdateTest(TestCase):
 
         new_states = [Patch.objects.get(pk=p.pk).state for p in self.patches]
         self.assertEqual(new_states, orig_states)
-        self.assertFormError(
-            response,
-            'patchform',
-            'state',
-            'Select a valid choice. That choice is not one '
-            'of the available choices.',
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['patchform'],
+                'state',
+                'Select a valid choice. That choice is not one '
+                'of the available choices.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'patchform',
+                'state',
+                'Select a valid choice. That choice is not one '
+                'of the available choices.',
+            )
 
     def _test_delegate_change(self, delegate_str):
         data = self.base_data.copy()

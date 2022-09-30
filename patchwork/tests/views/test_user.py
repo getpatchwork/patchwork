@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import django
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test.client import Client
@@ -70,14 +71,38 @@ class RegistrationTest(TestCase):
             del data[field]
             response = self.client.post('/register/', data)
             self.assertEqual(response.status_code, 200)
-            self.assertFormError(response, 'form', field, self.required_error)
+            if django.VERSION >= (4, 1):
+                self.assertFormError(
+                    response.context['form'],
+                    field,
+                    self.required_error,
+                )
+            else:
+                self.assertFormError(
+                    response,
+                    'form',
+                    field,
+                    self.required_error,
+                )
 
     def test_invalid_username(self):
         data = self.default_data.copy()
         data['username'] = 'invalid user'
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'username', self.invalid_error)
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'username',
+                self.invalid_error,
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'username',
+                self.invalid_error,
+            )
 
     def test_existing_username(self):
         user = create_user()
@@ -85,12 +110,19 @@ class RegistrationTest(TestCase):
         data['username'] = user.username
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(
-            response,
-            'form',
-            'username',
-            'This username is already taken. Please choose another.',
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'username',
+                'This username is already taken. Please choose another.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'username',
+                'This username is already taken. Please choose another.',
+            )
 
     def test_existing_email(self):
         user = create_user()
@@ -98,13 +130,21 @@ class RegistrationTest(TestCase):
         data['email'] = user.email
         response = self.client.post('/register/', data)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(
-            response,
-            'form',
-            'email',
-            'This email address is already in use for the account '
-            '"%s".\n' % user.username,
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                'This email address is already in use for the account '
+                '"%s".\n' % user.username,
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                'This email address is already in use for the account '
+                '"%s".\n' % user.username,
+            )
 
     def test_valid_registration(self):
         response = self.client.post('/register/', self.default_data)
@@ -255,17 +295,37 @@ class UserLinkTest(_UserTestCase):
         response = self.client.post(reverse('user-link'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
-        self.assertFormError(
-            response, 'linkform', 'email', 'This field is required.'
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['linkform'],
+                'email',
+                'This field is required.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'linkform',
+                'email',
+                'This field is required.',
+            )
 
     def test_user_person_request_invalid(self):
         response = self.client.post(reverse('user-link'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['linkform'])
-        self.assertFormError(
-            response, 'linkform', 'email', error_strings['email']
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['linkform'],
+                'email',
+                error_strings['email'],
+            )
+        else:
+            self.assertFormError(
+                response,
+                'linkform',
+                'email',
+                error_strings['email'],
+            )
 
     def test_user_person_request_valid(self):
         response = self.client.post(

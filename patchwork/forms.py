@@ -5,13 +5,21 @@
 
 from django.contrib.auth.models import User
 from django import forms
+from django.forms import renderers
 from django.db.models import Q
 from django.db.utils import ProgrammingError
+from django.template.backends import django as django_template_backend
 
 from patchwork.models import Bundle
 from patchwork.models import Patch
 from patchwork.models import State
 from patchwork.models import UserProfile
+
+
+class PatchworkTableRenderer(renderers.EngineMixin, renderers.BaseRenderer):
+    backend = django_template_backend.DjangoTemplates
+    form_template_name = 'django/forms/table.html'
+    formset_template_name = 'django/forms/formsets/table.html'
 
 
 class RegistrationForm(forms.Form):

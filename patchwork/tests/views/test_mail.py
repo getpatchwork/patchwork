@@ -5,6 +5,7 @@
 
 import re
 
+import django
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
@@ -33,15 +34,37 @@ class MailSettingsTest(TestCase):
         response = self.client.post(reverse('mail-settings'), {'email': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail.html')
-        self.assertFormError(
-            response, 'form', 'email', 'This field is required.'
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                'This field is required.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                'This field is required.',
+            )
 
     def test_post_invalid(self):
         response = self.client.post(reverse('mail-settings'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'patchwork/mail.html')
-        self.assertFormError(response, 'form', 'email', error_strings['email'])
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                error_strings['email'],
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                error_strings['email'],
+            )
 
     def test_post_optin(self):
         email = 'foo@example.com'
@@ -91,9 +114,19 @@ class OptoutRequestTest(TestCase):
     def test_post_empty(self):
         response = self.client.post(reverse('mail-optout'), {'email': ''})
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(
-            response, 'form', 'email', 'This field is required.'
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                'This field is required.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                'This field is required.',
+            )
         self.assertTrue(response.context['error'])
         self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
@@ -101,7 +134,19 @@ class OptoutRequestTest(TestCase):
     def test_post_non_email(self):
         response = self.client.post(reverse('mail-optout'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'email', error_strings['email'])
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                error_strings['email'],
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                error_strings['email'],
+            )
         self.assertTrue(response.context['error'])
         self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
@@ -172,9 +217,19 @@ class OptinRequestTest(TestCase):
     def test_post_empty(self):
         response = self.client.post(reverse('mail-optin'), {'email': ''})
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(
-            response, 'form', 'email', 'This field is required.'
-        )
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                'This field is required.',
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                'This field is required.',
+            )
         self.assertTrue(response.context['error'])
         self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
@@ -182,7 +237,19 @@ class OptinRequestTest(TestCase):
     def test_post_non_email(self):
         response = self.client.post(reverse('mail-optin'), {'email': 'foo'})
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'email', error_strings['email'])
+        if django.VERSION >= (4, 1):
+            self.assertFormError(
+                response.context['form'],
+                'email',
+                error_strings['email'],
+            )
+        else:
+            self.assertFormError(
+                response,
+                'form',
+                'email',
+                error_strings['email'],
+            )
         self.assertTrue(response.context['error'])
         self.assertNotIn('confirmation', response.context)
         self.assertEqual(len(mail.outbox), 0)
