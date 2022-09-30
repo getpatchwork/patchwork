@@ -139,6 +139,40 @@ class CheckHyperlinkedIdentityField(HyperlinkedIdentityField):
         )
 
 
+class CoverCommentHyperlinkedIdentityField(HyperlinkedIdentityField):
+    def get_url(self, obj, view_name, request, format):
+        # Unsaved objects will not yet have a valid URL.
+        if obj.pk is None:
+            return None
+
+        return self.reverse(
+            view_name,
+            kwargs={
+                'cover_id': obj.cover.id,
+                'comment_id': obj.id,
+            },
+            request=request,
+            format=format,
+        )
+
+
+class PatchCommentHyperlinkedIdentityField(HyperlinkedIdentityField):
+    def get_url(self, obj, view_name, request, format):
+        # Unsaved objects will not yet have a valid URL.
+        if obj.pk is None:
+            return None
+
+        return self.reverse(
+            view_name,
+            kwargs={
+                'patch_id': obj.patch.id,
+                'comment_id': obj.id,
+            },
+            request=request,
+            format=format,
+        )
+
+
 class BaseHyperlinkedModelSerializer(HyperlinkedModelSerializer):
     def to_representation(self, instance):
         data = super(BaseHyperlinkedModelSerializer, self).to_representation(

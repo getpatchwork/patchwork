@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix an issue whereby comment-based events would cause a HTTP 500 error
+    for the events API (``/api/events``).
