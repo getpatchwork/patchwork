@@ -1,0 +1,5 @@
+---
+other:
+  - |
+    The patch diff color palette was modified to make it more accessible for
+    all users, including those with common color deficiencies.

@@ -17,7 +17,7 @@ h2 a, h2 span {
 }
 
 pre {
-    line-height: 110%;
+    line-height: normal;
     background-color: white;
     border-radius: 0;
 }
@@ -354,15 +354,15 @@ button[class^=comment-action] {
 }
 
 .quote {
-    color: #007f00;
+    color: #365cb5;
 }
 
-span.p_header    { color: #2e8b57; font-weight: bold; }
-span.p_chunk    { color: #a52a2a; font-weight: bold; }
-span.p_context    { color: #a020f0; }
-span.p_add    { color: #008b8b; }
-span.p_del    { color: #6a5acd; }
-span.p_mod    { color: #0000ff; }
+span.p_header    { font-weight: bold; }
+span.p_chunk    { color: #329fb0; font-weight: bold; }
+span.p_context    { }
+span.p_add    { color: #1b9d09; background-color: #edffed; }
+span.p_del    { color: #c80101; background-color: #ffe2e2; }
+span.p_mod    { color: #a020f0; }
 
 .acked-by {
     color: #2d4566;
