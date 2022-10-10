@@ -18,7 +18,7 @@ from openapi_core.templating import util
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.validation.request.validators import RequestValidator
 from openapi_core.validation.response.validators import ResponseValidator
-from openapi_schema_validator import OAS30Validator
+from openapi_schema_validator import OAS31Validator
 from rest_framework import status
 import yaml
 
@@ -118,7 +118,7 @@ def validate_data(
     response = DjangoOpenAPIResponse(response)
 
     schema_unmarshallers_factory = SchemaUnmarshallersFactory(
-        OAS30Validator,
+        OAS31Validator,
         custom_formatters=CUSTOM_FORMATTERS,
         # context=UnmarshalContext.RESPONSE,
     )
