@@ -3,11 +3,4 @@ psycopg2-binary~=2.9.0
 sqlparse~=0.4.0
 python-dateutil~=2.8.0
 tblib~=1.7.0
-openapi-core~=0.14.2
-# FIXME(stephenfin): We have to pin this to prevent a recurrence of [1]. It
-# seems openapi-core needs to gain support for OpenAPI 3.1 before we can fix
-# this properly [2]
-#
-# [1] https://github.com/OAI/OpenAPI-Specification/issues/1368
-# [2] https://github.com/p1c2u/openapi-core/pull/373
-jsonschema<4.0
+openapi-core~=0.16.1

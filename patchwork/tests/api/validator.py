@@ -8,13 +8,17 @@ import re
 
 from django.urls import resolve
 import openapi_core
-from openapi_core.contrib.django import DjangoOpenAPIRequestFactory
-from openapi_core.contrib.django import DjangoOpenAPIResponseFactory
-from openapi_core.exceptions import OpenAPIParameterError
+from openapi_core.unmarshalling.schemas.factories import (
+    SchemaUnmarshallersFactory,
+)
+from openapi_core.contrib.django import DjangoOpenAPIRequest
+from openapi_core.contrib.django import DjangoOpenAPIResponse
+from openapi_core.exceptions import OpenAPIError
 from openapi_core.templating import util
 from openapi_core.unmarshalling.schemas.formatters import Formatter
 from openapi_core.validation.request.validators import RequestValidator
 from openapi_core.validation.response.validators import ResponseValidator
+from openapi_schema_validator import OAS30Validator
 from rest_framework import status
 import yaml
 
@@ -98,7 +102,7 @@ def _load_spec(version):
     with open(spec_path, 'r') as fh:
         data = yaml.load(fh, Loader=yaml.SafeLoader)
 
-    _LOADED_SPECS[version] = openapi_core.create_spec(data)
+    _LOADED_SPECS[version] = openapi_core.Spec.create(data)
 
     return _LOADED_SPECS[version]
 
@@ -110,24 +114,28 @@ def validate_data(
         return
 
     spec = _load_spec(resolve(path).kwargs.get('version'))
-    request = DjangoOpenAPIRequestFactory.create(request)
-    response = DjangoOpenAPIResponseFactory.create(response)
+    request = DjangoOpenAPIRequest(request)
+    response = DjangoOpenAPIResponse(response)
+
+    schema_unmarshallers_factory = SchemaUnmarshallersFactory(
+        OAS30Validator,
+        custom_formatters=CUSTOM_FORMATTERS,
+        # context=UnmarshalContext.RESPONSE,
+    )
 
     # request
     if validate_request:
-        validator = RequestValidator(spec, custom_formatters=CUSTOM_FORMATTERS)
-        result = validator.validate(request)
+        validator = RequestValidator(schema_unmarshallers_factory)
+        result = validator.validate(spec, request)
         try:
             result.raise_for_errors()
-        except OpenAPIParameterError:
+        except OpenAPIError:
             # TODO(stephenfin): In API v2.0, this should be an error. As things
             # stand, we silently ignore these issues.
             assert response.status_code == status.HTTP_200_OK
 
     # response
     if validate_response:
-        validator = ResponseValidator(
-            spec, custom_formatters=CUSTOM_FORMATTERS
-        )
-        result = validator.validate(request, response)
+        validator = ResponseValidator(schema_unmarshallers_factory)
+        result = validator.validate(spec, request, response)
         result.raise_for_errors()
