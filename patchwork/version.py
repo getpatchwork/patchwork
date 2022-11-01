@@ -24,10 +24,10 @@ def get_latest_version():
 
 def format_str_version(version):
     """Format version tuple."""
-    return 'v' + '.'.join(
+    return 'v' + ''.join(
         [
             '.'.join([str(x) for x in version[:3]]),
-            '-'.join([str(x) for x in version[3:]]),
+            ''.join([str(x) for x in version[3:]]),
         ]
     )
 
@@ -35,8 +35,8 @@ def format_str_version(version):
 def format_git_version(version):
     """Returns a version based on Git tags."""
     if '-' in version:  # after tag
-        # convert version-N-githash to version.postN-githash
-        return version.replace('-', '.post', 1)
+        # convert version-N-githash to version.postN+githash
+        return version.replace('-', '.post', 1).replace('-g', '+git', 1)
     else:  # at tag
         return version
 

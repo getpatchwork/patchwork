@@ -20,8 +20,8 @@ class TestVersion(test.TestCase):
         str_version = version.get_str_version()
         git_version = version.get_git_version()
 
-        str_re = r'v\d\.\d\.\d(\.alpha-0)?'  # v1.2.3-alpha-0
-        git_re = r'v\d\.\d\.\d(\.post\d+-\w+)?'  # v1.2.3.post1-abc123
+        str_re = r'v\d\.\d\.\d(([ab]|rc)\d+)?'  # v1.2.3a0
+        git_re = r'v\d\.\d\.\d(\.post\d+\+\w+)?'  # v1.2.3.post1+abc123
 
         str_match = re.match(str_re, version.format_str_version(str_version))
         git_match = re.match(git_re, version.format_git_version(git_version))
