@@ -2,6 +2,5 @@ sphinx>=4.2.0
 reno>=3.4.0
 sphinx-rtd-theme~=1.0
 jinja2~=3.0
-sphinxcontrib-openapi~=0.7.0
-# See https://github.com/getpatchwork/patchwork/issues/442
-mistune<2.0.0
+# installing from source while we wait on https://github.com/pypi/support/issues/2463
+git+https://github.com/sphinx-contrib/openapi.git@c959438140e09c51f9c13c188c73238f766bf071
