@@ -1497,11 +1497,12 @@ components:
         owner:
           title: Owner
           readOnly: true
-          anyOf:
+          type:
+            - 'null'
+            - 'object'
+          oneOf:
             - type: 'null'
-            - type: object
-              allOf:
-                - $ref: '#/components/schemas/UserEmbedded'
+            - $ref: '#/components/schemas/UserEmbedded'
         patches:
           title: Patches
           type: array
@@ -1568,6 +1569,9 @@ components:
           description: >
             The target URL to associate with this check. This should be
             specific to the patch.
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -1584,9 +1588,9 @@ components:
         description:
           title: Description
           description: A brief description of the check.
-          oneOf:
-            - type: 'null'
-            - type: string
+          type:
+            - 'null'
+            - 'string'
     CheckCreate:
       type: object
       required:
@@ -1606,6 +1610,9 @@ components:
           description:
             The target URL to associate with this check. This should be
             specific to the patch.
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -1622,9 +1629,9 @@ components:
         description:
           title: Description
           description: A brief description of the check.
-          oneOf:
-            - type: 'null'
-            - type: string
+          type:
+            - 'null'
+            - 'string'
     Comment:
       type: object
       properties:
@@ -1651,9 +1658,14 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
+              format: uri
+              maxLength: 2000
         date:
           title: Date
           type: string
@@ -1666,6 +1678,7 @@ components:
         submitter:
           type: object
           title: Submitter
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/PersonEmbedded'
         content:
@@ -1687,17 +1700,17 @@ components:
           readOnly: true
         addressed:
           title: Addressed
-          oneOf:
-            - type: 'null'
-            - type: boolean
+          type:
+            - 'null'
+            - 'boolean'
     CommentUpdate:
       type: object
       properties:
         addressed:
           title: Addressed
-          oneOf:
-            - type: 'null'
-            - type: boolean
+          type:
+            - 'null'
+            - 'boolean'
     CoverList:
       type: object
       properties:
@@ -1726,9 +1739,14 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
+              format: uri
+              maxLength: 2000
         date:
           title: Date
           type: string
@@ -1764,7 +1782,8 @@ components:
     CoverDetail:
       allOf:
         - $ref: '#/components/schemas/CoverList'
-        - properties:
+        - type: object
+          properties:
             headers:
               title: Headers
               anyOf:
@@ -1806,9 +1825,12 @@ components:
           title: Actor
           description: The user that caused/created this event.
           readOnly: true
-          anyOf:
-            - $ref: '#/components/schemas/UserEmbedded'
+          type:
+            - 'null'
+            - 'object'
+          oneOf:
             - type: 'null'
+            - $ref: '#/components/schemas/UserEmbedded'
         payload:
           type: object
     EventCoverCreated:
@@ -1881,14 +1903,14 @@ components:
                   $ref: '#/components/schemas/PatchEmbedded'
                 previous_relation:
                   title: Previous relation
-                  oneOf:
-                    - type: 'null'
-                    - type: string
+                  type:
+                    - 'null'
+                    - 'string'
                 current_relation:
                   title: Current relation
-                  oneOf:
-                    - type: 'null'
-                    - type: string
+                  type:
+                    - 'null'
+                    - 'string'
     EventPatchDelegated:
       allOf:
         - $ref: '#/components/schemas/EventBase'
@@ -2002,9 +2024,14 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
+              format: uri
+              maxLength: 2000
         date:
           title: Date
           type: string
@@ -2018,17 +2045,23 @@ components:
           maxLength: 255
         commit_ref:
           title: Commit ref
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
               maxLength: 255
         pull_url:
           title: Pull URL
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
-              maxLength: 255
               format: uri
+              maxLength: 255
         state:
           title: State
           type: string
@@ -2049,9 +2082,12 @@ components:
         delegate:
           title: Delegate
           readOnly: true
-          anyOf:
-            - $ref: '#/components/schemas/UserEmbedded'
+          type:
+            - 'null'
+            - 'object'
+          oneOf:
             - type: 'null'
+            - $ref: '#/components/schemas/UserEmbedded'
         mbox:
           title: Mbox
           type: string
@@ -2095,7 +2131,8 @@ components:
     PatchDetail:
       allOf:
         - $ref: '#/components/schemas/PatchList'
-        - properties:
+        - type: object
+          properties:
             headers:
               title: Headers
               anyOf:
@@ -2129,18 +2166,23 @@ components:
       properties:
         commit_ref:
           title: Commit ref
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
               maxLength: 255
         pull_url:
           title: Pull URL
-          type: string
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
-              maxLength: 255
               format: uri
+              maxLength: 255
         state:
           title: State
           type: string
@@ -2149,9 +2191,9 @@ components:
           type: boolean
         delegate:
           title: Delegate
-          oneOf:
-            - type: 'null'
-            - type: integer
+          type:
+            - 'null'
+            - 'integer'
         related:
           title: Relations
           type: array
@@ -2185,9 +2227,12 @@ components:
         user:
           title: User
           readOnly: true
-          anyOf:
-            - $ref: '#/components/schemas/UserEmbedded'
+          type:
+            - 'null'
+            - 'object'
+          oneOf:
             - type: 'null'
+            - $ref: '#/components/schemas/UserEmbedded'
     Project:
       type: object
       properties:
@@ -2259,6 +2304,9 @@ components:
           maxLength: 64
         list_archive_url:
           title: List archive URL
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -2269,6 +2317,9 @@ components:
           description: >
             URL format for the list archive's Message-ID redirector. {} will be
             replaced by the Message-ID.
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -2301,9 +2352,12 @@ components:
           description: >
             An optional name to associate with the series, e.g. "John's PCI
             series".
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
-            - type: string
+            - type: 'string'
               maxLength: 255
         date:
           title: Date
@@ -2440,12 +2494,15 @@ components:
           description: >
             The target URL to associate with this check. This should be specific
             to the patch.
+          readOnly: true
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
               format: uri
               maxLength: 200
-          readOnly: true
         context:
           title: Context
           description: >
@@ -2480,9 +2537,9 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
-          oneOf:
-            - type: 'null'
-            - type: string
+          type:
+            - 'null'
+            - 'string'
         date:
           title: Date
           type: string
@@ -2518,9 +2575,9 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
-          oneOf:
-            - type: 'null'
-            - type: string
+          type:
+            - 'null'
+            - 'string'
         date:
           title: Date
           type: string
@@ -2561,9 +2618,9 @@ components:
         list_archive_url:
           title: List archive URL
           readOnly: true
-          oneOf:
-            - type: 'null'
-            - type: string
+          type:
+            - 'null'
+            - 'string'
         date:
           title: Date
           type: string
@@ -2658,6 +2715,9 @@ components:
           maxLength: 2000
         list_archive_url:
           title: List archive URL
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -2668,6 +2728,9 @@ components:
           description: >
             URL format for the list archive's Message-ID redirector. {} will be
             replaced by the Message-ID.
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
@@ -2700,6 +2763,9 @@ components:
             An optional name to associate with the series, e.g. "John's PCI
             series".
           readOnly: true
+          type:
+            - 'null'
+            - 'string'
           oneOf:
             - type: 'null'
             - type: string
