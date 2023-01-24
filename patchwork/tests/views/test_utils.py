@@ -66,6 +66,29 @@ class MboxPatchResponseTest(TestCase):
         mbox = utils.patch_to_mbox(self.patch)
         self.assertIn('Acked-by: 1\nAcked-by: 2\n', mbox)
 
+    def test_bug_516(self):
+        """Test that tags are appended if a patch description is unset."""
+        patch = create_patch(
+            content=(
+                '---\n'
+                ' manual/string.texi | 2 +-\n'
+                ' 1 file changed, 1 insertion(+), 1 deletion(-)'
+            ),
+        )
+        create_patch_comment(patch=patch, content='Acked-by: 2\n')
+
+        mbox = utils.patch_to_mbox(patch)
+        # the epilog comes after the tags
+        self.assertIn(
+            (
+                'Acked-by: 2\n'
+                '---\n'
+                ' manual/string.texi | 2 +-\n'
+                ' 1 file changed, 1 insertion(+), 1 deletion(-)\n'
+            ),
+            mbox,
+        )
+
     def _test_header_passthrough(self, header):
         patch = create_patch(headers=header + '\n')
         mbox = utils.patch_to_mbox(patch)

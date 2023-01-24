@@ -48,7 +48,7 @@ def _submission_to_mbox(submission):
     """
     is_patch = isinstance(submission, Patch)
 
-    postscript_re = re.compile('\n-{2,3} ?\n')
+    postscript_re = re.compile('^-{2,3} ?$', re.MULTILINE)
     body = ''
 
     if submission.content:
@@ -71,7 +71,7 @@ def _submission_to_mbox(submission):
             body += comment.patch_responses
 
     if postscript:
-        body += '---\n' + postscript + '\n'
+        body += '---' + postscript + '\n'
 
     if is_patch and submission.diff:
         body += '\n' + submission.diff
