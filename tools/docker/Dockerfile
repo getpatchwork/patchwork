@@ -19,6 +19,8 @@ RUN groupadd --gid=$GID patchwork && \
     useradd --uid=$UID --gid=$GID --create-home patchwork
 RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
+RUN eval "$(pyenv init -)"
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libmysqlclient-dev \
@@ -30,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip install wheel tox tox-pyenv
+RUN pip install wheel tox
 
 # we deliberately leave the requirements files in /opt so we can ping the user
 # in entrypoint.sh if they change
