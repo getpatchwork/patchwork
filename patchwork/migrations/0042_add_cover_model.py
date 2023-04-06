@@ -32,7 +32,6 @@ def delete_coverletter_comments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0041_python3'),
     ]

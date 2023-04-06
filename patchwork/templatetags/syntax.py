@@ -72,7 +72,7 @@ def patchsyntax(patch):
 def commentsyntax(submission):
     content = escape(submission.content)
 
-    for (r, cls) in _comment_span_res:
+    for r, cls in _comment_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)
 
     return mark_safe(content)

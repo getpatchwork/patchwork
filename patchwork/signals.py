@@ -242,7 +242,6 @@ def create_series_created_event(sender, instance, created, raw, **kwargs):
 
 @receiver(pre_save, sender=Patch)
 def create_series_completed_event(sender, instance, raw, **kwargs):
-
     # NOTE(stephenfin): It's actually possible for this event to be fired
     # multiple times for a given series. To trigger this case, you would need
     # to send an additional patch to already exisiting series. This pattern

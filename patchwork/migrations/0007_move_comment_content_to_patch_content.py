@@ -95,7 +95,6 @@ def recreate_comments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0006_add_patch_diff'),
     ]

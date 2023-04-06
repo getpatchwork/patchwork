@@ -6,7 +6,6 @@ import patchwork.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0008_add_email_mixin'),
     ]

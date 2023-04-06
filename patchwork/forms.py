@@ -137,7 +137,6 @@ class PatchForm(forms.ModelForm):
 
 
 class OptionalModelChoiceField(forms.ModelChoiceField):
-
     no_change_choice = ('*', 'no change')
     to_field_name = None
 
@@ -176,7 +175,6 @@ class OptionalBooleanField(forms.TypedChoiceField):
 
 
 class MultiplePatchForm(forms.Form):
-
     action = 'update'
     archived = OptionalBooleanField(
         choices=[

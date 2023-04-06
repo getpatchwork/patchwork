@@ -3,7 +3,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0010_migrate_data_from_submission_to_patch'),
     ]

@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0035_project_list_archive_url_format'),
     ]

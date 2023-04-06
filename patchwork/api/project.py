@@ -15,7 +15,6 @@ from patchwork.models import Project
 
 
 class ProjectSerializer(BaseHyperlinkedModelSerializer):
-
     link_name = CharField(max_length=255, source='linkname', read_only=True)
     list_id = CharField(max_length=255, source='listid', read_only=True)
     list_email = CharField(max_length=200, source='listemail', read_only=True)
@@ -63,7 +62,6 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
 
 
 class ProjectMixin(object):
-
     permission_classes = (PatchworkPermission,)
     serializer_class = ProjectSerializer
 

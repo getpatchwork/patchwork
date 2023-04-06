@@ -24,7 +24,6 @@ from patchwork.models import Event
 
 
 class EventSerializer(ModelSerializer):
-
     project = ProjectSerializer(read_only=True)
     actor = UserSerializer()
     patch = PatchSerializer(read_only=True)

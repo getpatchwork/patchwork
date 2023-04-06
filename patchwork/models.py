@@ -477,7 +477,6 @@ class Cover(SubmissionMixin):
 
 
 class Patch(SubmissionMixin):
-
     diff = models.TextField(null=True, blank=True)
     commit_ref = models.CharField(max_length=255, null=True, blank=True)
     pull_url = models.CharField(max_length=255, null=True, blank=True)
@@ -722,7 +721,6 @@ class Patch(SubmissionMixin):
 
 
 class CoverComment(EmailMixin, models.Model):
-
     cover = models.ForeignKey(
         Cover,
         related_name='comments',
@@ -772,7 +770,6 @@ class CoverComment(EmailMixin, models.Model):
 
 
 class PatchComment(EmailMixin, models.Model):
-
     patch = models.ForeignKey(
         Patch,
         related_name='comments',

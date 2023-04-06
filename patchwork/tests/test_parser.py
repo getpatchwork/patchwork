@@ -132,7 +132,6 @@ class PatchTest(TestCase):
 
 
 class InlinePatchTest(PatchTest):
-
     orig_content = 'Test for attached patch'
     orig_diff = read_patch('0001-add-line.patch')
 
@@ -148,7 +147,6 @@ class InlinePatchTest(PatchTest):
 
 
 class AttachmentPatchTest(InlinePatchTest):
-
     orig_content = 'Test for attached patch'
     content_subtype = 'x-patch'
 
@@ -164,12 +162,10 @@ class AttachmentPatchTest(InlinePatchTest):
 
 
 class AttachmentXDiffPatchTest(AttachmentPatchTest):
-
     content_subtype = 'x-diff'
 
 
 class UTF8InlinePatchTest(InlinePatchTest):
-
     orig_diff = read_patch('0002-utf-8.patch', 'utf-8')
 
     def setUp(self):
@@ -193,7 +189,6 @@ class NoCharsetInlinePatchTest(InlinePatchTest):
 
 
 class SignatureCommentTest(InlinePatchTest):
-
     orig_content = 'Test comment\nmore comment'
 
     def setUp(self):
@@ -212,7 +207,6 @@ class UpdateSigCommentTest(SignatureCommentTest):
 
 
 class ListFooterTest(InlinePatchTest):
-
     orig_content = 'Test comment\nmore comment'
 
     def setUp(self):
@@ -231,7 +225,6 @@ class ListFooterTest(InlinePatchTest):
 
 
 class DiffWordInCommentTest(InlinePatchTest):
-
     orig_content = (
         'Lines can start with words beginning in "diff"\n'
         + 'difficult\nDifferent'
@@ -884,7 +877,6 @@ class CommentParseTest(TestCase):
 
 
 class DelegateRequestTest(TestCase):
-
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_delegate_email = "nobody"
@@ -925,7 +917,6 @@ class DelegateRequestTest(TestCase):
 
 
 class CommentActionRequiredTest(TestCase):
-
     fixtures = ['default_tags']
 
     def setUp(self):
@@ -988,7 +979,6 @@ class CommentActionRequiredTest(TestCase):
 
 
 class InitialPatchStateTest(TestCase):
-
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
     invalid_state_name = "Nonexistent Test State"
@@ -1044,7 +1034,6 @@ class InitialPatchStateTest(TestCase):
 
 
 class ParseInitialTagsTest(PatchTest):
-
     fixtures = ['default_tags']
     patch_filename = '0001-add-line.patch'
     orig_content = (

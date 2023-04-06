@@ -6,7 +6,6 @@ import re
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0043_merge_patch_submission'),
     ]

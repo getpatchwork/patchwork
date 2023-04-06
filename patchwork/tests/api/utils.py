@@ -70,7 +70,6 @@ def store_samples(filename):
             def client_wrapper(
                 orig_func, path, data=None, *orig_args, **orig_kwargs
             ):
-
                 req_filename = filename + '-req.json'
                 resp_filename = filename + '-resp.json'
 

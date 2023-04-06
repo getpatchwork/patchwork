@@ -349,7 +349,7 @@ class ArchiveFilter(Filter):
     def key(self, key):
         self.archive_state = False
         self.applied = True
-        for (k, v) in self.param_map.items():
+        for k, v in self.param_map.items():
             if key == v:
                 self.archive_state = k
         if self.archive_state is None:
@@ -559,7 +559,7 @@ class Filters:
     def querystring(self, remove=None):
         params = self.params
 
-        for (k, v) in self.values.items():
+        for k, v in self.values.items():
             if k not in params:
                 params[k] = v
 

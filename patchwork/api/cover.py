@@ -19,7 +19,6 @@ from patchwork.models import Cover
 
 
 class CoverListSerializer(BaseHyperlinkedModelSerializer):
-
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
@@ -75,7 +74,6 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
 
 
 class CoverDetailSerializer(CoverListSerializer):
-
     headers = SerializerMethodField()
 
     def get_headers(self, instance):

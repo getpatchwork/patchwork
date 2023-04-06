@@ -61,7 +61,6 @@ class BundlePermission(permissions.BasePermission):
 
 
 class BundleSerializer(BaseHyperlinkedModelSerializer):
-
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     mbox = SerializerMethodField()
@@ -133,7 +132,6 @@ class BundleSerializer(BaseHyperlinkedModelSerializer):
 
 
 class BundleMixin(object):
-
     permission_classes = [PatchworkPermission & BundlePermission]
     serializer_class = BundleSerializer
 

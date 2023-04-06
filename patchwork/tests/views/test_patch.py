@@ -38,7 +38,6 @@ class EmptyPatchListTest(TestCase):
 
 
 class PatchListOrderingTest(TestCase):
-
     patchmeta = [
         (
             'AlCMyjOsx',
@@ -382,7 +381,6 @@ class PatchViewTest(TestCase):
 
 
 class PatchUpdateTest(TestCase):
-
     properties_form_id = 'patchform-properties'
 
     def setUp(self):

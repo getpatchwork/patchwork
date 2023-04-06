@@ -23,7 +23,7 @@ bundle_actions = ['create', 'add', 'remove']
 def get_patch_ids(d, prefix='patch_id'):
     ids = []
 
-    for (k, v) in d.items():
+    for k, v in d.items():
         a = k.split(':')
         if len(a) != 2:
             continue
@@ -180,7 +180,6 @@ def generic_list(
     patches=None,
     editable_order=False,
 ):
-
     if not filter_settings:
         filter_settings = []
 
@@ -266,7 +265,7 @@ def generic_list(
         if errors:
             context['errors'] = errors
 
-    for (filterclass, setting) in filter_settings:
+    for filterclass, setting in filter_settings:
         if isinstance(setting, dict):
             context['filters'].set_status(filterclass, **setting)
         elif isinstance(setting, list):

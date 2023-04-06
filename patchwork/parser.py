@@ -68,7 +68,6 @@ class DuplicateMailError(Exception):
 
 
 class DuplicateSeriesError(Exception):
-
     pass
 
 
@@ -118,7 +117,7 @@ def sanitise_header(header_contents, header_name=None):
 
         new_value = []
 
-        for (part, _) in value:
+        for part, _ in value:
             # We have random bytes that aren't properly coded.
             # If we had a coding hint, it failed to help.
 

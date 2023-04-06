@@ -4,7 +4,6 @@ import patchwork.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0024_patch_patch_project'),
     ]
