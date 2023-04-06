@@ -7,7 +7,6 @@ from django.apps import AppConfig
 
 
 class PatchworkAppConfig(AppConfig):
-
     name = 'patchwork'
     verbose_name = 'Patchwork'
 

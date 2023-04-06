@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         errors = send_notifications()
-        for (recipient, error) in errors:
+        for recipient, error in errors:
             self.stderr.write(
                 "Failed sending to %s: %s" % (recipient.email, error)
             )

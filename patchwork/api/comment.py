@@ -25,7 +25,6 @@ from patchwork.models import PatchComment
 
 
 class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
-
     web_url = SerializerMethodField()
     subject = SerializerMethodField()
     headers = SerializerMethodField()
@@ -93,7 +92,6 @@ class BaseCommentListSerializer(BaseHyperlinkedModelSerializer):
 
 
 class CoverCommentSerializer(BaseCommentListSerializer):
-
     url = NestedHyperlinkedIdentityField(
         'api-cover-comment-detail',
         lookup_field_mapping={
@@ -114,7 +112,6 @@ class CoverCommentSerializer(BaseCommentListSerializer):
 
 
 class CoverCommentMixin(object):
-
     permission_classes = (PatchworkPermission,)
     serializer_class = CoverCommentSerializer
 
@@ -135,7 +132,6 @@ class CoverCommentMixin(object):
 
 
 class PatchCommentSerializer(BaseCommentListSerializer):
-
     url = NestedHyperlinkedIdentityField(
         'api-patch-comment-detail',
         lookup_field_mapping={
@@ -156,7 +152,6 @@ class PatchCommentSerializer(BaseCommentListSerializer):
 
 
 class PatchCommentMixin(object):
-
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchCommentSerializer
 

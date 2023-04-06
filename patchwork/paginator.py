@@ -22,7 +22,6 @@ ADJACENT_PAGES = 1
 
 class Paginator(paginator.Paginator):
     def __init__(self, request, objects):
-
         items_per_page = settings.DEFAULT_ITEMS_PER_PAGE
 
         if request.user.is_authenticated:

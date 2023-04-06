@@ -756,7 +756,7 @@ class BundleInitialOrderTest(BundleTestBase):
         # BundlePatches should be sorted by .order by default
         bps = BundlePatch.objects.filter(bundle=bundle)
 
-        for (bp, p) in zip(bps, expected_order):
+        for bp, p in zip(bps, expected_order):
             self.assertEqual(bp.patch.pk, p.pk)
 
         bundle.delete()

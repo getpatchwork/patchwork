@@ -18,7 +18,6 @@ from patchwork.models import Series
 
 
 class SeriesSerializer(BaseHyperlinkedModelSerializer):
-
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     submitter = PersonSerializer(read_only=True)
@@ -71,7 +70,6 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
 
 
 class SeriesMixin(object):
-
     permission_classes = (PatchworkPermission,)
     serializer_class = SeriesSerializer
 

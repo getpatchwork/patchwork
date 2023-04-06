@@ -138,7 +138,6 @@ class XMLRPCModelTestMixin(object):
 
 
 class XMLRPCFilterModelTestMixin(XMLRPCModelTestMixin):
-
     # override these tests due to the way you pass in filters
     def test_list_max_count(self):
         objs = self.create_multiple(5)

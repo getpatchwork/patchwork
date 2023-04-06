@@ -25,7 +25,6 @@ def validate_uniqueness(apps, schema_editor):
 
 
 def populate_slug_field(apps, schema_editor):
-
     State = apps.get_model('patchwork', 'State')
 
     with transaction.atomic():
@@ -35,7 +34,6 @@ def populate_slug_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0037_event_actor'),
     ]

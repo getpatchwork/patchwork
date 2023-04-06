@@ -74,7 +74,6 @@ def migrate_data(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     atomic = False
 
     dependencies = [

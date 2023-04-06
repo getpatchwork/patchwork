@@ -25,7 +25,6 @@ from patchwork.views.utils import patch_to_mbox
 
 
 class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher, XMLRPCDocGenerator):
-
     server_name = 'Patchwork XML-RPC API'
     server_title = 'Patchwork XML-RPC API v1 Documentation'
 
@@ -730,7 +729,7 @@ def patch_set(user, patch_id, params):
     if not patch.is_editable(user):
         raise Exception('No permissions to edit this patch')
 
-    for (k, v) in params.items():
+    for k, v in params.items():
         if k not in ok_params:
             continue
 

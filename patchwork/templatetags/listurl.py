@@ -23,7 +23,7 @@ class ListURLNode(template.defaulttags.URLNode):
     def __init__(self, kwargs):
         super(ListURLNode, self).__init__(None, [], {}, False)
         self.params = {}
-        for (k, v) in kwargs.items():
+        for k, v in kwargs.items():
             if k in list_params:
                 self.params[k] = v
 
@@ -53,7 +53,7 @@ class ListURLNode(template.defaulttags.URLNode):
         except (TypeError, template.VariableDoesNotExist):
             pass
 
-        for (k, v) in self.params.items():
+        for k, v in self.params.items():
             params[smart_str(k, 'ascii')] = v.resolve(context)
 
         if not params:

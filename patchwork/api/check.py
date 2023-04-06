@@ -24,7 +24,6 @@ from patchwork.models import Patch
 
 
 class CheckSerializer(HyperlinkedModelSerializer):
-
     url = NestedHyperlinkedIdentityField(
         'api-check-detail',
         lookup_field_mapping={
@@ -85,7 +84,6 @@ class CheckSerializer(HyperlinkedModelSerializer):
 
 
 class CheckMixin(object):
-
     serializer_class = CheckSerializer
     filter_class = filterset_class = CheckFilterSet
 

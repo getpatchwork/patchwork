@@ -43,7 +43,7 @@ def send_notifications():
 
     errors = []
 
-    for (recipient, notifications) in groups:
+    for recipient, notifications in groups:
         notifications = list(notifications)
 
         if recipient.id not in qs2 or qs2[recipient.id] < len(notifications):

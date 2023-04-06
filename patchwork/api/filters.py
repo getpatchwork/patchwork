@@ -94,32 +94,26 @@ class ModelMultipleChoiceField(BaseMultipleChoiceField):
 
 
 class BaseField(ModelMultipleChoiceField):
-
     alternate_lookup = None
 
 
 class BaseFilter(ModelMultipleChoiceFilter):
-
     field_class = BaseField
 
 
 class PersonChoiceField(ModelMultipleChoiceField):
-
     alternate_lookup = 'email__iexact'
 
 
 class PersonFilter(ModelMultipleChoiceFilter):
-
     field_class = PersonChoiceField
 
 
 class ProjectChoiceField(ModelMultipleChoiceField):
-
     alternate_lookup = 'linkname__iexact'
 
 
 class ProjectFilter(ModelMultipleChoiceFilter):
-
     field_class = ProjectChoiceField
 
 
@@ -132,17 +126,14 @@ class StateChoiceField(ModelMultipleChoiceField):
 
 
 class StateFilter(ModelMultipleChoiceFilter):
-
     field_class = StateChoiceField
 
 
 class UserChoiceField(ModelMultipleChoiceField):
-
     alternate_lookup = 'username__iexact'
 
 
 class UserFilter(ModelMultipleChoiceFilter):
-
     field_class = UserChoiceField
 
 
@@ -166,14 +157,12 @@ class BaseFilterSet(FilterSet):
 
 
 class TimestampMixin(BaseFilterSet):
-
     # TODO(stephenfin): These should filter on a 'updated_at' field instead
     before = IsoDateTimeFilter(lookup_expr='lt', field_name='date')
     since = IsoDateTimeFilter(lookup_expr='gte', field_name='date')
 
 
 class SeriesFilterSet(TimestampMixin, BaseFilterSet):
-
     submitter = PersonFilter(queryset=Person.objects.all(), distinct=False)
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
 
@@ -187,7 +176,6 @@ def msgid_filter(queryset, name, value):
 
 
 class CoverFilterSet(TimestampMixin, BaseFilterSet):
-
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
@@ -205,7 +193,6 @@ class CoverFilterSet(TimestampMixin, BaseFilterSet):
 
 
 class PatchFilterSet(TimestampMixin, BaseFilterSet):
-
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
@@ -242,7 +229,6 @@ class PatchFilterSet(TimestampMixin, BaseFilterSet):
 
 
 class CheckFilterSet(TimestampMixin, BaseFilterSet):
-
     user = UserFilter(queryset=User.objects.all(), distinct=False)
 
     class Meta:
@@ -251,7 +237,6 @@ class CheckFilterSet(TimestampMixin, BaseFilterSet):
 
 
 class EventFilterSet(TimestampMixin, BaseFilterSet):
-
     # NOTE(stephenfin): We disable the select-based HTML widgets for these
     # filters as the resulting query is _huge_
     # TODO(stephenfin): We should really use an AJAX widget of some form here
@@ -285,7 +270,6 @@ class EventFilterSet(TimestampMixin, BaseFilterSet):
 
 
 class BundleFilterSet(BaseFilterSet):
-
     project = ProjectFilter(queryset=Project.objects.all(), distinct=False)
     owner = UserFilter(queryset=User.objects.all(), distinct=False)
 

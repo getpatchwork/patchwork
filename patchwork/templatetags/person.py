@@ -16,7 +16,6 @@ register = template.Library()
 
 @register.filter
 def personify(person, project):
-
     if person.name:
         linktext = escape(person.name)
     else:

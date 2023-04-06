@@ -14,7 +14,6 @@ from patchwork.views import user
 
 
 def confirm(request, key):
-
     views = {
         'userperson': user.link_confirm,
         'registration': user.register_confirm,

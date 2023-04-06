@@ -70,7 +70,6 @@ def delete_duplicate_series(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [('patchwork', '0038_state_slug')]
 
     operations = [

@@ -2,7 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('patchwork', '0031_add_patch_series_fields'),
     ]

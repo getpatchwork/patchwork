@@ -10,7 +10,6 @@ import patchwork.models
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ('patchwork', '0001_initial'),
         ('patchwork', '0002_fix_patch_state_default_values'),

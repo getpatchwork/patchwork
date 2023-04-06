@@ -79,7 +79,6 @@ class WebURLMixin(BaseHyperlinkedModelSerializer):
 
 class CheckSerializer(SerializedRelatedField):
     class _Serializer(BaseHyperlinkedModelSerializer):
-
         url = NestedHyperlinkedIdentityField(
             'api-check-detail',
             lookup_field_mapping={
@@ -135,7 +134,6 @@ class CoverSerializer(SerializedRelatedField):
 
 class CoverCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         url = NestedHyperlinkedIdentityField(
             'api-cover-comment-detail',
             lookup_field_mapping={
@@ -198,7 +196,6 @@ class PatchSerializer(SerializedRelatedField):
 
 class PatchCommentSerializer(SerializedRelatedField):
     class _Serializer(MboxMixin, WebURLMixin, BaseHyperlinkedModelSerializer):
-
         url = NestedHyperlinkedIdentityField(
             'api-patch-comment-detail',
             lookup_field_mapping={
@@ -246,7 +243,6 @@ class PersonSerializer(SerializedRelatedField):
 
 class ProjectSerializer(SerializedRelatedField):
     class _Serializer(BaseHyperlinkedModelSerializer):
-
         link_name = CharField(max_length=255, source='linkname')
         list_id = CharField(max_length=255, source='listid')
         list_email = CharField(max_length=200, source='listemail')
@@ -326,7 +322,6 @@ class UserSerializer(SerializedRelatedField):
 
 class UserProfileSerializer(SerializedRelatedField):
     class _Serializer(BaseHyperlinkedModelSerializer):
-
         username = CharField(source='user.username')
         first_name = CharField(source='user.first_name')
         last_name = CharField(source='user.last_name')

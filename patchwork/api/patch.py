@@ -77,7 +77,6 @@ class PatchConflict(APIException):
 
 
 class PatchListSerializer(BaseHyperlinkedModelSerializer):
-
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     state = StateField()
@@ -209,7 +208,6 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
 
 
 class PatchDetailSerializer(PatchListSerializer):
-
     headers = SerializerMethodField()
     prefixes = SerializerMethodField()
 

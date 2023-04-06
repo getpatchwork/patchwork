@@ -13,7 +13,6 @@ from patchwork.models import Person
 
 
 class PersonSerializer(HyperlinkedModelSerializer):
-
     user = UserSerializer(read_only=True)
 
     class Meta:
@@ -26,7 +25,6 @@ class PersonSerializer(HyperlinkedModelSerializer):
 
 
 class PersonMixin(object):
-
     permission_classes = (IsAuthenticated,)
     serializer_class = PersonSerializer
 
