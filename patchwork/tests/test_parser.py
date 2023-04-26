@@ -270,6 +270,13 @@ class SenderEncodingTest(TestCase):
         with self.assertRaises(ValueError):
             get_or_create_author(email)
 
+    def test_invalid_email(self):
+        # Broken email clients garble email addresses -- #512
+        from_header = 'testH=?UTF-8?B?w6E=?=user=?UTF-8?B?w6E=?='
+        email = self._create_email(from_header)
+        with self.assertRaises(ValueError):
+            get_or_create_author(email)
+
     def test_ascii_encoding(self):
         from_header = 'example user <user@example.com>'
         sender_name = 'example user'
