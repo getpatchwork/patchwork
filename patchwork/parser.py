@@ -338,8 +338,6 @@ def split_from_header(from_header):
     # tuple of (regex, fn)
     #  - where fn returns a (name, email) tuple from the match groups resulting
     #    from re.match().groups()
-    # TODO(stephenfin): Perhaps we should check for "real" email addresses
-    # instead of anything ('.*?')
     from_res = [
         # for "Firstname Lastname" <example@example.com> style addresses
         (re.compile(r'"?(.*?)"?\s*<([^>]+)>'), (lambda g: (g[0], g[1]))),
@@ -360,6 +358,14 @@ def split_from_header(from_header):
             (name, email) = fn(match.groups())
             break
 
+    # Checking for real email address.
+    email_pattern = (
+        r'^[\w!#$%&"*+/=?^`{|}~-]+(?:\.[\w!#$%&"*+/=?^`{|}~-]+)*'
+        r'@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+'
+        r'[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$'
+    )
+    if not re.match(email_pattern, email):
+        email = None
     return (name, email)
 
 
