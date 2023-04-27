@@ -68,7 +68,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install Python dependencies
-        run: python -m pip install tox tox-gh-actions codecov
+        run: python -m pip install tox tox-gh-actions
       - name: Log database configuration (mysql)
         if: ${{ matrix.db == 'mysql' }}
         run: |
