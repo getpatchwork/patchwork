@@ -775,7 +775,7 @@ def state_get(state_id):
     Retrieve a state matching a given state ID, if any exists.
 
     Args:
-        state_id: The ID of the state to retrieve.
+        state_id (int): The ID of the state to retrieve.
 
     Returns:
         The serialized state matching the ID, if any, else an empty
