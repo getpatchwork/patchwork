@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    `Django 4.2 <https://docs.djangoproject.com/en/dev/releases/4.2/>`_ is
+    now supported.
+upgrade:
+  - |
+    Django 4.0 is no longer supported. It is no longer supported upstream and
+    most distributions provide a newer version.
