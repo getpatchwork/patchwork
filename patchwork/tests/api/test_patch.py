@@ -5,11 +5,11 @@
 
 import email.parser
 from email.utils import make_msgid
-import unittest
 
-from django.conf import settings
+from django.test import override_settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
+from rest_framework import status
 
 from patchwork.models import Patch
 from patchwork.tests.api import utils
@@ -22,9 +22,6 @@ from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
-
 # a diff different from the default, required to test hash filtering
 SAMPLE_DIFF = """--- /dev/null\t2019-01-01 00:00:00.000000000 +0800
 +++ a\t2019-01-01 00:00:00.000000000 +0800
@@ -33,7 +30,7 @@ SAMPLE_DIFF = """--- /dev/null\t2019-01-01 00:00:00.000000000 +0800
 """
 
 
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLED_REST_API=True)
 class TestPatchAPI(utils.APITestCase):
     fixtures = ['default_tags']
 

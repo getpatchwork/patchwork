@@ -5,10 +5,9 @@
 
 import base64
 import datetime
-import unittest
 
-from django.conf import settings
 from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.http import urlencode
@@ -305,7 +304,7 @@ class BundlePrivateViewTest(BundleTestBase):
         self.assertEqual(response.status_code, 404)
 
 
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class BundlePrivateViewMboxTest(BundlePrivateViewTest):
 
     """Ensure that non-owners can't view private bundle mboxes"""
@@ -824,10 +823,7 @@ class BundleReorderTest(BundleTestBase):
         self.check_reordering([0, 2, 3, 1, 4], 1, 4)
 
 
-@unittest.skipUnless(
-    settings.COMPAT_REDIR,
-    'requires compat redirection (use the COMPAT_REDIR setting)',
-)
+@override_settings(COMPAT_REDIR=True)
 class BundleRedirTest(BundleTestBase):
     """Validate redirection of legacy URLs."""
 

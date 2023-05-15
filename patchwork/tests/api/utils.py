@@ -7,16 +7,12 @@ import functools
 import json
 import os
 
-from django.conf import settings
 from django.test import testcases
 
 from patchwork.tests.api import validator
 
-if settings.ENABLE_REST_API:
-    from rest_framework.test import APIClient as BaseAPIClient
-    from rest_framework.test import APIRequestFactory
-else:
-    from django.test import Client as BaseAPIClient
+from rest_framework.test import APIClient as BaseAPIClient
+from rest_framework.test import APIRequestFactory
 
 
 # docs/api/samples

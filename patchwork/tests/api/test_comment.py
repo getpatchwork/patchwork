@@ -3,11 +3,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-
-from django.conf import settings
+from django.test import override_settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
+from rest_framework import status
 
 from patchwork.models import PatchComment
 from patchwork.models import CoverComment
@@ -22,11 +21,8 @@ from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import SAMPLE_CONTENT
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
 
-
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class TestCoverComments(utils.APITestCase):
     @staticmethod
     def api_url(cover, version=None, item=None):
@@ -259,7 +255,7 @@ class TestCoverComments(utils.APITestCase):
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class TestPatchComments(utils.APITestCase):
     @staticmethod
     def api_url(patch, version=None, item=None):

@@ -3,10 +3,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-
-from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
+from rest_framework import status
 
 from patchwork.models import Patch
 from patchwork.models import PatchRelation
@@ -18,11 +17,8 @@ from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_relation
 from patchwork.tests.utils import create_user
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
 
-
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLED_REST_API=True)
 class TestRelationSimpleAPI(utils.APITestCase):
     @staticmethod
     def api_url(item=None, version=None):

@@ -3,10 +3,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-
-from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase as BaseAPITestCase
 
 from patchwork.models import Check
 from patchwork.tests.api import utils
@@ -16,15 +16,8 @@ from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
-    from rest_framework.test import APITestCase as BaseAPITestCase
-else:
-    # stub out APITestCase
-    from django.test import TestCase as BaseAPITestCase
 
-
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class TestCheckAPI(utils.APITestCase):
     fixtures = ['default_tags']
 
@@ -201,7 +194,7 @@ class TestCheckAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
 
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class TestCheckAPIMultipart(BaseAPITestCase):
     """Test a minimal subset of functionality where the data is passed as
     multipart form data rather than as a JSON blob.

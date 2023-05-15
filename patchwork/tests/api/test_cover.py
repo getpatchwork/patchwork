@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import email.parser
-import unittest
 
-from django.conf import settings
+from django.test import override_settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
+from rest_framework import status
 
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_cover
@@ -17,11 +17,8 @@ from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_user
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
 
-
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLED_REST_API=True)
 class TestCoverAPI(utils.APITestCase):
     fixtures = ['default_tags']
 

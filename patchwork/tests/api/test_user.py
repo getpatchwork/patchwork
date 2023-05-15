@@ -3,21 +3,17 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
-
-from django.conf import settings
+from django.test import override_settings
 from django.urls import NoReverseMatch
 from django.urls import reverse
+from rest_framework import status
 
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_user
 
-if settings.ENABLE_REST_API:
-    from rest_framework import status
 
-
-@unittest.skipUnless(settings.ENABLE_REST_API, 'requires ENABLE_REST_API')
+@override_settings(ENABLE_REST_API=True)
 class TestUserAPI(utils.APITestCase):
     @staticmethod
     def api_url(item=None, version=None):
