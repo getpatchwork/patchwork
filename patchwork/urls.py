@@ -188,9 +188,16 @@ urlpatterns = [
     path('mail/optin/', mail_views.optin, name='mail-optin'),
     # about
     path('about/', about_views.about, name='about'),
+    # pwclientrc
+    path(
+        'project/<project_id>/pwclientrc/',
+        pwclient_views.pwclientrc,
+        name='pwclientrc',
+    ),
     # legacy redirects
     path('help/', about_views.redirect, name='help'),
     path('help/about/', about_views.redirect, name='help-about'),
+    path('help/pwclient/', about_views.redirect, name='help-pwclient'),
 ]
 
 if 'debug_toolbar' in settings.INSTALLED_APPS:
@@ -203,13 +210,6 @@ if 'debug_toolbar' in settings.INSTALLED_APPS:
 if settings.ENABLE_XMLRPC:
     urlpatterns += [
         path('xmlrpc/', xmlrpc_views.xmlrpc, name='xmlrpc'),
-        path(
-            'project/<project_id>/pwclientrc/',
-            pwclient_views.pwclientrc,
-            name='pwclientrc',
-        ),
-        # legacy redirect
-        path('help/pwclient/', about_views.redirect, name='help-pwclient'),
     ]
 
 if settings.ENABLE_REST_API:

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The sample ``pwclientrc`` files found at ``/project/<project>/pwclientrc``
+    will now use the ``rest`` backend by default if the REST API is enabled.
+    In addition, it is now possible to download a sample ``pwclientrc`` file
+    even if the XML-RPC API backend is disabled.
