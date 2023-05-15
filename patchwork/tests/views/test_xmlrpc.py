@@ -3,11 +3,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import unittest
 from xmlrpc import client as xmlrpc_client
 
-from django.conf import settings
 from django.test import LiveServerTestCase
+from django.test import override_settings
 from django.urls import reverse
 
 from patchwork.tests import utils
@@ -18,10 +17,7 @@ class ServerProxy(xmlrpc_client.ServerProxy):
         self.__close()
 
 
-@unittest.skipUnless(
-    settings.ENABLE_XMLRPC,
-    'requires xmlrpc interface (use the ENABLE_XMLRPC setting)',
-)
+@override_settings(ENABLE_XMLRPC=True)
 class XMLRPCTest(LiveServerTestCase):
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
@@ -49,10 +45,7 @@ class XMLRPCGenericTest(XMLRPCTest):
             self.rpc.patch_set(0, {})
 
 
-@unittest.skipUnless(
-    settings.ENABLE_XMLRPC,
-    'requires xmlrpc interface (use the ENABLE_XMLRPC setting)',
-)
+@override_settings(ENABLE_XMLRPC=True)
 class XMLRPCAuthenticatedTest(LiveServerTestCase):
     def setUp(self):
         self.url = self.live_server_url + reverse('xmlrpc')
