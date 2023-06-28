@@ -1,15 +1,19 @@
-# -*- coding: utf-8 -*-
-#
 # Patchwork documentation build configuration file
 
 import os
 import sys
 
+try:
+    import furo  # noqa
+
+    has_furo_theme = True
+except ImportError:
+    has_furo_theme = False
+
 PATCHWORK_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, PATCHWORK_DIR)
 
 from patchwork import VERSION  # noqa
-
 
 # -- General configuration ------------------------------------------------
 
@@ -20,17 +24,18 @@ needs_sphinx = '1.5'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.todo', 'reno.sphinxext', 'sphinxcontrib.openapi']
-
-# The theme to use for HTML and HTML Help pages.
-html_theme = 'sphinx_rtd_theme'
+extensions = [
+    'reno.sphinxext',
+    'sphinx.ext.todo',
+    'sphinxcontrib.openapi',
+]
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = 'Patchwork'
-copyright = '2018-, Patchwork Developers'
+copyright = '2018-present, Patchwork Developers'
 author = 'Patchwork Developers'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -47,3 +52,11 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+# -- Options for HTML output ----------------------------------------------
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+#
+if has_furo_theme:
+    html_theme = 'furo'
