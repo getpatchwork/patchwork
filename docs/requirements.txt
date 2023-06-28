@@ -2,4 +2,4 @@ sphinx
 reno
 furo
 jinja2
-sphinxcontrib-openapi
+sphinxcontrib-openapi==0.8.1
