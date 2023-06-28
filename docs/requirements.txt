@@ -1,5 +1,5 @@
 sphinx
-reno
+reno==4.0.0
 furo
 jinja2
 sphinxcontrib-openapi
