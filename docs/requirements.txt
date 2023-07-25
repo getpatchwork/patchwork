@@ -1,4 +1,4 @@
-sphinx
+sphinx==7.1.0
 reno
 furo
 jinja2
