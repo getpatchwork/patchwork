@@ -1,5 +1,5 @@
 sphinx
 reno
-furo
+furo==2023.7.26
 jinja2
 sphinxcontrib-openapi
