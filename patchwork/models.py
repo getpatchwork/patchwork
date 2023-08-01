@@ -387,6 +387,14 @@ class EmailMixin(models.Model):
         # [1] https://datatracker.ietf.org/doc/html/rfc3986.html#section-2
         return self.url_msgid.replace('/', '%2F')
 
+    @staticmethod
+    def decode_msgid(msgid):
+        """Decode an encoded msgid.
+
+        Reverses :mod:`~url_msgid` and :mod:`~encoded_msgid` operations.
+        """
+        return f"<{msgid.replace('%2F', '/')}>"
+
     def save(self, *args, **kwargs):
         # Modifying a submission via admin interface changes '\n' newlines in
         # message content to '\r\n'. We need to fix them to avoid problems,
