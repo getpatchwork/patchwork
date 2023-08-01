@@ -4,7 +4,7 @@ default_language_version:
   python: python3
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.4.0
     hooks:
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
@@ -13,16 +13,16 @@ repos:
         exclude: (.*\.mbox)|(.*\.css)|(.*\.json)|(.*\.js)|(.*\.svg)|(.*/mails/.*-subject\.txt)|(tools/docker/db)
       - id: trailing-whitespace
         exclude: (.*\.mbox)|(.*\.svg)
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
     hooks:
       - id: flake8
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.13
+    rev: v1.5.1
     hooks:
       - id: remove-tabs
         exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
