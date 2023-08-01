@@ -94,6 +94,7 @@ TO "nobody";
 GRANT UPDATE, SELECT ON
 	patchwork_comment_id_seq,
 	patchwork_cover_id_seq,
+	patchwork_covercomment_id_seq,
 	patchwork_event_id_seq,
 	patchwork_patch_id_seq,
 	patchwork_patchtag_id_seq,
