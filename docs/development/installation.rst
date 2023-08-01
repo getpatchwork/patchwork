@@ -177,10 +177,9 @@ These are detailed below.
 Python Requirements
 ^^^^^^^^^^^^^^^^^^^
 
-To develop Python-based software you first need Python. Patchwork supports
-Python 3.7+. Python 3 will be installed by default on many installations,
-though a suitable version can usually be installed manually using the
-``python3`` package.
+To develop Python-based software you first need Python. Python 3 will be
+installed by default on many installations, though a suitable version can
+usually be installed manually using the ``python3`` package.
 
 It's a good idea to use `virtual environments`__ to develop Python software.
 Virtual environments are "instances" of your system Python without any of the
@@ -264,7 +263,7 @@ virtual environment. This can be done like so:
 .. note::
 
    If you wish to use a specific Python version, you can provide the
-   ``--python`` argument to use this, e.g. ``--python=python3.7``.
+   ``--python`` argument to use this, e.g. ``--python=python3.11``.
 
 Now install the packages. Patchwork provides three requirements files.
 

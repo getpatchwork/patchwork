@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Python 3.7 is no longer supported. It is no longer supported upstream and
+    most distributions provide a newer version.
