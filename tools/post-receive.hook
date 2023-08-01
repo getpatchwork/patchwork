@@ -31,7 +31,7 @@ get_patchwork_hash() {
 get_patch_id() {
     local id
     id=$(pwclient info -h "$1" 2>/dev/null | \
-         sed -rne 's,- id[[:space:]]*: ,,p')
+        sed -rne 's,- id[[:space:]]*: ,,p')
     echo "$id"
     test -n "$id"
 }
@@ -42,8 +42,8 @@ set_patch_state() {
 
 update_patches() {
     local cnt; cnt=0
-    for rev in $(git rev-parse --not ${EXCLUDE} |
-                 git rev-list --stdin --no-merges --reverse "${1}".."${2}"); do
+    local revs; revs=$(git rev-parse --not ${EXCLUDE} | git rev-list --stdin --no-merges --reverse "${1}".."${2}")
+    for rev in $revs; do
         if [ "$do_exit" = 1 ]; then
             echo "I: exiting..." >&2
             break
