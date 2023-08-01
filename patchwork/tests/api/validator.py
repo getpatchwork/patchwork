@@ -8,17 +8,11 @@ import re
 
 from django.urls import resolve
 import openapi_core
-from openapi_core.unmarshalling.schemas.factories import (
-    SchemaUnmarshallersFactory,
-)
 from openapi_core.contrib.django import DjangoOpenAPIRequest
 from openapi_core.contrib.django import DjangoOpenAPIResponse
 from openapi_core.exceptions import OpenAPIError
 from openapi_core.templating import util
-from openapi_core.unmarshalling.schemas.formatters import Formatter
-from openapi_core.validation.request.validators import RequestValidator
-from openapi_core.validation.response.validators import ResponseValidator
-from openapi_schema_validator import OAS31Validator
+from openapi_core import shortcuts
 from rest_framework import status
 import yaml
 
@@ -64,26 +58,17 @@ class RegexValidator(object):
         return self.regex.match(value)
 
 
-CUSTOM_FORMATTERS = {
-    'uri': Formatter.from_callables(
-        RegexValidator(
-            r'^(?:http|ftp)s?://'
-            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # noqa: E501
-            r'localhost|'
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-            r'(?::\d+)?'
-            r'(?:/?|[/?]\S+)$',
-        ),
-        str,
+EXTRA_FORMAT_VALIDATORS = {
+    'uri': RegexValidator(
+        r'^(?:http|ftp)s?://'
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # noqa: E501
+        r'localhost|'
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+        r'(?::\d+)?'
+        r'(?:/?|[/?]\S+)$',
     ),
-    'iso8601': Formatter.from_callables(
-        RegexValidator(r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}$'),
-        str,
-    ),
-    'email': Formatter.from_callables(
-        RegexValidator(r'[^@]+@[^@]+\.[^@]+'),
-        str,
-    ),
+    'iso8601': RegexValidator(r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}$'),
+    'email': RegexValidator(r'[^@]+@[^@]+\.[^@]+'),
 }
 
 
@@ -102,13 +87,17 @@ def _load_spec(version):
     with open(spec_path, 'r') as fh:
         data = yaml.load(fh, Loader=yaml.SafeLoader)
 
-    _LOADED_SPECS[version] = openapi_core.Spec.create(data)
+    _LOADED_SPECS[version] = openapi_core.Spec.from_dict(data)
 
     return _LOADED_SPECS[version]
 
 
 def validate_data(
-    path, request, response, validate_request, validate_response
+    path,
+    request,
+    response,
+    validate_request,
+    validate_response,
 ):
     if response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED:
         return
@@ -117,18 +106,14 @@ def validate_data(
     request = DjangoOpenAPIRequest(request)
     response = DjangoOpenAPIResponse(response)
 
-    schema_unmarshallers_factory = SchemaUnmarshallersFactory(
-        OAS31Validator,
-        custom_formatters=CUSTOM_FORMATTERS,
-        # context=UnmarshalContext.RESPONSE,
-    )
-
     # request
     if validate_request:
-        validator = RequestValidator(schema_unmarshallers_factory)
-        result = validator.validate(spec, request)
         try:
-            result.raise_for_errors()
+            shortcuts.validate_request(
+                request,
+                spec=spec,
+                extra_format_validators=EXTRA_FORMAT_VALIDATORS,
+            )
         except OpenAPIError:
             # TODO(stephenfin): In API v2.0, this should be an error. As things
             # stand, we silently ignore these issues.
@@ -136,6 +121,9 @@ def validate_data(
 
     # response
     if validate_response:
-        validator = ResponseValidator(schema_unmarshallers_factory)
-        result = validator.validate(spec, request, response)
-        result.raise_for_errors()
+        shortcuts.validate_response(
+            request,
+            response,
+            spec=spec,
+            extra_format_validators=EXTRA_FORMAT_VALIDATORS,
+        )
