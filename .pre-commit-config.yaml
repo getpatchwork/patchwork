@@ -13,6 +13,13 @@ repos:
         exclude: (.*\.mbox)|(.*\.css)|(.*\.json)|(.*\.js)|(.*\.svg)|(.*/mails/.*-subject\.txt)|(tools/docker/db)
       - id: trailing-whitespace
         exclude: (.*\.mbox)|(.*\.svg)
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.1
+    hooks:
+      - id: remove-tabs
+        exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
+      - id: remove-crlf
+        exclude: (.*\.mbox)|(.*\.svg)
   - repo: https://github.com/pycqa/flake8
     rev: 6.1.0
     hooks:
@@ -25,10 +32,3 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
-    hooks:
-      - id: remove-tabs
-        exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
-      - id: remove-crlf
-        exclude: (.*\.mbox)|(.*\.svg)
