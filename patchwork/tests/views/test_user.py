@@ -3,6 +3,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import string
+import secrets
+
 import django
 from django.contrib.auth.models import User
 from django.core import mail
@@ -27,10 +30,16 @@ def _generate_secondary_email(user):
     return 'secondary_%d@example.com' % user.id
 
 
+def _generate_password():
+    # https://docs.python.org/3.11/library/secrets.html#recipes-and-best-practices
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(8))
+
+
 class _UserTestCase(TestCase):
     def setUp(self):
         self.user = create_user()
-        self.password = User.objects.make_random_password()
+        self.password = _generate_password()
         self.user.set_password(self.password)
         self.user.save()
 
@@ -357,7 +366,7 @@ class UserLinkTest(_UserTestCase):
 class ConfirmationTest(TestCase):
     def setUp(self):
         self.user = create_user(link_person=False)
-        self.password = User.objects.make_random_password()
+        self.password = _generate_password()
         self.user.set_password(self.password)
         self.user.save()
 
@@ -476,7 +485,7 @@ class PasswordChangeTest(_UserTestCase):
 
     def test_password_change(self):
         old_password = self.password
-        new_password = User.objects.make_random_password()
+        new_password = _generate_password()
 
         data = {
             'old_password': old_password,
