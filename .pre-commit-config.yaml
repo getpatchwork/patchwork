@@ -14,7 +14,7 @@ repos:
       - id: trailing-whitespace
         exclude: (.*\.mbox)|(.*\.svg)
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
+    rev: v1.5.4
     hooks:
       - id: remove-tabs
         exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
