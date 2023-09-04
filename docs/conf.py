@@ -3,13 +3,6 @@
 import os
 import sys
 
-try:
-    import furo  # noqa
-
-    has_furo_theme = True
-except ImportError:
-    has_furo_theme = False
-
 PATCHWORK_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, PATCHWORK_DIR)
 
@@ -58,5 +51,4 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-if has_furo_theme:
-    html_theme = 'furo'
+html_theme = 'sphinx_rtd_theme'
