@@ -5,7 +5,7 @@
 openapi: '3.1.0'
 info:
   title: Patchwork API
-  description: >
+  description: |
     Patchwork is a web-based patch tracking system designed to facilitate the
     contribution and management of contributions to an open-source project.
   contact:
@@ -212,7 +212,7 @@ paths:
         - $ref: '#/components/parameters/SinceFilter'
         - in: query
           name: project
-          description: >
+          description: |
             An ID or linkname of a project to filter cover letters by.
           schema:
             title: ''
@@ -225,14 +225,14 @@ paths:
             type: string
         - in: query
           name: submitter
-          description: >
+          description: |
             An ID or email address of a person to filter cover letters by.
           schema:
             title: ''
             type: string
         - in: query
           name: msgid
-          description: >
+          description: |
             The cover message-id as a case-sensitive string, without leading or
             trailing angle brackets, to filter by.
           schema:
@@ -283,7 +283,7 @@ paths:
     parameters:
       - in: path
         name: id
-        description: >
+        description: |
           A unique integer value identifying the parent cover letter.
         required: true
         schema:
@@ -504,7 +504,7 @@ paths:
             type: integer
         - in: query
           name: submitter
-          description: >
+          description: |
             An ID or email address of a person to filter patches by.
           schema:
             title: ''
@@ -523,7 +523,7 @@ paths:
             type: string
         - in: query
           name: archived
-          description: >
+          description: |
             Show only archived (`true`) or non-archived (`false`) patches.
           schema:
             title: ''
@@ -533,14 +533,14 @@ paths:
               - 'false'
         - in: query
           name: hash
-          description: >
+          description: |
             The patch hash as a case-insensitive hexadecimal string, to filter by.
           schema:
             title: ''
             type: string
         - in: query
           name: msgid
-          description: >
+          description: |
             The patch message-id as a case-sensitive string, without leading or
             trailing angle brackets, to filter by.
           schema:
@@ -1514,6 +1514,9 @@ components:
           type: boolean
         mbox:
           title: Mbox
+          description: |
+            A URL to download the bundle in mbox format. Patches will be
+            ordered in the same order that they are defined in the bundle.
           type: string
           format: uri
           readOnly: true
@@ -1566,7 +1569,7 @@ components:
             - fail
         target_url:
           title: Target URL
-          description: >
+          description: |
             The target URL to associate with this check. This should be
             specific to the patch.
           type:
@@ -1579,7 +1582,7 @@ components:
               maxLength: 200
         context:
           title: Context
-          description: >
+          description: |
             A label to discern check from checks of other testing systems.
           type: string
           pattern: ^[-a-zA-Z0-9_]+$
@@ -1766,6 +1769,8 @@ components:
             - $ref: '#/components/schemas/PersonEmbedded'
         mbox:
           title: Mbox
+          description: |
+            A URL to download the cover letter in mbox format.
           type: string
           format: uri
           readOnly: true
@@ -2090,6 +2095,10 @@ components:
             - $ref: '#/components/schemas/UserEmbedded'
         mbox:
           title: Mbox
+          description: |
+            A URL to download the patch in mbox format. Add the `series=*`
+            querystring parameter to include series dependencies in the mbox
+            file.
           type: string
           format: uri
           readOnly: true
@@ -2293,7 +2302,7 @@ components:
           uniqueItems: true
         subject_match:
           title: Subject match
-          description: >
+          description: |
             Regex to match the subject against if only part of emails sent to
             the list belongs to this project. Will be used with IGNORECASE and
             MULTILINE flags. If rules for more projects match the first one
@@ -2314,7 +2323,7 @@ components:
               maxLength: 2000
         list_archive_url_format:
           title: List archive URL format
-          description: >
+          description: |
             URL format for the list archive's Message-ID redirector. {} will be
             replaced by the Message-ID.
           type:
@@ -2349,7 +2358,7 @@ components:
           $ref: '#/components/schemas/ProjectEmbedded'
         name:
           title: Name
-          description: >
+          description: |
             An optional name to associate with the series, e.g. "John's PCI
             series".
           type:
@@ -2372,12 +2381,12 @@ components:
             - $ref: '#/components/schemas/PersonEmbedded'
         version:
           title: Version
-          description: >
+          description: |
             Version of series as indicated by the subject prefix(es).
           type: integer
         total:
           title: Total
-          description: >
+          description: |
             Number of patches in series as indicated by the subject prefix(es).
           type: integer
           readOnly: true
@@ -2391,6 +2400,8 @@ components:
           readOnly: true
         mbox:
           title: Mbox
+          description: |
+            A URL to download the series in mbox format.
           type: string
           format: uri
           readOnly: true
@@ -2446,13 +2457,13 @@ components:
               properties:
                 send_email:
                   title: Send email
-                  description: >
+                  description: |
                     Whether Patchwork should send email on your behalf.
                     Only present and configurable for your account.
                   type: boolean
                 items_per_page:
                   title: Items per page
-                  description: >
+                  description: |
                     Number of items to display per page (web UI).
                     Only present and configurable for your account.
                   type: integer
@@ -2491,7 +2502,7 @@ components:
             - fail
         target_url:
           title: Target url
-          description: >
+          description: |
             The target URL to associate with this check. This should be specific
             to the patch.
           readOnly: true
@@ -2505,7 +2516,7 @@ components:
               maxLength: 200
         context:
           title: Context
-          description: >
+          description: |
             A label to discern check from checks of other testing systems.
           type: string
           pattern: ^[-a-zA-Z0-9_]+$
@@ -2590,6 +2601,8 @@ components:
           minLength: 1
         mbox:
           title: Mbox
+          description: |
+            A URL to download the cover letter in mbox format.
           type: string
           format: uri
           readOnly: true
@@ -2633,6 +2646,10 @@ components:
           minLength: 1
         mbox:
           title: Mbox
+          description: |
+            A URL to download the patch in mbox format. Add the `series=*`
+            querystring parameter to include series dependencies in the mbox
+            file.
           type: string
           format: uri
           readOnly: true
@@ -2759,7 +2776,7 @@ components:
           readOnly: true
         name:
           title: Name
-          description: >
+          description: |
             An optional name to associate with the series, e.g. "John's PCI
             series".
           readOnly: true
@@ -2777,12 +2794,14 @@ components:
           readOnly: true
         version:
           title: Version
-          description: >
+          description: |
             Version of series as indicated by the subject prefix(es).
           type: integer
           readOnly: true
         mbox:
           title: Mbox
+          description: |
+            A URL to download the series in mbox format.
           type: string
           format: uri
           readOnly: true
