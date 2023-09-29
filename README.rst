@@ -55,8 +55,8 @@ project on one of these instances.
 - patchwork.sourceware.org
 - patchwork.open-mesh.org
 
-__ https://patchwork.readthedocs.io/en/latest/development/api/
-__ https://patchwork.readthedocs.io/en/latest/usage/clients/
+__ https://patchwork.readthedocs.io/en/latest/development/api.html
+__ https://patchwork.readthedocs.io/en/latest/usage/clients.html
 
 Requirements
 ------------

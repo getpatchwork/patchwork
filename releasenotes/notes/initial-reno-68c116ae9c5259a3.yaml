@@ -69,7 +69,7 @@ features:
   - |
     `Docker <https://www.docker.com/what-docker#/developers>`_ support is now
     integrated for development usage. To use this, refer to the `documentation
-    <https://patchwork.readthedocs.io/en/latest/development/installation/>`__.
+    <https://patchwork.readthedocs.io/en/latest/development/installation.html>`__.
 upgrade:
   - |
     The REST API is enabled by default.
