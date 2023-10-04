@@ -7,9 +7,8 @@ APIs.
 .. note::
 
    Got a client that you think might be useful to the broader community? Feel
-   free to add it to this page by `submitting a patch`__.
-
-   __ https://patchwork.readthedocs.io/en/latest/development/contributing/
+   free to add it to this page by :doc:`submitting a patch
+   </development/contributing>`.
 
 
 pwclient
