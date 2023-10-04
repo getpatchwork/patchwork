@@ -10,3 +10,4 @@ build:
   jobs:
     post_checkout:
       - git fetch --unshallow
+      - git fetch --tags
