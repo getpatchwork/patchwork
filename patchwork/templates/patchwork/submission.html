@@ -28,6 +28,7 @@
 {% if submission.list_archive_url %}
       (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)
 {% endif %}
+      <span class="btn-link btn-copy glyphicon glyphicon-copy" data-clipboard-text="{{ submission.url_msgid }}" title="Copy to Clipboard"></span>
     </td>
   </tr>
 {% if submission.state %}
