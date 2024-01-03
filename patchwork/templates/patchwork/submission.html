@@ -23,11 +23,12 @@
 <table id="patch-meta" class="patch-meta" data-submission-type={{submission|verbose_name_plural|lower}} data-submission-id={{submission.id}}>
   <tr>
     <th>Message ID</th>
+    <td>
+      {{ submission.url_msgid }}
 {% if submission.list_archive_url %}
-    <td>{{ submission.url_msgid }} (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)</td>
-{% else %}
-    <td>{{ submission.url_msgid }}</td>
+      (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)
 {% endif %}
+    </td>
   </tr>
 {% if submission.state %}
   <tr>
