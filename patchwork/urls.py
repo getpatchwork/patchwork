@@ -37,6 +37,11 @@ urlpatterns = [
         name='patch-list',
     ),
     path(
+        'project/<project_id>/series-list/',
+        patch_views.series_list,
+        name='series-list',
+    ),
+    path(
         'project/<project_id>/bundles/',
         bundle_views.bundle_list,
         name='bundle-list',
