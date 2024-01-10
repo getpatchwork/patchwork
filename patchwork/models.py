@@ -173,6 +173,7 @@ class UserProfile(models.Model):
         default=False,
         help_text='Show click-to-copy patch IDs in the list view',
     )
+    mid_scheme = models.CharField(max_length=255, blank=True, help_text="URL scheme to use when opening message IDs")
 
     @property
     def name(self):

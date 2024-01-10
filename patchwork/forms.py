@@ -102,8 +102,9 @@ class EmailForm(forms.Form):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['items_per_page', 'show_ids']
-        labels = {'show_ids': 'Show Patch IDs:'}
+        fields = ['items_per_page', 'show_ids', 'mid_scheme']
+        labels = {'show_ids': 'Show Patch IDs:',
+                  'mid_scheme': 'Message URL scheme'}
 
 
 def _get_delegate_qs(project, instance=None):
