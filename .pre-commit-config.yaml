@@ -20,10 +20,14 @@ repos:
         exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
       - id: remove-crlf
         exclude: (.*\.mbox)|(.*\.svg)
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.13
     hooks:
-      - id: flake8
+      # Run the linter.
+      - id: ruff
+      # Run the formatter.
+      - id: ruff-format
   - repo: https://github.com/openstack/bashate
     rev: 2.1.1
     hooks:
@@ -33,7 +37,3 @@ repos:
     hooks:
       - id: vacuum
         files: ^docs/api/schemas/(latest|v\d\.\d)/patchwork.yaml
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
