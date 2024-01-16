@@ -229,7 +229,7 @@ class Migration(migrations.Migration):
                     field=models.CharField(
                         blank=True,
                         help_text="URL format for the list archive's Message-ID "
-                        "redirector. {} will be replaced by the Message-ID.",
+                        'redirector. {} will be replaced by the Message-ID.',
                         max_length=2000,
                     ),
                 ),
@@ -314,7 +314,7 @@ class Migration(migrations.Migration):
                     field=models.BooleanField(
                         default=True,
                         help_text="Show a column displaying this tag's count in the "
-                        "patch list view",
+                        'patch list view',
                     ),
                 ),
                 migrations.AlterField(

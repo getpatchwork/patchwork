@@ -90,7 +90,7 @@ def _optinout(request, action):
         and EmailOptout.objects.filter(email=email).count() == 0
     ):
         context['error'] = (
-            "The email address %s is not on the patchwork "
+            'The email address %s is not on the patchwork '
             "opt-out list, so you don't need to opt back in" % email
         )
         context['form'] = form

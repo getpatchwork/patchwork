@@ -116,7 +116,7 @@ def set_bundle(request, project, action, data, patches, context):
     if action == 'create':
         bundle_name = data['bundle_name'].strip()
         if '/' in bundle_name:
-            return ['Bundle names can\'t contain slashes']
+            return ["Bundle names can't contain slashes"]
 
         if not bundle_name:
             return ['No bundle name was specified']
@@ -126,7 +126,7 @@ def set_bundle(request, project, action, data, patches, context):
 
         bundle = Bundle(owner=user, project=project, name=bundle_name)
         bundle.save()
-        messages.success(request, "Bundle %s created" % bundle.name)
+        messages.success(request, 'Bundle %s created' % bundle.name)
     elif action == 'add':
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
     elif action == 'remove':

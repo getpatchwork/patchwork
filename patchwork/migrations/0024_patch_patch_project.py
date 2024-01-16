@@ -26,10 +26,10 @@ class Migration(migrations.Migration):
         ),
         # as with 10, this will break if you use non-default table names
         migrations.RunSQL(
-            '''UPDATE patchwork_patch SET patch_project_id =
+            """UPDATE patchwork_patch SET patch_project_id =
                                (SELECT project_id FROM patchwork_submission
                                 WHERE patchwork_submission.id =
-                                        patchwork_patch.submission_ptr_id);'''
+                                        patchwork_patch.submission_ptr_id);"""
         ),
         migrations.AlterField(
             model_name='patch',

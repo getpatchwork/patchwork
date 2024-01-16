@@ -88,7 +88,7 @@ class Project(models.Model):
         max_length=2000,
         blank=True,
         help_text="URL format for the list archive's Message-ID redirector. "
-        "{} will be replaced by the Message-ID.",
+        '{} will be replaced by the Message-ID.',
     )
     commit_url_format = models.CharField(
         max_length=2000,
@@ -270,7 +270,7 @@ class Tag(models.Model):
     )
     show_column = models.BooleanField(
         help_text='Show a column displaying this'
-        ' tag\'s count in the patch list view',
+        " tag's count in the patch list view",
         default=True,
     )
 
@@ -319,10 +319,10 @@ class PatchQuerySet(models.query.QuerySet):
 
         for tag in tags:
             select[tag.attr_name] = (
-                "coalesce("
-                "(SELECT count FROM patchwork_patchtag"
-                " WHERE patchwork_patchtag.patch_id=patchwork_patch.id"
-                " AND patchwork_patchtag.tag_id=%s), 0)"
+                'coalesce('
+                '(SELECT count FROM patchwork_patchtag'
+                ' WHERE patchwork_patchtag.patch_id=patchwork_patch.id'
+                ' AND patchwork_patchtag.tag_id=%s), 0)'
             )
             select_params.append(tag.id)
 

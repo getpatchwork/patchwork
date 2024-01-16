@@ -767,15 +767,15 @@ class PatchParseTest(PatchTest):
     def test_git_rename(self):
         diff, _ = self._find_content('0008-git-rename.mbox')
         self.assertTrue(diff is not None)
-        self.assertEqual(diff.count("\nrename from "), 2)
-        self.assertEqual(diff.count("\nrename to "), 2)
+        self.assertEqual(diff.count('\nrename from '), 2)
+        self.assertEqual(diff.count('\nrename to '), 2)
 
     def test_git_rename_with_diff(self):
         diff, message = self._find_content('0009-git-rename-with-diff.mbox')
         self.assertTrue(diff is not None)
         self.assertTrue(message is not None)
-        self.assertEqual(diff.count("\nrename from "), 2)
-        self.assertEqual(diff.count("\nrename to "), 2)
+        self.assertEqual(diff.count('\nrename from '), 2)
+        self.assertEqual(diff.count('\nrename to '), 2)
         self.assertEqual(diff.count('\n-a\n+b'), 1)
 
     def test_git_new_empty_file(self):
@@ -886,7 +886,7 @@ class CommentParseTest(TestCase):
 class DelegateRequestTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
-    invalid_delegate_email = "nobody"
+    invalid_delegate_email = 'nobody'
 
     def setUp(self):
         self.patch = read_patch(self.patch_filename)
@@ -988,7 +988,7 @@ class CommentActionRequiredTest(TestCase):
 class InitialPatchStateTest(TestCase):
     patch_filename = '0001-add-line.patch'
     msgid = '<1@example.com>'
-    invalid_state_name = "Nonexistent Test State"
+    invalid_state_name = 'Nonexistent Test State'
 
     def setUp(self):
         self.default_state = create_state()
@@ -1110,10 +1110,10 @@ class SubjectTest(TestCase):
         self.assertEqual(clean_subject('Re: meep'), ('meep', []))
         self.assertEqual(clean_subject('[PATCH] meep'), ('meep', []))
         self.assertEqual(
-            clean_subject("[PATCH] meep \n meep"), ('meep meep', [])
+            clean_subject('[PATCH] meep \n meep'), ('meep meep', [])
         )
         self.assertEqual(
-            clean_subject("[PATCH] meep,\n meep"), ('meep, meep', [])
+            clean_subject('[PATCH] meep,\n meep'), ('meep, meep', [])
         )
         self.assertEqual(
             clean_subject('[PATCH RFC] meep'), ('[RFC] meep', ['RFC'])

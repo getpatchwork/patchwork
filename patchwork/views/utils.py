@@ -53,12 +53,12 @@ def _submission_to_mbox(submission):
     body = ''
 
     if submission.content:
-        body = submission.content.strip() + "\n"
+        body = submission.content.strip() + '\n'
 
     parts = postscript_re.split(body, 1)
     if len(parts) == 2:
         (body, postscript) = parts
-        body = body.strip() + "\n"
+        body = body.strip() + '\n'
         postscript = postscript.rstrip()
     else:
         postscript = ''

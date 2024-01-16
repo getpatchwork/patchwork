@@ -81,7 +81,7 @@ class TestPatchAPI(utils.APITestCase):
             state=state_obj,
             project=project_obj,
             submitter=person_obj,
-            **kwargs
+            **kwargs,
         )
 
         return patch_obj
@@ -366,7 +366,7 @@ class TestPatchAPI(utils.APITestCase):
 
         self.client.force_authenticate(user=user)
         resp = self.client.patch(
-            self.api_url(patch.id, version="1.1"),
+            self.api_url(patch.id, version='1.1'),
             {'state': state.slug, 'delegate': user.id},
         )
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)

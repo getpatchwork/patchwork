@@ -23,7 +23,7 @@ def patch_tags(patch):
         count = getattr(patch, tag.attr_name)
         titles.append('%d %s' % (count, tag.name))
         if count == 0:
-            counts.append("-")
+            counts.append('-')
         else:
             counts.append(str(count))
 

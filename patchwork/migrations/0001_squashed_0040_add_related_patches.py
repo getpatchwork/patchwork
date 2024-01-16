@@ -248,8 +248,8 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         help_text=b"URL format for the list archive's "
-                        b"Message-ID redirector. {} will be "
-                        b"replaced by the Message-ID.",
+                        b'Message-ID redirector. {} will be '
+                        b'replaced by the Message-ID.',
                         max_length=2000,
                     ),
                 ),
@@ -424,7 +424,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=True,
                         help_text=b"Show a column displaying this tag's count "
-                        b"in the patch list view",
+                        b'in the patch list view',
                     ),
                 ),
             ],

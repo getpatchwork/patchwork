@@ -19,7 +19,7 @@ class Command(BaseCommand):
         errors = send_notifications()
         for recipient, error in errors:
             self.stderr.write(
-                "Failed sending to %s: %s" % (recipient.email, error)
+                'Failed sending to %s: %s' % (recipient.email, error)
             )
 
         expire_notifications()

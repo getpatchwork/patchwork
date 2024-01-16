@@ -119,13 +119,13 @@ class XMLRPCModelTestMixin(object):
 
     def test_list_max_count(self):
         objs = self.create_multiple(5)
-        result = self.list_endpoint("", 2)
+        result = self.list_endpoint('', 2)
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]['id'], objs[0].id)
 
     def test_list_negative_max_count(self):
         objs = self.create_multiple(5)
-        result = self.list_endpoint("", -1)
+        result = self.list_endpoint('', -1)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['id'], objs[-1].id)
 

@@ -214,7 +214,7 @@ class MboxPatchResponseTest(TestCase):
         date = tz_utils.now() - datetime.timedelta(days=1)
         date = date.replace(tzinfo=tz, microsecond=0)
 
-        patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")
+        patch.headers = 'Date: %s\n' % date.strftime('%a, %d %b %Y %T %z')
         patch.save()
 
         mbox = utils.patch_to_mbox(patch)

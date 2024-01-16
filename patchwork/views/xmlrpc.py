@@ -911,7 +911,7 @@ def check_get(check_id):
 
 @xmlrpc_method(login_required=True)
 def check_create(
-    user, patch_id, context, state, target_url="", description=""
+    user, patch_id, context, state, target_url='', description=''
 ):
     """Add a Check to a patch.
 
@@ -935,7 +935,7 @@ def check_create(
             state = state_val
             break
     else:
-        raise Exception("Invalid check state: %s" % state)
+        raise Exception('Invalid check state: %s' % state)
     Check.objects.create(
         patch=patch,
         context=context,

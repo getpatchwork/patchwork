@@ -44,7 +44,7 @@ class Command(base.BaseCommand):
                 logger.info('Parsing mail loaded from stdin')
                 mail = email.message_from_binary_file(sys.stdin.buffer)
         except AttributeError:
-            logger.warning("Broken email ignored")
+            logger.warning('Broken email ignored')
             return
 
         # it's important to get exit codes correct here. The key is to allow

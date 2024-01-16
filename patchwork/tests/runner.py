@@ -69,7 +69,7 @@ class ColourTextTestResult(TestResult):
         if unexpectedSuccesses:
             self.stream.writeln('=' * 70)
             for test in unexpectedSuccesses:
-                self.stream.writeln(f"UNEXPECTED SUCCESS: {str(test)}")
+                self.stream.writeln(f'UNEXPECTED SUCCESS: {str(test)}')
             self.stream.flush()
 
     def printErrorList(self, flavour, errors):

@@ -207,7 +207,7 @@ def find_project(mail, list_id=None):
 
     if not project:
         logger.debug(
-            "Could not find a valid project for given list-id and " "subject."
+            'Could not find a valid project for given list-id and ' 'subject.'
         )
 
     return project
@@ -412,7 +412,7 @@ def get_original_sender(mail, name, email):
     cc_headers = mail.get_all('Cc') or []
     for header in reply_to_headers + cc_headers:
         header = clean_header(header)
-        addrs = header.split(",")
+        addrs = header.split(',')
         for addr in addrs:
             new_name, new_email = split_from_header(addr)
             if new_name:
@@ -520,8 +520,8 @@ def find_message_id(mail):
         # about this
         logger.info(
             "Malformed 'Message-Id' header. The 'msg-id' component should be "
-            "surrounded by angle brackets. Saving raw header. This may "
-            "include comments and extra whitespace."
+            'surrounded by angle brackets. Saving raw header. This may '
+            'include comments and extra whitespace.'
         )
         msgid = header.strip()
 
@@ -547,8 +547,8 @@ def find_references(mail):
         else:
             logger.info(
                 "Malformed 'In-Reply-To' header. The 'msg-id' component "
-                "should be surrounded by angle brackets. Saving raw header. "
-                "This may include comments and extra whitespace."
+                'should be surrounded by angle brackets. Saving raw header. '
+                'This may include comments and extra whitespace.'
             )
             ref = header.strip()
         refs.append(ref)

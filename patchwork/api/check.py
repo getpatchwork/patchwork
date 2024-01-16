@@ -36,7 +36,7 @@ class CheckSerializer(HyperlinkedModelSerializer):
 
     def run_validation(self, data):
         if 'state' not in data or data['state'] == '':
-            raise ValidationError({'state': ["A check must have a state."]})
+            raise ValidationError({'state': ['A check must have a state.']})
 
         for val, label in Check.STATE_CHOICES:
             if label != data['state']:

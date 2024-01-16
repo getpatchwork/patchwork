@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text=b"URL format for the list archive's Message-ID "
-                b"redirector. {} will be replaced by the "
-                b"Message-ID.",
+                b'redirector. {} will be replaced by the '
+                b'Message-ID.',
                 max_length=2000,
             ),
         ),

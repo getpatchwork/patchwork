@@ -503,7 +503,7 @@ class PasswordChangeTest(_UserTestCase):
 
         response = self.client.get(reverse('password_change_done'))
         self.assertContains(
-            response, "Your password has been changed successfully"
+            response, 'Your password has been changed successfully'
         )
 
 

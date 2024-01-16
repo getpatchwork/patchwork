@@ -4,22 +4,22 @@ from django.db import connection, migrations
 def copy_comment_field(apps, schema_editor):
     if connection.vendor == 'postgresql':
         schema_editor.execute(
-            '''
+            """
             UPDATE patchwork_patch
               SET content = patchwork_comment.content
             FROM patchwork_comment
               WHERE patchwork_patch.id=patchwork_comment.patch_id
                     AND patchwork_patch.msgid=patchwork_comment.msgid
-        '''
+        """
         )
     elif connection.vendor == 'mysql':
         schema_editor.execute(
-            '''
+            """
             UPDATE patchwork_patch, patchwork_comment
               SET patchwork_patch.content = patchwork_comment.content
             WHERE patchwork_patch.id=patchwork_comment.patch_id
               AND patchwork_patch.msgid=patchwork_comment.msgid
-        '''
+        """
         )
     else:
         Comment = apps.get_model('patchwork', 'Comment')
@@ -41,21 +41,21 @@ def copy_comment_field(apps, schema_editor):
 def remove_duplicate_comments(apps, schema_editor):
     if connection.vendor == 'postgresql':
         schema_editor.execute(
-            '''
+            """
             DELETE FROM patchwork_comment
               USING patchwork_patch
               WHERE patchwork_patch.id=patchwork_comment.patch_id
                     AND patchwork_patch.msgid=patchwork_comment.msgid
-        '''
+        """
         )
     elif connection.vendor == 'mysql':
         schema_editor.execute(
-            '''
+            """
             DELETE FROM patchwork_comment
               USING patchwork_patch, patchwork_comment
               WHERE patchwork_patch.id=patchwork_comment.patch_id
                     AND patchwork_patch.msgid=patchwork_comment.msgid
-        '''
+        """
         )
     else:
         Comment = apps.get_model('patchwork', 'Comment')

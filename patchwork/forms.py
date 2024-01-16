@@ -65,7 +65,7 @@ class BundleForm(forms.ModelForm):
         min_length=1,
         max_length=50,
         label='Name',
-        error_messages={'invalid': 'Bundle names can\'t contain slashes'},
+        error_messages={'invalid': "Bundle names can't contain slashes"},
     )
 
     class Meta:
@@ -203,7 +203,7 @@ class MultiplePatchForm(forms.Form):
         opts = instance.__class__._meta
         if self.errors:
             raise ValueError(
-                "The %s could not be changed because the data "
+                'The %s could not be changed because the data '
                 "didn't validate." % opts.object_name
             )
         data = self.cleaned_data

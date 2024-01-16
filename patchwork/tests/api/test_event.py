@@ -202,18 +202,18 @@ class TestEventAPI(APITestCase):
         self._create_events()
 
         resp = self.client.get(self.api_url())
-        events = Event.objects.order_by("-date").all()
+        events = Event.objects.order_by('-date').all()
         for api_event, event in zip(resp.data, events):
-            self.assertEqual(api_event["id"], event.id)
+            self.assertEqual(api_event['id'], event.id)
 
     def test_order_by_date_ascending(self):
         """Assert the default ordering is by date descending."""
         self._create_events()
 
         resp = self.client.get(self.api_url(), {'order': 'date'})
-        events = Event.objects.order_by("date").all()
+        events = Event.objects.order_by('date').all()
         for api_event, event in zip(resp.data, events):
-            self.assertEqual(api_event["id"], event.id)
+            self.assertEqual(api_event['id'], event.id)
 
     def test_create(self):
         """Ensure creates aren't allowed"""

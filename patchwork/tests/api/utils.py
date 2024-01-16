@@ -138,7 +138,7 @@ class APIClient(BaseAPIClient):
         format=None,
         content_type=None,
         follow=False,
-        **extra
+        **extra,
     ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
@@ -149,7 +149,7 @@ class APIClient(BaseAPIClient):
             format='json',
             content_type=content_type,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
         response = super(APIClient, self).post(
             path,
@@ -158,7 +158,7 @@ class APIClient(BaseAPIClient):
             content_type=content_type,
             follow=follow,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
 
         validator.validate_data(
@@ -174,7 +174,7 @@ class APIClient(BaseAPIClient):
         format=None,
         content_type=None,
         follow=False,
-        **extra
+        **extra,
     ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
@@ -185,7 +185,7 @@ class APIClient(BaseAPIClient):
             format='json',
             content_type=content_type,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
         response = super(APIClient, self).put(
             path,
@@ -194,7 +194,7 @@ class APIClient(BaseAPIClient):
             content_type=content_type,
             follow=follow,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
 
         validator.validate_data(
@@ -210,7 +210,7 @@ class APIClient(BaseAPIClient):
         format=None,
         content_type=None,
         follow=False,
-        **extra
+        **extra,
     ):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
@@ -221,7 +221,7 @@ class APIClient(BaseAPIClient):
             format='json',
             content_type=content_type,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
         response = super(APIClient, self).patch(
             path,
@@ -230,7 +230,7 @@ class APIClient(BaseAPIClient):
             content_type=content_type,
             follow=follow,
             SERVER_NAME='example.com',
-            **extra
+            **extra,
         )
 
         validator.validate_data(

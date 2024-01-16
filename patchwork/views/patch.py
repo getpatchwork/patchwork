@@ -156,7 +156,7 @@ def patch_raw(request, project_id, msgid):
     project = get_object_or_404(Project, linkname=project_id)
     patch = get_object_or_404(Patch, project_id=project.id, msgid=db_msgid)
 
-    response = HttpResponse(content_type="text/x-patch")
+    response = HttpResponse(content_type='text/x-patch')
     response.write(patch.diff)
     response['Content-Disposition'] = 'attachment; filename=%s.diff' % (
         patch.filename

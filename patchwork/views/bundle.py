@@ -157,9 +157,9 @@ def bundle_mbox(request, username, bundlename):
         return HttpResponseNotFound()
 
     response = HttpResponse(content_type='text/plain')
-    response[
-        'Content-Disposition'
-    ] = 'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+    response['Content-Disposition'] = (
+        'attachment; filename=bundle-%d-%s.mbox' % (bundle.id, bundle.name)
+    )
     response.write(bundle_to_mbox(bundle))
 
     return response
