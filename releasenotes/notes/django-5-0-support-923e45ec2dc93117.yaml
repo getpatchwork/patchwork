@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    `Django 5.0 <https://docs.djangoproject.com/en/dev/releases/5.0/>`_ is
+    now supported.
+upgrade:
+  - |
+    Django 3.2 and 4.1 are no longer supported. 4.1 is no longer supported
+    upstream while Django 3.2 goes EOL in April 2024. Most distributions
+    provide a newer version.

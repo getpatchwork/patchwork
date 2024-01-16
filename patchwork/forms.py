@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import django
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import renderers
@@ -158,7 +159,10 @@ class OptionalModelChoiceField(forms.ModelChoiceField):
         choices.append(self.no_change_choice)
         return choices
 
-    choices = property(_get_choices, forms.ChoiceField._set_choices)
+    if django.VERSION >= (5, 0):
+        choices = property(_get_choices, forms.ChoiceField.choices.fset)
+    else:
+        choices = property(_get_choices, forms.ChoiceField._set_choices)
 
     def is_no_change(self, value):
         return value == self.no_change_choice[0]

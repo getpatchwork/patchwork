@@ -1,5 +1,5 @@
-Django~=4.2.0
+Django~=5.0.0
 djangorestframework~=3.14.0
-django-filter~=23.2.0
+django-filter~=23.5.0
 psycopg2~=2.9.0
 sqlparse~=0.4.0
