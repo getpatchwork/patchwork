@@ -28,6 +28,11 @@ repos:
     rev: 2.1.1
     hooks:
       - id: bashate
+  - repo: https://github.com/daveshanley/vacuum
+    rev: v0.7.2
+    hooks:
+      - id: vacuum
+        files: ^docs/api/schemas/(latest|v\d\.\d)/patchwork.yaml
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:
