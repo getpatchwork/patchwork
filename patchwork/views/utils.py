@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import datetime
+from datetime import timezone
 from email.encoders import encode_7or8bit
 from email.header import Header
 from email.mime.nonmultipart import MIMENonMultipart
@@ -76,7 +77,9 @@ def _submission_to_mbox(submission):
     if is_patch and submission.diff:
         body += '\n' + submission.diff
 
-    delta = submission.date - datetime.datetime.utcfromtimestamp(0)
+    delta = submission.date - datetime.datetime.fromtimestamp(
+        0, tz=timezone.utc
+    ).replace(tzinfo=None)
     utc_timestamp = delta.seconds + delta.days * 24 * 3600
 
     mail = PatchMbox(body)

@@ -5,6 +5,7 @@
 
 import codecs
 import datetime
+from datetime import timezone
 from email.header import decode_header
 from email.header import make_header
 from email.utils import mktime_tz
@@ -468,7 +469,9 @@ def find_date(mail):
         return tz_utils.now()
 
     try:
-        d = datetime.datetime.utcfromtimestamp(mktime_tz(t))
+        d = datetime.datetime.fromtimestamp(
+            mktime_tz(t), tz=timezone.utc
+        ).replace(tzinfo=None)
     except (OverflowError, ValueError, OSError):
         # If you have a date like:
         # - Date: Wed, 4 Jun 207777777777777777777714 17:50:46 0
