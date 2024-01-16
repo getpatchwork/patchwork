@@ -3,11 +3,10 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from datetime import datetime as dt
-
 from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.utils import timezone as tz_utils
 
 from patchwork.models import Check
 from patchwork.models import Cover
@@ -53,7 +52,7 @@ def patch_change_callback(sender, instance, raw, **kwargs):
         notification.delete()
         return
 
-    notification.last_modified = dt.utcnow()
+    notification.last_modified = tz_utils.now()
     notification.save()
 
 

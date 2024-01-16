@@ -13,10 +13,11 @@ import re
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_unicode_slug
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.core.validators import validate_unicode_slug
+from django.utils import timezone as tz_utils
 
 from patchwork.fields import HashField
 from patchwork.hasher import hash_diff
@@ -342,7 +343,7 @@ class EmailMixin(models.Model):
     # email metadata
 
     msgid = models.CharField(max_length=255)
-    date = models.DateTimeField(default=datetime.datetime.utcnow)
+    date = models.DateTimeField(default=tz_utils.now)
     headers = models.TextField(blank=True)
 
     # content
@@ -1079,7 +1080,7 @@ class Check(models.Model):
 
     patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(default=datetime.datetime.utcnow)
+    date = models.DateTimeField(default=tz_utils.now)
 
     state = models.SmallIntegerField(
         choices=STATE_CHOICES,
@@ -1172,7 +1173,7 @@ class Event(models.Model):
         help_text='The category of the event.',
     )
     date = models.DateTimeField(
-        default=datetime.datetime.utcnow,
+        default=tz_utils.now,
         help_text='The time this event was created.',
     )
     actor = models.ForeignKey(
@@ -1310,7 +1311,7 @@ class EmailConfirmation(models.Model):
     email = models.CharField(max_length=200)
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     key = HashField()
-    date = models.DateTimeField(default=datetime.datetime.utcnow)
+    date = models.DateTimeField(default=tz_utils.now)
     active = models.BooleanField(default=True)
 
     def deactivate(self):
@@ -1318,7 +1319,7 @@ class EmailConfirmation(models.Model):
         self.save()
 
     def is_valid(self):
-        return self.date + self.validity > datetime.datetime.utcnow()
+        return self.date + self.validity > tz_utils.now()
 
     def save(self, *args, **kwargs):
         limit = 1 << 32
@@ -1346,5 +1347,5 @@ class PatchChangeNotification(models.Model):
         primary_key=True,
         on_delete=models.CASCADE,
     )
-    last_modified = models.DateTimeField(default=datetime.datetime.utcnow)
+    last_modified = models.DateTimeField(default=tz_utils.now)
     orig_state = models.ForeignKey(State, on_delete=models.CASCADE)

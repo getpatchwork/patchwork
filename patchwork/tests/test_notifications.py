@@ -8,6 +8,7 @@ import datetime
 from django.conf import settings
 from django.core import mail
 from django.test import TestCase
+from django.utils import timezone as tz_utils
 
 from patchwork.models import EmailOptout
 from patchwork.models import PatchChangeNotification
@@ -105,7 +106,7 @@ class PatchNotificationEmailTest(TestCase):
         self.project = create_project(send_notifications=True)
 
     def _expire_notifications(self, **kwargs):
-        timestamp = datetime.datetime.utcnow() - datetime.timedelta(
+        timestamp = tz_utils.now() - datetime.timedelta(
             minutes=settings.NOTIFICATION_DELAY_MINUTES + 1
         )
 

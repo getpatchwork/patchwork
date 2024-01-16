@@ -12,6 +12,7 @@ import email
 
 from django.http import Http404
 from django.test import TestCase
+from django.utils import timezone as tz_utils
 
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
@@ -210,7 +211,7 @@ class MboxPatchResponseTest(TestCase):
         patch = create_patch()
         offset = 3 * 60 * 60  # 3 (hours) * 60 (minutes) * 60 (seconds)
         tz = dateutil.tz.tzoffset(None, offset)
-        date = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        date = tz_utils.now() - datetime.timedelta(days=1)
         date = date.replace(tzinfo=tz, microsecond=0)
 
         patch.headers = 'Date: %s\n' % date.strftime("%a, %d %b %Y %T %z")

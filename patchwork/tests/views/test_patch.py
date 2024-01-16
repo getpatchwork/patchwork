@@ -12,6 +12,7 @@ import django
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone as tz_utils
 
 from patchwork.models import Check
 from patchwork.models import Patch
@@ -345,7 +346,7 @@ class PatchViewTest(TestCase):
             user=user,
             context='foo',
             state=Check.STATE_FAIL,
-            date=(dt.utcnow() - timedelta(days=1)),
+            date=(tz_utils.now() - timedelta(days=1)),
         )
         create_check(
             patch=patch, user=user, context='foo', state=Check.STATE_SUCCESS

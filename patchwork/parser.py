@@ -17,6 +17,7 @@ import re
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.db import transaction
+from django.utils import timezone as tz_utils
 
 from patchwork.models import Cover
 from patchwork.models import CoverComment
@@ -460,11 +461,11 @@ def get_or_create_author(mail, project=None):
 def find_date(mail):
     h = clean_header(mail.get('Date', ''))
     if not h:
-        return datetime.datetime.utcnow()
+        return tz_utils.now()
 
     t = parsedate_tz(h)
     if not t:
-        return datetime.datetime.utcnow()
+        return tz_utils.now()
 
     try:
         d = datetime.datetime.utcfromtimestamp(mktime_tz(t))
@@ -476,7 +477,7 @@ def find_date(mail):
         #   -> ValueError
         # - Date:, 11 Sep 2016 407080403080105:04 +0100
         #   -> OSError (Python 3)
-        d = datetime.datetime.utcnow()
+        d = tz_utils.now()
 
     return d
 

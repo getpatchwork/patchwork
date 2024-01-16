@@ -1,9 +1,8 @@
-import datetime
-
 from django.conf import settings
 from django.db import migrations, models
 import django.db.migrations.operations.special
 import django.db.models.deletion
+from django.utils import timezone as tz_utils
 
 import patchwork.fields
 import patchwork.models
@@ -99,7 +98,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 (
                     'state',
@@ -364,7 +363,7 @@ class Migration(migrations.Migration):
                 ('msgid', models.CharField(max_length=255)),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 ('headers', models.TextField(blank=True)),
                 ('content', models.TextField(blank=True, null=True)),
@@ -638,7 +637,7 @@ class Migration(migrations.Migration):
                 (
                     'date',
                     models.DateTimeField(
-                        default=datetime.datetime.utcnow,
+                        default=tz_utils.now,
                         help_text=b'The time this event was created.',
                     ),
                 ),
@@ -774,7 +773,7 @@ class Migration(migrations.Migration):
                 ('key', patchwork.fields.HashField(max_length=40)),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 ('active', models.BooleanField(default=True)),
                 (
@@ -849,7 +848,7 @@ class Migration(migrations.Migration):
                 ('msgid', models.CharField(max_length=255)),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 ('headers', models.TextField(blank=True)),
                 ('content', models.TextField(blank=True, null=True)),
@@ -917,7 +916,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'last_modified',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
             ],
         ),

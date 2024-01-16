@@ -1,7 +1,7 @@
-import datetime
-
 from django.db import connection, migrations, models
 import django.db.models.deletion
+from django.utils import timezone as tz_utils
+
 import patchwork.models
 
 
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('msgid', models.CharField(max_length=255)),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 ('headers', models.TextField(blank=True)),
                 ('content', models.TextField(blank=True, null=True)),
@@ -103,7 +103,7 @@ class Migration(migrations.Migration):
                 ('msgid', models.CharField(max_length=255)),
                 (
                     'date',
-                    models.DateTimeField(default=datetime.datetime.utcnow),
+                    models.DateTimeField(default=tz_utils.now),
                 ),
                 ('headers', models.TextField(blank=True)),
                 ('content', models.TextField(blank=True, null=True)),

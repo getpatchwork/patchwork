@@ -6,11 +6,10 @@
 #
 # flake8: noqa
 
-import datetime
-
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils import timezone as tz_utils
 
 import patchwork.models
 
@@ -167,7 +166,7 @@ class Migration(migrations.Migration):
                     model_name='event',
                     name='date',
                     field=models.DateTimeField(
-                        default=datetime.datetime.utcnow,
+                        default=tz_utils.now,
                         help_text='The time this event was created.',
                     ),
                 ),

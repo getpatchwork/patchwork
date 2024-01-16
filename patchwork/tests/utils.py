@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import codecs
-from datetime import datetime as dt
 from datetime import timedelta
 from email.utils import make_msgid
 import os
 
 from django.contrib.auth.models import User
+from django.utils import timezone as tz_utils
 
 from patchwork.models import Bundle
 from patchwork.models import Check
@@ -275,7 +275,7 @@ def create_check(**kwargs):
     values = {
         'patch': create_patch() if 'patch' not in kwargs else None,
         'user': create_user() if 'user' not in kwargs else None,
-        'date': dt.utcnow(),
+        'date': tz_utils.now(),
         'state': Check.STATE_SUCCESS,
         'target_url': 'http://example.com/',
         'description': '',
@@ -290,7 +290,7 @@ def create_series(**kwargs):
     """Create 'Series' object."""
     values = {
         'project': create_project() if 'project' not in kwargs else None,
-        'date': dt.utcnow(),
+        'date': tz_utils.now(),
         'submitter': create_person() if 'submitter' not in kwargs else None,
         'total': 1,
     }
@@ -331,7 +331,7 @@ def _create_submissions(create_func, count=1, **kwargs):
         'submitter': create_person() if 'submitter' not in kwargs else None,
     }
     values.update(kwargs)
-    date = dt.utcnow()
+    date = tz_utils.now()
 
     objects = []
     for i in range(0, count):

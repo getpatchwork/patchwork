@@ -7,6 +7,7 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone as tz_utils
 
 from patchwork.models import EmailConfirmation
 from patchwork.models import Patch
@@ -33,7 +34,7 @@ class TestRegistrationExpiry(TestCase):
 
     def test_old_registration_expiry(self):
         date = (
-            datetime.datetime.utcnow() - EmailConfirmation.validity
+            tz_utils.now() - EmailConfirmation.validity
         ) - datetime.timedelta(hours=1)
         user, conf = self.register(date)
 
@@ -44,7 +45,7 @@ class TestRegistrationExpiry(TestCase):
 
     def test_recent_registration_expiry(self):
         date = (
-            datetime.datetime.utcnow() - EmailConfirmation.validity
+            tz_utils.now() - EmailConfirmation.validity
         ) + datetime.timedelta(hours=1)
         user, conf = self.register(date)
 
@@ -54,7 +55,7 @@ class TestRegistrationExpiry(TestCase):
         self.assertTrue(EmailConfirmation.objects.filter(pk=conf.pk).exists())
 
     def test_inactive_registration_expiry(self):
-        user, conf = self.register(datetime.datetime.utcnow())
+        user, conf = self.register(tz_utils.now())
 
         # confirm registration
         conf.user.is_active = True
@@ -73,7 +74,7 @@ class TestRegistrationExpiry(TestCase):
 
         # ... then starts registration...
         date = (
-            datetime.datetime.utcnow() - EmailConfirmation.validity
+            tz_utils.now() - EmailConfirmation.validity
         ) - datetime.timedelta(hours=1)
         user = create_user(link_person=False, email=submitter.email)
         user.is_active = False
