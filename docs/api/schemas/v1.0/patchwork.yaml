@@ -228,7 +228,7 @@ paths:
             type: string
         - in: query
           name: category
-          description: >
+          description: |
             An event category to filter events by. These categories are subject
             to change depending on the version of Patchwork deployed and are
             not subject to the versionining constraints present across the rest
@@ -1078,7 +1078,7 @@ components:
         type: string
   headers:
     Link:
-      description: >
+      description: |
         Links to related resources, in the format defined by
         [RFC 5988](https://tools.ietf.org/html/rfc5988#section-5).
         This will include a link with relation type `next` to the
@@ -1300,7 +1300,7 @@ components:
             - fail
         target_url:
           title: Target URL
-          description:
+          description: |
             The target URL to associate with this check. This should be
             specific to the patch.
           type:
@@ -1313,7 +1313,7 @@ components:
               maxLength: 200
         context:
           title: Context
-          description: >
+          description: |
             A label to discern check from checks of other testing systems.
           type: string
           pattern: ^[-a-zA-Z0-9_]+$
