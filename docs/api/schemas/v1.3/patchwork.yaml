@@ -29,7 +29,7 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
         - api
-  /api/1.3/bundles/:
+  /api/1.3/bundles:
     get:
       description: List bundles.
       operationId: bundles_list
@@ -102,7 +102,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - bundles
-  /api/1.3/bundles/{id}/:
+  /api/1.3/bundles/{id}:
     parameters:
       - in: path
         name: id
@@ -199,7 +199,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - bundles
-  /api/1.3/covers/:
+  /api/1.3/covers:
     get:
       description: List cover letters.
       operationId: covers_list
@@ -252,7 +252,7 @@ paths:
                   $ref: '#/components/schemas/CoverList'
       tags:
         - covers
-  /api/1.3/covers/{id}/:
+  /api/1.3/covers/{id}:
     parameters:
       - in: path
         name: id
@@ -279,7 +279,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - covers
-  /api/1.3/covers/{id}/comments/:
+  /api/1.3/covers/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -317,7 +317,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/1.3/covers/{cover_id}/comments/{comment_id}/:
+  /api/1.3/covers/{cover_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: cover_id
@@ -383,7 +383,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/1.3/events/:
+  /api/1.3/events:
     get:
       description: List events.
       operationId: events_list
@@ -479,7 +479,7 @@ paths:
                       patch-comment-created: '#/components/schemas/EventPatchCommentCreated'
       tags:
         - events
-  /api/1.3/patches/:
+  /api/1.3/patches:
     get:
       description: List patches.
       operationId: patches_list
@@ -560,7 +560,7 @@ paths:
                   $ref: '#/components/schemas/PatchList'
       tags:
         - patches
-  /api/1.3/patches/{id}/:
+  /api/1.3/patches/{id}:
     parameters:
       - in: path
         name: id
@@ -669,7 +669,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - patches
-  /api/1.3/patches/{id}/comments/:
+  /api/1.3/patches/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -706,7 +706,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/1.3/patches/{patch_id}/comments/{comment_id}/:
+  /api/1.3/patches/{patch_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: patch_id
@@ -772,7 +772,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/1.3/patches/{patch_id}/checks/:
+  /api/1.3/patches/{patch_id}/checks:
     parameters:
       - in: path
         name: patch_id
@@ -869,7 +869,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/1.3/patches/{patch_id}/checks/{check_id}/:
+  /api/1.3/patches/{patch_id}/checks/{check_id}:
     parameters:
       - in: path
         name: patch_id
@@ -903,7 +903,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/1.3/people/:
+  /api/1.3/people:
     get:
       description: List people.
       operationId: people_list
@@ -935,7 +935,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/1.3/people/{id}/:
+  /api/1.3/people/{id}:
     parameters:
       - in: path
         name: id
@@ -971,7 +971,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/1.3/projects/:
+  /api/1.3/projects:
     get:
       description: List projects.
       operationId: projects_list
@@ -994,7 +994,7 @@ paths:
                   $ref: '#/components/schemas/Project'
       tags:
         - projects
-  /api/1.3/projects/{id}/:
+  /api/1.3/projects/{id}:
     parameters:
       - in: path
         name: id
@@ -1092,7 +1092,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - projects
-  /api/1.3/series/:
+  /api/1.3/series:
     get:
       description: List series.
       operationId: series_list
@@ -1129,7 +1129,7 @@ paths:
                   $ref: '#/components/schemas/Series'
       tags:
         - series
-  /api/1.3/series/{id}/:
+  /api/1.3/series/{id}:
     parameters:
       - in: path
         name: id
@@ -1156,7 +1156,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
-  /api/1.3/users/:
+  /api/1.3/users:
     get:
       description: List users.
       operationId: users_list
@@ -1188,7 +1188,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - users
-  /api/1.3/users/{id}/:
+  /api/1.3/users/{id}:
     parameters:
       - in: path
         name: id

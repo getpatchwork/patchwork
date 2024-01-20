@@ -16,7 +16,11 @@ info:
     url: https://www.gnu.org/licenses/gpl-2.0.html
   version: '{{ version_str }}'
 paths:
+{% if version_url %}
   /api/{{ version_url}}:
+{% else %}
+  /api:
+{% endif %}
     get:
       description: List API resources.
       operationId: api_list
@@ -30,7 +34,7 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
         - api
-  /api/{{ version_url}}bundles/:
+  /api/{{ version_url}}bundles:
     get:
       description: List bundles.
       operationId: bundles_list
@@ -105,7 +109,7 @@ paths:
       tags:
         - bundles
 {% endif %}
-  /api/{{ version_url }}bundles/{id}/:
+  /api/{{ version_url }}bundles/{id}:
     parameters:
       - in: path
         name: id
@@ -204,7 +208,7 @@ paths:
       tags:
         - bundles
 {% endif %}
-  /api/{{ version_url }}covers/:
+  /api/{{ version_url }}covers:
     get:
       description: List cover letters.
       operationId: covers_list
@@ -259,7 +263,7 @@ paths:
                   $ref: '#/components/schemas/CoverList'
       tags:
         - covers
-  /api/{{ version_url }}covers/{id}/:
+  /api/{{ version_url }}covers/{id}:
     parameters:
       - in: path
         name: id
@@ -286,7 +290,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - covers
-  /api/{{ version_url }}covers/{id}/comments/:
+  /api/{{ version_url }}covers/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -325,7 +329,7 @@ paths:
       tags:
         - comments
 {% if version >= (1, 3) %}
-  /api/{{ version_url }}covers/{cover_id}/comments/{comment_id}/:
+  /api/{{ version_url }}covers/{cover_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: cover_id
@@ -392,7 +396,7 @@ paths:
       tags:
         - comments
 {% endif %}
-  /api/{{ version_url }}events/:
+  /api/{{ version_url }}events:
     get:
       description: List events.
       operationId: events_list
@@ -492,7 +496,7 @@ paths:
                       patch-comment-created: '#/components/schemas/EventPatchCommentCreated'
       tags:
         - events
-  /api/{{ version_url }}patches/:
+  /api/{{ version_url }}patches:
     get:
       description: List patches.
       operationId: patches_list
@@ -575,7 +579,7 @@ paths:
                   $ref: '#/components/schemas/PatchList'
       tags:
         - patches
-  /api/{{ version_url }}patches/{id}/:
+  /api/{{ version_url }}patches/{id}:
     parameters:
       - in: path
         name: id
@@ -688,7 +692,7 @@ paths:
 {% endif %}
       tags:
         - patches
-  /api/{{ version_url }}patches/{id}/comments/:
+  /api/{{ version_url }}patches/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -726,7 +730,7 @@ paths:
       tags:
         - comments
 {% if version >= (1, 3) %}
-  /api/{{ version_url }}patches/{patch_id}/comments/{comment_id}/:
+  /api/{{ version_url }}patches/{patch_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: patch_id
@@ -793,7 +797,7 @@ paths:
       tags:
         - comments
 {% endif %}
-  /api/{{ version_url }}patches/{patch_id}/checks/:
+  /api/{{ version_url }}patches/{patch_id}/checks:
     parameters:
       - in: path
         name: patch_id
@@ -890,7 +894,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/{{ version_url }}patches/{patch_id}/checks/{check_id}/:
+  /api/{{ version_url }}patches/{patch_id}/checks/{check_id}:
     parameters:
       - in: path
         name: patch_id
@@ -924,7 +928,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/{{ version_url }}people/:
+  /api/{{ version_url }}people:
     get:
       description: List people.
       operationId: people_list
@@ -956,7 +960,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/{{ version_url }}people/{id}/:
+  /api/{{ version_url }}people/{id}:
     parameters:
       - in: path
         name: id
@@ -992,7 +996,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/{{ version_url }}projects/:
+  /api/{{ version_url }}projects:
     get:
       description: List projects.
       operationId: projects_list
@@ -1015,7 +1019,7 @@ paths:
                   $ref: '#/components/schemas/Project'
       tags:
         - projects
-  /api/{{ version_url }}projects/{id}/:
+  /api/{{ version_url }}projects/{id}:
     parameters:
       - in: path
         name: id
@@ -1113,7 +1117,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - projects
-  /api/{{ version_url }}series/:
+  /api/{{ version_url }}series:
     get:
       description: List series.
       operationId: series_list
@@ -1150,7 +1154,7 @@ paths:
                   $ref: '#/components/schemas/Series'
       tags:
         - series
-  /api/{{ version_url }}series/{id}/:
+  /api/{{ version_url }}series/{id}:
     parameters:
       - in: path
         name: id
@@ -1177,7 +1181,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
-  /api/{{ version_url }}users/:
+  /api/{{ version_url }}users:
     get:
       description: List users.
       operationId: users_list
@@ -1209,7 +1213,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - users
-  /api/{{ version_url }}users/{id}/:
+  /api/{{ version_url }}users/{id}:
     parameters:
       - in: path
         name: id

@@ -102,6 +102,9 @@ def validate_data(
     if response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED:
         return
 
+    # FIXME: this shouldn't matter
+    request.path = request.path.rstrip('/')
+
     spec = _load_spec(resolve(path).kwargs.get('version'))
     request = DjangoOpenAPIRequest(request)
     response = DjangoOpenAPIResponse(response)
