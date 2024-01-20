@@ -2587,3 +2587,28 @@ components:
           title: First name
           type: string
           readOnly: true
+tags:
+  - name: api
+    description: General API operations
+  - name: patches
+    description: Patch operations
+  - name: covers
+    description: Cover letter operations
+  - name: series
+    description: Series operations
+  - name: comments
+    description: Comment operations
+  - name: people
+    description: Submitter operations
+  - name: users
+    description: User operations
+  - name: bundles
+    description: Bundle operations
+  - name: projects
+    description: Project operations
+  - name: bundles
+    description: Bundle operations
+  - name: checks
+    description: Check operations
+  - name: events
+    description: Event operations
