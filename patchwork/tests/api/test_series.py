@@ -88,7 +88,7 @@ class TestSeriesAPI(utils.APITestCase):
         series = self._create_series()
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -191,7 +191,7 @@ class TestSeriesAPI(utils.APITestCase):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.post(self.api_url(), {'name': 'Test'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

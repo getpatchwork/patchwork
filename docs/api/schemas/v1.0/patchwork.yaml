@@ -399,9 +399,9 @@ paths:
     patch:
       description: Update a patch (partial).
       operationId: patches_partial_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -434,9 +434,9 @@ paths:
     put:
       description: Update a patch.
       operationId: patches_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Patch'
       responses:
@@ -568,9 +568,9 @@ paths:
     post:
       description: Create a check.
       operationId: checks_create
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Check'
       responses:
@@ -638,9 +638,9 @@ paths:
     get:
       description: List people.
       operationId: people_list
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
@@ -678,9 +678,9 @@ paths:
     get:
       description: Show a person.
       operationId: people_read
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       responses:
         '200':
           description: ''
@@ -756,9 +756,9 @@ paths:
     patch:
       description: Update a project (partial).
       operationId: projects_partial_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -791,9 +791,9 @@ paths:
     put:
       description: Update a project.
       operationId: projects_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/Project'
       responses:
@@ -891,9 +891,9 @@ paths:
     get:
       description: List users.
       operationId: users_list
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
@@ -931,9 +931,9 @@ paths:
     get:
       description: Show a user.
       operationId: users_read
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       responses:
         '200':
           description: ''
@@ -958,9 +958,9 @@ paths:
     patch:
       description: Update a user (partial).
       operationId: users_partial_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
@@ -993,9 +993,9 @@ paths:
     put:
       description: Update a user.
       operationId: users_update
-#      security:
-#        - basicAuth: []
-#        - apiKeyAuth: []
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
       requestBody:
         $ref: '#/components/requestBodies/User'
       responses:
@@ -1032,7 +1032,15 @@ components:
       scheme: basic
     apiKeyAuth:
       type: http
-      scheme: bearer
+      scheme: token
+      description: |
+        Token-based authentication.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+      description: |
+        Cookie-based authentication. This is mainly used for the browsable API.
   parameters:
     Page:
       in: query

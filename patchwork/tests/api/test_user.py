@@ -64,7 +64,7 @@ class TestUserAPI(utils.APITestCase):
         """List users as authenticated user."""
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -84,7 +84,7 @@ class TestUserAPI(utils.APITestCase):
         user_a = create_user()
         user_b = create_user()
 
-        self.client.force_authenticate(user=user_a)
+        self.client.authenticate(user=user_a)
         resp = self.client.get(self.api_url(user_b.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(user_b, resp.data, has_settings=False)
@@ -94,7 +94,7 @@ class TestUserAPI(utils.APITestCase):
         """Show user as self."""
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url(user.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(user, resp.data, has_settings=True)
@@ -103,7 +103,7 @@ class TestUserAPI(utils.APITestCase):
         """Ensure we get a 404 for a non-existent user."""
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url('999999'))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
 
@@ -126,7 +126,7 @@ class TestUserAPI(utils.APITestCase):
         user_a = create_user()
         user_b = create_user()
 
-        self.client.force_authenticate(user=user_a)
+        self.client.authenticate(user=user_a)
         resp = self.client.patch(
             self.api_url(user_b.id), {'first_name': 'Tan'}
         )
@@ -138,7 +138,7 @@ class TestUserAPI(utils.APITestCase):
         user = create_user()
         self.assertFalse(user.profile.send_email)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(
             self.api_url(user.id),
             {'first_name': 'Tan', 'settings': {'send_email': True}},
@@ -156,7 +156,7 @@ class TestUserAPI(utils.APITestCase):
         user = create_user()
         self.assertFalse(user.profile.send_email)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(
             self.api_url(user.id, version='1.1'),
             {'first_name': 'Tan', 'settings': {'send_email': True}},
@@ -172,7 +172,7 @@ class TestUserAPI(utils.APITestCase):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.post(self.api_url(user.id), {'email': 'foo@f.com'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

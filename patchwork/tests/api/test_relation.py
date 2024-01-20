@@ -74,7 +74,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_create_two_patch_relation_user(self):
         patches = create_patches(2, project=self.project)
 
-        self.client.force_authenticate(user=self.normal_user)
+        self.client.authenticate(user=self.normal_user)
         resp = self.client.patch(
             self.api_url(item=patches[0].pk), {'related': [patches[1].pk]}
         )
@@ -84,7 +84,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_create_two_patch_relation_maintainer(self):
         patches = create_patches(2, project=self.project)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=patches[0].pk), {'related': [patches[1].pk]}
         )
@@ -113,7 +113,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
         self.assertEqual(PatchRelation.objects.count(), 1)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(self.api_url(item=patch.pk), {'related': []})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
@@ -125,7 +125,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
     def test_create_three_patch_relation(self):
         patches = create_patches(3, project=self.project)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=patches[0].pk),
             {'related': [patches[1].pk, patches[2].pk]},
@@ -146,7 +146,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
         self.assertEqual(PatchRelation.objects.count(), 1)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(self.api_url(item=patch.pk), {'related': []})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIsNone(Patch.objects.get(id=patch.pk).related)
@@ -162,7 +162,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
 
         new_patch = create_patch(project=self.project)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=new_patch.pk), {'related': [existing_patch_a.pk]}
         )
@@ -179,7 +179,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         new_patch = create_patch(project=self.project)
 
         # maintainer
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=existing_patch_a.pk), {'related': [new_patch.pk]}
         )
@@ -196,7 +196,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         new_patch_a = create_patch(project=self.project)
         new_patch_b = create_patch(project=self.project)
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=new_patch_a.pk),
             {'related': [existing_patch_a.pk, new_patch_b.pk]},
@@ -221,7 +221,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         new_patch_b = create_patch(project=self.project)
 
         # maintainer
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=existing_patch_a.pk),
             {'related': [new_patch_a.pk, new_patch_b.pk]},
@@ -245,7 +245,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         # _adding_ keep_patch_b again which is a no-op.
 
         # maintainer
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=keep_patch_a.pk), {'related': [keep_patch_b.pk]}
         )
@@ -259,7 +259,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         )[0]
 
         # maintainer
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=target_patch.pk), {'related': []}
         )
@@ -278,7 +278,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         patch_a = relation_a.patches.first()
         patch_b = relation_b.patches.first()
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=patch_a.pk), {'related': [patch_b.pk]}
         )
@@ -296,7 +296,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         patch_b = create_patch(project=project_b)
 
         # maintainer a, patch in own project
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=patch_a.pk), {'related': [patch_b.pk]}
         )
@@ -317,7 +317,7 @@ class TestRelationSimpleAPI(utils.APITestCase):
         project_b.maintainer_project.add(self.maintainer.profile)
         project_b.save()
 
-        self.client.force_authenticate(user=self.maintainer)
+        self.client.authenticate(user=self.maintainer)
         resp = self.client.patch(
             self.api_url(item=patch_a.pk), {'related': [patch_b.pk]}
         )

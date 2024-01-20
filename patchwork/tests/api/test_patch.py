@@ -107,7 +107,7 @@ class TestPatchAPI(utils.APITestCase):
         patch = self._create_patch()
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -124,7 +124,7 @@ class TestPatchAPI(utils.APITestCase):
         state_obj_c = create_state(name='RFC')
         create_patch(state=state_obj_c)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(
             self.api_url(), [('state', 'under-review'), ('state', 'new')]
         )
@@ -135,7 +135,7 @@ class TestPatchAPI(utils.APITestCase):
         patch = self._create_patch()
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
         self.assertEqual([patch.id], [x['id'] for x in resp.data])
@@ -149,7 +149,7 @@ class TestPatchAPI(utils.APITestCase):
         submitter = patch.submitter
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         # test filtering by submitter, both ID and email
         resp = self.client.get(self.api_url(), {'submitter': submitter.id})
@@ -301,7 +301,7 @@ class TestPatchAPI(utils.APITestCase):
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.post(self.api_url(), patch)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
@@ -326,7 +326,7 @@ class TestPatchAPI(utils.APITestCase):
         state = create_state()
         user = create_user()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(self.api_url(patch.id), {'state': state.name})
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
@@ -341,7 +341,7 @@ class TestPatchAPI(utils.APITestCase):
         state = create_state()
         user = create_maintainer(project)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(
             self.api_url(patch.id), {'state': state.slug, 'delegate': user.id}
         )
@@ -364,7 +364,7 @@ class TestPatchAPI(utils.APITestCase):
         state = create_state()
         user = create_maintainer(project)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(
             self.api_url(patch.id, version='1.1'),
             {'state': state.slug, 'delegate': user.id},
@@ -384,7 +384,7 @@ class TestPatchAPI(utils.APITestCase):
         patch = create_patch(project=project, state=state)
         user = create_maintainer(project)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(self.api_url(patch.id), {'state': 'foobar'})
         self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code)
         self.assertContains(
@@ -410,7 +410,7 @@ class TestPatchAPI(utils.APITestCase):
         user_b.profile.save()
         self.assertNotEqual(user_b.id, user_b.profile.id)
 
-        self.client.force_authenticate(user=user_a)
+        self.client.authenticate(user=user_a)
         resp = self.client.patch(
             self.api_url(patch.id), {'delegate': user_b.id}
         )
@@ -429,7 +429,7 @@ class TestPatchAPI(utils.APITestCase):
         user_a = create_maintainer(project)
         user_b = create_user()
 
-        self.client.force_authenticate(user=user_a)
+        self.client.authenticate(user=user_a)
         resp = self.client.patch(
             self.api_url(patch.id), {'delegate': user_b.id}
         )
@@ -453,6 +453,6 @@ class TestPatchAPI(utils.APITestCase):
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.delete(self.api_url(patch.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

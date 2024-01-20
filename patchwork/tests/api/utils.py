@@ -8,11 +8,12 @@ import json
 import os
 
 from django.test import testcases
-
-from patchwork.tests.api import validator
-
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient as BaseAPIClient
 from rest_framework.test import APIRequestFactory
+
+from patchwork.tests.api import validator
+from patchwork.tests.utils import create_user
 
 
 # docs/api/samples
@@ -113,16 +114,38 @@ class APIClient(BaseAPIClient):
     def __init__(self, *args, **kwargs):
         super(APIClient, self).__init__(*args, **kwargs)
         self.factory = APIRequestFactory()
+        self.token = None
+
+    def authenticate(self, user):
+        if user is None:  # if none, we want an "anonymous" user
+            user = create_user()
+        self.token, _ = Token.objects.get_or_create(user=user)
+        self.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
 
     def get(self, path, data=None, follow=False, **extra):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
+        # NOTE(stephenfin): For some reason, the authentication information
+        # does not appear in the headers. We need to manually set it (but this
+        # isn't good enough to *actually* authenticate
+        headers = {}
+        if self.token:
+            headers['AUTHORIZATION'] = f'Token {self.token.key}'
+
         request = self.factory.get(
-            path, data=data, SERVER_NAME='example.com', **extra
+            path,
+            data=data,
+            headers=headers,
+            SERVER_NAME='example.com',
+            **extra,
         )
         response = super(APIClient, self).get(
-            path, data=data, follow=follow, SERVER_NAME='example.com', **extra
+            path,
+            data=data,
+            follow=follow,
+            SERVER_NAME='example.com',
+            **extra,
         )
 
         validator.validate_data(
@@ -143,11 +166,16 @@ class APIClient(BaseAPIClient):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
+        headers = {}
+        if self.token:
+            headers['AUTHORIZATION'] = f'Token {self.token.key}'
+
         request = self.factory.post(
             path,
             data=data,
             format='json',
             content_type=content_type,
+            headers=headers,
             SERVER_NAME='example.com',
             **extra,
         )
@@ -179,11 +207,16 @@ class APIClient(BaseAPIClient):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
+        headers = {}
+        if self.token:
+            headers['AUTHORIZATION'] = f'Token {self.token.key}'
+
         request = self.factory.put(
             path,
             data=data,
             format='json',
             content_type=content_type,
+            headers=headers,
             SERVER_NAME='example.com',
             **extra,
         )
@@ -215,11 +248,16 @@ class APIClient(BaseAPIClient):
         validate_request = extra.pop('validate_request', True)
         validate_response = extra.pop('validate_response', True)
 
+        headers = {}
+        if self.token:
+            headers['AUTHORIZATION'] = f'Token {self.token.key}'
+
         request = self.factory.patch(
             path,
             data=data,
             format='json',
             content_type=content_type,
+            headers=headers,
             SERVER_NAME='example.com',
             **extra,
         )

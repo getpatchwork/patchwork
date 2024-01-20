@@ -12,6 +12,7 @@ from openapi_core.contrib.django import DjangoOpenAPIRequest
 from openapi_core.contrib.django import DjangoOpenAPIResponse
 from openapi_core.exceptions import OpenAPIError
 from openapi_core.templating import util
+from openapi_core.validation.request.exceptions import SecurityValidationError
 from openapi_core import shortcuts
 from rest_framework import status
 import yaml
@@ -99,7 +100,10 @@ def validate_data(
     validate_request,
     validate_response,
 ):
-    if response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED:
+    if response.status_code in (
+        # status.HTTP_403_FORBIDDEN,
+        status.HTTP_405_METHOD_NOT_ALLOWED,
+    ):
         return
 
     # FIXME: this shouldn't matter
@@ -116,6 +120,11 @@ def validate_data(
                 request,
                 spec=spec,
                 extra_format_validators=EXTRA_FORMAT_VALIDATORS,
+            )
+        except SecurityValidationError:
+            assert response.status_code in (
+                status.HTTP_403_FORBIDDEN,
+                status.HTTP_404_NOT_FOUND,
             )
         except OpenAPIError:
             # TODO(stephenfin): In API v2.0, this should be an error. As things

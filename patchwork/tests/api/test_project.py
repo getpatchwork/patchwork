@@ -64,7 +64,7 @@ class TestProjectAPI(utils.APITestCase):
         project = create_project()
         user = create_maintainer(project)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -191,7 +191,7 @@ class TestProjectAPI(utils.APITestCase):
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.post(self.api_url(), data)
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
 
@@ -217,7 +217,7 @@ class TestProjectAPI(utils.APITestCase):
         data = {'web_url': 'https://example.com/test'}
 
         user = create_user()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, resp.status_code)
 
@@ -231,7 +231,7 @@ class TestProjectAPI(utils.APITestCase):
         data = {'web_url': 'https://example.com/test'}
 
         user = create_maintainer(project)
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(self.api_url(project.id), data)
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(resp.data['web_url'], 'https://example.com/test')
@@ -241,7 +241,7 @@ class TestProjectAPI(utils.APITestCase):
         project = create_project()
 
         user = create_maintainer(project)
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.patch(
             self.api_url(project.id),
             {'link_name': 'test'},
@@ -264,7 +264,7 @@ class TestProjectAPI(utils.APITestCase):
         user = create_maintainer(project)
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.delete(self.api_url(project.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
         self.assertEqual(1, Project.objects.all().count())

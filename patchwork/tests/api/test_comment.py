@@ -163,7 +163,7 @@ class TestCoverComments(utils.APITestCase):
         comment = create_cover_comment(submitter=submitter, cover=cover)
 
         if kwargs.get('authenticate', True):
-            self.client.force_authenticate(user=person.user)
+            self.client.authenticate(user=person.user)
         return self.client.patch(
             self.api_url(cover, item=comment),
             {'addressed': kwargs.get('addressed', True)},
@@ -246,7 +246,7 @@ class TestCoverComments(utils.APITestCase):
         comment = create_cover_comment(cover=self.cover)
         self.user.is_superuser = True
         self.user.save()
-        self.client.force_authenticate(user=self.user)
+        self.client.authenticate(user=self.user)
 
         resp = self.client.post(self.api_url(self.cover, item=comment))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
@@ -395,7 +395,7 @@ class TestPatchComments(utils.APITestCase):
         comment = create_patch_comment(submitter=submitter, patch=patch)
 
         if kwargs.get('authenticate', True):
-            self.client.force_authenticate(user=person.user)
+            self.client.authenticate(user=person.user)
         return self.client.patch(
             self.api_url(patch, item=comment),
             {'addressed': kwargs.get('addressed', True)},
@@ -486,7 +486,7 @@ class TestPatchComments(utils.APITestCase):
         comment = create_patch_comment(patch=self.patch)
         self.user.is_superuser = True
         self.user.save()
-        self.client.force_authenticate(user=self.user)
+        self.client.authenticate(user=self.user)
 
         resp = self.client.post(self.api_url(self.patch, item=comment))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

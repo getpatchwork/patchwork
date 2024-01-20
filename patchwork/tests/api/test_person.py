@@ -38,7 +38,7 @@ class TestPersonAPI(utils.APITestCase):
         # authentication is required
         user = create_user(link_person=False)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(0, len(resp.data))
@@ -58,7 +58,7 @@ class TestPersonAPI(utils.APITestCase):
         person = create_person()
         user = create_user(link_person=False)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(1, len(resp.data))
@@ -77,7 +77,7 @@ class TestPersonAPI(utils.APITestCase):
         """Show unlinked person as authenticted user."""
         person = create_person()
         user = create_user(link_person=False)
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.get(self.api_url(person.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -88,7 +88,7 @@ class TestPersonAPI(utils.APITestCase):
         """Show linked person as authenticated user."""
         user = create_user(link_person=True)
         person = user.person_set.all().first()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.get(self.api_url(person.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
@@ -97,7 +97,7 @@ class TestPersonAPI(utils.APITestCase):
     def test_detail_non_existent(self):
         """Ensure we get a 404 for a non-existent person."""
         user = create_user(link_person=True)
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.get(self.api_url('999999'))
         self.assertEqual(status.HTTP_404_NOT_FOUND, resp.status_code)
@@ -112,7 +112,7 @@ class TestPersonAPI(utils.APITestCase):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.post(self.api_url(), {'email': 'foo@f.com'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

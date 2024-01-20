@@ -86,7 +86,7 @@ class TestBundleAPI(utils.APITestCase):
 
         # authenticated user
         # should see the public and private bundle
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url())
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data))
@@ -100,7 +100,7 @@ class TestBundleAPI(utils.APITestCase):
         user, project, bundle_public, bundle_private = self._create_bundles()
 
         # test filtering by project
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url(), {'project': 'myproject'})
         self.assertEqual(
             [bundle_public.id, bundle_private.id], [x['id'] for x in resp.data]
@@ -113,7 +113,7 @@ class TestBundleAPI(utils.APITestCase):
         user, project, bundle_public, bundle_private = self._create_bundles()
 
         # test filtering by owner, both ID and username
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url(), {'owner': user.id})
         self.assertEqual(
             [bundle_public.id, bundle_private.id], [x['id'] for x in resp.data]
@@ -133,7 +133,7 @@ class TestBundleAPI(utils.APITestCase):
         """
         user, _, _, _ = self._create_bundles()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url(version='1.0'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertEqual(2, len(resp.data))
@@ -170,7 +170,7 @@ class TestBundleAPI(utils.APITestCase):
         """
         user, _, _, bundle = self._create_bundles()
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
         resp = self.client.get(self.api_url(bundle.id))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(bundle, resp.data)
@@ -202,7 +202,7 @@ class TestBundleAPI(utils.APITestCase):
         patch_b = create_patch(project=project)
 
         if authenticate:
-            self.client.force_authenticate(user=user)
+            self.client.authenticate(user=user)
 
         return user, project, patch_a, patch_b
 
@@ -357,7 +357,7 @@ class TestBundleAPI(utils.APITestCase):
         user = create_user()
         bundle = create_bundle(owner=user)
 
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.delete(self.api_url(bundle.id))
         self.assertEqual(status.HTTP_204_NO_CONTENT, resp.status_code)
@@ -368,7 +368,7 @@ class TestBundleAPI(utils.APITestCase):
         user = create_maintainer()
         user.is_superuser = True
         user.save()
-        self.client.force_authenticate(user=user)
+        self.client.authenticate(user=user)
 
         resp = self.client.post(self.api_url(version='1.1'), {'name': 'test'})
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
