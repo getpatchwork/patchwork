@@ -1299,6 +1299,8 @@ components:
     basicAuth:
       type: http
       scheme: basic
+      description: |
+        Basic authentication. This should be avoided and may be removed in a future API release.
     apiKeyAuth:
       type: http
       scheme: token
@@ -1368,6 +1370,8 @@ components:
   requestBodies:
     Bundle:
       required: true
+      description: |
+        A patch bundle.
       content:
         application/json:
           schema:
@@ -1380,6 +1384,8 @@ components:
             $ref: '#/components/schemas/BundleCreateUpdate'
     Check:
       required: true
+      description: |
+        A patch check.
       content:
         application/json:
           schema:
@@ -1392,12 +1398,16 @@ components:
             $ref: '#/components/schemas/CheckCreate'
     Comment:
       required: true
+      description: |
+        A patch or cover letter comment.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/CommentUpdate'
     Patch:
       required: true
+      description: |
+        A patch.
       content:
         application/json:
           schema:
@@ -1410,6 +1420,8 @@ components:
             $ref: '#/components/schemas/PatchUpdate'
     Project:
       required: true
+      description: |
+        A project.
       content:
         application/json:
           schema:
@@ -1422,6 +1434,8 @@ components:
             $ref: '#/components/schemas/Project'
     User:
       required: true
+      description: |
+        A user.
       content:
         application/json:
           schema:
@@ -1435,6 +1449,9 @@ components:
   schemas:
     Index:
       type: object
+      name: Index
+      description: |
+        Paths to resource APIs
       properties:
         bundles:
           title: Bundles URL
@@ -1480,6 +1497,9 @@ components:
       required:
         - name
       type: object
+      title: Bundle
+      description: |
+        A patch bundle
       properties:
         id:
           title: ID
@@ -1530,6 +1550,9 @@ components:
           readOnly: true
     BundleCreateUpdate:
       type: object
+      title: Bundle create or update
+      description: |
+        The fields to set on a new or existing bundle.
       required:
         - name
       properties:
@@ -1549,6 +1572,9 @@ components:
           type: boolean
     Check:
       type: object
+      title: Check
+      description: |
+        A patch check
       properties:
         id:
           title: ID
@@ -1604,6 +1630,9 @@ components:
             - 'string'
     CheckCreate:
       type: object
+      title: Check
+      description: |
+        A patch check
       required:
        - state
       properties:
@@ -1645,6 +1674,9 @@ components:
             - 'string'
     Comment:
       type: object
+      title: Comment
+      description: |
+        A comment
       properties:
         id:
           title: ID
@@ -1716,6 +1748,9 @@ components:
             - 'boolean'
     CommentUpdate:
       type: object
+      title: Comment update
+      description: |
+        The fields to set on an existing comment.
       properties:
         addressed:
           title: Addressed
@@ -1724,6 +1759,9 @@ components:
             - 'boolean'
     CoverList:
       type: object
+      title: Cover letters
+      description: |
+        A list of cover letters
       properties:
         id:
           title: ID
@@ -1793,6 +1831,10 @@ components:
           format: uri
           readOnly: true
     CoverDetail:
+      type: object
+      title: Cover letters
+      description: |
+        A list of cover letters
       allOf:
         - $ref: '#/components/schemas/CoverList'
         - type: object
@@ -1816,6 +1858,9 @@ components:
               minLength: 1
     EventBase:
       type: object
+      title: Event base
+      description: |
+        Base event. Not directly used.
       properties:
         id:
           title: ID
@@ -1847,6 +1892,9 @@ components:
         payload:
           type: object
     EventCoverCreated:
+      title: Cover created event
+      description: |
+        A cover created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1859,6 +1907,9 @@ components:
                 cover:
                   $ref: '#/components/schemas/CoverEmbedded'
     EventPatchCreated:
+      title: Patch created event
+      description: |
+        A patch created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1871,6 +1922,9 @@ components:
                 patch:
                   $ref: '#/components/schemas/PatchEmbedded'
     EventPatchCompleted:
+      title: Patch completed event
+      description: |
+        A patch completed event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1885,6 +1939,9 @@ components:
                 series:
                   $ref: '#/components/schemas/SeriesEmbedded'
     EventPatchStateChanged:
+      title: Patch state change event
+      description: |
+        A patch state changed event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1903,6 +1960,9 @@ components:
                   title: Current state
                   type: string
     EventPatchRelationChanged:
+      title: Patch relation change event
+      description: |
+        A patch relation changed event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1925,6 +1985,9 @@ components:
                     - 'null'
                     - 'string'
     EventPatchDelegated:
+      title: Patch delegated event
+      description: |
+        A patch delegated event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1941,6 +2004,9 @@ components:
                 current_delegate:
                   $ref: '#/components/schemas/UserEmbedded'
     EventCheckCreated:
+      title: Check create event
+      description: |
+        A check created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1955,6 +2021,9 @@ components:
                 check:
                   $ref: '#/components/schemas/CheckEmbedded'
     EventSeriesCreated:
+      title: Series create event
+      description: |
+        A series created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1967,6 +2036,9 @@ components:
                 series:
                   $ref: '#/components/schemas/SeriesEmbedded'
     EventSeriesCompleted:
+      title: Series completed event
+      description: |
+        A series completed event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1979,6 +2051,9 @@ components:
                 series:
                   $ref: '#/components/schemas/SeriesEmbedded'
     EventCoverCommentCreated:
+      title: Cover letter comment create event
+      description: |
+        A comment letter comment created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -1993,6 +2068,9 @@ components:
                 comment:
                   $ref: '#/components/schemas/CommentEmbedded'
     EventPatchCommentCreated:
+      title: Patch comment create event
+      description: |
+        A patch comment created event.
       allOf:
         - $ref: '#/components/schemas/EventBase'
         - type: object
@@ -2011,6 +2089,9 @@ components:
         - state
         - delegate
       type: object
+      title: Patches
+      description: |
+        A list of patches.
       properties:
         id:
           title: ID
@@ -2146,6 +2227,10 @@ components:
           items:
             $ref: '#/components/schemas/PatchEmbedded'
     PatchDetail:
+      type: object
+      title: Patches
+      description: |
+        A list of patches.
       allOf:
         - $ref: '#/components/schemas/PatchList'
         - type: object
@@ -2180,6 +2265,9 @@ components:
               readOnly: true
     PatchUpdate:
       type: object
+      title: Patch update
+      description: |
+        The fields to set on an existing patch.
       properties:
         commit_ref:
           title: Commit ref
@@ -2218,6 +2306,9 @@ components:
             type: integer
     Person:
       type: object
+      title: Person
+      description: |
+        A person
       properties:
         id:
           title: ID
@@ -2252,6 +2343,9 @@ components:
             - $ref: '#/components/schemas/UserEmbedded'
     Project:
       type: object
+      title: Project
+      description: |
+        A project.
       properties:
         id:
           title: ID
@@ -2347,6 +2441,9 @@ components:
           type: string
     Series:
       type: object
+      title: Series
+      description: |
+        A series
       properties:
         id:
           title: ID
@@ -2424,6 +2521,9 @@ components:
           uniqueItems: true
     User:
       type: object
+      title: User
+      description: |
+        A user
       properties:
         id:
           title: ID
@@ -2456,6 +2556,9 @@ components:
           minLength: 1
     UserDetail:
       type: object
+      title: User
+      description: |
+        A user
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
@@ -2483,6 +2586,9 @@ components:
                   type: boolean
     CheckEmbedded:
       type: object
+      title: Check
+      description: |
+        A patch check
       properties:
         id:
           title: ID
@@ -2533,6 +2639,9 @@ components:
           readOnly: true
     CommentEmbedded:
       type: object
+      title: Comment
+      description: |
+        A comment
       properties:
         id:
           title: ID
@@ -2571,6 +2680,9 @@ components:
           minLength: 1
     CoverEmbedded:
       type: object
+      title: Cover letter
+      description: |
+        A cover letter
       properties:
         id:
           title: ID
@@ -2616,6 +2728,9 @@ components:
           readOnly: true
     PatchEmbedded:
       type: object
+      title: Patch
+      description: |
+        A patch
       properties:
         id:
           title: ID
@@ -2663,6 +2778,9 @@ components:
           readOnly: true
     PersonEmbedded:
       type: object
+      title: Person
+      description: |
+        A person
       properties:
         id:
           title: ID
@@ -2686,6 +2804,9 @@ components:
           minLength: 1
     ProjectEmbedded:
       type: object
+      title: Project
+      description: |
+        A project
       properties:
         id:
           title: ID
@@ -2767,6 +2888,9 @@ components:
           readOnly: true
     SeriesEmbedded:
       type: object
+      title: Series
+      description: |
+        A series
       properties:
         id:
           title: ID
@@ -2815,6 +2939,9 @@ components:
           readOnly: true
     UserEmbedded:
       type: object
+      title: User
+      description: |
+        A user
       properties:
         id:
           title: ID
@@ -2849,6 +2976,9 @@ components:
           minLength: 1
     Error:
       type: object
+      title: A generic error.
+      description: |
+        A generic error.
       properties:
         detail:
           title: Detail
@@ -2856,6 +2986,9 @@ components:
           readOnly: true
     ErrorBundleCreateUpdate:
       type: object
+      title: A bundle creation or update error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         name:
           title: Name
@@ -2876,6 +3009,9 @@ components:
             type: string
     ErrorCheckCreate:
       type: object
+      title: A check creation error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         state:
           title: State
@@ -2903,6 +3039,9 @@ components:
           readOnly: true
     ErrorCommentUpdate:
       type: object
+      title: A comment update error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         addressed:
           title: Addressed
@@ -2911,6 +3050,9 @@ components:
             type: string
     ErrorPatchUpdate:
       type: object
+      title: A patch update error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         state:
           title: State
@@ -2938,6 +3080,9 @@ components:
           readOnly: true
     ErrorProjectUpdate:
       type: object
+      title: A project update error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         web_url:
           title: Web URL
@@ -2956,6 +3101,9 @@ components:
           readOnly: true
     ErrorUserUpdate:
       type: object
+      title: A user update error.
+      description: |
+        A mapping of field names to validation failures.
       properties:
         first_name:
           title: First name
