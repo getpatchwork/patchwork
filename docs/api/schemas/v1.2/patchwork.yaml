@@ -22,7 +22,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: ''
+          description: 'List of API resources'
           content:
             application/json:
               schema:
@@ -61,7 +61,7 @@ paths:
               - 'false'
       responses:
         '200':
-          description: ''
+          description: 'List of bundles'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -83,19 +83,19 @@ paths:
         $ref: '#/components/requestBodies/Bundle'
       responses:
         '201':
-          description: ''
+          description: 'Created bundle'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bundle'
         '400':
-          description: Invalid Request
+          description: 'Invalid request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBundleCreateUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
@@ -116,13 +116,13 @@ paths:
       operationId: bundles_read
       responses:
         '200':
-          description: ''
+          description: 'A bundle'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bundle'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -139,25 +139,25 @@ paths:
         $ref: '#/components/requestBodies/Bundle'
       responses:
         '200':
-          description: ''
+          description: 'Updated bundle'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bundle'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBundleCreateUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -174,25 +174,25 @@ paths:
         $ref: '#/components/requestBodies/Bundle'
       responses:
         '200':
-          description: ''
+          description: 'Updated bundle'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Bundle'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorBundleCreateUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -240,7 +240,7 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: 'List of cover letters'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -266,13 +266,13 @@ paths:
       operationId: covers_read
       responses:
         '200':
-          description: ''
+          description: 'A cover letter'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CoverDetail'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -299,7 +299,7 @@ paths:
         - $ref: '#/components/parameters/Search'
       responses:
         '200':
-          description: ''
+          description: 'List of comments'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -310,7 +310,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Comment'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -374,7 +374,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: ''
+          description: 'List of events'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -480,7 +480,7 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: 'List of patches'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -506,13 +506,13 @@ paths:
       operationId: patches_read
       responses:
         '200':
-          description: ''
+          description: 'A patch'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchDetail'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -529,31 +529,31 @@ paths:
         $ref: '#/components/requestBodies/Patch'
       responses:
         '200':
-          description: ''
+          description: 'An updated patch'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchDetail'
         '400':
-          description: Invalid Request
+          description: 'Invalid request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorPatchUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '409':
-          description: Conflict
+          description: 'Conflict'
           content:
             application/json:
               schema:
@@ -570,31 +570,31 @@ paths:
         $ref: '#/components/requestBodies/Patch'
       responses:
         '200':
-          description: ''
+          description: 'An updated patch'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PatchDetail'
         '400':
-          description: Invalid Request
+          description: 'Invalid request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorPatchUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '409':
-          description: Conflict
+          description: 'Conflict'
           content:
             application/json:
               schema:
@@ -620,7 +620,7 @@ paths:
         - $ref: '#/components/parameters/Search'
       responses:
         '200':
-          description: ''
+          description: 'List of comments'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -631,7 +631,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Comment'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -682,7 +682,7 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: 'List of checks'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -693,7 +693,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Check'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -710,25 +710,25 @@ paths:
         $ref: '#/components/requestBodies/Check'
       responses:
         '201':
-          description: ''
+          description: 'Created check'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Check'
         '400':
-          description: Invalid Request
+          description: 'Invalid request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorCheckCreate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -756,13 +756,13 @@ paths:
       operationId: checks_read
       responses:
         '200':
-          description: ''
+          description: 'A check'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Check'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -783,7 +783,7 @@ paths:
         - $ref: '#/components/parameters/Search'
       responses:
         '200':
-          description: ''
+          description: 'List of people'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -794,7 +794,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Person'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
@@ -818,19 +818,19 @@ paths:
         - apiKeyAuth: []
       responses:
         '200':
-          description: ''
+          description: 'A person'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Person'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -848,7 +848,7 @@ paths:
         - $ref: '#/components/parameters/Search'
       responses:
         '200':
-          description: ''
+          description: 'List of projects'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -875,13 +875,13 @@ paths:
       operationId: projects_read
       responses:
         '200':
-          description: ''
+          description: 'A project'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -898,25 +898,25 @@ paths:
         $ref: '#/components/requestBodies/Project'
       responses:
         '200':
-          description: ''
+          description: 'Updated project'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorProjectUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -933,25 +933,25 @@ paths:
         $ref: '#/components/requestBodies/Project'
       responses:
         '200':
-          description: ''
+          description: 'Updated project'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorProjectUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -983,7 +983,7 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: 'List of series'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -1009,13 +1009,13 @@ paths:
       operationId: series_read
       responses:
         '200':
-          description: ''
+          description: 'A series'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Series'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -1036,7 +1036,7 @@ paths:
         - $ref: '#/components/parameters/Search'
       responses:
         '200':
-          description: ''
+          description: 'List of users'
           headers:
             Link:
               $ref: '#/components/headers/Link'
@@ -1047,7 +1047,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
@@ -1071,19 +1071,19 @@ paths:
         - apiKeyAuth: []
       responses:
         '200':
-          description: ''
+          description: 'A user'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDetail'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -1100,25 +1100,25 @@ paths:
         $ref: '#/components/requestBodies/User'
       responses:
         '200':
-          description: ''
+          description: 'Updated user'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDetail'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUserUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
@@ -1135,25 +1135,25 @@ paths:
         $ref: '#/components/requestBodies/User'
       responses:
         '200':
-          description: ''
+          description: 'Updated user'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserDetail'
         '400':
-          description: Bad request
+          description: 'Bad request'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUserUpdate'
         '403':
-          description: Forbidden
+          description: 'Forbidden'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Not found
+          description: 'Not found'
           content:
             application/json:
               schema:
