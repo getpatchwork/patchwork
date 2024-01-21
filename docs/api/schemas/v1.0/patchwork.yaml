@@ -1608,9 +1608,21 @@ components:
                 patch:
                   $ref: '#/components/schemas/PatchEmbedded'
                 previous_delegate:
-                  $ref: '#/components/schemas/UserEmbedded'
+                  title: Previous delegate
+                  type:
+                    - 'null'
+                    - 'object'
+                  oneOf:
+                    - type: 'null'
+                    - $ref: '#/components/schemas/UserEmbedded'
                 current_delegate:
-                  $ref: '#/components/schemas/UserEmbedded'
+                  title: Current delegate
+                  type:
+                    - 'null'
+                    - 'object'
+                  oneOf:
+                    - type: 'null'
+                    - $ref: '#/components/schemas/UserEmbedded'
     EventCheckCreated:
       title: Check create event
       description: |

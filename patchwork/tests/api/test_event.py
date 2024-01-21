@@ -6,8 +6,6 @@
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
-
 
 from patchwork.models import Event
 from patchwork.tests.api import utils
@@ -21,10 +19,8 @@ from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_state
 
 
-# FIXME(stephenfin: This should inherit from 'utils.APITestCase', but we need
-# to fix our schema to work with recent versions of openapi_core
 @override_settings(ENABLE_REST_API=True)
-class TestEventAPI(APITestCase):
+class TestEventAPI(utils.APITestCase):
     @staticmethod
     def api_url(version=None):
         kwargs = {}
