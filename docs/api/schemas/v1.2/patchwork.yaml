@@ -18,6 +18,8 @@ paths:
   /api/1.2/:
     get:
       summary: List API resources.
+      description: |
+        Show paths to all supported API resources.
       operationId: api_list
       parameters: []
       responses:
@@ -32,6 +34,9 @@ paths:
   /api/1.2/bundles:
     get:
       summary: List bundles.
+      description: |
+        List all bundles that the current user has access to.
+        For unauthenticated requests, only public bundles can be shown.
       operationId: bundles_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -75,6 +80,8 @@ paths:
         - bundles
     post:
       summary: Create a bundle.
+      description: |
+        Create a new bundle.
       operationId: bundles_create
       security:
         - basicAuth: []
@@ -113,6 +120,9 @@ paths:
           type: integer
     get:
       summary: Show a bundle.
+      description: |
+        Retrieve a bundle by its ID.
+        The bundle must be either be public or be owned by the currently authenticated user.
       operationId: bundles_read
       responses:
         '200':
@@ -131,6 +141,9 @@ paths:
         - bundles
     patch:
       summary: Update a bundle (partial).
+      description:
+        Partially update an existing bundle.
+        The bundle must be owned by the currently authenticated user.
       operationId: bundles_partial_update
       security:
         - basicAuth: []
@@ -205,6 +218,8 @@ paths:
   /api/1.2/covers:
     get:
       summary: List cover letters.
+      description: |
+        List all cover letters.
       operationId: covers_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -266,6 +281,8 @@ paths:
           type: integer
     get:
       summary: Show a cover letter.
+      description: |
+        Retrieve a cover letter by its ID.
       operationId: covers_read
       responses:
         '200':
@@ -294,6 +311,8 @@ paths:
           type: integer
     get:
       summary: List cover letter comments
+      description: |
+        List all comments for the given cover letter.
       operationId: cover_comments_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -323,6 +342,9 @@ paths:
   /api/1.2/events:
     get:
       summary: List events.
+      description: |
+        List all events.
+        This list can be quite large. You are encouraged to use filters to narrow it to specific categories or project(s).
       operationId: events_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -417,6 +439,8 @@ paths:
   /api/1.2/patches:
     get:
       summary: List patches.
+      description: |
+        List all patches.
       operationId: patches_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -506,6 +530,8 @@ paths:
           type: integer
     get:
       summary: Show a patch.
+      description: |
+        Retrieve a patch by its ID.
       operationId: patches_read
       responses:
         '200':
@@ -524,6 +550,9 @@ paths:
         - patches
     patch:
       summary: Update a patch (partial).
+      description:
+        Partially update an existing patch.
+        You must be a maintainer of the project that the patch belongs to.
       operationId: patches_partial_update
       security:
         - basicAuth: []
@@ -614,7 +643,9 @@ paths:
           title: ID
           type: integer
     get:
-      summary: List comments
+      summary: List patch comments
+      description: |
+        List all comments for the given patch.
       operationId: patch_comments_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -652,6 +683,8 @@ paths:
           type: integer
     get:
       summary: List checks.
+      description: |
+        List all checks for the given patch.
       operationId: checks_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -756,6 +789,8 @@ paths:
           type: integer
     get:
       summary: Show a check.
+      description: |
+        Retrieve a check by its ID.
       operationId: checks_read
       responses:
         '200':
@@ -775,6 +810,9 @@ paths:
   /api/1.2/people:
     get:
       summary: List people.
+      description: |
+        List all people.
+        A person is anyone that has submitted a patch, a series of patches, or a comment to any project.
       operationId: people_list
       security:
         - basicAuth: []
@@ -815,6 +853,9 @@ paths:
           type: integer
     get:
       summary: Show a person.
+      description: |
+        Retrieve a person by their ID.
+        A person is anyone that has submitted a patch, a series of patches, or a comment to any project.
       operationId: people_read
       security:
         - basicAuth: []
@@ -843,6 +884,8 @@ paths:
   /api/1.2/projects:
     get:
       summary: List projects.
+      description: |
+        List all projects.
       operationId: projects_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -875,6 +918,8 @@ paths:
           type: string
     get:
       summary: Show a project.
+      description: |
+        Retrieve a project by its ID.
       operationId: projects_read
       responses:
         '200':
@@ -893,6 +938,9 @@ paths:
         - projects
     patch:
       summary: Update a project (partial).
+      description:
+        Partially update an existing project.
+        You must be a maintainer of the project.
       operationId: projects_partial_update
       security:
         - basicAuth: []
@@ -964,6 +1012,9 @@ paths:
   /api/1.2/series:
     get:
       summary: List series.
+      description: |
+        List all series.
+        A series is a collection of patches with an optional cover letter.
       operationId: series_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -1009,6 +1060,9 @@ paths:
           type: integer
     get:
       summary: Show a series.
+      description: |
+        Retrieve a series by its ID.
+        A series is a collection of patches with an optional cover letter.
       operationId: series_read
       responses:
         '200':
@@ -1028,6 +1082,8 @@ paths:
   /api/1.2/users:
     get:
       summary: List users.
+      description: |
+        List all users.
       operationId: users_list
       security:
         - basicAuth: []
@@ -1068,6 +1124,8 @@ paths:
           type: integer
     get:
       summary: Show a user.
+      description: |
+        Retrieve a user by their ID.
       operationId: users_read
       security:
         - basicAuth: []
@@ -1095,6 +1153,9 @@ paths:
         - users
     patch:
       summary: Update a user (partial).
+      description:
+        Partially update a user account.
+        Only super users are allowed to update other user's accounts.
       operationId: users_partial_update
       security:
         - basicAuth: []
