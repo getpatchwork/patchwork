@@ -17,7 +17,7 @@ info:
 paths:
   /api/1.0/:
     get:
-      description: List API resources.
+      summary: List API resources.
       operationId: api_list
       parameters: []
       responses:
@@ -31,7 +31,7 @@ paths:
         - api
   /api/1.0/bundles:
     get:
-      description: List bundles.
+      summary: List bundles.
       operationId: bundles_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -83,7 +83,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a bundle.
+      summary: Show a bundle.
       operationId: bundles_read
       responses:
         '200':
@@ -102,7 +102,7 @@ paths:
         - bundles
   /api/1.0/covers:
     get:
-      description: List cover letters.
+      summary: List cover letters.
       operationId: covers_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -155,7 +155,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a cover letter.
+      summary: Show a cover letter.
       operationId: covers_read
       responses:
         '200':
@@ -183,7 +183,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: List comments
+      summary: List cover letter comments
       operationId: cover_comments_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -212,7 +212,7 @@ paths:
         - comments
   /api/1.0/events:
     get:
-      description: List events.
+      summary: List events.
       operationId: events_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -305,7 +305,7 @@ paths:
         - events
   /api/1.0/patches:
     get:
-      description: List patches.
+      summary: List patches.
       operationId: patches_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -379,7 +379,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a patch.
+      summary: Show a patch.
       operationId: patches_read
       responses:
         '200':
@@ -397,7 +397,7 @@ paths:
       tags:
         - patches
     patch:
-      description: Update a patch (partial).
+      summary: Update a patch (partial).
       operationId: patches_partial_update
       security:
         - basicAuth: []
@@ -476,7 +476,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: List comments
+      summary: List comments
       operationId: patch_comments_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -513,7 +513,7 @@ paths:
           title: Patch ID
           type: integer
     get:
-      description: List checks.
+      summary: List checks.
       operationId: checks_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -566,7 +566,7 @@ paths:
       tags:
         - checks
     post:
-      description: Create a check.
+      summary: Create a check.
       operationId: checks_create
       security:
         - basicAuth: []
@@ -617,7 +617,7 @@ paths:
           title: Check ID
           type: integer
     get:
-      description: Show a check.
+      summary: Show a check.
       operationId: checks_read
       responses:
         '200':
@@ -636,7 +636,7 @@ paths:
         - checks
   /api/1.0/people:
     get:
-      description: List people.
+      summary: List people.
       operationId: people_list
       security:
         - basicAuth: []
@@ -676,7 +676,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a person.
+      summary: Show a person.
       operationId: people_read
       security:
         - basicAuth: []
@@ -704,7 +704,7 @@ paths:
         - people
   /api/1.0/projects:
     get:
-      description: List projects.
+      summary: List projects.
       operationId: projects_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -736,7 +736,7 @@ paths:
           # TODO: Add regex?
           type: string
     get:
-      description: Show a project.
+      summary: Show a project.
       operationId: projects_read
       responses:
         '200':
@@ -754,7 +754,7 @@ paths:
       tags:
         - projects
     patch:
-      description: Update a project (partial).
+      summary: Update a project (partial).
       operationId: projects_partial_update
       security:
         - basicAuth: []
@@ -825,7 +825,7 @@ paths:
         - projects
   /api/1.0/series:
     get:
-      description: List series.
+      summary: List series.
       operationId: series_list
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -870,7 +870,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a series.
+      summary: Show a series.
       operationId: series_read
       responses:
         '200':
@@ -889,7 +889,7 @@ paths:
         - series
   /api/1.0/users:
     get:
-      description: List users.
+      summary: List users.
       operationId: users_list
       security:
         - basicAuth: []
@@ -929,7 +929,7 @@ paths:
           title: ID
           type: integer
     get:
-      description: Show a user.
+      summary: Show a user.
       operationId: users_read
       security:
         - basicAuth: []
@@ -956,7 +956,7 @@ paths:
       tags:
         - users
     patch:
-      description: Update a user (partial).
+      summary: Update a user (partial).
       operationId: users_partial_update
       security:
         - basicAuth: []
