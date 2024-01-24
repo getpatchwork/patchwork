@@ -501,7 +501,7 @@ class Patch(SubmissionMixin):
     )
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
-    hash = HashField(null=True, blank=True)
+    hash = HashField(null=True, blank=True, db_index=True)
 
     # series metadata
 
