@@ -73,6 +73,20 @@ def send_notifications():
             'patchwork/mails/patch-change-notification.txt', context
         )
 
+        # Got one case where recipient.email == "<>". That causes Django to fail with:
+        #   File "/usr/lib/python3/dist-packages/django/core/mail/message.py", line 99, in sanitize_address
+        #    address_parts = nm + localpart + domain
+        #                    ~~~^~~~~~~~~~~
+        # TypeError: can only concatenate str (not "NoneType") to str
+        if (
+            not recipient.email
+            or recipient.email == '<>'
+            or recipient.email == ''
+        ):
+            errors.append((recipient, 'Invalid recipient'))
+            delete_notifications()
+            continue
+
         message = EmailMessage(
             subject=subject,
             body=content,
