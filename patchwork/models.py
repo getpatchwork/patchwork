@@ -823,6 +823,30 @@ class PatchComment(EmailMixin, models.Model):
         ]
 
 
+class Note(models.Model):
+    patch = models.ForeignKey(
+        Patch,
+        related_name='note',
+        related_query_name='note',
+        on_delete=models.CASCADE,
+    )
+    submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
+    last_modified = models.DateTimeField(default=tz_utils.now)
+    content = models.TextField(null=False, blank=True)
+    maintainer_only = models.BooleanField(default=True)
+    __original_content = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_content = self.content
+
+    def save(self, *args, **kwargs):
+        if self.content != self.__original_content:
+            self.last_modified = tz_utils.now().isoformat()
+            self.__original_content = self.content
+        super(Note, self).save(*args, **kwargs)
+
+
 class Series(FilenameMixin, models.Model):
     """A collection of patches."""
 
