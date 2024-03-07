@@ -85,6 +85,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     series = SeriesSerializer(read_only=True)
     comments = SerializerMethodField()
+    notes = SerializerMethodField()
     check = SerializerMethodField()
     checks = SerializerMethodField()
     tags = SerializerMethodField()
@@ -106,6 +107,11 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
     def get_comments(self, patch):
         return self.context.get('request').build_absolute_uri(
             reverse('api-patch-comment-list', kwargs={'patch_id': patch.id})
+        )
+
+    def get_notes(self, patch):
+        return self.context.get('request').build_absolute_uri(
+            reverse('api-patch-note-list', kwargs={'patch_id': patch.id})
         )
 
     def get_check(self, instance):
@@ -173,6 +179,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'mbox',
             'series',
             'comments',
+            'notes',
             'check',
             'checks',
             'tags',
@@ -191,6 +198,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'mbox',
             'series',
             'comments',
+            'notes',
             'check',
             'checks',
             'tags',
