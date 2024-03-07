@@ -224,6 +224,7 @@ if settings.ENABLE_REST_API:
     from patchwork.api import cover as api_cover_views  # noqa
     from patchwork.api import event as api_event_views  # noqa
     from patchwork.api import index as api_index_views  # noqa
+    from patchwork.api import note as api_note_views  # noqa
     from patchwork.api import patch as api_patch_views  # noqa
     from patchwork.api import person as api_person_views  # noqa
     from patchwork.api import project as api_project_views  # noqa
@@ -345,14 +346,32 @@ if settings.ENABLE_REST_API:
         ),
     ]
 
+    api_1_4_patterns = [
+        path(
+            'patches/<int:patch_id>/notes/<int:note_id>',
+            api_note_views.NoteDetail.as_view(),
+            name='api-patch-note-detail',
+        ),
+        path(
+            'patches/<int:patch_id>/notes/',
+            api_note_views.NoteList.as_view(),
+            name='api-patch-note-list',
+        ),
+    ]
+
     urlpatterns += [
         re_path(
-            r'^api/(?:(?P<version>(1.0|1.1|1.2|1.3))/)?', include(api_patterns)
+            r'^api/(?:(?P<version>(1.0|1.1|1.2|1.3|1.4))/)?',
+            include(api_patterns),
         ),
         re_path(
-            r'^api/(?:(?P<version>(1.1|1.2|1.3))/)?', include(api_1_1_patterns)
+            r'^api/(?:(?P<version>(1.1|1.2|1.3|1.4))/)?',
+            include(api_1_1_patterns),
         ),
-        re_path(r'^api/(?:(?P<version>(1.3))/)?', include(api_1_3_patterns)),
+        re_path(
+            r'^api/(?:(?P<version>(1.3|1.4))/)?', include(api_1_3_patterns)
+        ),
+        re_path(r'^api/(?:(?P<version>(1.4))/)?', include(api_1_4_patterns)),
         # token change
         path(
             'user/generate-token/',
