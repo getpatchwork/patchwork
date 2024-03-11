@@ -44,6 +44,13 @@
       </button>
     </div>
     {% endif %}
+    {% if is_maintainer %}
+    <div id="create-note">
+      <button class="patch-form-submit btn btn-primary" name="action" value="Add-Note">
+        Add Note
+      </button>
+    </div>
+    {% endif %}
   </div>
 {% endif %}
 </div>

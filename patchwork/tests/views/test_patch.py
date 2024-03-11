@@ -19,6 +19,7 @@ from patchwork.models import Patch
 from patchwork.models import State
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_note
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_patches
@@ -246,6 +247,55 @@ class PatchViewTest(TestCase):
 
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
+
+    def test_show_note_for_maintainer(self):
+        project = create_project()
+        user = create_maintainer(project)
+        patch = create_patch(project=project)
+        note = create_note(patch=patch, submitter=user)
+        self.client.login(username=user.username, password=user.username)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+        self.assertIn('<h2>Notes</h2>'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
+
+    def test_hide_private_note(self):
+        project = create_project()
+        user = create_maintainer(project)
+        patch = create_patch(project=project)
+        note = create_note(patch=patch, submitter=user)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+        self.assertNotIn('<h2>Notes</h2>'.encode('utf-8'), response.content)
+        self.assertNotIn(note.content.encode('utf-8'), response.content)
+
+    def test_show_public_note(self):
+        project = create_project()
+        user = create_maintainer(project)
+        patch = create_patch(project=project)
+        note = create_note(patch=patch, submitter=user, maintainer_only=False)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+        self.assertIn('<h2>Notes</h2>'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
 
     def test_old_detail_url(self):
         patch = create_patch()
