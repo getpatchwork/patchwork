@@ -266,6 +266,24 @@
   </pre>
 </div>
 
+{% for note in notes %}
+{% if forloop.first %}
+<h2>Notes</h2>
+{% endif %}
+<a name="{{ item.id }}"></a>
+<div class="submission-message">
+  <div class="meta">
+    {{ note.submitter|personify:project }}
+    <span class="message-date">
+      Last modified: {{ note.last_modified }} UTC
+    </span>
+  </div>
+  <pre class="content">
+    {{ note.content }}
+  </pre>
+</div>
+{% endfor %}
+
 {% for item in comments %}
 {% if forloop.first %}
 <h2>Comments</h2>
