@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Added notes feature allowing maintainers of a patch to write notes for it so that maintainers
+    can understand why a patch is in any given state or to give any contextual information others
+    may not have. These can also be public so that any user can read them.
+api:
+  - |
+    The API version has been updated to v1.4.
+  - |
+    A new REST API endpoint is available at ``/api/patches/<patch_id>/notes``.
+    This can be used to create a new note or to retrive all notes from the specified patch
+  - |
+    A new REST API endpoint is available at ``/api/patches/<patch_id>/notes/<note_id>``.
+    This can be used to retrieve, update and delete the specified note
