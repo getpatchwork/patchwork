@@ -2,6 +2,7 @@
 # Copyright (C) 2018 Stephen Finucane <stephen@that.guru>
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
+import json
 
 from django.test import override_settings
 from django.urls import NoReverseMatch
@@ -16,6 +17,7 @@ from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_user
+from patchwork.models import Person
 
 
 @override_settings(ENABLE_REST_API=True)
@@ -203,3 +205,75 @@ class TestSeriesAPI(utils.APITestCase):
 
         resp = self.client.delete(self.api_url(series.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+    def _generate_related_ids_payload(self, series, id):
+        related_ids = series.related_series.all().values_list('id', flat=True)
+        return list(related_ids) + [id]
+
+    def test_series_linking(self):
+        user = create_user()
+        person = Person.objects.get(user=user)
+        project_obj = create_project(linkname='myproject')
+        series_a = create_series(project=project_obj, submitter=person)
+        create_cover(series=series_a)
+        create_patch(series=series_a)
+
+        self.client.authenticate(user=user)
+        url = reverse('api-series-detail', kwargs={'pk': series_a.id})
+
+        # Link to another series
+        series_b = create_series(
+            project=series_a.project, submitter=series_a.submitter
+        )
+
+        resp = self.client.patch(
+            url,
+            data={
+                'related_series': self._generate_related_ids_payload(
+                    series_a, series_b.id
+                )
+            },
+        )
+        related_series = json.loads(resp.content).get('related_series')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(related_series), 1)
+        self.assertEqual(
+            related_series[0]['web_url'],
+            f'http://example.com/project/myproject/list/?series={series_b.id}',
+        )
+
+        # Link to more than one series
+        series_c = create_series(
+            project=series_a.project, submitter=series_a.submitter
+        )
+        resp = self.client.patch(
+            url,
+            data={
+                'related_series': self._generate_related_ids_payload(
+                    series_a, series_c.id
+                )
+            },
+        )
+
+        related_series = json.loads(resp.content).get('related_series')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(related_series), 2)
+        self.assertEqual(
+            related_series[1]['web_url'],
+            f'http://example.com/project/myproject/list/?series={series_c.id}',
+        )
+
+        # Link to a series from a different project
+        series_d = create_series(submitter=series_a.submitter)
+
+        resp = self.client.patch(
+            url,
+            data={
+                'related_series': self._generate_related_ids_payload(
+                    series_a, series_d.id
+                )
+            },
+        )
+
+        related_series = json.loads(resp.content).get('related_series')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
