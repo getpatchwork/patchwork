@@ -6,6 +6,7 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.exceptions import ValidationError
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -14,6 +15,7 @@ from patchwork.api.embedded import CoverSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import SeriesSerializer as RelatedSeriesSerializer
 from patchwork.models import Series
 
 
@@ -24,6 +26,14 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     cover_letter = CoverSerializer(read_only=True)
     patches = PatchSerializer(read_only=True, many=True)
+    related_series = RelatedSeriesSerializer(many=True)
+
+    def get_related_series(self, obj):
+        urls = []
+        for related_series in obj.related_series.all():
+            url = self.get_web_url(related_series)
+            urls.append(url)
+        return urls
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -32,6 +42,16 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     def get_mbox(self, instance):
         request = self.context.get('request')
         return request.build_absolute_uri(instance.get_mbox_url())
+
+    def validate_related_series(self, related_series):
+        for series in related_series:
+            if self.instance.id != series.id:
+                raise ValidationError('A series cannot be linked to itself.')
+            if self.instance.project.id != series.project.id:
+                raise ValidationError(
+                    'Series must belong to the same project.'
+                )
+        return related_series
 
     class Meta:
         model = Series
@@ -44,6 +64,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'date',
             'submitter',
             'version',
+            'related_series',
             'total',
             'received_total',
             'received_all',
