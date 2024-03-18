@@ -8,11 +8,13 @@ import os
 import unittest
 
 from django.test import TestCase
+from rest_framework.request import HttpRequest
 
 from patchwork import models
 from patchwork import parser
 from patchwork.tests import utils
 from patchwork.views.utils import patch_to_mbox
+from patchwork.api.series import SeriesSerializer
 
 
 TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
@@ -804,3 +806,29 @@ class SeriesNameTestCase(TestCase):
         self.assertEqual(series.name, series_name)
 
         mbox.close()
+
+
+class SeriesSerializerTestCase(TestCase):
+    def test_related_series_serializer(self):
+        series_a = utils.create_series()
+        series_b = utils.create_series()
+
+        series_a.related_series.set([series_b])
+
+        mock_request = HttpRequest()
+        mock_request.version = '1.1'
+        mock_request.META['SERVER_NAME'] = 'example.com'
+        mock_request.META['SERVER_PORT'] = '8000'
+
+        serializer = SeriesSerializer(
+            series_a,
+            context={'request': mock_request},
+            data={'related_series': series_b},
+        )
+        serializer.is_valid()
+
+        related_series_urls = serializer.data['related_series']
+        self.assertEqual(len(related_series_urls), 1)
+        self.assertEqual(
+            f'series={series_b.id}' in related_series_urls[0], True
+        )
