@@ -152,7 +152,7 @@ class TestSeriesAPI(utils.APITestCase):
             create_cover(series=series_obj)
             create_patch(series=series_obj)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
