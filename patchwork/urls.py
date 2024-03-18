@@ -293,6 +293,11 @@ if settings.ENABLE_REST_API:
             name='api-series-detail',
         ),
         path(
+            'series/<int:pk>/link/<int:related_series_id>',
+            api_series_views.SeriesLink.as_view(),
+            name='api-series-link',
+        ),
+        path(
             'bundles/',
             api_bundle_views.BundleList.as_view(),
             name='api-bundle-list',

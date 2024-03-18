@@ -5,7 +5,9 @@
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.response import Response
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -104,3 +106,20 @@ class SeriesDetail(SeriesMixin, RetrieveAPIView):
     """Show a series."""
 
     pass
+
+
+class SeriesLink(SeriesMixin, GenericAPIView):
+    """Link two series by their related."""
+
+    def patch(self, request, *args, **kwargs):
+        series = Series.objects.get(id=kwargs['pk'])
+        related_series = Series.objects.get(id=kwargs['related_series_id'])
+
+        series.related_series.set([related_series])
+
+        serializer = self.get_serializer(
+            series, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data)

@@ -14,8 +14,8 @@ except ImportError:
     yaml = None
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-VERSIONS = [(1, 0), (1, 1), (1, 2), (1, 3), None]
-LATEST_VERSION = (1, 3)
+VERSIONS = [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), None]
+LATEST_VERSION = (1, 4)
 
 
 def generate_schemas():

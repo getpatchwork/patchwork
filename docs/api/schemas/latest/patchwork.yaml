@@ -13,7 +13,7 @@ info:
   license:
     name: GPL v2 License
     url: https://www.gnu.org/licenses/gpl-2.0.html
-  version: '1.3'
+  version: '1.4'
 paths:
   /api:
     get:
@@ -1215,6 +1215,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Series'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - series
+  /api/series/{id}/link/{related_series_id}:
+    parameters:
+      - in: path
+        name: id
+        description: A unique integer value identifying this series.
+        required: true
+        schema:
+          title: Series ID
+          type: integer
+      - in: path
+        name: related_series_id
+        description: A unique integer value identifying the related series.
+        required: true
+        schema:
+          title: Related series ID
+          type: integer
+    patch:
+      summary: Link both series.
+      description: |
+        Link two series makes so that they bidirectionaly relate to each other.
+
+        Series must belong to the same project to be able to be linked
+      operationId: series_link
+      responses:
+        '200':
+          description: 'Liked series'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: 'Not found'
           content:
@@ -2603,6 +2653,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatchEmbedded'
+          readOnly: true
+          uniqueItems: true
+        related_series:
+          title: Related series
+          type: array
+          items:
+            type: string
           readOnly: true
           uniqueItems: true
     User:
