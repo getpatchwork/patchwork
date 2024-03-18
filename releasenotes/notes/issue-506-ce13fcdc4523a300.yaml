@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Enhanced Series functionality by enabling one Series to link to another. This feature facilitates the automation of two Series based on their dependency or sequential relationship.
+api:
+  - |
+    The application version has been updated to v3.2.
+  - |
+    The API version has been updated to v1.4.
+  - |
+    The REST API endpoint ``/api/series/<series_id>`` now allows PATCH requests for the specific fields:
+    - previous_series;
+    - subsequent_series;
+    - required_series;
+    - required_by_series.
