@@ -98,7 +98,11 @@ class SeriesMixin(object):
     def get_queryset(self):
         return (
             Series.objects.all()
-            .prefetch_related('patches__project', 'cover_letter__project')
+            .prefetch_related(
+                'patches__project',
+                'cover_letter__project',
+                'related_series__project',
+            )
             .select_related('submitter', 'project')
         )
 
