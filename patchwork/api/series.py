@@ -5,8 +5,10 @@
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -45,7 +47,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
 
     def validate_related_series(self, related_series):
         for series in related_series:
-            if self.instance.id != series.id:
+            if self.instance.id == series.id:
                 raise ValidationError('A series cannot be linked to itself.')
             if self.instance.project.id != series.project.id:
                 raise ValidationError(
@@ -119,3 +121,23 @@ class SeriesDetail(SeriesMixin, RetrieveAPIView):
     """Show a series."""
 
     pass
+
+
+class SeriesLink(SeriesMixin, GenericAPIView):
+    """Link two series by their related."""
+
+    def patch(self, request, *args, **kwargs):
+        series = Series.objects.get(id=kwargs['pk'])
+        related_series = Series.objects.get(id=kwargs['related_series_id'])
+
+        related_ids = list(
+            series.related_series.all().values_list('id', flat=True)
+        ) + [related_series.id]
+
+        serializer = self.get_serializer(
+            series, data={'related_series': related_ids}, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
