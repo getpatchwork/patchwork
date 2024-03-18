@@ -24,6 +24,14 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     cover_letter = CoverSerializer(read_only=True)
     patches = PatchSerializer(read_only=True, many=True)
+    related_series = SerializerMethodField()
+
+    def get_related_series(self, obj):
+        urls = []
+        for related_series in obj.related_series.all():
+            url = self.get_web_url(related_series)
+            urls.append(url)
+        return urls
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -44,6 +52,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'date',
             'submitter',
             'version',
+            'related_series',
             'total',
             'received_total',
             'received_all',
@@ -54,6 +63,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
         read_only_fields = (
             'date',
             'submitter',
+            'related_series',
             'total',
             'received_total',
             'received_all',
