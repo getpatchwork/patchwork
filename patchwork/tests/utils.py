@@ -15,6 +15,7 @@ from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import Cover
 from patchwork.models import CoverComment
+from patchwork.models import Note
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
@@ -268,6 +269,17 @@ def create_patch_comment(**kwargs):
     values.update(kwargs)
 
     return PatchComment.objects.create(**values)
+
+
+def create_note(**kwargs):
+    """Create 'Note' object."""
+    values = {
+        'submitter': create_person() if 'submitter' not in kwargs else None,
+        'content': 'Note content',
+    }
+    values.update(kwargs)
+
+    return Note.objects.create(**values)
 
 
 def create_check(**kwargs):
