@@ -5,7 +5,10 @@
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -14,6 +17,7 @@ from patchwork.api.embedded import CoverSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
+from patchwork.api.embedded import SeriesSerializer as RelatedSeriesSerializer
 from patchwork.models import Series
 
 
@@ -24,6 +28,14 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     cover_letter = CoverSerializer(read_only=True)
     patches = PatchSerializer(read_only=True, many=True)
+    related_series = RelatedSeriesSerializer(many=True)
+
+    def get_related_series(self, obj):
+        urls = []
+        for related_series in obj.related_series.all():
+            url = self.get_web_url(related_series)
+            urls.append(url)
+        return urls
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -32,6 +44,16 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     def get_mbox(self, instance):
         request = self.context.get('request')
         return request.build_absolute_uri(instance.get_mbox_url())
+
+    def validate_related_series(self, related_series):
+        for series in related_series:
+            if self.instance.id == series.id:
+                raise ValidationError('A series cannot be linked to itself.')
+            if self.instance.project.id != series.project.id:
+                raise ValidationError(
+                    'Series must belong to the same project.'
+                )
+        return related_series
 
     class Meta:
         model = Series
@@ -44,6 +66,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'date',
             'submitter',
             'version',
+            'related_series',
             'total',
             'received_total',
             'received_all',
@@ -76,7 +99,11 @@ class SeriesMixin(object):
     def get_queryset(self):
         return (
             Series.objects.all()
-            .prefetch_related('patches__project', 'cover_letter__project')
+            .prefetch_related(
+                'patches__project',
+                'cover_letter__project',
+                'related_series__project',
+            )
             .select_related('submitter', 'project')
         )
 
@@ -94,3 +121,23 @@ class SeriesDetail(SeriesMixin, RetrieveAPIView):
     """Show a series."""
 
     pass
+
+
+class SeriesLink(SeriesMixin, GenericAPIView):
+    """Link two series by their related."""
+
+    def patch(self, request, *args, **kwargs):
+        series = Series.objects.get(id=kwargs['pk'])
+        related_series = Series.objects.get(id=kwargs['related_series_id'])
+
+        related_ids = list(
+            series.related_series.all().values_list('id', flat=True)
+        ) + [related_series.id]
+
+        serializer = self.get_serializer(
+            series, data={'related_series': related_ids}, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)

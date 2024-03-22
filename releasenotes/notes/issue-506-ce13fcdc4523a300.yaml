@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Added support for Series to link to another Series, allowing for automation to link an older version of a series to a newer one.
+api:
+  - |
+    The API version has been updated to v1.4.
+  - |
+    A new REST API endpoint is available at ``/api/series/<series_id>/link/<related_series_id>``.
+    This can be used to link a series to another one

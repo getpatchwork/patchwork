@@ -2,6 +2,7 @@
 # Copyright (C) 2018 Stephen Finucane <stephen@that.guru>
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
+import json
 
 from django.test import override_settings
 from django.urls import NoReverseMatch
@@ -152,7 +153,7 @@ class TestSeriesAPI(utils.APITestCase):
             create_cover(series=series_obj)
             create_patch(series=series_obj)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
@@ -203,3 +204,47 @@ class TestSeriesAPI(utils.APITestCase):
 
         resp = self.client.delete(self.api_url(series.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+    def test_series_linking(self):
+        series_a = self._create_series()
+        series_b = create_series(
+            project=series_a.project, submitter=series_a.submitter
+        )
+        series_c = create_series(
+            project=series_a.project, submitter=series_a.submitter
+        )
+        series_d = create_series(submitter=series_a.submitter)
+
+        self.client.authenticate(user=series_a.submitter.user)
+
+        url = reverse(
+            'api-series-link',
+            kwargs={'pk': series_a.id, 'related_series_id': series_b.id},
+        )
+        resp = self.client.patch(url)
+        related_series = json.loads(resp.content).get('related_series')
+        self.assertEqual(len(related_series), 1)
+        self.assertEqual(
+            related_series[0]['web_url'],
+            f'http://example.com/project/myproject/list/?series={series_b.id}',
+        )
+
+        url = reverse(
+            'api-series-link',
+            kwargs={'pk': series_a.id, 'related_series_id': series_c.id},
+        )
+        resp = self.client.patch(url)
+        related_series = json.loads(resp.content).get('related_series')
+        self.assertEqual(len(related_series), 2)
+        self.assertEqual(
+            related_series[1]['web_url'],
+            f'http://example.com/project/myproject/list/?series={series_c.id}',
+        )
+
+        url = reverse(
+            'api-series-link',
+            kwargs={'pk': series_a.id, 'related_series_id': series_d.id},
+        )
+        resp = self.client.patch(url)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(related_series), 2)

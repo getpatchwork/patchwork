@@ -848,6 +848,7 @@ class Series(FilenameMixin, models.Model):
         help_text='An optional name to associate with '
         'the series, e.g. "John\'s PCI series".',
     )
+    related_series = models.ManyToManyField('self')
     date = models.DateTimeField()
     submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     version = models.IntegerField(
