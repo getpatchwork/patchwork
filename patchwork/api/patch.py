@@ -7,6 +7,7 @@
 
 import email.parser
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +16,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
+from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
 from rest_framework import status
@@ -28,6 +30,7 @@ from patchwork.api.embedded import SeriesSerializer
 from patchwork.api.embedded import UserSerializer
 from patchwork.api.filters import PatchFilterSet
 from patchwork.models import Patch
+from patchwork.models import PatchAttentionSet
 from patchwork.models import PatchRelation
 from patchwork.models import State
 from patchwork.parser import clean_subject
@@ -76,12 +79,27 @@ class PatchConflict(APIException):
     )
 
 
+class PatchAttentionSetSerializer(BaseHyperlinkedModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = PatchAttentionSet
+        fields = [
+            'user',
+            'last_updated',
+        ]
+
+
 class PatchListSerializer(BaseHyperlinkedModelSerializer):
     web_url = SerializerMethodField()
     project = ProjectSerializer(read_only=True)
     state = StateField()
     submitter = PersonSerializer(read_only=True)
     delegate = UserSerializer(allow_null=True)
+    attention_set = PatchAttentionSetSerializer(
+        source='patchattentionset_set',
+        many=True,
+    )
     mbox = SerializerMethodField()
     series = SeriesSerializer(read_only=True)
     comments = SerializerMethodField()
@@ -170,6 +188,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'hash',
             'submitter',
             'delegate',
+            'attention_set',
             'mbox',
             'series',
             'comments',
@@ -201,6 +220,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
                 'list_archive_url',
                 'related',
             ),
+            '1.4': ('attention_set',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
@@ -228,16 +248,7 @@ class PatchDetailSerializer(PatchListSerializer):
     def get_prefixes(self, instance):
         return clean_subject(instance.name)[1]
 
-    def update(self, instance, validated_data):
-        # d-r-f cannot handle writable nested models, so we handle that
-        # specifically ourselves and let d-r-f handle the rest
-        if 'related' not in validated_data:
-            return super(PatchDetailSerializer, self).update(
-                instance, validated_data
-            )
-
-        related = validated_data.pop('related')
-
+    def update_related(self, instance, related):
         # Validation rules
         # ----------------
         #
@@ -278,9 +289,7 @@ class PatchDetailSerializer(PatchListSerializer):
             if instance.related and instance.related.patches.count() == 2:
                 instance.related.delete()
             instance.related = None
-            return super(PatchDetailSerializer, self).update(
-                instance, validated_data
-            )
+            return
 
         # break before make
         relations = {patch.related for patch in patches if patch.related}
@@ -303,6 +312,14 @@ class PatchDetailSerializer(PatchListSerializer):
             patch.save()
         instance.related = relation
         instance.save()
+
+    def update(self, instance, validated_data):
+        # d-r-f cannot handle writable nested models, so we handle that
+        # specifically ourselves and let d-r-f handle the rest
+
+        if 'related' in validated_data:
+            related = validated_data.pop('related')
+            self.update_related(instance, related)
 
         return super(PatchDetailSerializer, self).update(
             instance, validated_data
@@ -367,6 +384,7 @@ class PatchList(ListAPIView):
                 'project',
                 'series__project',
                 'related__patches__project',
+                'patchattentionset_set',
             )
             .select_related('state', 'submitter', 'series')
             .defer('content', 'diff', 'headers')
@@ -381,11 +399,16 @@ class PatchDetail(RetrieveUpdateAPIView):
     patch:
     Update a patch.
 
+    Users can set their intention to review or comment about a patch using the
+    `attention_set` property. Users can set their intentions by adding their
+    IDs or its negative value to the list. Maintainers can remove people from
+    the list but only a user can add itself.
+
+
     put:
     Update a patch.
     """
 
-    permission_classes = (PatchworkPermission,)
     serializer_class = PatchDetailSerializer
 
     def get_queryset(self):
@@ -395,4 +418,63 @@ class PatchDetail(RetrieveUpdateAPIView):
             .select_related(
                 'project', 'state', 'submitter', 'delegate', 'series'
             )
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        obj = self.get_object()
+        req_user_id = request.user.id
+        is_maintainer = request.user.is_authenticated and (
+            obj.project in request.user.profile.maintainer_projects.all()
+        )
+
+        if 'attention_set' in request.data and request.method in ('PATCH',):
+            attention_set = request.data.get('attention_set', None)
+            del request.data['attention_set']
+            removal_list = [
+                -user_id for user_id in set(attention_set) if user_id < 0
+            ]
+            addition_list = [
+                user_id for user_id in set(attention_set) if user_id > 0
+            ]
+
+            if not addition_list and not removal_list:
+                removal_list = [req_user_id]
+
+            if len(addition_list) > 1 or (
+                addition_list and req_user_id not in addition_list
+            ):
+                raise PermissionDenied(
+                    detail="Only the user can declare it's own intention of "
+                    'reviewing a patch'
+                )
+
+            if not is_maintainer:
+                if removal_list and req_user_id not in removal_list:
+                    raise PermissionDenied(
+                        detail="Only the user can remove it's own "
+                        'intention of reviewing a patch'
+                    )
+
+            try:
+                if addition_list:
+                    PatchAttentionSet.objects.upsert(obj, addition_list)
+                if removal_list:
+                    PatchAttentionSet.objects.soft_delete(
+                        obj, removal_list, reason=f'removed by {request.user}'
+                    )
+            except User.DoesNotExist:
+                return Response(
+                    {'message': 'Unable to find referenced user'},
+                    status=404,
+                )
+
+            if not is_maintainer:
+                serializer = self.get_serializer(obj)
+                return Response(
+                    serializer.data,
+                    status=200,
+                )
+
+        return super(PatchDetail, self).partial_update(
+            request, *args, **kwargs
         )
