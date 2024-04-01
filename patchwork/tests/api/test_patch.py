@@ -12,6 +12,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from patchwork.models import Patch
+from patchwork.models import PatchReviewIntention
 from patchwork.tests.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
@@ -456,3 +457,37 @@ class TestPatchAPI(utils.APITestCase):
         self.client.authenticate(user=user)
         resp = self.client.delete(self.api_url(patch.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+    def test_declare_review_intention(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'planning_to_review': [{'user': user.id, 'patch': patch.id}]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(PatchReviewIntention.objects.all()), 1)
+        self.assertEqual(
+            len(PatchReviewIntention.objects.filter(user=user, patch=patch)), 1
+        )
+
+    def test_declare_review_intention_for_different_user(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user_a = create_user()
+        user_b = create_user()
+
+        self.client.authenticate(user=user_a)
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'planning_to_review': [{'user': user_b.id, 'patch': patch.id}]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(len(PatchReviewIntention.objects.all()), 0)
