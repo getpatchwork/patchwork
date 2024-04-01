@@ -17,6 +17,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.relations import RelatedField
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
+from rest_framework import permissions
 from rest_framework import status
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
@@ -30,6 +31,7 @@ from patchwork.api.filters import PatchFilterSet
 from patchwork.models import Patch
 from patchwork.models import PatchRelation
 from patchwork.models import State
+from patchwork.models import User
 from patchwork.parser import clean_subject
 
 
@@ -373,6 +375,26 @@ class PatchList(ListAPIView):
         )
 
 
+class PatchDetailPermission(PatchworkPermission):
+    non_delegate_editable_fields = set(['planning_to_review'])
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        data = request.data
+
+        if 'planning_to_review' in data:
+            for review_data in data:
+                user_id = review_data['user']
+                if request.user.id == reviewing_user:
+                    return True
+            detail = "Only the user can declare it's own intention to reviewing a patch"
+            raise PermissionDenied(detail=detail)
+        else:
+            return super().has_object_permission(request, view, obj)
+
+
 class PatchDetail(RetrieveUpdateAPIView):
     """
     get:
@@ -385,7 +407,7 @@ class PatchDetail(RetrieveUpdateAPIView):
     Update a patch.
     """
 
-    permission_classes = (PatchworkPermission,)
+    permission_classes = (PatchDetailPermission,)
     serializer_class = PatchDetailSerializer
 
     def get_queryset(self):
