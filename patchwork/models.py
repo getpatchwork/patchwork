@@ -822,6 +822,12 @@ class PatchComment(EmailMixin, models.Model):
         super(PatchComment, self).save(*args, **kwargs)
         self.patch.refresh_tag_counts()
 
+    def create(self, *args, **kwargs):
+        submitter = kwargs.get('submitter')
+        patch = kwargs.get('patch')
+        PatchReviewIntention.objects.delete(user=submitter.user, patch=patch)
+        super(PatchComment, self).create(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
         super(PatchComment, self).delete(*args, **kwargs)
         self.patch.refresh_tag_counts()
