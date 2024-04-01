@@ -245,6 +245,9 @@ class State(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
     ordering = models.IntegerField(unique=True)
     action_required = models.BooleanField(default=True)
+    review_intention_expiration_time = models.DurationField(
+        default=datetime.timedelta(days=30)
+    )
 
     def __str__(self):
         return self.name
@@ -499,6 +502,10 @@ class Patch(SubmissionMixin):
         null=True,
         on_delete=models.CASCADE,
     )
+    planning_to_review = models.ManyToManyField(
+        User, through='PatchReviewIntention', related_name='planning_to_review'
+    )
+    has_planned_review = models.BooleanField(default=False)
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True)
@@ -727,6 +734,15 @@ class Patch(SubmissionMixin):
                 name='patch_covering_idx',
             ),
         ]
+
+
+class PatchReviewIntention(models.Model):
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_time_marked_for_review = models.DateTimeField(default=tz_utils.now)
+
+    class Meta:
+        unique_together = [('patch', 'user')]
 
 
 class CoverComment(EmailMixin, models.Model):
