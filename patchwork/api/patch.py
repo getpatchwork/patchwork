@@ -410,6 +410,7 @@ class PatchList(ListAPIView):
                 'project',
                 'series__project',
                 'related__patches__project',
+                'patchreviewintention_set__user',
             )
             .select_related('state', 'submitter', 'series')
             .defer('content', 'diff', 'headers')
