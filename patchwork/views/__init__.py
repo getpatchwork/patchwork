@@ -12,6 +12,7 @@ from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
 from patchwork.models import Patch
+from patchwork.models import Series
 from patchwork.models import Project
 from patchwork.models import Check
 from patchwork.paginator import Paginator
@@ -179,6 +180,7 @@ def generic_list(
     filter_settings=None,
     patches=None,
     editable_order=False,
+    series_view=False
 ):
     if not filter_settings:
         filter_settings = []
@@ -273,48 +275,65 @@ def generic_list(
         else:
             context['filters'].set_status(filterclass, setting)
 
-    if patches is None:
-        patches = Patch.objects.filter(project=project)
-
-    # annotate with tag counts
-    patches = patches.with_tag_counts(project)
-
-    patches = context['filters'].apply(patches)
-    if not editable_order:
-        patches = order.apply(patches)
-
-    # we don't need the content, diff or headers for a list; they're text
-    # fields that can potentially contain a lot of data
-    patches = patches.defer('content', 'diff', 'headers')
-
-    # but we will need to follow the state and submitter relations for
-    # rendering the list template
-    patches = patches.select_related(
-        'state', 'submitter', 'delegate', 'series'
-    )
-
-    patches = patches.only(
-        'state',
-        'submitter',
-        'delegate',
-        'project',
-        'series__name',
-        'name',
-        'date',
-        'msgid',
-    )
-
-    # we also need checks and series
-    patches = patches.prefetch_related(
-        Prefetch(
-            'check_set',
-            queryset=Check.objects.only(
-                'context', 'user_id', 'patch_id', 'state', 'date'
-            ),
+    if series_view:
+        series_list = Series.objects.filter(project=project)
+        series_list = series_list.only(
+            'submitter',
+            'project',
+            'version',
+            'name',
+            'date',
+            'id',
         )
-    )
+        series_list = series_list.select_related('project')
 
-    paginator = Paginator(request, patches)
+        if not editable_order:
+            series_list = order.apply(series_list)
+
+        paginator = Paginator(request, series_list)
+    else:
+        if patches is None:
+            patches = Patch.objects.filter(project=project)
+
+        # annotate with tag counts
+        patches = patches.with_tag_counts(project)
+
+        patches = context['filters'].apply(patches)
+        if not editable_order:
+            patches = order.apply(patches)
+
+        # we don't need the content, diff or headers for a list; they're text
+        # fields that can potentially contain a lot of data
+        patches = patches.defer('content', 'diff', 'headers')
+
+        # but we will need to follow the state and submitter relations for
+        # rendering the list template
+        patches = patches.select_related(
+            'state', 'submitter', 'delegate', 'series'
+        )
+
+        patches = patches.only(
+            'state',
+            'submitter',
+            'delegate',
+            'project',
+            'series__name',
+            'name',
+            'date',
+            'msgid',
+        )
+
+        # we also need checks and series
+        patches = patches.prefetch_related(
+            Prefetch(
+                'check_set',
+                queryset=Check.objects.only(
+                    'context', 'user_id', 'patch_id', 'state', 'date'
+                ),
+            )
+        )
+
+        paginator = Paginator(request, patches)
 
     context.update(
         {
