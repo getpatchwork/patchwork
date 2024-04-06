@@ -192,6 +192,11 @@ $(document).ready(function() {
         </td>
         <td>
 {% if patch.series %}
+{% if user.is_authenticated and user.profile.show_ids %}
+          <button type="button" class="btn btn-xs btn-copy" data-clipboard-text="{{ patch.series.id }}" title="Copy to Clipboard">
+            {{ patch.series.id }}
+          </button>
+{% endif %}
           <a href="?series={{patch.series.id}}">
             {{ patch.series|truncatechars:100 }}
           </a>
