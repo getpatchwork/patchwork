@@ -20,7 +20,6 @@ from patchwork.tests.utils import create_state
 
 
 class PatchNotificationModelTest(TestCase):
-
     """Tests for the creation and update of the PatchChangeNotifications."""
 
     def setUp(self):

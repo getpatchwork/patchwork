@@ -12,7 +12,6 @@ from patchwork.tests.utils import create_person
 
 
 class SubmitterCompletionTest(TestCase):
-
     """Validate the 'submitter' autocomplete endpoint."""
 
     def test_name_complete(self):

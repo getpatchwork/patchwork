@@ -78,9 +78,9 @@ def _optinout(request, action):
 
     form = EmailForm(data=request.POST)
     if not form.is_valid():
-        context[
-            'error'
-        ] = 'There was an error in the form. Please review and re-submit.'
+        context['error'] = (
+            'There was an error in the form. Please review and re-submit.'
+        )
         context['form'] = form
         return render(request, html_template, context)
 

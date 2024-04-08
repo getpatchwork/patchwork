@@ -38,11 +38,11 @@ class MboxPatchResponseTest(TestCase):
         """Test that UTF-8 NBSP characters are correctly handled."""
         patch = create_patch(content='patch text\n')
         create_patch_comment(
-            patch=patch, content='comment\nAcked-by:\u00A0 foo'
+            patch=patch, content='comment\nAcked-by:\u00a0 foo'
         )
 
         mbox = utils.patch_to_mbox(patch)
-        self.assertIn('\u00A0 foo\n', mbox)
+        self.assertIn('\u00a0 foo\n', mbox)
 
     def test_multiple_tags(self):
         """Test that the mbox view appends tags correct.

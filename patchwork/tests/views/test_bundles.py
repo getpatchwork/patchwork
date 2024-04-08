@@ -222,7 +222,6 @@ class BundlePublicViewMboxTest(BundlePublicViewTest):
 
 
 class BundlePublicModifyTest(BundleTestBase):
-
     """Ensure that non-owners can't modify bundles"""
 
     def setUp(self):
@@ -275,7 +274,6 @@ class BundlePublicModifyTest(BundleTestBase):
 
 
 class BundlePrivateViewTest(BundleTestBase):
-
     """Ensure that non-owners can't view private bundles"""
 
     def setUp(self):
@@ -306,7 +304,6 @@ class BundlePrivateViewTest(BundleTestBase):
 
 @override_settings(ENABLE_REST_API=True)
 class BundlePrivateViewMboxTest(BundlePrivateViewTest):
-
     """Ensure that non-owners can't view private bundle mboxes"""
 
     def setUp(self):
@@ -704,7 +701,6 @@ class BundleAddFromPatchTest(BundleTestBase):
 
 
 class BundleInitialOrderTest(BundleTestBase):
-
     """When creating bundles from a patch list, ensure that the patches in the
     bundle are ordered by date"""
 

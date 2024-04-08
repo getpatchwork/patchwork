@@ -175,7 +175,6 @@ class OptoutTest(TestCase):
 
 
 class OptoutPreexistingTest(OptoutTest):
-
     """Test that a duplicated opt-out behaves the same as the initial one"""
 
     def setUp(self):
@@ -280,7 +279,6 @@ class OptinTest(TestCase):
 
 
 class OptinWithoutOptoutTest(TestCase):
-
     """Test an opt-in with no existing opt-out."""
 
     def test_opt_in_without_optout(self):
@@ -294,7 +292,6 @@ class OptinWithoutOptoutTest(TestCase):
 
 
 class UserProfileOptoutFormTest(TestCase):
-
     """Validate presence of correct optin/optout forms."""
 
     form_re_template = (
