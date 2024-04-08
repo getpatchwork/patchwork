@@ -8,7 +8,7 @@ This guide provides an overview of how one can interact with the REST API. For
 detailed information on type and response format of the various resources
 exposed by the API, refer to the web browsable API. This can be found at:
 
-    https://patchwork.example.com/api/1.3/
+    https://patchwork.example.com/api/1.4/
 
 where `patchwork.example.com` refers to the URL of your Patchwork instance.
 
@@ -43,6 +43,11 @@ If all you want is reference guides, skip straight to :ref:`rest-api-schemas`.
    The API version was bumped to v1.3 in Patchwork v3.1. The older APIs are
    still supported. For more information, refer to :ref:`rest-api-versions`.
 
+.. versionchanged:: 3.2
+
+   The API version was bumped to v1.4 in Patchwork v3.2. The older APIs are
+   still supported. For more information, refer to :ref:`rest-api-versions`.
+
 Getting Started
 ---------------
 
@@ -57,16 +62,16 @@ Patchwork instance hosted at `patchwork.example.com`, run:
 
 .. code-block:: shell
 
-    $ curl -s 'https://patchwork.example.com/api/1.3/' | python -m json.tool
+    $ curl -s 'https://patchwork.example.com/api/1.4/' | python -m json.tool
     {
-        "bundles": "https://patchwork.example.com/api/1.3/bundles/",
-        "covers": "https://patchwork.example.com/api/1.3/covers/",
-        "events": "https://patchwork.example.com/api/1.3/events/",
-        "patches": "https://patchwork.example.com/api/1.3/patches/",
-        "people": "https://patchwork.example.com/api/1.3/people/",
-        "projects": "https://patchwork.example.com/api/1.3/projects/",
-        "series": "https://patchwork.example.com/api/1.3/series/",
-        "users": "https://patchwork.example.com/api/1.3/users/"
+        "bundles": "https://patchwork.example.com/api/1.4/bundles/",
+        "covers": "https://patchwork.example.com/api/1.4/covers/",
+        "events": "https://patchwork.example.com/api/1.4/events/",
+        "patches": "https://patchwork.example.com/api/1.4/patches/",
+        "people": "https://patchwork.example.com/api/1.4/people/",
+        "projects": "https://patchwork.example.com/api/1.4/projects/",
+        "series": "https://patchwork.example.com/api/1.4/series/",
+        "users": "https://patchwork.example.com/api/1.4/users/"
     }
 
 
@@ -79,17 +84,17 @@ well-supported. To repeat the above example using `requests`:, run
     $ python
     >>> import json
     >>> import requests
-    >>> r = requests.get('https://patchwork.example.com/api/1.3/')
+    >>> r = requests.get('https://patchwork.example.com/api/1.4/')
     >>> print(json.dumps(r.json(), indent=2))
     {
-        "bundles": "https://patchwork.example.com/api/1.3/bundles/",
-        "covers": "https://patchwork.example.com/api/1.3/covers/",
-        "events": "https://patchwork.example.com/api/1.3/events/",
-        "patches": "https://patchwork.example.com/api/1.3/patches/",
-        "people": "https://patchwork.example.com/api/1.3/people/",
-        "projects": "https://patchwork.example.com/api/1.3/projects/",
-        "series": "https://patchwork.example.com/api/1.3/series/",
-        "users": "https://patchwork.example.com/api/1.3/users/"
+        "bundles": "https://patchwork.example.com/api/1.4/bundles/",
+        "covers": "https://patchwork.example.com/api/1.4/covers/",
+        "events": "https://patchwork.example.com/api/1.4/events/",
+        "patches": "https://patchwork.example.com/api/1.4/patches/",
+        "people": "https://patchwork.example.com/api/1.4/people/",
+        "projects": "https://patchwork.example.com/api/1.4/projects/",
+        "series": "https://patchwork.example.com/api/1.4/series/",
+        "users": "https://patchwork.example.com/api/1.4/users/"
     }
 
 Tools like `curl` and libraries like `requests` can be used to build anything
@@ -108,7 +113,7 @@ Versioning
 ----------
 
 By default, all requests will receive the latest version of the API: currently
-``1.3``:
+``1.4``:
 
 .. code-block:: http
 
@@ -119,7 +124,7 @@ changes breaking your application:
 
 .. code-block:: http
 
-    GET /api/1.3 HTTP/1.1
+    GET /api/1.4 HTTP/1.1
 
 Older API versions will be deprecated and removed over time. For more
 information, refer to :ref:`rest-api-versions`.
@@ -275,6 +280,7 @@ Supported Versions
    1.1, 2.1, ✓
    1.2, 2.2, ✓
    1.3, 3.1, ✓
+   1.4, 3.2, ✓
 
 Further information about this and more can typically be found in
 :doc:`the release notes </releases/index>`.
@@ -292,6 +298,7 @@ Auto-generated schema documentation is provided below.
    /api/rest/schemas/v1.1
    /api/rest/schemas/v1.2
    /api/rest/schemas/v1.3
+   /api/rest/schemas/v1.4
 
 .. Links
 
