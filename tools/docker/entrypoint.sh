@@ -102,4 +102,5 @@ if ! python manage.py migrate sessions --check -v0; then
     python manage.py loaddata default_projects #> /dev/null
 fi
 
+cron
 exec "$@"
