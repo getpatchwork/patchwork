@@ -32,9 +32,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', project_views.project_list, name='project-list'),
     path(
-        'project/<project_id>/list/',
+        'project/<project_id>/patches/',
         patch_views.patch_list,
         name='patch-list',
+    ),
+    path(
+        'project/<project_id>/series/',
+        series_views.series_list,
+        name='series-list',
     ),
     path(
         'project/<project_id>/bundles/',
