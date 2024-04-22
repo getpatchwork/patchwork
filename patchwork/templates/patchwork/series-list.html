@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% load person %}
+{% load static %}
+
+{% block title %}{{project.name}}{% endblock %}
+{% block series_active %}active{% endblock %}
+
+{% block body %}
+
+{% load person %}
+{% load listurl %}
+{% load patch %}
+{% load project %}
+{% load static %}
+
+{% include "patchwork/partials/pagination.html" %}
+
+<input type="hidden" name="form" value="serieslistform"/>
+<input type="hidden" name="project" value="{{project.id}}"/>
+
+<table id="serieslist" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
+  <thead>
+    <tr>
+{% if user.is_authenticated and user.profile.show_ids %}
+      <th>
+        ID
+      </th>
+{% endif %}
+
+      <th>
+        <span class="series-list-header">Series</span>
+      </th>
+
+      <th>
+        Version
+      </th>
+
+      <th>
+        <span class="series-list-header">Cover Letter</span>
+      </th>
+
+      <th>
+        <span class="series-list-header">Patches</span>
+      </th>
+
+      <th>
+        {% if 'date.asc' == order %}
+        <a href="{% listurl order='date.desc' %}" class="colactive">
+          <span class="glyphicon glyphicon-chevron-up"></span>
+        {% elif 'date.desc' == order %}
+        <a href="{% listurl order='date.asc' %}" class="colactive">
+          <span class="glyphicon glyphicon-chevron-down"></span>
+        {% endif %}
+          <span class="series-list-header">Date</span>
+        {% if 'date.asc' == order or 'date.desc' == order%}
+        </a>
+        {% endif %}
+      </th>
+
+      <th>
+        <span class="series-list-header">Submitter</span>
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+{% for series in page %}
+    <tr id="series_row:{{series.id}}">
+{% if user.is_authenticated and user.profile.show_ids %}
+      <td>
+        <button type="button" class="btn btn-xs btn-copy" data-clipboard-text="{{ series.id }}" title="Copy to Clipboard">
+          {{ series.id }}
+        </button>
+      </td>
+{% endif %}
+      <td>
+          {{ series.name|default:"[no subject]"|truncatechars:100 }}
+      </td>
+      <td>
+        {{ series.version|default:"-"}}
+      </td>
+
+      <td>
+        {% if series.cover_letter.content %}
+          <b>&check;</b>
+        {% else %}
+          -
+        {% endif %}
+      </td>
+      <td>{{ series.received_total}}</td>
+      <td class="text-nowrap">{{ series.date|date:"Y-m-d" }}</td>
+      <td>{{ series.submitter|personify:project }}</td>
+    </tr>
+{% empty %}
+    <tr>
+      <td colspan="8">No series to display</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+{% if page.paginator.count %}
+{% include "patchwork/partials/pagination.html" %}
+{% endif %}
+{% endblock %}
