@@ -148,6 +148,20 @@ def patch_detail(request, project_id, msgid):
     context['related_same_project'] = related_same_project
     context['related_different_project'] = related_different_project
 
+    try:
+        context['previous_submission'] = Patch.objects.get(
+            series=patch.series, number=patch.number - 1
+        )
+    except Patch.DoesNotExist:
+        context['previous_submission'] = None
+
+    try:
+        context['next_submission'] = Patch.objects.get(
+            series=patch.series, number=patch.number + 1
+        )
+    except Patch.DoesNotExist:
+        context['next_submission'] = None
+
     return render(request, 'patchwork/submission.html', context)
 
 

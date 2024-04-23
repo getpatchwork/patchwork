@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% load person %}
+{% load static %}
+
+{% block title %}{{project.name}}{% endblock %}
+{% block series_active %}active{% endblock %}
+
+{% block body %}
+
+{% load person %}
+{% load listurl %}
+{% load patch %}
+{% load project %}
+{% load static %}
+
+{% include "patchwork/partials/pagination.html" %}
+
+<input type="hidden" name="form" value="serieslistform"/>
+<input type="hidden" name="project" value="{{project.id}}"/>
+
+<table id="serieslist" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
+  <thead>
+    <tr>
+{% if user.is_authenticated and user.profile.show_ids %}
+      <th>
+        ID
+      </th>
+{% endif %}
+
+      <th>
+        Version
+      </th>
+
+      <th>
+        <span class="colinactive">Series</span>
+      </th>
+
+      <th>
+        <span class="colinactive">Cover Letter</span>
+      </th>
+
+      <th>
+        <span class="colinactive">Number of Patches</span>
+      </th>
+
+      <th>
+        <span class="colinactive">Date</span>
+      </th>
+
+      <th>
+        <span class="colinactive">Submitter</span>
+      </th>
+
+      <th>
+        <span class="colinactive"> Edit patches </span>
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+{% for series in series_list %}
+    <tr id="series_row:{{series.id}}">
+{% if user.is_authenticated and user.profile.show_ids %}
+      <td>
+        <button type="button" class="btn btn-xs btn-copy" data-clipboard-text="{{ series.id }}" title="Copy to Clipboard">
+          {{ series.id }}
+        </button>
+      </td>
+{% endif %}
+      <td>
+        {{ series.version|default:"-"}}
+      </td>
+      <td>
+        <a href="{% url 'series-detail' series_id=series.id %}">
+          {{ series.name|default:"[no subject]"|truncatechars:100 }}
+        </a>
+      </td>
+      <td>{{ series.cover_letter.content|default:"No cover letter available" }}</td>
+      <td>{{ series.received_total}}</td>
+      <td class="text-nowrap">{{ series.date|date:"Y-m-d" }}</td>
+      <td>{{ series.submitter|personify:project }}</td>
+      <td>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type='submit' name="save" value="{{ series.id }}">Save</button>
+        </form>
+      </td>
+    </tr>
+{% empty %}
+    <tr>
+      <td colspan="8">No series to display</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

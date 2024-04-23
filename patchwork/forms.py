@@ -224,3 +224,55 @@ class MultiplePatchForm(forms.Form):
         if commit:
             instance.save()
         return instance
+
+
+class SeriesBulkUpdatePatchesForm(forms.Form):
+    action = 'update'
+    archived = OptionalBooleanField(
+        choices=[
+            ('*', 'no change'),
+            ('True', 'Archived'),
+            ('False', 'Unarchived'),
+        ],
+        coerce=lambda x: x == 'True',
+        empty_value='*',
+    )
+
+    def __init__(self, project, *args, **kwargs):
+        super(SeriesBulkUpdatePatchesForm, self).__init__(*args, **kwargs)
+        self.fields['delegate'] = OptionalModelChoiceField(
+            queryset=_get_delegate_qs(project=project), required=False
+        )
+        self.fields['state'] = OptionalModelChoiceField(
+            queryset=State.objects.all()
+        )
+
+    def save(self, series, request):
+        update_values = {}
+        data = self.cleaned_data
+
+        for name, obj in self.fields.items():
+            value = data[name]
+            if not obj.is_no_change(value):
+                update_values[name] = value
+
+        patches = Patch.objects.filter(series=series)
+        err = bulk_update_patches(patches, request, update_values)
+
+        return err
+
+
+def bulk_update_patches(patches, request, values_to_update):
+    errors = []
+    for patch in patches:
+        if not patch.is_editable(request.user):
+            errors.append(
+                "You don't have permissions to edit patch '%s'" % patch.name
+            )
+            continue
+
+    if len(errors) > 0:
+        return errors
+
+    patches.update(**values_to_update)
+    return errors

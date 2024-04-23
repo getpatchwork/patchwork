@@ -1,0 +1,13 @@
+---
+prelude: >
+    Some projects can have hundreds of patches actives at once, by giving the user
+    the ability to have an overview of all of the series makes knowing what's the
+    current state of a project much more simple.
+features:
+  - |
+    Add SeriesBulkUpdatePatchesForm, a form that allows changing the state of all of
+    the patches contained in a series at once.
+    Add series-list view, a view containing all of the series for a project and that also
+    implements the SeriesBulkUpdatePatchesForm, allowing the user to edit all of the patches
+    within a series using the web ui.
+    Add series-detail view, a view containing details about a series and all of it's patches

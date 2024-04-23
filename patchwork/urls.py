@@ -37,6 +37,11 @@ urlpatterns = [
         name='patch-list',
     ),
     path(
+        'project/<project_id>/series-list/',
+        series_views.series_list,
+        name='series-list',
+    ),
+    path(
         'project/<project_id>/bundles/',
         bundle_views.bundle_list,
         name='bundle-list',
@@ -110,6 +115,11 @@ urlpatterns = [
         name='comment-redirect',
     ),
     # series views
+    path(
+        'series/<int:series_id>/',
+        series_views.series_detail,
+        name='series-detail',
+    ),
     path(
         'series/<int:series_id>/mbox/',
         series_views.series_mbox,
