@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load syntax %}
+{% load person %}
+{% load patch %}
+{% load static %}
+{% load utils %}
+
+{% block title %}{{series.name}}{% endblock %}
+
+{% block body %}
+
+<div>
+  <h1>{{ series.name }}</h1>
+</div>
+
+<table class="patch-meta">
+    <tr>
+        <th>Cover Letter</th>
+        <td>{{ series.cover_letter.content|default:"No cover letter available" }}</td>
+    </tr>
+    <tr>
+        <th>Date</th>
+        <td>{{ series.date }}</td>
+    </tr>
+    <tr>
+        <th>Submitter</th>
+        <td>{{ series.submitter }}</td>
+    </tr>
+    <tr>
+        <th>Total</th>
+        <td>{{ series.patches }}</td>
+    </tr>
+</table>
+<br>
+<h2>Patches</h2>
+<br>
+{% include "patchwork/partials/patch-list.html" %}
+
+{% endblock %}

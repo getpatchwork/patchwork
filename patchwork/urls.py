@@ -121,6 +121,11 @@ urlpatterns = [
     ),
     # series views
     path(
+        'project/<project_id>/series/<int:series_id>/',
+        series_views.series_detail,
+        name='series-detail',
+    ),
+    path(
         'series/<int:series_id>/mbox/',
         series_views.series_mbox,
         name='series-mbox',
