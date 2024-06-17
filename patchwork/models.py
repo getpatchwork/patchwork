@@ -840,6 +840,16 @@ class Series(FilenameMixin, models.Model):
         Cover, related_name='series', null=True, on_delete=models.CASCADE
     )
 
+    # dependencies
+    dependencies = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        blank=True,
+        help_text='Optional dependencies on this patch.',
+        related_name='dependents',
+        related_query_name='dependent',
+    )
+
     # metadata
     name = models.CharField(
         max_length=255,
@@ -879,6 +889,13 @@ class Series(FilenameMixin, models.Model):
     @property
     def received_all(self):
         return self.total <= self.received_total
+
+    def add_dependencies(self, dependencies):
+        # for dependency in dependencies:
+        #     dependency.dependents.add(self)
+        #     dependency.save()
+        self.dependencies.add(*dependencies)
+        self.save()
 
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
