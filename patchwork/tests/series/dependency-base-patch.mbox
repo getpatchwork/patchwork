@@ -1,0 +1,102 @@
+From ahassick@iol.unh.edu Mon Jun 10 21:09:07 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Subject: [PATCH v1 0/2] Add test files for testing
+Date: Mon, 10 Jun 2024 17:09:07 -0400
+Message-ID: <20240610210912.161735-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+Add a test program and a makefile.
+Big surprise here, but this is all for testing.
+
+Adam Hassick (2):
+  Add test program
+  Add a Makefile
+
+ Makefile | 9 +++++++++
+ test.c   | 8 ++++++++
+ 2 files changed, 17 insertions(+)
+ create mode 100644 Makefile
+ create mode 100644 test.c
+
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Mon Jun 10 21:09:09 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Subject: [PATCH v1 1/2] Add test program
+Date: Mon, 10 Jun 2024 17:09:09 -0400
+Message-ID: <20240610210912.161735-3-ahassick@iol.unh.edu>
+In-Reply-To: <20240610210912.161735-1-ahassick@iol.unh.edu>
+References: <20240610210912.161735-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+
+
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ test.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 test.c
+
+diff --git a/test.c b/test.c
+new file mode 100644
+index 0000000..5096204
+--- /dev/null
++++ b/test.c
+@@ -0,0 +1,8 @@
++
++#include <stdio.h>
++
++int main() {
++	printf("HELLOOOOO!!!! Hi there!");
++	return 0;
++}
++
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Mon Jun 10 21:09:11 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Subject: [PATCH v1 2/2] Add a Makefile
+Date: Mon, 10 Jun 2024 17:09:11 -0400
+Message-ID: <20240610210912.161735-5-ahassick@iol.unh.edu>
+In-Reply-To: <20240610210912.161735-1-ahassick@iol.unh.edu>
+References: <20240610210912.161735-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+How are people supposed to build this without a Makefile?
+
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ Makefile | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 Makefile
+
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..2126a0e
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,9 @@
++
++CC=gcc
++
++test: test.c
++	$(CC) -O2 -march=native -mtune=native test.c -o test
++
++test-debug: test.c
++	$(CC) -O0 -g test.c -o test
++
+--
+2.45.2

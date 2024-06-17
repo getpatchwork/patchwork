@@ -44,6 +44,20 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
         self.assertIn(series_obj.get_absolute_url(), series_json['web_url'])
 
+        for dep, item in zip(
+            series_obj.dependencies.all(), series_json['dependencies']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': dep.id}), item
+            )
+
+        for dep, item in zip(
+            series_obj.dependents.all(), series_json['dependents']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': dep.id}), item
+            )
+
         # nested fields
 
         self.assertEqual(series_obj.project.id, series_json['project']['id'])
@@ -94,6 +108,21 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         series_rsp = resp.data[0]
         self.assertSerialized(series, series_rsp)
+
+    def test_dependencies(self):
+        project_obj = create_project(linkname='myproject')
+        person_obj = create_person(email='test@example.com')
+        series1 = create_series(project=project_obj, submitter=person_obj)
+        create_cover(series=series1)
+        create_patch(series=series1)
+        series2 = create_series(project=project_obj, submitter=person_obj)
+        create_cover(series=series2)
+        create_patch(series=series2)
+        series1.add_dependencies([series2])
+        resp = self.client.get(self.api_url())
+        self.assertEqual(2, len(resp.data))
+        self.assertSerialized(series2, resp.data[1])
+        self.assertSerialized(series1, resp.data[0])
 
     def test_list_filter_project(self):
         """Filter series by project."""
@@ -152,7 +181,7 @@ class TestSeriesAPI(utils.APITestCase):
             create_cover(series=series_obj)
             create_patch(series=series_obj)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(8):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
@@ -175,6 +204,8 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertNotIn('web_url', resp.data['cover_letter'])
         self.assertNotIn('mbox', resp.data['cover_letter'])
         self.assertNotIn('web_url', resp.data['patches'][0])
+        self.assertNotIn('dependents', resp.data)
+        self.assertNotIn('dependencies', resp.data)
 
     def test_detail_non_existent(self):
         """Ensure we get a 404 for a non-existent series."""
