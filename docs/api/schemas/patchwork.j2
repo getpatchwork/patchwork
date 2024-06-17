@@ -2699,6 +2699,24 @@ components:
             $ref: '#/components/schemas/PatchEmbedded'
           readOnly: true
           uniqueItems: true
+{% if version >= (1, 4) %}
+        dependencies:
+          title: Dependencies
+          type: array
+          items:
+            type: string
+            format: url
+          readOnly: true
+          uniqueItems: true
+        dependents:
+          title: Dependents
+          type: array
+          items:
+            type: string
+            format: url
+          readOnly: true
+          uniqueItems: true
+{% endif %}
     User:
       type: object
       title: User

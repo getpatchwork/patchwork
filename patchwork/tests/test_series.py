@@ -6,6 +6,7 @@
 import mailbox
 import os
 import unittest
+import tempfile
 
 from django.test import TestCase
 
@@ -804,3 +805,262 @@ class SeriesNameTestCase(TestCase):
         self.assertEqual(series.name, series_name)
 
         mbox.close()
+
+
+class SeriesDependencyTestCase(TestCase):
+    def setUp(self):
+        self.project = utils.create_project()
+        utils.create_state()
+
+    # @staticmethod
+    # def api_url(item=None, version=None):
+    #     kwargs = {}
+    #     if version:
+    #         kwargs['version'] = version
+
+    #     if item is None:
+    #         return reverse('api-series-list', kwargs=kwargs)
+    #     kwargs['pk'] = item
+    #     return reverse('api-series-detail', kwargs=kwargs)
+
+    def _load_mbox_template(self, name, **kwargs):
+        """
+        This function is necessary for this test so that we can template in
+        the series or patch ID that we want to depend on.
+        """
+        with open(os.path.join(TEST_SERIES_DIR, name), 'r') as mbox_file:
+            mbox_content = mbox_file.read()
+
+        # Write the templated mbox file to a temp file.
+        tmpfile = tempfile.mktemp()
+
+        with open(tmpfile, 'w') as mbox_opt_file:
+            mbox_opt_file.write(mbox_content.format(**kwargs))
+
+        # Load the mbox.
+        mbox = mailbox.mbox(tmpfile, create=False)
+
+        # Then, remove the temp file (to avoid leaking resources).
+        os.remove(tmpfile)
+
+        return mbox
+
+    def _load_mbox(self, name):
+        return mailbox.mbox(os.path.join(TEST_SERIES_DIR, name), create=False)
+
+    def _parse_mbox(self, mbox):
+        return list(
+            map(
+                lambda mail: parser.parse_mail(mail, self.project.listid), mbox
+            )
+        )
+
+    def test_dependency_ref_on_cover(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'series-{series1.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_by_series_url(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'http://test{series1.get_absolute_url()}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_by_patch_url(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'http://test{series1_patch1.get_absolute_url()}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_ref_on_patch(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-first-patch.mbox.template',
+            depends_token=f'series-{series1.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_ref_by_patch1(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'patch-{series1_patch1.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series1 = series1_patch1.series
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_ref_by_patch2(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, _, series1_patch2 = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'patch-{series1_patch2.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series1 = series1_patch2.series
+        series2 = series2_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 1)
+        self.assertEqual(series2.dependents.count(), 0)
+        self.assertEqual(series2.dependencies.count(), 1)
+
+    def test_dependency_multi_1(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'series-{series1.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        mbox3 = self._load_mbox_template(
+            'dependency-multi.mbox.template',
+            depends_token_1=f'series-{series1.id}',
+            depends_token_2=f'series-{series2.id}',
+        )
+        _, series3_patch1, _ = self._parse_mbox(mbox3)
+        mbox3.close()
+
+        series3 = series3_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series2, series3.dependencies.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertIn(series3, series2.dependents.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 2)
+        self.assertEqual(series2.dependents.count(), 1)
+        self.assertEqual(series2.dependencies.count(), 1)
+        self.assertEqual(series3.dependencies.count(), 2)
+        self.assertEqual(series3.dependents.count(), 0)
+
+    def test_dependency_multi_2(self):
+        mbox1 = self._load_mbox('dependency-base-patch.mbox')
+        _, series1_patch1, _ = self._parse_mbox(mbox1)
+        mbox1.close()
+
+        series1 = series1_patch1.series
+
+        mbox2 = self._load_mbox_template(
+            'dependency-one-cover.mbox.template',
+            depends_token=f'series-{series1.id}',
+        )
+        _, series2_patch1, _ = self._parse_mbox(mbox2)
+        mbox2.close()
+
+        series2 = series2_patch1.series
+
+        mbox3 = self._load_mbox_template(
+            'dependency-multi-2.mbox.template',
+            depends_token_1=f'series-{series1.id}',
+            depends_token_2=f'series-{series2.id}',
+        )
+        _, series3_patch1, _ = self._parse_mbox(mbox3)
+        mbox3.close()
+
+        series3 = series3_patch1.series
+
+        self.assertIn(series2, series1.dependents.all())
+        self.assertIn(series2, series3.dependencies.all())
+        self.assertIn(series1, series2.dependencies.all())
+        self.assertIn(series3, series2.dependents.all())
+        self.assertEqual(series1.dependencies.count(), 0)
+        self.assertEqual(series1.dependents.count(), 2)
+        self.assertEqual(series2.dependents.count(), 1)
+        self.assertEqual(series2.dependencies.count(), 1)
+        self.assertEqual(series3.dependencies.count(), 2)
+        self.assertEqual(series3.dependents.count(), 0)

@@ -347,12 +347,16 @@ if settings.ENABLE_REST_API:
 
     urlpatterns += [
         re_path(
-            r'^api/(?:(?P<version>(1.0|1.1|1.2|1.3))/)?', include(api_patterns)
+            r'^api/(?:(?P<version>(1.0|1.1|1.2|1.3|1.4))/)?',
+            include(api_patterns),
         ),
         re_path(
-            r'^api/(?:(?P<version>(1.1|1.2|1.3))/)?', include(api_1_1_patterns)
+            r'^api/(?:(?P<version>(1.1|1.2|1.3|1.4))/)?',
+            include(api_1_1_patterns),
         ),
-        re_path(r'^api/(?:(?P<version>(1.3))/)?', include(api_1_3_patterns)),
+        re_path(
+            r'^api/(?:(?P<version>(1.3|1.4))/)?', include(api_1_3_patterns)
+        ),
         # token change
         path(
             'user/generate-token/',

@@ -263,6 +263,9 @@ ENABLE_XMLRPC = False
 # Set to True to enable the Patchwork REST API
 ENABLE_REST_API = True
 
+# Set to True to enable parsing "Depends-on" tags.
+ENABLE_DEPENDS_ON_PARSING = False
+
 REST_RESULTS_PER_PAGE = 30
 MAX_REST_RESULTS_PER_PAGE = 250
 

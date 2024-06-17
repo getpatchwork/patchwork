@@ -80,3 +80,5 @@ if dbbackup:
 ENABLE_XMLRPC = True
 
 ENABLE_REST_API = True
+
+ENABLE_DEPENDS_ON_PARSING = True
