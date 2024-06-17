@@ -15,7 +15,7 @@ info:
     url: https://www.gnu.org/licenses/gpl-2.0.html
   version: '1.4'
 paths:
-  /api:
+  /api/1.4/:
     get:
       summary: List API resources.
       description: |
@@ -31,7 +31,7 @@ paths:
                 $ref: '#/components/schemas/Index'
       tags:
         - api
-  /api/bundles:
+  /api/1.4/bundles:
     get:
       summary: List bundles.
       description: |
@@ -109,7 +109,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - bundles
-  /api/bundles/{id}:
+  /api/1.4/bundles/{id}:
     parameters:
       - in: path
         name: id
@@ -215,7 +215,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - bundles
-  /api/covers:
+  /api/1.4/covers:
     get:
       summary: List cover letters.
       description: |
@@ -270,7 +270,7 @@ paths:
                   $ref: '#/components/schemas/CoverList'
       tags:
         - covers
-  /api/covers/{id}:
+  /api/1.4/covers/{id}:
     parameters:
       - in: path
         name: id
@@ -299,7 +299,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - covers
-  /api/covers/{id}/comments:
+  /api/1.4/covers/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -339,7 +339,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/covers/{cover_id}/comments/{comment_id}:
+  /api/1.4/covers/{cover_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: cover_id
@@ -410,7 +410,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/events:
+  /api/1.4/events:
     get:
       summary: List events.
       description: |
@@ -509,7 +509,7 @@ paths:
                       patch-comment-created: '#/components/schemas/EventPatchCommentCreated'
       tags:
         - events
-  /api/patches:
+  /api/1.4/patches:
     get:
       summary: List patches.
       description: |
@@ -592,7 +592,7 @@ paths:
                   $ref: '#/components/schemas/PatchList'
       tags:
         - patches
-  /api/patches/{id}:
+  /api/1.4/patches/{id}:
     parameters:
       - in: path
         name: id
@@ -706,7 +706,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - patches
-  /api/patches/{id}/comments:
+  /api/1.4/patches/{id}/comments:
     parameters:
       - in: path
         name: id
@@ -745,7 +745,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/patches/{patch_id}/comments/{comment_id}:
+  /api/1.4/patches/{patch_id}/comments/{comment_id}:
     parameters:
       - in: path
         name: patch_id
@@ -816,7 +816,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - comments
-  /api/patches/{patch_id}/checks:
+  /api/1.4/patches/{patch_id}/checks:
     parameters:
       - in: path
         name: patch_id
@@ -915,7 +915,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/patches/{patch_id}/checks/{check_id}:
+  /api/1.4/patches/{patch_id}/checks/{check_id}:
     parameters:
       - in: path
         name: patch_id
@@ -951,7 +951,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - checks
-  /api/people:
+  /api/1.4/people:
     get:
       summary: List people.
       description: |
@@ -986,7 +986,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/people/{id}:
+  /api/1.4/people/{id}:
     parameters:
       - in: path
         name: id
@@ -1025,7 +1025,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - people
-  /api/projects:
+  /api/1.4/projects:
     get:
       summary: List projects.
       description: |
@@ -1050,7 +1050,7 @@ paths:
                   $ref: '#/components/schemas/Project'
       tags:
         - projects
-  /api/projects/{id}:
+  /api/1.4/projects/{id}:
     parameters:
       - in: path
         name: id
@@ -1153,7 +1153,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - projects
-  /api/series:
+  /api/1.4/series:
     get:
       summary: List series.
       description: |
@@ -1193,7 +1193,7 @@ paths:
                   $ref: '#/components/schemas/Series'
       tags:
         - series
-  /api/series/{id}:
+  /api/1.4/series/{id}:
     parameters:
       - in: path
         name: id
@@ -1223,7 +1223,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
-  /api/users:
+  /api/1.4/users:
     get:
       summary: List users.
       description: |
@@ -1257,7 +1257,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - users
-  /api/users/{id}:
+  /api/1.4/users/{id}:
     parameters:
       - in: path
         name: id
