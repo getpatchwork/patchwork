@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Series may now depend on eachother. Patchwork clients may use this
+    information to download and apply the dependencies when applying a series.
+    This dependency relationship is shallow; the dependencies of a dependency
+    should not be applied. Multiple dependencies are allowed. The order they
+    are applied in is the order they appear in the content from top to bottom.
+  - |
+    Patchwork will now look for "Depends-on" entries when parsing mails.
+    This may be done by referring to a patch or series ID in the commit message
+    of a patch or the cover letter content:
+    ``Depends-on: patch-1234`` or ``Depends-on: series-5678``
+    Alternatively, the web URL of the patch or series may be given:
+    ``Depends-on: http://patchwork.example.com/project/test/list?series=1111``
+    This feature is disabled by default, and may be enabled by adding
+    ``ENABLE_DEPENDS_ON_PARSING=True`` to the settings.py.
+api:
+  - The API version has been updated to v1.4.
+  - Add the "dependencies" and "dependents" fields to the series detail view.
