@@ -8,7 +8,6 @@ import re
 
 from django.urls import resolve
 import jsonschema_path
-import openapi_core
 from openapi_core.contrib.django import DjangoOpenAPIRequest
 from openapi_core.contrib.django import DjangoOpenAPIResponse
 from openapi_core.exceptions import OpenAPIError
