@@ -1,13 +1,7 @@
 FROM ghcr.io/getpatchwork/pyenv:latest
 
-ARG UID
-ARG GID
-
-# make sure the user has configured the '.env' file and quick fail if not
-
-RUN echo $UID; echo $GID; \
-    [ -n "$UID" ] || { echo "You must define UID in .env" 1>&2; exit 1; }; \
-    [ -n "$GID" ] || { echo "You must define GID in .env" 1>&2; exit 1; }
+ARG UID=1000
+ARG GID=1000
 
 ARG TZ="Australia/Canberra"
 ENV DEBIAN_FRONTEND noninteractive

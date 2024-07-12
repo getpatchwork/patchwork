@@ -30,13 +30,19 @@ configure Patchwork using Docker:
         package.
   __ post-install_
 
-#. Create a ``.env`` file in the root directory of the project and store your
-   ``UID`` and ``GID`` attribute there.
+#. (Optional) Create a ``.env`` file in the root directory of the project and
+   store your ``UID`` and ``GID`` attribute there.
 
    .. code-block:: shell
 
       $ echo "UID=$UID" > .env
       $ echo "GID=`id -g`" >> .env
+
+   This should only be necessary if you have a ``UID`` or ``GID`` other than
+   ``1000``. For more information on why this is necessary, refer to this
+   `docker-compose issue`__.
+
+   __ https://github.com/docker/compose/issues/2380
 
 #. Build the images. This will download over 200MB from the internet:
 
@@ -139,18 +145,6 @@ For more information on Docker itself, please refer to the `docker`_ and
    post-install instructions`__.
 
    __ post-install_
-
-.. note::
-
-   If you see an error like the below::
-
-     You must define UID in .env
-
-   Ensure you have created a ``.env`` file in the root of your project
-   directory and stored the ``UID`` attribute there. For more information on
-   why this is necessary, refer to this `docker-compose issue`__.
-
-   __ https://github.com/docker/compose/issues/2380
 
 .. _docker: https://docs.docker.com/engine/install/
 .. _docker-compose: https://docs.docker.com/compose/install/
