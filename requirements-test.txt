@@ -1,4 +1,4 @@
-mysqlclient~=2.2.0
+mysqlclient~=2.2.4
 psycopg2-binary~=2.9.9
 sqlparse~=0.5.0
 python-dateutil~=2.9.0
