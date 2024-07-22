@@ -33,6 +33,14 @@ def validate_regex_compiles(regex_string):
         raise ValidationError('Invalid regular expression entered!')
 
 
+class TimestampMixin(models.Model):
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
 class Person(models.Model):
     # properties
 
@@ -821,6 +829,18 @@ class PatchComment(EmailMixin, models.Model):
         indexes = [
             models.Index(name='patch_date_idx', fields=['patch', 'date']),
         ]
+
+
+class Note(TimestampMixin, models.Model):
+    patch = models.ForeignKey(
+        Patch,
+        related_name='note',
+        related_query_name='note',
+        on_delete=models.CASCADE,
+    )
+    submitter = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField(null=False, blank=True)
+    maintainer_only = models.BooleanField(default=True)
 
 
 class Series(FilenameMixin, models.Model):

@@ -13,6 +13,7 @@ from patchwork.models import Check
 from patchwork.models import Cover
 from patchwork.models import CoverComment
 from patchwork.models import DelegationRule
+from patchwork.models import Note
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
@@ -128,6 +129,15 @@ class PatchCommentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PatchComment, PatchCommentAdmin)
+
+
+class NoteAdmin(admin.ModelAdmin):
+    list_display = ('patch', 'submitter', 'created_at', 'updated_at')
+    search_fields = ('patch__name', 'submitter__name', 'submitter__email')
+    date_hierarchy = 'created_at'
+
+
+admin.site.register(Note, NoteAdmin)
 
 
 class PatchInline(admin.StackedInline):
