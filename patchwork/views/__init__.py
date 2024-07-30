@@ -240,7 +240,9 @@ def generic_list(
         if data and data.get('form', '') == 'patchlistform':
             data_tmp = data
 
-        properties_form = MultiplePatchForm(project, data=data_tmp)
+        properties_form = MultiplePatchForm(
+            project, data=data_tmp, user=request.user
+        )
 
     if request.method == 'POST' and data.get('form') == 'patchlistform':
         action = data.get('action', '').lower()
@@ -340,7 +342,7 @@ def process_multiplepatch_form(request, form, action, patches, context):
 
     changed_patches = 0
     for patch in patches:
-        if not patch.is_editable(request.user):
+        if not patch.is_editable(request.user, form.review_status_only()):
             errors.append(
                 "You don't have permissions to edit patch '%s'" % patch.name
             )
