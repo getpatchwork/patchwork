@@ -8,11 +8,13 @@ import os
 import unittest
 
 from django.test import TestCase
+from rest_framework.request import HttpRequest
 
 from patchwork import models
 from patchwork import parser
 from patchwork.tests import utils
 from patchwork.views.utils import patch_to_mbox
+from patchwork.api.series import SeriesSerializer
 
 
 TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
@@ -804,3 +806,49 @@ class SeriesNameTestCase(TestCase):
         self.assertEqual(series.name, series_name)
 
         mbox.close()
+
+
+class SeriesSerializerTestCase(TestCase):
+    def _mock_request(self):
+        mock_request = HttpRequest()
+        mock_request.version = '1.4'
+        mock_request.META['SERVER_NAME'] = 'example.com'
+        mock_request.META['SERVER_PORT'] = '8000'
+
+        return mock_request
+
+    def _create_serializer(self, series, related_series, mock_request):
+        related_ids = list(
+            series.related_series.all().values_list('id', flat=True)
+        ) + [related_series.pk]
+
+        return SeriesSerializer(
+            series,
+            context={'request': mock_request},
+            data={'related_series': related_ids},
+            partial=True,
+        )
+
+    def test_related_series_validation_equal_project_id(self):
+        series_a = utils.create_series()
+        series_b = utils.create_series(project=series_a.project)
+
+        mock_request = self._mock_request()
+        serializer = self._create_serializer(series_a, series_b, mock_request)
+        serializer.is_valid()
+        serializer.save()
+
+        related_series_urls = serializer.data['related_series']
+        self.assertEqual(len(related_series_urls), 1)
+        self.assertEqual(
+            f'series={series_b.id}' in related_series_urls[0]['web_url'], True
+        )
+
+    def test_related_series_validation_different_project_id(self):
+        series_a = utils.create_series()
+        series_b = utils.create_series()
+
+        mock_request = self._mock_request()
+        serializer = self._create_serializer(series_a, series_b, mock_request)
+        is_valid = serializer.is_valid()
+        self.assertFalse(is_valid)

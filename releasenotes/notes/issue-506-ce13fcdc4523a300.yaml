@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added support for Series to link to another Series, allowing for automation to link an older version of a series to a newer one.
+api:
+  - |
+    The application version has been updated to v3.2.
+  - |
+    The API version has been updated to v1.4.
+  - |
+    The REST API endpoint ``/api/series/<series_id>`` now allows PATCH requests.

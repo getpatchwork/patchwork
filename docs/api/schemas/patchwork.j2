@@ -1248,6 +1248,40 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
+{% if version >= (1, 4) %}
+    patch:
+      summary: Link both series.
+      description: |
+        Apply a partial update to a Series
+      operationId: series_link
+      responses:
+        '200':
+          description: 'Updated series'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - series
+{% endif %}
   /api/{{ version_url }}users:
     get:
       summary: List users.
@@ -2699,6 +2733,15 @@ components:
             $ref: '#/components/schemas/PatchEmbedded'
           readOnly: true
           uniqueItems: true
+{% if version >= (1, 4) %}
+        related_series:
+          title: Related series
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+          readOnly: true
+          uniqueItems: true
+{% endif %}
     User:
       type: object
       title: User
