@@ -20,6 +20,15 @@
   <h1>{{ submission.name }}</h1>
 </div>
 
+{% if next_submission %}
+<div class="btn-group pull-right">
+  <a class="btn btn-default"
+      href="{% url 'patch-detail' project_id=project.linkname msgid=next_submission.encoded_msgid %}">
+    next
+  </a>
+</div>
+{% endif %}
+
 <table id="patch-meta" class="patch-meta" data-submission-type={{submission|verbose_name_plural|lower}} data-submission-id={{submission.id}}>
   <tr>
     <th>Message ID</th>
