@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from collections import Counter
-from collections import OrderedDict
 import datetime
 import random
 import re
@@ -308,8 +307,6 @@ class PatchQuerySet(models.query.QuerySet):
         # Project, and share the project.tags cache between all patch.project
         # references.
         qs = self.prefetch_related('project')
-        select = OrderedDict()
-        select_params = []
 
         # All projects have the same tags, so we're good to go here
         if project:
@@ -317,16 +314,24 @@ class PatchQuerySet(models.query.QuerySet):
         else:
             tags = Tag.objects.all()
 
+        # Annotate the count of each Tag in a column
         for tag in tags:
-            select[tag.attr_name] = (
-                'coalesce('
-                '(SELECT count FROM patchwork_patchtag'
-                ' WHERE patchwork_patchtag.patch_id=patchwork_patch.id'
-                ' AND patchwork_patchtag.tag_id=%s), 0)'
+            qs = qs.annotate(
+                **{
+                    tag.attr_name: models.Sum(
+                        models.Case(
+                            models.When(
+                                patchtag__tag_id=tag.id,
+                                then=models.F('patchtag__count'),
+                            ),
+                            default=models.Value(0),
+                            output_field=models.IntegerField(),
+                        )
+                    )
+                }
             )
-            select_params.append(tag.id)
 
-        return qs.extra(select=select, select_params=select_params)
+        return qs
 
 
 class PatchManager(models.Manager):
