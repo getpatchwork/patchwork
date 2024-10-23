@@ -1,5 +1,5 @@
 mysqlclient~=2.2.5
-psycopg2-binary~=2.9.9
+psycopg2-binary~=2.9.10
 sqlparse~=0.5.1
 python-dateutil~=2.9.0
 tblib~=3.0.0
