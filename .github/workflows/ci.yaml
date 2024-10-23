@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -29,7 +29,7 @@ jobs:
       matrix:
         # NOTE: If you add a version here, don't forget to update the
         # '[gh-actions]' section in tox.ini
-        python: ["3.9", "3.10", "3.11", "3.12"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         db: [postgres, mysql, sqlite3]
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
@@ -105,7 +105,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Install dependencies
         run: python -m pip install tox
       - name: Build docs (via tox)
@@ -132,7 +132,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Build docker-compose service
         run: |
           docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
