@@ -58,6 +58,7 @@ of community projects.
    :caption: Release Notes
 
    releases/unreleased
+   releases/iridescent
    releases/hessian
    releases/grosgrain
    releases/flannel

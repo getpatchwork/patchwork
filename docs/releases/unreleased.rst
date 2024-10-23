@@ -2,4 +2,4 @@ Unreleased
 ==========
 
 .. release-notes::
-   :earliest-version: v3.1.0
+   :earliest-version: v3.2.0
