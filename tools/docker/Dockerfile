@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
     tzdata \
     pkg-config \
+    cron \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN pip install wheel tox
@@ -34,8 +35,15 @@ RUN pip install wheel tox
 COPY requirements-dev.txt requirements-test.txt /opt/
 RUN pip install -r /opt/requirements-dev.txt
 
+COPY tools/docker/crontab /etc/cron.d/patchwork-cron
+RUN crontab -u patchwork /etc/cron.d/patchwork-cron
+RUN chmod u+s /usr/sbin/cron
+RUN printenv >> /etc/environment
+
 COPY tools/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 USER patchwork
 WORKDIR /home/patchwork/patchwork
+
+COPY --chown=patchwork:patchwork . .
