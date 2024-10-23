@@ -29,7 +29,7 @@ jobs:
       matrix:
         # NOTE: If you add a version here, don't forget to update the
         # '[gh-actions]' section in tox.ini
-        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python: ["3.9", "3.10", "3.11", "3.12"]
         db: [postgres, mysql, sqlite3]
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
