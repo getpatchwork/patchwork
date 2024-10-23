@@ -1,0 +1,8 @@
+---
+prelude: >
+    This release is another smaller release that focuses on bumping the
+    supported dependencies and updates the test matrix in advance of future,
+    larger changes. As always, recent versions of Python (3.12, 3.13) and
+    Django (5.0, 5.1) are now supported, while support for older Python
+    (3.7, 3.8) and Django (3.2, 4.0, 4.1) versions has been removed. More
+    information is included below.
