@@ -848,6 +848,7 @@ class Series(FilenameMixin, models.Model):
         help_text='An optional name to associate with '
         'the series, e.g. "John\'s PCI series".',
     )
+    related_series = models.ManyToManyField('self')
     date = models.DateTimeField()
     submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     version = models.IntegerField(
@@ -933,6 +934,13 @@ class Series(FilenameMixin, models.Model):
         patch.save()
 
         return patch
+
+    def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+
+        person = Person.objects.get(user=user)
+        return person == self.submitter
 
     def get_absolute_url(self):
         # TODO(stephenfin): We really need a proper series view
