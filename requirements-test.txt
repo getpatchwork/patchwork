@@ -1,8 +1,8 @@
-mysqlclient~=2.2.4
+mysqlclient~=2.2.5
 psycopg2-binary~=2.9.9
 sqlparse~=0.5.1
 python-dateutil~=2.9.0
 tblib~=3.0.0
 openapi-core~=0.19.2
 jsonschema-path~=0.3.3
-termcolor~=2.4.0
+termcolor~=2.5.0
