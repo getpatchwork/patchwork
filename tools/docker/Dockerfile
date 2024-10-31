@@ -1,4 +1,4 @@
-FROM ghcr.io/getpatchwork/pyenv:latest
+FROM ghcr.io/getpatchwork/pyenv:stable-3.2
 
 ARG UID=1000
 ARG GID=1000
