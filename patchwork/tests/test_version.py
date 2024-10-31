@@ -32,4 +32,9 @@ class TestVersion(test.TestCase):
 
         # if the tag is missing from one, it should be missing from the other
         # (and vice versa)
-        self.assertEqual(bool(str_match.group(1)), bool(git_match.group(1)))
+        self.assertEqual(
+            bool(str_match.group(1)),
+            bool(git_match.group(1)),
+            f'mismatch between git and version.txt post-release metadata: '
+            f'git={git_match.group(1)!r}, version.txt={str_match.group(1)!r}',
+        )
