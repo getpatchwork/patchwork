@@ -56,6 +56,34 @@ pre {
     color: #999;
 }
 
+ul.dropdown-menu > li > form {
+    display: block;
+    width: 100%;
+}
+
+ul.dropdown-menu > li > form > button {
+    /* taken from bootstrap's styling for '.dropdown-menu > li > a' */
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+ul.dropdown-menu > li > form > button:hover {
+    /* taken from bootstrap's styling for '.dropdown-menu > li > a:hover' */
+    color: #262626;
+    text-decoration: none;
+    background-color: #f5f5f5;
+}
+
 form {
     padding: 0em;
     margin: 0em;
