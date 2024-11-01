@@ -93,7 +93,12 @@
                 <li><a href="{% url 'admin:index' %}">Administration</a></li>
 {% endif %}
                 <li><a href="{% url 'user-profile' %}">View profile</a></li>
-                <li><a href="{% url 'auth_logout' %}">Logout</a></li>
+                <li>
+                  <form id="logout-form" method="post" action="{% url 'auth_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                  </form>
+                </li>
               </ul>
             </li>
 {% else %}
