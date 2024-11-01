@@ -245,6 +245,9 @@ class State(models.Model):
     slug = models.SlugField(max_length=100, unique=True)
     ordering = models.IntegerField(unique=True)
     action_required = models.BooleanField(default=True)
+    review_intention_expiration_time = models.DurationField(
+        default=datetime.timedelta(days=30)
+    )
 
     def __str__(self):
         return self.name
@@ -499,6 +502,10 @@ class Patch(SubmissionMixin):
         null=True,
         on_delete=models.CASCADE,
     )
+    planning_to_review = models.ManyToManyField(
+        User, through='PatchReviewIntention', related_name='planning_to_review'
+    )
+    has_planned_review = models.BooleanField(default=False)
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True, db_index=True)
@@ -575,7 +582,7 @@ class Patch(SubmissionMixin):
 
         self.refresh_tag_counts()
 
-    def is_editable(self, user):
+    def is_editable(self, user, declare_interest_only=False):
         if not user.is_authenticated:
             return False
 
@@ -586,7 +593,8 @@ class Patch(SubmissionMixin):
         if self.project.is_editable(user):
             self._edited_by = user
             return True
-        return False
+
+        return declare_interest_only
 
     @staticmethod
     def filter_unique_checks(checks):
@@ -729,6 +737,15 @@ class Patch(SubmissionMixin):
         ]
 
 
+class PatchReviewIntention(models.Model):
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_time_marked_for_review = models.DateTimeField(default=tz_utils.now)
+
+    class Meta:
+        unique_together = [('patch', 'user')]
+
+
 class CoverComment(EmailMixin, models.Model):
     cover = models.ForeignKey(
         Cover,
@@ -805,6 +822,12 @@ class PatchComment(EmailMixin, models.Model):
     def save(self, *args, **kwargs):
         super(PatchComment, self).save(*args, **kwargs)
         self.patch.refresh_tag_counts()
+
+    def create(self, *args, **kwargs):
+        submitter = kwargs.get('submitter')
+        patch = kwargs.get('patch')
+        PatchReviewIntention.objects.delete(user=submitter.user, patch=patch)
+        super(PatchComment, self).create(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         super(PatchComment, self).delete(*args, **kwargs)
