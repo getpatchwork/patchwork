@@ -69,6 +69,7 @@ $(document).ready(function() {
 {% endif %}
 
         <th>
+{% if not order.editable %}
 {% if order.name == "name" %}
           <a class="colactive" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
@@ -77,11 +78,10 @@ $(document).ready(function() {
            Patch
           </a>
 {% else %}
-{% if not order.editable %}
           <a class="colinactive" href="{% listurl order="name" %}">Patch</a>
+{% endif %}
 {% else %}
           <span class="colinactive">Patch</span>
-{% endif %}
 {% endif %}
         </th>
 
@@ -98,6 +98,7 @@ $(document).ready(function() {
         </th>
 
         <th>
+{% if not order.editable %}
 {% if order.name == "date" %}
           <a class="colactive" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
@@ -106,15 +107,15 @@ $(document).ready(function() {
             Date
           </a>
 {% else %}
-{% if not order.editable %}
           <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+{% endif %}
 {% else %}
           <span class="colinactive">Date</span>
-{% endif %}
 {% endif %}
         </th>
 
         <th>
+{% if not order.editable %}
 {% if order.name == "submitter" %}
           <a class="colactive" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
@@ -123,17 +124,17 @@ $(document).ready(function() {
             Submitter
           </a>
 {% else %}
-{% if not order.editable %}
           <a class="colinactive" href="{% listurl order="submitter" %}">
             Submitter
           </a>
+{% endif %}
 {% else %}
           <span class="colinactive">Submitter</span>
-{% endif %}
 {% endif %}
         </th>
 
         <th>
+{% if not order.editable %}
 {% if order.name == "delegate" %}
           <a class="colactive" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
@@ -142,15 +143,15 @@ $(document).ready(function() {
             Delegate
           </a>
 {% else %}
-{% if not order.editable %}
           <a class="colinactive" href="{% listurl order="delegate" %}">Delegate</a>
+{% endif %}
 {% else %}
           <span class="colinactive">Delegate</span>
-{% endif %}
 {% endif %}
         </th>
 
         <th>
+{% if not order.editable %}
 {% if order.name == "state" %}
           <a class="colactive" href="{% listurl order=order.reversed_name %}">
             <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
@@ -159,11 +160,10 @@ $(document).ready(function() {
             State
           </a>
 {% else %}
-{% if not order.editable %}
           <a class="colinactive" href="{% listurl order="state" %}">State</a>
+{% endif %}
 {% else %}
           <span class="colinactive">State</span>
-{% endif %}
 {% endif %}
         </th>
 
