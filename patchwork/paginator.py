@@ -27,7 +27,7 @@ class Paginator(paginator.Paginator):
         if request.user.is_authenticated:
             items_per_page = request.user.profile.items_per_page
 
-        super(Paginator, self).__init__(objects, items_per_page)
+        super().__init__(objects, items_per_page)
 
         try:
             page_no = int(request.GET.get('page', 1))
@@ -52,23 +52,25 @@ class Paginator(paginator.Paginator):
         elif page_no < LEADING_PAGE_RANGE:
             adjacent_start = 1
             adjacent_end = LEADING_PAGE_RANGE_DISPLAYED + 1
-            self.leading_set = [
-                n + pages for n in range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)
+            self.trailing_set = [
+                n + pages
+                for n in reversed(range(0, -NUM_PAGES_OUTSIDE_RANGE, -1))
             ]
         elif page_no >= pages - TRAILING_PAGE_RANGE:
             adjacent_start = pages - TRAILING_PAGE_RANGE_DISPLAYED + 1
             adjacent_end = pages + 1
-            self.trailing_set = [
+            self.leading_set = [
                 n + 1 for n in range(0, NUM_PAGES_OUTSIDE_RANGE)
             ]
         else:
             adjacent_start = page_no - ADJACENT_PAGES
             adjacent_end = page_no + ADJACENT_PAGES + 1
             self.leading_set = [
-                n + pages for n in range(0, -NUM_PAGES_OUTSIDE_RANGE, -1)
+                n + 1 for n in range(0, NUM_PAGES_OUTSIDE_RANGE)
             ]
             self.trailing_set = [
-                n + 1 for n in range(0, NUM_PAGES_OUTSIDE_RANGE)
+                n + pages
+                for n in reversed(range(0, -NUM_PAGES_OUTSIDE_RANGE, -1))
             ]
 
         self.adjacent_set = [
@@ -77,7 +79,6 @@ class Paginator(paginator.Paginator):
             if n > 0 and n <= pages
         ]
 
-        self.leading_set.reverse()
         self.long_page = (
             len(self.current_page.object_list) >= LONG_PAGE_THRESHOLD
         )
