@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load syntax %}
 {% load person %}
+{% load user %}
 {% load patch %}
 {% load static %}
 {% load utils %}
@@ -194,9 +195,9 @@
 <a name="{{ item.id }}"></a>
 <div class="submission-message">
   <div class="meta">
-    {{ note.patch.submitter|personify:project }}
+    User: {{ note.submitter|userfy }},
     <span class="message-date">
-      Last modified: {{ note.last_modified }} UTC
+      Last modified: {{ note.updated_at }} UTC
     </span>
   </div>
   <pre class="content">
