@@ -10,10 +10,10 @@
   <span class="prev-na">&laquo;</span>
 {% endif %}
 
-{% if page.paginator.leading_set %}
 {% for p in page.paginator.leading_set %}
   <span class="page"><a href="{% listurl page=p %}" >{{ p }}</a></span>
 {% endfor %}
+{% if page.paginator.show_leading_ellipsis %}
   …
 {% endif %}
 
@@ -25,12 +25,12 @@
 {% endif %}
 {% endfor %}
 
-{% if page.paginator.trailing_set %}
+{% if page.paginator.show_trailing_ellipsis %}
   …
+{% endif %}
 {% for p in page.paginator.trailing_set %}
   <span class="page"><a href="{% listurl page=p %}">{{ p }}</a></span>
 {% endfor %}
-{% endif %}
 
 {% if page.has_next %}
   <span class="next">

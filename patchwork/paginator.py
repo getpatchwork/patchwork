@@ -79,6 +79,18 @@ class Paginator(paginator.Paginator):
             if n > 0 and n <= pages
         ]
 
+        self.show_leading_ellipsis = False
+        if self.leading_set and self.adjacent_set:
+            # prevent e.g. 1 2 ... 3 4 5 ... 8 9
+            if self.leading_set[-1] != self.adjacent_set[0] - 1:
+                self.show_leading_ellipsis = True
+
+        self.show_trailing_ellipsis = False
+        if self.trailing_set and self.adjacent_set:
+            # prevent e.g. 1 2 ... 5 6 7 ... 8 9
+            if self.trailing_set[0] != self.adjacent_set[-1] + 1:
+                self.show_trailing_ellipsis = True
+
         self.long_page = (
             len(self.current_page.object_list) >= LONG_PAGE_THRESHOLD
         )
