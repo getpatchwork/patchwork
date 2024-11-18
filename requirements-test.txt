@@ -1,6 +1,6 @@
 mysqlclient~=2.2.5
 psycopg2-binary~=2.9.9
-sqlparse~=0.5.1
+sqlparse~=0.5.2
 python-dateutil~=2.9.0
 tblib~=3.0.0
 openapi-core~=0.19.2
