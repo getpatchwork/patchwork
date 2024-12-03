@@ -99,6 +99,15 @@ def patch_detail(request, project_id, msgid):
         'submitter', 'date', 'id', 'content', 'patch', 'addressed'
     )
 
+    if (
+        request.user.is_superuser
+        or request.user.is_authenticated
+        and patch.project in request.user.profile.maintainer_projects.all()
+    ):
+        notes = patch.note.all()
+    else:
+        notes = patch.note.filter(maintainer_only=False)
+
     if patch.related:
         related_same_project = patch.related.patches.only(
             'name', 'msgid', 'project', 'related'
@@ -113,6 +122,7 @@ def patch_detail(request, project_id, msgid):
         related_same_project = []
         related_different_project = []
 
+    context['notes'] = notes
     context['comments'] = comments
     context['checks'] = Patch.filter_unique_checks(
         patch.check_set.all().select_related('user'),
