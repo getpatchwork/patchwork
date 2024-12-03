@@ -13,7 +13,7 @@ info:
   license:
     name: GPL v2 License
     url: https://www.gnu.org/licenses/gpl-2.0.html
-  version: '1.3'
+  version: '1.4'
 paths:
   /api:
     get:
@@ -1215,6 +1215,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Series'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - series
+    patch:
+      summary: Link series to set a relationship between them
+      description: |
+        Apply a partial update to a Series, where only a few fields of the model are allowed:
+        - previous_series: Set the provided series as coming before the one specified by the id;
+        - subsequent_series: Set the provided series as coming after the one specified by the id;
+        - required_series: Set the provided series as requirements for one specified by the id;
+        - required_by_series: Set the series specified by the id as a requirement for the provided ones.
+      operationId: series_link
+      responses:
+        '200':
+          description: 'Updated series'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: 'Not found'
           content:
@@ -2603,6 +2639,34 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatchEmbedded'
+          readOnly: true
+          uniqueItems: true
+        previous_series:
+          title: Previous series
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+          readOnly: true
+          uniqueItems: true
+        subsequent_series:
+          title: Subsequent series
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+          readOnly: true
+          uniqueItems: true
+        required_series:
+          title: Required series
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+          readOnly: true
+          uniqueItems: true
+        required_by_series:
+          title: Required by series
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
           readOnly: true
           uniqueItems: true
     User:
