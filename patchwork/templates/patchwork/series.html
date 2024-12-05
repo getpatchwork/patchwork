@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% load person %}
+{% load static %}
+
+{% block title %}{{project.name}}{% endblock %}
+{% block series_active %}active{% endblock %}
+
+{% block body %}
+
+{% include "patchwork/partials/series-list.html" %}
+
+{% endblock %}
