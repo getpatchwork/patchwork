@@ -13,7 +13,11 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from patchwork.forms import CreateBundleForm
+from patchwork.forms import CreateNoteForm
+from patchwork.forms import EditNoteForm
+from patchwork.forms import DeleteNoteForm
 from patchwork.forms import PatchForm
+from patchwork.models import Note
 from patchwork.models import Cover
 from patchwork.models import Patch
 from patchwork.models import Project
@@ -64,7 +68,16 @@ def patch_detail(request, project_id, msgid):
 
     form = None
     create_bundle_form = None
+    create_note_form = None
+    edit_note_form = None
+    edit_note_id = None
+    edit_cancel = False
     errors = None
+    is_maintainer = (
+        request.user.is_superuser
+        or request.user.is_authenticated
+        and patch.project in request.user.profile.maintainer_projects.all()
+    )
 
     if editable:
         form = PatchForm(instance=patch)
@@ -72,23 +85,71 @@ def patch_detail(request, project_id, msgid):
         create_bundle_form = CreateBundleForm()
 
     if request.method == 'POST':
-        action = request.POST.get('action', None)
-        if action:
-            action = action.lower()
+        form_name = request.POST.get('form_name', '')
+        if is_maintainer and form_name == DeleteNoteForm.name:
+            note_form = DeleteNoteForm(request.POST)
+            if note_form.is_valid():
+                note = get_object_or_404(
+                    Note, id=note_form.cleaned_data['note_id']
+                )
+                note.delete()
+                messages.success(request, 'Note removed')
+            else:
+                errors = note_form.errors
 
-        if action in ['create', 'add']:
-            errors = set_bundle(
-                request, project, action, request.POST, [patch]
+        elif is_maintainer and form_name == CreateNoteForm.name:
+            create_note = CreateNoteForm(
+                request.POST,
+                instance=Note(patch=patch, submitter=request.user),
             )
+            if create_note.is_valid():
+                create_note.save()
+                messages.success(request, 'Note created')
+            create_note_form = None
 
-        elif not editable:
-            return HttpResponseForbidden()
+        elif is_maintainer and form_name == EditNoteForm.name:
+            edit_cancel = not not request.POST.get('cancel', None)
+            if not edit_cancel:
+                edit_note_form = EditNoteForm(request.POST)
+                if edit_note_form.is_valid():
+                    note = get_object_or_404(
+                        Note, id=request.POST.get('note_id'), patch=patch
+                    )
+                    edit_note_form = EditNoteForm(request.POST, instance=note)
+                    if edit_note_form.is_valid():
+                        edit_note_form.save()
+                        messages.success(request, 'Note updated')
+                else:
+                    errors = edit_note_form.err
+        else:
+            action = request.POST.get('action', None)
+            if action:
+                action = action.lower()
 
-        elif action == 'update':
-            form = PatchForm(data=request.POST, instance=patch)
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Patch updated')
+            if is_maintainer and action == 'add-note':
+                create_note_form = CreateNoteForm()
+
+            if is_maintainer and action == 'edit-note':
+                print(edit_cancel)
+                if not edit_cancel:
+                    edit_note_form = EditNoteForm()
+                    edit_note_id = request.POST.get('edit_note_id', None)
+                    if edit_note_id is not Note:
+                        edit_note_id = int(edit_note_id)
+
+            elif action in ['create', 'add']:
+                errors = set_bundle(
+                    request, project, action, request.POST, [patch]
+                )
+
+            elif not editable:
+                return HttpResponseForbidden()
+
+            elif action == 'update':
+                form = PatchForm(data=request.POST, instance=patch)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Patch updated')
 
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
@@ -98,6 +159,11 @@ def patch_detail(request, project_id, msgid):
     comments = comments.only(
         'submitter', 'date', 'id', 'content', 'patch', 'addressed'
     )
+
+    if is_maintainer:
+        notes = patch.note.all()
+    else:
+        notes = patch.note.filter(maintainer_only=False)
 
     if patch.related:
         related_same_project = patch.related.patches.only(
@@ -113,12 +179,21 @@ def patch_detail(request, project_id, msgid):
         related_same_project = []
         related_different_project = []
 
+    for note in notes:
+        note.delete_form = DeleteNoteForm(
+            auto_id=False, initial={'note_id': note.id}
+        )
+    context['notes'] = notes
     context['comments'] = comments
     context['checks'] = Patch.filter_unique_checks(
         patch.check_set.all().select_related('user'),
     )
     context['submission'] = patch
     context['editable'] = editable
+    context['is_maintainer'] = is_maintainer
+    context['create_note_form'] = create_note_form
+    context['edit_note_form'] = edit_note_form
+    context['edit_note_id'] = edit_note_id
     context['patch_form'] = form
     context['create_bundle_form'] = create_bundle_form
     context['project'] = patch.project
