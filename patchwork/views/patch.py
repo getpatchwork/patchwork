@@ -17,6 +17,7 @@ from patchwork.forms import PatchForm
 from patchwork.models import Bundle
 from patchwork.models import Cover
 from patchwork.models import Patch
+from patchwork.models import PatchReviewIntention
 from patchwork.models import Project
 from patchwork.views import generic_list
 from patchwork.views.utils import patch_to_mbox
@@ -102,6 +103,30 @@ def patch_detail(request, project_id, msgid):
                     'Failed to add patch "%s" to bundle "%s": '
                     'patch is already in bundle' % (patch.name, bundle.name),
                 )
+        elif action == 'add-review':
+            if request.user.is_authenticated:
+                PatchReviewIntention.objects.get_or_create(
+                    patch=patch,
+                    user=request.user
+                )
+                patch.has_planned_review = patch.planning_to_review.exists()
+                patch.save()
+
+                messages.success(request, "You have declared interest in reviewing this patch.")
+            else:
+                messages.error(request, "You must be logged in to declare review interest.")
+
+        elif action == 'remove-review':
+            if request.user.is_authenticated:
+                PatchReviewIntention.objects.filter(
+                    patch=patch,
+                    user=request.user
+                ).delete()
+                patch.has_planned_review = patch.planning_to_review.exists()
+                patch.save()
+                messages.success(request, "You have removed your interest in reviewing this patch.")
+            else:
+                messages.error(request, "You must be logged in to remove review interest.")
 
         # all other actions require edit privs
         elif not editable:
@@ -115,6 +140,17 @@ def patch_detail(request, project_id, msgid):
 
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
+
+    intentions = PatchReviewIntention.objects.filter(patch=patch)
+
+    context['intentions'] = intentions
+    context['planning_to_review'] = False
+    context['review_expiry_date'] = None
+    for intention in intentions:
+        intention.review_expiry_date = intention.last_time_marked_for_review + patch.state.review_intention_expiration_time
+        if intention.user == request.user:
+            context['planning_to_review'] = True
+            context['review_expiry_date'] = intention.last_time_marked_for_review + patch.state.review_intention_expiration_time
 
     comments = patch.comments.all()
     comments = comments.select_related('submitter')
