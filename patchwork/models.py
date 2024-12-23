@@ -582,7 +582,7 @@ class Patch(SubmissionMixin):
 
         self.refresh_tag_counts()
 
-    def is_editable(self, user):
+    def is_editable(self, user, declare_interest_only=False):
         if not user.is_authenticated:
             return False
 
@@ -593,7 +593,8 @@ class Patch(SubmissionMixin):
         if self.project.is_editable(user):
             self._edited_by = user
             return True
-        return False
+
+        return declare_interest_only
 
     @staticmethod
     def filter_unique_checks(checks):

@@ -252,8 +252,27 @@ class MultiplePatchForm(forms.Form):
             if field.is_no_change(data[f.name]):
                 continue
 
+            if f.name == 'review_status':
+                if data[f.name]:
+                    self.instance.planning_to_review.add(self.user)
+                else:
+                    self.instance.planning_to_review.remove(self.user)
+                continue
+
             setattr(instance, f.name, data[f.name])
 
         if commit:
             instance.save()
         return instance
+
+    def review_status_only(self):
+        review_status_only = True
+        field_names = set(self.fields.keys())
+        field_names.discard({'review_status', 'action'})
+
+        for field_name in field_names:
+            data = self.data.get(field_name, '*')
+            if data != '*':
+                review_status_only = False
+
+        return review_status_only
