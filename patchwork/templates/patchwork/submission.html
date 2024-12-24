@@ -20,6 +20,20 @@
   <h1>{{ submission.name }}</h1>
 </div>
 
+<div class="btn-group pull-right">
+  <a class="btn btn-default {% if not next_submission %} disabled {% endif %}"
+  {% if next_submission %} href="{% url 'patch-detail' project_id=project.linkname msgid=next_submission.encoded_msgid %}" {% endif %}>
+    next
+  </a>
+</div>
+
+<div class="btn-group pull-right">
+  <a class="btn btn-default {% if not previous_submission %} disabled {% endif %}"
+    {% if previous_submission %} href="{% url 'patch-detail' project_id=project.linkname msgid=previous_submission.encoded_msgid %}" {% endif %}>
+    previous
+  </a>
+</div>
+
 <table id="patch-meta" class="patch-meta" data-submission-type={{submission|verbose_name_plural|lower}} data-submission-id={{submission.id}}>
   <tr>
     <th>Message ID</th>
