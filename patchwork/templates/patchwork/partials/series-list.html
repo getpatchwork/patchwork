@@ -1,0 +1,154 @@
+{% load person %}
+{% load listurl %}
+{% load patch %}
+{% load project %}
+{% load static %}
+
+{% include "patchwork/partials/pagination.html" %}
+
+{% if order.editable %}
+<table class="patchlist">
+  <tr>
+    <td class="patchlistreorder">
+      <form method="post" id="reorderform">
+        {% csrf_token %}
+        <input type="hidden" name="form" value="reorderform"/>
+        <input type="hidden" name="order_start" value="0"/>
+        <span id="reorderhelp"></span>
+        <input id="reorder-cancel" type="button" value="Cancel" onClick="order_cancel_click(this)"/>
+        <input id="reorder-change" type="button" value="Change order" onClick="order_button_click(this)"/>
+      </form>
+    </td>
+  </tr>
+</table>
+{% endif %}
+
+{% if page.paginator.long_page and user.is_authenticated %}
+<div class="floaty">
+  <a title="jump to form" href="#patchforms">
+    <span style="font-size: 120%">&#9662;</span>
+  </a>
+</div>
+{% endif %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#serieslist').stickyTableHeaders();
+
+    $('#serieslist').checkboxes('range', true);
+
+    $('#check-all').change(function(e) {
+        if(this.checked) {
+            $('#serieslist > tbody').checkboxes('check');
+        } else {
+            $('#serieslist > tbody').checkboxes('uncheck');
+        }
+        e.preventDefault();
+    });
+});
+</script>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="form" value="serieslistform"/>
+  <input type="hidden" name="project" value="{{project.id}}"/>
+  <table id="serieslist" class="table table-hover table-extra-condensed table-striped pw-list" data-toggle="checkboxes" data-range="true">
+    <thead>
+      <tr>
+{% if user.is_authenticated %}
+        <th style="text-align: center;">
+         <input type="checkbox" id="check-all"/>
+        </th>
+{% endif %}
+
+{% if user.is_authenticated and user.profile.show_ids %}
+        <th>
+          ID
+        </th>
+{% endif %}
+
+        <th>
+          Version
+        </th>
+
+        <th>
+          <span class="colinactive">Series</span>
+        </th>
+
+        <th>
+{% if order.name == "date" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            Date
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="date" %}">Date</a>
+{% else %}
+          <span class="colinactive">Date</span>
+{% endif %}
+{% endif %}
+        </th>
+
+        <th>
+{% if order.name == "submitter" %}
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            <span class="glyphicon glyphicon-chevron-{{ order.updown }}"></span>
+          </a>
+          <a class="colactive" href="{% listurl order=order.reversed_name %}">
+            Submitter
+          </a>
+{% else %}
+{% if not order.editable %}
+          <a class="colinactive" href="{% listurl order="submitter" %}">
+            Submitter
+          </a>
+{% else %}
+          <span class="colinactive">Submitter</span>
+{% endif %}
+{% endif %}
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+{% for series in page.object_list %}
+      <tr id="series_row:{{series.id}}">
+{% if user.is_authenticated %}
+        <td style="text-align: center;">
+          <input type="checkbox" name="series_id:{{series.id}}"/>
+        </td>
+{% endif %}
+{% if user.is_authenticated and user.profile.show_ids %}
+        <td>
+          <button type="button" class="btn btn-xs btn-copy" data-clipboard-text="{{ series.id }}" title="Copy to Clipboard">
+            {{ series.id }}
+          </button>
+        </td>
+{% endif %}
+        <td>
+          {{ series.version|default:"-"}}
+        </td>
+        <td>
+          <a href="../list/?series={{series.id}}">
+            {{ series.name|default:"[no subject]"|truncatechars:100 }}
+          </a>
+        </td>
+        <td class="text-nowrap">{{ series.date|date:"Y-m-d" }}</td>
+        <td>{{ series.submitter|personify:project }}</td>
+      </tr>
+{% empty %}
+      <tr>
+        <td colspan="8">No series to display</td>
+      </tr>
+{% endfor %}
+    </tbody>
+  </table>
+
+{% if page.paginator.count %}
+{% include "patchwork/partials/pagination.html" %}
+
+{% endif %}
+</form>
