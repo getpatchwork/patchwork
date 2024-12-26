@@ -9,6 +9,7 @@ services:
       - POSTGRES_USER=patchwork
       - POSTGRES_PASSWORD=password
   web:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./tools/docker/Dockerfile
