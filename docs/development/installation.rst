@@ -30,6 +30,10 @@ configure Patchwork using Docker:
         package.
   __ post-install_
 
+  .. note::
+
+      Mac users might need to enable Rosetta emulation in the docker engine.
+
 #. (Optional) Create a ``.env`` file in the root directory of the project and
    store your ``UID`` and ``GID`` attribute there.
 

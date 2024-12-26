@@ -14,6 +14,7 @@ services:
       # https://stackoverflow.com/a/55706057
       - SYS_NICE  # CAP_SYS_NICE
   web:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./tools/docker/Dockerfile

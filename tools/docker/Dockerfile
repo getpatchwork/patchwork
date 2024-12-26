@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PROJECT_HOME /home/patchwork/patchwork
 ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 
-RUN groupadd --gid=$GID patchwork && \
+RUN groupadd -o --gid=$GID patchwork && \
     useradd --uid=$UID --gid=$GID --create-home patchwork
 RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
