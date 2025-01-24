@@ -340,6 +340,12 @@ table.patch-meta tr th, table.patch-meta tr td {
     border: 0;
 }
 
+.submission-message .action-icons {
+    margin-left: 16px;
+    display: flex;
+    gap: 4px;
+}
+
 .patch-pull-url {
     font-family: "DejaVu Sans Mono", fixed;
 }
@@ -449,6 +455,35 @@ div.patch-form {
     align-items: center;
 }
 
+#edit-note-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between form elements */
+    max-width: 100%;
+}
+
+#edit-note-form textarea {
+    flex-grow: 1; /* Allows textarea to grow */
+    width: 100%;
+    min-height: 150px;
+    resize: vertical; /* Allow vertical resizing */
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#edit-note-form .form-actions {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    gap: 10px; /* Add space between buttons */
+}
+#create-note-form div:first-of-type {
+  display: flex;
+  flex-direction: column;
+}
+
 select[class^=change-property-], .archive-patch-select, .add-bundle {
     padding: 4px;
     margin-right: 8px;
@@ -476,7 +511,7 @@ select[class^=change-property-], .archive-patch-select, .add-bundle {
     padding: 4px;
 }
 
-#patch-form-bundle, #add-to-bundle, #remove-bundle {
+#patch-form-bundle, #add-to-bundle, #remove-bundle, #create-note {
     margin-left: 16px;
 }
 

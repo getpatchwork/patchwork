@@ -3,12 +3,14 @@
 {% load humanize %}
 {% load syntax %}
 {% load person %}
+{% load user %}
 {% load patch %}
 {% load static %}
 {% load utils %}
 
 {% block headers %}
     <script type="module" src="{% static "js/submission.js" %}"></script>
+    <script src="{% static "js/bundle.js" %}"></script>
 {% endblock %}
 
 {% block title %}{{submission.name}}{% endblock %}
@@ -136,6 +138,14 @@
   {% csrf_token %}
   {% include "patchwork/partials/patch-forms.html" %}
 </form>
+{% if create_note_form %}
+<form id="create-note-form" method="post">
+  <h2>New Note</h2>
+  {% csrf_token %}
+  {{ create_note_form.as_div }}
+  <input type="submit" class="patch-form-submit btn btn-primary" value="Add">
+</form>
+{% endif %}
 
 {% if submission.pull_url %}
 <h2>Pull-request</h2>
@@ -186,6 +196,60 @@
 {{ submission|commentsyntax }}
   </pre>
 </div>
+
+{% for note in notes %}
+{% if forloop.first %}
+<h2>Notes</h2>
+{% endif %}
+<a name="{{ item.id }}"></a>
+<div class="submission-message">
+  <div class="meta">
+    User: {{ note.submitter|userfy }},
+    <span class="message-date">
+      Last modified: {{ note.updated_at }} UTC
+    </span>
+    <div class="action-icons">
+      {% if is_maintainer %}
+      <form
+        method="post"
+        onsubmit="openEditForm('{{ note.id }}')"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit-note">
+        <input type="hidden" name="edit_note_id" value="{{ note.id }}">
+        <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
+          <span class="glyphicon glyphicon-pencil"></span>
+        </button>
+      </form>
+      <form method="post"
+        onsubmit="return confirm_delete('note', '{{ note.id|escapejs }}');">
+        {% csrf_token %}
+        {{ note.delete_form.as_p }}
+        <button type="submit" style="background: transparent; border: 0px; padding: 0; outline: 0;">
+          <span class="glyphicon glyphicon-trash"></span>
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <pre class="content">
+    {% if edit_note_form and edit_note_id == note.id %}
+    <form id="edit-note-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="form_name" value="editnoteform">
+        <input type="hidden" name="note_id" value="{{ note.id }}">
+        <textarea name="content">{{ note.content }}</textarea>
+        <div class="form-actions">
+          <input type="submit" value="Save" class="btn btn-primary">
+          <button type="submit" name="cancel" value="Cancel">Cancel</button>
+        </div>
+    </form>
+    {% else %}
+    {{ note.content }}
+    {% endif %}
+  </pre>
+</div>
+{% endfor %}
 
 {% for item in comments %}
 {% if forloop.first %}

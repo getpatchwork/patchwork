@@ -12,6 +12,7 @@ from django.db.utils import ProgrammingError
 from django.template.backends import django as django_template_backend
 
 from patchwork.models import Bundle
+from patchwork.models import Note
 from patchwork.models import Patch
 from patchwork.models import State
 from patchwork.models import UserProfile
@@ -104,6 +105,38 @@ class DeleteBundleForm(forms.Form):
     name = 'deletebundleform'
     form_name = forms.CharField(initial=name, widget=forms.HiddenInput)
     bundle_id = forms.IntegerField(widget=forms.HiddenInput)
+
+
+class CreateNoteForm(forms.ModelForm):
+    name = 'createnoteform'
+    form_name = forms.CharField(initial=name, widget=forms.HiddenInput)
+    content = forms.CharField(label='Content', widget=forms.Textarea)
+    maintainer_only = forms.BooleanField(
+        label='Maintainers Only',
+        initial=True,
+        widget=forms.CheckboxInput,
+        required=False,
+    )
+
+    class Meta:
+        model = Note
+        fields = ['content', 'maintainer_only']
+
+
+class EditNoteForm(forms.ModelForm):
+    name = 'editnoteform'
+    form_name = forms.CharField(initial=name, widget=forms.HiddenInput)
+    content = forms.CharField(label='Content', widget=forms.Textarea)
+
+    class Meta:
+        model = Note
+        fields = ['content', 'maintainer_only']
+
+
+class DeleteNoteForm(forms.Form):
+    name = 'deletenoteform'
+    form_name = forms.CharField(initial=name, widget=forms.HiddenInput)
+    note_id = forms.IntegerField(widget=forms.HiddenInput)
 
 
 class EmailForm(forms.Form):

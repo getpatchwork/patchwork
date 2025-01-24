@@ -1,0 +1,5 @@
+API v1.4 (latest)
+=================
+
+.. openapi:: ../../schemas/v1.4/patchwork.yaml
+   :examples:

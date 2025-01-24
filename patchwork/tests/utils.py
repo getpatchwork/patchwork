@@ -15,6 +15,7 @@ from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import Cover
 from patchwork.models import CoverComment
+from patchwork.models import Note
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
@@ -115,6 +116,28 @@ def create_user(link_person=True, **kwargs):
         )
         values.pop('username')
         create_person(user=user, **values)
+
+    return user
+
+
+def create_superuser(**kwargs):
+    """Create a 'User' and set him as admin."""
+    values = {
+        'username': 'test_user_super',
+        'email': 'test_user_super@super.com',
+        'first_name': 'Super',
+        'last_name': 'User',
+    }
+    user = User.objects.create_superuser(
+        values['username'],
+        values['email'],
+        values['username'],
+        first_name=values['first_name'],
+        last_name=values['last_name'],
+    )
+
+    profile = user.profile
+    profile.save()
 
     return user
 
@@ -268,6 +291,19 @@ def create_patch_comment(**kwargs):
     values.update(kwargs)
 
     return PatchComment.objects.create(**values)
+
+
+def create_note(**kwargs):
+    """Create 'Note' object."""
+    values = {
+        'patch': create_patch() if 'patch' not in kwargs else None,
+        'submitter': create_user() if 'submitter' not in kwargs else None,
+        'content': 'Note content',
+        'maintainer_only': kwargs.get('maintainer_only', True)
+    }
+    values.update(kwargs)
+
+    return Note.objects.create(**values)
 
 
 def create_check(**kwargs):
