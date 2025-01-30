@@ -1,0 +1,24 @@
+---
+features:
+  - |
+    Series may now depend on each other. Patchwork clients may use this
+    information to download and apply the dependencies when applying a series.
+    This dependency relationship is shallow; the dependencies of a dependency
+    should not be applied. Multiple dependencies are allowed. The order they
+    are applied in is the order they appear in the content from top to bottom.
+  - |
+    Patchwork will now look for "Depends-on" entries when parsing mails.
+    This may be done by referring to a patch or cover letter message ID in the
+    commit message of a patch or the cover letter content:
+    ``Depends-on: <20240726221429.221611-1-user@example.com>``
+    Alternatively, the web URL of the patch or series may be given:
+    ``Depends-on: http://patchwork.example.com/project/test/list?series=1111``
+api:
+  - |
+    The API version has been updated to v1.4.
+  - |
+    Add the "dependencies" and "dependents" fields to the series detail view.
+  - |
+    Add the ``show_dependencies`` field to projects. When this field is set to
+    ``True``, patch dependencies will be shown for any patches and cover
+    letters received for that project.
