@@ -44,6 +44,20 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
         self.assertIn(series_obj.get_absolute_url(), series_json['web_url'])
 
+        for dep, item in zip(
+            series_obj.dependencies.all(), series_json['dependencies']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': dep.id}), item
+            )
+
+        for dep, item in zip(
+            series_obj.dependents.all(), series_json['dependents']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': dep.id}), item
+            )
+
         # nested fields
 
         self.assertEqual(series_obj.project.id, series_json['project']['id'])
@@ -64,7 +78,9 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertEqual(0, len(resp.data))
 
     def _create_series(self):
-        project_obj = create_project(linkname='myproject')
+        project_obj = create_project(
+            linkname='myproject', show_dependencies=True
+        )
         person_obj = create_person(email='test@example.com')
         series_obj = create_series(project=project_obj, submitter=person_obj)
         create_cover(series=series_obj)
@@ -73,7 +89,7 @@ class TestSeriesAPI(utils.APITestCase):
         return series_obj
 
     def test_list_anonymous(self):
-        """List patches as anonymous user."""
+        """List series as anonymous user."""
         series = self._create_series()
 
         resp = self.client.get(self.api_url())
@@ -94,6 +110,35 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         series_rsp = resp.data[0]
         self.assertSerialized(series, series_rsp)
+
+    def test_list_dependencies(self):
+        """Test toggling dependency tracking on and off."""
+        project_obj = create_project(
+            linkname='myproject', show_dependencies=True
+        )
+        person_obj = create_person(email='test@example.com')
+        series_a = create_series(project=project_obj, submitter=person_obj)
+        create_cover(series=series_a)
+        create_patch(series=series_a)
+        series_b = create_series(project=project_obj, submitter=person_obj)
+        create_cover(series=series_b)
+        create_patch(series=series_b)
+        series_a.add_dependencies([series_b])
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(2, len(resp.data))
+        for series_data in resp.data:
+            self.assertIn('dependents', series_data)
+            self.assertIn('dependencies', series_data)
+
+        project_obj.show_dependencies = False
+        project_obj.save()
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(2, len(resp.data))
+        for series_data in resp.data:
+            self.assertNotIn('dependents', series_data)
+            self.assertNotIn('dependencies', series_data)
 
     def test_list_filter_project(self):
         """Filter series by project."""
@@ -125,7 +170,7 @@ class TestSeriesAPI(utils.APITestCase):
 
     @utils.store_samples('series-list-1-0')
     def test_list_version_1_0(self):
-        """List patches using API v1.0.
+        """List series using API v1.0.
 
         Validate that newer fields are dropped for older API versions.
         """
@@ -152,7 +197,7 @@ class TestSeriesAPI(utils.APITestCase):
             create_cover(series=series_obj)
             create_patch(series=series_obj)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(8):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
@@ -164,9 +209,29 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(series, resp.data)
 
+    @utils.store_samples('series-detail-1-3')
+    def test_detail_version_1_3(self):
+        """Show series using API v1.3.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        series = self._create_series()
+
+        resp = self.client.get(self.api_url(series.id, version='1.3'))
+        self.assertIn('url', resp.data)
+        self.assertIn('web_url', resp.data)
+        self.assertIn('web_url', resp.data['cover_letter'])
+        self.assertIn('mbox', resp.data['cover_letter'])
+        self.assertIn('web_url', resp.data['patches'][0])
+        self.assertNotIn('dependents', resp.data)
+        self.assertNotIn('dependencies', resp.data)
+
     @utils.store_samples('series-detail-1-0')
     def test_detail_version_1_0(self):
-        """Show series using API v1.0."""
+        """Show series using API v1.0.
+
+        Validate that newer fields are dropped for older API versions.
+        """
         series = self._create_series()
 
         resp = self.client.get(self.api_url(series.id, version='1.0'))

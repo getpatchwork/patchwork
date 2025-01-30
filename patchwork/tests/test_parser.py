@@ -1518,3 +1518,55 @@ class TestCommentCorrelation(TestCase):
         result = parser.find_cover_for_comment(project, [msgid])
 
         self.assertEqual(cover, result)
+
+
+class TestParseDependsOn(TestCase):
+    def setUp(self):
+        self.project = create_project()
+        self.series1 = create_series(project=self.project)
+        self.series2 = create_series(project=self.project)
+        self.patch = create_patch(project=self.project, series=self.series1)
+        self.cover = create_cover(project=self.project, series=self.series2)
+
+    def test_parse_depends_on_garbage_ref_1(self):
+        self.assertFalse(
+            parser.parse_depends_on('Depends-on: not-an-id-or-url')
+        )
+
+    def test_parse_depends_on_garbage_ref_2(self):
+        self.assertFalse(
+            parser.parse_depends_on('Depends-on: <not-a-known-id@garbage.com>')
+        )
+
+    def test_parse_depends_on_garbage_url(self):
+        content = f'Depends-on: http://patchwork.dpdk.org/projects/{self.project.linkname}/list'
+        self.assertFalse(parser.parse_depends_on(content))
+
+    def test_parse_depends_on_msgid(self):
+        self.assertIn(
+            self.series1,
+            parser.parse_depends_on(f'Depends-on: {self.patch.msgid}'),
+        )
+        self.assertIn(
+            self.series2,
+            parser.parse_depends_on(f'Depends-on: {self.cover.msgid}'),
+        )
+
+        content = (
+            f'Depends-on: {self.patch.msgid}\nDepends-on: {self.cover.msgid}'
+        )
+        result = parser.parse_depends_on(content)
+        self.assertIn(self.series1, result)
+        self.assertIn(self.series2, result)
+
+    def test_parse_depends_on_url(self):
+        content1 = f'Depends-on: http://test{self.series1.get_absolute_url()}'
+        content2 = f'Depends-on: http://test{self.patch.get_absolute_url()}'
+        content3 = f'Depends-on: http://test{self.series2.get_absolute_url()}'
+        self.assertIn(self.series1, parser.parse_depends_on(content1))
+        self.assertIn(self.series1, parser.parse_depends_on(content2))
+        self.assertIn(self.series2, parser.parse_depends_on(content3))
+
+        result = parser.parse_depends_on('\n'.join([content2, content3]))
+        self.assertIn(self.series1, result)
+        self.assertIn(self.series2, result)

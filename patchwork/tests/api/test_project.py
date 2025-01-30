@@ -35,6 +35,9 @@ class TestProjectAPI(utils.APITestCase):
         self.assertEqual(
             project_obj.subject_match, project_json['subject_match']
         )
+        self.assertEqual(
+            project_obj.show_dependencies, project_json['show_dependencies']
+        )
 
         # nested fields
 
@@ -73,6 +76,18 @@ class TestProjectAPI(utils.APITestCase):
         self.assertIn('list_archive_url', resp.data[0])
         self.assertIn('list_archive_url_format', resp.data[0])
         self.assertIn('commit_url_format', resp.data[0])
+
+    @utils.store_samples('project-list-1.3')
+    def test_list_version_1_3(self):
+        """List projects using API v1.3.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        create_project()
+        resp = self.client.get(self.api_url(version='1.3'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertNotIn('show_dependencies', resp.data[0])
 
     @utils.store_samples('project-list-1.1')
     def test_list_version_1_1(self):
@@ -140,6 +155,19 @@ class TestProjectAPI(utils.APITestCase):
         resp = self.client.get(self.api_url('12345'))
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
         self.assertSerialized(project, resp.data)
+
+    @utils.store_samples('project-detail-1.3')
+    def test_detail_version_1_3(self):
+        """Show project using API v1.3.
+
+        Validate that newer fields are dropped for older API versions.
+        """
+        project = create_project()
+
+        resp = self.client.get(self.api_url(project.pk, version='1.3'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertIn('name', resp.data)
+        self.assertNotIn('show_dependencies', resp.data)
 
     @utils.store_samples('project-detail-1.1')
     def test_detail_version_1_1(self):

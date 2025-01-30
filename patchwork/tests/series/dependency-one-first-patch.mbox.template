@@ -1,0 +1,125 @@
+From ahassick@iol.unh.edu Tue Jun 11 16:08:46 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 0/2] Improvements to the test project
+Date: Tue, 11 Jun 2024 12:08:46 -0400
+Message-ID: <20240611160854.192806-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+Various improvements to the test project.
+
+Depends-on: {depends_token}
+Adam Hassick (2):
+  Makefile: Improve the makefile
+  test: Improve the test application
+
+ Makefile |  8 ++++++--
+ test.c   | 22 +++++++++++++++++++---
+ 2 files changed, 25 insertions(+), 5 deletions(-)
+
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Tue Jun 11 16:08:47 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 1/2] Makefile: Improve the makefile
+Date: Tue, 11 Jun 2024 12:08:47 -0400
+Message-ID: <20240611160854.192806-2-ahassick@iol.unh.edu>
+In-Reply-To: <20240611160854.192806-1-ahassick@iol.unh.edu>
+References: <20240611160854.192806-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+We weren't checking for errors very well before. Let's fix that.
+
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ Makefile | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2126a0e..3583b93 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,9 +1,13 @@
+
+ CC=gcc
+
++.PHONY: all
++
++all: test test-debug
++
+ test: test.c
+-	$(CC) -O2 -march=native -mtune=native test.c -o test
++	$(CC) -O2 -march=native -mtune=native -Wall -Werror -pedantic test.c -o test
+
+ test-debug: test.c
+-	$(CC) -O0 -g test.c -o test
++	$(CC) -O0 -g test.c -Wall -Werror -pedantic -o test
+
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Tue Jun 11 16:08:48 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 2/2] test: Improve the test application
+Date: Tue, 11 Jun 2024 12:08:48 -0400
+Message-ID: <20240611160854.192806-3-ahassick@iol.unh.edu>
+In-Reply-To: <20240611160854.192806-1-ahassick@iol.unh.edu>
+References: <20240611160854.192806-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+The test application before wasn't very interesting.
+Let's make it do something with an invariant this time.
+
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ test.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/test.c b/test.c
+index 5096204..f6cd16e 100644
+--- a/test.c
++++ b/test.c
+@@ -1,8 +1,24 @@
+
+ #include <stdio.h>
++#include <string.h>
+
+-int main() {{
+-	printf("HELLOOOOO!!!! Hi there!");
+-	return 0;
++// This function does things.
++void thingymabob(char *string) {{
++	printf("Here's your argument: %s\n", string);
++	printf("Here is the length of your argument: %li\n", strlen(string));
+ }}
+
++// Entry point.
++int main(int argc, char **argv) {{
++
++	// Make sure we get exactly one argument.
++	if (argc != 2) {{
++		fprintf(stderr, "I want exactly one argument please!\n");
++		return 1;
++	}}
++
++	// Do something with it.
++	thingymabob(argv[1]);
++
++	return 0;
++}}
+--
+2.45.2

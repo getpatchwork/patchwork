@@ -1,0 +1,110 @@
+From ahassick@iol.unh.edu Wed Jun 12 20:40:05 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 0/2] More changes
+Date: Wed, 12 Jun 2024 16:40:05 -0400
+Message-ID: <20240612204019.364820-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+Tests.
+
+Adam Hassick (2):
+  test: Change the test function
+  Fix Makefile
+
+ Makefile |  2 +-
+ test.c   | 10 ++++++++--
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Wed Jun 12 20:40:06 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 1/2] test: Change the test function
+Date: Wed, 12 Jun 2024 16:40:06 -0400
+Message-ID: <20240612204019.364820-2-ahassick@iol.unh.edu>
+In-Reply-To: <20240612204019.364820-1-ahassick@iol.unh.edu>
+References: <20240612204019.364820-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+I don't like what it did before. Let's make it do something more
+interesting this time.
+
+Depends-on: {depends_token_1}
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ test.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/test.c b/test.c
+index f6cd16e..a868311 100644
+--- a/test.c
++++ b/test.c
+@@ -1,11 +1,17 @@
+
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+
+ // This function does things.
+ void thingymabob(char *string) {{
+-	printf("Here's your argument: %s\n", string);
+-	printf("Here is the length of your argument: %li\n", strlen(string));
++	double f = atof(string);
++
++	if (f > 5.0) {{
++		printf("I'm satisfied.\n");
++	}} else {{
++		fprintf(stderr, "I'm not satisfied.\n");
++	}}
+ }}
+
+ // Entry point.
+--
+2.45.2
+
+
+From ahassick@iol.unh.edu Wed Jun 12 20:40:07 2024
+Return-Path: <ahassick@iol.unh.edu>
+From: Adam Hassick <ahassick@iol.unh.edu>
+To: Adam.Hassick@unh.edu
+Cc: Adam Hassick <ahassick@iol.unh.edu>
+Subject: [PATCH v1 2/2] Fix Makefile
+Date: Wed, 12 Jun 2024 16:40:07 -0400
+Message-ID: <20240612204019.364820-3-ahassick@iol.unh.edu>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240612204019.364820-1-ahassick@iol.unh.edu>
+References: <20240612204019.364820-1-ahassick@iol.unh.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+
+The test-debug target did not generate the correct file.
+
+Depends-on: {depends_token_2}
+Signed-off-by: Adam Hassick <ahassick@iol.unh.edu>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 3583b93..78a2bf0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,5 +9,5 @@ test: test.c
+	$(CC) -O2 -march=native -mtune=native -Wall -Werror -pedantic test.c -o test
+
+ test-debug: test.c
+-	$(CC) -O0 -g test.c -Wall -Werror -pedantic -o test
++	$(CC) -O0 -g test.c -Wall -Werror -pedantic -o test-debug
+
+--
+2.45.2
