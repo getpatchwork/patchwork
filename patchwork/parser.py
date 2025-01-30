@@ -14,11 +14,13 @@ from email.errors import HeaderParseError
 from fnmatch import fnmatch
 import logging
 import re
+from urllib.parse import urlparse, parse_qs
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.db import transaction
 from django.utils import timezone as tz_utils
+from django.urls import resolve, Resolver404
 
 from patchwork.models import Cover
 from patchwork.models import CoverComment
@@ -31,7 +33,6 @@ from patchwork.models import Project
 from patchwork.models import Series
 from patchwork.models import SeriesReference
 from patchwork.models import State
-
 
 _msgid_re = re.compile(r'<[^>]+>')
 _hunk_re = re.compile(r'^\@\@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? \@\@')
@@ -1054,6 +1055,85 @@ def parse_pull_request(content):
     return None
 
 
+def find_series_from_url(url):
+    """
+    Get a series from either a series or patch URL.
+    """
+    parse_result = urlparse(url)
+
+    # Resolve the URL path to see if this is a patch or series detail URL.
+    try:
+        result = resolve(parse_result.path)
+    except Resolver404:
+        logging.warning('Failed to resolve series or patch URL: %s', url)
+        return None
+
+    # TODO: Use the series detail view here.
+    if result.view_name == 'patch-list' and parse_result.query:
+        # Parse the query string.
+        # This can be replaced with something much friendlier once the
+        # series detail view is implemented.
+        series_query_param = parse_qs(parse_result.query)
+
+        if series_id := series_query_param.get('series'):
+            try:
+                series_id_num = int(series_id[0])
+            except ValueError:
+                logging.warning(
+                    'Series URL with an invalid series query parameter was given: %s',
+                    url,
+                )
+                return None
+            # This will return None if there are no matches.
+            return Series.objects.filter(id=series_id_num).first()
+
+        logging.warning(
+            'Series URL did not have a series query parameter: %s', url
+        )
+        return None
+    elif result.view_name == 'patch-detail':
+        msgid = Patch.decode_msgid(result.kwargs['msgid'])
+        if patch := Patch.objects.filter(msgid=msgid).first():
+            return patch.series
+
+
+def find_series_from_msgid(msgid):
+    """
+    Get a series from
+    """
+    if patch := Patch.objects.filter(msgid=msgid).first():
+        return patch.series
+
+    if cover := Cover.objects.filter(msgid=msgid).first():
+        return cover.series
+
+
+def parse_depends_on(content):
+    """Parses any dependency hints in the patch or series content."""
+    dependencies = []
+
+    # Discover dependencies given as URLs.
+    for url in re.findall(
+        r'^Depends-on: (http[s]?:\/\/[\w\d\-.\/=&@:%?_\+()]+)\s*$',
+        content,
+        flags=re.MULTILINE | re.IGNORECASE,
+    ):
+        if series := find_series_from_url(url):
+            dependencies.append(series)
+
+    # Discover dependencies given as message IDs.
+    for msgid in re.findall(
+        r'^Depends-on: (<[^>]+>)\s*$',
+        content,
+        flags=re.MULTILINE | re.IGNORECASE,
+    ):
+        if series := find_series_from_msgid(msgid):
+            dependencies.append(series)
+
+    # Return list of series objects to depend on.
+    return dependencies
+
+
 def find_state(mail):
     """Return the state with the given name or the default."""
     state_name = clean_header(mail.get('X-Patchwork-State', ''))
@@ -1308,6 +1388,9 @@ def parse_mail(mail, list_id=None):
             # always have a series
             series.add_patch(patch, x)
 
+        # parse patch dependencies
+        series.add_dependencies(parse_depends_on(message))
+
         return patch
     elif x == 0:  # (potential) cover letters
         # if refs are empty, it's implicitly a cover letter. If not,
@@ -1374,6 +1457,10 @@ def parse_mail(mail, list_id=None):
             logger.debug('Cover letter saved')
 
             series.add_cover_letter(cover_letter)
+
+            # cover letters are permitted to specify dependencies for the
+            # entire patch series; parse them
+            series.add_dependencies(parse_depends_on(message))
 
             return cover_letter
 
