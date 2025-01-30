@@ -2617,6 +2617,11 @@ components:
           title: Web SCM URL format for a particular commit
           type: string
 {% endif %}
+{% if version >= (1, 4) %}
+        show_dependencies:
+          title: Whether the parse dependencies feature is enabled.
+          type: boolean
+{% endif %}
     Series:
       type: object
       title: Series
@@ -2699,6 +2704,24 @@ components:
             $ref: '#/components/schemas/PatchEmbedded'
           readOnly: true
           uniqueItems: true
+{% if version >= (1, 4) %}
+        dependencies:
+          title: Dependencies
+          type: array
+          items:
+            type: string
+            format: url
+          readOnly: true
+          uniqueItems: true
+        dependents:
+          title: Dependents
+          type: array
+          items:
+            type: string
+            format: url
+          readOnly: true
+          uniqueItems: true
+{% endif %}
     User:
       type: object
       title: User

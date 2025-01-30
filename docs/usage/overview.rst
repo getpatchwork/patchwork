@@ -144,6 +144,22 @@ project to project and Patchwork instance to Patchwork instance. The `kernel
 project documentation`__ provides an overview of the supported tags for the
 Linux kernel project.
 
+Patchwork also includes support for an additional, Patchwork-specific tag for
+declaring dependencies between series. The tag may be included in the cover
+letter or any patch of a series and should reference the message ID of a patch
+or a cover letter or the web URL to a patch or a series:
+
+``Depends-on:``
+  For example::
+
+    Depends-on: <20240726221429.221611-1-user@example.com>
+    Depends-on: https://pw.example.com/project/myproject/list?series=1234
+
+.. note::
+
+    Series dependencies are not shown by default. This can be changed by
+    enabling the ``show_dependencies`` flag for each project.
+
 __ https://www.kernel.org/doc/html/latest/process/submitting-patches.html
 
 Checks
