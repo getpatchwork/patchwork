@@ -5,7 +5,10 @@
 
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
-from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import (
+    SerializerMethodField,
+    HyperlinkedRelatedField,
+)
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -24,6 +27,12 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     cover_letter = CoverSerializer(read_only=True)
     patches = PatchSerializer(read_only=True, many=True)
+    dependencies = HyperlinkedRelatedField(
+        read_only=True, view_name='api-series-detail', many=True
+    )
+    dependents = HyperlinkedRelatedField(
+        read_only=True, view_name='api-series-detail', many=True
+    )
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -32,6 +41,16 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     def get_mbox(self, instance):
         request = self.context.get('request')
         return request.build_absolute_uri(instance.get_mbox_url())
+
+    def to_representation(self, instance):
+        if not instance.project.show_dependencies:
+            for field in ('dependencies', 'dependents'):
+                if field in self.fields:
+                    del self.fields[field]
+
+        data = super().to_representation(instance)
+
+        return data
 
     class Meta:
         model = Series
@@ -50,6 +69,8 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'mbox',
             'cover_letter',
             'patches',
+            'dependencies',
+            'dependents',
         )
         read_only_fields = (
             'date',
@@ -60,9 +81,12 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'mbox',
             'cover_letter',
             'patches',
+            'dependencies',
+            'dependents',
         )
         versioned_fields = {
             '1.1': ('web_url',),
+            '1.4': ('dependencies', 'dependents'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
@@ -76,7 +100,12 @@ class SeriesMixin(object):
     def get_queryset(self):
         return (
             Series.objects.all()
-            .prefetch_related('patches__project', 'cover_letter__project')
+            .prefetch_related(
+                'patches__project',
+                'cover_letter__project',
+                'dependencies',
+                'dependents',
+            )
             .select_related('submitter', 'project')
         )
 
