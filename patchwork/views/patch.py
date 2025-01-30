@@ -113,6 +113,13 @@ def patch_detail(request, project_id, msgid):
         related_same_project = []
         related_different_project = []
 
+    context['next_submission'] = None
+    patch_series = patch.series.patches.all()
+    num_patches = patch.series.patches.count()
+    for idx in range(num_patches - 1):
+        if patch.id == patch_series[idx].id:
+            context['next_submission'] = patch_series[idx + 1]
+
     context['comments'] = comments
     context['checks'] = Patch.filter_unique_checks(
         patch.check_set.all().select_related('user'),
