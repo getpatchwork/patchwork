@@ -100,6 +100,10 @@ class Project(models.Model):
     # configuration options
 
     send_notifications = models.BooleanField(default=False)
+    show_dependencies = models.BooleanField(
+        default=False,
+        help_text='Enable dependency tracking for patches and cover letters.',
+    )
     use_tags = models.BooleanField(default=True)
 
     def is_editable(self, user):
@@ -837,7 +841,21 @@ class Series(FilenameMixin, models.Model):
 
     # content
     cover_letter = models.OneToOneField(
-        Cover, related_name='series', null=True, on_delete=models.CASCADE
+        Cover,
+        related_name='series',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    # dependencies
+    dependencies = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        blank=True,
+        help_text='Optional dependencies on this patch.',
+        related_name='dependents',
+        related_query_name='dependent',
     )
 
     # metadata
@@ -878,6 +896,22 @@ class Series(FilenameMixin, models.Model):
     @property
     def received_all(self):
         return self.total <= self.received_total
+
+    def add_dependencies(self, dependencies):
+        """Add dependencies to this series.
+
+        Helper method to add any found dependencies to this series.
+        The method will filter out self and any series not from the
+        same project.
+        """
+        self.dependencies.add(
+            *(
+                dep
+                for dep in dependencies
+                if dep.id != self.id and dep.project == self.project
+            )
+        )
+        self.save()
 
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
