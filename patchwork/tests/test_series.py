@@ -8,11 +8,14 @@ import os
 import unittest
 
 from django.test import TestCase
+from rest_framework.request import HttpRequest
+from rest_framework.exceptions import ValidationError
 
 from patchwork import models
 from patchwork import parser
 from patchwork.tests import utils
 from patchwork.views.utils import patch_to_mbox
+from patchwork.api.series import SeriesSerializer
 
 
 TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
@@ -804,3 +807,143 @@ class SeriesNameTestCase(TestCase):
         self.assertEqual(series.name, series_name)
 
         mbox.close()
+
+
+class SeriesModelRelatedSeriesTest(TestCase):
+    def setUp(self):
+        self.series_a = utils.create_series()
+        self.project = self.series_a.project
+        self.submitter = self.series_a.submitter
+        self.series_b = utils.create_series(project=self.project)
+        self.series_c = utils.create_series(project=self.project)
+        self.series_d = utils.create_series()
+
+    def test_add_previous_and_subsequent_series(self):
+        self.series_c.add_previous_series(self.series_b)
+
+        self.assertIn(self.series_b, self.series_c.previous_series.all())
+        self.assertIn(self.series_c, self.series_b.subsequent_series.all())
+
+        self.series_a.add_subsequent_series(self.series_b)
+
+        self.assertIn(self.series_a, self.series_b.previous_series.all())
+        self.assertIn(self.series_b, self.series_a.subsequent_series.all())
+
+        self.assertIn(self.series_b, self.series_a.subsequent_series.all())
+        self.assertIn(self.series_c, self.series_b.subsequent_series.all())
+
+        with self.assertRaises(ValueError) as context_1:
+            self.series_c.add_previous_series(self.series_c)
+        self.assertIn(
+            'A series cannot be linked to itself.', str(context_1.exception)
+        )
+
+        with self.assertRaises(ValueError) as context_2:
+            self.series_c.add_previous_series(self.series_d)
+        self.assertIn(
+            'Previous series must belong to the same project.',
+            str(context_2.exception),
+        )
+
+
+class SeriesSerializerTestCase(TestCase):
+    def _mock_request(self):
+        mock_request = HttpRequest()
+        mock_request.version = '1.4'
+        mock_request.META['SERVER_NAME'] = 'example.com'
+        mock_request.META['SERVER_PORT'] = '8000'
+
+        return mock_request
+
+    def setUp(self):
+        self.request = self._mock_request()
+        self.series_a = utils.create_series()
+        self.project = self.series_a.project
+        self.submitter = self.series_a.submitter
+        self.series_b = utils.create_series(project=self.project)
+        self.series_c = utils.create_series()
+
+    def test_serializer_serialization(self):
+        # Test serialization
+        serializer = SeriesSerializer(
+            instance=self.series_a, context={'request': self.request}
+        )
+
+        expected_data = {
+            'id': self.series_a.id,
+            'url': f'http://example.com:8000/api/series/{self.series_a.id}/',
+            'web_url': f'http://example.com:8000{self.series_a.get_absolute_url()}',
+            'project': {
+                'id': self.project.id,
+                'url': f'http://example.com:8000/api/projects/{self.project.id}/',
+                'name': 'Test Project 0',
+                'link_name': 'test-project-0',
+                'list_id': 'test0.example.com',
+                'list_email': 'test0@example.com',
+                'web_url': '',
+                'scm_url': '',
+                'webscm_url': '',
+                'list_archive_url': 'https://lists.example.com/',
+                'list_archive_url_format': 'https://lists.example.com/mail/{}',
+                'commit_url_format': '',
+            },
+            'name': self.series_a.name,
+            'date': self.series_a.date.isoformat(),
+            'submitter': {
+                'id': self.submitter.id,
+                'url': f'http://example.com:8000/api/people/{self.submitter.id}/',
+                'name': 'test_person_0',
+                'email': 'test_person_0@example.com',
+            },
+            'version': 1,
+            'previous_series': [],
+            'subsequent_series': [],
+            'required_series': [],
+            'required_by_series': [],
+            'total': 1,
+            'received_total': 0,
+            'received_all': False,
+            'mbox': f'http://example.com:8000{self.series_a.get_mbox_url()}',
+            'cover_letter': None,
+            'patches': [],
+        }
+        self.assertEqual(serializer.data, expected_data)
+
+    def test_self_link_validation(self):
+        serializer = SeriesSerializer(
+            instance=self.series_a,
+            context={'request': self.request},
+            data={'previous_series': [self.series_a.id]},
+        )
+
+        with self.assertRaises(ValidationError) as context:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn(
+            'A series cannot be linked to itself.', str(context.exception)
+        )
+
+    def test_cross_project_validation(self):
+        serializer = SeriesSerializer(
+            instance=self.series_a,
+            context={'request': self.request},
+            data={'previous_series': [self.series_c.id]},
+        )
+
+        with self.assertRaises(ValidationError) as context:
+            serializer.is_valid(raise_exception=True)
+        self.assertIn(
+            'Series must belong to the same project.', str(context.exception)
+        )
+
+    def test_linking(self):
+        serializer = SeriesSerializer(
+            instance=self.series_a,
+            context={'request': self.request},
+            data={'previous_series': [self.series_b.id]},
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        previous_series_urls = serializer.data['previous_series']
+        self.assertEqual(len(previous_series_urls), 1)

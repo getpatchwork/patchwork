@@ -848,6 +848,14 @@ class Series(FilenameMixin, models.Model):
         help_text='An optional name to associate with '
         'the series, e.g. "John\'s PCI series".',
     )
+    previous_series = models.ManyToManyField(
+        'self', symmetrical=False, related_name='subsequent_series'
+    )
+
+    required_series = models.ManyToManyField(
+        'self', symmetrical=False, related_name='required_by_series'
+    )
+
     date = models.DateTimeField()
     submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     version = models.IntegerField(
@@ -933,6 +941,64 @@ class Series(FilenameMixin, models.Model):
         patch.save()
 
         return patch
+
+    def add_previous_series(self, series):
+        """Add a series to previous_series, automatically adding self to its subsequent_series."""
+        if self.project_id != series.project_id:
+            raise ValueError(
+                'Previous series must belong to the same project.'
+            )
+        if self == series:
+            raise ValueError('A series cannot be linked to itself.')
+        self.previous_series.add(series)
+        series.subsequent_series.add(self)
+
+    def add_subsequent_series(self, series):
+        """Add a series to subsequent_series, automatically adding self to its previous_series."""
+        if self.project_id != series.project_id:
+            raise ValueError(
+                'Subsequent series must belong to the same project.'
+            )
+        if self == series:
+            raise ValueError('A series cannot be linked to itself.')
+        self.subsequent_series.add(series)
+        series.previous_series.add(self)
+
+    def add_required_series(self, series):
+        """Add a series to required_series, automatically adding self to its required_by_series."""
+        if self.project_id != series.project_id:
+            raise ValueError(
+                'Required series must belong to the same project.'
+            )
+        if self == series:
+            raise ValueError('A series cannot be linked to itself.')
+        self.required_series.add(series)
+        series.required_by_series.add(self)
+
+    def add_required_by_series(self, series):
+        """Add a series to required_by_series, automatically adding self to its required_series."""
+        if self.project_id != series.project_id:
+            raise ValueError(
+                'Required by series must belong to the same project.'
+            )
+        if self == series:
+            raise ValueError('A series cannot be linked to itself.')
+        self.required_by_series.add(series)
+        series.required_series.add(self)
+
+    def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if user.is_superuser:
+            return True
+
+        try:
+            person = Person.objects.get(user=user)
+        except Exception:
+            return False
+
+        return person == self.submitter
 
     def get_absolute_url(self):
         # TODO(stephenfin): We really need a proper series view
