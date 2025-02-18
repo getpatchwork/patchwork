@@ -11,6 +11,7 @@
 {% load person %}
 {% load listurl %}
 {% load patch %}
+{% load series %}
 {% load project %}
 {% load static %}
 
@@ -37,7 +38,15 @@
       </th>
 
       <th>
-        <span class="series-list-header">Cover Letter</span>
+        {% project_tags %}
+      </th>
+
+      <th>
+        <span class="series-list-header" title="Success / Warning / Fail">S/W/F</span>
+      </th>
+
+      <th>
+        <span class="series-list-header" title="Declared review interest">Review Interest</span>
       </th>
 
       <th>
@@ -83,13 +92,9 @@
         {{ series.version|default:"-"}}
       </td>
 
-      <td>
-        {% if series.cover_letter.content %}
-          <b>&check;</b>
-        {% else %}
-          -
-        {% endif %}
-      </td>
+      <td id="series-tags:{{series.id}}" class="text-nowrap">{{ series|series_tags }}</td>
+      <td id="series-checks:{{series.id}}" class="text-nowrap">{{ series|series_checks }}</td>
+      <td id="series-interest:{{series.id}}" class="text-nowrap">{{ series|series_interest }}</td>
       <td>{{ series.received_total}}</td>
       <td class="text-nowrap">{{ series.date|date:"Y-m-d" }}</td>
       <td>{{ series.submitter|personify:project }}</td>
