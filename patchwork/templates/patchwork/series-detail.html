@@ -12,13 +12,17 @@
 {% block body %}
 
 <div>
+{% include "patchwork/partials/download-buttons.html" %}
   <h1>{{ series.name }}</h1>
 </div>
 
 <table class="patch-meta">
     <tr>
-        <th>Cover Letter</th>
-        <td>{{ series.cover_letter.content|default:"No cover letter available" }}</td>
+        <th>Series ID</th>
+        <td>
+            {{ series.id }}
+            <span class="btn-link btn-copy glyphicon glyphicon-copy" data-clipboard-text="{{ request.build_absolute_uri }}{{ series.get_absolute_url }}" title="Copy to Clipboard"></span>
+        </td>
     </tr>
     <tr>
         <th>Date</th>
@@ -37,5 +41,14 @@
 <h2>Patches</h2>
 <br>
 {% include "patchwork/partials/patch-list.html" %}
+
+<div id="cover-letter">
+    <h2>Cover Letter</h2>
+    {% if series.cover_letter.content %}
+    <pre class="content">{{ series.cover_letter.content }}</pre>
+    {% else %}
+    No cover letter available
+    {% endif %}
+</div>
 
 {% endblock %}

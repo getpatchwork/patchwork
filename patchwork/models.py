@@ -962,10 +962,10 @@ class Series(FilenameMixin, models.Model):
         return patch
 
     def get_absolute_url(self):
-        # TODO(stephenfin): We really need a proper series view
         return reverse(
-            'patch-list', kwargs={'project_id': self.project.linkname}
-        ) + ('?series=%d' % self.id)
+            'series-detail',
+            kwargs={'project_id': self.project.linkname, 'series_id': self.id},
+        )
 
     def get_mbox_url(self):
         return reverse('series-mbox', kwargs={'series_id': self.id})
