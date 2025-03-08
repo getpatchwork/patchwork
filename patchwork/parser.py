@@ -207,7 +207,7 @@ def find_project(mail, list_id=None):
 
     if not project:
         logger.debug(
-            'Could not find a valid project for given list-id and ' 'subject.'
+            'Could not find a valid project for given list-id and subject.'
         )
 
     return project

@@ -109,8 +109,7 @@ def _optinout(request, action):
     except smtplib.SMTPException:
         context['confirmation'] = None
         context['error'] = (
-            'An error occurred during confirmation . '
-            'Please try again later.'
+            'An error occurred during confirmation. Please try again later.'
         )
         context['admins'] = conf_settings.ADMINS
 

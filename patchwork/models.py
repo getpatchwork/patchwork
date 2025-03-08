@@ -394,7 +394,7 @@ class EmailMixin(models.Model):
 
         Reverses :mod:`~url_msgid` and :mod:`~encoded_msgid` operations.
         """
-        return f"<{msgid.replace('%2F', '/')}>"
+        return f'<{msgid.replace("%2F", "/")}>'
 
     def save(self, *args, **kwargs):
         # Modifying a submission via admin interface changes '\n' newlines in
@@ -852,8 +852,7 @@ class Series(FilenameMixin, models.Model):
     submitter = models.ForeignKey(Person, on_delete=models.CASCADE)
     version = models.IntegerField(
         default=1,
-        help_text='Version of series as indicated '
-        'by the subject prefix(es)',
+        help_text='Version of series as indicated by the subject prefix(es)',
     )
     total = models.IntegerField(
         help_text='Number of patches in series as '
