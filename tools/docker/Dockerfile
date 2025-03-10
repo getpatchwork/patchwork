@@ -1,16 +1,13 @@
 FROM ghcr.io/getpatchwork/pyenv:latest
 
-ARG UID=1000
-ARG GID=1000
-
 ARG TZ="Australia/Canberra"
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 ENV PROJECT_HOME /home/patchwork/patchwork
 ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 
-RUN groupadd --gid=$GID patchwork && \
-    useradd --uid=$UID --gid=$GID --create-home patchwork
+RUN groupadd patchwork && \
+    useradd --gid=patchwork --create-home patchwork
 RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN eval "$(pyenv init -)"
