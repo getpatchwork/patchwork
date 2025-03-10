@@ -407,6 +407,12 @@ span.p_mod    { color: #a020f0; }
     font-weight: bold;
 }
 
+/* series */
+a.series-list-header {
+    color: inherit;  /* Inherit color from parent element */
+    text-decoration: none; /* Optional: removes underline */
+}
+
 /* bundles */
 table.bundlelist {
     margin-top: 2em;

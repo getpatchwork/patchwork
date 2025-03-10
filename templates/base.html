@@ -48,6 +48,12 @@
 {% block navbarmenu %}
 {% if project %}
           <ul class="nav navbar-nav">
+            <li class="{% block series_active %}{% endblock %}">
+              <a href="{% url 'series-list' project_id=project.linkname %}">
+                <span class="glyphicon glyphicon-book"></span>
+                Series
+              </a>
+            </li>
             <li class="{% block patch_active %}{% endblock %}">
               <a href="{% url 'patch-list' project_id=project.linkname %}">
                 <span class="glyphicon glyphicon-file"></span>

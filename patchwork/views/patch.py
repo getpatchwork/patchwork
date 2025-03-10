@@ -10,6 +10,7 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.urls import reverse
 
 from patchwork.forms import CreateBundleForm
@@ -36,6 +37,11 @@ def patch_list(request, project_id):
         context['bundles'] = request.user.bundles.all()
 
     return render(request, 'patchwork/list.html', context)
+
+
+def patch_list_redirect(request, project_id):
+    new_url = reverse('patch-list', kwargs={'project_id': project_id})
+    return redirect(f'{new_url}?{request.GET.urlencode()}')
 
 
 def patch_detail(request, project_id, msgid):
@@ -126,6 +132,20 @@ def patch_detail(request, project_id, msgid):
     context['related_different_project'] = related_different_project
     if errors:
         context['errors'] = errors
+
+    try:
+        context['previous_submission'] = Patch.objects.get(
+            series=patch.series, number=patch.number - 1
+        )
+    except Patch.DoesNotExist:
+        context['previous_submission'] = None
+
+    try:
+        context['next_submission'] = Patch.objects.get(
+            series=patch.series, number=patch.number + 1
+        )
+    except Patch.DoesNotExist:
+        context['next_submission'] = None
 
     return render(request, 'patchwork/submission.html', context)
 
