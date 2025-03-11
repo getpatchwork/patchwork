@@ -288,6 +288,18 @@ table.patch-meta tr th, table.patch-meta tr td {
     text-decoration: underline;
 }
 
+.patchinterest {
+    display: inline-block;
+    border-radius: 7px;
+    min-width: 0.9em;
+    padding: 0 2px;
+    text-align: center;
+}
+
+.patchinterest.exists {
+    background-color: #82ca9d;
+}
+
 .patchlistchecks {
     display: inline-block;
     border-radius: 7px;

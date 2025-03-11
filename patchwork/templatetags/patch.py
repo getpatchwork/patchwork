@@ -75,3 +75,18 @@ def patch_commit_display(patch):
     return mark_safe(
         '<a href="%s">%s</a>' % (escape(fmt.format(commit)), escape(commit))
     )
+
+
+@register.filter(name='patch_interest')
+def patch_interest(patch):
+    reviews = patch.planning_to_review.count()
+    review_title = (
+        f'has {reviews} interested reviewers'
+        if reviews > 0
+        else 'no interested reviewers'
+    )
+    review_class = 'exists' if reviews > 0 else ''
+    return mark_safe(
+        '<span class="patchinterest %s" title="%s">%s</span>'
+        % (review_class, review_title, reviews if reviews > 0 else '-')
+    )

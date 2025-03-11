@@ -1,0 +1,6 @@
+DATABASE_HOST=db
+DATABASE_PORT=3306
+DATABASE_NAME=patchwork
+DATABASE_USER=patchwork
+DATABASE_PASSWORD=password
+0 * * * * /opt/pyenv/shims/python patchwork/manage.py update_reviewers > /proc/1/fd/1 2>&1

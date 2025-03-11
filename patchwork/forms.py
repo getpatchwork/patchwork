@@ -216,7 +216,7 @@ class MultiplePatchForm(forms.Form):
         label='Archived',
     )
 
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, user=None, *args, **kwargs):
         super(MultiplePatchForm, self).__init__(*args, **kwargs)
         self.fields['delegate'] = OptionalModelChoiceField(
             queryset=_get_delegate_qs(project=project),
@@ -231,6 +231,20 @@ class MultiplePatchForm(forms.Form):
             className='change-property-state',
             label='Change state',
         )
+        self.user = user
+        if self.user:
+            self.fields['review_status'] = OptionalBooleanField(
+                className='archive-patch-select',
+                choices=[
+                    ('*', 'no change'),
+                    ('True', 'Planning to review'),
+                    ('False', 'Not planning to review'),
+                ],
+                coerce=lambda x: x == 'True',
+                empty_value='*',
+                required=False,
+                initial='*',
+            )
 
     def save(self, instance, commit=True):
         opts = instance.__class__._meta
@@ -252,8 +266,27 @@ class MultiplePatchForm(forms.Form):
             if field.is_no_change(data[f.name]):
                 continue
 
+            if f.name == 'review_status':
+                if data[f.name]:
+                    self.instance.planning_to_review.add(self.user)
+                else:
+                    self.instance.planning_to_review.remove(self.user)
+                continue
+
             setattr(instance, f.name, data[f.name])
 
         if commit:
             instance.save()
         return instance
+
+    def review_status_only(self):
+        review_status_only = True
+        field_names = set(self.fields.keys())
+        field_names.discard({'review_status', 'action'})
+
+        for field_name in field_names:
+            data = self.data.get(field_name, '*')
+            if data != '*':
+                review_status_only = False
+
+        return review_status_only

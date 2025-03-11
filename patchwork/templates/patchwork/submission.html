@@ -187,6 +187,35 @@
   </pre>
 </div>
 
+<h2>Users intending to review</h2>
+{% if intentions %}
+  <ul>
+    {% for intention in intentions %}
+      <li>
+        {{ intention.user.username }} ({{ intention.user.email }}) - Review expiration date: {{ intention.review_expiry_date }}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No users have declared interest in reviewing this patch.</p>
+{% endif %}
+
+{% if planning_to_review %}
+<form id="declare-review-form" method="post">
+  {% csrf_token %}
+  Current review intention expires in {{ review_expiry_date }}
+  <br>
+  <input type="hidden" name="action" value="remove-review">
+  <input type="submit" class="patch-form-submit btn btn-primary" value="Remove review interest">
+</form>
+{% else %}
+<form id="declare-review-form" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="add-review">
+  <input type="submit" class="patch-form-submit btn btn-primary" value="Declare review interest">
+</form>
+{% endif %}
+
 {% for item in comments %}
 {% if forloop.first %}
 <h2>Comments</h2>
