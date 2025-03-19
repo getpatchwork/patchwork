@@ -33,6 +33,16 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     dependents = HyperlinkedRelatedField(
         read_only=True, view_name='api-series-detail', many=True
     )
+    supersedes = HyperlinkedRelatedField(
+        read_only=True,
+        view_name='api-series-detail',
+        many=True,
+    )
+    superseded = HyperlinkedRelatedField(
+        read_only=True,
+        view_name='api-series-detail',
+        many=True,
+    )
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -45,6 +55,11 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     def to_representation(self, instance):
         if not instance.project.show_dependencies:
             for field in ('dependencies', 'dependents'):
+                if field in self.fields:
+                    del self.fields[field]
+
+        if not instance.project.show_series_versions:
+            for field in ('supersedes', 'superseded'):
                 if field in self.fields:
                     del self.fields[field]
 
@@ -71,6 +86,8 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'patches',
             'dependencies',
             'dependents',
+            'supersedes',
+            'superseded',
         )
         read_only_fields = (
             'date',
@@ -83,10 +100,12 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'patches',
             'dependencies',
             'dependents',
+            'supersedes',
+            'superseded',
         )
         versioned_fields = {
             '1.1': ('web_url',),
-            '1.4': ('dependencies', 'dependents'),
+            '1.4': ('dependencies', 'dependents', 'supersedes', 'superseded'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
@@ -105,6 +124,8 @@ class SeriesMixin(object):
                 'cover_letter__project',
                 'dependencies',
                 'dependents',
+                'supersedes',
+                'superseded',
             )
             .select_related('submitter', 'project')
         )

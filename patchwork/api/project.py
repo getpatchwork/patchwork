@@ -40,6 +40,7 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
             'list_archive_url_format',
             'commit_url_format',
             'show_dependencies',
+            'show_series_versions',
         )
         read_only_fields = (
             'name',
@@ -56,7 +57,7 @@ class ProjectSerializer(BaseHyperlinkedModelSerializer):
                 'list_archive_url_format',
                 'commit_url_format',
             ),
-            '1.4': ('show_dependencies',),
+            '1.4': ('show_dependencies', 'show_series_versions'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-project-detail'},
