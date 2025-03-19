@@ -104,6 +104,11 @@ class Project(models.Model):
         default=False,
         help_text='Enable dependency tracking for patches and cover letters.',
     )
+    show_series_versions = models.BooleanField(
+        default=False,
+        help_text='Enable parsing series previous versions on patches and '
+        'cover letters.',
+    )
     use_tags = models.BooleanField(default=True)
 
     def is_editable(self, user):
@@ -858,6 +863,15 @@ class Series(FilenameMixin, models.Model):
         related_query_name='dependent',
     )
 
+    # versioning
+    supersedes = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        blank=True,
+        help_text='Previous versions of this patch.',
+        related_name='superseded',
+    )
+
     # metadata
     name = models.CharField(
         max_length=255,
@@ -888,6 +902,15 @@ class Series(FilenameMixin, models.Model):
         if match:
             return match.group(2)
         return obj.name.strip()
+
+    def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+
+        if user.is_superuser or user == self.submitter.user:
+            return True
+
+        return self.project.is_editable(user)
 
     @property
     def received_total(self):
