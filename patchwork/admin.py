@@ -151,7 +151,7 @@ class SeriesAdmin(admin.ModelAdmin):
     readonly_fields = ('received_total', 'received_all')
     search_fields = ('submitter__name', 'submitter__email')
     exclude = ('patches',)
-    filter_horizontal = ('dependencies',)
+    filter_horizontal = ('dependencies', 'supersedes')
     inlines = (PatchInline,)
 
     def received_all(self, series):
