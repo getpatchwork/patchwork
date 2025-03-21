@@ -17,7 +17,7 @@ from django.utils import timezone as tz_utils
 from patchwork.models import Check
 from patchwork.models import Patch
 from patchwork.models import State
-from patchwork.tests.utils import create_check
+from patchwork.tests.utils import create_attention_set, create_check
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
@@ -205,6 +205,10 @@ class PatchListFilteringTest(TestCase):
 
 
 class PatchViewTest(TestCase):
+    def setUp(self):
+        self.project = create_project()
+        self.maintainer = create_maintainer(self.project)
+
     def test_redirect(self):
         patch = create_patch()
 
@@ -378,6 +382,122 @@ class PatchViewTest(TestCase):
             response.content.decode().count(
                 f'<td>{check_b.user}/{check_b.context}</td>'
             ),
+        )
+
+    def test_patch_with_attention_set(self):
+        user = create_user()
+        patch = create_patch(project=self.project)
+        create_attention_set(patch=patch, user=user)
+        create_attention_set(patch=patch, user=self.maintainer)
+
+        self.client.login(
+            username=self.maintainer.username,
+            password=self.maintainer.username,
+        )
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+
+        # the response should contain attention set list
+        self.assertContains(response, '<h2>Users pending actions</h2>')
+
+        # and it should show the existing users in the list
+        self.assertEqual(
+            response.content.decode().count(
+                f'{self.maintainer.username} ({self.maintainer.email})'
+            ),
+            1,
+        )
+        self.assertEqual(
+            response.content.decode().count(f'{user.username} ({user.email})'),
+            1,
+        )
+
+        # should display remove button for all
+        self.assertEqual(
+            response.content.decode().count('glyphicon-trash'),
+            2,
+        )
+
+    def test_patch_with_anonymous_user_with_attention_list(self):
+        # show not show a declare interest button nor remove buttons
+        user = create_user()
+        patch = create_patch(project=self.project)
+        create_attention_set(patch=patch, user=user)
+        create_attention_set(patch=patch, user=self.maintainer)
+
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+
+        self.assertEqual(
+            response.content.decode().count('Declare interest'),
+            0,
+        )
+        self.assertEqual(
+            response.content.decode().count('glyphicon-trash'),
+            0,
+        )
+
+    def test_patch_with_user_not_in_attention_list(self):
+        # a declare interest button should be displayed
+        patch = create_patch(project=self.project)
+
+        self.client.login(
+            username=self.maintainer.username,
+            password=self.maintainer.username,
+        )
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+
+        self.assertEqual(
+            response.content.decode().count('Declare interest'),
+            1,
+        )
+
+    def test_patch_with_user_in_attention_list(self):
+        # a remove button should be displayed if he is authenticated
+        # should not show option for other users
+        user = create_user()
+        patch = create_patch(project=self.project)
+        create_attention_set(patch=patch, user=user)
+        create_attention_set(patch=patch, user=self.maintainer)
+
+        self.client.login(
+            username=user.username,
+            password=user.username,
+        )
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+        self.assertEqual(
+            response.content.decode().count(f'{user.username} ({user.email})'),
+            1,
+        )
+        self.assertEqual(
+            response.content.decode().count('glyphicon-trash'),
+            1,
         )
 
 
