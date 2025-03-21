@@ -2398,6 +2398,13 @@ components:
           items:
             $ref: '#/components/schemas/PatchEmbedded'
 {% endif %}
+{% if version >= (1, 4) %}
+        attention_set:
+          title: AttentionSet
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchAttentionSet'
+{% endif %}
     PatchDetail:
       type: object
       title: Patches
@@ -2474,6 +2481,13 @@ components:
 {% if version >= (1, 2) %}
         related:
           title: Relations
+          type: array
+          items:
+            type: integer
+{% endif %}
+{% if version >= (1, 4) %}
+        attention_set:
+          title: Attention Set
           type: array
           items:
             type: integer
@@ -2941,6 +2955,21 @@ components:
           type: string
           format: uri
           readOnly: true
+{% if version >= (1, 4) %}
+    PatchAttentionSet:
+      type: object
+      title: PatchAttentionSet
+      description: |
+        A user interested or with pending actions over a patch
+      properties:
+        user:
+          $ref: '#/components/schemas/UserEmbedded'
+        last_updated:
+          title: last_updated
+          type: string
+          format: iso8601
+          readOnly: true
+{% endif %}
     PatchEmbedded:
       type: object
       title: Patch

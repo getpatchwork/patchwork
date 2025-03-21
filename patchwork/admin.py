@@ -23,6 +23,7 @@ from patchwork.models import SeriesReference
 from patchwork.models import State
 from patchwork.models import Tag
 from patchwork.models import UserProfile
+from patchwork.models import PatchAttentionSet
 
 
 class UserProfileInline(admin.StackedInline):
@@ -86,6 +87,17 @@ class CoverAdmin(admin.ModelAdmin):
 admin.site.register(Cover, CoverAdmin)
 
 
+class PatchAttentionSetInline(admin.StackedInline):
+    model = PatchAttentionSet
+    fields = ('user',)
+    extra = 0
+    verbose_name = 'user'
+    verbose_name_plural = 'attention set users'
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 class PatchAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -99,6 +111,7 @@ class PatchAdmin(admin.ModelAdmin):
     list_filter = ('project', 'submitter', 'state', 'archived')
     list_select_related = ('submitter', 'project', 'state')
     search_fields = ('name', 'submitter__name', 'submitter__email')
+    inlines = (PatchAttentionSetInline,)
     date_hierarchy = 'date'
 
     def is_pull_request(self, patch):

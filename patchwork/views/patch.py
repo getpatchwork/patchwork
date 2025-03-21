@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -16,6 +17,7 @@ from patchwork.forms import CreateBundleForm
 from patchwork.forms import PatchForm
 from patchwork.models import Cover
 from patchwork.models import Patch
+from patchwork.models import PatchAttentionSet
 from patchwork.models import Project
 from patchwork.views import generic_list
 from patchwork.views import set_bundle
@@ -61,6 +63,10 @@ def patch_detail(request, project_id, msgid):
 
     editable = patch.is_editable(request.user)
     context = {'project': patch.project}
+    is_maintainer = (
+        request.user.is_authenticated
+        and project in request.user.profile.maintainer_projects.all()
+    )
 
     form = None
     create_bundle_form = None
@@ -80,6 +86,50 @@ def patch_detail(request, project_id, msgid):
             errors = set_bundle(
                 request, project, action, request.POST, [patch]
             )
+        elif action in ['add-interest', 'remove-interest']:
+            if request.user.is_authenticated:
+                if action == 'add-interest':
+                    PatchAttentionSet.objects.get_or_create(
+                        patch=patch, user=request.user
+                    )
+                    message = (
+                        'You have declared interest in reviewing this patch'
+                    )
+                else:
+                    user_id = request.POST.get('attention_set')
+
+                    if is_maintainer or user_id == str(request.user.id):
+                        rm_user = User.objects.get(pk=user_id)
+                        PatchAttentionSet.objects.filter(
+                            patch=patch, user=rm_user
+                        ).delete()
+
+                        rm_user_name = (
+                            f"'{rm_user.username}'"
+                            if rm_user != request.user
+                            else 'yourself'
+                        )
+                        message = (
+                            f"You removed {rm_user_name} from patch's "
+                            'attention list'
+                        )
+
+                        patch.save()
+                        messages.success(
+                            request,
+                            message,
+                        )
+                    else:
+                        messages.error(
+                            request,
+                            "You can't remove another user interest in this "
+                            'patch',
+                        )
+            else:
+                messages.error(
+                    request,
+                    'You must be logged in to change the user attention list.',
+                )
 
         elif not editable:
             return HttpResponseForbidden()
@@ -92,6 +142,13 @@ def patch_detail(request, project_id, msgid):
 
     if request.user.is_authenticated:
         context['bundles'] = request.user.bundles.all()
+
+    attention_set = [
+        data.user for data in PatchAttentionSet.objects.filter(patch=patch)
+    ]
+
+    context['attention_set'] = attention_set
+    context['is_maintainer'] = is_maintainer
 
     comments = patch.comments.all()
     comments = comments.select_related('submitter')

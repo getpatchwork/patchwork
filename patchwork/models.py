@@ -503,6 +503,9 @@ class Patch(SubmissionMixin):
         null=True,
         on_delete=models.CASCADE,
     )
+    attention_set = models.ManyToManyField(
+        User, through='PatchAttentionSet', related_name='attention_set'
+    )
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True, db_index=True)
@@ -579,7 +582,7 @@ class Patch(SubmissionMixin):
 
         self.refresh_tag_counts()
 
-    def is_editable(self, user):
+    def is_editable(self, user, declare_interest_only=False):
         if not user.is_authenticated:
             return False
 
@@ -590,7 +593,8 @@ class Patch(SubmissionMixin):
         if self.project.is_editable(user):
             self._edited_by = user
             return True
-        return False
+
+        return declare_interest_only
 
     @staticmethod
     def filter_unique_checks(checks):
@@ -825,6 +829,104 @@ class PatchComment(EmailMixin, models.Model):
         indexes = [
             models.Index(name='patch_date_idx', fields=['patch', 'date']),
         ]
+
+
+class PatchAttentionSetManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(removed=False)
+
+    def upsert(self, patch, users):
+        """Add or updates deleted attention set entries
+
+        :param patch: patch object to be updated
+        :type patch: Patch
+        :param users: list of users to be added to the attention set list
+        :type users: list[int]
+        """
+        qs = super().get_queryset().filter(patch=patch)
+
+        existing = {
+            obj.user.id: obj for obj in qs.filter(user__in=users).all()
+        }
+        update_list = []
+        for obj in existing.values():
+            if obj.removed:
+                obj.removed = False
+                obj.removed_reason = ''
+                update_list.append(obj)
+        insert_list = [user for user in users if user not in existing.keys()]
+
+        qs.bulk_create(
+            [PatchAttentionSet(patch=patch, user_id=id) for id in insert_list]
+        )
+        qs.bulk_update(update_list, ['removed', 'removed_reason'])
+
+    def soft_delete(self, patch, users, reason=''):
+        """Mark attention set entries as deleted
+
+        :param patch: patch object to be updated
+        :type patch: Patch
+        :param users: list of users to be added to the attention set list
+        :type users: list[int]
+        :param reason: reason for removal
+        :type reason: string
+        """
+        qs = super().get_queryset().filter(patch=patch)
+
+        existing = {
+            obj.user.id: obj for obj in qs.filter(user__in=users).all()
+        }
+        update_list = []
+        for obj in existing.values():
+            if not obj.removed:
+                obj.removed = True
+                obj.removed_reason = reason
+                update_list.append(obj)
+
+        self.bulk_update(update_list, ['removed', 'removed_reason'])
+
+
+class PatchAttentionSet(models.Model):
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(auto_now=True)
+    removed = models.BooleanField(default=False)
+    removed_reason = models.CharField(max_length=50, blank=True)
+
+    objects = PatchAttentionSetManager()
+    raw_objects = models.Manager()
+
+    def delete(self):
+        """Soft deletes an user from the patch attention set"""
+        self.removed = True
+        self.removed_reason = 'reviewed or commented on the patch'
+        self.save()
+
+    def __str__(self):
+        return f'<{self.user} - {self.user.email}>'
+
+    class Meta:
+        unique_together = [('patch', 'user')]
+
+
+def _remove_user_from_patch_attention_set(sender, instance, created, **kwargs):
+    if created:
+        submitter = instance.submitter
+        patch = instance.patch
+        if submitter.user:
+            try:
+                # Don't use the RelatedManager since it will execute a hard
+                # delete
+                PatchAttentionSet.objects.get(
+                    patch=patch, user=submitter.user
+                ).delete()
+            except PatchAttentionSet.DoesNotExist:
+                pass
+
+
+models.signals.post_save.connect(
+    _remove_user_from_patch_attention_set, sender=PatchComment
+)
 
 
 class Series(FilenameMixin, models.Model):

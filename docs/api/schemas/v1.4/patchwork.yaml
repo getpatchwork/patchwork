@@ -2312,6 +2312,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatchEmbedded'
+        attention_set:
+          title: AttentionSet
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchAttentionSet'
     PatchDetail:
       type: object
       title: Patches
@@ -2387,6 +2392,11 @@ components:
             - 'integer'
         related:
           title: Relations
+          type: array
+          items:
+            type: integer
+        attention_set:
+          title: Attention Set
           type: array
           items:
             type: integer
@@ -2830,6 +2840,19 @@ components:
             A URL to download the cover letter in mbox format.
           type: string
           format: uri
+          readOnly: true
+    PatchAttentionSet:
+      type: object
+      title: PatchAttentionSet
+      description: |
+        A user interested or with pending actions over a patch
+      properties:
+        user:
+          $ref: '#/components/schemas/UserEmbedded'
+        last_updated:
+          title: last_updated
+          type: string
+          format: iso8601
           readOnly: true
     PatchEmbedded:
       type: object

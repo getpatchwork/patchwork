@@ -81,6 +81,10 @@
         </th>
 
         <th>
+          <span title="Declared review interest">Review Interest</span>
+        </th>
+
+        <th>
 {% if not order.editable %}
 {% if order.name == "date" %}
           <a class="col-active" href="{% listurl order=order.reversed_name %}">
@@ -182,6 +186,7 @@
         </td>
         <td id="patch-tags:{{patch.id}}" class="text-nowrap">{{ patch|patch_tags }}</td>
         <td id="patch-checks:{{patch.id}}" class="text-nowrap">{{ patch|patch_checks }}</td>
+        <td id="patch-interest:{{patch.id}}" class="text-nowrap">{{ patch|patch_interest }}</td>
         <td id="patch-date:{{patch.id}}" class="text-nowrap">{{ patch.date|date:"Y-m-d" }}</td>
         <td id="patch-submitter:{{patch.id}}">{{ patch.submitter|personify:project }}</td>
         <td id="patch-delegate:{{patch.id}}">{{ patch.delegate.username }}</td>
