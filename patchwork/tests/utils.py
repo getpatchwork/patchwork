@@ -11,7 +11,7 @@ import os
 from django.contrib.auth.models import User
 from django.utils import timezone as tz_utils
 
-from patchwork.models import Bundle
+from patchwork.models import Bundle, PatchAttentionSet
 from patchwork.models import Check
 from patchwork.models import Cover
 from patchwork.models import CoverComment
@@ -204,6 +204,16 @@ def create_patch(**kwargs):
         series.add_patch(patch, number)
 
     return patch
+
+
+def create_attention_set(**kwargs):
+    values = {
+        'patch': create_patch() if 'patch' not in kwargs else None,
+        'user': create_person() if 'user' not in kwargs else None,
+    }
+    values.update(kwargs)
+
+    return PatchAttentionSet.objects.create(**values)
 
 
 def create_cover(**kwargs):

@@ -11,9 +11,9 @@ from django.urls import NoReverseMatch
 from django.urls import reverse
 from rest_framework import status
 
-from patchwork.models import Patch
+from patchwork.models import Patch, PatchAttentionSet
 from patchwork.tests.api import utils
-from patchwork.tests.utils import create_maintainer
+from patchwork.tests.utils import create_attention_set, create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_person
@@ -456,3 +456,235 @@ class TestPatchAPI(utils.APITestCase):
         self.client.authenticate(user=user)
         resp = self.client.delete(self.api_url(patch.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+    def test_declare_review_intention(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        self.client.authenticate(user=user)
+
+        # No intention of reviewing
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            0,
+        )
+
+        # declare intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [user.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            1,
+        )
+
+        # redeclare intention should have no effect
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [user.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            1,
+        )
+
+    def test_remove_review_intention(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        create_attention_set(patch=patch, user=user)
+        self.client.authenticate(user=user)
+
+        # Existing intention of reviewing
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            1,
+        )
+
+        # remove intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [-user.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            0,
+        )
+        # uses soft delete
+        self.assertEqual(
+            len(
+                PatchAttentionSet.raw_objects.filter(
+                    patch=patch, user=user
+                ).all()
+            ),
+            1,
+        )
+
+    def test_add_review_intention_updates_old_entry(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        interest = create_attention_set(patch=patch, user=user, removed=True)
+        self.client.authenticate(user=user)
+
+        # Existing deleted intention of reviewing
+        self.assertTrue(interest.removed)
+
+        # updates intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [user.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            1,
+        )
+        # uses upsert
+        self.assertEqual(
+            len(
+                PatchAttentionSet.raw_objects.filter(
+                    patch=patch, user=user
+                ).all()
+            ),
+            1,
+        )
+
+    def test_remove_review_intention_with_empty_array(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        create_attention_set(patch=patch, user=user)
+        self.client.authenticate(user=user)
+
+        # Existing intention of reviewing
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            1,
+        )
+
+        # remove intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': []},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            0,
+        )
+
+    def test_remove_review_intention_of_others(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        user2 = create_user()
+        create_attention_set(patch=patch, user=user2)
+
+        self.client.authenticate(user=user)
+
+        # remove intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [-user2.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user2).all()
+            ),
+            1,
+        )
+
+    def test_remove_review_intention_of_others_as_maintainer(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        maintainer = create_maintainer(project)
+        user2 = create_user()
+        create_attention_set(patch=patch, user=user2)
+
+        self.client.authenticate(user=maintainer)
+
+        # remove intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [-user2.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user2).all()
+            ),
+            0,
+        )
+
+    def test_declare_review_intention_of_others(self):
+        project = create_project()
+        state = create_state()
+        patch = create_patch(project=project, state=state)
+        user = create_user()
+        maintainer = create_maintainer(project)
+        user2 = create_user()
+        self.client.authenticate(user=user)
+
+        # declare intention
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [user2.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            0,
+        )
+
+        # maintaners also can't assign someone
+        self.client.authenticate(user=maintainer)
+        resp = self.client.patch(
+            self.api_url(patch.id),
+            {'attention_set': [user2.id]},
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            len(
+                PatchAttentionSet.objects.filter(patch=patch, user=user).all()
+            ),
+            0,
+        )
