@@ -47,6 +47,10 @@ _comment_span_res = [
 
 _span = '<span class="%s">%s</span>'
 
+_comment_link_re = re.compile(r'(https|http|git|ftp)://[^<)\s]+', re.I)
+
+_link = '<a href="%s">%s</a>'
+
 
 @register.filter
 def patchsyntax(patch):
@@ -74,5 +78,8 @@ def commentsyntax(submission):
 
     for r, cls in _comment_span_res:
         content = r.sub(lambda x: _span % (cls, x.group(0)), content)
+    content = _comment_link_re.sub(
+        lambda x: _link % (x.group(0), x.group(0)), content
+    )
 
     return mark_safe(content)
