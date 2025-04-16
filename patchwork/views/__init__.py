@@ -135,9 +135,13 @@ def set_bundle(request, project, action, data, patches):
         if not data['bundle_id']:
             return ['No bundle was selected']
         bundle = get_object_or_404(Bundle, id=data['bundle_id'])
+        if request.user != bundle.owner:
+            return ["You don't have permissions to add patches to bundle"]
         add_bundle_patches(request, patches, bundle)
     elif action == 'remove':
         bundle = get_object_or_404(Bundle, id=data['removed_bundle_id'])
+        if request.user != bundle.owner:
+            return ["You don't have permissions to remove patches from bundle"]
         for patch in patches:
             try:
                 bp = BundlePatch.objects.get(bundle=bundle, patch=patch)
