@@ -61,6 +61,18 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
         if 'supersedes' in validated_data:
             supersedes = validated_data.pop('supersedes', [])
 
+            if instance in supersedes:
+                raise ValidationError(
+                    {'detail': 'A series cannot be linked to itself.'}
+                )
+
+            if any(
+                series.project != instance.project for series in supersedes
+            ):
+                raise ValidationError(
+                    {'detail': 'Series must belong to the same project.'}
+                )
+
             try:
                 instance.supersedes.set(supersedes)
             except Series.DoesNotExist:

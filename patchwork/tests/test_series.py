@@ -1081,3 +1081,27 @@ class SeriesDependencyTestCase(SeriesDependencyBase):
         self.assertEqual(series2.dependencies.count(), 1)
         self.assertEqual(series3.dependencies.count(), 2)
         self.assertEqual(series3.dependents.count(), 0)
+
+
+class SeriesVersioningTestCase(TestCase):
+    def setUp(self):
+        self.series_a = utils.create_series()  # main series
+        self.project = self.series_a.project  # main project
+        self.submitter = self.series_a.submitter  # main user
+
+        # same project series
+        self.series_b = utils.create_series(project=self.project)
+        self.series_c = utils.create_series(project=self.project)
+        # different project series
+        self.series_x = utils.create_series()
+
+    def test_add_superseded_series(self):
+        self.series_c.supersedes.set([self.series_b])
+
+        self.assertIn(self.series_b, self.series_c.supersedes.all())
+        self.assertIn(self.series_c, self.series_b.superseded.all())
+
+        self.series_b.supersedes.set([self.series_a])
+
+        self.assertIn(self.series_a, self.series_b.supersedes.all())
+        self.assertIn(self.series_b, self.series_a.superseded.all())
