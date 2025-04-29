@@ -96,7 +96,7 @@ class LinkHeaderPagination(PageNumberPagination):
 
 class PatchworkPermission(permissions.BasePermission):
     """
-    This permission works for Project, Patch, PatchComment
+    This permission works for Project, Patch, Series, PatchComment
     and CoverComment model objects
     """
 
