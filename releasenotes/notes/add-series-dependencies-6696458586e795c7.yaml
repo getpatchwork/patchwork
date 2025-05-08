@@ -13,6 +13,7 @@ features:
     ``Depends-on: <20240726221429.221611-1-user@example.com>``
     Alternatively, the web URL of the patch or series may be given:
     ``Depends-on: http://patchwork.example.com/project/test/list?series=1111``
+    ``Depends-on: http://patchwork.example.com/project/test/series/1111``
 api:
   - |
     The API version has been updated to v1.4.

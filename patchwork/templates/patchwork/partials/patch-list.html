@@ -179,7 +179,7 @@
         </td>
         <td id="patch-series:{{patch.id}}">
 {% if patch.series %}
-          <a href="?series={{patch.series.id}}">
+          <a href="{% url 'series-detail' series_id=patch.series.id project_id=project.linkname %}">
             {{ patch.series|truncatechars:100 }}
           </a>
 {% endif %}
