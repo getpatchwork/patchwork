@@ -344,7 +344,7 @@ def process_multiplepatch_form(request, form, action, patches, context):
 
     changed_patches = 0
     for patch in patches:
-        if not patch.is_editable(request.user):
+        if not patch.is_editable(request.user, form.review_status_only()):
             errors.append(
                 "You don't have permissions to edit patch '%s'" % patch.name
             )

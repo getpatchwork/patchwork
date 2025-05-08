@@ -187,6 +187,34 @@
   </pre>
 </div>
 
+<div class="submission-attention-set">
+  <h2>Users pending actions</h2>
+  {% if user.is_authenticated and user not in attention_set %}
+  <form id="declare-review-form" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add-interest">
+    <button type="submit" class="btn-default interest-action-add">Declare interest</button>
+  </form>
+  {% endif %}
+</div>
+{% if attention_set %}
+  <ul>
+    {% for set_user in attention_set %}
+      <li>
+        <form id="declare-review-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove-interest">
+          <input type="hidden" name="attention_set" value="{{set_user.id}}">
+        {{ set_user.username }} ({{ set_user.email }})
+        {% if set_user == user or is_maintainer %}
+            <button type="submit" class="btn-link"><span class="glyphicon glyphicon-trash" ></span></button>
+        {% endif %}
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 {% for item in comments %}
 {% if forloop.first %}
 <h2>Comments</h2>

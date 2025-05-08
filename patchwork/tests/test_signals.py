@@ -5,7 +5,7 @@
 
 from django.test import TestCase
 
-from patchwork.models import Event
+from patchwork.models import Event, PatchAttentionSet
 from patchwork.tests import utils
 
 BASE_FIELDS = [
@@ -311,3 +311,19 @@ class PatchCommentCreatedTest(_BaseTestCase):
         )
         self.assertEqual(events[0].project, comment.patch.project)
         self.assertEventFields(events[0])
+
+    def test_comment_removes_user_from_attention_set(self):
+        patch = utils.create_patch()
+        user = utils.create_user()
+        submitter = utils.create_person(user=user)
+        interest = utils.create_attention_set(patch=patch, user=user)
+
+        # we have an active interest
+        self.assertFalse(interest.removed)
+        utils.create_patch_comment(patch=patch, submitter=submitter)
+
+        attention_set = PatchAttentionSet.raw_objects.filter(
+            patch=patch, user=user
+        ).all()
+        self.assertEqual(len(attention_set), 1)
+        self.assertTrue(attention_set[0].removed)
