@@ -1834,7 +1834,6 @@ components:
           title: Message ID
           type: string
           readOnly: true
-          minLength: 1
           maxLength: 255
 {% if version >= (1, 2) %}
         list_archive_url:
@@ -1867,6 +1866,9 @@ components:
         content:
           title: Content
           type: string
+{% if version <= (1, 4) %}
+          readOnly: true
+{% endif %}
           readOnly: true
           minLength: 1
         headers:

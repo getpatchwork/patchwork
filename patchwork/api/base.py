@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+from django.urls import resolve
 import rest_framework
 
 from django.conf import settings
@@ -15,6 +16,8 @@ from rest_framework.serializers import HyperlinkedModelSerializer
 from rest_framework.utils.urls import replace_query_param
 
 from patchwork.api import utils
+from patchwork.models import Cover
+from patchwork.models import Patch
 
 
 DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
@@ -22,30 +25,69 @@ DRF_VERSION = tuple(int(x) for x in rest_framework.__version__.split('.'))
 
 if DRF_VERSION > (3, 11):
 
+    class CurrentPersonDefault(object):
+        requires_context = True
+
+        def __call__(self, serializer_field):
+            return (
+                serializer_field.context['request']
+                .user.person_set.all()
+                .first()
+            )
+
     class CurrentPatchDefault(object):
         requires_context = True
 
         def __call__(self, serializer_field):
+            req = serializer_field.context['request']
+            _, _, kwargs = resolve(req.path)
+            if 'patch_id' in kwargs:
+                return get_object_or_404(Patch, id=kwargs['patch_id'])
             return serializer_field.context['request'].patch
 
     class CurrentCoverDefault(object):
         requires_context = True
 
         def __call__(self, serializer_field):
-            return serializer_field.context['request'].cover
+            req = serializer_field.context['request']
+            _, _, kwargs = resolve(req.path)
+            if 'cover_id' in kwargs:
+                return get_object_or_404(Cover, id=kwargs['cover_id'])
+            return req.cover
 
 else:
 
+    class CurrentPersonDefault(object):
+        def set_context(self, serializer_field):
+            self.person = (
+                serializer_field.context['request']
+                .user.person_set.all()
+                .first()
+            )
+
+        def __call__(self):
+            return self.person
+
     class CurrentPatchDefault(object):
         def set_context(self, serializer_field):
-            self.patch = serializer_field.context['request'].patch
+            req = serializer_field.context['request']
+            _, _, kwargs = resolve(req.path)
+            if 'patch_id' in kwargs:
+                self.patch = get_object_or_404(Patch, id=kwargs['patch_id'])
+            else:
+                self.patch = req.patch
 
         def __call__(self):
             return self.patch
 
     class CurrentCoverDefault(object):
         def set_context(self, serializer_field):
-            self.patch = serializer_field.context['request'].cover
+            req = serializer_field.context['request']
+            _, _, kwargs = resolve(req.path)
+            if 'cover_id' in kwargs:
+                self.cover = get_object_or_404(Cover, id=kwargs['cover_id'])
+            else:
+                self.cover = req.cover
 
         def __call__(self):
             return self.cover
