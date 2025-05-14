@@ -319,6 +319,19 @@ paths:
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Order'
         - $ref: '#/components/parameters/Search'
+        - in: query
+          name: type
+          required: false
+          description: |
+            Filter comment type. Use 'notes' to show only maintainer notes,
+            'comments' to show only regular comments, or omit for default behavior
+            (which only shows regular comments).
+          schema:
+            title: 'Comment type'
+            type: string
+            enum:
+              - notes
+              - comments
       responses:
         '200':
           description: 'List of comments'
@@ -331,6 +344,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Comment'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+    post:
+      summary: Create a maintainer note in the cover
+      description: |
+        Create a maintainer note in the cover
+      operationId: cover_maintainer_note_create
+      requestBody:
+        $ref: '#/components/requestBodies/MaintainerNote'
+      responses:
+        '201':
+          description: 'Created maintainer note'
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: 'Invalid request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMaintainerNote'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: 'Not found'
           content:
@@ -356,7 +406,7 @@ paths:
           title: Comment ID
           type: integer
     get:
-      summary: Show a cover letter comment.
+      summary: Show a cover letter comment or maintainer note.
       description: |
         Retrieve a cover letter comment by its ID.
       operationId: cover_comments_read
@@ -376,7 +426,7 @@ paths:
       tags:
         - comments
     patch:
-      summary: Update a cover letter comment (partial).
+      summary: Update a cover letter comment or maintainer note (partial).
       description:
         Partially update an existing cover letter comment.
         You must be a maintainer of the project that the cover letter comment belongs to.
@@ -725,6 +775,19 @@ paths:
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Order'
         - $ref: '#/components/parameters/Search'
+        - in: query
+          name: type
+          required: false
+          description: |
+            Filter comment type. Use 'notes' to show only maintainer notes,
+            'comments' to show only regular comments, or omit for default behavior
+            (which only shows regular comments).
+          schema:
+            title: 'Comment type'
+            type: string
+            enum:
+              - notes
+              - comments
       responses:
         '200':
           description: 'List of comments'
@@ -737,6 +800,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Comment'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - comments
+    post:
+      summary: Create a maintainer note in the patch
+      description: |
+        Create a maintainer note in the patch
+      operationId: patch_maintainer_note_create
+      requestBody:
+        $ref: '#/components/requestBodies/MaintainerNote'
+      responses:
+        '201':
+          description: 'Created maintainer note'
+          headers:
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: 'Invalid request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMaintainerNote'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: 'Not found'
           content:
@@ -762,7 +862,7 @@ paths:
           title: Comment ID
           type: integer
     get:
-      summary: Show a patch comment.
+      summary: Show a patch comment or maintainer note.
       description: |
         Retrieve a patch comment by its ID and the ID of the patch.
       operationId: patch_comments_read
@@ -782,7 +882,7 @@ paths:
       tags:
         - comments
     patch:
-      summary: Update a patch comment (partial).
+      summary: Update a patch comment or mantainer note (partial).
       description:
         Partially update an existing patch comment.
         You must be a maintainer of the project that the patch comment belongs to.
@@ -1478,6 +1578,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/CommentUpdate'
+    MaintainerNote:
+      required: true
+      description: |
+        A maintainer note for patch or cover letters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MaintainerNote'
     Patch:
       required: true
       description: |
@@ -1770,7 +1878,6 @@ components:
           title: Message ID
           type: string
           readOnly: true
-          minLength: 1
           maxLength: 255
         list_archive_url:
           title: List archive URL
@@ -1801,7 +1908,6 @@ components:
         content:
           title: Content
           type: string
-          readOnly: true
           minLength: 1
         headers:
           title: Headers
@@ -1826,6 +1932,20 @@ components:
       description: |
         The fields to set on an existing comment.
       properties:
+        addressed:
+          title: Addressed
+          type:
+            - 'null'
+            - 'boolean'
+    MaintainerNote:
+      type: object
+      title: Maintainer note
+      description: |
+        The fields to set on a maintainer note.
+      properties:
+        content:
+          title: Content
+          type: string
         addressed:
           title: Addressed
           type:
@@ -3148,6 +3268,22 @@ components:
       description: |
         A mapping of field names to validation failures.
       properties:
+        addressed:
+          title: Addressed
+          type: array
+          items:
+            type: string
+    ErrorMaintainerNote:
+      type: object
+      title: A maintainer note create or update error.
+      description: |
+        A mapping of field names to validation failures.
+      properties:
+        content:
+          title: Content
+          type: array
+          items:
+            type: string
         addressed:
           title: Addressed
           type: array

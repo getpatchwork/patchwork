@@ -356,7 +356,7 @@ paths:
           title: Comment ID
           type: integer
     get:
-      summary: Show a cover letter comment.
+      summary: Show a cover letter comment or maintainer note.
       description: |
         Retrieve a cover letter comment by its ID.
       operationId: cover_comments_read
@@ -376,7 +376,7 @@ paths:
       tags:
         - comments
     patch:
-      summary: Update a cover letter comment (partial).
+      summary: Update a cover letter comment or maintainer note (partial).
       description:
         Partially update an existing cover letter comment.
         You must be a maintainer of the project that the cover letter comment belongs to.
@@ -762,7 +762,7 @@ paths:
           title: Comment ID
           type: integer
     get:
-      summary: Show a patch comment.
+      summary: Show a patch comment or maintainer note.
       description: |
         Retrieve a patch comment by its ID and the ID of the patch.
       operationId: patch_comments_read
@@ -782,7 +782,7 @@ paths:
       tags:
         - comments
     patch:
-      summary: Update a patch comment (partial).
+      summary: Update a patch comment or mantainer note (partial).
       description:
         Partially update an existing patch comment.
         You must be a maintainer of the project that the patch comment belongs to.
