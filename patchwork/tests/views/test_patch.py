@@ -247,6 +247,53 @@ class PatchViewTest(TestCase):
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
 
+    def test_show_maintainer_note(self):
+        patch = create_patch()
+        note = create_patch_comment(patch=patch, msgid='')
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+        response = self.client.get(requested_url)
+        self.assertIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
+
+    def test_maintainer_notes_controls(self):
+        project = create_project()
+        user = create_maintainer(project)
+        patch = create_patch(project=project)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+
+        # No authentication
+        response = self.client.get(requested_url)
+        self.assertNotIn('Add Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Remove Note'.encode('utf-8'), response.content)
+
+        # Auth with no note
+        self.client.login(username=user.username, password=user.username)
+        response = self.client.get(requested_url)
+        self.assertIn('Add Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Remove Note'.encode('utf-8'), response.content)
+
+        # Auth with note
+        note = create_patch_comment(patch=patch, msgid='')
+        response = self.client.get(requested_url)
+        self.assertNotIn('Add Note'.encode('utf-8'), response.content)
+        self.assertIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertIn('Remove Note'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
+
     def test_old_detail_url(self):
         patch = create_patch()
 
