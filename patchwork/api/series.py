@@ -34,7 +34,7 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     )
     supersedes = HyperlinkedRelatedField(
         view_name='api-series-detail',
-        queryset=Series.objects.all(),
+        queryset=Series.objects.select_related('project').all(),
         required=False,
         many=True,
     )
