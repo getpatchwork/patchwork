@@ -58,8 +58,10 @@ def cover_detail(request, project_id, msgid):
         handle_post_maintainer_note(cover, request)
     )
 
+    if is_maintainer:
+        context['note'] = note
+
     context['comments'] = comments
-    context['note'] = note
     context['is_maintainer'] = is_maintainer
     context['create_note_form'] = create_note_form
     context['edit_note_form'] = edit_note_form

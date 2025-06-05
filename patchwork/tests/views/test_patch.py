@@ -248,7 +248,10 @@ class PatchViewTest(TestCase):
         self.assertRedirects(response, redirect_url)
 
     def test_show_maintainer_note(self):
-        patch = create_patch()
+        project = create_project()
+        user_default = create_user(project)
+        user_maintainer = create_maintainer(project)
+        patch = create_patch(project=project)
         note = create_patch_comment(patch=patch, msgid='')
         requested_url = reverse(
             'patch-detail',
@@ -257,6 +260,20 @@ class PatchViewTest(TestCase):
                 'msgid': patch.encoded_msgid,
             },
         )
+
+        # No authentication
+        response = self.client.get(requested_url)
+        self.assertNotIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertNotIn(note.content.encode('utf-8'), response.content)
+
+        # Auth with default user
+        self.client.login(username=user_default.username, password=user_default.username)
+        response = self.client.get(requested_url)
+        self.assertNotIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertNotIn(note.content.encode('utf-8'), response.content)
+
+        # Auth with maintainer user
+        self.client.login(username=user_maintainer.username, password=user_maintainer.username)
         response = self.client.get(requested_url)
         self.assertIn('# Maintainer Note'.encode('utf-8'), response.content)
         self.assertIn(note.content.encode('utf-8'), response.content)

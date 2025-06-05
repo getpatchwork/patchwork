@@ -165,7 +165,9 @@ def patch_detail(request, project_id, msgid):
         related_same_project = []
         related_different_project = []
 
-    context['note'] = note
+    if is_maintainer:
+        context['note'] = note
+
     context['comments'] = comments
     context['checks'] = Patch.filter_unique_checks(
         patch.check_set.all().select_related('user'),
