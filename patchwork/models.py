@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
+from django.db.models import Count
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -503,6 +504,9 @@ class Patch(SubmissionMixin):
         null=True,
         on_delete=models.CASCADE,
     )
+    attention_set = models.ManyToManyField(
+        User, through='PatchAttentionSet', related_name='attention_set'
+    )
     state = models.ForeignKey(State, null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     hash = HashField(null=True, blank=True, db_index=True)
@@ -579,7 +583,7 @@ class Patch(SubmissionMixin):
 
         self.refresh_tag_counts()
 
-    def is_editable(self, user):
+    def is_editable(self, user, declare_interest_only=False):
         if not user.is_authenticated:
             return False
 
@@ -590,7 +594,8 @@ class Patch(SubmissionMixin):
         if self.project.is_editable(user):
             self._edited_by = user
             return True
-        return False
+
+        return declare_interest_only
 
     @staticmethod
     def filter_unique_checks(checks):
@@ -827,6 +832,104 @@ class PatchComment(EmailMixin, models.Model):
         ]
 
 
+class PatchAttentionSetManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(removed=False)
+
+    def upsert(self, patch, users):
+        """Add or updates deleted attention set entries
+
+        :param patch: patch object to be updated
+        :type patch: Patch
+        :param users: list of users to be added to the attention set list
+        :type users: list[int]
+        """
+        qs = super().get_queryset().filter(patch=patch)
+
+        existing = {
+            obj.user.id: obj for obj in qs.filter(user__in=users).all()
+        }
+        update_list = []
+        for obj in existing.values():
+            if obj.removed:
+                obj.removed = False
+                obj.removed_reason = ''
+                update_list.append(obj)
+        insert_list = [user for user in users if user not in existing.keys()]
+
+        qs.bulk_create(
+            [PatchAttentionSet(patch=patch, user_id=id) for id in insert_list]
+        )
+        qs.bulk_update(update_list, ['removed', 'removed_reason'])
+
+    def soft_delete(self, patch, users, reason=''):
+        """Mark attention set entries as deleted
+
+        :param patch: patch object to be updated
+        :type patch: Patch
+        :param users: list of users to be added to the attention set list
+        :type users: list[int]
+        :param reason: reason for removal
+        :type reason: string
+        """
+        qs = super().get_queryset().filter(patch=patch)
+
+        existing = {
+            obj.user.id: obj for obj in qs.filter(user__in=users).all()
+        }
+        update_list = []
+        for obj in existing.values():
+            if not obj.removed:
+                obj.removed = True
+                obj.removed_reason = reason
+                update_list.append(obj)
+
+        self.bulk_update(update_list, ['removed', 'removed_reason'])
+
+
+class PatchAttentionSet(models.Model):
+    patch = models.ForeignKey(Patch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(auto_now=True)
+    removed = models.BooleanField(default=False)
+    removed_reason = models.CharField(max_length=50, blank=True)
+
+    objects = PatchAttentionSetManager()
+    raw_objects = models.Manager()
+
+    def delete(self):
+        """Soft deletes an user from the patch attention set"""
+        self.removed = True
+        self.removed_reason = 'reviewed or commented on the patch'
+        self.save()
+
+    def __str__(self):
+        return f'<{self.user} - {self.user.email}>'
+
+    class Meta:
+        unique_together = [('patch', 'user')]
+
+
+def _remove_user_from_patch_attention_set(sender, instance, created, **kwargs):
+    if created:
+        submitter = instance.submitter
+        patch = instance.patch
+        if submitter.user:
+            try:
+                # Don't use the RelatedManager since it will execute a hard
+                # delete
+                PatchAttentionSet.objects.get(
+                    patch=patch, user=submitter.user
+                ).delete()
+            except PatchAttentionSet.DoesNotExist:
+                pass
+
+
+models.signals.post_save.connect(
+    _remove_user_from_patch_attention_set, sender=PatchComment
+)
+
+
 class Series(FilenameMixin, models.Model):
     """A collection of patches."""
 
@@ -913,6 +1016,30 @@ class Series(FilenameMixin, models.Model):
         )
         self.save()
 
+    @property
+    def interest_count(self):
+        count = self.patches.aggregate(Count('attention_set', distinct=True))
+        return count['attention_set__count']
+
+    @property
+    def check_count(self):
+        """Generate a list of unique checks for all patchs in the series.
+
+        Compile a list of checks associated with this series patches for each
+        type of check. Only "unique" checks are considered, identified by their
+        'context' field. This means, given n checks with the same 'context', the
+        newest check is the only one counted regardless of its value. The end
+        result will be a association of types to number of unique checks for
+        said type.
+        """
+        counts = {key: 0 for key, _ in Check.STATE_CHOICES}
+
+        for p in self.patches.all():
+            for check in p.checks:
+                counts[check.state] += 1
+
+        return counts
+
     def add_cover_letter(self, cover):
         """Add a cover letter to the series.
 
@@ -968,10 +1095,10 @@ class Series(FilenameMixin, models.Model):
         return patch
 
     def get_absolute_url(self):
-        # TODO(stephenfin): We really need a proper series view
         return reverse(
-            'patch-list', kwargs={'project_id': self.project.linkname}
-        ) + ('?series=%d' % self.id)
+            'series-detail',
+            kwargs={'project_id': self.project.linkname, 'series_id': self.id},
+        )
 
     def get_mbox_url(self):
         return reverse('series-mbox', kwargs={'series_id': self.id})

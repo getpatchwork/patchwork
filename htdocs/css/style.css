@@ -288,6 +288,18 @@ table.patch-meta tr th, table.patch-meta tr td {
     text-decoration: underline;
 }
 
+.patchinterest {
+    display: inline-block;
+    border-radius: 7px;
+    min-width: 0.9em;
+    padding: 0 2px;
+    text-align: center;
+}
+
+.patchinterest.exists {
+    background-color: #82ca9d;
+}
+
 .patchlistchecks {
     display: inline-block;
     border-radius: 7px;
@@ -342,6 +354,18 @@ table.patch-meta tr th, table.patch-meta tr td {
 
 .patch-pull-url {
     font-family: "DejaVu Sans Mono", fixed;
+}
+
+.submission-attention-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+button[class*=interest-action] {
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
 }
 
 div[class^="comment-status-bar-"] {
@@ -405,6 +429,12 @@ span.p_mod    { color: #a020f0; }
 
 .from {
     font-weight: bold;
+}
+
+/* series */
+a.series-list-header {
+    color: inherit;  /* Inherit color from parent element */
+    text-decoration: none; /* Optional: removes underline */
 }
 
 /* bundles */

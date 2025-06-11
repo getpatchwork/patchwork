@@ -1068,7 +1068,10 @@ def find_series_from_url(url):
         logging.warning('Failed to resolve series or patch URL: %s', url)
         return None
 
-    # TODO: Use the series detail view here.
+    if result.view_name == 'series-detail':
+        return Series.objects.get(pk=result.kwargs['series_id'])
+
+    # Handles series as a patch-list view
     if result.view_name == 'patch-list' and parse_result.query:
         # Parse the query string.
         # This can be replaced with something much friendlier once the

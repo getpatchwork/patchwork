@@ -154,6 +154,7 @@ or a cover letter or the web URL to a patch or a series:
 
     Depends-on: <20240726221429.221611-1-user@example.com>
     Depends-on: https://pw.example.com/project/myproject/list?series=1234
+    Depends-on: https://pw.example.com/project/myproject/series/1234
 
 .. note::
 

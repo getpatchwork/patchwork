@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django import template
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from patchwork.models import Check
@@ -14,13 +13,16 @@ from patchwork.models import Check
 register = template.Library()
 
 
-@register.filter(name='patch_tags')
-def patch_tags(patch):
+@register.filter(name='series_tags')
+def series_tags(series):
     counts = []
     titles = []
 
-    for tag in [t for t in patch.project.tags if t.show_column]:
-        count = getattr(patch, tag.attr_name)
+    for tag in [t for t in series.project.tags if t.show_column]:
+        count = 0
+        for patch in series.patches.with_tag_counts(series.project).all():
+            count += getattr(patch, tag.attr_name)
+
         titles.append('%d %s' % (count, tag.name))
         if count == 0:
             counts.append('-')
@@ -32,21 +34,16 @@ def patch_tags(patch):
     )
 
 
-@register.filter(name='patch_checks')
-def patch_checks(patch):
+@register.filter(name='series_checks')
+def series_checks(series):
     required = [Check.STATE_SUCCESS, Check.STATE_WARNING, Check.STATE_FAIL]
     titles = ['Success', 'Warning', 'Fail']
-    counts = patch.check_count
+    counts = series.check_count
 
     check_elements = []
-    use_color = True
     for state in required[::-1]:
         if counts[state]:
-            if use_color:
-                use_color = False
-                color = dict(Check.STATE_CHOICES).get(state)
-            else:
-                color = ''
+            color = dict(Check.STATE_CHOICES).get(state)
             count = str(counts[state])
         else:
             color = ''
@@ -64,22 +61,9 @@ def patch_checks(patch):
     )
 
 
-@register.filter(name='patch_commit_display')
-def patch_commit_display(patch):
-    commit = patch.commit_ref
-    fmt = patch.project.commit_url_format
-
-    if not fmt:
-        return escape(commit)
-
-    return mark_safe(
-        '<a href="%s">%s</a>' % (escape(fmt.format(commit)), escape(commit))
-    )
-
-
-@register.filter(name='patch_interest')
-def patch_interest(patch):
-    reviews = patch.attention_set.count()
+@register.filter(name='series_interest')
+def series_interest(series):
+    reviews = series.interest_count
     review_title = (
         f'has {reviews} interested reviewers'
         if reviews > 0
