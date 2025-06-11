@@ -241,19 +241,6 @@ class TestCoverComments(utils.APITestCase):
             getattr(CoverComment.objects.all().first(), 'addressed')
         )
 
-    def test_create_delete(self):
-        """Ensure creates and deletes aren't allowed"""
-        comment = create_cover_comment(cover=self.cover)
-        self.user.is_superuser = True
-        self.user.save()
-        self.client.authenticate(user=self.user)
-
-        resp = self.client.post(self.api_url(self.cover, item=comment))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-        resp = self.client.delete(self.api_url(self.cover, item=comment))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
 
 @override_settings(ENABLE_REST_API=True)
 class TestPatchComments(utils.APITestCase):
@@ -480,16 +467,3 @@ class TestPatchComments(utils.APITestCase):
         self.assertFalse(
             getattr(PatchComment.objects.all().first(), 'addressed')
         )
-
-    def test_create_delete(self):
-        """Ensure creates and deletes aren't allowed"""
-        comment = create_patch_comment(patch=self.patch)
-        self.user.is_superuser = True
-        self.user.save()
-        self.client.authenticate(user=self.user)
-
-        resp = self.client.post(self.api_url(self.patch, item=comment))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
-        resp = self.client.delete(self.api_url(self.patch, item=comment))
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)

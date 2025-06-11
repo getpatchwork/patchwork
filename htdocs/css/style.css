@@ -325,6 +325,26 @@ table.patch-meta tr th, table.patch-meta tr td {
     color: #f7977a;
 }
 
+.submission-message.maintainer a {
+  color: blue;
+}
+
+.submission-message.maintainer div.text-warning {
+  color: yellow;
+}
+
+.submission-message.maintainer div.text-success {
+  color: lightgreen;
+}
+.submission-message.maintainer .meta {
+  background-color: red;
+  color: white;
+}
+
+.submission-message.maintainer .content {
+  background-color: #ff7d7d;
+}
+
 .submission-message .meta {
     display: flex;
     align-items: center;
@@ -449,6 +469,16 @@ div.patch-form {
     align-items: center;
 }
 
+#maintainer-note-form .form-actions {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the left */
+    gap: 10px; /* Add space between buttons */
+}
+#maintainer-note-form div:first-of-type {
+  display: flex;
+  flex-direction: column;
+}
+
 select[class^=change-property-], .archive-patch-select, .add-bundle {
     padding: 4px;
     margin-right: 8px;
@@ -476,7 +506,7 @@ select[class^=change-property-], .archive-patch-select, .add-bundle {
     padding: 4px;
 }
 
-#patch-form-bundle, #add-to-bundle, #remove-bundle {
+#patch-form-bundle, #add-to-bundle, #remove-bundle, #note-button {
     margin-left: 16px;
 }
 

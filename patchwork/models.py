@@ -361,6 +361,10 @@ class EmailMixin(models.Model):
     )
 
     @property
+    def is_maintainer_note(self):
+        return self.msgid == ''
+
+    @property
     def patch_responses(self):
         if not self.content:
             return ''

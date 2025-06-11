@@ -247,6 +247,70 @@ class PatchViewTest(TestCase):
         response = self.client.get(requested_url)
         self.assertRedirects(response, redirect_url)
 
+    def test_show_maintainer_note(self):
+        project = create_project()
+        user_default = create_user(project)
+        user_maintainer = create_maintainer(project)
+        patch = create_patch(project=project)
+        note = create_patch_comment(patch=patch, msgid='')
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+
+        # No authentication
+        response = self.client.get(requested_url)
+        self.assertNotIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertNotIn(note.content.encode('utf-8'), response.content)
+
+        # Auth with default user
+        self.client.login(username=user_default.username, password=user_default.username)
+        response = self.client.get(requested_url)
+        self.assertNotIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertNotIn(note.content.encode('utf-8'), response.content)
+
+        # Auth with maintainer user
+        self.client.login(username=user_maintainer.username, password=user_maintainer.username)
+        response = self.client.get(requested_url)
+        self.assertIn('# Maintainer Note'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
+
+    def test_maintainer_notes_controls(self):
+        project = create_project()
+        user = create_maintainer(project)
+        patch = create_patch(project=project)
+        requested_url = reverse(
+            'patch-detail',
+            kwargs={
+                'project_id': patch.project.linkname,
+                'msgid': patch.encoded_msgid,
+            },
+        )
+
+        # No authentication
+        response = self.client.get(requested_url)
+        self.assertNotIn('Add Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Remove Note'.encode('utf-8'), response.content)
+
+        # Auth with no note
+        self.client.login(username=user.username, password=user.username)
+        response = self.client.get(requested_url)
+        self.assertIn('Add Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertNotIn('Remove Note'.encode('utf-8'), response.content)
+
+        # Auth with note
+        note = create_patch_comment(patch=patch, msgid='')
+        response = self.client.get(requested_url)
+        self.assertNotIn('Add Note'.encode('utf-8'), response.content)
+        self.assertIn('Edit Note'.encode('utf-8'), response.content)
+        self.assertIn('Remove Note'.encode('utf-8'), response.content)
+        self.assertIn(note.content.encode('utf-8'), response.content)
+
     def test_old_detail_url(self):
         patch = create_patch()
 

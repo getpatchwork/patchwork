@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
@@ -112,7 +113,25 @@ class PatchAdmin(admin.ModelAdmin):
 admin.site.register(Patch, PatchAdmin)
 
 
+class MaintainerNoteFilter(SimpleListFilter):
+    title = 'comment type'
+    parameter_name = 'type'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('comments', 'Comments'),
+            ('notes', 'Maintainer notes'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'notes':
+            return queryset.filter(msgid='')
+
+        return queryset.exclude(msgid='')
+
+
 class CoverCommentAdmin(admin.ModelAdmin):
+    list_filter = [MaintainerNoteFilter]
     list_display = ('cover', 'submitter', 'date')
     search_fields = ('cover__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
@@ -122,6 +141,7 @@ admin.site.register(CoverComment, CoverCommentAdmin)
 
 
 class PatchCommentAdmin(admin.ModelAdmin):
+    list_filter = [MaintainerNoteFilter]
     list_display = ('patch', 'submitter', 'date')
     search_fields = ('patch__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
