@@ -19,7 +19,7 @@ jobs:
           python-version: "3.13"
           cache: 'pip'
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "1.21"
       - name: Install dependencies
