@@ -19,6 +19,8 @@ from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils import timezone as tz_utils
+from django.db.models.functions import Lower
+from django.db.models import OuterRef, F, Func
 
 from patchwork.fields import HashField, ColorField
 from patchwork.hasher import hash_diff
@@ -396,6 +398,46 @@ class PatchQuerySet(models.query.QuerySet):
             )
 
         return qs
+
+    def exclude_labels(self, labels):
+        if len(labels) > 0:
+            labels = [label.lower() for label in labels]
+            label_ids = list(
+                Label.objects.annotate(lname=Lower('name'))
+                .filter(lname__in=labels)
+                .values_list('id', flat=True)
+            )
+            labels_sq = (
+                Patch.labels.through.objects.filter(
+                    patch_id=OuterRef('pk'), label_id__in=label_ids
+                )
+                .annotate(label_num=Func(F('label_id'), function='COUNT'))
+                .values('label_num')
+            )
+            self = self.annotate(num_labels=labels_sq).filter(num_labels=0)
+
+        return self
+
+    def include_labels(self, labels):
+        if len(labels) > 0:
+            labels = [label.lower() for label in labels]
+            label_ids = list(
+                Label.objects.annotate(lname=Lower('name'))
+                .filter(lname__in=labels)
+                .values_list('id', flat=True)
+            )
+            labels_sq = (
+                Patch.labels.through.objects.filter(
+                    patch_id=OuterRef('pk'), label_id__in=label_ids
+                )
+                .annotate(label_num=Func(F('label_id'), function='COUNT'))
+                .values('label_num')
+            )
+            self = self.annotate(num_labels=labels_sq).filter(
+                num_labels__gte=len(labels)
+            )
+
+        return self
 
 
 class PatchManager(models.Manager):
