@@ -310,6 +310,22 @@ class Label(models.Model):
             )
         )
 
+    @staticmethod
+    def filter_by_names(labels):
+        labels = [label.lower() for label in labels]
+        result = {}
+        label_q = Label.objects.annotate(lname=Lower('name')).filter(
+            lname__in=labels
+        )
+
+        for label in label_q:
+            if label.name not in result:
+                result[label.name] = [label.id]
+            else:
+                result[label.name].append(label.id)
+
+        return result
+
     class Meta:
         ordering = ['name']
         constraints = [
@@ -399,6 +415,37 @@ class PatchQuerySet(models.query.QuerySet):
             )
 
         return qs
+
+    def exclude_labels(self, labels):
+        lids = Label.filter_by_names(labels)
+        for _, ids_with_name in lids.items():
+            for lid in ids_with_name:
+                label_q = Patch.labels.through.objects.filter(
+                    patch_id=OuterRef('pk'), label_id=lid
+                )
+                self = self.exclude(Exists(label_q))
+
+        return self
+
+    def include_labels(self, labels):
+        if len(labels) == 0:
+            return self
+
+        lids = Label.filter_by_names(labels)
+        if len(lids) > 0:
+            for _, ids_with_name in lids.items():
+                q = Q()
+                for lid in ids_with_name:
+                    q |= Exists(
+                        Patch.labels.through.objects.filter(
+                            patch_id=OuterRef('pk'), label_id=lid
+                        )
+                    )
+                self = self.filter(q)
+
+            return self
+        else:
+            return Patch.objects.none()
 
 
 class PatchManager(models.Manager):

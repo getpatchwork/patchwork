@@ -192,11 +192,19 @@ def create_patch(**kwargs):
     }
     values.update(kwargs)
 
+    labels = None
+    if 'labels' in values:
+        labels = values['labels']
+        del values['labels']
+
     patch = Patch.objects.create(**values)
 
     if series:
         number = number or series.patches.count() + 1
         series.add_patch(patch, number)
+
+    if labels is not None:
+        patch.labels.set(labels)
 
     return patch
 
