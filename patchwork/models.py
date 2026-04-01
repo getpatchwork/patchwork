@@ -504,6 +504,24 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
         abstract = True
 
 
+def exclude_submissions_by_labels(queryset, labels):
+    if len(labels) > 0:
+        queryset = queryset.exclude(labels__name__in=labels)
+
+    return queryset
+
+
+def filter_submissions_by_labels(queryset, labels):
+    if len(labels) > 0:
+        queryset = (
+            queryset.filter(labels__name__in=labels)
+            .annotate(num_labels=models.Count('labels', distinct=True))
+            .filter(num_labels__gte=len(labels))
+        )
+
+    return queryset
+
+
 class Cover(SubmissionMixin):
     def get_absolute_url(self):
         return reverse(
