@@ -192,3 +192,30 @@ patches for these new tags.
 .. option:: patch_id
 
    a patch ID number. If not supplied, all patches will be updated.
+
+.. _command-relabel:
+
+relabel
+~~~~~~~
+
+.. program:: manage.py relabel
+
+Relabel patches based on the subject line.
+
+.. code-block:: shell
+
+   ./manage.py relabel [PROJECT [PROJECT...]]
+
+Patchwork extracts labels from square brackets at the beginning of the subject
+line, eg. ``[label1, label2] Patch title``.
+
+Only labels created in the admin interface will be recognized.
+The script prioritizes project-specific labels if both project-specific and
+general labels with the same name exist.
+
+The script will not remove labels manually added to patches, but will re-add
+labels manually removed from patches.
+
+.. option:: PROJECT
+
+   list of IDs of projects to update. Relabels all projects if none specified.
