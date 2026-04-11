@@ -189,10 +189,16 @@ def generic_list(
     if not filter_settings:
         filter_settings = []
 
+    project_labels = [
+        label.name
+        for label in Label.get_project_labels(project)
+    ]
+
     filters = Filters(request)
     context = {
         'project': project,
         'projects': Project.objects.all(),
+        'project_labels': project_labels,
         'filters': filters,
     }
 
