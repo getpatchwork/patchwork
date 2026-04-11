@@ -1,3 +1,16 @@
+{% load static %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.labels-field').selectize({
+        maxItems: null,
+        persist: false,
+        hideSelected: true,
+        searchField: 'labels',
+    });
+});
+</script>
+
 <div class="patch-forms" id="patch-forms">
 {% if patch_form %}
   <div id="patch-form-properties" class="patch-form">
