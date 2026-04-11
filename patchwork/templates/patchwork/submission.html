@@ -130,6 +130,12 @@
     </td>
   </tr>
 {% endif %}
+  <tr>
+    <th>Labels</th>
+    <td>
+    {{ submission|patch_labels }}
+    </td>
+  </tr>
 </table>
 
 <form id="patch-list-form" method="POST">
