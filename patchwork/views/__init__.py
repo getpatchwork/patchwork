@@ -14,6 +14,7 @@ from patchwork.forms import CreateBundleForm
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
+from patchwork.models import Label
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.models import Check
@@ -332,6 +333,9 @@ def generic_list(
                 'context', 'user_id', 'patch_id', 'state', 'date'
             ),
         )
+    )
+    patches = patches.prefetch_related(
+        Prefetch('labels', queryset=Label.objects.only('name', 'color')),
     )
 
     # annotate with tag counts
