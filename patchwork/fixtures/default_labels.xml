@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0">
+  <object model="patchwork.label" pk="1">
+    <field name="project" rel="ManyToOneRel" to="patchwork.project"><None></None></field>
+    <field name="name" type="CharField">RFC</field>
+    <field name="description" type="TextField">"RFC" stands for "Request for Comment", which tells maintainers that they should review your patch thoroughly and provide feedback. RFC is typically used when sending feature patches for the first time, or anytime the patch is more than just a simple bug fix.</field>
+    <field name="color" type="PositiveIntegerField">#EDEDED</field>
+  </object>
+</django-objects>
