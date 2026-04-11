@@ -41,6 +41,7 @@ from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_reference
@@ -542,7 +543,7 @@ class SubjectEncodingTest(TestCase):
 
     def _test_encoding(self, subject_header, parsed_subject):
         email = self._create_email(subject_header)
-        name, _ = clean_subject(email.get('Subject'))
+        name, _, _ = clean_subject(email.get('Subject'))
         self.assertEqual(name, parsed_subject)
 
     def test_subject_ascii_encoding(self):
@@ -1106,52 +1107,61 @@ class ParseCommentTagsTest(PatchTest):
 
 class SubjectTest(TestCase):
     def test_clean_subject(self):
-        self.assertEqual(clean_subject('meep'), ('meep', []))
-        self.assertEqual(clean_subject('Re: meep'), ('meep', []))
-        self.assertEqual(clean_subject('[PATCH] meep'), ('meep', []))
+        self.assertEqual(clean_subject('meep'), ('meep', [], []))
+        self.assertEqual(clean_subject('Re: meep'), ('meep', [], []))
         self.assertEqual(
-            clean_subject('[PATCH] meep \n meep'), ('meep meep', [])
+            clean_subject('[PATCH] meep'), ('meep', [], ['PATCH'])
         )
         self.assertEqual(
-            clean_subject('[PATCH] meep,\n meep'), ('meep, meep', [])
+            clean_subject('[PATCH] meep \n meep'), ('meep meep', [], ['PATCH'])
         )
         self.assertEqual(
-            clean_subject('[PATCH RFC] meep'), ('[RFC] meep', ['RFC'])
+            clean_subject('[PATCH] meep,\n meep'),
+            ('meep, meep', [], ['PATCH']),
         )
         self.assertEqual(
-            clean_subject('[PATCH,RFC] meep'), ('[RFC] meep', ['RFC'])
+            clean_subject('[PATCH RFC] meep'),
+            ('[RFC] meep', ['RFC'], ['PATCH']),
         )
         self.assertEqual(
-            clean_subject('[PATCH,1/2] meep'), ('[1/2] meep', ['1/2'])
+            clean_subject('[PATCH,RFC] meep'),
+            ('[RFC] meep', ['RFC'], ['PATCH']),
+        )
+        self.assertEqual(
+            clean_subject('[PATCH,1/2] meep'),
+            ('[1/2] meep', ['1/2'], ['PATCH']),
         )
         self.assertEqual(
             clean_subject('[PATCH RFC 1/2] meep'),
-            ('[RFC,1/2] meep', ['RFC', '1/2']),
+            ('[RFC,1/2] meep', ['RFC', '1/2'], ['PATCH']),
         )
         self.assertEqual(
-            clean_subject('[PATCH] [RFC] meep'), ('[RFC] meep', ['RFC'])
+            clean_subject('[PATCH] [RFC] meep'),
+            ('[RFC] meep', ['RFC'], ['PATCH']),
         )
         self.assertEqual(
             clean_subject('[PATCH] [RFC,1/2] meep'),
-            ('[RFC,1/2] meep', ['RFC', '1/2']),
+            ('[RFC,1/2] meep', ['RFC', '1/2'], ['PATCH']),
         )
         self.assertEqual(
             clean_subject('[PATCH] [RFC] [1/2] meep'),
-            ('[RFC,1/2] meep', ['RFC', '1/2']),
+            ('[RFC,1/2] meep', ['RFC', '1/2'], ['PATCH']),
         )
         self.assertEqual(
             clean_subject('[PATCH] rewrite [a-z] regexes'),
-            ('rewrite [a-z] regexes', []),
+            ('rewrite [a-z] regexes', [], ['PATCH']),
         )
         self.assertEqual(
             clean_subject('[PATCH] [RFC] rewrite [a-z] regexes'),
-            ('[RFC] rewrite [a-z] regexes', ['RFC']),
+            ('[RFC] rewrite [a-z] regexes', ['RFC'], ['PATCH']),
         )
         self.assertEqual(
-            clean_subject('[foo] [bar] meep', ['foo']), ('[bar] meep', ['bar'])
+            clean_subject('[foo] [bar] meep', ['foo']),
+            ('[bar] meep', ['bar'], ['foo']),
         )
         self.assertEqual(
-            clean_subject('[FOO] [bar] meep', ['foo']), ('[bar] meep', ['bar'])
+            clean_subject('[FOO] [bar] meep', ['foo']),
+            ('[bar] meep', ['bar'], ['FOO']),
         )
 
     def test_subject_check(self):
@@ -1570,3 +1580,82 @@ class TestParseDependsOn(TestCase):
         result = parser.parse_depends_on('\n'.join([content2, content3]))
         self.assertIn(self.series1, result)
         self.assertIn(self.series2, result)
+
+
+class TestParseLabels(TestCase):
+    orig_diff = read_patch('0001-add-line.patch')
+
+    def setUp(self):
+        create_state()
+        self.project = create_project()
+        self.project2 = create_project()
+
+        self.label = create_label(name='label', project=None)
+        self.label2 = create_label(name='label2', project=None)
+        self.label_rfc_global = create_label(name='RFC', project=None)
+        self.label_rfc = create_label(name='RFC', project=self.project)
+        self.label_p2 = create_label(name='label_p2', project=self.project2)
+
+    def create_email(
+        self, subject, project, contents=None, in_reply_to=None, msgid=None
+    ):
+        msgid = make_msgid() if msgid is None else msgid
+        email = create_email(
+            self.orig_diff if contents is None else contents,
+            subject=subject,
+            listid=project.listid,
+            msgid=msgid,
+            in_reply_to=in_reply_to,
+        )
+        _parse_mail(email)
+        patch = Patch.objects.get(msgid=msgid)
+        return patch
+
+    def cmp_labels(self, patch, target_labels):
+        patch_labels = list(patch.labels.values_list('id', flat=True))
+        target_labels = [label.id for label in target_labels]
+        self.assertEqual(len(patch_labels), len(target_labels))
+
+        for label in target_labels:
+            self.assertIn(label, patch_labels)
+
+    def test_single_label(self):
+        patch = self.create_email('[PATCH,label] test subject', self.project)
+        self.cmp_labels(patch, [self.label])
+        self.assertEqual(patch.name, 'test subject')
+
+    def test_many_labels(self):
+        patch = self.create_email(
+            '[PATCH label v2 RFC 3/8] test subject', self.project
+        )
+        self.cmp_labels(patch, [self.label, self.label_rfc])
+        self.assertEqual(patch.name, '[v2,3/8] test subject')
+
+    def test_unknown_label(self):
+        patch = self.create_email(
+            '[PATCH,unknown-label] test subject', self.project
+        )
+        self.cmp_labels(patch, [])
+        self.assertEqual(patch.name, '[unknown-label] test subject')
+
+    def test_label_from_different_project(self):
+        patch = self.create_email(
+            '[PATCH,label_p2] test subject', self.project
+        )
+        self.cmp_labels(patch, [])
+        self.assertEqual(patch.name, '[label_p2] test subject')
+
+        patch = self.create_email(
+            '[PATCH,label_p2] test subject', self.project2
+        )
+        self.cmp_labels(patch, [self.label_p2])
+        self.assertEqual(patch.name, 'test subject')
+
+    def test_local_global_labels(self):
+        patch = self.create_email('[PATCH,RFC] test subject', self.project)
+        self.cmp_labels(patch, [self.label_rfc])
+        self.assertEqual(patch.name, 'test subject')
+
+        patch = self.create_email('[PATCH,RFC] test subject', self.project2)
+        self.cmp_labels(patch, [self.label_rfc_global])
+        self.assertEqual(patch.name, 'test subject')
