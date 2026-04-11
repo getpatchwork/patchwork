@@ -13,6 +13,7 @@ from rest_framework import status
 
 from patchwork.models import Patch
 from patchwork.tests.unit.api import utils
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches
@@ -53,6 +54,11 @@ class TestPatchAPI(utils.APITestCase):
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
         self.assertIn(patch_obj.get_absolute_url(), patch_json['web_url'])
         self.assertIn('comments', patch_json)
+
+        # list fields
+
+        for label in patch_obj.labels.all():
+            self.assertIn(label.name, patch_json['labels'])
 
         # nested fields
 
@@ -232,6 +238,16 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+        self.assertNotIn('labels', resp.data[0])
+
+    def test_list_version_1_1(self):
+        create_patch()
+
+        resp = self.client.get(self.api_url(version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('web_url', resp.data[0])
+        self.assertNotIn('labels', resp.data[0])
 
     def test_list_bug_335(self):
         """Ensure we retrieve the embedded series project in O(1)."""
@@ -271,6 +287,23 @@ class TestPatchAPI(utils.APITestCase):
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
         self.assertNotIn('comments', resp.data)
+        self.assertNotIn('labels', resp.data)
+
+    def test_detail_version_1_1(self):
+        patch = create_patch()
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.1'))
+        self.assertIn('url', resp.data)
+        self.assertIn('web_url', resp.data)
+        self.assertIn('comments', resp.data)
+        self.assertNotIn('labels', resp.data)
+
+    def test_detail_version_1_4(self):
+        label = create_label()
+        patch = create_patch(labels=[label])
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.4'))
+        self.assertEqual(resp.data['labels'], [label.name])
 
     def test_detail_non_existent(self):
         """Ensure we get a 404 for a non-existent patch."""
@@ -281,6 +314,15 @@ class TestPatchAPI(utils.APITestCase):
         """Ensure we get a 404 for an invalid patch ID."""
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url('foo'))
+
+    def test_detail_labels(self):
+        patch = create_patch()
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.4'))
+        self.assertIn('url', resp.data)
+        self.assertIn('web_url', resp.data)
+        self.assertIn('comments', resp.data)
+        self.assertIn('labels', resp.data)
 
     def test_create(self):
         """Ensure creations are rejected."""

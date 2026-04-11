@@ -9,6 +9,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import StringRelatedField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.filters import CoverFilterSet
@@ -25,6 +26,7 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
     mbox = SerializerMethodField()
     series = SeriesSerializer(read_only=True)
     comments = SerializerMethodField()
+    labels = StringRelatedField(many=True)
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -62,11 +64,13 @@ class CoverListSerializer(BaseHyperlinkedModelSerializer):
             'mbox',
             'series',
             'comments',
+            'labels',
         )
         read_only_fields = fields
         versioned_fields = {
             '1.1': ('web_url', 'mbox', 'comments'),
             '1.2': ('list_archive_url',),
+            '1.4': ('labels',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-cover-detail'},
