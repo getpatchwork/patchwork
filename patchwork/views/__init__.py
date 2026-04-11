@@ -7,7 +7,7 @@ import json
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 from patchwork.filters import Filters
 from patchwork.forms import CreateBundleForm
@@ -189,10 +189,15 @@ def generic_list(
     if not filter_settings:
         filter_settings = []
 
+    project_labels = Label.objects.filter(
+        Q(project=project) | Q(project__isnull=True)
+    ).all()
+
     filters = Filters(request)
     context = {
         'project': project,
         'projects': Project.objects.all(),
+        'project_labels': project_labels,
         'filters': filters,
     }
 
