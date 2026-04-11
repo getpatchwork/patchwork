@@ -2312,6 +2312,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatchEmbedded'
+        labels:
+          title: Labels
+          type: array
+          items:
+            type: string
     PatchDetail:
       type: object
       title: Patches

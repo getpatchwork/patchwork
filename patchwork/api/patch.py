@@ -18,6 +18,7 @@ from rest_framework.relations import RelatedField
 from rest_framework.reverse import reverse
 from rest_framework.serializers import SerializerMethodField
 from rest_framework import status
+from rest_framework.serializers import StringRelatedField
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import LinkHeaderPagination
@@ -95,6 +96,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
         default=[],
         style={'base_template': 'input.html'},
     )
+    labels = StringRelatedField(many=True)
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -178,6 +180,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'checks',
             'tags',
             'related',
+            'labels',
         )
         read_only_fields = (
             'url',
@@ -195,6 +198,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
             'check',
             'checks',
             'tags',
+            'labels',
         )
         versioned_fields = {
             '1.1': ('comments', 'web_url'),
@@ -202,6 +206,7 @@ class PatchListSerializer(BaseHyperlinkedModelSerializer):
                 'list_archive_url',
                 'related',
             ),
+            '1.4': ('labels',),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-patch-detail'},
@@ -384,6 +389,7 @@ class PatchList(ListAPIView):
                 'project',
                 'series__project',
                 'related__patches__project',
+                'labels',
             )
             .select_related('state', 'submitter', 'series')
             .defer('content', 'diff', 'headers')
@@ -408,7 +414,9 @@ class PatchDetail(RetrieveUpdateAPIView):
     def get_queryset(self):
         return (
             Patch.objects.all()
-            .prefetch_related('check_set', 'related__patches__project')
+            .prefetch_related(
+                'check_set', 'related__patches__project', 'labels'
+            )
             .select_related(
                 'project', 'state', 'submitter', 'delegate', 'series'
             )
