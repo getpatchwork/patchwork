@@ -2398,6 +2398,13 @@ components:
           items:
             $ref: '#/components/schemas/PatchEmbedded'
 {% endif %}
+{% if version >= (1, 4) %}
+        labels:
+          title: Labels
+          type: array
+          items:
+            type: string
+{% endif %}
     PatchDetail:
       type: object
       title: Patches

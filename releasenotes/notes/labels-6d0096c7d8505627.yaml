@@ -9,3 +9,10 @@ features:
     Labels can have an optional description attached, which will provide a
     little insight into the purpose of the label. Labels are completely
     customizable and the labels available will vary by instance.
+api:
+  - |
+    The ``/patches`` endpoint now exposes a ``labels`` attribute for each
+    patch.
+  - |
+    The ``/covers`` endpoint now exposes a ``labels`` attribute for each cover
+    letter.
