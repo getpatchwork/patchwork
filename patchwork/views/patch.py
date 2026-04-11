@@ -67,7 +67,7 @@ def patch_detail(request, project_id, msgid):
     errors = None
 
     if editable:
-        form = PatchForm(instance=patch)
+        form = PatchForm(instance=patch, project=patch.project)
     if request.user.is_authenticated:
         create_bundle_form = CreateBundleForm()
 
@@ -85,7 +85,9 @@ def patch_detail(request, project_id, msgid):
             return HttpResponseForbidden()
 
         elif action == 'update':
-            form = PatchForm(data=request.POST, instance=patch)
+            form = PatchForm(
+                data=request.POST, instance=patch, project=patch.project
+            )
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Patch updated')
