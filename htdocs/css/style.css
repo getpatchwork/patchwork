@@ -471,6 +471,14 @@ select[class^=change-property-], .archive-patch-select, .add-bundle {
     margin: 0px 4px 0px 4px;
 }
 
+.labels-field {
+    padding: 4px;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
 .patch-form-submit {
     font-weight: bold;
     padding: 4px;
