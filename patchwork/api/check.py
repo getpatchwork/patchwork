@@ -108,9 +108,23 @@ class CheckListCreate(CheckMixin, ListCreateAPIView):
     lookup_url_kwarg = 'patch_id'
     ordering = 'id'
 
+    def is_editable(self, user):
+        if not user.is_authenticated:
+            return False
+
+        # Only users with add_check permission can do it.
+        # Notice that this is a global permission: it allows
+        # adding checks to any project inside Patchwork.
+        if user.has_perm('patchwork.add_check'):
+            patch._edited_by = user
+            return True
+
+        # Being maintainer doesn't grant rights to create checks.
+        return False
+
     def create(self, request, patch_id, *args, **kwargs):
         p = get_object_or_404(Patch, id=patch_id)
-        if not p.is_editable(request.user):
+        if not self.is_editable(request.user):
             raise PermissionDenied()
         request.patch = p
         return super(CheckListCreate, self).create(request, *args, **kwargs)
