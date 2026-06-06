@@ -5,5 +5,5 @@ features:
     now supported.
 upgrade:
   - |
-    Django 3.2 and 4.1 are no longer supported. Bother releases are no longer
+    Django 3.2 and 4.1 are no longer supported. Both releases are no longer
     supported upstream and most distributions provide a newer version.

@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    `Python 3.14 <https://www.python.org/downloads/release/python-3140/>`_ is
+    now supported.
+upgrade:
+  - |
+    Python 3.9 and 3.10 are no longer supported. These releases are no longer
+    supported upstream and most distributions provide a newer version.

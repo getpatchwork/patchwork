@@ -12,16 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          go-version: "1.21"
+          go-version: "1.26"
       - name: Install dependencies
         run: python -m pip install tox
       - name: Run tox
@@ -33,7 +33,7 @@ jobs:
       matrix:
         # NOTE: If you add a version here, don't forget to update the
         # '[gh-actions]' section in tox.ini
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.11", "3.14"]
         db: [postgres, mysql, sqlite3]
     env:
       DATABASE_TYPE: "${{ matrix.db }}"
@@ -44,7 +44,7 @@ jobs:
       MYSQL_ROOT_PASSWORD: root-${{ github.run_id }}
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:17
         env:
           POSTGRES_DB: ${{ env.DATABASE_NAME }}
           POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
@@ -57,7 +57,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       mysql:
-        image: mysql:latest
+        image: mysql:8.4
         env:
           MYSQL_DATABASE: ${{ env.DATABASE_NAME }}
           MYSQL_USER: ${{ env.DATABASE_USER }}
@@ -72,9 +72,9 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
           cache: 'pip'
@@ -104,20 +104,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Fetch all branches
+        run: git fetch --all
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
       - name: Install dependencies
         run: python -m pip install tox
       - name: Build docs (via tox)
         run: tox -e docs
       - name: Archive build results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: html-docs-build
           path: docs/_build/html
@@ -132,13 +134,13 @@ jobs:
       COMPOSE_FILE: ${{ matrix.db == 'mysql' && 'docker-compose.yml' || (matrix.db == 'postgres' && 'docker-compose-pg.yml') || 'docker-compose-sqlite3.yml' }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
           cache: 'pip'
       - name: Build docker-compose service
         run: |
@@ -151,7 +153,7 @@ jobs:
           { echo patchwork; echo patchwork; } | \
               docker compose run -T --rm web \
               python manage.py changepassword patchwork
-      # FIXME(stephenfin): Re-enable this once dbbackup supports Django 4.0
+      # FIXME(stephenfin): Re-enable this once we've update configuration accordingly
       # - name: Test dbbackup/dbrestore
       #   run: |
       #     docker compose run -T --rm web python manage.py dbbackup

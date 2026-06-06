@@ -49,8 +49,8 @@ class PatchworkXMLRPCDispatcher(SimpleXMLRPCDispatcher, XMLRPCDocGenerator):
     def _user_for_request(self, request):
         auth_header = None
 
-        if 'HTTP_AUTHORIZATION' in request.META:
-            auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if 'authorization' in request.headers:
+            auth_header = request.headers.get('authorization')
         elif 'Authorization' in request.META:
             auth_header = request.META.get('Authorization')
 

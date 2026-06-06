@@ -44,6 +44,7 @@ class DelegationRuleInline(admin.TabularInline):
     fields = ('path', 'user', 'priority')
 
 
+@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'linkname', 'listid', 'listemail')
     inlines = [
@@ -51,31 +52,26 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Project, ProjectAdmin)
-
-
+@admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'has_account')
     search_fields = ('name', 'email')
 
+    @admin.display(
+        description='Account',
+        boolean=True,
+        ordering='user',
+    )
     def has_account(self, person):
         return bool(person.user)
 
-    has_account.boolean = True
-    has_account.admin_order_field = 'user'
-    has_account.short_description = 'Account'
 
-
-admin.site.register(Person, PersonAdmin)
-
-
+@admin.register(State)
 class StateAdmin(admin.ModelAdmin):
     list_display = ('name', 'action_required')
 
 
-admin.site.register(State, StateAdmin)
-
-
+@admin.register(Cover)
 class CoverAdmin(admin.ModelAdmin):
     list_display = ('name', 'submitter', 'project', 'date')
     list_filter = ('project',)
@@ -83,9 +79,7 @@ class CoverAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
 
 
-admin.site.register(Cover, CoverAdmin)
-
-
+@admin.register(Patch)
 class PatchAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -101,33 +95,27 @@ class PatchAdmin(admin.ModelAdmin):
     search_fields = ('name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
+    @admin.display(
+        description='Pull',
+        boolean=True,
+        ordering='pull_url',
+    )
     def is_pull_request(self, patch):
         return bool(patch.pull_url)
 
-    is_pull_request.boolean = True
-    is_pull_request.admin_order_field = 'pull_url'
-    is_pull_request.short_description = 'Pull'
 
-
-admin.site.register(Patch, PatchAdmin)
-
-
+@admin.register(CoverComment)
 class CoverCommentAdmin(admin.ModelAdmin):
     list_display = ('cover', 'submitter', 'date')
     search_fields = ('cover__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
 
 
-admin.site.register(CoverComment, CoverCommentAdmin)
-
-
+@admin.register(PatchComment)
 class PatchCommentAdmin(admin.ModelAdmin):
     list_display = ('patch', 'submitter', 'date')
     search_fields = ('patch__name', 'submitter__name', 'submitter__email')
     date_hierarchy = 'date'
-
-
-admin.site.register(PatchComment, PatchCommentAdmin)
 
 
 class PatchInline(admin.StackedInline):
@@ -135,6 +123,7 @@ class PatchInline(admin.StackedInline):
     extra = 0
 
 
+@admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -154,10 +143,9 @@ class SeriesAdmin(admin.ModelAdmin):
     filter_horizontal = ('dependencies',)
     inlines = (PatchInline,)
 
+    @admin.display(boolean=True)
     def received_all(self, series):
         return series.received_all
-
-    received_all.boolean = True
 
     def get_queryset(self, request):
         qs = super(SeriesAdmin, self).get_queryset(request)
@@ -171,16 +159,12 @@ class SeriesAdmin(admin.ModelAdmin):
         )
 
 
-admin.site.register(Series, SeriesAdmin)
-
-
+@admin.register(SeriesReference)
 class SeriesReferenceAdmin(admin.ModelAdmin):
     model = SeriesReference
 
 
-admin.site.register(SeriesReference, SeriesReferenceAdmin)
-
-
+@admin.register(Check)
 class CheckAdmin(admin.ModelAdmin):
     list_display = (
         'patch',
@@ -195,27 +179,18 @@ class CheckAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
 
 
-admin.site.register(Check, CheckAdmin)
-
-
+@admin.register(Bundle)
 class BundleAdmin(admin.ModelAdmin):
     list_display = ('name', 'owner', 'project', 'public')
     list_filter = ('public', 'project')
     search_fields = ('name', 'owner')
 
 
-admin.site.register(Bundle, BundleAdmin)
-
-
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-admin.site.register(Tag, TagAdmin)
-
-
+@admin.register(PatchRelation)
 class PatchRelationAdmin(admin.ModelAdmin):
     model = PatchRelation
-
-
-admin.site.register(PatchRelation, PatchRelationAdmin)
