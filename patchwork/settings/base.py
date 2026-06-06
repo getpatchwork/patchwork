@@ -119,7 +119,7 @@ STATICFILES_DIRS = [
 if os.getenv('DATABASE_TYPE') == 'postgres':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'ENGINE': 'django.db.backends.postgresql',
             'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
             'PORT': os.environ.get('DATABASE_PORT', ''),
             'NAME': os.environ.get('DATABASE_NAME', 'patchwork'),

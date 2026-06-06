@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    `Django 5.2 <https://docs.djangoproject.com/en/dev/releases/5.2/>`_ is
+    now supported.
+upgrade:
+  - |
+    Django 4.2, 5.0 and 5.1 are no longer supported. These releases are no
+    longer supported upstream and most distributions provide a newer version.

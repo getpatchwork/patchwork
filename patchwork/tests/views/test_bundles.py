@@ -331,14 +331,18 @@ class BundlePrivateViewMboxTest(BundlePrivateViewTest):
 
         # Check we can view as owner
         auth_string = _get_auth_string(self.user)
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        response = self.client.get(
+            self.url, headers={'authorization': auth_string}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.patches[0].name)
 
         # Check we can't view as another user
         auth_string = _get_auth_string(self.other_user)
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        response = self.client.get(
+            self.url, headers={'authorization': auth_string}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_private_bundle_mbox_token_auth(self):
@@ -353,14 +357,18 @@ class BundlePrivateViewMboxTest(BundlePrivateViewTest):
 
         # Check we can view as owner
         auth_string = _get_auth_string(self.user)
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        response = self.client.get(
+            self.url, headers={'authorization': auth_string}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.patches[0].name)
 
         # Check we can't view as another user
         auth_string = _get_auth_string(self.other_user)
-        response = self.client.get(self.url, HTTP_AUTHORIZATION=auth_string)
+        response = self.client.get(
+            self.url, headers={'authorization': auth_string}
+        )
         self.assertEqual(response.status_code, 404)
 
 
