@@ -47,7 +47,7 @@ jobs:
       MYSQL_ROOT_PASSWORD: root-${{ github.run_id }}
     services:
       postgres:
-        image: postgres:17
+        image: postgres:18
         env:
           POSTGRES_DB: ${{ env.DATABASE_NAME }}
           POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
@@ -60,7 +60,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       mysql:
-        image: mysql:8.4
+        image: mysql:9.7
         env:
           MYSQL_DATABASE: ${{ env.DATABASE_NAME }}
           MYSQL_USER: ${{ env.DATABASE_USER }}
@@ -98,8 +98,13 @@ jobs:
       - name: Modify database user permissions (mysql)
         if: ${{ matrix.db == 'mysql' }}
         run: |
-          mysql -h 127.0.0.1 -e "GRANT ALL ON \`test\\_${DATABASE_NAME}%\`.* to '${DATABASE_USER}'@'%';" \
-              -uroot -p${MYSQL_ROOT_PASSWORD}
+          mysql -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} -e \
+              "GRANT ALL ON \`test\\_${DATABASE_NAME}%\`.* TO '${DATABASE_USER}'@'%';
+               FLUSH PRIVILEGES;"
+      - name: Configure MySQL client (mysql)
+        if: ${{ matrix.db == 'mysql' }}
+        run: |
+          printf '[mysqldump]\nset-gtid-purged=OFF\nno-tablespaces\n' > ~/.my.cnf
       - name: Run unit tests (via tox)
         run: tox
   docs:
@@ -164,8 +169,10 @@ jobs:
       - name: Modify database user permissions (mysql)
         if: ${{ matrix.db == 'mysql' }}
         run: |
-          docker compose exec -T -- db \
-              sh -c "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%'; FLUSH PRIVILEGES;\""
+          docker compose exec -T -- db sh -c \
+              "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \
+              \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* TO '\${MYSQL_USER}'@'%';
+               FLUSH PRIVILEGES;\""
       - name: Run unittest
         run: docker compose run -T --rm web tox
       - name: Test normal startup
