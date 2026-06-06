@@ -151,6 +151,7 @@ def clean_header(header):
         return None
 
     header_str = str(sane_header)
+    header_str = header_str.replace('\x00', '')
 
     return normalise_space(header_str)
 
@@ -498,7 +499,7 @@ def find_headers(mail):
         if header is not None
     ]
 
-    return '\n'.join(strings)
+    return '\n'.join(strings).replace('\x00', '')
 
 
 def find_message_id(mail):
@@ -697,6 +698,9 @@ def find_patch_content(mail):
 
     commentbuf = clean_content(commentbuf)
 
+    if patchbuf:
+        patchbuf = patchbuf.replace('\x00', '')
+
     return patchbuf, commentbuf
 
 
@@ -873,7 +877,7 @@ def clean_content(content):
     sig_re = re.compile(r'^(-- |_+)\n.*', re.S | re.M)
     content = sig_re.sub('', content)
 
-    return content.strip()
+    return content.strip().replace('\x00', '')
 
 
 def parse_patch(content):
