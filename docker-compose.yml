@@ -1,7 +1,8 @@
 ---
 services:
   db:
-    image: mysql:latest
+    image: mysql:9.7
+    command: --gtid-mode=OFF --enforce-gtid-consistency=OFF
     volumes:
       - ./tools/docker/db/data:/var/lib/mysql
     environment:
@@ -25,6 +26,7 @@ services:
       - db
     volumes:
       - .:/home/ubuntu/patchwork/
+      - ./tools/docker/mysql-client.cnf:/home/ubuntu/.my.cnf:ro
     ports:
       - "8000:8000"
     environment:

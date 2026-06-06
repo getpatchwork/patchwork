@@ -1,0 +1,6 @@
+[mysqldump]
+# MySQL 9.5+ defaults gtid_mode=ON; suppress GTID state from dumps so that
+# parallel test database cloning works without SYSTEM_VARIABLES_ADMIN.
+set-gtid-purged=OFF
+# Avoid requiring the PROCESS privilege for tablespace metadata.
+no-tablespaces

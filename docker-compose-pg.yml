@@ -1,9 +1,9 @@
 ---
 services:
   db:
-    image: postgres:17
+    image: postgres:18
     volumes:
-      - ./tools/docker/db/postdata:/var/lib/postgresql/data
+      - ./tools/docker/db/postdata:/var/lib/postgresql
     environment:
       - POSTGRES_DB=patchwork
       - POSTGRES_USER=patchwork
