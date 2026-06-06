@@ -9,11 +9,11 @@ services:
         - GID
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/home/patchwork/patchwork/
+      - .:/home/ubuntu/patchwork/
     ports:
       - "8000:8000"
     environment:
       - UID
       - GID
       - DATABASE_TYPE=sqlite3
-      - DATABASE_NAME=/home/patchwork/patchwork/tools/docker/db/db.sqlite3
+      - DATABASE_NAME=/home/ubuntu/patchwork/tools/docker/db/db.sqlite3

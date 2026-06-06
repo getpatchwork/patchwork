@@ -40,13 +40,13 @@ test_database() {
 
 # check if patchwork is mounted. Checking if we exist is a
 # very good start!
-if [ ! -f ~patchwork/patchwork/tools/docker/entrypoint.sh ]; then
+if [ ! -f ~/patchwork/tools/docker/entrypoint.sh ]; then
     cat << EOF
 The patchwork directory doesn't seem to be mounted!
 
 Are you using docker-compose? If so, you may need to create an SELinux rule.
 Refer to the development installation documentation for more information.
-If not, you need -v PATH_TO_PATCHWORK:/home/patchwork/patchwork
+If not, you need -v PATH_TO_PATCHWORK:/home/ubuntu/patchwork
 EOF
     exit 1
 fi
