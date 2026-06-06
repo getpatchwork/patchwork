@@ -1,16 +1,17 @@
 FROM ghcr.io/getpatchwork/pyenv:latest
 
+# Match the host user's UID so the container can write to bind-mounted volumes.
+# Ubuntu 24.04 ships with an 'ubuntu' user (UID 1000); we just remap it.
 ARG UID=1000
 ARG GID=1000
+RUN groupmod -g "${GID}" ubuntu && usermod -u "${UID}" ubuntu && chown -R ubuntu:ubuntu /home/ubuntu
 
 ARG TZ="Australia/Canberra"
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
-ENV PROJECT_HOME /home/patchwork/patchwork
+ENV PROJECT_HOME /home/ubuntu/patchwork
 ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
 
-RUN groupadd -o --gid=$GID patchwork && \
-    useradd --uid=$UID --gid=$GID --create-home patchwork
 RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
 RUN eval "$(pyenv init -)"
@@ -37,5 +38,5 @@ RUN pip install -r /opt/requirements-dev.txt
 COPY tools/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
-USER patchwork
-WORKDIR /home/patchwork/patchwork
+USER ubuntu
+WORKDIR /home/ubuntu/patchwork

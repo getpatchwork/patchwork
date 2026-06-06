@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/home/patchwork/patchwork/
+      - .:/home/ubuntu/patchwork/
     ports:
       - "8000:8000"
     environment:
