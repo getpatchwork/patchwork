@@ -18,10 +18,10 @@ RUN eval "$(pyenv init -)"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libmysqlclient-dev \
+    default-libmysqlclient-dev \
+    default-mysql-client \
     libpq-dev \
     libsqlite3-dev \
-    mysql-client \
     postgresql-client \
     sqlite3 \
     tzdata \
