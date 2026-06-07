@@ -10,7 +10,7 @@ from django.urls import NoReverseMatch
 from django.urls import reverse
 from rest_framework import status
 
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_covers
 from patchwork.tests.utils import create_maintainer

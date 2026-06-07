@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from patchwork.models import Check
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_check
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_maintainer

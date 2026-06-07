@@ -12,13 +12,14 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient as BaseAPIClient
 from rest_framework.test import APIRequestFactory
 
-from patchwork.tests.api import validator
+from patchwork.tests.unit.api import validator
 from patchwork.tests.utils import create_user
 
 
 # docs/api/samples
 OUT_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
+    os.pardir,
     os.pardir,
     os.pardir,
     os.pardir,

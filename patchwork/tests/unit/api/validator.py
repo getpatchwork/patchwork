@@ -23,6 +23,7 @@ SCHEMAS_DIR = os.path.join(
     os.pardir,
     os.pardir,
     os.pardir,
+    os.pardir,
     'docs',
     'api',
     'schemas',

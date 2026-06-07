@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from patchwork.models import Project
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_user
