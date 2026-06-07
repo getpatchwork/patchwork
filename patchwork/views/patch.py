@@ -38,6 +38,22 @@ def patch_list(request, project_id):
     return render(request, 'patchwork/list.html', context)
 
 
+def series_list(request, project_id):
+    project = get_object_or_404(Project, linkname=project_id)
+    context = generic_list(
+        request,
+        project,
+        'series-list',
+        view_args={'project_id': project.linkname},
+        series_view=True,
+    )
+
+    if request.user.is_authenticated:
+        context['bundles'] = request.user.bundles.all()
+
+    return render(request, 'patchwork/series.html', context)
+
+
 def patch_detail(request, project_id, msgid):
     project = get_object_or_404(Project, linkname=project_id)
     db_msgid = Patch.decode_msgid(msgid)
