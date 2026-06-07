@@ -6,10 +6,10 @@
 import os
 import warnings
 
-TEST_MAIL_DIR = os.path.join(os.path.dirname(__file__), 'mail')
-TEST_PATCH_DIR = os.path.join(os.path.dirname(__file__), 'patches')
-TEST_FUZZ_DIR = os.path.join(os.path.dirname(__file__), 'fuzztests')
-TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
+TEST_MAIL_DIR = os.path.join(os.path.dirname(__file__), 'data', 'mail')
+TEST_PATCH_DIR = os.path.join(os.path.dirname(__file__), 'data', 'patches')
+TEST_FUZZ_DIR = os.path.join(os.path.dirname(__file__), 'data', 'fuzz')
+TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'data', 'series')
 
 # configure warnings
 
