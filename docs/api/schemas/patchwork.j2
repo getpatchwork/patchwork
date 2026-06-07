@@ -1228,7 +1228,7 @@ paths:
           title: ID
           type: integer
     get:
-      summary: Show a series.
+      summary: Return the details of a series.
       description: |
         Retrieve a series by its ID.
         A series is a collection of patches with an optional cover letter.
@@ -1248,6 +1248,130 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - series
+{% if version >= (1, 4) %}
+    patch:
+      summary: Partially update a series.
+      description: |
+        Only updates the 'supersedes' field of a series. Replaces the whole set
+        of superseded series.
+
+        ::
+
+          Instance:
+              instance.supersedes = [
+                  'http://example.com/api/series/1/',
+                  'http://example.com/api/series/2/',
+                  'http://example.com/api/series/5/'
+              ]
+
+          Request:
+              PATCH {
+                  "supersedes": [
+                      'http://example.com/api/series/1/',
+                      'http://example.com/api/series/8/'
+                  ]
+              }
+
+          Result:
+              instance.supersedes = [
+                  'http://example.com/api/series/1/',
+                  'http://example.com/api/series/8/'
+              ]
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SeriesUpdate'
+      operationId: series_partial_update
+      responses:
+        '200':
+          description: 'Updated series'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - series
+    put:
+      summary: Update a series.
+      description: |
+        Only updates the 'supersedes' field of a series. Replaces the whole set
+        of superseded series.
+
+        ::
+
+          Instance:
+              instance.supersedes = [
+                  'http://example.com/api/series/1/',
+                  'http://example.com/api/series/2/',
+                  'http://example.com/api/series/5/'
+              ]
+
+          Request:
+              PUT {
+                  "supersedes": [
+                      'http://example.com/api/series/1/',
+                      'http://example.com/api/series/8/'
+                  ]
+              }
+
+          Result:
+              instance.supersedes = [
+                  'http://example.com/api/series/1/',
+                  'http://example.com/api/series/8/'
+              ]
+      security:
+        - basicAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SeriesUpdate'
+      operationId: series_update
+      responses:
+        '200':
+          description: 'Updated series'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Series'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 'Forbidden'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - series
+{% endif %}
   /api/{{ version_url }}users:
     get:
       summary: List users.
@@ -1547,6 +1671,16 @@ components:
         application/x-www-form-urlencoded:
           schema:
             $ref: '#/components/schemas/Project'
+{% if version >= (1, 4) %}
+    SeriesUpdate:
+      required: true
+      description: |
+        A series.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SeriesUpdate'
+{% endif %}
     User:
       required: true
       description: |
@@ -2621,6 +2755,26 @@ components:
         show_dependencies:
           title: Whether the parse dependencies feature is enabled.
           type: boolean
+        show_series_versions:
+          title: Whether series versioning is enabled.
+          type: boolean
+{% endif %}
+{% if version >= (1, 4) %}
+    SeriesUpdate:
+      type: object
+      title: SeriesUpdate
+      description: |
+        Updatable fields af a series.
+      properties:
+        supersedes:
+          type: array
+          items:
+            oneOf:
+              - type: string
+                format: uri
+              - type: string
+                format: uri-reference
+          description: Series deprecated by the current series
 {% endif %}
     Series:
       type: object
@@ -2710,7 +2864,7 @@ components:
           type: array
           items:
             type: string
-            format: url
+            format: uri
           readOnly: true
           uniqueItems: true
         dependents:
@@ -2718,7 +2872,22 @@ components:
           type: array
           items:
             type: string
-            format: url
+            format: uri
+          readOnly: true
+          uniqueItems: true
+        supersedes:
+          title: Series deprecated by this series
+          type: array
+          items:
+            type: string
+            format: uri
+          uniqueItems: true
+        superseded:
+          title: Series that superseded this series
+          type: array
+          items:
+            type: string
+            format: uri
           readOnly: true
           uniqueItems: true
 {% endif %}

@@ -1059,7 +1059,7 @@ paths:
           title: ID
           type: integer
     get:
-      summary: Show a series.
+      summary: Return the details of a series.
       description: |
         Retrieve a series by its ID.
         A series is a collection of patches with an optional cover letter.

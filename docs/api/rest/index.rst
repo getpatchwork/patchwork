@@ -43,6 +43,11 @@ If all you want is reference guides, skip straight to :ref:`rest-api-schemas`.
    The API version was bumped to v1.3 in Patchwork v3.1. The older APIs are
    still supported. For more information, refer to :ref:`rest-api-versions`.
 
+.. versionchanged:: 3.2
+
+   The API version was bumped to v1.4 in Patchwork v3.2. The older APIs are
+   still supported. For more information, refer to :ref:`rest-api-versions`.
+
 Getting Started
 ---------------
 
@@ -79,7 +84,7 @@ well-supported. To repeat the above example using `requests`:, run
     $ python
     >>> import json
     >>> import requests
-    >>> r = requests.get('https://patchwork.example.com/api/1.3/')
+    >>> r = requests.get('https://patchwork.example.com/api/1.4/')
     >>> print(json.dumps(r.json(), indent=2))
     {
         "bundles": "https://patchwork.example.com/api/1.4/bundles/",

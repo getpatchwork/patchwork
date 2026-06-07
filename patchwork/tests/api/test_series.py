@@ -44,6 +44,7 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertIn(series_obj.get_mbox_url(), series_json['mbox'])
         self.assertIn(series_obj.get_absolute_url(), series_json['web_url'])
 
+        # dependencies
         for dep, item in zip(
             series_obj.dependencies.all(), series_json['dependencies']
         ):
@@ -56,6 +57,21 @@ class TestSeriesAPI(utils.APITestCase):
         ):
             self.assertIn(
                 reverse('api-series-detail', kwargs={'pk': dep.id}), item
+            )
+
+        # versioning
+        for ver, item in zip(
+            series_obj.supersedes.all(), series_json['supersedes']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': ver.id}), item
+            )
+
+        for ver, item in zip(
+            series_obj.superseded.all(), series_json['superseded']
+        ):
+            self.assertIn(
+                reverse('api-series-detail', kwargs={'pk': ver.id}), item
             )
 
         # nested fields
@@ -79,7 +95,9 @@ class TestSeriesAPI(utils.APITestCase):
 
     def _create_series(self):
         project_obj = create_project(
-            linkname='myproject', show_dependencies=True
+            linkname='myproject',
+            show_dependencies=True,
+            show_series_versions=True,
         )
         person_obj = create_person(email='test@example.com')
         series_obj = create_series(project=project_obj, submitter=person_obj)
@@ -197,7 +215,7 @@ class TestSeriesAPI(utils.APITestCase):
             create_cover(series=series_obj)
             create_patch(series=series_obj)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(10):
             self.client.get(self.api_url())
 
     @utils.store_samples('series-detail')
@@ -225,6 +243,8 @@ class TestSeriesAPI(utils.APITestCase):
         self.assertIn('web_url', resp.data['patches'][0])
         self.assertNotIn('dependents', resp.data)
         self.assertNotIn('dependencies', resp.data)
+        self.assertNotIn('superseded', resp.data)
+        self.assertNotIn('supersedes', resp.data)
 
     @utils.store_samples('series-detail-1-0')
     def test_detail_version_1_0(self):
@@ -251,8 +271,8 @@ class TestSeriesAPI(utils.APITestCase):
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url('foo'))
 
-    def test_create_update_delete(self):
-        """Ensure creates, updates and deletes aren't allowed"""
+    def test_create_delete(self):
+        """Ensure creates and deletes aren't allowed"""
         user = create_maintainer()
         user.is_superuser = True
         user.save()
@@ -263,8 +283,306 @@ class TestSeriesAPI(utils.APITestCase):
 
         series = create_series()
 
-        resp = self.client.patch(self.api_url(series.id), {'name': 'Test'})
-        self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
-
         resp = self.client.delete(self.api_url(series.id))
         self.assertEqual(status.HTTP_405_METHOD_NOT_ALLOWED, resp.status_code)
+
+    def test_series_versioning(self):
+        """Test toggling versioning on and off."""
+        project = create_project(
+            show_dependencies=True,
+            show_series_versions=True,
+        )
+        submitter = create_person(email='test@example.com')
+        series_a = create_series(project=project, submitter=submitter)
+        create_cover(series=series_a)
+        create_patch(series=series_a)
+        series_b = create_series(project=project, submitter=submitter)
+        create_cover(series=series_b)
+        create_patch(series=series_b)
+        series_a.supersedes.set([series_b])
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(2, len(resp.data))
+        for series_data in resp.data:
+            self.assertIn('supersedes', series_data)
+            self.assertIn('superseded', series_data)
+
+        project.show_series_versions = False
+        project.save()
+
+        resp = self.client.get(self.api_url())
+        self.assertEqual(2, len(resp.data))
+        for series_data in resp.data:
+            self.assertNotIn('supersedes', series_data)
+            self.assertNotIn('superseded', series_data)
+
+
+@override_settings(PATCHWORK_API_ENABLED=True)
+class TestSeriesDetailUpdate(utils.APITestCase):
+    @staticmethod
+    def api_url(item, version=None):
+        kwargs = {}
+        if version:
+            kwargs['version'] = version
+
+        kwargs['pk'] = item
+        return reverse('api-series-detail', kwargs=kwargs)
+
+    def _get_series_url(self, series, request=None):
+        url = reverse(
+            'api-series-detail',
+            kwargs={'pk': series.id},
+        )
+        # Build absolute uri for spec validation
+        if request is not None:
+            return request.build_absolute_uri(url)
+
+        return url
+
+    def _assert_contains_series_url(self, response, key, series):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        container = response.json().get(key)
+        for item in container:
+            if item.endswith(
+                self._get_series_url(series, response.wsgi_request)
+            ):
+                return True
+        raise AssertionError(
+            f'No item in {container} ends with {self._get_series_url(series)}'
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.client.defaults.update(
+            {'HTTP_HOST': 'example.com', 'SERVER_NAME': 'example.com'}
+        )
+        self.project = create_project(
+            linkname='myproject',
+            show_dependencies=True,
+            show_series_versions=True,
+        )
+        user = create_user()
+        self.submitter = create_person(email='test@example.com', user=user)
+
+        self.superseded = create_series(
+            project=self.project, submitter=self.submitter
+        )
+        create_cover(series=self.superseded)
+        create_patch(series=self.superseded)
+
+        self.series = create_series(
+            project=self.project, submitter=self.submitter
+        )
+        create_cover(series=self.series)
+        create_patch(series=self.series)
+
+        self.url = self._get_series_url(self.series)
+
+    def authenticate_as_submitter(self):
+        self.client.authenticate(user=self.submitter.user)
+
+    def authenticate_as_maintainer(self):
+        user = create_maintainer(self.project)
+        self.client.authenticate(user=user)
+
+    def authenticate_as_superuser(self):
+        user = create_user()
+        user.is_superuser = True
+        user.save()
+        self.client.authenticate(user=user)
+
+    def authenticate_as_unrelated_user(self):
+        user = create_user()
+        self.client.authenticate(user=user)
+
+    # PATCH tests
+    def test_patch_series_as_submitter(self):
+        series_b = create_series(
+            project=self.project, submitter=self.submitter
+        )
+        self.authenticate_as_submitter()
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+        # Add series_b and remove superseded
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(series_b)]},
+            format='json',
+        )
+        self._assert_contains_series_url(response, 'supersedes', series_b)
+        with self.assertRaises(AssertionError):
+            self._assert_contains_series_url(
+                response, 'supersedes', self.superseded
+            )
+
+    def test_patch_series_as_maintainer(self):
+        self.authenticate_as_maintainer()
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+    def test_patch_series_as_superuser(self):
+        self.authenticate_as_superuser()
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+    def test_patch_series_as_unrelated_user_forbidden(self):
+        self.authenticate_as_unrelated_user()
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_patch_series_unauthenticated_forbidden(self):
+        response = self.client.patch(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # PUT tests
+    def test_put_series_as_submitter(self):
+        series_b = create_series(
+            project=self.project, submitter=self.submitter
+        )
+        self.authenticate_as_submitter()
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+        # Rewrite the whole supersedes attribute
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(series_b)]},
+            format='json',
+        )
+        self._assert_contains_series_url(response, 'supersedes', series_b)
+        with self.assertRaises(AssertionError):
+            self._assert_contains_series_url(
+                response, 'supersedes', self.superseded
+            )
+
+    def test_put_series_as_maintainer(self):
+        self.authenticate_as_maintainer()
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+    def test_put_series_as_superuser(self):
+        self.authenticate_as_superuser()
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self._assert_contains_series_url(
+            response, 'supersedes', self.superseded
+        )
+
+    def test_put_series_as_unrelated_user_forbidden(self):
+        self.authenticate_as_unrelated_user()
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_series_unauthenticated_forbidden(self):
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.superseded)]},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # Invalid input tests
+    def test_patch_invalid_input(self):
+        self.authenticate_as_maintainer()
+        response = self.client.patch(self.url, {'name': 'name'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_put_invalid_input(self):
+        self.authenticate_as_maintainer()
+        response = self.client.put(self.url, {'name': 'name'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_patch_invalid_series_id(self):
+        self.authenticate_as_maintainer()
+        response = self.client.patch(
+            self.url,
+            {'supersedes': ['/api/series/99999999/']},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_put_invalid_series_id(self):
+        self.authenticate_as_maintainer()
+        response = self.client.put(
+            self.url,
+            {'supersedes': ['/api/series/99999999/']},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_self_link_validation(self):
+        self.authenticate_as_submitter()
+
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(self.series)]},
+            format='json',
+        )
+
+        self.assertContains(
+            response,
+            'A series cannot be linked to itself.',
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+    def test_cross_project_validation(self):
+        self.authenticate_as_submitter()
+        series_x = create_series()
+
+        response = self.client.put(
+            self.url,
+            {'supersedes': [self._get_series_url(series_x)]},
+            format='json',
+        )
+
+        self.assertContains(
+            response,
+            'Series must belong to the same project.',
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )

@@ -4,11 +4,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 from rest_framework.generics import ListAPIView
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.serializers import (
-    SerializerMethodField,
-    HyperlinkedRelatedField,
-)
+from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import HyperlinkedRelatedField
+from rest_framework.serializers import ValidationError
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import PatchworkPermission
@@ -33,6 +32,55 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     dependents = HyperlinkedRelatedField(
         read_only=True, view_name='api-series-detail', many=True
     )
+    supersedes = HyperlinkedRelatedField(
+        view_name='api-series-detail',
+        queryset=Series.objects.select_related('project').all(),
+        required=False,
+        many=True,
+    )
+    superseded = HyperlinkedRelatedField(
+        read_only=True,
+        view_name='api-series-detail',
+        many=True,
+    )
+
+    def update(self, instance, validated_data, *args, **kwargs):
+        allowed_fields = {'supersedes'}
+        incoming_fields = set(validated_data.keys())
+
+        if not incoming_fields.issubset(allowed_fields):
+            invalid_fields = incoming_fields - allowed_fields
+            raise ValidationError(
+                {
+                    'detail': 'Cannot update fields: '
+                    f"{', '.join(invalid_fields)}. Only 'supersedes' can be "
+                    'updated.'
+                }
+            )
+
+        if 'supersedes' in validated_data:
+            supersedes = validated_data.pop('supersedes', [])
+
+            if instance in supersedes:
+                raise ValidationError(
+                    {'detail': 'A series cannot be linked to itself.'}
+                )
+
+            if any(
+                series.project != instance.project for series in supersedes
+            ):
+                raise ValidationError(
+                    {'detail': 'Series must belong to the same project.'}
+                )
+
+            try:
+                instance.supersedes.set(supersedes)
+            except Series.DoesNotExist:
+                raise ValidationError(
+                    {'detail': 'Unable to find one of the referenced series'}
+                )
+
+        return instance
 
     def get_web_url(self, instance):
         request = self.context.get('request')
@@ -45,6 +93,11 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
     def to_representation(self, instance):
         if not instance.project.show_dependencies:
             for field in ('dependencies', 'dependents'):
+                if field in self.fields:
+                    del self.fields[field]
+
+        if not instance.project.show_series_versions:
+            for field in ('supersedes', 'superseded'):
                 if field in self.fields:
                     del self.fields[field]
 
@@ -71,6 +124,8 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'patches',
             'dependencies',
             'dependents',
+            'supersedes',
+            'superseded',
         )
         read_only_fields = (
             'date',
@@ -83,10 +138,11 @@ class SeriesSerializer(BaseHyperlinkedModelSerializer):
             'patches',
             'dependencies',
             'dependents',
+            'superseded',
         )
         versioned_fields = {
             '1.1': ('web_url',),
-            '1.4': ('dependencies', 'dependents'),
+            '1.4': ('dependencies', 'dependents', 'supersedes', 'superseded'),
         }
         extra_kwargs = {
             'url': {'view_name': 'api-series-detail'},
@@ -105,6 +161,8 @@ class SeriesMixin(object):
                 'cover_letter__project',
                 'dependencies',
                 'dependents',
+                'supersedes',
+                'superseded',
             )
             .select_related('submitter', 'project')
         )
@@ -119,7 +177,40 @@ class SeriesList(SeriesMixin, ListAPIView):
     ordering = 'id'
 
 
-class SeriesDetail(SeriesMixin, RetrieveAPIView):
-    """Show a series."""
+class SeriesDetail(SeriesMixin, RetrieveUpdateAPIView):
+    """Show a series.
 
-    pass
+    retrieve:
+        Return the details of a series.
+
+    update:
+        Only updates the 'supersedes' field of a series. Replaces the whole set
+        of superseded series.
+
+        ::
+
+        Instance:
+            instance.supersedes = [
+                'http://example.com/api/series/1/',
+                'http://example.com/api/series/2/',
+                'http://example.com/api/series/5/'
+            ]
+
+        Request:
+            PUT/PATCH {
+                "supersedes": [
+                    'http://example.com/api/series/1/',
+                    'http://example.com/api/series/8/'
+                ]
+            }
+
+        Result:
+            instance.supersedes = [
+                'http://example.com/api/series/1/',
+                'http://example.com/api/series/8/'
+            ]
+    """
+
+    # PUT operation will behave as a partial update
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
