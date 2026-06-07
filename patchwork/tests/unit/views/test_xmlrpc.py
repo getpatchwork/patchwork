@@ -3,28 +3,56 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import base64
 from xmlrpc import client as xmlrpc_client
 
-from django.test import LiveServerTestCase
+from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
 
 from patchwork.tests import utils
 
 
-class ServerProxy(xmlrpc_client.ServerProxy):
-    def close(self):
-        self.__close()
+class _TestClientTransport(xmlrpc_client.Transport):
+    """XML-RPC transport backed by Django's test client.
+
+    Allows XML-RPC tests to run without a live server by dispatching
+    requests directly through the WSGI stack.
+    """
+
+    def __init__(self, client, username=None, password=None):
+        super().__init__()
+        self._client = client
+        self._extra_headers = {}
+        if username is not None:
+            credentials = base64.b64encode(
+                f'{username}:{password}'.encode()
+            ).decode()
+            self._extra_headers['HTTP_AUTHORIZATION'] = f'Basic {credentials}'
+
+    def request(self, host, handler, request_body, verbose=False):
+        # host is ignored: requests are dispatched in-process via the test client
+        response = self._client.post(
+            handler,
+            data=request_body,
+            content_type='text/xml',
+            **self._extra_headers,
+        )
+        p, u = self.getparser()
+        p.feed(response.content)
+        p.close()
+        return u.close()
 
 
 @override_settings(ENABLE_XMLRPC=True)
-class XMLRPCTest(LiveServerTestCase):
+class XMLRPCTest(TestCase):
     def setUp(self):
-        self.url = self.live_server_url + reverse('xmlrpc')
-        self.rpc = ServerProxy(self.url)
-
-    def tearDown(self):
-        self.rpc.close()
+        self.url = reverse('xmlrpc')
+        server_name = self.client._base_environ()['SERVER_NAME']
+        self.rpc = xmlrpc_client.ServerProxy(
+            f'http://{server_name}{self.url}',
+            transport=_TestClientTransport(self.client),
+        )
 
 
 class XMLRPCGenericTest(XMLRPCTest):
@@ -46,21 +74,20 @@ class XMLRPCGenericTest(XMLRPCTest):
 
 
 @override_settings(ENABLE_XMLRPC=True)
-class XMLRPCAuthenticatedTest(LiveServerTestCase):
+class XMLRPCAuthenticatedTest(TestCase):
     def setUp(self):
-        self.url = self.live_server_url + reverse('xmlrpc')
-        # url is of the form http://localhost:PORT/PATH
-        # strip the http and replace it with the username/passwd of a user.
+        self.url = reverse('xmlrpc')
         self.project = utils.create_project()
         self.user = utils.create_maintainer(self.project)
-        self.url = ('http://%s:%s@' + self.url[7:]) % (
-            self.user.username,
-            self.user.username,
+        server_name = self.client._base_environ()['SERVER_NAME']
+        self.rpc = xmlrpc_client.ServerProxy(
+            f'http://{server_name}{self.url}',
+            transport=_TestClientTransport(
+                self.client,
+                username=self.user.username,
+                password=self.user.username,
+            ),
         )
-        self.rpc = ServerProxy(self.url)
-
-    def tearDown(self):
-        self.rpc.close()
 
     def test_patch_set(self):
         patch = utils.create_patch(project=self.project)
