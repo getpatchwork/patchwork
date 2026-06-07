@@ -6,10 +6,6 @@ Patchwork
    :target: https://pyup.io/repos/github/getpatchwork/patchwork/
    :alt: Requirements Status
 
-.. image:: https://codecov.io/gh/getpatchwork/patchwork/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/getpatchwork/patchwork
-   :alt: Codecov
-
 .. image:: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml/badge.svg
    :target: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml
    :alt: Build Status
