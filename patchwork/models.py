@@ -122,6 +122,10 @@ class Project(models.Model):
     class Meta:
         unique_together = (('listid', 'subject_match'),)
         ordering = ['linkname']
+        permissions = [
+            # Per-project permission to add checks
+            ("add_check", "Can add checks"),
+        ]
 
 
 class DelegationRule(models.Model):
