@@ -1,7 +1,7 @@
 ---
 services:
   db:
-    image: mysql:latest
+    image: mysql:8.4
     volumes:
       - ./tools/docker/db/data:/var/lib/mysql
     environment:
