@@ -8,6 +8,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
 
+from guardian.admin import GuardedModelAdmin
+
 from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import Cover
@@ -45,7 +47,7 @@ class DelegationRuleInline(admin.TabularInline):
 
 
 @admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(GuardedModelAdmin):
     list_display = ('name', 'linkname', 'listid', 'listemail')
     inlines = [
         DelegationRuleInline,
