@@ -7,10 +7,10 @@ ARG GID=1000
 RUN groupmod -g "${GID}" ubuntu && usermod -u "${UID}" ubuntu && chown -R ubuntu:ubuntu /home/ubuntu
 
 ARG TZ="Australia/Canberra"
-ENV DEBIAN_FRONTEND noninteractive
-ENV PYTHONUNBUFFERED 1
-ENV PROJECT_HOME /home/ubuntu/patchwork
-ENV DJANGO_SETTINGS_MODULE patchwork.settings.dev
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PROJECT_HOME=/home/ubuntu/patchwork
+ENV DJANGO_SETTINGS_MODULE=patchwork.settings.dev
 
 RUN rm -f /etc/localtime; ln -s /usr/share/zoneinfo/$TZ /etc/localtime
 
