@@ -14,7 +14,7 @@ repos:
     rev: v1.5.6
     hooks:
       - id: remove-tabs
-        exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)
+        exclude: (.*\.mbox)|(.*\.svg)|(.*\.sql)|(.*\.conf)|Makefile
       - id: remove-crlf
         exclude: (.*\.mbox)|(.*\.svg)
   - repo: https://github.com/astral-sh/ruff-pre-commit
