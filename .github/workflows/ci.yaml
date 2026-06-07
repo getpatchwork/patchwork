@@ -174,7 +174,7 @@ jobs:
               \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* TO '\${MYSQL_USER}'@'%';
                FLUSH PRIVILEGES;\""
       - name: Run unittest
-        run: docker compose run -T --rm web tox
+        run: docker compose run -T --rm web tox -e pep8,docs,py311-django52,py314-django60
       - name: Test normal startup
         run: |
           docker compose up --detach
