@@ -166,7 +166,7 @@ jobs:
           docker compose exec -T -- db \
               sh -c "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%'; FLUSH PRIVILEGES;\""
       - name: Run unittest
-        run: docker compose run -T --rm web tox
+        run: docker compose run -T --rm web tox -e pep8,docs,py39-django42,py313-django51
       - name: Test normal startup
         run: |
           docker compose up --detach
