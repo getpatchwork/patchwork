@@ -31,7 +31,8 @@ class _TestClientTransport(xmlrpc_client.Transport):
             self._extra_headers['HTTP_AUTHORIZATION'] = f'Basic {credentials}'
 
     def request(self, host, handler, request_body, verbose=False):
-        # host is ignored: requests are dispatched in-process via the test client
+        # host is ignored: requests are dispatched in-process via the test
+        # client
         response = self._client.post(
             handler,
             data=request_body,

@@ -52,8 +52,12 @@ def get_str_version():
 def get_git_version():
     """Returns the raw git version via 'git-describe'."""
     try:
+        # 'git' is a well-known tool; using a full path would break portability
+        # across environments
         git_version = subprocess.check_output(
-            ['git', 'describe'], stderr=subprocess.STDOUT, cwd=ROOT_DIR
+            ['git', 'describe'],  # noqa: S607
+            stderr=subprocess.STDOUT,
+            cwd=ROOT_DIR,
         )
     except (OSError, subprocess.CalledProcessError):
         return ''

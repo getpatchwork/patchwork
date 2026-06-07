@@ -4,4 +4,8 @@ line-length = 79
 quote-style = "preserve"
 
 [lint]
-select = ["E4", "E7", "E9", "F"]
+select = ["E", "F", "LOG", "S", "W"]
+
+[lint.per-file-ignores]
+"docs/*" = ["S"]
+"patchwork/tests/*" = ["S"]

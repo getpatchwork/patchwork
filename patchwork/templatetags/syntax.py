@@ -69,7 +69,9 @@ def patchsyntax(patch):
         diff,
     )
 
-    return mark_safe(diff)
+    # diff is run through escape() at the top of this function before regex
+    # substitution
+    return mark_safe(diff)  # noqa: S308
 
 
 @register.filter
@@ -82,4 +84,6 @@ def commentsyntax(submission):
         lambda x: _link % (x.group(0), x.group(0)), content
     )
 
-    return mark_safe(content)
+    # content is run through escape() at the top of this function before regex
+    # substitution
+    return mark_safe(content)  # noqa: S308

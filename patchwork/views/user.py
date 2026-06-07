@@ -112,18 +112,15 @@ def profile(request):
         'profileform': form,
     }
 
-    # This looks unsafe but is actually fine: it just gets the names
-    # of tables and columns, not user-supplied data.
-    #
-    # An example of generated SQL is:
-    # patchwork_person.email IN (SELECT email FROM patchwork_emailoptout)
-    optout_query = '%s.%s IN (SELECT %s FROM %s)' % (
+    # All values are Django model metadata (table/column names), not
+    # user-supplied data
+    optout_query = '%s.%s IN (SELECT %s FROM %s)' % (  # noqa: S608
         Person._meta.db_table,
         Person._meta.get_field('email').column,
         EmailOptout._meta.get_field('email').column,
         EmailOptout._meta.db_table,
     )
-    people = Person.objects.filter(user=request.user).extra(
+    people = Person.objects.filter(user=request.user).extra(  # noqa: S610
         select={'is_optout': optout_query}
     )
     context['linked_emails'] = people

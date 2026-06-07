@@ -1069,7 +1069,7 @@ def find_series_from_url(url):
     try:
         result = resolve(parse_result.path)
     except Resolver404:
-        logging.warning('Failed to resolve series or patch URL: %s', url)
+        logger.warning('Failed to resolve series or patch URL: %s', url)
         return None
 
     # TODO: Use the series detail view here.
@@ -1083,15 +1083,16 @@ def find_series_from_url(url):
             try:
                 series_id_num = int(series_id[0])
             except ValueError:
-                logging.warning(
-                    'Series URL with an invalid series query parameter was given: %s',
+                logger.warning(
+                    'Series URL with an invalid series query parameter was '
+                    'given: %s',
                     url,
                 )
                 return None
             # This will return None if there are no matches.
             return Series.objects.filter(id=series_id_num).first()
 
-        logging.warning(
+        logger.warning(
             'Series URL did not have a series query parameter: %s', url
         )
         return None

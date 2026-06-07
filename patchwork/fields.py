@@ -11,7 +11,7 @@ from django.db import models
 
 class HashField(models.CharField):
     def __init__(self, *args, **kwargs):
-        self.n_bytes = len(hashlib.sha1().hexdigest())
+        self.n_bytes = len(hashlib.sha1(usedforsecurity=False).hexdigest())
         kwargs['max_length'] = self.n_bytes
 
         super(HashField, self).__init__(*args, **kwargs)
@@ -20,7 +20,7 @@ class HashField(models.CharField):
         # TODO: should this be unconditional?
         if isinstance(value, str):
             value = value.encode('utf-8')
-        return hashlib.sha1(value)
+        return hashlib.sha1(value, usedforsecurity=False)
 
     def from_db_value(self, value, *args, **kwargs):
         return self.to_python(value)

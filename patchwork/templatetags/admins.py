@@ -22,6 +22,8 @@ def site_admins():
         return ''
 
     if len(admins) == 1:
-        return mark_safe(admins[0])
+        # admins come from settings.ADMINS, a developer-controlled config value
+        return mark_safe(admins[0])  # noqa: S308
 
-    return mark_safe(', '.join(admins[:-2]) + admins[-2] + ' or ' + admins[-1])
+    # admins come from settings.ADMINS, a developer-controlled config value
+    return mark_safe(', '.join(admins[:-2]) + admins[-2] + ' or ' + admins[-1])  # noqa: S308

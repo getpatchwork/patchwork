@@ -27,7 +27,8 @@ def patch_tags(patch):
         else:
             counts.append(str(count))
 
-    return mark_safe(
+    # counts are integers; titles contain tag names set by project maintainers
+    return mark_safe(  # noqa: S308
         '<span title="%s">%s</span>' % (' / '.join(titles), ' '.join(counts))
     )
 
@@ -53,7 +54,9 @@ def patch_checks(patch):
 
     check_elements.reverse()
 
-    return mark_safe(
+    # titles are hardcoded strings; check_elements contain hardcoded CSS class
+    # names and integer counts
+    return mark_safe(  # noqa: S308
         '<span title="%s">%s</span>'
         % (' / '.join(titles), ''.join(check_elements))
     )
@@ -67,6 +70,7 @@ def patch_commit_display(patch):
     if not fmt:
         return escape(commit)
 
-    return mark_safe(
+    # both the URL and display text are run through escape() above
+    return mark_safe(  # noqa: S308
         '<a href="%s">%s</a>' % (escape(fmt.format(commit)), escape(commit))
     )

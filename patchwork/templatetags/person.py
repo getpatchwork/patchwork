@@ -29,4 +29,5 @@ def personify(person, project):
         linktext,
     )
 
-    return mark_safe(out)
+    # Name, email, and ID are all run through escape() above.
+    return mark_safe(out)  # noqa: S308

@@ -70,7 +70,8 @@ class ProjectMixin(object):
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
 
-        assert 'pk' in self.kwargs
+        # Enforces a routing invariant, not guarding against user input.
+        assert 'pk' in self.kwargs  # noqa: S101
 
         try:
             obj = queryset.get(id=int(self.kwargs['pk']))

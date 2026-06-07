@@ -23,7 +23,7 @@ def hash_diff(diff):
     diff = diff.strip() + '\n'
 
     prefixes = ['-', '+', ' ']
-    hashed = hashlib.sha1()
+    hashed = hashlib.sha1(usedforsecurity=False)
 
     for line in diff.split('\n'):
         if len(line) <= 0:

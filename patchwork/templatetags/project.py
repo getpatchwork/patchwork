@@ -14,7 +14,8 @@ register = template.Library()
 def project_tags(context):
     tags = [t for t in context['project'].tags if t.show_column]
 
-    return mark_safe(
+    # tag.name and tag.abbrev are set by project maintainers, not end users.
+    return mark_safe(  # noqa: S308
         '<span title="%s">%s</span>'
         % (
             ' / '.join([tag.name for tag in tags]),

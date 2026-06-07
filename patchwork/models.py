@@ -6,7 +6,7 @@
 
 from collections import Counter
 import datetime
-import random
+import secrets
 import re
 
 from django.conf import settings
@@ -381,7 +381,8 @@ class EmailMixin(models.Model):
     def url_msgid(self):
         """A trimmed Message ID, suitable for inclusion in URLs"""
         if settings.DEBUG:
-            assert self.msgid[0] == '<' and self.msgid[-1] == '>'
+            # Only reached in development; never runs in production.
+            assert self.msgid[0] == '<' and self.msgid[-1] == '>'  # noqa: S101
 
         return self.msgid.strip('<>')
 
@@ -1361,7 +1362,7 @@ class EmailConfirmation(models.Model):
     def save(self, *args, **kwargs):
         limit = 1 << 32
         if not self.key:
-            key = '%s%s%d' % (self.user, self.email, random.randint(0, limit))
+            key = '%s%s%d' % (self.user, self.email, secrets.randbelow(limit))
             self.key = self._meta.get_field('key').construct(key).hexdigest()
         super(EmailConfirmation, self).save()
 

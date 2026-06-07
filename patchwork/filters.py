@@ -278,7 +278,8 @@ class StateFilter(Filter):
                 escape(state.name),
             )
         out += '</select>'
-        return mark_safe(out)
+        # All user-supplied values are run through escape() above.
+        return mark_safe(out)  # noqa: S308
 
 
 class SearchFilter(Filter):
@@ -315,7 +316,8 @@ class SearchFilter(Filter):
         value = ''
         if self.search:
             value = escape(self.search)
-        return mark_safe(
+        # self.param is a hardcoded class attribute; value is escaped above.
+        return mark_safe(  # noqa: S308
             '<input name="%s" class="form-control" value="%s">'
             % (self.param, value)
         )
@@ -389,7 +391,9 @@ class ArchiveFilter(Filter):
                 'selected': selected,
                 'value': self.param_map[b],
             }
-        return mark_safe(s)
+        # all values come from hardcoded class attributes (description_map,
+        # param_map)
+        return mark_safe(s)  # noqa: S308
 
 
 class DelegateFilter(Filter):
@@ -463,7 +467,9 @@ class DelegateFilter(Filter):
     @property
     def form(self):
         if self.forced:
-            return mark_safe(
+            # when forced, condition is a delegate username set
+            # programmatically, not from user input
+            return mark_safe(  # noqa: S308
                 '<input type="hidden" value="%s">%s'
                 % (self.param, self.condition)
             )
@@ -499,7 +505,9 @@ class DelegateFilter(Filter):
                 delegate.username,
             )
         out += '</select>'
-        return mark_safe(out)
+        # delegate.id is an integer; delegate.username is restricted to safe
+        # characters by Django
+        return mark_safe(out)  # noqa: S308
 
     def set_status(self, *args, **kwargs):
         if 'delegate' in kwargs:
