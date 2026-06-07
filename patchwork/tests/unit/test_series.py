@@ -12,11 +12,9 @@ from django.test import TestCase
 
 from patchwork import models
 from patchwork import parser
+from patchwork.tests import TEST_SERIES_DIR
 from patchwork.tests import utils
 from patchwork.views.utils import patch_to_mbox
-
-
-TEST_SERIES_DIR = os.path.join(os.path.dirname(__file__), 'series')
 
 
 class _BaseTestCase(TestCase):

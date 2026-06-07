@@ -9,7 +9,7 @@ from rest_framework import status
 
 from patchwork.models import Patch
 from patchwork.models import PatchRelation
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches

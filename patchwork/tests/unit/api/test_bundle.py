@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from patchwork.models import Bundle
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_bundle
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch

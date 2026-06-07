@@ -10,7 +10,7 @@ from rest_framework import status
 
 from patchwork.models import PatchComment
 from patchwork.models import CoverComment
-from patchwork.tests.api import utils
+from patchwork.tests.unit.api import utils
 from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_patch
