@@ -29,6 +29,9 @@
       (<a href="{{ submission.list_archive_url }}">mailing list archive</a>)
 {% endif %}
       <span class="btn-link btn-copy glyphicon glyphicon-copy" data-clipboard-text="{{ submission.url_msgid }}" title="Copy to Clipboard"></span>
+      {% if user.is_authenticated and user.profile.mid_scheme %}
+      <a href="{{user.profile.mid_scheme}}:<{{submission.url_msgid}}>" title="Open Message"><span class="btn-link glyphicon glyphicon-new-window"></span></a>
+      {% endif %}
     </td>
   </tr>
 {% if submission.state %}
