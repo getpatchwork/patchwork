@@ -8,6 +8,7 @@ import logging
 import sys
 
 from django.core.management import base
+from django.db import transaction
 
 from patchwork.parser import parse_mail
 from patchwork.parser import DuplicateMailError
@@ -57,7 +58,8 @@ class Command(base.BaseCommand):
         # broken email (ValueError):   1 (this could be noisy, if it's an issue
         #                                 we could use a different return code)
         try:
-            result = parse_mail(mail, options['list_id'])
+            with transaction.atomic():
+                result = parse_mail(mail, options['list_id'])
             if result is None:
                 logger.warning('Nothing added to database')
         except DuplicateMailError as exc:
