@@ -39,12 +39,21 @@ def patch_checks(patch):
     counts = patch.check_count
 
     check_elements = []
+    all_empty = True
+    for state in required:
+        if counts[state]:
+            all_empty = False
+            break
+
     for state in required[::-1]:
         if counts[state]:
             color = dict(Check.STATE_CHOICES).get(state)
             count = str(counts[state])
         else:
-            color = ''
+            if all_empty:
+                color = 'nochecks'
+            else:
+                color = ''
             count = '-'
 
         check_elements.append(
