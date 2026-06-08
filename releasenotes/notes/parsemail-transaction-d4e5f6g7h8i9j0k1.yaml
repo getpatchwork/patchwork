@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Wrap the entire ``parse_mail()`` function in a single database
+    transaction to prevent partial state from being visible to
+    concurrent readers.
