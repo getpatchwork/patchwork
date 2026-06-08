@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix a race condition in SeriesReference creation during concurrent
+    email delivery.
