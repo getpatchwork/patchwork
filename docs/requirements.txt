@@ -1,5 +1,5 @@
 sphinx
 reno
-sphinx_rtd_theme>=2.0.0rc2
+sphinx_rtd_theme>=3.1.0
 jinja2
 sphinxcontrib-openapi
