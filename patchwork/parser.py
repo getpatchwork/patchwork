@@ -1340,20 +1340,18 @@ def parse_mail(mail, list_id=None):
                         # later one.
                         for ref in refs + [msgid]:
                             ref = ref[:255]
-                            # we don't want duplicates
-                            try:
-                                # we could have a ref to a previous series.
-                                # (For example, a series sent in reply to
-                                # another series.) That should not create a
-                                # series ref for this series, so check for the
-                                # msg-id only, not the msg-id/series pair.
-                                SeriesReference.objects.get(
-                                    msgid=ref, project=project
-                                )
-                            except SeriesReference.DoesNotExist:
-                                SeriesReference.objects.create(
-                                    msgid=ref, project=project, series=series
-                                )
+                            # We could have a ref to a previous series. (For
+                            # example, a series sent in reply to another
+                            # series.) That should not create a series ref for
+                            # this series, so check for the msg-id only, not
+                            # the msg-id/series pair. Use get_or_create to
+                            # avoid races when multiple parsemail processes run
+                            # in parallel.
+                            SeriesReference.objects.get_or_create(
+                                msgid=ref,
+                                project=project,
+                                defaults={'series': series},
+                            )
 
                         # attempt to pull the series in again, raising an
                         # exception if we lost the race when creating a series
@@ -1440,8 +1438,8 @@ def parse_mail(mail, list_id=None):
                 # we don't save the in-reply-to or references fields
                 # for a cover letter, as they can't refer to the same
                 # series
-                SeriesReference.objects.create(
-                    msgid=msgid, project=project, series=series
+                SeriesReference.objects.get_or_create(
+                    msgid=msgid, project=project, defaults={'series': series}
                 )
 
             with transaction.atomic():
