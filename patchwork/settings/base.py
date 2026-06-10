@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'guardian',
     'patchwork',
 ]
 
@@ -69,6 +70,11 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 ]
 
 FORM_RENDERER = 'patchwork.forms.PatchworkTableRenderer'

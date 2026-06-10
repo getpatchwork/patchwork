@@ -52,6 +52,7 @@ class Person(models.Model):
             return self.email
 
     class Meta:
+        default_permissions = ()
         verbose_name_plural = 'People'
 
 
@@ -120,8 +121,13 @@ class Project(models.Model):
         return self.name
 
     class Meta:
+        default_permissions = ()
         unique_together = (('listid', 'subject_match'),)
         ordering = ['linkname']
+        permissions = [
+            # Per-project permission to add checks
+            ("add_check", "Can add checks"),
+        ]
 
 
 class DelegationRule(models.Model):
@@ -145,6 +151,7 @@ class DelegationRule(models.Model):
         return self.path
 
     class Meta:
+        default_permissions = ()
         ordering = ['-priority', 'path']
         unique_together = ('path', 'project')
 
@@ -253,6 +260,7 @@ class State(models.Model):
         return self.name
 
     class Meta:
+        default_permissions = ()
         ordering = ['ordering']
 
 
@@ -285,6 +293,7 @@ class Tag(models.Model):
         return self.name
 
     class Meta:
+        default_permissions = ()
         ordering = ['abbrev']
 
 
@@ -294,6 +303,7 @@ class PatchTag(models.Model):
     count = models.IntegerField(default=1)
 
     class Meta:
+        default_permissions = ()
         unique_together = [('patch', 'tag')]
 
 
@@ -415,6 +425,7 @@ class EmailMixin(models.Model):
         super(EmailMixin, self).save(*args, **kwargs)
 
     class Meta:
+        default_permissions = ()
         abstract = True
 
 
@@ -457,6 +468,7 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
         return self.name
 
     class Meta:
+        default_permissions = ()
         abstract = True
 
 
@@ -480,6 +492,7 @@ class Cover(SubmissionMixin):
         )
 
     class Meta:
+        default_permissions = ()
         ordering = ['date']
         unique_together = [('msgid', 'project')]
         indexes = [
@@ -717,6 +730,7 @@ class Patch(SubmissionMixin):
         return self.name
 
     class Meta:
+        default_permissions = ()
         verbose_name_plural = 'Patches'
         ordering = ['date']
         base_manager_name = 'objects'
@@ -780,6 +794,7 @@ class CoverComment(EmailMixin, models.Model):
         return False
 
     class Meta:
+        default_permissions = ()
         ordering = ['date']
         unique_together = [('msgid', 'cover')]
         indexes = [
@@ -825,6 +840,7 @@ class PatchComment(EmailMixin, models.Model):
         return self.patch.is_editable(user)
 
     class Meta:
+        default_permissions = ()
         ordering = ['date']
         unique_together = [('msgid', 'patch')]
         indexes = [
@@ -985,6 +1001,7 @@ class Series(FilenameMixin, models.Model):
         return self.name if self.name else 'Untitled series #%d' % self.id
 
     class Meta:
+        default_permissions = ()
         verbose_name_plural = 'Series'
 
 
@@ -1010,6 +1027,7 @@ class SeriesReference(models.Model):
         return self.msgid
 
     class Meta:
+        default_permissions = ()
         unique_together = [('project', 'msgid')]
 
 
@@ -1072,6 +1090,7 @@ class Bundle(models.Model):
         )
 
     class Meta:
+        default_permissions = ()
         unique_together = [('owner', 'name')]
 
 
@@ -1081,6 +1100,7 @@ class BundlePatch(models.Model):
     order = models.IntegerField()
 
     class Meta:
+        default_permissions = ()
         unique_together = [('bundle', 'patch')]
         ordering = ['order']
 
@@ -1149,6 +1169,9 @@ class Check(models.Model):
 
     def __str__(self):
         return '%s (%s)' % (self.context, self.get_state_display())
+
+    class Meta:
+        default_permissions = ('add',)
 
 
 class Event(models.Model):
@@ -1332,6 +1355,7 @@ class Event(models.Model):
         return "<Event id='%d' category='%s'" % (self.id, self.category)
 
     class Meta:
+        default_permissions = ()
         ordering = ['-date']
 
 
