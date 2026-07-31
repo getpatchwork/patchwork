@@ -10,8 +10,7 @@
 <p>
   Maintainer of
 {% for project in user.profile.maintainer_projects.all %}
-  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}
-{% endfor %}.
+  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 </p>
 {% endif %}
 
@@ -19,8 +18,7 @@
 <p>
   Contributor to
 {% for project in user.profile.contributor_projects.all %}
-  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}
-{% endfor %}.
+  <a href="{% url 'patch-list' project_id=project.linkname %}">{{ project.linkname }}</a>{% if not forloop.last %},{% endif %}{% endfor %}.
 </p>
 {% endif %}
 
