@@ -597,6 +597,17 @@ paths:
             title: ''
             type: string
 {% endif %}
+{% if version >= (1, 4) %}
+        - in: query
+          name: labels
+          description: |
+            List of labels assigned to queried patches, separated by ','.
+            If a label name begins with a '-', patches with that label won't
+            be included.
+          schema:
+            title: ''
+            type: string
+{% endif %}
       responses:
         '200':
           description: 'List of patches'

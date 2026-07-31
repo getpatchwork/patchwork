@@ -578,6 +578,15 @@ paths:
           schema:
             title: ''
             type: string
+        - in: query
+          name: labels
+          description: |
+            List of labels assigned to queried patches, separated by ','.
+            If a label name begins with a '-', patches with that label won't
+            be included.
+          schema:
+            title: ''
+            type: string
       responses:
         '200':
           description: 'List of patches'

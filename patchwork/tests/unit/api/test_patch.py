@@ -228,6 +228,40 @@ class TestPatchAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(), {'msgid': 'fishfish@fish.fish'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_filter_labels(self):
+        """Filter patches by labels."""
+        label1 = create_label()
+        label2 = create_label()
+        label3 = create_label()
+
+        person_obj = create_person(email='test@example.com')
+        project_obj = create_project(linkname='myproject')
+        state_obj = create_state(name='Under Review')
+        patch_kwargs = {
+            'state': state_obj,
+            'project': project_obj,
+            'submitter': person_obj,
+        }
+        patch_no_labels = create_patch(**patch_kwargs)
+        patch1 = create_patch(**patch_kwargs, labels=[label1])
+        patch2 = create_patch(**patch_kwargs, labels=[label1, label2])
+
+        resp = self.client.get(self.api_url(), {'labels': label1.name})
+        self.assertEqual([patch1.id, patch2.id], [x['id'] for x in resp.data])
+
+        resp = self.client.get(self.api_url(), {'labels': label3.name})
+        self.assertEqual(0, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'labels': '-' + label2.name})
+        self.assertEqual(
+            [patch_no_labels.id, patch1.id], [x['id'] for x in resp.data]
+        )
+
+        resp = self.client.get(
+            self.api_url(), {'labels': label1.name + ',' + label2.name}
+        )
+        self.assertEqual([patch2.id], [x['id'] for x in resp.data])
+
     @utils.store_samples('patch-list-1-0')
     def test_list_version_1_0(self):
         """List patches using API v1.0."""
