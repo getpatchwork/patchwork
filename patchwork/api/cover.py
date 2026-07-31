@@ -114,7 +114,10 @@ class CoverList(ListAPIView):
     def get_queryset(self):
         return (
             Cover.objects.all()
-            .prefetch_related('series__project')
+            .prefetch_related(
+                'series__project',
+                'labels',
+            )
             .select_related('project', 'submitter', 'series')
             .defer('content', 'headers')
         )
