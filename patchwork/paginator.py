@@ -90,7 +90,3 @@ class Paginator(paginator.Paginator):
             # prevent e.g. 1 2 ... 5 6 7 ... 8 9
             if self.trailing_set[0] != self.adjacent_set[-1] + 1:
                 self.show_trailing_ellipsis = True
-
-        self.long_page = (
-            len(self.current_page.object_list) >= LONG_PAGE_THRESHOLD
-        )
