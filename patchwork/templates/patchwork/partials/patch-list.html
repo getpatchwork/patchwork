@@ -154,7 +154,7 @@
     </thead>
 
     <tbody>
-{% for patch in page.object_list %}
+{% for patch in patches %}
       <tr id="patch-row:{{patch.id}}" data-patch-id="{{patch.id}}">
 {% if user.is_authenticated %}
         <td id="select-patch:{{patch.id}}" style="text-align: center;">

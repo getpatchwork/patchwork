@@ -280,13 +280,26 @@ def generic_list(
         else:
             context['filters'].set_status(filterclass, setting)
 
+    # Filtering
+
     if patches is None:
         patches = Patch.objects.filter(project=project)
 
-    # annotate with tag counts
-    patches = patches.with_tag_counts(project)
+    patch_ids = patches
 
-    patches = context['filters'].apply(patches)
+    patch_ids = patch_ids.only('id')
+    patch_ids = context['filters'].apply(patch_ids)
+    if not editable_order:
+        patch_ids = order.apply(patch_ids)
+
+    paginator = Paginator(request, patch_ids)
+    patch_ids = list(
+        paginator.current_page.object_list.values_list('id', flat=True)
+    )
+
+    # Aggregation
+
+    patches = patches.filter(id__in=patch_ids)
     if not editable_order:
         patches = order.apply(patches)
 
@@ -321,11 +334,13 @@ def generic_list(
         )
     )
 
-    paginator = Paginator(request, patches)
+    # annotate with tag counts
+    patches = patches.with_tag_counts(project)
 
     context.update(
         {
             'page': paginator.current_page,
+            'patches': patches,
             'patch_form': properties_form,
             'create_bundle_form': create_bundle_form,
             'project': project,
