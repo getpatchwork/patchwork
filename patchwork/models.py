@@ -736,6 +736,20 @@ class Patch(SubmissionMixin):
                 ],
                 name='patch_covering_idx',
             ),
+            # Keep date before state to preserve ordering across states.
+            # Include id explicitly for index-only scans on PostgreSQL.
+            models.Index(
+                fields=[
+                    'project',
+                    'archived',
+                    '-date',
+                    'state',
+                    'delegate',
+                    'submitter',
+                    'id',
+                ],
+                name='patch_covering_idx_default',
+            ),
         ]
 
 
