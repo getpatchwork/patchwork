@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -172,6 +173,7 @@ class UserProfile(models.Model):
         null=False,
         blank=False,
         help_text='Number of items to display per page',
+        validators=[MaxValueValidator(settings.MAX_ITEMS_PER_PAGE)],
     )
     show_ids = models.BooleanField(
         default=False,
@@ -207,6 +209,9 @@ class UserProfile(models.Model):
             return Token.objects.get(user=self.user)
         except Token.DoesNotExist:
             return
+
+    def get_items_per_page(self):
+        return min(self.items_per_page, settings.MAX_ITEMS_PER_PAGE)
 
     def todo_patches(self, project=None):
         # filter on project, if necessary

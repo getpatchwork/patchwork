@@ -25,7 +25,7 @@ class Paginator(paginator.Paginator):
         items_per_page = settings.DEFAULT_ITEMS_PER_PAGE
 
         if request.user.is_authenticated:
-            items_per_page = request.user.profile.items_per_page
+            items_per_page = request.user.profile.get_items_per_page()
 
         super().__init__(objects, items_per_page)
 
