@@ -266,6 +266,8 @@ ENABLE_REST_API = True
 REST_RESULTS_PER_PAGE = 30
 MAX_REST_RESULTS_PER_PAGE = 250
 
+MAX_ITEMS_PER_PAGE = 1000
+
 # Set to True to enable redirections or URLs from previous versions
 # of patchwork
 COMPAT_REDIR = True
