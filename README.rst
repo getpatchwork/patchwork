@@ -38,7 +38,7 @@ Usage
 -----
 
 Patchwork provides a web UI, a REST API, and a XML-RPC API (*deprecated*). You
-can use the APIs to `build you own application`__ or you can use one the many
+can use the APIs to `build your own application`__ or you can use one the many
 `existing clients`__.
 
 There are many existing Patchwork instances. Unless you're a larger project
