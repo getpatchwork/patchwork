@@ -2601,8 +2601,6 @@ tags:
     description: Bundle operations
   - name: projects
     description: Project operations
-  - name: bundles
-    description: Bundle operations
   - name: checks
     description: Check operations
   - name: events
