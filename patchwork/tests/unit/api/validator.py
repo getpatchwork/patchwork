@@ -11,7 +11,6 @@ import jsonschema_path
 from openapi_core.contrib.django import DjangoOpenAPIRequest
 from openapi_core.contrib.django import DjangoOpenAPIResponse
 from openapi_core.exceptions import OpenAPIError
-from openapi_core.templating import util
 from openapi_core.validation.request.exceptions import SecurityValidationError
 from openapi_core import shortcuts
 from rest_framework import status
@@ -30,20 +29,6 @@ SCHEMAS_DIR = os.path.join(
 )
 
 _LOADED_SPECS = {}
-
-
-# HACK! Workaround for https://github.com/p1c2u/openapi-core/issues/226
-def search(path_pattern, full_url_pattern):
-    p = util.Parser(path_pattern)
-    p._expression = p._expression + '$'
-    result = p.search(full_url_pattern)
-    if not result or any('/' in arg for arg in result.named.values()):
-        return None
-
-    return result
-
-
-util.search = search
 
 
 class RegexValidator(object):
