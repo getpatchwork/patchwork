@@ -10,7 +10,7 @@ ROOT_DIR = os.path.join(
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/5.2/ref/settings/#core-settings
 #
 
 INSTALLED_APPS = [
@@ -83,7 +83,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth
 #
 
 LOGIN_URL = 'auth_login'
@@ -93,7 +93,7 @@ LOGIN_REDIRECT_URL = 'user-profile'
 
 #
 # Sites settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#sites
+# https://docs.djangoproject.com/en/5.2/ref/settings/#sites
 #
 
 SITE_ID = 1
@@ -101,7 +101,7 @@ SITE_ID = 1
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#static-files
+# https://docs.djangoproject.com/en/5.2/ref/settings/#static-files
 #
 
 STATIC_URL = '/static/'
@@ -114,7 +114,7 @@ STATICFILES_DIRS = [
 #
 # If you're using a postgres database, connecting over a local unix-domain
 # socket, then the following setting should work for you. Otherwise,
-# see https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# see https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 if os.getenv('DATABASE_TYPE') == 'postgres':
     DATABASES = {

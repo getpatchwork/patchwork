@@ -27,7 +27,7 @@ Patchwork provides three settings files:
   heavy customization. The :ref:`deployment guide <deployment-settings>`
   provides more information.
 
-__ https://docs.djangoproject.com/en/2.2/topics/settings/
+__ https://docs.djangoproject.com/en/5.2/topics/settings/
 
 Patchwork-specific Settings
 ---------------------------
@@ -35,7 +35,7 @@ Patchwork-specific Settings
 Patchwork utilizes a number of Patchwork-only settings in addition to the
 `Django`__ and `Django REST Framework`__ settings.
 
-__ https://docs.djangoproject.com/en/2.2/ref/settings/
+__ https://docs.djangoproject.com/en/5.2/ref/settings/
 __ http://www.django-rest-framework.org/api-guide/settings/
 
 ``ADMINS_HIDE``
@@ -46,7 +46,7 @@ If True, the details in `ADMINS`__ will be hidden from the *About* page
 
 .. versionadded:: 2.2
 
-__ https://docs.djangoproject.com/en/2.2/ref/settings/#admins
+__ https://docs.djangoproject.com/en/5.2/ref/settings/#admins
 
 ``COMPAT_REDIR``
 ~~~~~~~~~~~~~~~~

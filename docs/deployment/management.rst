@@ -25,7 +25,7 @@ documentation`_. Information on any command can also be found by passing the
 
    ./manage.py cron --help
 
-.. _Django documentation: https://docs.djangoproject.com/en/1.8/ref/django-admin/
+.. _Django documentation: https://docs.djangoproject.com/en/5.2/ref/django-admin/
 
 Available Commands
 ------------------
