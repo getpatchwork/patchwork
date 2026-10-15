@@ -13,7 +13,7 @@ from .base import *  # noqa
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/5.2/ref/settings/#core-settings
 #
 
 # Security
@@ -50,8 +50,8 @@ ADMINS = (
 
 #
 # Static files settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#static-files
-# https://docs.djangoproject.com/en/2.2/ref/contrib/staticfiles/#manifeststaticfilesstorage
+# https://docs.djangoproject.com/en/5.2/ref/settings/#static-files
+# https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/#manifeststaticfilesstorage
 #
 
 STATIC_ROOT = os.environ.get('STATIC_ROOT', '/srv/patchwork/htdocs/static')

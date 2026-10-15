@@ -21,7 +21,7 @@ except ImportError:
 
 #
 # Core settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#core-settings
+# https://docs.djangoproject.com/en/5.2/ref/settings/#core-settings
 #
 
 ADMINS = (('Joe Bloggs', 'jbloggs@example.com'),)
@@ -39,11 +39,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #
 # Auth settings
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth
 #
 
 # Use a faster, though less secure, password hasher for faster tests
-# https://docs.djangoproject.com/en/2.2/topics/testing/overview/#password-hashing
+# https://docs.djangoproject.com/en/5.2/topics/testing/overview/#password-hashing
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 #
