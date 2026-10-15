@@ -41,7 +41,7 @@ providers don't support. We address this in the appropriate section below.
 Requirements
 ------------
 
-For the purpose of this guide, we will assume an **Ubuntu 20.04** host:
+For the purpose of this guide, we will assume an **Ubuntu 24.04** host:
 commands, package names and/or package versions will likely change if using a
 different distro or release. Similarly, usage of different package versions to
 the ones suggested may require slightly different configuration.
