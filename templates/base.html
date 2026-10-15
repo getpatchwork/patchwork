@@ -54,6 +54,12 @@
                 Patches
               </a>
             </li>
+            <li class="{% block series_active %}{% endblock %}">
+              <a href="{% url 'series-list' project_id=project.linkname %}">
+                <span class="glyphicon glyphicon-file"></span>
+                Series
+              </a>
+            </li>
             <li class="{% block bundle_active %}{% endblock %}">
               <a href="{% url 'bundle-list' project_id=project.linkname %}">
                 <span class="glyphicon glyphicon-gift"></span>
