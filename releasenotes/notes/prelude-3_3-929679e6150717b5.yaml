@@ -1,0 +1,8 @@
+---
+prelude: >
+    The main new feature in this release is support for tracking dependencies
+    between series, allowing clients to apply related changes together. In
+    addition, mail parsing is now more reliable when handling concurrent
+    deliveries. As always, there are updates to the supported Python and Django
+    versions, along with a number of bug fixes and smaller improvements. More
+    information is included below.
