@@ -95,7 +95,7 @@ fixes:
   - |
     Unicode characters transmitted over the XML-RPC API are now handled
     correctly under Python 3
-deprecated:
+deprecations:
   - |
     Django 1.6 and Django 1.7 are no longer supported upstream and will not be
     supported in a future release.
