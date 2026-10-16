@@ -762,6 +762,14 @@ class Patch(SubmissionMixin):
             models.Index(
                 fields=['project', 'date', 'id'], name='patch_project_date_idx'
             ),
+            models.Index(
+                fields=['project', 'submitter', 'id'],
+                name='patch_project_submitter_idx',
+            ),
+            # Also cover substring-search counts without fetching patch rows.
+            models.Index(
+                fields=['project', 'name', 'id'], name='patch_project_name_idx'
+            ),
         ]
 
 
