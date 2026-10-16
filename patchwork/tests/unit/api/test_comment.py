@@ -67,6 +67,27 @@ class TestCoverComments(utils.APITestCase):
         self.assertIn('list_archive_url', resp.data[0])
         self.assertIn('addressed', resp.data[0])
 
+    def test_list_query_count(self):
+        self.project.list_archive_url_format = 'https://example.com/{}'
+        self.project.save()
+        comments = [create_cover_comment(cover=self.cover) for _ in range(10)]
+        for version in ('1.1', '1.2', None):
+            with self.assertNumQueries(3):
+                response = self.client.get(
+                    self.api_url(self.cover, version=version)
+                )
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+            self.assertEqual(len(comments), len(response.data))
+            for comment, data in zip(comments, response.data):
+                self.assertIn(SAMPLE_CONTENT, data['content'])
+                if version == '1.1':
+                    self.assertNotIn('list_archive_url', data)
+                else:
+                    self.assertEqual(
+                        f'https://example.com/{comment.url_msgid}',
+                        data['list_archive_url'],
+                    )
+
     def test_list_version_1_2(self):
         """List cover letter comments using API v1.2."""
         create_cover_comment(cover=self.cover)
@@ -298,6 +319,27 @@ class TestPatchComments(utils.APITestCase):
         self.assertSerialized(comment, resp.data[0])
         self.assertIn('list_archive_url', resp.data[0])
         self.assertIn('addressed', resp.data[0])
+
+    def test_list_query_count(self):
+        self.project.list_archive_url_format = 'https://example.com/{}'
+        self.project.save()
+        comments = [create_patch_comment(patch=self.patch) for _ in range(10)]
+        for version in ('1.1', '1.2', None):
+            with self.assertNumQueries(3):
+                response = self.client.get(
+                    self.api_url(self.patch, version=version)
+                )
+            self.assertEqual(status.HTTP_200_OK, response.status_code)
+            self.assertEqual(len(comments), len(response.data))
+            for comment, data in zip(comments, response.data):
+                self.assertIn(SAMPLE_CONTENT, data['content'])
+                if version == '1.1':
+                    self.assertNotIn('list_archive_url', data)
+                else:
+                    self.assertEqual(
+                        f'https://example.com/{comment.url_msgid}',
+                        data['list_archive_url'],
+                    )
 
     def test_list_version_1_2(self):
         """List patch comments using API v1.2."""

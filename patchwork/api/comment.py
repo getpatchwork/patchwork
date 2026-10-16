@@ -11,6 +11,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.serializers import HiddenField
 from rest_framework.serializers import SerializerMethodField
 
+from patchwork.api import utils
 from patchwork.api.base import BaseHyperlinkedModelSerializer
 from patchwork.api.base import NestedHyperlinkedIdentityField
 from patchwork.api.base import MultipleFieldLookupMixin
@@ -124,11 +125,16 @@ class CoverCommentMixin(object):
 
     def get_queryset(self):
         cover_id = self.kwargs['cover_id']
-        get_object_or_404(Cover, pk=cover_id)
+        get_object_or_404(Cover.objects.only('id'), pk=cover_id)
 
-        return CoverComment.objects.filter(cover=cover_id).select_related(
+        queryset = CoverComment.objects.filter(cover=cover_id).select_related(
             'submitter'
         )
+        if utils.has_version(self.request, '1.2'):
+            queryset = queryset.select_related('cover__project').defer(
+                'cover__content', 'cover__headers'
+            )
+        return queryset
 
 
 class PatchCommentSerializer(BaseCommentListSerializer):
@@ -164,11 +170,16 @@ class PatchCommentMixin(object):
 
     def get_queryset(self):
         patch_id = self.kwargs['patch_id']
-        get_object_or_404(Patch, id=patch_id)
+        get_object_or_404(Patch.objects.only('id'), id=patch_id)
 
-        return PatchComment.objects.filter(patch=patch_id).select_related(
+        queryset = PatchComment.objects.filter(patch=patch_id).select_related(
             'submitter'
         )
+        if utils.has_version(self.request, '1.2'):
+            queryset = queryset.select_related('patch__project').defer(
+                'patch__content', 'patch__diff', 'patch__headers'
+            )
+        return queryset
 
 
 class CoverCommentList(CoverCommentMixin, ListAPIView):
