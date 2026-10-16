@@ -1,4 +1,4 @@
-FROM ghcr.io/getpatchwork/pyenv:latest
+FROM ghcr.io/getpatchwork/pyenv:stable-3.3
 
 # Match the host user's UID so the container can write to bind-mounted volumes.
 # Ubuntu 24.04 ships with an 'ubuntu' user (UID 1000); we just remap it.
