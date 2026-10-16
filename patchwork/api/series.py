@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+from django.db.models import Prefetch
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.serializers import (
@@ -17,6 +18,7 @@ from patchwork.api.embedded import CoverSerializer
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
 from patchwork.api.embedded import ProjectSerializer
+from patchwork.models import Patch
 from patchwork.models import Series
 
 
@@ -101,7 +103,12 @@ class SeriesMixin(object):
         return (
             Series.objects.all()
             .prefetch_related(
-                'patches__project',
+                Prefetch(
+                    'patches',
+                    queryset=Patch.objects.defer(
+                        'content', 'diff', 'headers'
+                    ).prefetch_related('project'),
+                ),
                 'cover_letter__project',
                 'dependencies',
                 'dependents',
