@@ -13,6 +13,8 @@ from django.utils.safestring import mark_safe
 from patchwork.models import Person
 from patchwork.models import Series
 from patchwork.models import State
+from patchwork.models import exclude_submissions_by_labels
+from patchwork.models import filter_submissions_by_labels
 
 
 class Filter(object):
@@ -519,6 +521,62 @@ class DelegateFilter(Filter):
             self.forced = True
 
 
+class LabelsFilter(Filter):
+    name = 'Labels'
+    param = 'labels'
+
+    def __init__(self, filters):
+        super(LabelsFilter, self).__init__(filters)
+        self.labels = None
+
+    @property
+    def condition(self):
+        return self.labels
+
+    @property
+    def key(self):
+        return self.labels
+
+    @key.setter
+    def key(self, key):
+        key = key.strip()
+        if not key:
+            return
+
+        self.labels = key
+        self.applied = True
+
+    @property
+    def kwargs(self):
+        return None
+
+    def q(self, queryset):
+        label_names = self.labels.split(' ')
+        if len(label_names) == 0:
+            return queryset
+
+        labels_pos, labels_neg = [], []
+        for label in label_names:
+            if not label.startswith('-'):
+                labels_pos.append(label)
+            else:
+                labels_neg.append(label[1:])
+
+        queryset = exclude_submissions_by_labels(queryset, labels_neg)
+        queryset = filter_submissions_by_labels(queryset, labels_pos)
+        return queryset
+
+    @property
+    def form(self):
+        value = ''
+        if self.labels:
+            value = escape(self.labels)
+        return mark_safe(
+            '<input type="text" id="labels_input" name="%s" class="form-control" value="%s">'
+            % (self.param, value)
+        )
+
+
 FILTERS = [
     SeriesFilter,
     SubmitterFilter,
@@ -526,6 +584,7 @@ FILTERS = [
     SearchFilter,
     ArchiveFilter,
     DelegateFilter,
+    LabelsFilter,
 ]
 
 
@@ -555,14 +614,22 @@ class Filters:
 
     def apply(self, queryset):
         kwargs = collections.OrderedDict()
+        q_filters = []
         for f in self._filters:
             if f.applied:
-                kwargs.update(f.kwargs)
+                if f.kwargs is not None:
+                    kwargs.update(f.kwargs)
+                else:
+                    q_filters.append(f)
 
-        if not kwargs:
+        if not kwargs and not q_filters:
             return queryset
 
-        return queryset.filter(**kwargs)
+        queryset = queryset.filter(**kwargs)
+        for f in q_filters:
+            queryset = f.q(queryset)
+
+        return queryset
 
     def querystring(self, remove=None):
         params = self.params

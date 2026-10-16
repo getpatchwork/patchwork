@@ -83,3 +83,31 @@ def patch_commit_display(patch):
     return mark_safe(  # noqa: S308
         '<a href="%s">%s</a>' % (escape(fmt.format(commit)), escape(commit))
     )
+
+
+@register.filter(name='patch_labels')
+def patch_labels(patch):
+
+    def text_color(hex_color):
+        """Generate the ideal text color given a background color.
+
+        From https://www.w3.org/TR/AERT/#color-contrast
+        """
+        red, green, blue = [
+            int(hex_color.lstrip('#')[i : i + 2], 16) for i in (0, 2, 4)
+        ]
+        brightness = (red * 299 + green * 587 + blue * 114) / 1000
+
+        return '#000' if brightness >= 123 else '#fff'
+
+    output = []
+    for label in patch.labels.all():
+        style = 'background-color: %s; color: %s' % (
+            label.color,
+            text_color(label.color),
+        )
+        output.append(
+            '<span class="label" style="%s">%s</span>' % (style, label.name)
+        )
+
+    return mark_safe(''.join(output))

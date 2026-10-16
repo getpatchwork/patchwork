@@ -23,6 +23,7 @@ from patchwork.tests.utils import create_patch_comment
 from patchwork.tests.utils import create_patches
 from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
 from patchwork.tests.utils import read_patch
@@ -201,6 +202,128 @@ class PatchListFilteringTest(TestCase):
         response = self.client.get(url + '?submitter=%%E2%%98%%83')
 
         self.assertEqual(response.status_code, 200)
+
+
+class PatchListLabelFilteringTest(TestCase):
+    def setUp(self):
+        self.project = create_project()
+        self.label1 = create_label(project=self.project)
+        self.label2 = create_label(project=self.project)
+        self.global_label = create_label(project=None)
+
+        person = create_person(name='test', email='test@example.com')
+
+        self.patches = [
+            create_patch(submitter=person, project=self.project, labels=[]),
+            create_patch(
+                submitter=person, project=self.project, labels=[self.label1]
+            ),
+            create_patch(
+                submitter=person,
+                project=self.project,
+                labels=[self.label1, self.label2],
+            ),
+            create_patch(
+                submitter=person,
+                project=self.project,
+                labels=[self.label1, self.global_label],
+            ),
+        ]
+
+    def _extract_patch_ids(self, response):
+        id_re = re.compile(r'<tr id="patch-row:(\d+)"')
+        ids = [
+            int(m.group(1)) for m in id_re.finditer(response.content.decode())
+        ]
+
+        return ids
+
+    def _extract_patches(self, response):
+        ids = self._extract_patch_ids(response)
+        if not ids:
+            return []
+        return [Patch.objects.get(id=i) for i in ids]
+
+    def test_no_labels(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(url + '?labels=')
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), len(self.patches))
+
+    def test_one_label(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(url + '?labels=' + self.label1.name)
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 3)
+        self.assertIn(self.patches[1], patches)
+        self.assertIn(self.patches[2], patches)
+        self.assertIn(self.patches[3], patches)
+
+    def test_two_labels(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(
+            url + '?labels=' + self.label1.name + '+' + self.label2.name
+        )
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 1)
+        self.assertIn(self.patches[2], patches)
+
+    def test_global_label(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(
+            url + '?labels=' + self.label1.name + '+' + self.global_label.name
+        )
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 1)
+        self.assertIn(self.patches[3], patches)
+
+    def test_negative_label(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(url + '?labels=-' + self.label2.name)
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 3)
+        self.assertIn(self.patches[0], patches)
+        self.assertIn(self.patches[1], patches)
+        self.assertIn(self.patches[3], patches)
+
+    def test_positive_negative_label(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(
+            url + '?labels=-' + self.label2.name + '+' + self.label1.name
+        )
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 2)
+        self.assertIn(self.patches[1], patches)
+        self.assertIn(self.patches[3], patches)
+
+    def test_mutually_exclusive_labels(self):
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        response = self.client.get(
+            url + '?labels=-' + self.label1.name + '+' + self.label1.name
+        )
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), 0)
 
 
 class PatchViewTest(TestCase):

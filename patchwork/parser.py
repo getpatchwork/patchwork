@@ -17,6 +17,7 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.db import transaction
 from django.utils import timezone as tz_utils
@@ -26,6 +27,7 @@ from patchwork.models import Cover
 from patchwork.models import CoverComment
 from patchwork.models import DelegationRule
 from patchwork.models import get_default_initial_patch_state
+from patchwork.models import Label
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import Person
@@ -625,6 +627,17 @@ def parse_version(subject, subject_prefixes):
         return int(m.group(1))
 
     return 1
+
+
+def parse_labels(subject_prefixes, project):
+    """Extract labels from subject.
+
+    Args:
+        subject_prefixes: List of subject prefixes to extract tags from
+    """
+    return Label.objects.filter(
+        Q(project=project) | Q(project=None), name__in=subject_prefixes
+    )
 
 
 def _find_content(mail):
@@ -1271,6 +1284,8 @@ def parse_mail(mail, list_id=None):
             if Patch.objects.filter(project=project, msgid=msgid):
                 raise DuplicateMailError(msgid=msgid)
 
+            labels = parse_labels(prefixes, project)
+
             patch = Patch.objects.create(
                 msgid=msgid,
                 project=project,
@@ -1284,6 +1299,9 @@ def parse_mail(mail, list_id=None):
                 delegate=delegate,
                 state=find_state(mail),
             )
+            if labels:
+                patch.labels.set(labels)
+
             logger.debug('Patch saved')
 
         for attempt in range(1, 11):  # arbitrary retry count

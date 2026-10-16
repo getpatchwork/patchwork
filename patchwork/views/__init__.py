@@ -7,13 +7,14 @@ import json
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 
 from patchwork.filters import Filters
 from patchwork.forms import CreateBundleForm
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
+from patchwork.models import Label
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.models import Check
@@ -188,10 +189,15 @@ def generic_list(
     if not filter_settings:
         filter_settings = []
 
+    project_labels = Label.objects.filter(
+        Q(project=project) | Q(project__isnull=True)
+    ).all()
+
     filters = Filters(request)
     context = {
         'project': project,
         'projects': Project.objects.all(),
+        'project_labels': project_labels,
         'filters': filters,
     }
 
@@ -332,6 +338,9 @@ def generic_list(
                 'context', 'user_id', 'patch_id', 'state', 'date'
             ),
         )
+    )
+    patches = patches.prefetch_related(
+        Prefetch('labels', queryset=Label.objects.only('name', 'color')),
     )
 
     # annotate with tag counts

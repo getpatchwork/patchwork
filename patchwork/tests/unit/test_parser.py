@@ -28,6 +28,7 @@ from patchwork.parser import find_patch_content as find_content
 from patchwork.parser import find_comment_content
 from patchwork.parser import find_project
 from patchwork.parser import find_series
+from patchwork.parser import parse_labels
 from patchwork.parser import parse_mail as _parse_mail
 from patchwork.parser import parse_pull_request
 from patchwork.parser import parse_series_marker
@@ -41,6 +42,7 @@ from patchwork.tests.utils import create_cover
 from patchwork.tests.utils import create_cover_comment
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patch_comment
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_series
 from patchwork.tests.utils import create_series_reference
@@ -1198,6 +1200,20 @@ class SubjectTest(TestCase):
         self.assertEqual(parse_version('Hello, world', ['v10']), 10)
         self.assertEqual(parse_version('Hello, world (v2)', []), 2)
         self.assertEqual(parse_version('Hello, world (V6)', []), 6)
+
+    def test_labels(self):
+        label = create_label(name='RFC')
+
+        self.assertEqual(list(parse_labels(['RFC'], label.project)), [label])
+        self.assertEqual(list(parse_labels(['rfcx'], label.project)), [])
+
+        project = create_project()
+
+        self.assertEqual(list(parse_labels(['RFC'], project)), [])
+
+        label = create_label(name='stuff', project=None)
+
+        self.assertEqual(list(parse_labels(['stuff'], project)), [label])
 
 
 class SubjectMatchTest(TestCase):
