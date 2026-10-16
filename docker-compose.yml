@@ -5,6 +5,7 @@ services:
     command: --gtid-mode=OFF --enforce-gtid-consistency=OFF
     volumes:
       - ./tools/docker/db/data:/var/lib/mysql:z
+      - ./tools/docker/mysql-init:/docker-entrypoint-initdb.d:ro,z
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=patchwork

@@ -101,10 +101,6 @@ To run unit tests against the system Python packages, run:
 
 .. code-block:: shell
 
-   # For MySQL database:
-   $ docker-compose exec -T -- db sh -c \
-         "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%'; FLUSH PRIVILEGES;\""
-
    $ docker-compose run --rm web python manage.py test
 
 To run unit tests for multiple versions using ``tox``, run:
@@ -112,6 +108,19 @@ To run unit tests for multiple versions using ``tox``, run:
 .. code-block:: shell
 
    $ docker-compose run --rm web tox
+
+.. note::
+
+   New MySQL databases automatically grant the application user access to
+   Django's test database and parallel-test clones. Initialization scripts only
+   run when the database data directory is first created. If your database was
+   created before this initialization script was added, apply the grant once
+   before running tests:
+
+   .. code-block:: shell
+
+      $ docker-compose exec -T -- db sh -c \
+            "exec mysql -uroot -p\"\${MYSQL_ROOT_PASSWORD}\" -e \"GRANT ALL ON \\\`test\\_\${MYSQL_DATABASE}%\\\`.* to '\${MYSQL_USER}'@'%';\""
 
 To reset the database, stop the db container and purge the database files:
 
