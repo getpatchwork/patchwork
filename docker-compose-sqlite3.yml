@@ -9,7 +9,7 @@ services:
         - GID
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/home/ubuntu/patchwork/
+      - .:/home/ubuntu/patchwork/:z
     ports:
       - "8000:8000"
     environment:
