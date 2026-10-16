@@ -755,6 +755,13 @@ class Patch(SubmissionMixin):
                 ],
                 name='patch_covering_idx_default',
             ),
+            # REST lists can order by ID or date without filtering archived.
+            models.Index(
+                fields=['project', 'id'], name='patch_project_id_idx'
+            ),
+            models.Index(
+                fields=['project', 'date', 'id'], name='patch_project_date_idx'
+            ),
         ]
 
 

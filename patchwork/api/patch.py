@@ -20,6 +20,7 @@ from rest_framework.serializers import SerializerMethodField
 from rest_framework import status
 
 from patchwork.api.base import BaseHyperlinkedModelSerializer
+from patchwork.api.base import LinkHeaderPagination
 from patchwork.api.base import PatchworkPermission
 from patchwork.api.embedded import PatchSerializer
 from patchwork.api.embedded import PersonSerializer
@@ -337,11 +338,27 @@ class PatchDetailSerializer(PatchListSerializer):
         extra_kwargs = PatchListSerializer.Meta.extra_kwargs
 
 
+class PatchListPagination(LinkHeaderPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        # Page over IDs before fetching joined rows. Otherwise a deep offset
+        # can make MySQL fetch and sort every full patch row in the project.
+        ids = super().paginate_queryset(
+            queryset.values_list('pk', flat=True), request, view=view
+        )
+        if ids is None:
+            return None
+        patches = {
+            patch.pk: patch for patch in queryset.filter(pk__in=ids).order_by()
+        }
+        return [patches[pk] for pk in ids if pk in patches]
+
+
 class PatchList(ListAPIView):
     """List patches."""
 
     permission_classes = (PatchworkPermission,)
     serializer_class = PatchListSerializer
+    pagination_class = PatchListPagination
     filter_class = filterset_class = PatchFilterSet
     search_fields = ('name',)
     ordering_fields = (
