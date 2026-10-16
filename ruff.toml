@@ -4,7 +4,7 @@ line-length = 79
 quote-style = "preserve"
 
 [lint]
-select = ["E", "F", "LOG", "S", "W"]
+select = ["E", "F", "G", "LOG", "S", "W"]
 
 [lint.per-file-ignores]
 "docs/*" = ["S"]

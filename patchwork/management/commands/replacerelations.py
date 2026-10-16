@@ -56,7 +56,7 @@ class Command(BaseCommand):
             PatchRelation.objects.all().delete()
             count = len(relations)
             ingested = 0
-            logger.info('Parsing %d relations' % count)
+            logger.info('Parsing %d relations', count)
             for i, patch_ids in enumerate(relations):
                 related_patches = Patch.objects.filter(id__in=patch_ids)
 
