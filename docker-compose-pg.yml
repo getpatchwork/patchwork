@@ -3,7 +3,7 @@ services:
   db:
     image: postgres:18
     volumes:
-      - ./tools/docker/db/postdata:/var/lib/postgresql
+      - ./tools/docker/db/postdata:/var/lib/postgresql:z
     environment:
       - POSTGRES_DB=patchwork
       - POSTGRES_USER=patchwork
@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/home/ubuntu/patchwork/
+      - .:/home/ubuntu/patchwork/:z
     ports:
       - "8000:8000"
     environment:

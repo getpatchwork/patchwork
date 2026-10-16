@@ -4,7 +4,7 @@ services:
     image: mysql:9.7
     command: --gtid-mode=OFF --enforce-gtid-consistency=OFF
     volumes:
-      - ./tools/docker/db/data:/var/lib/mysql
+      - ./tools/docker/db/data:/var/lib/mysql:z
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=patchwork
@@ -25,8 +25,8 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/home/ubuntu/patchwork/
-      - ./tools/docker/mysql-client.cnf:/home/ubuntu/.my.cnf:ro
+      - .:/home/ubuntu/patchwork/:z
+      - ./tools/docker/mysql-client.cnf:/home/ubuntu/.my.cnf:ro,z
     ports:
       - "8000:8000"
     environment:
