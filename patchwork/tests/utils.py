@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import codecs
 from datetime import timedelta
 from email.utils import make_msgid
 import os
@@ -36,13 +35,8 @@ SAMPLE_CONTENT = 'Hello, world.'
 def read_patch(filename, encoding=None):
     """Read a diff from a file."""
     file_path = os.path.join(TEST_PATCH_DIR, filename)
-    if encoding is not None:
-        f = codecs.open(file_path, encoding=encoding)
-    else:
-        f = open(file_path)
-
-    result = f.read()
-    f.close()
+    with open(file_path, encoding=encoding) as fh:
+        result = fh.read()
     return result
 
 
