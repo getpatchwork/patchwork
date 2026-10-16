@@ -1021,6 +1021,16 @@ class Series(FilenameMixin, models.Model):
 
     class Meta:
         verbose_name_plural = 'Series'
+        indexes = [
+            models.Index(
+                fields=['project', 'date', 'id'],
+                name='series_project_date_idx',
+            ),
+            models.Index(
+                fields=['project', 'name', 'id'],
+                name='series_project_name_idx',
+            ),
+        ]
 
 
 class SeriesReference(models.Model):
