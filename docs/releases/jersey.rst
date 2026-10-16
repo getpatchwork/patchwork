@@ -1,5 +1,5 @@
-v3.2 Series ("Iridescent")
-==========================
+v3.3 Series ("Jersey")
+======================
 
 .. release-notes::
-   :branch: stable/3.2
+   :branch: stable/3.3
