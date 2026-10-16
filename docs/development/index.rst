@@ -15,3 +15,4 @@ developer-focussed usage information, is provided in the below docs.
    /development/releasing
    /development/api
    /development/assets
+   /development/performance
