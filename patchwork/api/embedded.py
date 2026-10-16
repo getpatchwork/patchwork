@@ -11,6 +11,8 @@ nested fields.
 
 from collections import OrderedDict
 
+from django.utils.functional import cached_property
+
 from rest_framework.serializers import CharField
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import SerializerMethodField
@@ -49,8 +51,14 @@ class SerializedRelatedField(PrimaryKeyRelatedField):
             [(item.pk, self.display_value(item)) for item in queryset]
         )
 
+    @cached_property
+    def serializer(self):
+        # Fields are bound to a serializer for one request. Reuse the embedded
+        # serializer instead of rebuilding its fields for every related object.
+        return self._Serializer(context=self.context)
+
     def to_representation(self, data):
-        return self._Serializer(context=self.context).to_representation(data)
+        return self.serializer.to_representation(data)
 
 
 class MboxMixin(BaseHyperlinkedModelSerializer):
