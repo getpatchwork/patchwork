@@ -1,6 +1,7 @@
 {% load static %}
 
 {{ project_labels|json_script:"project-labels-data" }}
+
 <script type="text/javascript">
 var filterform_displayed = false;
 function filter_click()
@@ -18,43 +19,6 @@ function filter_click()
         filterform_displayed = true;
     }
 }
-
-Selectize.define('enter_key_submit', function (options) {
-    var self = this;
-
-    this.onKeyDown = (function (e) {
-        var original = self.onKeyDown;
-
-        return function (e) {
-            var wasOpened = this.isOpen;
-            original.apply(this, arguments);
-
-            if (e.keyCode === 13 &&
-                (this.$control_input.val() != '' || !wasOpened))
-                self.trigger('submit');
-        };
-    })();
-});
-
-// Submit form on shift+enter or ctrl+enter
-Selectize.define('mod_enter_key_submit', function (options) {
-    var self = this;
-
-    this.onKeyDown = (function (e) {
-        var original = self.onKeyDown;
-
-        return function (e) {
-            var wasOpened = this.isOpen;
-
-            if (e.keyCode === 13 && (e.shiftKey || e.ctrlKey)) {
-                self.trigger('submit');
-                return;
-            }
-
-            original.apply(this, arguments);
-        };
-    })();
-});
 
 $(document).ready(function() {
     $('#submitter_input').selectize({
@@ -114,8 +78,8 @@ $(document).ready(function() {
         }))
     );
 
-    $('#labels_input').selectize({
-        plugins: ['mod_enter_key_submit'],
+    const labels_selectize = $('#labels_input').selectize({
+        plugins: ['mod_enter_key_submit', 'mod_focus_input_after_select'],
         maxItems: null,
         persist: false,
         hideSelected: true,
