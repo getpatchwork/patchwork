@@ -1,8 +1,68 @@
 :root {
-    --light-color:rgb(247, 247, 247);
-    --success-color:rgb(92, 184, 92);
-    --warning-color:rgb(240, 173, 78);
-    --danger-color:rgb(217, 83, 79);
+    --light-color: rgb(247, 247, 247);
+    --success-color: rgb(92, 184, 92);
+    --warning-color: rgb(240, 173, 78);
+    --danger-color: rgb(217, 83, 79);
+
+    /* Base theme colors */
+    --body-bg: #fff;
+    --text-color: #333;
+    --link-color: #337ab7;
+    --link-hover-color: #23527c;
+    --muted-color: #909090;
+    --pre-bg: #fff;
+    --input-border: #909090;
+
+    /* Message and error containers */
+    --messages-bg: #e0e0f0;
+    --errors-bg: #e0e0f0;
+    --error-text: red;
+
+    /* Filter box and action links */
+    --filter-border: #cccccc;
+    --filter-action-color: black;
+    --col-link-color: black;
+    --col-inactive-hover: red;
+
+    /* Tables & lists */
+    --table-header-bg: white;
+    --drag-hover-bg: #e8e8e8;
+    --paginator-curr-bg: #eee;
+    --paginator-curr-color: #999;
+    --paginator-na-color: #a0a0a0;
+    --table-border: #e8e8e8;
+    --bundle-th-bg: #eeeeee;
+
+    /* Check states & headers */
+    --checks-header-bg: #0A0A47;
+    --checks-header-color: white;
+    --checks-link-visited: #786FB4;
+    --checks-success-bg: #82ca9d;
+    --checks-warning-bg: #ffc95e;
+    --checks-fail-bg: #ff5555;
+    --checks-state-default: #ddd;
+    --checks-state-success: #82ca9d;
+    --checks-state-warning: #ffe59a;
+    --checks-state-fail: #f7977a;
+
+    /* Submission & comments */
+    --submission-meta-bg: #f0f0f0;
+    --quote-color: #365cb5;
+    --acked-color: #2d4566;
+    --signed-off-color: #672d45;
+
+    /* Diff highlighting */
+    --diff-chunk: #329fb0;
+    --diff-add-text: #1b9d09;
+    --diff-add-bg: #edffed;
+    --diff-del-text: #c80101;
+    --diff-del-bg: #ffe2e2;
+    --diff-mod: #a020f0;
+
+    /* Boxes & panel headers */
+    --box-border: #080808;
+    --box-header-bg: #222;
+    --box-header-color: #999;
 }
 
 h2 {
@@ -18,7 +78,7 @@ h2 a, h2 span {
 
 pre {
     line-height: normal;
-    background-color: white;
+    background-color: var(--pre-bg);
     border-radius: 0;
 }
 
@@ -98,7 +158,7 @@ img {
 }
 
 input {
-    border: thin solid #909090;
+    border: thin solid var(--input-border);
 }
 
 dl dt {
@@ -109,16 +169,16 @@ dl dt {
     padding: 1em;
     font-size: small;
     text-align: center;
-    color: #909090;
+    color: var(--muted-color);
 }
 
 #footer a {
-    color: #909090;
+    color: var(--muted-color);
 }
 
 /* messages */
 .messages {
-    background: #e0e0f0;
+    background: var(--messages-bg);
     margin: 0.5em 1em 0.0em 1em;
     padding: 0.3em;
     list-style-type: none;
@@ -141,7 +201,7 @@ dl dt {
 }
 
 .filters {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--filter-border);
     border-radius: 4px;
     padding: 5px 20px;
     margin: 0 0 15px 0;
@@ -152,23 +212,23 @@ dl dt {
 }
 
 a.filter-action {
-    color: black;
+    color: var(--filter-action-color);
 }
 a.filter-action:hover {
     text-decoration: none;
 }
 
 table.pw-list > thead {
-    background-color: white;
+    background-color: var(--table-header-bg);
 }
 
 a.col-inactive, a.col-active {
-    color: black;
+    color: var(--col-link-color);
     text-decoration: none;
 }
 
 a.col-inactive:hover {
-    color: red;
+    color: var(--col-inactive-hover);
 }
 
 div.filters {
@@ -177,12 +237,12 @@ div.filters {
 /* list order manipulation */
 
 table.patch-list tr.draghover {
-    background: #e8e8e8 !important;
+    background: var(--drag-hover-bg) !important;
 }
 
 .dragging {
     border: thin solid black;
-    background: #e8e8e8 !important;
+    background: var(--drag-hover-bg) !important;
 }
 
 input#reorder-cancel {
@@ -203,7 +263,7 @@ input#reorder-change {
 .paginator .prev-na,
 .paginator .next-na {
     font-weight: normal;
-    color: #a0a0a0;
+    color: var(--paginator-na-color);
 }
 
 .paginator .prev a, .paginator .prev a:visited,
@@ -219,9 +279,9 @@ input#reorder-change {
         padding: 6px 12px;
 }
 .paginator .curr {
-    background-color: #eee;
+    background-color: var(--paginator-curr-bg);
         border-radius: 4px;
-    color: #999;
+    color: var(--paginator-curr-color);
     font-weight:normal;
 }
 
@@ -263,8 +323,8 @@ table.patch-meta tr th, table.patch-meta tr td {
     margin-left: -0.6em;
     margin-right: -0.6em;
     padding: 0.3em 0.3em 0.3em 0.6em;
-    background-color: #0A0A47;
-    color: white;
+    background-color: var(--checks-header-bg);
+    color: var(--checks-header-color);
     font-size: 100%;
     font-weight: normal;
 }
@@ -281,7 +341,7 @@ table.patch-meta tr th, table.patch-meta tr td {
 }
 
 .checks td a:visited {
-    color: #786FB4;
+    color: var(--checks-link-visited);
 }
 
 .checks a:hover {
@@ -297,38 +357,38 @@ table.patch-meta tr th, table.patch-meta tr td {
 }
 
 .patchlistchecks.success {
-    background-color: #82ca9d;
+    background-color: var(--checks-success-bg);
 }
 
 .patchlistchecks.warning {
-    background-color: #ffc95e;
+    background-color: var(--checks-warning-bg);
 }
 
 .patchlistchecks.fail {
-    background-color: #ff5555;
+    background-color: var(--checks-fail-bg);
 }
 
 .checks .state {
     font-weight: bold;
-    color: #ddd;
+    color: var(--checks-state-default);
 }
 
 .checks .state.success {
-    color: #82ca9d;
+    color: var(--checks-state-success);
 }
 
 .checks .state.warning {
-    color: #ffe59a;
+    color: var(--checks-state-warning);
 }
 
 .checks .state.fail {
-    color: #f7977a;
+    color: var(--checks-state-fail);
 }
 
 .submission-message .meta {
     display: flex;
     align-items: center;
-    background: #f0f0f0;
+    background: var(--submission-meta-bg);
     padding: 0.3em 0.5em;
 }
 
@@ -378,28 +438,28 @@ button[class^=comment-action] {
 }
 
 .quote {
-    color: #365cb5;
+    color: var(--quote-color);
 }
 
 span.p_header    { font-weight: bold; }
-span.p_chunk    { color: #329fb0; font-weight: bold; }
+span.p_chunk    { color: var(--diff-chunk); font-weight: bold; }
 span.p_context    { }
-span.p_add    { color: #1b9d09; background-color: #edffed; }
-span.p_del    { color: #c80101; background-color: #ffe2e2; }
-span.p_mod    { color: #a020f0; }
+span.p_add    { color: var(--diff-add-text); background-color: var(--diff-add-bg); }
+span.p_del    { color: var(--diff-del-text); background-color: var(--diff-del-bg); }
+span.p_mod    { color: var(--diff-mod); }
 
 .acked-by {
-    color: #2d4566;
+    color: var(--acked-color);
 
 }
 
 .nacked-by {
-    color: #2d4566;
+    color: var(--acked-color);
 
 }
 
 .signed-off-by {
-    color: #672d45;
+    color: var(--signed-off-color);
     font-weight: bold;
 }
 
@@ -419,7 +479,7 @@ table.bundlelist {
 table.bundlelist th {
     padding-left: 2em;
     padding-right: 2em;
-    background: #eeeeee;
+    background: var(--bundle-th-bg);
     border-bottom: thin solid black;
 }
 
@@ -492,8 +552,8 @@ div.patch-form h3 {
     margin-left: -0.6em;
     margin-right: -0.6em;
     padding: 0.3em 0.3em 0.3em 0.6em;
-    background-color: #222;
-    color: #999;
+    background-color: var(--box-header-bg);
+    color: var(--box-header-color);
     font-size: 100%;
 }
 
@@ -520,8 +580,8 @@ table.form td {
 }
 
 table.form th.headerrow {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     font-weight: bold;
     text-align: center;
 }
@@ -556,7 +616,7 @@ table.loginform {
 
 /* form errors */
 #errors {
-    background: #e0e0f0;
+    background: var(--errors-bg);
     margin: 0em 1em 0.5em 1em;
     padding: 0.3em;
 }
@@ -566,13 +626,13 @@ table.loginform {
 }
 
 .error-list, .errorlist {
-    color: red;
+    color: var(--error-text);
 }
 
 /* generic table with header columns on the left */
 table.horizontal {
     border-collapse: collapse;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 table.horizontal th {
@@ -581,7 +641,7 @@ table.horizontal th {
 
 table.horizontal td, table.horizontal th {
     padding: 0.5em 1em;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 /* generic table with header row */
@@ -601,15 +661,15 @@ table.vertical {
 }
 
 table.vertical th {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     font-weight: bold;
     text-align: center;
 }
 
 table.vertical th, table.vertical td {
     padding: 0.2em 0.8em;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 td.numberformat {
@@ -618,14 +678,14 @@ td.numberformat {
 
 /* boxes */
 div.box {
-    border: thin solid #080808;
+    border: thin solid var(--box-border);
     margin: 1em;
     padding: 0.5em;
 }
 
 div.box h2 {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     margin: -0.5em -0.5em 1em; -0.5em;
     padding: 0.3em 0.3em 0.3em 0.6em;
     font-size: 100%;
