@@ -65,6 +65,78 @@
     --box-header-color: #999;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Render native form controls and scrollbars dark as well */
+        color-scheme: dark;
+
+        --light-color: #242424;
+        --success-color: #5a9e6a;
+        --warning-color: #c69a46;
+        --danger-color: #c9625c;
+
+        /* Base theme colors */
+        --body-bg: #181818;
+        --text-color: #e0e0e0;
+        --link-color: #7ca7d8;
+        --link-hover-color: #a3c2e6;
+        --muted-color: #9e9e9e;
+        --pre-bg: #222222;
+        --input-border: #555555;
+
+        /* Message and error containers */
+        --messages-bg: #282838;
+        --errors-bg: #282838;
+        --error-text: #e07a72;
+
+        /* Filter box and action links */
+        --filter-border: #3c3c3c;
+        --filter-action-color: #e0e0e0;
+        --col-link-color: #e0e0e0;
+        --col-inactive-hover: #e07a72;
+
+        /* Tables & lists */
+        --table-header-bg: #222222;
+        --drag-hover-bg: #303030;
+        --paginator-curr-bg: #303030;
+        --paginator-curr-color: #cccccc;
+        --paginator-na-color: #777777;
+        --table-border: #3c3c3c;
+        --bundle-th-bg: #262626;
+
+        /* Check states & headers */
+        --checks-header-bg: #262b45;
+        --checks-header-color: #e0e0e0;
+        --checks-link-visited: #a89fd6;
+        --checks-success-bg: #36694a;
+        --checks-warning-bg: #7d6224;
+        --checks-fail-bg: #8c3735;
+        --checks-state-default: #888888;
+        --checks-state-success: #6fae82;
+        --checks-state-warning: #c9a85a;
+        --checks-state-fail: #d27a70;
+
+        /* Submission & comments */
+        --submission-meta-bg: #262626;
+        --quote-color: #8aaed8;
+        --acked-color: #8aaed8;
+        --signed-off-color: #d08fb0;
+
+        /* Diff highlighting */
+        --diff-chunk: #56d4dd;
+        --diff-add-text: #7ee787;
+        --diff-add-bg: rgba(46, 160, 67, 0.2);
+        --diff-del-text: #ffa198;
+        --diff-del-bg: rgba(248, 81, 73, 0.2);
+        --diff-mod: #d2a8ff;
+
+        /* Boxes & panel headers */
+        --box-border: #3c3c3c;
+        --box-header-bg: #2c2c2c;
+        --box-header-color: #cccccc;
+    }
+}
+
 h2 {
     font-size: 25px;
     margin: 18px 0 18px 0;
@@ -705,4 +777,197 @@ div.box table.vertical {
 .rightcol {
     float: right;
     width: 49%;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--body-bg);
+        color: var(--text-color);
+    }
+
+    a {
+        color: var(--link-color);
+    }
+
+    a:hover,
+    a:focus {
+        color: var(--link-hover-color);
+    }
+
+    /* Bootstrap hardcodes a dark gray text color for pre blocks */
+    pre {
+        color: var(--text-color);
+        border-color: var(--table-border);
+    }
+
+    /*
+     * Bootstrap makes form controls inherit the text color, so they need a
+     * dark background too or they end up light-on-light
+     */
+    input,
+    select,
+    textarea,
+    button {
+        background-color: #242424;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .form-control {
+        background-color: #242424;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .table {
+        color: var(--text-color);
+    }
+
+    .table > thead > tr > th,
+    .table > tbody > tr > th,
+    .table > tfoot > tr > th,
+    .table > thead > tr > td,
+    .table > tbody > tr > td,
+    .table > tfoot > tr > td {
+        border-top-color: var(--table-border);
+    }
+
+    .table > thead > tr > th {
+        border-bottom-color: var(--table-border);
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #1f1f1f;
+    }
+
+    .table-hover > tbody > tr:hover {
+        background-color: #2c2c2c;
+    }
+
+    .table-bordered {
+        border-color: var(--table-border);
+    }
+
+    .table-bordered > thead > tr > th,
+    .table-bordered > tbody > tr > th,
+    .table-bordered > tfoot > tr > th,
+    .table-bordered > thead > tr > td,
+    .table-bordered > tbody > tr > td,
+    .table-bordered > tfoot > tr > td {
+        border-color: var(--table-border);
+    }
+
+    .thumbnail {
+        background-color: #202020;
+        border-color: var(--table-border);
+    }
+
+    .thumbnail .caption {
+        color: var(--text-color);
+    }
+
+    .panel {
+        background-color: #202020;
+        border-color: var(--table-border);
+    }
+
+    .panel-default > .panel-heading {
+        background-color: #262626;
+        color: var(--text-color);
+        border-color: var(--table-border);
+    }
+
+    .list-group-item {
+        background-color: #202020;
+        border-color: var(--table-border);
+        color: var(--text-color);
+    }
+
+    .dropdown-menu {
+        background-color: #242424;
+        border-color: var(--table-border);
+    }
+
+    .dropdown-menu > li > a {
+        color: var(--text-color);
+    }
+
+    .dropdown-menu > li > a:hover,
+    .dropdown-menu > li > a:focus {
+        background-color: #303030;
+        color: #ffffff;
+    }
+
+    .dropdown-menu .divider {
+        background-color: var(--table-border);
+    }
+
+    ul.dropdown-menu > li > form > button {
+        color: var(--text-color);
+    }
+
+    ul.dropdown-menu > li > form > button:hover {
+        color: #ffffff;
+        background-color: #303030;
+    }
+
+    .btn-default {
+        background-color: #2b2b2b;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .btn-default:hover,
+    .btn-default:focus,
+    .btn-default:active {
+        background-color: #383838;
+        color: #ffffff;
+        border-color: #777777;
+    }
+
+    .btn-copy {
+        color: var(--link-color);
+    }
+
+    table.form tr td.submitrow {
+        border-bottom-color: var(--table-border);
+        color: var(--text-color);
+    }
+
+    table.bundlelist {
+        border-color: var(--table-border);
+    }
+
+    table.bundlelist th {
+        border-bottom-color: var(--table-border);
+    }
+
+    .selectize-input,
+    .selectize-input.full,
+    .selectize-control.single .selectize-input.input-active {
+        background-color: #242424;
+        border-color: var(--input-border);
+        color: var(--text-color);
+    }
+
+    .selectize-input input {
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown,
+    .selectize-dropdown .optgroup-header {
+        background-color: #242424;
+        border-color: var(--input-border);
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown .option {
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown .active {
+        background-color: #343434;
+        color: #ffffff;
+    }
 }
