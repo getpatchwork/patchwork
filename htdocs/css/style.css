@@ -1,8 +1,140 @@
 :root {
-    --light-color:rgb(247, 247, 247);
-    --success-color:rgb(92, 184, 92);
-    --warning-color:rgb(240, 173, 78);
-    --danger-color:rgb(217, 83, 79);
+    --light-color: rgb(247, 247, 247);
+    --success-color: rgb(92, 184, 92);
+    --warning-color: rgb(240, 173, 78);
+    --danger-color: rgb(217, 83, 79);
+
+    /* Base theme colors */
+    --body-bg: #fff;
+    --text-color: #333;
+    --link-color: #337ab7;
+    --link-hover-color: #23527c;
+    --muted-color: #909090;
+    --pre-bg: #fff;
+    --input-border: #909090;
+
+    /* Message and error containers */
+    --messages-bg: #e0e0f0;
+    --errors-bg: #e0e0f0;
+    --error-text: red;
+
+    /* Filter box and action links */
+    --filter-border: #cccccc;
+    --filter-action-color: black;
+    --col-link-color: black;
+    --col-inactive-hover: red;
+
+    /* Tables & lists */
+    --table-header-bg: white;
+    --drag-hover-bg: #e8e8e8;
+    --paginator-curr-bg: #eee;
+    --paginator-curr-color: #999;
+    --paginator-na-color: #a0a0a0;
+    --table-border: #e8e8e8;
+    --bundle-th-bg: #eeeeee;
+
+    /* Check states & headers */
+    --checks-header-bg: #0A0A47;
+    --checks-header-color: white;
+    --checks-link-visited: #786FB4;
+    --checks-success-bg: #82ca9d;
+    --checks-warning-bg: #ffc95e;
+    --checks-fail-bg: #ff5555;
+    --checks-state-default: #ddd;
+    --checks-state-success: #82ca9d;
+    --checks-state-warning: #ffe59a;
+    --checks-state-fail: #f7977a;
+
+    /* Submission & comments */
+    --submission-meta-bg: #f0f0f0;
+    --quote-color: #365cb5;
+    --acked-color: #2d4566;
+    --signed-off-color: #672d45;
+
+    /* Diff highlighting */
+    --diff-chunk: #329fb0;
+    --diff-add-text: #1b9d09;
+    --diff-add-bg: #edffed;
+    --diff-del-text: #c80101;
+    --diff-del-bg: #ffe2e2;
+    --diff-mod: #a020f0;
+
+    /* Boxes & panel headers */
+    --box-border: #080808;
+    --box-header-bg: #222;
+    --box-header-color: #999;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Render native form controls and scrollbars dark as well */
+        color-scheme: dark;
+
+        --light-color: #242424;
+        --success-color: #5a9e6a;
+        --warning-color: #c69a46;
+        --danger-color: #c9625c;
+
+        /* Base theme colors */
+        --body-bg: #181818;
+        --text-color: #e0e0e0;
+        --link-color: #7ca7d8;
+        --link-hover-color: #a3c2e6;
+        --muted-color: #9e9e9e;
+        --pre-bg: #222222;
+        --input-border: #555555;
+
+        /* Message and error containers */
+        --messages-bg: #282838;
+        --errors-bg: #282838;
+        --error-text: #e07a72;
+
+        /* Filter box and action links */
+        --filter-border: #3c3c3c;
+        --filter-action-color: #e0e0e0;
+        --col-link-color: #e0e0e0;
+        --col-inactive-hover: #e07a72;
+
+        /* Tables & lists */
+        --table-header-bg: #222222;
+        --drag-hover-bg: #303030;
+        --paginator-curr-bg: #303030;
+        --paginator-curr-color: #cccccc;
+        --paginator-na-color: #777777;
+        --table-border: #3c3c3c;
+        --bundle-th-bg: #262626;
+
+        /* Check states & headers */
+        --checks-header-bg: #262b45;
+        --checks-header-color: #e0e0e0;
+        --checks-link-visited: #a89fd6;
+        --checks-success-bg: #36694a;
+        --checks-warning-bg: #7d6224;
+        --checks-fail-bg: #8c3735;
+        --checks-state-default: #888888;
+        --checks-state-success: #6fae82;
+        --checks-state-warning: #c9a85a;
+        --checks-state-fail: #d27a70;
+
+        /* Submission & comments */
+        --submission-meta-bg: #262626;
+        --quote-color: #8aaed8;
+        --acked-color: #8aaed8;
+        --signed-off-color: #d08fb0;
+
+        /* Diff highlighting */
+        --diff-chunk: #56d4dd;
+        --diff-add-text: #7ee787;
+        --diff-add-bg: rgba(46, 160, 67, 0.2);
+        --diff-del-text: #ffa198;
+        --diff-del-bg: rgba(248, 81, 73, 0.2);
+        --diff-mod: #d2a8ff;
+
+        /* Boxes & panel headers */
+        --box-border: #3c3c3c;
+        --box-header-bg: #2c2c2c;
+        --box-header-color: #cccccc;
+    }
 }
 
 h2 {
@@ -18,7 +150,7 @@ h2 a, h2 span {
 
 pre {
     line-height: normal;
-    background-color: white;
+    background-color: var(--pre-bg);
     border-radius: 0;
 }
 
@@ -98,7 +230,7 @@ img {
 }
 
 input {
-    border: thin solid #909090;
+    border: thin solid var(--input-border);
 }
 
 dl dt {
@@ -109,16 +241,16 @@ dl dt {
     padding: 1em;
     font-size: small;
     text-align: center;
-    color: #909090;
+    color: var(--muted-color);
 }
 
 #footer a {
-    color: #909090;
+    color: var(--muted-color);
 }
 
 /* messages */
 .messages {
-    background: #e0e0f0;
+    background: var(--messages-bg);
     margin: 0.5em 1em 0.0em 1em;
     padding: 0.3em;
     list-style-type: none;
@@ -141,7 +273,7 @@ dl dt {
 }
 
 .filters {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--filter-border);
     border-radius: 4px;
     padding: 5px 20px;
     margin: 0 0 15px 0;
@@ -152,23 +284,23 @@ dl dt {
 }
 
 a.filter-action {
-    color: black;
+    color: var(--filter-action-color);
 }
 a.filter-action:hover {
     text-decoration: none;
 }
 
 table.pw-list > thead {
-    background-color: white;
+    background-color: var(--table-header-bg);
 }
 
 a.col-inactive, a.col-active {
-    color: black;
+    color: var(--col-link-color);
     text-decoration: none;
 }
 
 a.col-inactive:hover {
-    color: red;
+    color: var(--col-inactive-hover);
 }
 
 div.filters {
@@ -177,12 +309,12 @@ div.filters {
 /* list order manipulation */
 
 table.patch-list tr.draghover {
-    background: #e8e8e8 !important;
+    background: var(--drag-hover-bg) !important;
 }
 
 .dragging {
     border: thin solid black;
-    background: #e8e8e8 !important;
+    background: var(--drag-hover-bg) !important;
 }
 
 input#reorder-cancel {
@@ -203,7 +335,7 @@ input#reorder-change {
 .paginator .prev-na,
 .paginator .next-na {
     font-weight: normal;
-    color: #a0a0a0;
+    color: var(--paginator-na-color);
 }
 
 .paginator .prev a, .paginator .prev a:visited,
@@ -219,9 +351,9 @@ input#reorder-change {
         padding: 6px 12px;
 }
 .paginator .curr {
-    background-color: #eee;
+    background-color: var(--paginator-curr-bg);
         border-radius: 4px;
-    color: #999;
+    color: var(--paginator-curr-color);
     font-weight:normal;
 }
 
@@ -263,8 +395,8 @@ table.patch-meta tr th, table.patch-meta tr td {
     margin-left: -0.6em;
     margin-right: -0.6em;
     padding: 0.3em 0.3em 0.3em 0.6em;
-    background-color: #0A0A47;
-    color: white;
+    background-color: var(--checks-header-bg);
+    color: var(--checks-header-color);
     font-size: 100%;
     font-weight: normal;
 }
@@ -281,7 +413,7 @@ table.patch-meta tr th, table.patch-meta tr td {
 }
 
 .checks td a:visited {
-    color: #786FB4;
+    color: var(--checks-link-visited);
 }
 
 .checks a:hover {
@@ -297,38 +429,38 @@ table.patch-meta tr th, table.patch-meta tr td {
 }
 
 .patchlistchecks.success {
-    background-color: #82ca9d;
+    background-color: var(--checks-success-bg);
 }
 
 .patchlistchecks.warning {
-    background-color: #ffc95e;
+    background-color: var(--checks-warning-bg);
 }
 
 .patchlistchecks.fail {
-    background-color: #ff5555;
+    background-color: var(--checks-fail-bg);
 }
 
 .checks .state {
     font-weight: bold;
-    color: #ddd;
+    color: var(--checks-state-default);
 }
 
 .checks .state.success {
-    color: #82ca9d;
+    color: var(--checks-state-success);
 }
 
 .checks .state.warning {
-    color: #ffe59a;
+    color: var(--checks-state-warning);
 }
 
 .checks .state.fail {
-    color: #f7977a;
+    color: var(--checks-state-fail);
 }
 
 .submission-message .meta {
     display: flex;
     align-items: center;
-    background: #f0f0f0;
+    background: var(--submission-meta-bg);
     padding: 0.3em 0.5em;
 }
 
@@ -378,28 +510,28 @@ button[class^=comment-action] {
 }
 
 .quote {
-    color: #365cb5;
+    color: var(--quote-color);
 }
 
 span.p_header    { font-weight: bold; }
-span.p_chunk    { color: #329fb0; font-weight: bold; }
+span.p_chunk    { color: var(--diff-chunk); font-weight: bold; }
 span.p_context    { }
-span.p_add    { color: #1b9d09; background-color: #edffed; }
-span.p_del    { color: #c80101; background-color: #ffe2e2; }
-span.p_mod    { color: #a020f0; }
+span.p_add    { color: var(--diff-add-text); background-color: var(--diff-add-bg); }
+span.p_del    { color: var(--diff-del-text); background-color: var(--diff-del-bg); }
+span.p_mod    { color: var(--diff-mod); }
 
 .acked-by {
-    color: #2d4566;
+    color: var(--acked-color);
 
 }
 
 .nacked-by {
-    color: #2d4566;
+    color: var(--acked-color);
 
 }
 
 .signed-off-by {
-    color: #672d45;
+    color: var(--signed-off-color);
     font-weight: bold;
 }
 
@@ -419,7 +551,7 @@ table.bundlelist {
 table.bundlelist th {
     padding-left: 2em;
     padding-right: 2em;
-    background: #eeeeee;
+    background: var(--bundle-th-bg);
     border-bottom: thin solid black;
 }
 
@@ -492,8 +624,8 @@ div.patch-form h3 {
     margin-left: -0.6em;
     margin-right: -0.6em;
     padding: 0.3em 0.3em 0.3em 0.6em;
-    background-color: #222;
-    color: #999;
+    background-color: var(--box-header-bg);
+    color: var(--box-header-color);
     font-size: 100%;
 }
 
@@ -520,8 +652,8 @@ table.form td {
 }
 
 table.form th.headerrow {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     font-weight: bold;
     text-align: center;
 }
@@ -556,7 +688,7 @@ table.loginform {
 
 /* form errors */
 #errors {
-    background: #e0e0f0;
+    background: var(--errors-bg);
     margin: 0em 1em 0.5em 1em;
     padding: 0.3em;
 }
@@ -566,13 +698,13 @@ table.loginform {
 }
 
 .error-list, .errorlist {
-    color: red;
+    color: var(--error-text);
 }
 
 /* generic table with header columns on the left */
 table.horizontal {
     border-collapse: collapse;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 table.horizontal th {
@@ -581,7 +713,7 @@ table.horizontal th {
 
 table.horizontal td, table.horizontal th {
     padding: 0.5em 1em;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 /* generic table with header row */
@@ -601,15 +733,15 @@ table.vertical {
 }
 
 table.vertical th {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     font-weight: bold;
     text-align: center;
 }
 
 table.vertical th, table.vertical td {
     padding: 0.2em 0.8em;
-    border: thin solid #e8e8e8;
+    border: thin solid var(--table-border);
 }
 
 td.numberformat {
@@ -618,14 +750,14 @@ td.numberformat {
 
 /* boxes */
 div.box {
-    border: thin solid #080808;
+    border: thin solid var(--box-border);
     margin: 1em;
     padding: 0.5em;
 }
 
 div.box h2 {
-    background: #222;
-    color: #999;
+    background: var(--box-header-bg);
+    color: var(--box-header-color);
     margin: -0.5em -0.5em 1em; -0.5em;
     padding: 0.3em 0.3em 0.3em 0.6em;
     font-size: 100%;
@@ -645,4 +777,197 @@ div.box table.vertical {
 .rightcol {
     float: right;
     width: 49%;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--body-bg);
+        color: var(--text-color);
+    }
+
+    a {
+        color: var(--link-color);
+    }
+
+    a:hover,
+    a:focus {
+        color: var(--link-hover-color);
+    }
+
+    /* Bootstrap hardcodes a dark gray text color for pre blocks */
+    pre {
+        color: var(--text-color);
+        border-color: var(--table-border);
+    }
+
+    /*
+     * Bootstrap makes form controls inherit the text color, so they need a
+     * dark background too or they end up light-on-light
+     */
+    input,
+    select,
+    textarea,
+    button {
+        background-color: #242424;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .form-control {
+        background-color: #242424;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .table {
+        color: var(--text-color);
+    }
+
+    .table > thead > tr > th,
+    .table > tbody > tr > th,
+    .table > tfoot > tr > th,
+    .table > thead > tr > td,
+    .table > tbody > tr > td,
+    .table > tfoot > tr > td {
+        border-top-color: var(--table-border);
+    }
+
+    .table > thead > tr > th {
+        border-bottom-color: var(--table-border);
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #1f1f1f;
+    }
+
+    .table-hover > tbody > tr:hover {
+        background-color: #2c2c2c;
+    }
+
+    .table-bordered {
+        border-color: var(--table-border);
+    }
+
+    .table-bordered > thead > tr > th,
+    .table-bordered > tbody > tr > th,
+    .table-bordered > tfoot > tr > th,
+    .table-bordered > thead > tr > td,
+    .table-bordered > tbody > tr > td,
+    .table-bordered > tfoot > tr > td {
+        border-color: var(--table-border);
+    }
+
+    .thumbnail {
+        background-color: #202020;
+        border-color: var(--table-border);
+    }
+
+    .thumbnail .caption {
+        color: var(--text-color);
+    }
+
+    .panel {
+        background-color: #202020;
+        border-color: var(--table-border);
+    }
+
+    .panel-default > .panel-heading {
+        background-color: #262626;
+        color: var(--text-color);
+        border-color: var(--table-border);
+    }
+
+    .list-group-item {
+        background-color: #202020;
+        border-color: var(--table-border);
+        color: var(--text-color);
+    }
+
+    .dropdown-menu {
+        background-color: #242424;
+        border-color: var(--table-border);
+    }
+
+    .dropdown-menu > li > a {
+        color: var(--text-color);
+    }
+
+    .dropdown-menu > li > a:hover,
+    .dropdown-menu > li > a:focus {
+        background-color: #303030;
+        color: #ffffff;
+    }
+
+    .dropdown-menu .divider {
+        background-color: var(--table-border);
+    }
+
+    ul.dropdown-menu > li > form > button {
+        color: var(--text-color);
+    }
+
+    ul.dropdown-menu > li > form > button:hover {
+        color: #ffffff;
+        background-color: #303030;
+    }
+
+    .btn-default {
+        background-color: #2b2b2b;
+        color: var(--text-color);
+        border-color: var(--input-border);
+    }
+
+    .btn-default:hover,
+    .btn-default:focus,
+    .btn-default:active {
+        background-color: #383838;
+        color: #ffffff;
+        border-color: #777777;
+    }
+
+    .btn-copy {
+        color: var(--link-color);
+    }
+
+    table.form tr td.submitrow {
+        border-bottom-color: var(--table-border);
+        color: var(--text-color);
+    }
+
+    table.bundlelist {
+        border-color: var(--table-border);
+    }
+
+    table.bundlelist th {
+        border-bottom-color: var(--table-border);
+    }
+
+    .selectize-input,
+    .selectize-input.full,
+    .selectize-control.single .selectize-input.input-active {
+        background-color: #242424;
+        border-color: var(--input-border);
+        color: var(--text-color);
+    }
+
+    .selectize-input input {
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown,
+    .selectize-dropdown .optgroup-header {
+        background-color: #242424;
+        border-color: var(--input-border);
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown .option {
+        color: var(--text-color);
+    }
+
+    .selectize-dropdown .active {
+        background-color: #343434;
+        color: #ffffff;
+    }
 }
