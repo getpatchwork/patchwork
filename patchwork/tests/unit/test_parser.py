@@ -1659,3 +1659,67 @@ class TestParseLabels(TestCase):
         patch = self.create_email('[PATCH,RFC] test subject', self.project2)
         self.cmp_labels(patch, [self.label_rfc_global])
         self.assertEqual(patch.name, 'test subject')
+
+    def test_cover_patch_inheritance(self):
+        cover_msgid = make_msgid()
+        cover_email = create_email(
+            'test cover letter',
+            msgid=cover_msgid,
+            subject='[RFC,label2,0/2] a cover letter',
+            listid=self.project.listid,
+        )
+        _parse_mail(cover_email)
+        cover = Cover.objects.filter(msgid=cover_msgid)[0]
+        self.cmp_labels(cover, [self.label_rfc, self.label2])
+
+        patch1_msgid = make_msgid()
+        patch = self.create_email(
+            '[label,PATCH,1/2] test patch',
+            self.project,
+            in_reply_to=cover_msgid,
+            msgid=patch1_msgid,
+        )
+        self.cmp_labels(patch, [self.label, self.label_rfc, self.label2])
+
+        patch2 = self.create_email(
+            '[PATCH,2/2] test patch',
+            self.project,
+            in_reply_to=patch1_msgid,
+        )
+        self.cmp_labels(patch2, [self.label_rfc, self.label2])
+
+    def test_cover_patch_inheritance_out_of_order(self):
+        cover_msgid = make_msgid()
+
+        patch1_msgid = make_msgid()
+        patch1 = self.create_email(
+            '[label,PATCH,1/2] test patch',
+            self.project,
+            in_reply_to=cover_msgid,
+            msgid=patch1_msgid,
+        )
+        self.cmp_labels(patch1, [self.label])
+
+        patch2 = self.create_email(
+            '[PATCH,2/2] test patch',
+            self.project,
+            in_reply_to=patch1_msgid,
+        )
+        self.cmp_labels(patch2, [])
+
+        cover_email = create_email(
+            'test cover letter',
+            msgid=cover_msgid,
+            subject='[RFC,0/2] a cover letter',
+            listid=self.project.listid,
+        )
+        _parse_mail(cover_email)
+        cover = Cover.objects.get(msgid=cover_msgid)
+
+        self.cmp_labels(cover, [self.label_rfc])
+
+        patch1 = Patch.objects.get(msgid=patch1_msgid)
+        self.cmp_labels(patch1, [self.label, self.label_rfc])
+
+        patch2 = Patch.objects.get(msgid=patch2.msgid)
+        self.cmp_labels(patch2, [self.label_rfc])

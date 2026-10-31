@@ -1120,6 +1120,12 @@ class Series(FilenameMixin, models.Model):
 
         self.save()
 
+        labels = [label.id for label in cover.labels.all()]
+        if len(labels) != 0:
+            for patch in Patch.objects.filter(series=self).all():
+                patch.labels.add(*labels)
+                patch.save()
+
     def add_patch(self, patch, number):
         """Add a patch to the series."""
         # both user defined names and cover letter-based names take precedence
@@ -1129,6 +1135,9 @@ class Series(FilenameMixin, models.Model):
 
         patch.series = self
         patch.number = number
+        if self.cover_letter:
+            labels = [label.id for label in self.cover_letter.labels.all()]
+            patch.labels.add(*labels)
         patch.save()
 
         return patch

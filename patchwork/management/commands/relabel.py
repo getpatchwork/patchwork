@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 from email.parser import HeaderParser
 
-from patchwork.models import Label, Patch
+from patchwork.models import Label, Patch, Cover, Series
 from patchwork.parser import clean_subject
 
 
@@ -17,7 +17,7 @@ def get_labels_per_project():
     global_labels = list(Label.objects.filter(project_id=None).all())
 
     labels_per_project = {}
-    for label in Label.objects.filter(project_id__isnull=True).all():
+    for label in Label.objects.filter(project_id__isnull=False).all():
         labels_list = labels_per_project.get(label.project_id, [])
         labels_list.append(label)
         labels_per_project[label.project_id] = labels_list
@@ -134,8 +134,62 @@ class Command(BaseCommand):
 
         self.flush(Patch)
 
+    def update_covers(self, projects):
+        self.reset()
+
+        query = Cover.objects.all().only('id', 'headers', 'project_id')
+
+        if projects:
+            query = query.filter(project__listid__in=projects)
+
+        count = query.count()
+
+        for i, cover in enumerate(query.iterator(chunk_size=1000)):
+            project_labels = self.labels_per_project.get(
+                cover.project_id, self.global_labels
+            )
+
+            name, cleaned_prefixes = get_name_and_labels(
+                cover.headers, [label.name for label in project_labels]
+            )
+            if name is None or cleaned_prefixes is None:
+                continue
+
+            for label in project_labels:
+                if (
+                    label.name in cleaned_prefixes
+                    and label not in cover.labels.all()
+                ):
+                    self.labels_to_add.append(
+                        Cover.labels.through(
+                            cover_id=cover.id, label_id=label.id
+                        )
+                    )
+                    self.patches_to_update_ids.add(cover.id)
+
+            if cover.name != name:
+                cover.name = name[:255]
+                self.patches_to_update.append(cover)
+
+                series = Series.objects.get(cover_letter=cover)
+                series.name = name[:255]
+                self.series_to_update.append(series)
+
+            if (i % 100) == 0:
+                self.stdout.write('%06d/%06d\r' % (i, count), ending='')
+                self.stdout.flush()
+
+            if len(self.patches_to_update) >= 1000:
+                self.flush(Cover)
+
+        self.flush(Cover)
+
     def handle(self, *args, **options):
         self.labels_per_project, self.global_labels = get_labels_per_project()
+
+        self.stdout.write('\nupdating covers')
+
+        self.update_covers(options['projects'])
 
         self.stdout.write('\nupdating patches')
 

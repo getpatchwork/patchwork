@@ -1477,6 +1477,8 @@ def parse_mail(mail, list_id=None):
                     submitter=author,
                     content=message,
                 )
+                if labels:
+                    cover_letter.labels.set(labels)
 
             logger.debug('Cover letter saved')
 
