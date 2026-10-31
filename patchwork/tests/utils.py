@@ -14,6 +14,7 @@ from patchwork.models import Bundle
 from patchwork.models import Check
 from patchwork.models import Cover
 from patchwork.models import CoverComment
+from patchwork.models import Label
 from patchwork.models import Patch
 from patchwork.models import PatchComment
 from patchwork.models import PatchRelation
@@ -191,11 +192,19 @@ def create_patch(**kwargs):
     }
     values.update(kwargs)
 
+    labels = None
+    if 'labels' in values:
+        labels = values['labels']
+        del values['labels']
+
     patch = Patch.objects.create(**values)
 
     if series:
         number = number or series.patches.count() + 1
         series.add_patch(patch, number)
+
+    if labels is not None:
+        patch.labels.set(labels)
 
     return patch
 
@@ -311,6 +320,20 @@ def create_series_reference(**kwargs):
 def create_relation(**kwargs):
     """Create 'PatchRelation' object."""
     return PatchRelation.objects.create(**kwargs)
+
+
+def create_label(**kwargs):
+    """Create a 'Label' object."""
+    num = Label.objects.count()
+
+    values = {
+        'name': 'label%d' % num if 'name' not in kwargs else kwargs['name'],
+        'project': create_project() if 'project' not in kwargs else None,
+        'color': '#fff',
+    }
+    values.update(**kwargs)
+
+    return Label.objects.create(**values)
 
 
 def _create_submissions(create_func, count=1, **kwargs):

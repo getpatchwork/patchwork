@@ -15,11 +15,14 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils import timezone as tz_utils
+from django.db.models.functions import Lower
+from django.db.models import OuterRef, F, Func
 
-from patchwork.fields import HashField
+from patchwork.fields import HashField, ColorField
 from patchwork.hasher import hash_diff
 
 if settings.ENABLE_REST_API:
@@ -261,6 +264,60 @@ class State(models.Model):
         ordering = ['ordering']
 
 
+class Label(models.Model):
+    """Labels for patches.
+
+    Labels are arbitrary bits of metadata attached to a patch. They can
+    be used to signify priority, category, or other similar information.
+    They can also be used to filter patches and identify the ones most
+    interesting to a given user.
+    """
+
+    project = models.ForeignKey(
+        Project,
+        related_name='labels',
+        related_query_name='label',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text='The project this label is associated with. If unset, this '
+        'label is global to the instance',
+    )
+
+    name = models.CharField(max_length=25, help_text='The label value.')
+    description = models.TextField(
+        null=True,
+        blank=True,
+        help_text='A description of what the label is and when it should be '
+        'applied.',
+    )
+    color = ColorField(help_text='The color code to use in the UI.')
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def get_project_labels(project):
+        result = {}
+        project_labels = Label.objects.filter(
+            models.Q(project=project) | models.Q(project__isnull=True)
+        ).all()
+
+        for label in project_labels:
+            if label.name not in result or label.project is not None:
+                result[label.name] = label
+
+        return list(result.values())
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            UniqueConstraint(
+                'project', Lower('name'), name='uniq_labels_project_id_name'
+            )
+        ]
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     pattern = models.CharField(
@@ -341,6 +398,46 @@ class PatchQuerySet(models.query.QuerySet):
             )
 
         return qs
+
+    def exclude_labels(self, labels):
+        if len(labels) > 0:
+            labels = [label.lower() for label in labels]
+            label_ids = list(
+                Label.objects.annotate(lname=Lower('name'))
+                .filter(lname__in=labels)
+                .values_list('id', flat=True)
+            )
+            labels_sq = (
+                Patch.labels.through.objects.filter(
+                    patch_id=OuterRef('pk'), label_id__in=label_ids
+                )
+                .annotate(label_num=Func(F('label_id'), function='COUNT'))
+                .values('label_num')
+            )
+            self = self.annotate(num_labels=labels_sq).filter(num_labels=0)
+
+        return self
+
+    def include_labels(self, labels):
+        if len(labels) > 0:
+            labels = [label.lower() for label in labels]
+            label_ids = list(
+                Label.objects.annotate(lname=Lower('name'))
+                .filter(lname__in=labels)
+                .values_list('id', flat=True)
+            )
+            labels_sq = (
+                Patch.labels.through.objects.filter(
+                    patch_id=OuterRef('pk'), label_id__in=label_ids
+                )
+                .annotate(label_num=Func(F('label_id'), function='COUNT'))
+                .values('label_num')
+            )
+            self = self.annotate(num_labels=labels_sq).filter(
+                num_labels__gte=len(labels)
+            )
+
+        return self
 
 
 class PatchManager(models.Manager):
@@ -441,6 +538,7 @@ class SubmissionMixin(FilenameMixin, EmailMixin, models.Model):
     # submission metadata
 
     name = models.CharField(max_length=255)
+    labels = models.ManyToManyField(Label)
 
     @cached_property
     def list_archive_url(self):

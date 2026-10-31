@@ -27,3 +27,27 @@ class HashField(models.CharField):
 
     def db_type(self, connection=None):
         return 'char(%d)' % self.n_bytes
+
+
+class ColorField(models.Field):
+    description = 'Hex color code'
+
+    def get_internal_type(self):
+        return 'PositiveIntegerField'
+
+    def to_python(self, value):
+        if isinstance(value, str) or value is None:
+            return value
+        return '#%06x' % value
+
+    def from_db_value(self, value, *args, **kwargs):
+        return self.to_python(value)
+
+    def get_prep_value(self, value):
+        return int(value.lstrip('#'), 16)
+
+    def formfield(self, *args, **kwargs):
+        from patchwork import forms  # noqa
+
+        kwargs['form_class'] = forms.ColorField
+        return super(ColorField, self).formfield(*args, **kwargs)
