@@ -162,6 +162,29 @@ or a cover letter or the web URL to a patch or a series:
 
 __ https://www.kernel.org/doc/html/latest/process/submitting-patches.html
 
+Labels
+~~~~~~
+
+Labels are a way to organize and prioritize submissions. You can apply labels
+to patches and cover letters to signify priority, category, or any other marker
+you wish.
+
+Labels can be either global or tied to the project they are created in. Labels
+can have an optional description attached, which will provide a little insight
+into the purpose of the label. Labels are completely customizable and the
+labels available will vary by instance.
+
+Labels are parsed out of the square brackets of the subject line.
+For example, subject line ``[RFC, main] Add tests`` may cause the patch to be
+labeled with ``RFC`` and ``main``, if such labels were created for the project
+or instance. Labels can be created in the admin panel.
+
+.. note::
+
+    In order to refresh the list of labels for existing patches, for example
+    after updating Patchwork or adding a new label in the admin panel,
+    use the :ref:`command-relabel` management command.
+
 Checks
 ~~~~~~
 

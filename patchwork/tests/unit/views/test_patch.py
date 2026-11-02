@@ -25,6 +25,7 @@ from patchwork.tests.utils import create_person
 from patchwork.tests.utils import create_project
 from patchwork.tests.utils import create_state
 from patchwork.tests.utils import create_user
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import read_patch
 
 
@@ -201,6 +202,147 @@ class PatchListFilteringTest(TestCase):
         response = self.client.get(url + '?submitter=%%E2%%98%%83')
 
         self.assertEqual(response.status_code, 200)
+
+
+class PatchListLabelFilteringTest(TestCase):
+    def setUp(self):
+        self.project = create_project()
+        self.label1 = create_label(project=self.project)
+        self.label2 = create_label(project=self.project)
+        self.label_RFC = create_label(project=self.project, name='RFC')
+        self.label_RFC_global = create_label(project=None, name='RFC')
+        self.global_label = create_label(project=None)
+
+        self.person = create_person(name='test', email='test@example.com')
+
+        self.p_no_labels = self.create_patch([])
+        self.p_label1 = self.create_patch([self.label1])
+        self.p_label1_2 = self.create_patch([self.label1, self.label2])
+        self.p_label1_global = self.create_patch(
+            [self.label1, self.global_label]
+        )
+        self.p_label_rfc = self.create_patch([self.label_RFC])
+        self.p_label_rfc_global = self.create_patch([self.label_RFC_global])
+
+        project2 = create_project()
+        self.p2_no_labels = create_patch(
+            submitter=self.person, project=project2
+        )
+        self.p2_global_label = create_patch(
+            submitter=self.person,
+            project=project2,
+            labels=[self.global_label],
+        )
+
+        # NOTE: does not include project2 patches on purpose
+        self.patches = [
+            self.p_no_labels,
+            self.p_label1,
+            self.p_label1_2,
+            self.p_label1_global,
+            self.p_label_rfc,
+            self.p_label_rfc_global,
+        ]
+
+    def _extract_patch_ids(self, response):
+        """Extract patch identifiers from patch list HTML."""
+        id_re = re.compile(r'<tr id="patch-row:(\d+)"')
+        ids = [
+            int(m.group(1)) for m in id_re.finditer(response.content.decode())
+        ]
+
+        return ids
+
+    def create_patch(self, labels):
+        return create_patch(
+            submitter=self.person, project=self.project, labels=labels
+        )
+
+    def _extract_patches(self, response):
+        """Extract patches from patch list and return Patch models."""
+        ids = self._extract_patch_ids(response)
+        if not ids:
+            return []
+        return [Patch.objects.get(id=i) for i in ids]
+
+    def filter_labels(self, labels, expected):
+        """Test if results contain expected patches when filtered by labels."""
+        url = reverse(
+            'patch-list', kwargs={'project_id': self.project.linkname}
+        )
+        query = '+'.join(labels)
+        response = self.client.get(url + '?labels=' + query)
+
+        patches = self._extract_patches(response)
+        self.assertEqual(len(patches), len(expected))
+        for patch in patches:
+            self.assertIn(patch, expected)
+
+    def test_no_labels(self):
+        """Test if no filter returns all patches."""
+        self.filter_labels([], self.patches)
+
+    def test_one_label(self):
+        self.filter_labels(
+            [self.label1.name],
+            [
+                self.p_label1,
+                self.p_label1_2,
+                self.p_label1_global,
+            ],
+        )
+
+    def test_two_labels(self):
+        self.filter_labels(
+            [self.label1.name, self.label2.name], [self.p_label1_2]
+        )
+
+    def test_global_label(self):
+        """Test filtering by global labels."""
+        self.filter_labels(
+            [self.label1.name, self.global_label.name], [self.p_label1_global]
+        )
+
+    def test_negative_label(self):
+        """Test filtering with a negative term."""
+        self.filter_labels(
+            ['-' + self.label2.name],
+            [
+                self.p_no_labels,
+                self.p_label1,
+                self.p_label1_global,
+                self.p_label_rfc,
+                self.p_label_rfc_global,
+            ],
+        )
+
+    def test_positive_negative_label(self):
+        """Test filtering with positive and negative term."""
+        self.filter_labels(
+            ['-' + self.label2.name, self.label1.name],
+            [
+                self.p_label1,
+                self.p_label1_global,
+            ],
+        )
+
+    def test_mutually_exclusive_labels(self):
+        """Test filtering by same label as negative and positive filter."""
+        self.filter_labels(['-' + self.label1.name, self.label1.name], [])
+
+    def test_label_local_global(self):
+        """Test filtering for patches with different labels, one local and
+        one global (without a project) that have the same name.
+        """
+        self.filter_labels(
+            ['RFC'], [self.p_label_rfc, self.p_label_rfc_global]
+        )
+
+    def test_label_case_insensitive(self):
+        """Test if labels filtering is case-insensitive."""
+        self.filter_labels(
+            ['rfc'], [self.p_label_rfc, self.p_label_rfc_global]
+        )
 
 
 class PatchViewTest(TestCase):

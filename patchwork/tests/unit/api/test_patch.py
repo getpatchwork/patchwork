@@ -13,6 +13,7 @@ from rest_framework import status
 
 from patchwork.models import Patch
 from patchwork.tests.unit.api import utils
+from patchwork.tests.utils import create_label
 from patchwork.tests.utils import create_maintainer
 from patchwork.tests.utils import create_patch
 from patchwork.tests.utils import create_patches
@@ -53,6 +54,11 @@ class TestPatchAPI(utils.APITestCase):
         self.assertIn(patch_obj.get_mbox_url(), patch_json['mbox'])
         self.assertIn(patch_obj.get_absolute_url(), patch_json['web_url'])
         self.assertIn('comments', patch_json)
+
+        # list fields
+
+        for label in patch_obj.labels.all():
+            self.assertIn(label.name, patch_json['labels'])
 
         # nested fields
 
@@ -247,6 +253,94 @@ class TestPatchAPI(utils.APITestCase):
         resp = self.client.get(self.api_url(), {'msgid': 'fishfish@fish.fish'})
         self.assertEqual(0, len(resp.data))
 
+    def test_list_filter_labels(self):
+        """Filter patches by labels."""
+        label1 = create_label()
+        label2 = create_label()
+        label3 = create_label()
+
+        person_obj = create_person(email='test@example.com')
+        project_obj = create_project(linkname='myproject')
+        state_obj = create_state(name='Under Review')
+        patch_kwargs = {
+            'state': state_obj,
+            'project': project_obj,
+            'submitter': person_obj,
+        }
+        patch_no_labels = create_patch(**patch_kwargs)
+        patch1 = create_patch(**patch_kwargs, labels=[label1])
+        patch2 = create_patch(**patch_kwargs, labels=[label1, label2])
+
+        resp = self.client.get(self.api_url(), {'labels': label1.name})
+        self.assertEqual([patch1.id, patch2.id], [x['id'] for x in resp.data])
+
+        resp = self.client.get(self.api_url(), {'labels': label3.name})
+        self.assertEqual(0, len(resp.data))
+
+        resp = self.client.get(self.api_url(), {'labels': '-' + label2.name})
+        self.assertEqual(
+            [patch_no_labels.id, patch1.id], [x['id'] for x in resp.data]
+        )
+
+        resp = self.client.get(
+            self.api_url(), {'labels': label1.name + ',' + label2.name}
+        )
+        self.assertEqual([patch2.id], [x['id'] for x in resp.data])
+
+    def test_list_filter_labels_local_global(self):
+        """Test filtering for patches with different labels, one local and
+        one global (without a project) that have the same name.
+        """
+        project_obj = create_project(linkname='myproject')
+        project_obj2 = create_project(linkname='myproject2')
+
+        label_local = create_label(name='label', project=project_obj)
+        label_local2 = create_label(name='label', project=project_obj2)
+        label_global = create_label(name='label', project=None)
+
+        person_obj = create_person(email='test@example.com')
+        state_obj = create_state(name='Under Review')
+        patch_kwargs = {
+            'state': state_obj,
+            'project': project_obj,
+            'submitter': person_obj,
+        }
+        patch_no_labels = create_patch(**patch_kwargs)
+        patch1 = create_patch(**patch_kwargs, labels=[label_local])
+        patch2 = create_patch(**patch_kwargs, labels=[label_global])
+        patch3 = create_patch(
+            **{'project': project_obj2, **patch_kwargs}, labels=[label_local2]
+        )
+
+        resp = self.client.get(self.api_url(), {'labels': 'label'})
+        self.assertEqual(
+            [patch1.id, patch2.id, patch3.id], [x['id'] for x in resp.data]
+        )
+
+        resp = self.client.get(self.api_url(), {'labels': '-label'})
+        self.assertEqual([patch_no_labels.id], [x['id'] for x in resp.data])
+
+    def test_list_filter_labels_case_insensitive(self):
+        """Test if filtering by label is case-insensitive."""
+        label = create_label(name='RFC')
+
+        person_obj = create_person(email='test@example.com')
+        project_obj = create_project(linkname='myproject')
+        state_obj = create_state(name='Under Review')
+        patch_kwargs = {
+            'state': state_obj,
+            'project': project_obj,
+            'submitter': person_obj,
+        }
+        create_patch(**patch_kwargs)
+        patch1 = create_patch(**patch_kwargs, labels=[label])
+
+        resp = self.client.get(self.api_url(), {'labels': 'RFC'})
+        self.assertEqual([patch1.id], [x['id'] for x in resp.data])
+
+        resp = self.client.get(self.api_url(), {'labels': 'rfc'})
+        self.assertEqual([patch1.id], [x['id'] for x in resp.data])
+
     @utils.store_samples('patch-list-1-0')
     def test_list_version_1_0(self):
         """List patches using API v1.0."""
@@ -257,6 +351,16 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(1, len(resp.data))
         self.assertIn('url', resp.data[0])
         self.assertNotIn('web_url', resp.data[0])
+        self.assertNotIn('labels', resp.data[0])
+
+    def test_list_version_1_1(self):
+        create_patch()
+
+        resp = self.client.get(self.api_url(version='1.1'))
+        self.assertEqual(status.HTTP_200_OK, resp.status_code)
+        self.assertEqual(1, len(resp.data))
+        self.assertIn('web_url', resp.data[0])
+        self.assertNotIn('labels', resp.data[0])
 
     def test_list_bug_335(self):
         """Ensure we retrieve the embedded series project in O(1)."""
@@ -264,7 +368,7 @@ class TestPatchAPI(utils.APITestCase):
         create_patches(5, series=series)
 
         # Count, page IDs, patch rows and the constant-size prefetches.
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             self.client.get(self.api_url())
 
     @utils.store_samples('patch-detail')
@@ -297,6 +401,23 @@ class TestPatchAPI(utils.APITestCase):
         self.assertIn('url', resp.data)
         self.assertNotIn('web_url', resp.data)
         self.assertNotIn('comments', resp.data)
+        self.assertNotIn('labels', resp.data)
+
+    def test_detail_version_1_1(self):
+        patch = create_patch()
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.1'))
+        self.assertIn('url', resp.data)
+        self.assertIn('web_url', resp.data)
+        self.assertIn('comments', resp.data)
+        self.assertNotIn('labels', resp.data)
+
+    def test_detail_version_1_4(self):
+        label = create_label()
+        patch = create_patch(labels=[label])
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.4'))
+        self.assertEqual(resp.data['labels'], [label.name])
 
     def test_detail_non_existent(self):
         """Ensure we get a 404 for a non-existent patch."""
@@ -307,6 +428,15 @@ class TestPatchAPI(utils.APITestCase):
         """Ensure we get a 404 for an invalid patch ID."""
         with self.assertRaises(NoReverseMatch):
             self.client.get(self.api_url('foo'))
+
+    def test_detail_labels(self):
+        patch = create_patch()
+
+        resp = self.client.get(self.api_url(item=patch.id, version='1.4'))
+        self.assertIn('url', resp.data)
+        self.assertIn('web_url', resp.data)
+        self.assertIn('comments', resp.data)
+        self.assertIn('labels', resp.data)
 
     def test_create(self):
         """Ensure creations are rejected."""
@@ -398,6 +528,49 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
+
+    def test_update_labels(self):
+        """Update labels as maintainer."""
+        project = create_project()
+        project2 = create_project()
+        label1 = create_label(name='label', project=project)
+        label2 = create_label(name='label2')
+        label_p2 = create_label(name='label_p2', project=project2)
+        label1_global = create_label(name='label', project=None)
+        patch = create_patch(project=project, labels=[label1_global])
+        user = create_maintainer(project)
+
+        # Test adding labels labels, make sure local labels are prioritized
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(
+            self.api_url(patch.id), {'labels': [label1.name, label2.name]}
+        )
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(
+            sorted(
+                Patch.objects.get(id=patch.id).labels.values_list(
+                    'id', flat=True
+                )
+            ),
+            sorted([label1.id, label2.id]),
+        )
+
+        # Test removing labels
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(self.api_url(patch.id), {'labels': []})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).labels.count(), 0)
+
+        # Make sure labels from other projects cannot be added
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(
+            self.api_url(patch.id), {'labels': [label1.name, label_p2.name]}
+        )
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).labels.count(), 0)
 
     @utils.store_samples('patch-update-error-bad-request')
     def test_update_invalid_state(self):

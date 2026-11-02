@@ -17,6 +17,7 @@ from patchwork.forms import PatchForm
 from patchwork.models import Cover
 from patchwork.models import Patch
 from patchwork.models import Project
+from patchwork.models import Label
 from patchwork.views import generic_list
 from patchwork.views import set_bundle
 from patchwork.views.utils import patch_to_mbox
@@ -67,7 +68,7 @@ def patch_detail(request, project_id, msgid):
     errors = None
 
     if editable:
-        form = PatchForm(instance=patch)
+        form = PatchForm(instance=patch, project=patch.project)
     if request.user.is_authenticated:
         create_bundle_form = CreateBundleForm()
 
@@ -85,7 +86,9 @@ def patch_detail(request, project_id, msgid):
             return HttpResponseForbidden()
 
         elif action == 'update':
-            form = PatchForm(data=request.POST, instance=patch)
+            form = PatchForm(
+                data=request.POST, instance=patch, project=patch.project
+            )
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Patch updated')
@@ -113,6 +116,12 @@ def patch_detail(request, project_id, msgid):
         related_same_project = []
         related_different_project = []
 
+    project_labels = [
+        {"id": label.id, "name": label.name, "description": label.description}
+        for label in Label.get_project_labels(patch.project)
+    ]
+
+    context['project_labels'] = project_labels
     context['comments'] = comments
     context['checks'] = Patch.filter_unique_checks(
         patch.check_set.all().select_related('user'),

@@ -14,6 +14,7 @@ from patchwork.forms import CreateBundleForm
 from patchwork.forms import MultiplePatchForm
 from patchwork.models import Bundle
 from patchwork.models import BundlePatch
+from patchwork.models import Label
 from patchwork.models import Patch
 from patchwork.models import Project
 from patchwork.models import Check
@@ -188,10 +189,16 @@ def generic_list(
     if not filter_settings:
         filter_settings = []
 
+    project_labels = [
+        {"id": label.id, "name": label.name, "description": label.description}
+        for label in Label.get_project_labels(project)
+    ]
+
     filters = Filters(request)
     context = {
         'project': project,
         'projects': Project.objects.all(),
+        'project_labels': project_labels,
         'filters': filters,
     }
 
@@ -333,6 +340,7 @@ def generic_list(
             ),
         )
     )
+    patches = patches.prefetch_related(Prefetch('labels'))
 
     # annotate with tag counts
     patches = patches.with_tag_counts(project)

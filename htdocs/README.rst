@@ -133,6 +133,11 @@ js
 
   Part of Patchwork.
 
+``selectize-plugins.js.``
+  Extra plugins for selectize.
+
+  Part of Patchwork.
+
 ``selectize.min.js``
   Selectize is the hybrid of a ``textbox`` and ``<select>`` box. It's jQuery
   based and it has autocomplete and native-feeling keyboard navigation; useful
@@ -140,4 +145,4 @@ js
 
   :Website: https://selectize.github.io/selectize.js/
   :GitHub: https://github.com/selectize/selectize.js
-  :Version: 0.13.5
+  :Version: 0.15.2

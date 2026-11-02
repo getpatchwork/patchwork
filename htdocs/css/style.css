@@ -471,6 +471,18 @@ select[class^=change-property-], .archive-patch-select, .add-bundle {
     margin: 0px 4px 0px 4px;
 }
 
+.patch-label {
+    margin: 0 .1em;
+}
+
+.labels-field {
+    padding: 4px;
+    margin-right: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
 .patch-form-submit {
     font-weight: bold;
     padding: 4px;
@@ -478,13 +490,6 @@ select[class^=change-property-], .archive-patch-select, .add-bundle {
 
 #patch-form-bundle, #add-to-bundle, #remove-bundle {
     margin-left: 16px;
-}
-
-.create-bundle {
-    padding: 4px;
-    margin-right: 8px;
-    box-sizing: border-box;
-    border-radius: 4px;
 }
 
 div.patch-form h3 {
@@ -504,9 +509,10 @@ div.patch-form ul {
 }
 
 .create-bundle {
-    padding: 4px;
+    padding: 6px 12px;
     margin-right: 8px;
     box-sizing: border-box;
+    border: 1px solid #ccc;
     border-radius: 4px;
 }
 
