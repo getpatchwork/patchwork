@@ -67,27 +67,20 @@ $(document).ready(function() {
     );
 
     let label_options = project_labels.map(l => ({
-        value: l,
-        text: l,
+        value: l.name,
+        text: l.name,
+        description: l.description,
     }));
 
     label_options = label_options.concat(
         project_labels.map(l => ({
-            value: "-" + l,
-            text: "-" + l,
+            value: "-" + l.name,
+            text: "-" + l.name,
+            description: l.description,
         }))
     );
 
-    const labels_selectize = $('#labels_input').selectize({
-        plugins: ['mod_enter_key_submit', 'mod_focus_input_after_select'],
-        maxItems: null,
-        persist: false,
-        hideSelected: true,
-        // Search for options that begin with a minus sign
-        respect_word_boundaries: false,
-        delimiter: ' ',
-        options: label_options,
-    });
+    selectize_labels_input($('#labels_input'), label_options);
 });
 </script>
 

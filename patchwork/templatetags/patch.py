@@ -107,8 +107,8 @@ def patch_labels(patch):
             text_color(label.color),
         )
         output.append(
-            '<span class="label patch-label" style="%s">%s</span>'
-            % (style, escape(label.name))
+            '<span class="label patch-label" style="%s" title="%s">%s</span>'
+            % (style, escape(label.description), escape(label.name))
         )
 
     # Label name is escaped above. Color is formatted in a way that

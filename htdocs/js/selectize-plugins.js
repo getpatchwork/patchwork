@@ -47,3 +47,25 @@ Selectize.define('mod_focus_input_after_select', function (options) {
         prevSelect(e);
     };
 });
+
+function selectize_labels_input(selector, label_options) {
+    selector.selectize({
+        plugins: ['mod_enter_key_submit', 'mod_focus_input_after_select'],
+        maxItems: null,
+        persist: false,
+        hideSelected: true,
+        // Search for options that begin with a minus sign
+        respect_word_boundaries: false,
+        delimiter: ' ',
+        options: label_options,
+        render: {
+            item: function (item, escape) {
+                return '<div><span title="' + escape(item.description) + '">' + escape(item.text) + '</span></div>';
+            },
+            option: function (item, escape) {
+                console.log(item, escape);
+                return '<div class="option" title="' + escape(item.description) + '">' + escape(item.text) + '</div>';
+            },
+        },
+    });
+}

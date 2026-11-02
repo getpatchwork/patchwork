@@ -290,7 +290,8 @@ class Label(models.Model):
         blank=True,
         max_length=1000,
         help_text='A description of what the label is and when it should be '
-        'applied.',
+        'applied. The text will be visible in tooltips of label elements in '
+        'the UI.',
     )
     color = ColorField(help_text='The color code to use in the UI.')
 

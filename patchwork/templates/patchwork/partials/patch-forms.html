@@ -1,16 +1,20 @@
 {% load static %}
 
+{{ project_labels|json_script:"project-labels-data" }}
+
 <script type="text/javascript">
 $(document).ready(function() {
-    $('.labels-field').selectize({
-        plugins: ['mod_focus_input_after_select'],
-        maxItems: null,
-        persist: false,
-        hideSelected: true,
-        // Search for options that begin with a minus sign
-        respect_word_boundaries: false,
-        delimiter: ' ',
-    });
+    const project_labels = JSON.parse(
+        document.getElementById('project-labels-data').textContent
+    );
+
+    let label_options = project_labels.map(l => ({
+        value: l.id,
+        text: l.name,
+        description: l.description,
+    }));
+
+    selectize_labels_input($('.labels-field'), label_options);
 });
 </script>
 

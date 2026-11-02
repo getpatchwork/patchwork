@@ -35,7 +35,8 @@ class Migration(migrations.Migration):
                     models.TextField(
                         blank=True,
                         help_text='A description of what the label is '
-                        'and when it should be applied.',
+                        'and when it should be applied. The text will be '
+                        'visible in tooltips of label elements in the UI.',
                         max_length=1000,
                         null=True,
                     ),

@@ -190,7 +190,7 @@ def generic_list(
         filter_settings = []
 
     project_labels = [
-        label.name
+        {"id": label.id, "name": label.name, "description": label.description}
         for label in Label.get_project_labels(project)
     ]
 
@@ -340,9 +340,7 @@ def generic_list(
             ),
         )
     )
-    patches = patches.prefetch_related(
-        Prefetch('labels', queryset=Label.objects.only('name', 'color')),
-    )
+    patches = patches.prefetch_related(Prefetch('labels'))
 
     # annotate with tag counts
     patches = patches.with_tag_counts(project)
