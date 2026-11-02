@@ -529,6 +529,49 @@ class TestPatchAPI(utils.APITestCase):
         self.assertEqual(Patch.objects.get(id=patch.id).state, state)
         self.assertEqual(Patch.objects.get(id=patch.id).delegate, user)
 
+    def test_update_labels(self):
+        """Update labels as maintainer."""
+        project = create_project()
+        project2 = create_project()
+        label1 = create_label(name='label', project=project)
+        label2 = create_label(name='label2')
+        label_p2 = create_label(name='label_p2', project=project2)
+        label1_global = create_label(name='label', project=None)
+        patch = create_patch(project=project, labels=[label1_global])
+        user = create_maintainer(project)
+
+        # Test adding labels labels, make sure local labels are prioritized
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(
+            self.api_url(patch.id), {'labels': [label1.name, label2.name]}
+        )
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(
+            sorted(
+                Patch.objects.get(id=patch.id).labels.values_list(
+                    'id', flat=True
+                )
+            ),
+            sorted([label1.id, label2.id]),
+        )
+
+        # Test removing labels
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(self.api_url(patch.id), {'labels': []})
+        self.assertEqual(status.HTTP_200_OK, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).labels.count(), 0)
+
+        # Make sure labels from other projects cannot be added
+
+        self.client.authenticate(user=user)
+        resp = self.client.patch(
+            self.api_url(patch.id), {'labels': [label1.name, label_p2.name]}
+        )
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, resp.status_code, resp)
+        self.assertEqual(Patch.objects.get(id=patch.id).labels.count(), 0)
+
     @utils.store_samples('patch-update-error-bad-request')
     def test_update_invalid_state(self):
         """Update patch with invalid fields.

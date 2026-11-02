@@ -2496,6 +2496,13 @@ components:
           items:
             type: integer
 {% endif %}
+{% if version >= (1, 4) %}
+        labels:
+          title: Labels
+          type: array
+          items:
+            type: string
+{% endif %}
     Person:
       type: object
       title: Person
