@@ -1037,7 +1037,7 @@ class SeriesDependencyTestCase(SeriesDependencyBase):
         self.assertEqual(series3.dependents.count(), 0)
 
         # Test that the ordering is correct.
-        d1, d2 = [dep for dep in series3.dependencies.all()]
+        d1, d2 = [dep for dep in series3.dependencies.order_by('pk')]
 
         # First item in the query set should be the first dependency.
         self.assertEqual(d1, series1)
